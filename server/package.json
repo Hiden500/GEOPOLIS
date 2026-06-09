@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "nodemon --exec ts-node src/index.ts"
+    "dev": "tsx watch src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -12,7 +12,8 @@
   "type": "module",
   "dependencies": {
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
