@@ -1,5 +1,5 @@
 export interface WorldState {
-  era: EraType;
+  era: string;
 
   worldTension: number;
 

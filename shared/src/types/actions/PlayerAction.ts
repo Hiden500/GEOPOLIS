@@ -6,7 +6,13 @@ export interface PlayerAction {
 
   type: ActionType;
 
+  regionId: number;
+
   title: string;
 
   description: string;
+
+  parameters?: Record<string, any>;
+
+  createdAt?: string;
 }

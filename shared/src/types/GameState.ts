@@ -15,6 +15,8 @@ export interface GameState {
 
   regions: Region[];
 
+  regionIndex: Map<string, number[]>;
+
   playerActions: PlayerAction[];
 
   eventHistory: Event[];

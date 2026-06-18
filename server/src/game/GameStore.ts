@@ -1,6 +1,11 @@
-import { createGame } from "./CreateGame";
+import { type GameState } from "@shared/types/GameState";
 
-export const game = createGame(
-  "1946",
-  "USSR"
-);
+let currentGame: GameState | null = null;
+
+export function getGame(): GameState | null {
+  return currentGame;
+}
+
+export function setGame(game: GameState): void {
+  currentGame = game;
+}

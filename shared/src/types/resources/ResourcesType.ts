@@ -11,7 +11,7 @@ export const ResourceType = {
   Copper: "copper",
   Aluminum: "aluminum",
   Lithium: "lithium",
-  Gas: "gas"
+  Gas: "gas",
 } as const;
 
 export type ResourceType = (typeof ResourceType)[keyof typeof ResourceType];

@@ -5,10 +5,7 @@ import { advanceTime } from "../time/AdvanceTime";
 export function runTurn(
   game: GameState,
   months: number
-) {
-{
-    simulateMonth(game);
-
-    advanceTime(game, months);
-  }
+): void {
+  simulateMonth(game);
+  advanceTime(game, months);
 }

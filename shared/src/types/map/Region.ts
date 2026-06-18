@@ -4,6 +4,8 @@ export interface Region {
 
   id: number;
 
+  geoJsonId: string;
+
   name: string;
 
   ownerCountryId: string;
@@ -20,7 +22,11 @@ export interface Region {
 
   development: number;
 
+  gdp: number;
+
   resourceProduction: Partial<Record<ResourceType, number>>;
 
   neighboringRegionIds: number[];
+
+  sourceAdm1Codes?: string[];
 }

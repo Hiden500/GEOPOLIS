@@ -4,20 +4,24 @@ import { researchTick } from "./research/ResearchTick";
 import { economyTick } from "./economy/EconomyTick";
 import { populationTick } from "./population/PopulationTick";
 import { militaryTick } from "./military/MilitaryTick";
+import { updateAllRegionsAndAggregate } from "@shared/utils/aggregateCountryData";
 
 export function simulateMonth(
     game: GameState
 ): void {
     for (const country of game.countries) {
 
-        economyTick(country);
+        economyTick(country, game.regions);
 
-        resourceTick(country, game.regions);
+        resourceTick(country, game.regions, game.regionIndex);
 
-        researchTick(country);
+        researchTick(country, game.regions);
 
-        populationTick(country);
+        populationTick(country, game.regions);
 
-        militaryTick(country);
+        militaryTick(country, game.regions);
     }
+
+    // Агрегируем данные от регионов к странам после всех тиков
+    updateAllRegionsAndAggregate(game.countries, game.regions);
 }

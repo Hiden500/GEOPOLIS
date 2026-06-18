@@ -4,6 +4,8 @@ export interface ResearchProject {
 
   id: string;
 
+  technologyId: string;
+
   name: string;
 
   domain: string;

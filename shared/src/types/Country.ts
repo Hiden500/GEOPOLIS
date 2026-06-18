@@ -20,8 +20,6 @@ export interface Country {
 
   population: number;
 
-  regionIds: number[];
-
   economy: EconomyState;
 
   economyType: EconomyType;
