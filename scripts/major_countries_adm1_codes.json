@@ -1,0 +1,3406 @@
+{
+  "ARG": [
+    {
+      "name": "Entre Ríos",
+      "adm1_code": "ARG-1309",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Salta",
+      "adm1_code": "ARG-1303",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Jujuy",
+      "adm1_code": "ARG-1301",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Formosa",
+      "adm1_code": "ARG-1307",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Misiones",
+      "adm1_code": "ARG-1312",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Chaco",
+      "adm1_code": "ARG-1306",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Corrientes",
+      "adm1_code": "ARG-1308",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Catamarca",
+      "adm1_code": "ARG-1300",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "La Rioja",
+      "adm1_code": "ARG-1302",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "San Juan",
+      "adm1_code": "ARG-1273",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Mendoza",
+      "adm1_code": "ARG-1275",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Neuquén",
+      "adm1_code": "ARG-1276",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Chubut",
+      "adm1_code": "ARG-1274",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Río Negro",
+      "adm1_code": "ARG-1297",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Santa Cruz",
+      "adm1_code": "ARG-1271",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Tierra del Fuego",
+      "adm1_code": "ARG-1272",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Buenos Aires",
+      "adm1_code": "ARG-1295",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Ciudad de Buenos Aires",
+      "adm1_code": "ARG-5493",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Santa Fe",
+      "adm1_code": "ARG-1310",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Tucumán",
+      "adm1_code": "ARG-1305",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Santiago del Estero",
+      "adm1_code": "ARG-1304",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "San Luis",
+      "adm1_code": "ARG-1298",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "La Pampa",
+      "adm1_code": "ARG-1296",
+      "iso_a2": "AR"
+    },
+    {
+      "name": "Córdoba",
+      "adm1_code": "ARG-1299",
+      "iso_a2": "AR"
+    }
+  ],
+  "IND": [
+    {
+      "name": "Ladakh",
+      "adm1_code": "IND-20012",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Arunachal Pradesh",
+      "adm1_code": "IND-3299",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Sikkim",
+      "adm1_code": "IND-3259",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "West Bengal",
+      "adm1_code": "IND-3257",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Assam",
+      "adm1_code": "IND-2477",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Uttarakhand",
+      "adm1_code": "IND-3254",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Nagaland",
+      "adm1_code": "IND-2479",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Manipur",
+      "adm1_code": "IND-2478",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Mizoram",
+      "adm1_code": "IND-3300",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Tripura",
+      "adm1_code": "IND-3301",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Meghalaya",
+      "adm1_code": "IND-2489",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Punjab",
+      "adm1_code": "IND-3249",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Rajasthan",
+      "adm1_code": "IND-3250",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Gujarat",
+      "adm1_code": "IND-3264",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Himachal Pradesh",
+      "adm1_code": "IND-2429",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Jammu and Kashmir",
+      "adm1_code": "IND-2431",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Bihar",
+      "adm1_code": "IND-3258",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Uttar Pradesh",
+      "adm1_code": "IND-3253",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Andhra Pradesh",
+      "adm1_code": "IND-2441",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Odisha",
+      "adm1_code": "IND-2444",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Dadra and Nagar Haveli and Daman and Diu",
+      "adm1_code": "IND-2445",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Maharashtra",
+      "adm1_code": "IND-2447",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Goa",
+      "adm1_code": "IND-3265",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Karnataka",
+      "adm1_code": "IND-2446",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Kerala",
+      "adm1_code": "IND-2442",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Puducherry",
+      "adm1_code": "IND-3262",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Tamil Nadu",
+      "adm1_code": "IND-3263",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Lakshadweep",
+      "adm1_code": "IND-2443",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Andaman and Nicobar",
+      "adm1_code": "IND-2474",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Jharkhand",
+      "adm1_code": "IND-3256",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Delhi",
+      "adm1_code": "IND-2428",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Chandigarh",
+      "adm1_code": "IND-2427",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Madhya Pradesh",
+      "adm1_code": "IND-3261",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Chhattisgarh",
+      "adm1_code": "IND-3260",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Haryana",
+      "adm1_code": "IND-2430",
+      "iso_a2": "IN"
+    },
+    {
+      "name": "Telangana",
+      "adm1_code": "IND-20011",
+      "iso_a2": "IN"
+    }
+  ],
+  "CHN": [
+    {
+      "name": "Xinjiang",
+      "adm1_code": "CHN-1756",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Xizang",
+      "adm1_code": "CHN-1662",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Inner Mongol",
+      "adm1_code": "CHN-1838",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Gansu",
+      "adm1_code": "CHN-1150",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Yunnan",
+      "adm1_code": "CHN-1810",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Heilongjiang",
+      "adm1_code": "CHN-1839",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Jilin",
+      "adm1_code": "CHN-1828",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Liaoning",
+      "adm1_code": "CHN-1813",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Guangxi",
+      "adm1_code": "CHN-1152",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Guangdong",
+      "adm1_code": "CHN-1180",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Hainan",
+      "adm1_code": "CHN-1775",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Fujian",
+      "adm1_code": "CHN-1178",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Zhejiang",
+      "adm1_code": "CHN-1820",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Shanghai",
+      "adm1_code": "CHN-1819",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Jiangsu",
+      "adm1_code": "CHN-1818",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Shandong",
+      "adm1_code": "CHN-1814",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Hebei",
+      "adm1_code": "CHN-1811",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Tianjin",
+      "adm1_code": "CHN-1816",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Paracel Islands",
+      "adm1_code": "PFA+00?",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Beijing",
+      "adm1_code": "CHN-1155",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Sichuan",
+      "adm1_code": "CHN-1809",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Chongqing",
+      "adm1_code": "CHN-1154",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Guizhou",
+      "adm1_code": "CHN-1153",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Hunan",
+      "adm1_code": "CHN-1808",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Ningxia",
+      "adm1_code": "CHN-1803",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Shaanxi",
+      "adm1_code": "CHN-1804",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Qinghai",
+      "adm1_code": "CHN-1151",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Shanxi",
+      "adm1_code": "CHN-1805",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Jiangxi",
+      "adm1_code": "CHN-1817",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Henan",
+      "adm1_code": "CHN-1812",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Hubei",
+      "adm1_code": "CHN-1807",
+      "iso_a2": "CN"
+    },
+    {
+      "name": "Anhui",
+      "adm1_code": "CHN-1179",
+      "iso_a2": "CN"
+    }
+  ],
+  "FRA": [
+    {
+      "name": "Guyane française",
+      "adm1_code": "FRA-2000",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Nord",
+      "adm1_code": "FRA-5330",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Ardennes",
+      "adm1_code": "FRA-5268",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Aisne",
+      "adm1_code": "FRA-5263",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Meuse",
+      "adm1_code": "FRA-5326",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Meurthe-et-Moselle",
+      "adm1_code": "FRA-5325",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Moselle",
+      "adm1_code": "FRA-5328",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Alpes-Maritimes",
+      "adm1_code": "FRA-5266",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Alpes-de-Haute-Provence",
+      "adm1_code": "FRA-5265",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Hautes-Alpes",
+      "adm1_code": "FRA-5304",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Savoie",
+      "adm1_code": "FRA-5341",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Savoie",
+      "adm1_code": "FRA-5302",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Pyrénées-Atlantiques",
+      "adm1_code": "FRA-5336",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Garonne",
+      "adm1_code": "FRA-5298",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Hautes-Pyrénées",
+      "adm1_code": "FRA-5305",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Ariège",
+      "adm1_code": "FRA-5269",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Pyrénées-Orientales",
+      "adm1_code": "FRA-5337",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Bas-Rhin",
+      "adm1_code": "FRA-5273",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Rhin",
+      "adm1_code": "FRA-5296",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Territoire de Belfort",
+      "adm1_code": "FRA-5348",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Doubs",
+      "adm1_code": "FRA-5287",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Ain",
+      "adm1_code": "FRA-5262",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Jura",
+      "adm1_code": "FRA-5312",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Var",
+      "adm1_code": "FRA-5351",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Bouches-du-Rhône",
+      "adm1_code": "FRA-5274",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Gard",
+      "adm1_code": "FRA-5293",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Hérault",
+      "adm1_code": "FRA-5307",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Aude",
+      "adm1_code": "FRA-5271",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Landes",
+      "adm1_code": "FRA-5313",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Gironde",
+      "adm1_code": "FRA-5295",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Charente-Maritime",
+      "adm1_code": "FRA-5278",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Vendée",
+      "adm1_code": "FRA-5353",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Loire-Atlantique",
+      "adm1_code": "FRA-5316",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Morbihan",
+      "adm1_code": "FRA-5327",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Finistère",
+      "adm1_code": "FRA-5292",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Côtes-d'Armor",
+      "adm1_code": "FRA-5283",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Ille-et-Vilaine",
+      "adm1_code": "FRA-5308",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Manche",
+      "adm1_code": "FRA-5322",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Calvados",
+      "adm1_code": "FRA-5275",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Eure",
+      "adm1_code": "FRA-5290",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Seine-Maritime",
+      "adm1_code": "FRA-5343",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Somme",
+      "adm1_code": "FRA-5345",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Pas-de-Calais",
+      "adm1_code": "FRA-5334",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Martinique",
+      "adm1_code": "FRA-1442",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Guadeloupe",
+      "adm1_code": "FRA-4603",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "La Réunion",
+      "adm1_code": "FRA-4601",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Mayotte",
+      "adm1_code": "FRA-4602",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Corse",
+      "adm1_code": "FRA-5297",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Corse-du-Sud",
+      "adm1_code": "FRA-5281",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Gers",
+      "adm1_code": "FRA-5294",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Vienne",
+      "adm1_code": "FRA-5303",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Corrèze",
+      "adm1_code": "FRA-5280",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Tarn-et-Garonne",
+      "adm1_code": "FRA-5347",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Tarn",
+      "adm1_code": "FRA-5346",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Isère",
+      "adm1_code": "FRA-5311",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Drôme",
+      "adm1_code": "FRA-5288",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Aveyron",
+      "adm1_code": "FRA-5272",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Lot",
+      "adm1_code": "FRA-5318",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Indre-et-Loire",
+      "adm1_code": "FRA-5310",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Indre",
+      "adm1_code": "FRA-5309",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Loir-et-Cher",
+      "adm1_code": "FRA-5314",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Creuse",
+      "adm1_code": "FRA-5284",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Mayenne",
+      "adm1_code": "FRA-5324",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Sarthe",
+      "adm1_code": "FRA-5340",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Vaucluse",
+      "adm1_code": "FRA-5352",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Marne",
+      "adm1_code": "FRA-5300",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Marne",
+      "adm1_code": "FRA-5323",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Dordogne",
+      "adm1_code": "FRA-5286",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Rhône",
+      "adm1_code": "FRA-5338",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Vosges",
+      "adm1_code": "FRA-5355",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Ardèche",
+      "adm1_code": "FRA-5267",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Loire",
+      "adm1_code": "FRA-5315",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Puy-de-Dôme",
+      "adm1_code": "FRA-5335",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Allier",
+      "adm1_code": "FRA-5264",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Loiret",
+      "adm1_code": "FRA-5317",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Maine-et-Loire",
+      "adm1_code": "FRA-5321",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Aube",
+      "adm1_code": "FRA-5270",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Paris",
+      "adm1_code": "FRA-5333",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Hauts-de-Seine",
+      "adm1_code": "FRA-5306",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Seine-Saint-Denis",
+      "adm1_code": "FRA-5344",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Val-d'Oise",
+      "adm1_code": "FRA-5349",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Yvelines",
+      "adm1_code": "FRA-5357",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Charente",
+      "adm1_code": "FRA-5277",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Cher",
+      "adm1_code": "FRA-5279",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Eure-et-Loir",
+      "adm1_code": "FRA-5291",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Loire",
+      "adm1_code": "FRA-5299",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Cantal",
+      "adm1_code": "FRA-5276",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Lot-et-Garonne",
+      "adm1_code": "FRA-5319",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Lozère",
+      "adm1_code": "FRA-5320",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Nièvre",
+      "adm1_code": "FRA-5329",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Côte-d'Or",
+      "adm1_code": "FRA-5282",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Oise",
+      "adm1_code": "FRA-5331",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Orne",
+      "adm1_code": "FRA-5332",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Haute-Saône",
+      "adm1_code": "FRA-5301",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Saône-et-Loire",
+      "adm1_code": "FRA-5339",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Deux-Sèvres",
+      "adm1_code": "FRA-5285",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Vienne",
+      "adm1_code": "FRA-5354",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Yonne",
+      "adm1_code": "FRA-5356",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Essonne",
+      "adm1_code": "FRA-5289",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Seien-et-Marne",
+      "adm1_code": "FRA-5342",
+      "iso_a2": "FR"
+    },
+    {
+      "name": "Val-de-Marne",
+      "adm1_code": "FRA-5350",
+      "iso_a2": "FR"
+    }
+  ],
+  "BRA": [
+    {
+      "name": "Rio Grande do Sul",
+      "adm1_code": "BRA-612",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Roraima",
+      "adm1_code": "BRA-670",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Pará",
+      "adm1_code": "BRA-594",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Acre",
+      "adm1_code": "BRA-576",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Amapá",
+      "adm1_code": "BRA-681",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Mato Grosso do Sul",
+      "adm1_code": "BRA-600",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Paraná",
+      "adm1_code": "BRA-613",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Santa Catarina",
+      "adm1_code": "BRA-614",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Amazonas",
+      "adm1_code": "BRA-592",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Rondônia",
+      "adm1_code": "BRA-595",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Mato Grosso",
+      "adm1_code": "BRA-602",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Maranhão",
+      "adm1_code": "BRA-593",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Piauí",
+      "adm1_code": "BRA-622",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Ceará",
+      "adm1_code": "BRA-621",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Rio Grande do Norte",
+      "adm1_code": "BRA-628",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Paraíba",
+      "adm1_code": "BRA-626",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Pernambuco",
+      "adm1_code": "BRA-1313",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Alagoas",
+      "adm1_code": "BRA-623",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Sergipe",
+      "adm1_code": "BRA-629",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Bahia",
+      "adm1_code": "BRA-624",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Espírito Santo",
+      "adm1_code": "BRA-625",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Rio de Janeiro",
+      "adm1_code": "BRA-627",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "São Paulo",
+      "adm1_code": "BRA-1311",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Goiás",
+      "adm1_code": "BRA-1294",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Distrito Federal",
+      "adm1_code": "BRA-599",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Minas Gerais",
+      "adm1_code": "BRA-601",
+      "iso_a2": "BR"
+    },
+    {
+      "name": "Tocantins",
+      "adm1_code": "BRA-596",
+      "iso_a2": "BR"
+    }
+  ],
+  "RUS": [
+    {
+      "name": "Gorno-Altay",
+      "adm1_code": "RUS-2400",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Pskov",
+      "adm1_code": "RUS-2335",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Krasnodar",
+      "adm1_code": "RUS-2371",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Karachay-Cherkess",
+      "adm1_code": "RUS-2280",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kabardin-Balkar",
+      "adm1_code": "RUS-2304",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "North Ossetia",
+      "adm1_code": "RUS-2305",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Ingush",
+      "adm1_code": "RUS-2303",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Chechnya",
+      "adm1_code": "RUS-2416",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Dagestan",
+      "adm1_code": "RUS-2417",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Murmansk",
+      "adm1_code": "RUS-2333",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Karelia",
+      "adm1_code": "RUS-2353",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Leningrad",
+      "adm1_code": "RUS-2336",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kaliningrad",
+      "adm1_code": "RUS-2324",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Smolensk",
+      "adm1_code": "RUS-2343",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Bryansk",
+      "adm1_code": "RUS-2342",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kursk",
+      "adm1_code": "RUS-2362",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Belgorod",
+      "adm1_code": "RUS-2370",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Voronezh",
+      "adm1_code": "RUS-2377",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Rostov",
+      "adm1_code": "RUS-2367",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Buryat",
+      "adm1_code": "RUS-2606",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Tuva",
+      "adm1_code": "RUS-2605",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Chita",
+      "adm1_code": "RUS-2610",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Amur",
+      "adm1_code": "RUS-2609",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Yevrey",
+      "adm1_code": "RUS-2613",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Khabarovsk",
+      "adm1_code": "RUS-2614",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Primor'ye",
+      "adm1_code": "RUS-2611",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Tyumen'",
+      "adm1_code": "RUS-2398",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kurgan",
+      "adm1_code": "RUS-2380",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Omsk",
+      "adm1_code": "RUS-2397",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Novosibirsk",
+      "adm1_code": "RUS-2403",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Chelyabinsk",
+      "adm1_code": "RUS-2379",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Altay",
+      "adm1_code": "RUS-2399",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Orenburg",
+      "adm1_code": "RUS-2391",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Saratov",
+      "adm1_code": "RUS-2393",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Astrakhan'",
+      "adm1_code": "RUS-2388",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Volgograd",
+      "adm1_code": "RUS-2369",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Crimea",
+      "adm1_code": "RUS-283",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Maga Buryatdan",
+      "adm1_code": "RUS-2615",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Sakhalin",
+      "adm1_code": "RUS-2616",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Sevastopol",
+      "adm1_code": "RUS-5482",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Chukchi Autonomous Okrug",
+      "adm1_code": "RUS-2321",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Yamal-Nenets",
+      "adm1_code": "RUS-2382",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Nenets",
+      "adm1_code": "RUS-2381",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Sakha (Yakutia)",
+      "adm1_code": "RUS-2612",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "City of St. Petersburg",
+      "adm1_code": "RUS-2337",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Arkhangel'sk",
+      "adm1_code": "RUS-2354",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Krasnoyarsk",
+      "adm1_code": "RUS-2603",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kalmyk",
+      "adm1_code": "RUS-2390",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kamchatka",
+      "adm1_code": "RUS-3468",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "",
+      "adm1_code": "RUS+99?",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Bashkortostan",
+      "adm1_code": "RUS-2378",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Sverdlovsk",
+      "adm1_code": "RUS-2386",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Khanty-Mansiy",
+      "adm1_code": "RUS-2396",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Lipetsk",
+      "adm1_code": "RUS-2363",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Tambov",
+      "adm1_code": "RUS-2375",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Tomsk",
+      "adm1_code": "RUS-2167",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Tatarstan",
+      "adm1_code": "RUS-2394",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Ul'yanovsk",
+      "adm1_code": "RUS-2395",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Penza",
+      "adm1_code": "RUS-2373",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kemerovo",
+      "adm1_code": "RUS-2401",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Orel",
+      "adm1_code": "RUS-2366",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Irkutsk",
+      "adm1_code": "RUS-2602",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Khakass",
+      "adm1_code": "RUS-2402",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Mordovia",
+      "adm1_code": "RUS-2372",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kaluga",
+      "adm1_code": "RUS-2361",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kostroma",
+      "adm1_code": "RUS-2356",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Yaroslavl'",
+      "adm1_code": "RUS-2360",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Vladimir",
+      "adm1_code": "RUS-2376",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Ryazan'",
+      "adm1_code": "RUS-2374",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Ivanovo",
+      "adm1_code": "RUS-2355",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Nizhegorod",
+      "adm1_code": "RUS-2357",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Tula",
+      "adm1_code": "RUS-2368",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Chuvash",
+      "adm1_code": "RUS-2389",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Vologda",
+      "adm1_code": "RUS-2359",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Novgorod",
+      "adm1_code": "RUS-2334",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Tver'",
+      "adm1_code": "RUS-2358",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Moskovskaya",
+      "adm1_code": "RUS-2364",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Moskva",
+      "adm1_code": "RUS-2365",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Mariy-El",
+      "adm1_code": "RUS-2385",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Kirov",
+      "adm1_code": "RUS-2384",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Udmurt",
+      "adm1_code": "RUS-2387",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Komi",
+      "adm1_code": "RUS-2383",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Perm'",
+      "adm1_code": "RUS-3200",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Samara",
+      "adm1_code": "RUS-2392",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Stavropol'",
+      "adm1_code": "RUS-2306",
+      "iso_a2": "RU"
+    },
+    {
+      "name": "Adygey",
+      "adm1_code": "RUS-2279",
+      "iso_a2": "RU"
+    }
+  ],
+  "DEU": [
+    {
+      "name": "Sachsen",
+      "adm1_code": "DEU-1601",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Bayern",
+      "adm1_code": "DEU-1591",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Rheinland-Pfalz",
+      "adm1_code": "DEU-1580",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Saarland",
+      "adm1_code": "DEU-1581",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Schleswig-Holstein",
+      "adm1_code": "DEU-1579",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Niedersachsen",
+      "adm1_code": "DEU-1576",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Nordrhein-Westfalen",
+      "adm1_code": "DEU-1572",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Baden-Württemberg",
+      "adm1_code": "DEU-1573",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Brandenburg",
+      "adm1_code": "DEU-3487",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Mecklenburg-Vorpommern",
+      "adm1_code": "DEU-3488",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Bremen",
+      "adm1_code": "DEU-1575",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Hamburg",
+      "adm1_code": "DEU-1578",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Hessen",
+      "adm1_code": "DEU-1574",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Thüringen",
+      "adm1_code": "DEU-1577",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Sachsen-Anhalt",
+      "adm1_code": "DEU-1600",
+      "iso_a2": "DE"
+    },
+    {
+      "name": "Berlin",
+      "adm1_code": "DEU-1599",
+      "iso_a2": "DE"
+    }
+  ],
+  "GBR": [
+    {
+      "name": "Derry",
+      "adm1_code": "GBR-2083",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Strabane",
+      "adm1_code": "GBR-2135",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Fermanagh",
+      "adm1_code": "GBR-2136",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Dungannon",
+      "adm1_code": "GBR-2089",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Armagh",
+      "adm1_code": "GBR-2085",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Newry and Mourne",
+      "adm1_code": "GBR-2086",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Flintshire",
+      "adm1_code": "GBR-2126",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Cheshire West and Chester",
+      "adm1_code": "GBR-5707",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Wrexham",
+      "adm1_code": "GBR-2127",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Shropshire",
+      "adm1_code": "GBR-2779",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Powys",
+      "adm1_code": "GBR-2111",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Herefordshire",
+      "adm1_code": "GBR-2775",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Monmouthshire",
+      "adm1_code": "GBR-2132",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Gloucestershire",
+      "adm1_code": "GBR-2039",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Scottish Borders",
+      "adm1_code": "GBR-2026",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Northumberland",
+      "adm1_code": "GBR-2034",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Cumbria",
+      "adm1_code": "GBR-2139",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Dumfries and Galloway",
+      "adm1_code": "GBR-2138",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Limavady",
+      "adm1_code": "GBR-2102",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Coleraine",
+      "adm1_code": "GBR-2100",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Moyle",
+      "adm1_code": "GBR-2773",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Larne",
+      "adm1_code": "GBR-2095",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Carrickfergus",
+      "adm1_code": "GBR-2096",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Newtownabbey",
+      "adm1_code": "GBR-2097",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Belfast",
+      "adm1_code": "GBR-2082",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North Down",
+      "adm1_code": "GBR-2098",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Ards",
+      "adm1_code": "GBR-2137",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Down",
+      "adm1_code": "GBR-2099",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Clackmannanshire",
+      "adm1_code": "GBR-2017",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Stirling",
+      "adm1_code": "GBR-2016",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Falkirk",
+      "adm1_code": "GBR-2015",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "West Lothian",
+      "adm1_code": "GBR-2025",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Edinburgh",
+      "adm1_code": "GBR-2023",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Midlothian",
+      "adm1_code": "GBR-2024",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "East Lothian",
+      "adm1_code": "GBR-2022",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North Tyneside",
+      "adm1_code": "GBR-5662",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "South Tyneside",
+      "adm1_code": "GBR-5663",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Sunderland",
+      "adm1_code": "GBR-5664",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Durham",
+      "adm1_code": "GBR-2029",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Hartlepool",
+      "adm1_code": "GBR-2030",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Redcar and Cleveland",
+      "adm1_code": "GBR-2032",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North Yorkshire",
+      "adm1_code": "GBR-2140",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "East Riding of Yorkshire",
+      "adm1_code": "GBR-2124",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Kingston upon Hull",
+      "adm1_code": "GBR-2055",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North Lincolnshire",
+      "adm1_code": "GBR-2057",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North East Lincolnshire",
+      "adm1_code": "GBR-2056",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Lincolnshire",
+      "adm1_code": "GBR-2081",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Norfolk",
+      "adm1_code": "GBR-2319",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Suffolk",
+      "adm1_code": "GBR-2318",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Essex",
+      "adm1_code": "GBR-2317",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Southend-on-Sea",
+      "adm1_code": "GBR-2679",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Thurrock",
+      "adm1_code": "GBR-2676",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Kent",
+      "adm1_code": "GBR-3409",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Medway",
+      "adm1_code": "GBR-2678",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "East Sussex",
+      "adm1_code": "GBR-2677",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Brighton and Hove",
+      "adm1_code": "GBR-2674",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "West Sussex",
+      "adm1_code": "GBR-2748",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Hampshire",
+      "adm1_code": "GBR-2035",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Portsmouth",
+      "adm1_code": "GBR-2759",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Southampton",
+      "adm1_code": "GBR-2036",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Dorset",
+      "adm1_code": "GBR-2051",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bournemouth",
+      "adm1_code": "GBR-2050",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Poole",
+      "adm1_code": "GBR-2052",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Devon",
+      "adm1_code": "GBR-2048",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Torbay",
+      "adm1_code": "GBR-2142",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Plymouth",
+      "adm1_code": "GBR-2141",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Cornwall",
+      "adm1_code": "GBR-2110",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Somerset",
+      "adm1_code": "GBR-2047",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North Somerset",
+      "adm1_code": "GBR-2045",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bristol",
+      "adm1_code": "GBR-2044",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "South Gloucestershire",
+      "adm1_code": "GBR-2046",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Newport",
+      "adm1_code": "GBR-2133",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Cardiff",
+      "adm1_code": "GBR-2116",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Vale of Glamorgan",
+      "adm1_code": "GBR-2117",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bridgend",
+      "adm1_code": "GBR-2112",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Neath Port Talbot",
+      "adm1_code": "GBR-2118",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Swansea",
+      "adm1_code": "GBR-2119",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Carmarthenshire",
+      "adm1_code": "GBR-2104",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Pembrokeshire",
+      "adm1_code": "GBR-2106",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Ceredigion",
+      "adm1_code": "GBR-2105",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Gwynedd",
+      "adm1_code": "GBR-2130",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Conwy",
+      "adm1_code": "GBR-2129",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Denbighshire",
+      "adm1_code": "GBR-2125",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Halton",
+      "adm1_code": "GBR-2108",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Halton",
+      "adm1_code": "GBR-5708",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Knowsley",
+      "adm1_code": "GBR-5666",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Liverpool",
+      "adm1_code": "GBR-5668",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Sefton",
+      "adm1_code": "GBR-5667",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Lancashire",
+      "adm1_code": "GBR-2123",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Blackpool",
+      "adm1_code": "GBR-5670",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "South Ayrshire",
+      "adm1_code": "GBR-2009",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North Ayshire",
+      "adm1_code": "GBR-2006",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Inverclyde",
+      "adm1_code": "GBR-2005",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Renfrewshire",
+      "adm1_code": "GBR-2008",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "West Dunbartonshire",
+      "adm1_code": "GBR-2011",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Argyll and Bute",
+      "adm1_code": "GBR-2746",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Highland",
+      "adm1_code": "GBR-2745",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Moray",
+      "adm1_code": "GBR-2014",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Aberdeenshire",
+      "adm1_code": "GBR-2013",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Aberdeen",
+      "adm1_code": "GBR-2012",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Angus",
+      "adm1_code": "GBR-2019",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Dundee",
+      "adm1_code": "GBR-2020",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Perthshire and Kinross",
+      "adm1_code": "GBR-2018",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Fife",
+      "adm1_code": "GBR-2021",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Isle of Wight",
+      "adm1_code": "GBR-2758",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Anglesey",
+      "adm1_code": "GBR-2128",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Eilean Siar",
+      "adm1_code": "GBR-2772",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Orkney",
+      "adm1_code": "GBR-2744",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Shetland Islands",
+      "adm1_code": "GBR-2747",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Isles of Scilly",
+      "adm1_code": "GBR-5988",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Caerphilly",
+      "adm1_code": "GBR-2113",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Rhondda, Cynon, Taff",
+      "adm1_code": "GBR-2115",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Blaenau Gwent",
+      "adm1_code": "GBR-2131",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Torfaen",
+      "adm1_code": "GBR-2134",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Merthyr Tydfil",
+      "adm1_code": "GBR-2114",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "North Lanarkshire",
+      "adm1_code": "GBR-2007",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "East Dunbartonshire",
+      "adm1_code": "GBR-2002",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Glasgow",
+      "adm1_code": "GBR-2004",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "East Renfrewshire",
+      "adm1_code": "GBR-2003",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "East Ayrshire",
+      "adm1_code": "GBR-2001",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "South Lanarkshire",
+      "adm1_code": "GBR-2010",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Magherafelt",
+      "adm1_code": "GBR-2093",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Omagh",
+      "adm1_code": "GBR-2084",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Mid Ulster",
+      "adm1_code": "GBR-2091",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Craigavon",
+      "adm1_code": "GBR-2088",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Banbridge",
+      "adm1_code": "GBR-2087",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Antrim",
+      "adm1_code": "GBR-2092",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Lisburn",
+      "adm1_code": "GBR-2090",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Ballymoney",
+      "adm1_code": "GBR-2101",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Ballymena",
+      "adm1_code": "GBR-2094",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Castlereagh",
+      "adm1_code": "GBR-2103",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Wandsworth",
+      "adm1_code": "GBR-2079",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Merton",
+      "adm1_code": "GBR-2073",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Westminster",
+      "adm1_code": "GBR-2080",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Kensington and Chelsea",
+      "adm1_code": "GBR-2072",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Hounslow",
+      "adm1_code": "GBR-2070",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Ealing",
+      "adm1_code": "GBR-2066",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Hammersmith and Fulham",
+      "adm1_code": "GBR-2069",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Stockton-on-Tees",
+      "adm1_code": "GBR-2033",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Darlington",
+      "adm1_code": "GBR-2028",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Middlesbrough",
+      "adm1_code": "GBR-2031",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Richmond upon Thames",
+      "adm1_code": "GBR-2075",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "City",
+      "adm1_code": "GBR-4809",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Tower Hamlets",
+      "adm1_code": "GBR-2077",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Gateshead",
+      "adm1_code": "GBR-5665",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Newcastle upon Tyne",
+      "adm1_code": "GBR-5661",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "York",
+      "adm1_code": "GBR-2120",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Merseyside",
+      "adm1_code": "GBR-5669",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Enfield",
+      "adm1_code": "GBR-2067",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Hertfordshire",
+      "adm1_code": "GBR-2042",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Barnet",
+      "adm1_code": "GBR-5705",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Waltham Forest",
+      "adm1_code": "GBR-2078",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Redbridge",
+      "adm1_code": "GBR-2074",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Havering",
+      "adm1_code": "GBR-2675",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Cambridgeshire",
+      "adm1_code": "GBR-2053",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bexley",
+      "adm1_code": "GBR-2061",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Sutton",
+      "adm1_code": "GBR-2076",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Milton Keynes",
+      "adm1_code": "GBR-2038",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Buckinghamshire",
+      "adm1_code": "GBR-2040",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Hillingdon",
+      "adm1_code": "GBR-2753",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Brent",
+      "adm1_code": "GBR-2062",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Luton",
+      "adm1_code": "GBR-2752",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Harrow",
+      "adm1_code": "GBR-2767",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Central Bedfordshire",
+      "adm1_code": "GBR-5697",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bedford",
+      "adm1_code": "GBR-5698",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Rutland",
+      "adm1_code": "GBR-2762",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Nottinghamshire",
+      "adm1_code": "GBR-2764",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Northamptonshire",
+      "adm1_code": "GBR-2749",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Camden",
+      "adm1_code": "GBR-2064",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Islington",
+      "adm1_code": "GBR-2071",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Peterborough",
+      "adm1_code": "GBR-2760",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Lambeth",
+      "adm1_code": "GBR-2768",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Southwark",
+      "adm1_code": "GBR-2771",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Doncaster",
+      "adm1_code": "GBR-5689",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Croydon",
+      "adm1_code": "GBR-2065",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Lewisham",
+      "adm1_code": "GBR-2769",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Haringey",
+      "adm1_code": "GBR-2766",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Kingston upon Thames",
+      "adm1_code": "GBR-2754",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Newham",
+      "adm1_code": "GBR-2770",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Greenwich",
+      "adm1_code": "GBR-2068",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Hackney",
+      "adm1_code": "GBR-2765",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Barking and Dagenham",
+      "adm1_code": "GBR-2060",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Leicestershire",
+      "adm1_code": "GBR-2054",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Cheshire East",
+      "adm1_code": "GBR-5706",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Derbyshire",
+      "adm1_code": "GBR-2059",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Rotherham",
+      "adm1_code": "GBR-5686",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Sheffield",
+      "adm1_code": "GBR-5687",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Stoke-on-Trent",
+      "adm1_code": "GBR-2778",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Telford and Wrekin",
+      "adm1_code": "GBR-2121",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Staffordshire",
+      "adm1_code": "GBR-2777",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bromley",
+      "adm1_code": "GBR-2063",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Worcestershire",
+      "adm1_code": "GBR-2776",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Warwickshire",
+      "adm1_code": "GBR-2750",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Oxfordshire",
+      "adm1_code": "GBR-2751",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Wigan",
+      "adm1_code": "GBR-5677",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Stockport",
+      "adm1_code": "GBR-5683",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Warrington",
+      "adm1_code": "GBR-2774",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "West Berkshire",
+      "adm1_code": "GBR-5700",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Wokingham",
+      "adm1_code": "GBR-5701",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bracknell Forest",
+      "adm1_code": "GBR-5702",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Royal Borough of Windsor and Maidenhead",
+      "adm1_code": "GBR-5703",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Slough",
+      "adm1_code": "GBR-5704",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Reading",
+      "adm1_code": "GBR-5699",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Surrey",
+      "adm1_code": "GBR-2755",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Blackburn with Darwen",
+      "adm1_code": "GBR-2122",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Swindon",
+      "adm1_code": "GBR-2756",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bath and North East Somerset",
+      "adm1_code": "GBR-2043",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Wiltshire",
+      "adm1_code": "GBR-2757",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Calderdale",
+      "adm1_code": "GBR-5672",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Kirklees",
+      "adm1_code": "GBR-5671",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Nottingham",
+      "adm1_code": "GBR-2763",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Leicester",
+      "adm1_code": "GBR-2761",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Derby",
+      "adm1_code": "GBR-2058",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Leeds",
+      "adm1_code": "GBR-5674",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bradford",
+      "adm1_code": "GBR-5673",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Wakefield",
+      "adm1_code": "GBR-5675",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Barnsley",
+      "adm1_code": "GBR-5688",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Salford",
+      "adm1_code": "GBR-5676",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bolton",
+      "adm1_code": "GBR-5678",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Trafford",
+      "adm1_code": "GBR-5685",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Manchester",
+      "adm1_code": "GBR-5684",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Oldham",
+      "adm1_code": "GBR-5681",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Rochdale",
+      "adm1_code": "GBR-5680",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Tameside",
+      "adm1_code": "GBR-5682",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Bury",
+      "adm1_code": "GBR-5679",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Solihull",
+      "adm1_code": "GBR-5695",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Coventry",
+      "adm1_code": "GBR-5696",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Birmingham",
+      "adm1_code": "GBR-5690",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Sandwell",
+      "adm1_code": "GBR-5691",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Dudley",
+      "adm1_code": "GBR-5692",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Walsall",
+      "adm1_code": "GBR-5694",
+      "iso_a2": "GB"
+    },
+    {
+      "name": "Wolverhampton",
+      "adm1_code": "GBR-5693",
+      "iso_a2": "GB"
+    }
+  ],
+  "USA": [
+    {
+      "name": "Washington",
+      "adm1_code": "USA-3519",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Idaho",
+      "adm1_code": "USA-3518",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Montana",
+      "adm1_code": "USA-3515",
+      "iso_a2": "US"
+    },
+    {
+      "name": "North Dakota",
+      "adm1_code": "USA-3516",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Minnesota",
+      "adm1_code": "USA-3514",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Michigan",
+      "adm1_code": "USA-3562",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Ohio",
+      "adm1_code": "USA-3550",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Pennsylvania",
+      "adm1_code": "USA-3560",
+      "iso_a2": "US"
+    },
+    {
+      "name": "New York",
+      "adm1_code": "USA-3559",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Vermont",
+      "adm1_code": "USA-3540",
+      "iso_a2": "US"
+    },
+    {
+      "name": "New Hampshire",
+      "adm1_code": "USA-3538",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Maine",
+      "adm1_code": "USA-3561",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Arizona",
+      "adm1_code": "USA-3520",
+      "iso_a2": "US"
+    },
+    {
+      "name": "California",
+      "adm1_code": "USA-3521",
+      "iso_a2": "US"
+    },
+    {
+      "name": "New Mexico",
+      "adm1_code": "USA-3524",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Texas",
+      "adm1_code": "USA-3536",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Alaska",
+      "adm1_code": "USA-3563",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Louisiana",
+      "adm1_code": "USA-3535",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Mississippi",
+      "adm1_code": "USA-3544",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Alabama",
+      "adm1_code": "USA-3541",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Florida",
+      "adm1_code": "USA-3542",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Georgia",
+      "adm1_code": "USA-3543",
+      "iso_a2": "US"
+    },
+    {
+      "name": "South Carolina",
+      "adm1_code": "USA-3545",
+      "iso_a2": "US"
+    },
+    {
+      "name": "North Carolina",
+      "adm1_code": "USA-3549",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Virginia",
+      "adm1_code": "USA-3552",
+      "iso_a2": "US"
+    },
+    {
+      "name": "District of Columbia",
+      "adm1_code": "USA-3556",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Maryland",
+      "adm1_code": "USA-3557",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Delaware",
+      "adm1_code": "USA-3555",
+      "iso_a2": "US"
+    },
+    {
+      "name": "New Jersey",
+      "adm1_code": "USA-3558",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Connecticut",
+      "adm1_code": "USA-3537",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Rhode Island",
+      "adm1_code": "USA-3539",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Massachusetts",
+      "adm1_code": "USA-3513",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Oregon",
+      "adm1_code": "USA-3525",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Hawaii",
+      "adm1_code": "USA-3517",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Utah",
+      "adm1_code": "USA-3526",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Wyoming",
+      "adm1_code": "USA-3527",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Nevada",
+      "adm1_code": "USA-3523",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Colorado",
+      "adm1_code": "USA-3522",
+      "iso_a2": "US"
+    },
+    {
+      "name": "South Dakota",
+      "adm1_code": "USA-3534",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Nebraska",
+      "adm1_code": "USA-3532",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Kansas",
+      "adm1_code": "USA-3530",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Oklahoma",
+      "adm1_code": "USA-3533",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Iowa",
+      "adm1_code": "USA-3529",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Missouri",
+      "adm1_code": "USA-3531",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Wisconsin",
+      "adm1_code": "USA-3553",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Illinois",
+      "adm1_code": "USA-3546",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Kentucky",
+      "adm1_code": "USA-3548",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Arkansas",
+      "adm1_code": "USA-3528",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Tennessee",
+      "adm1_code": "USA-3551",
+      "iso_a2": "US"
+    },
+    {
+      "name": "West Virginia",
+      "adm1_code": "USA-3554",
+      "iso_a2": "US"
+    },
+    {
+      "name": "Indiana",
+      "adm1_code": "USA-3547",
+      "iso_a2": "US"
+    }
+  ],
+  "CAN": [
+    {
+      "name": "British Columbia",
+      "adm1_code": "CAN-633",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Alberta",
+      "adm1_code": "CAN-632",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Saskatchewan",
+      "adm1_code": "CAN-631",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Manitoba",
+      "adm1_code": "CAN-630",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Ontario",
+      "adm1_code": "CAN-682",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Québec",
+      "adm1_code": "CAN-683",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "New Brunswick",
+      "adm1_code": "CAN-684",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Yukon",
+      "adm1_code": "CAN-636",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Nunavut",
+      "adm1_code": "CAN-634",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Newfoundland and Labrador",
+      "adm1_code": "CAN-686",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Nova Scotia",
+      "adm1_code": "CAN-685",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Northwest Territories",
+      "adm1_code": "CAN-635",
+      "iso_a2": "CA"
+    },
+    {
+      "name": "Prince Edward Island",
+      "adm1_code": "CAN-687",
+      "iso_a2": "CA"
+    }
+  ],
+  "AUS": [
+    {
+      "name": "Western Australia",
+      "adm1_code": "AUS-2651",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Northern Territory",
+      "adm1_code": "AUS-2650",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "South Australia",
+      "adm1_code": "AUS-2655",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Queensland",
+      "adm1_code": "AUS-2657",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "New South Wales",
+      "adm1_code": "AUS-2654",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Jervis Bay Territory",
+      "adm1_code": "AUS-1932",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Victoria",
+      "adm1_code": "AUS-2656",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Tasmania",
+      "adm1_code": "AUS-2660",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Macquarie Island",
+      "adm1_code": "AUS+00?",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Lord Howe Island",
+      "adm1_code": "AUS-2659",
+      "iso_a2": "AU"
+    },
+    {
+      "name": "Australian Capital Territory",
+      "adm1_code": "AUS-2653",
+      "iso_a2": "AU"
+    }
+  ],
+  "JPN": [
+    {
+      "name": "Kagoshima",
+      "adm1_code": "JPN-3501",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Ōita",
+      "adm1_code": "JPN-1835",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Fukuoka",
+      "adm1_code": "JPN-1829",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Saga",
+      "adm1_code": "JPN-1827",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Nagasaki",
+      "adm1_code": "JPN-3500",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Kumamoto",
+      "adm1_code": "JPN-1830",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Miyazaki",
+      "adm1_code": "JPN-1831",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Tokushima",
+      "adm1_code": "JPN-1836",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Kagawa",
+      "adm1_code": "JPN-1833",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Ehime",
+      "adm1_code": "JPN-1832",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Kōchi",
+      "adm1_code": "JPN-1834",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Shimane",
+      "adm1_code": "JPN-1824",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Yamaguchi",
+      "adm1_code": "JPN-1826",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Tottori",
+      "adm1_code": "JPN-1825",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Hyōgo",
+      "adm1_code": "JPN-1849",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Kyōto",
+      "adm1_code": "JPN-1850",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Fukui",
+      "adm1_code": "JPN-1848",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Ishikawa",
+      "adm1_code": "JPN-1842",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Toyama",
+      "adm1_code": "JPN-1846",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Niigata",
+      "adm1_code": "JPN-1867",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Yamagata",
+      "adm1_code": "JPN-1868",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Akita",
+      "adm1_code": "JPN-1862",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Aomori",
+      "adm1_code": "JPN-1863",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Iwate",
+      "adm1_code": "JPN-1865",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Miyagi",
+      "adm1_code": "JPN-1866",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Fukushima",
+      "adm1_code": "JPN-1864",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Ibaraki",
+      "adm1_code": "JPN-1856",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Chiba",
+      "adm1_code": "JPN-1855",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Tokyo",
+      "adm1_code": "JPN-1860",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Kanagawa",
+      "adm1_code": "JPN-1857",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Shizuoka",
+      "adm1_code": "JPN-1845",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Aichi",
+      "adm1_code": "JPN-1840",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Mie",
+      "adm1_code": "JPN-1843",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Wakayama",
+      "adm1_code": "JPN-1854",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Ōsaka",
+      "adm1_code": "JPN-1852",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Okayama",
+      "adm1_code": "JPN-1822",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Hiroshima",
+      "adm1_code": "JPN-1821",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Hokkaidō",
+      "adm1_code": "JPN-1847",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Okinawa",
+      "adm1_code": "JPN-3502",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Gunma",
+      "adm1_code": "JPN-3503",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Nagano",
+      "adm1_code": "JPN-1844",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Tochigi",
+      "adm1_code": "JPN-1859",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Gifu",
+      "adm1_code": "JPN-1841",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Shiga",
+      "adm1_code": "JPN-1853",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Saitama",
+      "adm1_code": "JPN-1858",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Yamanashi",
+      "adm1_code": "JPN-1861",
+      "iso_a2": "JP"
+    },
+    {
+      "name": "Nara",
+      "adm1_code": "JPN-1851",
+      "iso_a2": "JP"
+    }
+  ]
+}

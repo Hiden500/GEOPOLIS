@@ -1,0 +1,55 @@
+{
+  "continents": {
+    "Europe": {
+      "countries": [
+        "ALB", "AND", "AUT", "BEL", "BGR", "BLR", "BIH", "CHE", "CYP", "CZE",
+        "DEU", "DNK", "ESP", "EST", "FIN", "FRA", "GBR", "GRC", "HRV", "HUN",
+        "IRL", "ISL", "ITA", "LTU", "LUX", "LVA", "MDA", "MKD", "MLT", "MNE",
+        "NLD", "NOR", "POL", "PRT", "ROU", "RUS", "SRB", "SVK", "SVN", "SWE",
+        "UKR", "VAT"
+      ],
+      "targetRegions": 600
+    },
+    "Asia": {
+      "countries": [
+        "AFG", "ARM", "AZE", "BGD", "BHR", "BRN", "BTN", "CHN", "GEO", "IND",
+        "IDN", "IRN", "IRQ", "ISR", "JOR", "JPN", "KAZ", "KGZ", "KHM", "KOR",
+        "KWT", "LAO", "LBN", "LKA", "MYS", "MMR", "MNG", "NPL", "OMN", "PAK",
+        "PHL", "PRK", "QAT", "SAU", "SGP", "SYR", "THA", "TJK", "TLS", "TUR",
+        "TKM", "UAE", "UZB", "VNM", "YEM"
+      ],
+      "targetRegions": 600
+    },
+    "NorthAmerica": {
+      "countries": [
+        "ABW", "ATG", "BHS", "BLZ", "CAN", "CRI", "CUB", "DMA", "DOM", "GRD",
+        "GTM", "HND", "HTI", "JAM", "MEX", "NIC", "PAN", "SLV", "TTO", "USA"
+      ],
+      "targetRegions": 350
+    },
+    "SouthAmerica": {
+      "countries": [
+        "ARG", "BOL", "BRA", "CHL", "COL", "ECU", "GUY", "PER", "PRY", "SUR",
+        "URY", "VEN"
+      ],
+      "targetRegions": 250
+    },
+    "Africa": {
+      "countries": [
+        "AGO", "BEN", "BFA", "BWA", "CAF", "CMR", "COD", "COG", "CIV", "DJI",
+        "EGY", "ERI", "ETH", "GAB", "GHA", "GIN", "GNB", "GNQ", "KEN", "LBR",
+        "LSO", "MAR", "MDG", "MLI", "MOZ", "MRT", "MUS", "MWI", "NAM", "NER",
+        "NGA", "RWA", "SDN", "SEN", "SLE", "SOM", "SSD", "STP", "SWZ", "TCD",
+        "TGO", "TUN", "TZA", "UGA", "ZAF", "ZMB", "ZWE"
+      ],
+      "targetRegions": 400
+    },
+    "Oceania": {
+      "countries": [
+        "AUS", "FJI", "KIR", "MHL", "FSM", "NRU", "NZL", "PLW", "PNG", "SLB",
+        "TON", "TUV", "VUT", "WSM"
+      ],
+      "targetRegions": 150
+    }
+  }
+}

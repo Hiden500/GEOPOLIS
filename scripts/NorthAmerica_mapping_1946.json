@@ -1,0 +1,1113 @@
+{
+  "CRI": {
+    "targetRegions": 3,
+    "mapping": {
+      "Region_1": [
+        "CRI-1333"
+      ],
+      "Region_2": [
+        "CRI-1334"
+      ],
+      "Region_3": [
+        "CRI-1329"
+      ],
+      "Region_4": [
+        "CRI-1330"
+      ],
+      "Region_5": [
+        "CRI-1328"
+      ],
+      "Region_6": [
+        "CRI-1331"
+      ],
+      "Region_7": [
+        "CRI-1327"
+      ]
+    }
+  },
+  "NIC": {
+    "targetRegions": 6,
+    "mapping": {
+      "Region_1": [
+        "NIC-4800"
+      ],
+      "Region_2": [
+        "NIC-657"
+      ],
+      "Region_3": [
+        "NIC-656"
+      ],
+      "Region_4": [
+        "NIC-667"
+      ],
+      "Region_5": [
+        "NIC-663"
+      ],
+      "Region_6": [
+        "NIC-665"
+      ],
+      "Region_7": [
+        "NIC-24"
+      ],
+      "Region_8": [
+        "NIC-644"
+      ],
+      "Region_9": [
+        "NIC-658"
+      ],
+      "Region_10": [
+        "NIC-659"
+      ],
+      "Region_11": [
+        "NIC-654"
+      ],
+      "Region_12": [
+        "NIC-666"
+      ],
+      "Region_13": [
+        "NIC-668"
+      ],
+      "Region_14": [
+        "NIC-669"
+      ],
+      "Region_15": [
+        "NIC-664"
+      ],
+      "Region_16": [
+        "NIC-655"
+      ],
+      "Region_17": [
+        "NIC-660"
+      ]
+    }
+  },
+  "HTI": {
+    "targetRegions": 6,
+    "mapping": {
+      "Region_1": [
+        "HTI-1386"
+      ],
+      "Region_2": [
+        "HTI-1385"
+      ],
+      "Region_3": [
+        "HTI-1388"
+      ],
+      "Region_4": [
+        "HTI-1389"
+      ],
+      "Region_5": [
+        "HTI-1362"
+      ],
+      "Region_6": [
+        "HTI-1359"
+      ],
+      "Region_7": [
+        "HTI-1361"
+      ],
+      "Region_8": [
+        "HTI-1387"
+      ],
+      "Region_9": [
+        "HTI-1384"
+      ],
+      "Region_10": [
+        "HTI-1360"
+      ]
+    }
+  },
+  "DOM": {
+    "targetRegions": 8,
+    "mapping": {
+      "Region_1": [
+        "DOM-1964"
+      ],
+      "Region_2": [
+        "DOM-1966"
+      ],
+      "Region_3": [
+        "DOM-1972"
+      ],
+      "Region_4": [
+        "DOM-1971"
+      ],
+      "Region_5": [
+        "DOM-1973"
+      ],
+      "Region_6": [
+        "DOM-1987"
+      ],
+      "Region_7": [
+        "DOM-1986"
+      ],
+      "Region_8": [
+        "DOM-1980"
+      ],
+      "Region_9": [
+        "DOM-1983"
+      ],
+      "Region_10": [
+        "DOM-1982"
+      ],
+      "Region_11": [
+        "DOM-1967"
+      ],
+      "Region_12": [
+        "DOM-1965"
+      ],
+      "Region_13": [
+        "DOM-1970"
+      ],
+      "Region_14": [
+        "DOM-1974"
+      ],
+      "Region_15": [
+        "DOM-1977"
+      ],
+      "Region_16": [
+        "DOM-1984"
+      ],
+      "Region_17": [
+        "DOM-1394"
+      ],
+      "Region_18": [
+        "DOM-1985"
+      ],
+      "Region_19": [
+        "DOM-1396"
+      ],
+      "Region_20": [
+        "DOM-1988"
+      ],
+      "Region_21": [
+        "DOM-1392"
+      ],
+      "Region_22": [
+        "DOM-1391"
+      ],
+      "Region_23": [
+        "DOM-1975"
+      ],
+      "Region_24": [
+        "DOM-1968"
+      ],
+      "Region_25": [
+        "DOM-1979"
+      ],
+      "Region_26": [
+        "DOM-1390"
+      ],
+      "Region_27": [
+        "DOM-1969"
+      ],
+      "Region_28": [
+        "DOM-1393"
+      ],
+      "Region_29": [
+        "DOM-1976"
+      ],
+      "Region_30": [
+        "DOM-1395"
+      ],
+      "Region_31": [
+        "DOM-1978"
+      ],
+      "Region_32": [
+        "DOM-1981"
+      ]
+    }
+  },
+  "SLV": {
+    "targetRegions": 4,
+    "mapping": {
+      "Region_1": [
+        "SLV-1343"
+      ],
+      "Region_2": [
+        "SLV-1358"
+      ],
+      "Region_3": [
+        "SLV-1357"
+      ],
+      "Region_4": [
+        "SLV-1344"
+      ],
+      "Region_5": [
+        "SLV-1351"
+      ],
+      "Region_6": [
+        "SLV-1352"
+      ],
+      "Region_7": [
+        "SLV-1350"
+      ],
+      "Region_8": [
+        "SLV-1348"
+      ],
+      "Region_9": [
+        "SLV-1346"
+      ],
+      "Region_10": [
+        "SLV-1347"
+      ],
+      "Region_11": [
+        "SLV-1353"
+      ],
+      "Region_12": [
+        "SLV-1354"
+      ],
+      "Region_13": [
+        "SLV-1345"
+      ],
+      "Region_14": [
+        "SLV-1349"
+      ]
+    }
+  },
+  "GTM": {
+    "targetRegions": 8,
+    "mapping": {
+      "Region_1": [
+        "GTM-1962"
+      ],
+      "Region_2": [
+        "GTM-1960"
+      ],
+      "Region_3": [
+        "GTM-1944"
+      ],
+      "Region_4": [
+        "GTM-1947"
+      ],
+      "Region_5": [
+        "GTM-1943"
+      ],
+      "Region_6": [
+        "GTM-3467"
+      ],
+      "Region_7": [
+        "GTM-1948"
+      ],
+      "Region_8": [
+        "GTM-1959"
+      ],
+      "Region_9": [
+        "GTM-1963"
+      ],
+      "Region_10": [
+        "GTM-1946"
+      ],
+      "Region_11": [
+        "GTM-1952"
+      ],
+      "Region_12": [
+        "GTM-1950"
+      ],
+      "Region_13": [
+        "GTM-1957"
+      ],
+      "Region_14": [
+        "GTM-1949"
+      ],
+      "Region_15": [
+        "GTM-1953"
+      ],
+      "Region_16": [
+        "GTM-1951"
+      ],
+      "Region_17": [
+        "GTM-1961"
+      ],
+      "Region_18": [
+        "GTM-1956"
+      ],
+      "Region_19": [
+        "GTM-1954"
+      ],
+      "Region_20": [
+        "GTM-1945"
+      ],
+      "Region_21": [
+        "GTM-1942"
+      ],
+      "Region_22": [
+        "GTM-1955"
+      ]
+    }
+  },
+  "CUB": {
+    "targetRegions": 8,
+    "mapping": {
+      "Region_1": [
+        "CUB-1365"
+      ],
+      "Region_2": [
+        "CUB-1364"
+      ],
+      "Region_3": [
+        "CUB-1363"
+      ],
+      "Region_4": [
+        "CUB-1367"
+      ],
+      "Region_5": [
+        "CUB-1320"
+      ],
+      "Region_6": [
+        "CUB-1322"
+      ],
+      "Region_7": [
+        "CUB-1431"
+      ],
+      "Region_8": [
+        "CUB-1430"
+      ],
+      "Region_9": [
+        "CUB-1368"
+      ],
+      "Region_10": [
+        "CUB-5489"
+      ],
+      "Region_11": [
+        "CUB-1428"
+      ],
+      "Region_12": [
+        "CUB-1429"
+      ],
+      "Region_13": [
+        "CUB-1321"
+      ],
+      "Region_14": [
+        "CUB-1319"
+      ],
+      "Region_15": [
+        "CUB-1366"
+      ],
+      "Region_16": [
+        "CUB-1369"
+      ]
+    }
+  },
+  "HND": {
+    "targetRegions": 6,
+    "mapping": {
+      "Region_1": [
+        "HND-653"
+      ],
+      "Region_2": [
+        "HND-652"
+      ],
+      "Region_3": [
+        "HND-648"
+      ],
+      "Region_4": [
+        "HND-649"
+      ],
+      "Region_5": [
+        "HND-645"
+      ],
+      "Region_6": [
+        "HND-642"
+      ],
+      "Region_7": [
+        "HND-640"
+      ],
+      "Region_8": [
+        "HND-662"
+      ],
+      "Region_9": [
+        "HND-661"
+      ],
+      "Region_10": [
+        "HND-647"
+      ],
+      "Region_11": [
+        "HND-650"
+      ],
+      "Region_12": [
+        "HND-651"
+      ],
+      "Region_13": [
+        "HND-638"
+      ],
+      "Region_14": [
+        "HND-637"
+      ],
+      "Region_15": [
+        "HND-641"
+      ],
+      "Region_16": [
+        "HND-646"
+      ],
+      "Region_17": [
+        "HND-643"
+      ],
+      "Region_18": [
+        "HND-639"
+      ]
+    }
+  },
+  "USA": {
+    "targetRegions": 60,
+    "mapping": {
+      "Region_1": [
+        "USA-3519"
+      ],
+      "Region_2": [
+        "USA-3518"
+      ],
+      "Region_3": [
+        "USA-3515"
+      ],
+      "Region_4": [
+        "USA-3516"
+      ],
+      "Region_5": [
+        "USA-3514"
+      ],
+      "Region_6": [
+        "USA-3562"
+      ],
+      "Region_7": [
+        "USA-3550"
+      ],
+      "Region_8": [
+        "USA-3560"
+      ],
+      "Region_9": [
+        "USA-3559"
+      ],
+      "Region_10": [
+        "USA-3540"
+      ],
+      "Region_11": [
+        "USA-3538"
+      ],
+      "Region_12": [
+        "USA-3561"
+      ],
+      "Region_13": [
+        "USA-3520"
+      ],
+      "Region_14": [
+        "USA-3521"
+      ],
+      "Region_15": [
+        "USA-3524"
+      ],
+      "Region_16": [
+        "USA-3536"
+      ],
+      "Region_17": [
+        "USA-3563"
+      ],
+      "Region_18": [
+        "USA-3535"
+      ],
+      "Region_19": [
+        "USA-3544"
+      ],
+      "Region_20": [
+        "USA-3541"
+      ],
+      "Region_21": [
+        "USA-3542"
+      ],
+      "Region_22": [
+        "USA-3543"
+      ],
+      "Region_23": [
+        "USA-3545"
+      ],
+      "Region_24": [
+        "USA-3549"
+      ],
+      "Region_25": [
+        "USA-3552"
+      ],
+      "Region_26": [
+        "USA-3556"
+      ],
+      "Region_27": [
+        "USA-3557"
+      ],
+      "Region_28": [
+        "USA-3555"
+      ],
+      "Region_29": [
+        "USA-3558"
+      ],
+      "Region_30": [
+        "USA-3537"
+      ],
+      "Region_31": [
+        "USA-3539"
+      ],
+      "Region_32": [
+        "USA-3513"
+      ],
+      "Region_33": [
+        "USA-3525"
+      ],
+      "Region_34": [
+        "USA-3517"
+      ],
+      "Region_35": [
+        "USA-3526"
+      ],
+      "Region_36": [
+        "USA-3527"
+      ],
+      "Region_37": [
+        "USA-3523"
+      ],
+      "Region_38": [
+        "USA-3522"
+      ],
+      "Region_39": [
+        "USA-3534"
+      ],
+      "Region_40": [
+        "USA-3532"
+      ],
+      "Region_41": [
+        "USA-3530"
+      ],
+      "Region_42": [
+        "USA-3533"
+      ],
+      "Region_43": [
+        "USA-3529"
+      ],
+      "Region_44": [
+        "USA-3531"
+      ],
+      "Region_45": [
+        "USA-3553"
+      ],
+      "Region_46": [
+        "USA-3546"
+      ],
+      "Region_47": [
+        "USA-3548"
+      ],
+      "Region_48": [
+        "USA-3528"
+      ],
+      "Region_49": [
+        "USA-3551"
+      ],
+      "Region_50": [
+        "USA-3554"
+      ],
+      "Region_51": [
+        "USA-3547"
+      ]
+    }
+  },
+  "CAN": {
+    "targetRegions": 15,
+    "mapping": {
+      "Region_1": [
+        "CAN-633"
+      ],
+      "Region_2": [
+        "CAN-632"
+      ],
+      "Region_3": [
+        "CAN-631"
+      ],
+      "Region_4": [
+        "CAN-630"
+      ],
+      "Region_5": [
+        "CAN-682"
+      ],
+      "Region_6": [
+        "CAN-683"
+      ],
+      "Region_7": [
+        "CAN-684"
+      ],
+      "Region_8": [
+        "CAN-636"
+      ],
+      "Region_9": [
+        "CAN-634"
+      ],
+      "Region_10": [
+        "CAN-686"
+      ],
+      "Region_11": [
+        "CAN-685"
+      ],
+      "Region_12": [
+        "CAN-635"
+      ],
+      "Region_13": [
+        "CAN-687"
+      ]
+    }
+  },
+  "MEX": {
+    "targetRegions": 15,
+    "mapping": {
+      "Region_1": [
+        "MEX-2712"
+      ],
+      "Region_2": [
+        "MEX-2706"
+      ],
+      "Region_3": [
+        "MEX-2709"
+      ],
+      "Region_4": [
+        "MEX-2708"
+      ],
+      "Region_5": [
+        "MEX-2716"
+      ],
+      "Region_6": [
+        "MEX-2714"
+      ],
+      "Region_7": [
+        "MEX-2736"
+      ],
+      "Region_8": [
+        "MEX-2722"
+      ],
+      "Region_9": [
+        "MEX-2725"
+      ],
+      "Region_10": [
+        "MEX-2735"
+      ],
+      "Region_11": [
+        "MEX-2718"
+      ],
+      "Region_12": [
+        "MEX-2721"
+      ],
+      "Region_13": [
+        "MEX-2707"
+      ],
+      "Region_14": [
+        "MEX-2711"
+      ],
+      "Region_15": [
+        "MEX-2737"
+      ],
+      "Region_16": [
+        "MEX-2734"
+      ],
+      "Region_17": [
+        "MEX-2719"
+      ],
+      "Region_18": [
+        "MEX-2720"
+      ],
+      "Region_19": [
+        "MEX-2729"
+      ],
+      "Region_20": [
+        "MEX-2723"
+      ],
+      "Region_21": [
+        "MEX+99?"
+      ],
+      "Region_22": [
+        "MEX-2731"
+      ],
+      "Region_23": [
+        "MEX-2724"
+      ],
+      "Region_24": [
+        "MEX-2732"
+      ],
+      "Region_25": [
+        "MEX-2733"
+      ],
+      "Region_26": [
+        "MEX-2730"
+      ],
+      "Region_27": [
+        "MEX-2728"
+      ],
+      "Region_28": [
+        "MEX-2715"
+      ],
+      "Region_29": [
+        "MEX-2713"
+      ],
+      "Region_30": [
+        "MEX-2717"
+      ],
+      "Region_31": [
+        "MEX-2710"
+      ],
+      "Region_32": [
+        "MEX-2726"
+      ],
+      "Region_33": [
+        "MEX-2727"
+      ]
+    }
+  },
+  "BLZ": {
+    "targetRegions": 3,
+    "mapping": {
+      "Region_1": [
+        "BLZ-1324"
+      ],
+      "Region_2": [
+        "BLZ-1326"
+      ],
+      "Region_3": [
+        "BLZ-1325"
+      ],
+      "Region_4": [
+        "BLZ-1356"
+      ],
+      "Region_5": [
+        "BLZ-1355"
+      ],
+      "Region_6": [
+        "BLZ-1323"
+      ]
+    }
+  },
+  "PAN": {
+    "targetRegions": 4,
+    "mapping": {
+      "Region_1": [
+        "PAN-1958"
+      ],
+      "Region_2": [
+        "PAN-1332"
+      ],
+      "Region_3": [
+        "PAN-1419"
+      ],
+      "Region_4": [
+        "PAN-3455"
+      ],
+      "Region_5": [
+        "PAN-1418"
+      ],
+      "Region_6": [
+        "PAN-1340"
+      ],
+      "Region_7": [
+        "PAN-1336"
+      ],
+      "Region_8": [
+        "PAN-1341"
+      ],
+      "Region_9": [
+        "PAN-1337"
+      ],
+      "Region_10": [
+        "PAN-3454"
+      ],
+      "Region_11": [
+        "PAN-1339"
+      ],
+      "Region_12": [
+        "PAN-1338"
+      ]
+    }
+  },
+  "ABW": {
+    "targetRegions": 1,
+    "mapping": {
+      "Region_1": [
+        "ABW-5150"
+      ]
+    }
+  },
+  "BHS": {
+    "targetRegions": 6,
+    "mapping": {
+      "Region_1": [
+        "BHS-5038"
+      ],
+      "Region_2": [
+        "BHS-5037"
+      ],
+      "Region_3": [
+        "BHS-5036"
+      ],
+      "Region_4": [
+        "BHS-5035"
+      ],
+      "Region_5": [
+        "BHS-5024"
+      ],
+      "Region_6": [
+        "BHS-5033"
+      ],
+      "Region_7": [
+        "BHS-5032"
+      ],
+      "Region_8": [
+        "BHS-5023"
+      ],
+      "Region_9": [
+        "BHS-5031"
+      ],
+      "Region_10": [
+        "BHS-5020"
+      ],
+      "Region_11": [
+        "BHS-5021"
+      ],
+      "Region_12": [
+        "BHS-5022"
+      ],
+      "Region_13": [
+        "BHS-5030"
+      ],
+      "Region_14": [
+        "BHS-5009"
+      ],
+      "Region_15": [
+        "BHS-5019"
+      ],
+      "Region_16": [
+        "BHS-5028"
+      ],
+      "Region_17": [
+        "BHS-5027"
+      ],
+      "Region_18": [
+        "BHS-5029"
+      ],
+      "Region_19": [
+        "BHS-5018"
+      ],
+      "Region_20": [
+        "BHS-5017"
+      ],
+      "Region_21": [
+        "BHS-5010"
+      ],
+      "Region_22": [
+        "BHS-5011"
+      ],
+      "Region_23": [
+        "BHS-5012"
+      ],
+      "Region_24": [
+        "BHS-5015"
+      ],
+      "Region_25": [
+        "BHS-5016"
+      ],
+      "Region_26": [
+        "BHS-5014"
+      ],
+      "Region_27": [
+        "BHS-5039"
+      ],
+      "Region_28": [
+        "BHS-5034"
+      ],
+      "Region_29": [
+        "BHS-5026"
+      ],
+      "Region_30": [
+        "BHS-5025"
+      ]
+    }
+  },
+  "TTO": {
+    "targetRegions": 3,
+    "mapping": {
+      "Region_1": [
+        "TTO-61"
+      ],
+      "Region_2": [
+        "TTO-56"
+      ],
+      "Region_3": [
+        "TTO-51"
+      ],
+      "Region_4": [
+        "TTO-64"
+      ],
+      "Region_5": [
+        "TTO-63"
+      ],
+      "Region_6": [
+        "TTO-58"
+      ],
+      "Region_7": [
+        "TTO-62"
+      ],
+      "Region_8": [
+        "TTO-59"
+      ],
+      "Region_9": [
+        "TTO-52"
+      ],
+      "Region_10": [
+        "TTO-60"
+      ],
+      "Region_11": [
+        "TTO-57"
+      ],
+      "Region_12": [
+        "TTO-55"
+      ],
+      "Region_13": [
+        "TTO-54"
+      ],
+      "Region_14": [
+        "TTO-50"
+      ],
+      "Region_15": [
+        "TTO-5090"
+      ],
+      "Region_16": [
+        "TTO-53"
+      ]
+    }
+  },
+  "GRD": {
+    "targetRegions": 1,
+    "mapping": {
+      "Region_1": [
+        "GRD-5072"
+      ],
+      "Region_2": [
+        "GRD-5071"
+      ],
+      "Region_3": [
+        "GRD-5070"
+      ],
+      "Region_4": [
+        "GRD-5075"
+      ],
+      "Region_5": [
+        "GRD-5074"
+      ],
+      "Region_6": [
+        "GRD-5073"
+      ],
+      "Region_7": [
+        "GRD-5069"
+      ]
+    }
+  },
+  "DMA": {
+    "targetRegions": 1,
+    "mapping": {
+      "Region_1": [
+        "DMA-1439"
+      ],
+      "Region_2": [
+        "DMA-1433"
+      ],
+      "Region_3": [
+        "DMA-1432"
+      ],
+      "Region_4": [
+        "DMA-1435"
+      ],
+      "Region_5": [
+        "DMA-1441"
+      ],
+      "Region_6": [
+        "DMA-1436"
+      ],
+      "Region_7": [
+        "DMA-1440"
+      ],
+      "Region_8": [
+        "DMA-1434"
+      ],
+      "Region_9": [
+        "DMA-1437"
+      ],
+      "Region_10": [
+        "DMA-1438"
+      ]
+    }
+  },
+  "ATG": {
+    "targetRegions": 2,
+    "mapping": {
+      "Region_1": [
+        "ATG-5096"
+      ],
+      "Region_2": [
+        "ATG-5095"
+      ],
+      "Region_3": [
+        "ATG-5094"
+      ],
+      "Region_4": [
+        "ATG-5093"
+      ],
+      "Region_5": [
+        "ATG-5098"
+      ],
+      "Region_6": [
+        "ATG-5097"
+      ],
+      "Region_7": [
+        "ATG-5091"
+      ],
+      "Region_8": [
+        "ATG-5092"
+      ]
+    }
+  },
+  "JAM": {
+    "targetRegions": 4,
+    "mapping": {
+      "Region_1": [
+        "JAM-1379"
+      ],
+      "Region_2": [
+        "JAM-1375"
+      ],
+      "Region_3": [
+        "JAM-1374"
+      ],
+      "Region_4": [
+        "JAM-1371"
+      ],
+      "Region_5": [
+        "JAM-1376"
+      ],
+      "Region_6": [
+        "JAM-1373"
+      ],
+      "Region_7": [
+        "JAM-1372"
+      ],
+      "Region_8": [
+        "JAM-1370"
+      ],
+      "Region_9": [
+        "JAM-1380"
+      ],
+      "Region_10": [
+        "JAM-1382"
+      ],
+      "Region_11": [
+        "JAM-1377"
+      ],
+      "Region_12": [
+        "JAM-1383"
+      ],
+      "Region_13": [
+        "JAM-1378"
+      ],
+      "Region_14": [
+        "JAM-1381"
+      ]
+    }
+  }
+}

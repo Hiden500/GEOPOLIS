@@ -1,0 +1,46 @@
+{
+  "DEU_USSR": {
+    "targetRegions": 5,
+    "mapping": {
+      "Region_1": ["DEU-1574"],
+      "Region_2": ["DEU-1577"],
+      "Region_3": ["DEU-1580"],
+      "Region_4": ["DEU-1581"],
+      "Region_5": ["DEU-1572"]
+    }
+  },
+  "DEU_USA": {
+    "targetRegions": 5,
+    "mapping": {
+      "Region_1": ["DEU-1579"],
+      "Region_2": ["DEU-1576"],
+      "Region_3": ["DEU-1575"],
+      "Region_4": ["DEU-1578"],
+      "Region_5": ["DEU-1601"]
+    }
+  },
+  "DEU_UK": {
+    "targetRegions": 3,
+    "mapping": {
+      "Region_1": ["DEU-1591"],
+      "Region_2": ["DEU-1599"],
+      "Region_3": ["DEU-1600"]
+    }
+  },
+  "DEU_FRA": {
+    "targetRegions": 2,
+    "mapping": {
+      "Region_1": ["DEU-3487"],
+      "Region_2": ["DEU-3488"]
+    }
+  },
+  "BERLIN": {
+    "targetRegions": 4,
+    "mapping": {
+      "BERLIN_SOVIET": ["BERLIN-SOVIET"],
+      "BERLIN_US": ["BERLIN-US"],
+      "BERLIN_UK": ["BERLIN-UK"],
+      "BERLIN_FRENCH": ["BERLIN-FRENCH"]
+    }
+  }
+}

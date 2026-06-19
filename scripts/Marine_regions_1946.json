@@ -1,0 +1,34 @@
+{
+  "oceans": {
+    "targetRegions": 7,
+    "mapping": {
+      "Region_1": ["NORTH_ATLANTIC"],
+      "Region_2": ["SOUTH_ATLANTIC"],
+      "Region_3": ["NORTH_PACIFIC"],
+      "Region_4": ["SOUTH_PACIFIC"],
+      "Region_5": ["ARCTIC_OCEAN"],
+      "Region_6": ["INDIAN_OCEAN"],
+      "Region_7": ["SOUTHERN_OCEAN"]
+    }
+  },
+  "seas": {
+    "targetRegions": 15,
+    "mapping": {
+      "Region_1": ["BALTIC_SEA"],
+      "Region_2": ["BLACK_SEA"],
+      "Region_3": ["CASPIAN_SEA"],
+      "Region_4": ["NORTH_SEA"],
+      "Region_5": ["NORWEGIAN_SEA"],
+      "Region_6": ["CARIBBEAN_SEA"],
+      "Region_7": ["SOUTH_CHINA_SEA"],
+      "Region_8": ["EAST_CHINA_SEA"],
+      "Region_9": ["PHILIPPINE_SEA"],
+      "Region_10": ["SEA_OF_JAPAN"],
+      "Region_11": ["BERING_SEA"],
+      "Region_12": ["SEA_OF_OKHOTSK"],
+      "Region_13": ["ARABIAN_SEA"],
+      "Region_14": ["RED_SEA"],
+      "Region_15": ["MEDITERRANEAN_SEA"]
+    }
+  }
+}

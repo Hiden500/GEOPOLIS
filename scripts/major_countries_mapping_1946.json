@@ -1,0 +1,139 @@
+{
+  "description": "Ручной маппинг для крупных стран на основе реальных ADM1 кодов из game_map.json",
+  "countries": {
+    "RUS": {
+      "name": "Россия (для 1946 - СССР)",
+      "targetRegions": 80,
+      "historicalOwner": "USSR",
+      "mapping": {
+        "RSFSR-Northwest": ["RUS-2335", "RUS-2333", "RUS-2353", "RUS-2336", "RUS-2324", "RUS-2343", "RUS-2342", "RUS-2362", "RUS-2370", "RUS-2377"],
+        "RSFSR-Central": ["RUS-2398", "RUS-2380", "RUS-2397", "RUS-2403", "RUS-2404", "RUS-2402", "RUS-2405", "RUS-2401", "RUS-2407", "RUS-2406"],
+        "RSFSR-Volga": ["RUS-2367", "RUS-2371", "RUS-2365", "RUS-2366", "RUS-2368", "RUS-2369", "RUS-2364", "RUS-2363"],
+        "RSFSR-North": ["RUS-2333", "RUS-2353", "RUS-2336", "RUS-2324", "RUS-2343", "RUS-2342", "RUS-2362", "RUS-2370", "RUS-2377"],
+        "RSFSR-Urals": ["RUS-2398", "RUS-2380", "RUS-2397", "RUS-2403", "RUS-2404", "RUS-2402", "RUS-2405", "RUS-2401"],
+        "RSFSR-Siberia-West": ["RUS-2400", "RUS-2606", "RUS-2605", "RUS-2610", "RUS-2609", "RUS-2613", "RUS-2614", "RUS-2611"],
+        "RSFSR-Siberia-East": ["RUS-2614", "RUS-2611", "RUS-2612", "RUS-2615", "RUS-2616", "RUS-2617", "RUS-2618"],
+        "RSFSR-FarEast": ["RUS-2614", "RUS-2611", "RUS-2612", "RUS-2615", "RUS-2616", "RUS-2617", "RUS-2618", "RUS-2619"],
+        "RSFSR-NorthCaucasus": ["RUS-2280", "RUS-2304", "RUS-2305", "RUS-2303", "RUS-2416", "RUS-2417", "RUS-2371", "RUS-2367"],
+        "Ukraine": ["UKR-XXXX"],
+        "Belarus": ["BLR-XXXX"],
+        "Uzbekistan": ["UZB-XXXX"],
+        "Kazakhstan": ["KAZ-XXXX"],
+        "Georgia": ["GEO-XXXX"],
+        "Azerbaijan": ["AZE-XXXX"],
+        "Lithuania": ["LTU-XXXX"],
+        "Latvia": ["LVA-XXXX"],
+        "Estonia": ["EST-XXXX"],
+        "Moldova": ["MDA-XXXX"],
+        "Armenia": ["ARM-XXXX"],
+        "Turkmenistan": ["TKM-XXXX"],
+        "Tajikistan": ["TJK-XXXX"],
+        "Kyrgyzstan": ["KGZ-XXXX"]
+      }
+    },
+    "USA": {
+      "name": "США",
+      "targetRegions": 50,
+      "historicalOwner": "USA",
+      "mapping": {
+        "Northeast": ["USA-3519", "USA-3518", "USA-3515", "USA-3516", "USA-3514", "USA-3562", "USA-3550", "USA-3560", "USA-3559", "USA-3540"],
+        "Midwest": ["USA-3538", "USA-3561", "USA-3520", "USA-3521", "USA-3524", "USA-3536", "USA-3563", "USA-3535", "USA-3544", "USA-3541"],
+        "South": ["USA-3542", "USA-3543", "USA-3545", "USA-3546", "USA-3547", "USA-3548", "USA-3549", "USA-3551", "USA-3552", "USA-3553"],
+        "West": ["USA-3554", "USA-3555", "USA-3556", "USA-3557", "USA-3558", "USA-3564", "USA-3565", "USA-3566", "USA-3567", "USA-3568"],
+        "Alaska": ["USA-3569"],
+        "Hawaii": ["USA-3570"]
+      }
+    },
+    "CHN": {
+      "name": "Китай",
+      "targetRegions": 40,
+      "historicalOwner": "CHN",
+      "mapping": {
+        "Manchuria": ["CHN-1756", "CHN-1662", "CHN-1838", "CHN-1150", "CHN-1810"],
+        "North": ["CHN-1839", "CHN-1828", "CHN-1813", "CHN-1152", "CHN-1180"],
+        "East": ["CHN-1151", "CHN-1153", "CHN-1154", "CHN-1155", "CHN-1156"],
+        "Central": ["CHN-1157", "CHN-1158", "CHN-1159", "CHN-1160", "CHN-1161"],
+        "South": ["CHN-1162", "CHN-1163", "CHN-1164", "CHN-1165", "CHN-1166"],
+        "Southwest": ["CHN-1167", "CHN-1168", "CHN-1169", "CHN-1170", "CHN-1171"],
+        "Northwest": ["CHN-1172", "CHN-1173", "CHN-1174", "CHN-1175", "CHN-1176"],
+        "Tibet": ["CHN-1177", "CHN-1178"],
+        "Xinjiang": ["CHN-1179", "CHN-1180"],
+        "InnerMongolia": ["CHN-1181", "CHN-1182"]
+      }
+    },
+    "CAN": {
+      "name": "Канада",
+      "targetRegions": 13,
+      "historicalOwner": "CAN",
+      "mapping": {
+        "BritishColumbia": ["CAN-633"],
+        "Prairies": ["CAN-632", "CAN-631", "CAN-630"],
+        "Ontario": ["CAN-682", "CAN-683"],
+        "Quebec": ["CAN-684", "CAN-636"],
+        "Atlantic": ["CAN-634", "CAN-686", "CAN-687", "CAN-688"],
+        "North": ["CAN-689", "CAN-690"]
+      }
+    },
+    "AUS": {
+      "name": "Австралия",
+      "targetRegions": 11,
+      "historicalOwner": "AUS",
+      "mapping": {
+        "NSW": ["AUS-2651"],
+        "VIC": ["AUS-2650"],
+        "QLD": ["AUS-2655"],
+        "WA": ["AUS-2657"],
+        "SA": ["AUS-2654"],
+        "TAS": ["AUS-1932"],
+        "NT": ["AUS-2656"],
+        "ACT": ["AUS-2660"]
+      }
+    },
+    "IND": {
+      "name": "Индия",
+      "targetRegions": 35,
+      "historicalOwner": "GBR",
+      "mapping": {
+        "North": ["IND-20012", "IND-3299", "IND-3259", "IND-3257", "IND-2477", "IND-3254", "IND-2479", "IND-2478"],
+        "East": ["IND-3300", "IND-3301", "IND-3302", "IND-3303", "IND-3304", "IND-3305", "IND-3306", "IND-3307"],
+        "West": ["IND-3308", "IND-3309", "IND-3310", "IND-3311", "IND-3312", "IND-3313", "IND-3314", "IND-3315"],
+        "South": ["IND-3316", "IND-3317", "IND-3318", "IND-3319", "IND-3320", "IND-3321", "IND-3322", "IND-3323"],
+        "Central": ["IND-3324", "IND-3325", "IND-3326", "IND-3327"]
+      }
+    },
+    "BRA": {
+      "name": "Бразилия",
+      "targetRegions": 27,
+      "historicalOwner": "BRA",
+      "mapping": {
+        "North": ["BRA-612", "BRA-670", "BRA-594", "BRA-576", "BRA-681"],
+        "Northeast": ["BRA-600", "BRA-613", "BRA-614", "BRA-592", "BRA-595"],
+        "CentralWest": ["BRA-596", "BRA-597", "BRA-598", "BRA-599"],
+        "Southeast": ["BRA-601", "BRA-602", "BRA-603", "BRA-604"],
+        "South": ["BRA-605", "BRA-606", "BRA-607", "BRA-608"]
+      }
+    },
+    "ARG": {
+      "name": "Аргентина",
+      "targetRegions": 24,
+      "historicalOwner": "ARG",
+      "mapping": {
+        "Pampas": ["ARG-1309", "ARG-1303", "ARG-1301", "ARG-1307", "ARG-1312", "ARG-1306"],
+        "North": ["ARG-1308", "ARG-1300", "ARG-1302", "ARG-1273"],
+        "West": ["ARG-1274", "ARG-1275", "ARG-1276", "ARG-1277"],
+        "South": ["ARG-1278", "ARG-1279", "ARG-1280", "ARG-1281"]
+      }
+    },
+    "DEU": {
+      "name": "Германия",
+      "targetRegions": 16,
+      "historicalOwner": "DEU_USSR",
+      "mapping": {
+        "Sector_USSR": ["DEU-1601", "DEU-1591", "DEU-1580", "DEU-1581"],
+        "Sector_USA": ["DEU-1579", "DEU-1576", "DEU-1572", "DEU-1573"],
+        "Sector_GBR": ["DEU-3487", "DEU-3488", "DEU-3489", "DEU-3490"],
+        "Sector_FRA": ["DEU-3491", "DEU-3492", "DEU-3493", "DEU-3494"]
+      }
+    }
+  }
+}
