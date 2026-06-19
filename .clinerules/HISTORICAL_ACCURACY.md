@@ -1,3 +1,6 @@
+---
+trigger: always_on
+---
 # HISTORICAL_ACCURACY.md
 
 ## Историческая достоверность

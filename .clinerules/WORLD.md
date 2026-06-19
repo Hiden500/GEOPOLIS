@@ -1,3 +1,6 @@
+---
+trigger: model_decision
+---
 # Мир
 
 ## Масштаб
@@ -34,21 +37,3 @@
 - железные дороги
 - порты
 - аэропорты
-
-## Исторические владельцы регионов
-
-Каждый регион хранит набор владельцев по годам.
-
-Пример:
-
-{
-  "regionId": "crimea",
-
-  "owners": [
-    { "year": 1836, "country": "Russian Empire" },
-    { "year": 1917, "country": "Russia" },
-    { "year": 1922, "country": "USSR" },
-    { "year": 1991, "country": "Ukraine" },
-    { "year": 2014, "country": "Russia" }
-  ]
-}
