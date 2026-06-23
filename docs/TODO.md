@@ -77,7 +77,7 @@ Last updated: 2026-06-22
 ## P2 — Инженерный фундамент (снижает риск всего, что после)
 
 - тестовая инфраструктура на клиенте (Vitest + React Testing Library) — сейчас отсутствует полностью; особенно нужна для `useWindows`/`Window.tsx` (drag/resize/z-index/дедупликация — логика без UI-рендера, удобно тестировать модульно)
-- тесты для `LLMService`, `LLMResponseValidator`, `CountryService`, `RegionService`, `GameService`, `SimulationService`, route-слоя
+- тесты для сервисов: ~~`CountryService`, `RegionService`, `ResearchService`, `PlayerActionService`, `LLMResponseValidator`, `LLMService`, `GameService`, `SimulationService`~~ — сделано (2026-06-23, +97 тестов; добавлена фикстура `createTestGameState` в `server/src/test-utils/fixtures.ts`; `Game`/`Simulation` тестируются с моками `createGame`/движка и синглтона `GameStore`; при написании найден и исправлен квирк `LLMService.generatePrompt()` — мутировал порядок `game.countries` через `.sort()`, см. `docs/DECISIONS.md`). Осталось: route-слой.
 - решить судьбу Zustand: либо внедрить (задокументирован как обязательный в `docs/AI_RULES.md`, в коде клиента не используется), либо снять требование — заодно решает prop-drilling
 
 ## P3 — Дизайн ИИ-стран (нужны решения по конкретным числам, не только код)

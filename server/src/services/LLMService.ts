@@ -215,7 +215,9 @@ Return your response in JSON format with the following structure:
    * Получает информацию о крупных державах.
    */
   private getMajorPowersInfo(): string {
-    const topCountries = this.game.countries
+    // Копируем перед сортировкой: .sort() мутирует на месте, а generatePrompt
+    // не должен переупорядочивать game.countries как побочный эффект.
+    const topCountries = [...this.game.countries]
       .sort((a, b) => b.economy.gdp - a.economy.gdp)
       .slice(0, 5);
 

@@ -203,6 +203,18 @@ LLM отвечает только за **форму**: конкретное на
 
 ---
 
+## 2026-06-23 — Найден и исправлен квирк: `LLMService.generatePrompt()` мутировал порядок `game.countries`
+
+При написании тестов на сервисный слой (покрытие `CountryService`/`RegionService`/`ResearchService`/`PlayerActionService`/`LLMService`/`LLMResponseValidator`/`GameService`/`SimulationService`, +97 тестов) обнаружено: приватный `getMajorPowersInfo()` сортировал список держав через `this.game.countries.sort((a, b) => b.economy.gdp - a.economy.gdp)`. `Array.prototype.sort()` сортирует **на месте**, поэтому вызов `generatePrompt()` — метода, который по названию только читает состояние для построения промта — как побочный эффект переупорядочивал массив `game.countries` по убыванию ВВП.
+
+Воздействие ограничено (все обращения к странам идут по `id` через `.find()`), но это скрытая мутация игрового состояния в read-методе. Риск проявился бы, если бы появился код, полагающийся на стабильный порядок `countries` (рендер списка, сериализация сейва, индекс по позиции).
+
+**Исправлено**: `getMajorPowersInfo()` теперь сортирует копию — `[...this.game.countries].sort(...)` (`server/src/services/LLMService.ts`). Семантику симуляции не меняет, убирает побочный эффект. Покрыто регрессионным тестом в `LLMService.test.ts` (проверяет, что `generatePrompt()` не переупорядочивает `game.countries`).
+
+Остальные 7 сервисов оказались тонкими детерминированными обёртками без скрытого состояния — багов в них не выявлено, тесты страхуют от регрессий. Добавлена переиспользуемая фикстура `createTestGameState` в `server/src/test-utils/fixtures.ts`.
+
+---
+
 ## Открытые вопросы (на 2026-06-22)
 
 1. Конкретные пороги/формулы Threat/Rivalry Response.

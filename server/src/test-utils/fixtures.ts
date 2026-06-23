@@ -1,6 +1,7 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type ResearchProject } from "@shared/types/research/ResearchProject";
+import { type GameState } from "@shared/types/GameState";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 
@@ -115,6 +116,27 @@ export function createTestRegion(overrides: Partial<Region> = {}): Region {
       coal: 200_000,
     },
     neighboringRegionIds: [],
+    ...overrides,
+  };
+}
+
+export function createTestGameState(overrides: Partial<GameState> = {}): GameState {
+  return {
+    currentDate: "1946-01-01",
+    playerCountryId: "TEST",
+    countries: [],
+    era: {
+      id: "1946",
+      name: "Test Era",
+      startYear: 1946,
+      endYear: 2000,
+      technologyDomains: [],
+    },
+    regions: [],
+    regionIndex: new Map<string, number[]>(),
+    playerActions: [],
+    eventHistory: [],
+    mapFeatures: [],
     ...overrides,
   };
 }
