@@ -1,9 +1,15 @@
 import { useState, useCallback } from "react";
 import { type GameState } from "@shared/types/GameState";
-import { PlayerCountryPanel } from "./PlayerCountryPanel";
+import { TopStatBar } from "./TopStatBar";
+import { ResourceTicker } from "./ResourceTicker";
+import { InspectorPanel, getInspectorTitle } from "./InspectorPanel";
+import { Window } from "./Window";
+import { useWindows } from "../hooks/useWindows";
 import { BudgetPanel } from "./BudgetPanel";
 import { ResearchPanel } from "./ResearchPanel";
 import { ActionPanel } from "./ActionPanel";
+import { WorldRankingPanel } from "./WorldRankingPanel";
+import { TerritoriesPanel } from "./TerritoriesPanel";
 import { MapView } from "../map/MapView";
 import {
   nextTurn,
@@ -21,11 +27,18 @@ interface GameViewProps {
   onBack: () => void;
 }
 
+const WINDOW_TITLES: Record<string, string> = {
+  budget: "Бюджет",
+  research: "Исследования",
+  actions: "Действия",
+  ranking: "Мировой рейтинг",
+  territories: "Территории",
+};
+
 export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRegionId, setSelectedRegionId] = useState<number | null>(null);
-  const [activePanel, setActivePanel] = useState<"region" | "budget" | "research" | "actions">("region");
+  const { windows, openOrFocus, toggle, close, focus, move, resize, isOpen } = useWindows();
 
   const playerCountry = game.countries.find(
     c => c.id === game.playerCountryId
@@ -34,6 +47,9 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const playerRegions = game.regions.filter(
     r => r.ownerCountryId === game.playerCountryId
   );
+
+  const regionWindow = windows.find(w => w.kind.type === "region");
+  const selectedRegionId = regionWindow?.kind.type === "region" ? regionWindow.kind.regionId : null;
 
   const handleNextTurn = async () => {
     setLoading(true);
@@ -103,17 +119,12 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   };
 
   const handleRegionClick = useCallback((regionId: number) => {
-    setSelectedRegionId(prev => prev === regionId ? null : regionId);
-  }, []);
+    openOrFocus({ type: "region", regionId });
+  }, [openOrFocus]);
 
-  // Получаем выбранный регион и его страну
-  const selectedRegion = selectedRegionId
-    ? game.regions.find(r => r.id === selectedRegionId) ?? null
-    : null;
-
-  const selectedRegionCountry = selectedRegion?.ownerCountryId
-    ? game.countries.find(c => c.id === selectedRegion.ownerCountryId)
-    : null;
+  const handleSelectCountry = useCallback((countryId: string) => {
+    openOrFocus({ type: "country", countryId });
+  }, [openOrFocus]);
 
   if (!playerCountry) {
     return (
@@ -128,63 +139,20 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
 
   return (
     <div className="game-view">
-      <header className="game-header">
-        <div className="header-left">
-          <button className="back-button" onClick={onBack}>
-            ← Меню
-          </button>
-          <span className="game-date">{game.currentDate}</span>
-          <span className="game-era">{game.era.name}</span>
-        </div>
-        <div className="header-center">
-          <h1 className="game-title">Geopolis</h1>
-        </div>
-        <div className="header-right">
-          {error && <span className="game-error">{error}</span>}
-          <button
-            className="next-turn-button"
-            onClick={handleNextTurn}
-            disabled={loading}
-          >
-            {loading ? "⏳ Симуляция..." : "Следующий месяц →"}
-          </button>
-        </div>
-      </header>
+      <TopStatBar
+        country={playerCountry}
+        currentDate={game.currentDate}
+        eraName={game.era.name}
+        loading={loading}
+        error={error}
+        isOpen={isOpen}
+        onBack={onBack}
+        onNextTurn={handleNextTurn}
+        onToggle={toggle}
+        onOpenCountry={() => handleSelectCountry(playerCountry.id)}
+      />
 
       <div className="game-content">
-        <div className="sidebar sidebar-left">
-          <PlayerCountryPanel country={playerCountry} />
-
-          {playerRegions.length > 0 && (
-            <section className="panel-section">
-              <h3>Территории игрока</h3>
-              <ul className="region-list">
-                {playerRegions.map(region => (
-                  <li
-                    key={region.id}
-                    className={`region-list-item ${selectedRegionId === region.id ? 'selected' : ''}`}
-                    onClick={() => handleRegionClick(region.id)}
-                  >
-                    <strong>{region.name}</strong>
-                    <span className="region-population">
-                      {region.population.toLocaleString("ru-RU")} чел.
-                    </span>
-                    <div className="region-resources">
-                      {Object.entries(region.resourceProduction).map(
-                        ([resource, amount]) => (
-                          <span key={resource} className="resource-tag">
-                            {resource}: {amount}/мес
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-        </div>
-
         <div className="map-container">
           <MapView
             regions={game.regions}
@@ -195,162 +163,61 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           />
         </div>
 
-        <div className="sidebar sidebar-right">
-          {/* Переключатель панелей */}
-          <div className="panel-tabs">
-            <button
-              className={activePanel === "region" ? "active" : ""}
-              onClick={() => setActivePanel("region")}
-            >
-              Регион
-            </button>
-            <button
-              className={activePanel === "budget" ? "active" : ""}
-              onClick={() => setActivePanel("budget")}
-            >
-              Бюджет
-            </button>
-            <button
-              className={activePanel === "research" ? "active" : ""}
-              onClick={() => setActivePanel("research")}
-            >
-              Исследования
-            </button>
-            <button
-              className={activePanel === "actions" ? "active" : ""}
-              onClick={() => setActivePanel("actions")}
-            >
-              Действия
-            </button>
-          </div>
+        {windows.map(w => {
+          const title =
+            w.kind.type === "country" || w.kind.type === "region"
+              ? getInspectorTitle(w.kind, game)
+              : WINDOW_TITLES[w.kind.type];
 
-          {/* Панель региона */}
-          {activePanel === "region" && (
-            <>
-              {selectedRegion && (
-                <section className="panel-section region-detail">
-                  <h3>
-                    <span
-                      className="country-color-dot"
-                      style={{ backgroundColor: selectedRegionCountry?.color || '#808080' }}
-                    />
-                    {selectedRegion.name}
-                  </h3>
-                  <dl className="stat-list">
-                    <div>
-                      <dt>Страна</dt>
-                      <dd style={{ color: selectedRegionCountry?.color }}>
-                        {selectedRegionCountry?.name || 'Нейтральная'}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>Население</dt>
-                      <dd>{selectedRegion.population.toLocaleString("ru-RU")}</dd>
-                    </div>
-                    <div>
-                      <dt>Площадь</dt>
-                      <dd>{selectedRegion.area} км²</dd>
-                    </div>
-                    <div>
-                      <dt>Урбанизация</dt>
-                      <dd>{selectedRegion.urbanization}%</dd>
-                    </div>
-                    <div>
-                      <dt>Инфраструктура</dt>
-                      <dd>{selectedRegion.infrastructure}/100</dd>
-                    </div>
-                    <div>
-                      <dt>Стабильность</dt>
-                      <dd>{selectedRegion.stability}/100</dd>
-                    </div>
-                    <div>
-                      <dt>Развитие</dt>
-                      <dd>{selectedRegion.development}/100</dd>
-                    </div>
-                  </dl>
-
-                  {Object.keys(selectedRegion.resourceProduction).length > 0 && (
-                    <div className="panel-section">
-                      <h4>Добыча ресурсов (в месяц)</h4>
-                      <ul className="resource-list">
-                        {Object.entries(selectedRegion.resourceProduction).map(
-                          ([resource, amount]) => (
-                            <li key={resource}>
-                              {resource}: {amount}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                </section>
+          return (
+            <Window
+              key={w.id}
+              title={title}
+              position={w.position}
+              size={w.size}
+              zIndex={w.zIndex}
+              onMove={pos => move(w.id, pos)}
+              onResize={size => resize(w.id, size)}
+              onFocus={() => focus(w.id)}
+              onClose={() => close(w.id)}
+            >
+              {(w.kind.type === "country" || w.kind.type === "region") && (
+                <InspectorPanel target={w.kind} game={game} onSelectCountry={handleSelectCountry} />
               )}
-
-              {/* Мировая таблица */}
-              <section className="panel-section">
-                <h3>Мировой рейтинг</h3>
-                <table className="world-table">
-                  <thead>
-                    <tr>
-                      <th>Страна</th>
-                      <th>Нас.</th>
-                      <th>ВВП</th>
-                      <th>Казна</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {game.countries.map(country => (
-                      <tr
-                        key={country.id}
-                        className={
-                          country.id === game.playerCountryId ? "player-row" : ""
-                        }
-                      >
-                        <td>
-                          <span
-                            className="country-color"
-                            style={{ backgroundColor: country.color }}
-                          />
-                          {country.shortName}
-                        </td>
-                        <td>{(country.population / 1_000_000).toFixed(1)}M</td>
-                        <td>{Math.round(country.economy.gdp / 1000).toLocaleString("ru-RU")}K</td>
-                        <td className={country.economy.treasury >= 0 ? "positive" : "negative"}>
-                          {Math.round(country.economy.treasury).toLocaleString("ru-RU")}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </section>
-            </>
-          )}
-
-          {/* Панель бюджета */}
-          {activePanel === "budget" && (
-            <BudgetPanel country={playerCountry} onUpdateBudget={handleUpdateBudget} />
-          )}
-
-          {/* Панель исследований */}
-          {activePanel === "research" && (
-            <ResearchPanel
-              country={playerCountry}
-              onStartResearch={handleStartResearch}
-              onStopResearch={handleStopResearch}
-            />
-          )}
-
-          {/* Панель действий */}
-          {activePanel === "actions" && (
-            <ActionPanel
-              actions={game.playerActions || []}
-              regions={playerRegions}
-              onCreateAction={handleCreateAction}
-              onDeleteAction={handleDeleteAction}
-            />
-          )}
-        </div>
+              {w.kind.type === "budget" && (
+                <BudgetPanel country={playerCountry} onUpdateBudget={handleUpdateBudget} />
+              )}
+              {w.kind.type === "research" && (
+                <ResearchPanel
+                  country={playerCountry}
+                  onStartResearch={handleStartResearch}
+                  onStopResearch={handleStopResearch}
+                />
+              )}
+              {w.kind.type === "actions" && (
+                <ActionPanel
+                  actions={game.playerActions || []}
+                  regions={playerRegions}
+                  onCreateAction={handleCreateAction}
+                  onDeleteAction={handleDeleteAction}
+                />
+              )}
+              {w.kind.type === "ranking" && (
+                <WorldRankingPanel game={game} onSelectCountry={handleSelectCountry} />
+              )}
+              {w.kind.type === "territories" && (
+                <TerritoriesPanel
+                  regions={playerRegions}
+                  selectedRegionId={selectedRegionId}
+                  onSelectRegion={handleRegionClick}
+                />
+              )}
+            </Window>
+          );
+        })}
       </div>
+
+      <ResourceTicker stockpile={playerCountry.stockpile} />
     </div>
   );
 }

@@ -152,7 +152,9 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
     const loadMap = async () => {
       try {
         console.log('Loading map with countries:', countries.map(c => ({ id: c.id, name: c.name, color: c.color })));
-        const data = await loadGameMapData('/1world-map-full.geojson', regions, countries);
+        // TEMP: /1world-map-full.geojson не существует пока карта в работе у пользователя.
+        // game_map.json — временная подмена только для прототипа интерфейса.
+        const data = await loadGameMapData('/game_map.json', regions, countries);
         setMapData(data);
 
         if (m.getSource('regions')) {

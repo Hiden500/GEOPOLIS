@@ -13,23 +13,26 @@ export default defineConfig({
 
   server: {
     proxy: {
-      "/game": {
+      // Регэксп с границей пути (/$ или /), а не префикс — иначе "/game"
+      // матчит и статику вроде /game_map.json, отправляя её на Express,
+      // где такого роута нет (404 "Cannot GET").
+      "^/game($|/)": {
         target: "http://localhost:3000",
         changeOrigin: true,
       },
-      "/scenarios": {
+      "^/scenarios($|/)": {
         target: "http://localhost:3000",
         changeOrigin: true,
       },
-      "/budget": {
+      "^/budget($|/)": {
         target: "http://localhost:3000",
         changeOrigin: true,
       },
-      "/research": {
+      "^/research($|/)": {
         target: "http://localhost:3000",
         changeOrigin: true,
       },
-      "/actions": {
+      "^/actions($|/)": {
         target: "http://localhost:3000",
         changeOrigin: true,
       },
