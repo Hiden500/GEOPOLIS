@@ -12,10 +12,27 @@ interface Props {
   children: ReactNode;
 }
 
+// Сколько окна гарантированно остаётся в пределах вьюпорта при перетаскивании,
+// чтобы его нельзя было утащить за край и потерять (титулбар всегда доступен).
+const KEEP_VISIBLE = 48;
+const TITLEBAR_REACH = 36;
+
 export function Window({ title, position, size, zIndex, onMove, onResize, onFocus, onClose, children }: Props) {
   const dragState = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const resizeState = useRef<{ startX: number; startY: number; startWidth: number; startHeight: number } | null>(null);
+  const windowRef = useRef<HTMLDivElement | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
+
+  // Ограничивает позицию так, чтобы окно не ушло целиком за пределы экрана:
+  // минимум KEEP_VISIBLE px по горизонтали остаётся видимым, а титулбар —
+  // всегда в пределах высоты вьюпорта (иначе окно не за что схватить).
+  const clampToViewport = (x: number, y: number) => {
+    const w = windowRef.current?.offsetWidth ?? 320;
+    return {
+      x: Math.min(Math.max(x, KEEP_VISIBLE - w), window.innerWidth - KEEP_VISIBLE),
+      y: Math.min(Math.max(y, 0), window.innerHeight - TITLEBAR_REACH),
+    };
+  };
 
   const handleDragStart = (e: React.MouseEvent) => {
     onFocus();
@@ -27,7 +44,7 @@ export function Window({ title, position, size, zIndex, onMove, onResize, onFocu
   const handleDragMove = (e: MouseEvent) => {
     const drag = dragState.current;
     if (!drag) return;
-    onMove({ x: drag.originX + (e.clientX - drag.startX), y: drag.originY + (e.clientY - drag.startY) });
+    onMove(clampToViewport(drag.originX + (e.clientX - drag.startX), drag.originY + (e.clientY - drag.startY)));
   };
 
   const handleDragEnd = () => {
@@ -67,6 +84,7 @@ export function Window({ title, position, size, zIndex, onMove, onResize, onFocu
 
   return (
     <div
+      ref={windowRef}
       className="window"
       style={{
         left: position.x,

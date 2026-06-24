@@ -1,20 +1,9 @@
 import { type GameState } from "@shared/types/GameState";
-import { type WindowKind } from "../hooks/useWindows";
 
 interface Props {
   target: { type: "country"; countryId: string } | { type: "region"; regionId: number };
   game: GameState;
   onSelectCountry: (countryId: string) => void;
-}
-
-export function getInspectorTitle(kind: WindowKind, game: GameState): string {
-  if (kind.type === "country") {
-    return game.countries.find(c => c.id === kind.countryId)?.name ?? "Страна";
-  }
-  if (kind.type === "region") {
-    return game.regions.find(r => r.id === kind.regionId)?.name ?? "Регион";
-  }
-  return "";
 }
 
 function CountryInspector({ countryId, game, onSelectCountry }: { countryId: string; game: GameState; onSelectCountry: (id: string) => void }) {

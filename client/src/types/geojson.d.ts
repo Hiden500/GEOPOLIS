@@ -1,4 +1,5 @@
 declare module "*.geojson" {
-  const value: any;
+  import type { FeatureCollection } from "geojson";
+  const value: FeatureCollection;
   export default value;
 }

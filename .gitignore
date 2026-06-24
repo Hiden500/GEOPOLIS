@@ -45,6 +45,13 @@ coverage/
 *.save
 savegames/
 
-# Данные и кэш
-data/
+# Данные и кэш (генерируемые/большие дампы — не путать с исходным кодом
+# в server/src/data, shared/src/data: широкое правило "data/" раньше
+# матчило их тоже и тихо роняло 13 файлов из git, см. docs/DECISIONS.md)
+/server/data/
+/client/data/
 logs/
+
+# Неиспользуемый дамп регионов (574KB, не импортируется — заменён
+# пайплайном server/data/scenarios/1946/regions.json)
+/shared/src/data/regions_1946.json

@@ -17,9 +17,7 @@ export function ScenarioSelector({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const loadScenarios = () => {
-    setLoading(true);
-    setLoadError(null);
+  const fetchScenarios = () => {
     getScenarios()
       .then(data => {
         setScenarios(data);
@@ -34,8 +32,14 @@ export function ScenarioSelector({
   };
 
   useEffect(() => {
-    loadScenarios();
+    fetchScenarios();
   }, []);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setLoadError(null);
+    fetchScenarios();
+  };
 
   const handleStartGame = () => {
     if (selectedScenario && selectedCountry) {
@@ -52,7 +56,7 @@ export function ScenarioSelector({
       <div className="loading">
         Ошибка: {loadError}
         <p className="hint">Убедитесь, что сервер запущен (npm run dev в server/)</p>
-        <button onClick={loadScenarios}>Повторить попытку</button>
+        <button onClick={handleRetry}>Повторить попытку</button>
       </div>
     );
   }

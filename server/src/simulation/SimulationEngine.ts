@@ -7,6 +7,7 @@ import { militaryTick } from "./military/MilitaryTick";
 import { updateAllRegionsAndAggregate } from "@shared/utils/aggregateCountryData";
 import { MapFeatureService } from "../services/MapFeatureService";
 import { diplomacyTick } from "./diplomacy/DiplomacyTick";
+import { aiBehaviorTick } from "./ai/AiBehaviorTick";
 
 export function simulateMonth(
     game: GameState
@@ -29,6 +30,10 @@ export function simulateMonth(
 
     // Дипломатические изменения
     diplomacyTick(game.countries);
+
+    // Детерминированное поведение ИИ-стран (аустерити + ответ на угрозу).
+    // После диплом. тика: реагирует на актуальные отношения/влияние/силу.
+    aiBehaviorTick(game);
 
     // Очищаем истёкшие Map Features
     const mapFeatureService = new MapFeatureService(game);

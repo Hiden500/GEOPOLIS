@@ -13,6 +13,13 @@ export function economyTick(
   const economy = country.economy;
   const countryRegions = regions.filter(r => r.ownerCountryId === country.id);
 
+  // Налоговый доход следует за ВВП: taxRevenue = gdp × ставка (выведена в createGame).
+  // taxRate опционально (рантайм-поле): если не задано — taxRevenue остаётся как есть.
+  // Остальные компоненты дохода (export/stateEnterprise/other) пока статичны. См. docs/DECISIONS.md.
+  if (economy.taxRate !== undefined) {
+    economy.taxRevenue = economy.gdp * economy.taxRate;
+  }
+
   const income =
     economy.taxRevenue +
     economy.exportIncome +

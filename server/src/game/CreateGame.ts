@@ -22,6 +22,23 @@ export function createGame(
   // Инициализируем ВВП регионов и агрегируем данные к странам
   updateAllRegionsAndAggregate(countries, regions);
 
+  // Выводим эффективную налоговую ставку (taxRevenue/gdp) на старте партии.
+  // Далее EconomyTick держит taxRevenue = gdp × taxRate, чтобы доход следовал
+  // за ВВП. Считаем после агрегации — gdp уже = Σ region.gdp. См. docs/DECISIONS.md.
+  for (const country of countries) {
+    const e = country.economy;
+    e.taxRate = e.gdp > 0 ? e.taxRevenue / e.gdp : 0;
+
+    // Снимок пола дискреционных расходов (50% старта) для ИИ-аустерити (Правило A).
+    e.spendingFloor = {
+      militarySpending: e.militarySpending * 0.5,
+      researchSpending: e.researchSpending * 0.5,
+      educationSpending: e.educationSpending * 0.5,
+      infrastructureSpending: e.infrastructureSpending * 0.5,
+      welfareSpending: e.welfareSpending * 0.5,
+    };
+  }
+
   // Создаём базовое состояние игры
   const game: GameState = {
     currentDate: scenario.startDate,

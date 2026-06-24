@@ -26,6 +26,27 @@ describe("economyTick", () => {
     expect(country.economy.treasury).toBe(treasuryBefore + (income - expenses));
   });
 
+  it("recomputes taxRevenue from gdp × taxRate (доход следует за ВВП)", () => {
+    // Свежий ВВП выше, taxRevenue устарел — тик должен пересчитать его по ставке.
+    const country = createTestCountry({
+      economy: { ...createTestCountry().economy, gdp: 1_000_000_000_000, taxRate: 0.25, taxRevenue: 1 },
+    });
+
+    economyTick(country, []);
+
+    expect(country.economy.taxRevenue).toBe(1_000_000_000_000 * 0.25);
+  });
+
+  it("leaves taxRevenue untouched when taxRate is undefined", () => {
+    const economy = createTestCountry().economy;
+    delete economy.taxRate;
+    const country = createTestCountry({ economy: { ...economy, taxRevenue: 42 } });
+
+    economyTick(country, []);
+
+    expect(country.economy.taxRevenue).toBe(42);
+  });
+
   it("is deterministic for identical inputs", () => {
     const countryA = createTestCountry();
     const countryB = createTestCountry();

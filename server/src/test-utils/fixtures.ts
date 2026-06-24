@@ -1,6 +1,7 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type ResearchProject } from "@shared/types/research/ResearchProject";
+import { type GameState } from "@shared/types/GameState";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 
@@ -16,6 +17,8 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       gdp: 500_000_000_000,
       treasury: 100_000_000_000,
       taxRevenue: 100_000_000_000,
+      taxRate: 0.2, // = taxRevenue/gdp, чтобы пересчёт в EconomyTick давал ту же сумму
+
       exportIncome: 50_000_000_000,
       stateEnterpriseIncome: 20_000_000_000,
       otherIncome: 10_000_000_000,
@@ -30,6 +33,13 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       unemployment: 5.0,
       tradeBalance: -10_000_000_000,
       budgetBalance: 0,
+      spendingFloor: {
+        militarySpending: 15_000_000_000,
+        researchSpending: 10_000_000_000,
+        educationSpending: 10_000_000_000,
+        infrastructureSpending: 5_000_000_000,
+        welfareSpending: 7_500_000_000,
+      },
     },
     economyType: "market",
     technology: {
@@ -115,6 +125,27 @@ export function createTestRegion(overrides: Partial<Region> = {}): Region {
       coal: 200_000,
     },
     neighboringRegionIds: [],
+    ...overrides,
+  };
+}
+
+export function createTestGameState(overrides: Partial<GameState> = {}): GameState {
+  return {
+    currentDate: "1946-01-01",
+    playerCountryId: "TEST",
+    countries: [],
+    era: {
+      id: "1946",
+      name: "Test Era",
+      startYear: 1946,
+      endYear: 2000,
+      technologyDomains: [],
+    },
+    regions: [],
+    regionIndex: new Map<string, number[]>(),
+    playerActions: [],
+    eventHistory: [],
+    mapFeatures: [],
     ...overrides,
   };
 }
