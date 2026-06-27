@@ -67,6 +67,11 @@ export/stateEnterprise/other остаются статичными в перво
 - route-слой тесты (нужен `supertest`, integration-style) — единственный незакрытый кусок тест-трека.
 - тесты `Window.tsx` (drag/resize через DOM-события — инфра уже есть, `happy-dom` даёт `innerWidth`).
 - Zustand: внедрить (заявлен обязательным в `AI_RULES.md`, в коде нет) или снять требование.
+- **БАГ (найден при уборке 2026-06-27):** `game.currentDate` никогда не продвигается в реальном
+  потоке симуляции (`SimulationService`/`SimulationEngine` не трогают дату) — месяцы идут,
+  календарь стоит. Чинить в `SimulationEngine.simulateMonth` или `SimulationService`, см. `DECISIONS.md`.
+- **БАГ (найден при уборке 2026-06-27):** `App.tsx` — кнопка показа `Map1946Viewer` ведёт на
+  несуществующий `/world_map_1946.geojson`, сломано при клике. См. `DECISIONS.md`.
 
 ---
 

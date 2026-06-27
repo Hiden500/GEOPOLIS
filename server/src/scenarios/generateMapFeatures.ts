@@ -93,29 +93,3 @@ function isCoastalRegion(region: Region): boolean {
   // В реальности нужно проверять граничит ли регион с океаном
   return false;
 }
-
-/**
- * Генерирует шахты в регионах с ресурсами.
- */
-export function generateMineFeatures(
-  game: GameState
-): MapFeature[] {
-  const mapFeatureService = new MapFeatureService(game);
-  const features: MapFeature[] = [];
-
-  for (const region of game.regions) {
-    if (region.resourceProduction && Object.keys(region.resourceProduction).length > 0) {
-      const mine = mapFeatureService.createMapFeature({
-        type: 'mine',
-        regionId: region.id,
-        ownerId: region.ownerCountryId,
-        name: `${region.name} Mining Complex`,
-        tags: ['industry', 'mine'],
-        visibleAtZoom: 9,
-      });
-      features.push(mine);
-    }
-  }
-
-  return features;
-}

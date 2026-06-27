@@ -37,11 +37,6 @@ export async function startGame(
   return handleResponse(response);
 }
 
-export async function getGameState(): Promise<GameState> {
-  const response = await fetch(`${API}/game/state`);
-  return handleResponse(response);
-}
-
 export async function nextTurn(): Promise<GameState> {
   const response = await fetch(`${API}/game/next-turn`, {
     method: "POST",

@@ -141,17 +141,3 @@ export function getRussianRegionName(
   // Приоритет 4: оригинальное название
   return englishName;
 }
-
-/**
- * Добавляет новый перевод в словарь
- */
-export function addRegionTranslation(key: string, russianName: string): void {
-  REGION_TRANSLATIONS[key] = russianName;
-}
-
-/**
- * Пакетное добавление переводов
- */
-export function addRegionTranslations(translations: Record<string, string>): void {
-  Object.assign(REGION_TRANSLATIONS, translations);
-}

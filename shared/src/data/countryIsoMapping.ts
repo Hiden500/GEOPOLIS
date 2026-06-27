@@ -86,24 +86,3 @@ export const COUNTRY_ID_TO_ISO: Record<string, string[]> = {
 export function getCountryIdByIso(isoA3: string): string | null {
   return ISO_TO_COUNTRY_ID[isoA3] || null;
 }
-
-/**
- * Получает ISO коды страны по игровому ID
- */
-export function getIsoCodesByCountryId(gameId: string): string[] {
-  return COUNTRY_ID_TO_ISO[gameId] || [];
-}
-
-/**
- * Добавляет новый маппинг страны
- */
-export function addCountryMapping(isoA3: string, gameId: string): void {
-  ISO_TO_COUNTRY_ID[isoA3] = gameId;
-  
-  if (!COUNTRY_ID_TO_ISO[gameId]) {
-    COUNTRY_ID_TO_ISO[gameId] = [];
-  }
-  if (!COUNTRY_ID_TO_ISO[gameId].includes(isoA3)) {
-    COUNTRY_ID_TO_ISO[gameId].push(isoA3);
-  }
-}
