@@ -219,7 +219,10 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
                 '#FFFFFF',
                 ['boolean', ['feature-state', 'selected'], false],
                 '#FFD700',
-                '#334155'
+                // Тёмная почти-чёрная линия — читается на любом цвете
+                // заливки (полупрозрачной), в отличие от прежнего #334155,
+                // который терялся на похожих по тону холодных оттенках.
+                '#0b0e14'
               ],
               'line-width': [
                 'case',
@@ -227,7 +230,7 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
                 2,
                 ['boolean', ['feature-state', 'selected'], false],
                 2.5,
-                0.5
+                0.7
               ]
             }
           });

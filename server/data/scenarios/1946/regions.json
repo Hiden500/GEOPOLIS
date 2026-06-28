@@ -303,7 +303,7 @@
     "geoJsonId": "EUR-0012",
     "names": {
       "en": "Åland Islands",
-      "ru": "Аландские острова (отдельный iso_a2='AX', автономия Финляндии)"
+      "ru": "Аландские острова"
     },
     "ownerCountryId": "ALA",
     "population": 0,
@@ -1791,7 +1791,7 @@
     "geoJsonId": "EUR-0067",
     "names": {
       "en": "Hovedstaden",
-      "ru": "Столичный регион (Дания)"
+      "ru": "Столичный регион"
     },
     "ownerCountryId": "DNK",
     "population": 0,
@@ -3294,7 +3294,7 @@
     "geoJsonId": "EUR-0125",
     "names": {
       "en": "Gibraltar",
-      "ru": "Гибралтар (отдельный iso_a2='GI', не входил в список стран)"
+      "ru": "Гибралтар"
     },
     "ownerCountryId": "QCG",
     "population": 0,
@@ -4717,7 +4717,7 @@
     "geoJsonId": "EUR-0180",
     "names": {
       "en": "Liechtenstein",
-      "ru": "Лихтенштейн (отдельный iso_a2='LI', не входил в список стран)"
+      "ru": "Лихтенштейн"
     },
     "ownerCountryId": "LIE",
     "population": 0,
@@ -4983,7 +4983,7 @@
     "geoJsonId": "EUR-0190",
     "names": {
       "en": "Monaco",
-      "ru": "Монако (отдельный iso_a2='MC', не входил в список стран)"
+      "ru": "Монако"
     },
     "ownerCountryId": "MCO",
     "population": 0,
@@ -8966,7 +8966,7 @@
     "geoJsonId": "EUR-0338",
     "names": {
       "en": "San Marino",
-      "ru": "Сан-Марино (отдельный iso_a2='SM', не входил в список стран)"
+      "ru": "Сан-Марино"
     },
     "ownerCountryId": "SMR",
     "population": 0,
@@ -9699,7 +9699,7 @@
     "geoJsonId": "EUR-0365",
     "names": {
       "en": "Kosovo",
-      "ru": "Косово (отдельный iso_a2='XK' в данных, не входил в список стран)"
+      "ru": "Косово"
     },
     "ownerCountryId": "YUG",
     "population": 0,
@@ -11046,8 +11046,8 @@
     "id": 414,
     "geoJsonId": "ASI-0042",
     "names": {
-      "en": "Dalian (Port Arthur / Kwantung Leased Territory)",
-      "ru": "Далянь (Порт-Артур / Квантунская арендная территория)"
+      "en": "Dalian",
+      "ru": "Далянь"
     },
     "ownerCountryId": "TWN",
     "population": 0,
@@ -11139,8 +11139,8 @@
     "id": 418,
     "geoJsonId": "ASI-0046",
     "names": {
-      "en": "Hankou (Wuhan)",
-      "ru": "Ханькоу (Ухань)"
+      "en": "Hankou",
+      "ru": "Ханькоу"
     },
     "ownerCountryId": "TWN",
     "population": 0,
@@ -12171,7 +12171,7 @@
     "geoJsonId": "ASI-0086",
     "names": {
       "en": "Bhutan",
-      "ru": "Бутан (план: 'каждый в отдельный регион')"
+      "ru": "Бутан"
     },
     "ownerCountryId": "BTN",
     "population": 0,
@@ -12284,7 +12284,7 @@
     "geoJsonId": "ASI-0090",
     "names": {
       "en": "Hong Kong",
-      "ru": "Гонконг (отдельный iso_a2='HK', не входил в список стран)"
+      "ru": "Гонконг"
     },
     "ownerCountryId": "QCG",
     "population": 0,
@@ -16384,7 +16384,7 @@
     "geoJsonId": "ASI-0247",
     "names": {
       "en": "Ceylon",
-      "ru": "Цейлон (план: 'каждый в отдельный регион')"
+      "ru": "Цейлон"
     },
     "ownerCountryId": "QCG",
     "population": 0,
@@ -16789,7 +16789,7 @@
     "geoJsonId": "ASI-0262",
     "names": {
       "en": "Macau",
-      "ru": "Макао (отдельный iso_a2='MO', не входил в список стран)"
+      "ru": "Макао"
     },
     "ownerCountryId": "QCP",
     "population": 0,
@@ -16956,7 +16956,7 @@
     "geoJsonId": "ASI-0269",
     "names": {
       "en": "Nepal",
-      "ru": "Непал (план: 'каждый в отдельный регион')"
+      "ru": "Непал"
     },
     "ownerCountryId": "NPL",
     "population": 0,
@@ -17088,8 +17088,8 @@
     "id": 646,
     "geoJsonId": "ASI-0274",
     "names": {
-      "en": "Autonomous Region in Muslim Mindanao (ARMM)",
-      "ru": "Автономный регион на мусульманском Минданао (ARMM)"
+      "en": "Autonomous Region in Muslim Mindanao",
+      "ru": "Автономный регион на мусульманском Минданао"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17112,8 +17112,8 @@
     "id": 647,
     "geoJsonId": "ASI-0275",
     "names": {
-      "en": "Davao (Region XI)",
-      "ru": "Давао (Регион XI)"
+      "en": "Davao",
+      "ru": "Давао"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17137,8 +17137,8 @@
     "id": 648,
     "geoJsonId": "ASI-0276",
     "names": {
-      "en": "Zamboanga Peninsula (Region IX)",
-      "ru": "Полуостров Замбоанга (Регион IX)"
+      "en": "Zamboanga Peninsula",
+      "ru": "Полуостров Замбоанга"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17160,8 +17160,8 @@
     "id": 649,
     "geoJsonId": "ASI-0277",
     "names": {
-      "en": "MIMAROPA (Region IV-B)",
-      "ru": "МИМАРОПА (Район IV-B)"
+      "en": "MIMAROPA",
+      "ru": "МИМАРОПА"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17181,8 +17181,8 @@
     "id": 650,
     "geoJsonId": "ASI-0278",
     "names": {
-      "en": "Dinagat Islands (Region XIII)",
-      "ru": "Острова Динагат (Регион XIII)"
+      "en": "Dinagat Islands",
+      "ru": "Острова Динагат"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17205,8 +17205,8 @@
     "id": 651,
     "geoJsonId": "ASI-0279",
     "names": {
-      "en": "Northern Mindanao (Region X)",
-      "ru": "Северный Минданао (Регион X)"
+      "en": "Northern Mindanao",
+      "ru": "Северный Минданао"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17232,8 +17232,8 @@
     "id": 652,
     "geoJsonId": "ASI-0280",
     "names": {
-      "en": "SOCCSKSARGEN (Region XII)",
-      "ru": "СОКСКСАРГЕН (Регион XII)"
+      "en": "SOCCSKSARGEN",
+      "ru": "СОКСКСАРГЕН"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17257,8 +17257,8 @@
     "id": 653,
     "geoJsonId": "ASI-0281",
     "names": {
-      "en": "Eastern Visayas (Region VIII)",
-      "ru": "Восточные Висайи (Регион VIII)"
+      "en": "Eastern Visayas",
+      "ru": "Восточные Висайи"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17278,8 +17278,8 @@
     "id": 654,
     "geoJsonId": "ASI-0282",
     "names": {
-      "en": "Central Luzon (Region III)",
-      "ru": "Центральный Лусон (Регион III)"
+      "en": "Central Luzon",
+      "ru": "Центральный Лусон"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17304,8 +17304,8 @@
     "id": 655,
     "geoJsonId": "ASI-0283",
     "names": {
-      "en": "CALABARZON (Region IV-A)",
-      "ru": "КАЛАБАРСОН (Район IV-A)"
+      "en": "CALABARZON",
+      "ru": "КАЛАБАРСОН"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17329,8 +17329,8 @@
     "id": 656,
     "geoJsonId": "ASI-0284",
     "names": {
-      "en": "Bicol (Region V)",
-      "ru": "Бикол (Регион V)"
+      "en": "Bicol",
+      "ru": "Бикол"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17376,8 +17376,8 @@
     "id": 658,
     "geoJsonId": "ASI-0286",
     "names": {
-      "en": "Ilocos (Region I)",
-      "ru": "Илокос (Регион I)"
+      "en": "Ilocos",
+      "ru": "Илокос"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17401,8 +17401,8 @@
     "id": 659,
     "geoJsonId": "ASI-0287",
     "names": {
-      "en": "Cagayan Valley (Region II)",
-      "ru": "Долина Кагаян (Регион II)"
+      "en": "Cagayan Valley",
+      "ru": "Долина Кагаян"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17426,8 +17426,8 @@
     "id": 660,
     "geoJsonId": "ASI-0288",
     "names": {
-      "en": "Central Visayas (Region VII)",
-      "ru": "Центральные Висайские острова (Регион VII)"
+      "en": "Central Visayas",
+      "ru": "Центральные Висайские острова"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17449,8 +17449,8 @@
     "id": 661,
     "geoJsonId": "ASI-0289",
     "names": {
-      "en": "Western Visayas (Region VI)",
-      "ru": "Западные Висайские острова (Регион VI)"
+      "en": "Western Visayas",
+      "ru": "Западные Висайские острова"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -17472,8 +17472,8 @@
     "id": 662,
     "geoJsonId": "ASI-0290",
     "names": {
-      "en": "Cordillera Administrative Region (CAR)",
-      "ru": "Административный регион Кордильеры (ЦАР)"
+      "en": "Cordillera Administrative Region",
+      "ru": "Административный регион Кордильеры"
     },
     "ownerCountryId": "PHL",
     "population": 0,
@@ -18043,8 +18043,8 @@
     "id": 683,
     "geoJsonId": "ASI-0311",
     "names": {
-      "en": "Hasaka (Al Haksa)",
-      "ru": "Хасака (Аль-Хакса)"
+      "en": "Hasaka",
+      "ru": "Хасака"
     },
     "ownerCountryId": "SYR",
     "population": 0,
@@ -18286,8 +18286,8 @@
     "id": 692,
     "geoJsonId": "ASI-0320",
     "names": {
-      "en": "Homs (Hims)",
-      "ru": "Хомс (Химс)"
+      "en": "Homs",
+      "ru": "Хомс"
     },
     "ownerCountryId": "SYR",
     "population": 0,
@@ -18722,7 +18722,7 @@
     "geoJsonId": "ASI-0336",
     "names": {
       "en": "Portuguese Timor",
-      "ru": "Восточный Тимор (Португальский Тимор)"
+      "ru": "Восточный Тимор"
     },
     "ownerCountryId": "QCP",
     "population": 0,
@@ -20561,8 +20561,8 @@
     "id": 779,
     "geoJsonId": "NAM-0006",
     "names": {
-      "en": "Guantanamo Bay (US Naval Base)",
-      "ru": "Гуантанамо (военная база США)"
+      "en": "Guantanamo Bay",
+      "ru": "Гуантанамо"
     },
     "ownerCountryId": "USA",
     "population": 0,
@@ -20585,7 +20585,7 @@
     "geoJsonId": "NAM-0007",
     "names": {
       "en": "Clipperton Island",
-      "ru": "Клипертон (Франция)"
+      "ru": "Клипертон"
     },
     "ownerCountryId": "FRA",
     "population": 0,
@@ -24325,7 +24325,7 @@
     "geoJsonId": "NAM-0154",
     "names": {
       "en": "British Virgin Islands",
-      "ru": "Виргинские о-ва (Брит.)"
+      "ru": "Виргинские о-ва"
     },
     "ownerCountryId": "QCG",
     "population": 0,
@@ -24348,7 +24348,7 @@
     "geoJsonId": "NAM-0155",
     "names": {
       "en": "United States Virgin Islands",
-      "ru": "Виргинские о-ва (США)"
+      "ru": "Виргинские о-ва"
     },
     "ownerCountryId": "QCU",
     "population": 0,
@@ -27700,8 +27700,8 @@
     "id": 1054,
     "geoJsonId": "SAM-0013",
     "names": {
-      "en": "Distrito Federal (Rio de Janeiro)",
-      "ru": "Федеральный округ (Рио-де-Жанейро)"
+      "en": "Distrito Federal",
+      "ru": "Федеральный округ"
     },
     "ownerCountryId": "BRA",
     "population": 0,
@@ -27723,8 +27723,8 @@
     "id": 1055,
     "geoJsonId": "SAM-0014",
     "names": {
-      "en": "Rio de Janeiro (estado)",
-      "ru": "Рио-де-Жанейро (estado)"
+      "en": "Rio de Janeiro",
+      "ru": "Рио-де-Жанейро"
     },
     "ownerCountryId": "BRA",
     "population": 0,
@@ -29494,8 +29494,8 @@
     "id": 1124,
     "geoJsonId": "AFR-0005",
     "names": {
-      "en": "Western Sahara (Spanish Sahara)",
-      "ru": "Западная Сахара (Испанская Сахара)"
+      "en": "Western Sahara",
+      "ru": "Западная Сахара"
     },
     "ownerCountryId": "QCS",
     "population": 0,
@@ -29541,8 +29541,8 @@
     "id": 1126,
     "geoJsonId": "AFR-0007",
     "names": {
-      "en": "British Indian Ocean Territory (Chagos)",
-      "ru": "Брит. территория в Индийском океане (Чагос)"
+      "en": "British Indian Ocean Territory",
+      "ru": "Брит. территория в Индийском океане"
     },
     "ownerCountryId": "QCG",
     "population": 0,
@@ -29750,8 +29750,8 @@
     "id": 1134,
     "geoJsonId": "AFR-0015",
     "names": {
-      "en": "Cairo (Greater Cairo)",
-      "ru": "Каир (Большой Каир)"
+      "en": "Cairo",
+      "ru": "Каир"
     },
     "ownerCountryId": "EGY",
     "population": 0,
@@ -29802,8 +29802,8 @@
     "id": 1136,
     "geoJsonId": "AFR-0017",
     "names": {
-      "en": "Nile Delta (Lower Egypt)",
-      "ru": "Дельта Нила (Нижний Египет)"
+      "en": "Nile Delta",
+      "ru": "Дельта Нила"
     },
     "ownerCountryId": "EGY",
     "population": 0,
@@ -29854,8 +29854,8 @@
     "id": 1138,
     "geoJsonId": "AFR-0019",
     "names": {
-      "en": "Nile Valley (Upper Egypt)",
-      "ru": "Долина Нила (Верхний Египет)"
+      "en": "Nile Valley",
+      "ru": "Долина Нила"
     },
     "ownerCountryId": "EGY",
     "population": 0,
@@ -29959,8 +29959,8 @@
     "id": 1142,
     "geoJsonId": "AFR-0023",
     "names": {
-      "en": "New Valley (Western Desert)",
-      "ru": "Новая Долина (Зап. пустыня)"
+      "en": "New Valley",
+      "ru": "Новая Долина"
     },
     "ownerCountryId": "EGY",
     "population": 0,
@@ -30070,8 +30070,8 @@
     "id": 1146,
     "geoJsonId": "AFR-0027",
     "names": {
-      "en": "Territoires du Sud (Deep Sahara)",
-      "ru": "Territoires du Sud (Сахара)"
+      "en": "Territoires du Sud",
+      "ru": "Territoires du Sud"
     },
     "ownerCountryId": "QCF",
     "population": 0,
@@ -30102,8 +30102,8 @@
     "id": 1147,
     "geoJsonId": "AFR-0028",
     "names": {
-      "en": "Territoires du Sud (Saharan fringe)",
-      "ru": "Territoires du Sud (кайма)"
+      "en": "Territoires du Sud",
+      "ru": "Territoires du Sud"
     },
     "ownerCountryId": "QCF",
     "population": 0,
@@ -34973,8 +34973,8 @@
     "id": 1334,
     "geoJsonId": "OCE-0010",
     "names": {
-      "en": "United States Minor Outlying Islands (Wake/Midway/Johnston)",
-      "ru": "Малые отдалённые о-ва США (Уэйк/Мидуэй/Джонстон)"
+      "en": "United States Minor Outlying Islands",
+      "ru": "Малые отдалённые о-ва США"
     },
     "ownerCountryId": "QCU",
     "population": 0,

@@ -54,13 +54,16 @@ ZONE_CODES_BY_OWNER = {
     "KOR": {"SUN": "QKS", "USA": "QKA"},
 }
 
-# Технический "(N)" в конце имени — индекс/код исходной геометрии, протёкший
-# в name/name_en/name_ru при сборке MAP. Не несёт смысловой информации.
-TRAILING_INDEX_RE = re.compile(r"\s*\(\d+\)\s*$")
+# Скобочные хвосты в конце имени — от технических индексов ("Burgas (5)")
+# до прямых заметок составителя MAP, протёкших в данные ("Nepal (план:
+# 'каждый в отдельный регион')", "Gibraltar (отдельный iso_a2='GI', не
+# входил в список стран)"). Ни один не несёт смысла для игрового названия —
+# снимаем все хвостовые группы (может быть несколько подряд).
+TRAILING_PAREN_RE = re.compile(r"(?:\s*\([^()]*\))+\s*$")
 
 
 def strip_trailing_index(name: str) -> str:
-    return TRAILING_INDEX_RE.sub("", name).strip()
+    return TRAILING_PAREN_RE.sub("", name).strip()
 
 
 def resolve_owner(region_id: str, ownership: dict, overlay: dict) -> str | None:
