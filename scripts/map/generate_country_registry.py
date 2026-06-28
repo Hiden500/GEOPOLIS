@@ -56,10 +56,40 @@ CUSTOM_COUNTRIES = {
     "QKS": {"name_en": "Soviet Occupation Zone (Korea)", "ideology": "Communism", "economy": "planned"},
     "QKA": {"name_en": "American Occupation Zone (Korea)", "ideology": "Liberal Democracy", "economy": "market"},
     "QMS": {"name_en": "Soviet-administered Manchuria", "ideology": "Communism", "economy": "planned"},
+    # Иранский кризис 1946 — два просоветских квазигосударства (разгромлены
+    # Тегераном в декабре 1946), см. occupation_overlay.json::_iran_crisis_1946.
+    "QAZ": {"name_en": "Azerbaijan People's Government", "ideology": "Communism", "economy": "planned"},
+    "QMH": {"name_en": "Republic of Mahabad", "ideology": "Communism", "economy": "planned"},
+    # Британский Сомалиленд — код нормализован из составного MAP-кода SOM_GBR
+    # на 3-буквенный private-use (см. import_to_game.py::OWNER_CODE_ALIASES);
+    # из-за смены кода каталог MAP по нему не матчится напрямую, поэтому здесь.
+    "QSO": {"name_en": "British Somaliland", "ideology": "Liberal Democracy", "economy": "mixed"},
 }
 
 # Суверены, исторически идущие с плановой экономикой/коммунистической идеологией.
 PLANNED_ECONOMY_SOVEREIGNS = {"SUN", "YUG", "CHN", "MNG"}
+
+# Марионетки без записи в каталоге MAP (QAZ/QMH — кастомные коды, см. выше) —
+# добавляются в puppets/sphereOfInfluence сюзерена напрямую, минуя обычный
+# catalog-driven путь (subject_of), который их не видит.
+PUPPET_OVERRIDES = {"SUN": ["QAZ", "QMH"]}
+
+# Мандат/протекторат без subject_of в каталоге MAP, но политически зависимый —
+# подставляется в catalog ПЕРЕД вычислением puppets/suzerain_of, чтобы пройти
+# тот же путь, что и нативные subject_of записи (см. PSE). Трансиордания была
+# британским мандатом до 25.05.1946, MAP отдаёт её как суверена.
+SUBJECT_OVERRIDES = {"JOR": "GBR"}
+
+# Тот же составной код MAP, что нормализуется в import_to_game.py — здесь
+# нужен повторно, т.к. countries_1946.json (каталог) хранит исходный код
+# ключом словаря, независимо от того, что regions.json уже на QSO.
+CATALOG_CODE_ALIASES = {"SOM_GBR": "QSO"}
+
+# Военное/договорное присутствие держав на 1946, НЕ территориальное владение —
+# страны остаются суверенными (свой цвет, не тонируются), только входят в
+# sphereOfInfluence сюзерена. Сирия/Ливан — французские войска до сер. 1946;
+# Египет — британская зона Суэцкого канала.
+SPHERE_OVERRIDES = {"FRA": ["SYR", "LBN"], "GBR": ["EGY"]}
 
 # Курированные цвета для крупных/узнаваемых держав 1946 — приближены к
 # реальным флагам/традиции раскраски исторических карт, а не хэш-рандом.
@@ -80,6 +110,7 @@ MAJOR_POWER_COLORS = {
 ZONE_TINT_SUZERAIN = {
     "QGS": "SUN", "QGA": "USA", "QGB": "GBR", "QGF": "FRA",
     "QKS": "SUN", "QKA": "USA", "QMS": "SUN",
+    "QAZ": "SUN", "QMH": "SUN", "QSO": "GBR",
 }
 
 EQUIPMENT_TYPES = ["rifles", "trucks", "tanks", "fighters", "bombers", "artillery", "destroyers", "submarines"]
@@ -240,7 +271,15 @@ def make_country(country_id: str, name_en: str, economy_type: str, ideology: str
 
 def main():
     catalog = load_json(OUT_DIR / "countries_1946.json")
+    catalog = {CATALOG_CODE_ALIASES.get(k, k): v for k, v in catalog.items()}
     regions = load_json(REGIONS_PATH)
+
+    # Подставляем subject_of там, где MAP отдаёт суверена, но политически
+    # территория зависима (см. SUBJECT_OVERRIDES) — после этого код ниже
+    # обрабатывает её как нативную subject_of запись (как PSE).
+    for code, suzerain in SUBJECT_OVERRIDES.items():
+        if code in catalog and not catalog[code].get("subject_of"):
+            catalog[code]["subject_of"] = suzerain
 
     merge_map = build_merge_map(catalog)
     MERGE_OUT.write_text(json.dumps(merge_map, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -280,6 +319,9 @@ def main():
             continue
         suzerain = subject_of[0] if isinstance(subject_of, list) else subject_of
         puppets_by_suzerain.setdefault(suzerain, []).append(code)
+
+    for suzerain, subs in PUPPET_OVERRIDES.items():
+        puppets_by_suzerain.setdefault(suzerain, []).extend(subs)
 
     # subject -> suzerain, для тонирования цвета вассалов (не колониальных
     # блоков — те держат отдельный акцентный цвет по решению, см. план).
@@ -324,6 +366,14 @@ def main():
         economy_type = "planned" if country_id in PLANNED_ECONOMY_SOVEREIGNS else "mixed"
         ideology = "Communism" if economy_type == "planned" else "Liberal Democracy"
         countries.append(make_country(country_id, name_en, economy_type, ideology, capital_region_id, puppets, color))
+
+    # Военное/договорное присутствие (см. SPHERE_OVERRIDES) — только сфера
+    # влияния, без тонирования цвета и без puppets (страны остаются
+    # суверенными в данных, см. docs/DECISIONS.md).
+    for country in countries:
+        extra_sphere = SPHERE_OVERRIDES.get(country["id"])
+        if extra_sphere:
+            country["diplomacy"]["sphereOfInfluence"].extend(extra_sphere)
 
     COUNTRIES_OUT.parent.mkdir(parents=True, exist_ok=True)
     COUNTRIES_OUT.write_text(json.dumps(countries, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -14169,7 +14169,7 @@
       "en": "West Azarbaijan",
       "ru": "Западный Азербайджан"
     },
-    "ownerCountryId": "IRN",
+    "ownerCountryId": "QAZ",
     "population": 0,
     "area": 37185.7,
     "urbanization": 0,
@@ -14198,7 +14198,7 @@
       "en": "East Azarbaijan",
       "ru": "Восточный Азербайджан"
     },
-    "ownerCountryId": "IRN",
+    "ownerCountryId": "QAZ",
     "population": 0,
     "area": 46449.5,
     "urbanization": 0,
@@ -14227,7 +14227,7 @@
       "en": "Ardebil",
       "ru": "Ардебиль"
     },
-    "ownerCountryId": "IRN",
+    "ownerCountryId": "QAZ",
     "population": 0,
     "area": 20179.3,
     "urbanization": 0,
@@ -14422,7 +14422,7 @@
       "en": "Kordestan",
       "ru": "Кордистан"
     },
-    "ownerCountryId": "IRN",
+    "ownerCountryId": "QMH",
     "population": 0,
     "area": 29630.6,
     "urbanization": 0,
@@ -20303,7 +20303,7 @@
       "en": "Hadramawt",
       "ru": "Хадрамаут"
     },
-    "ownerCountryId": "YEM",
+    "ownerCountryId": "QCG",
     "population": 0,
     "area": 167835.7,
     "urbanization": 0,
@@ -20331,7 +20331,7 @@
       "en": "Al Mahrah",
       "ru": "Аль-Махра"
     },
-    "ownerCountryId": "YEM",
+    "ownerCountryId": "QCG",
     "population": 0,
     "area": 63792.0,
     "urbanization": 0,
@@ -20381,7 +20381,7 @@
       "en": "Shabwah",
       "ru": "Шабва"
     },
-    "ownerCountryId": "YEM",
+    "ownerCountryId": "QCG",
     "population": 0,
     "area": 55268.7,
     "urbanization": 0,
@@ -20406,7 +20406,7 @@
       "en": "Lahij",
       "ru": "Лагич"
     },
-    "ownerCountryId": "YEM",
+    "ownerCountryId": "QCG",
     "population": 0,
     "area": 41649.2,
     "urbanization": 0,
@@ -29450,7 +29450,7 @@
       "en": "Somaliland",
       "ru": "Сомалиленд"
     },
-    "ownerCountryId": "SOM_GBR",
+    "ownerCountryId": "QSO",
     "population": 0,
     "area": 167404.1,
     "urbanization": 0,

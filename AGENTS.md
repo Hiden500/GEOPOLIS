@@ -47,6 +47,23 @@ e.g. "Выполнено" ≠ "проверено end-to-end"). Therefore:
 * If docs conflict with the code, or two docs conflict — stop, report the
   conflict, ask for clarification.
 
+**MANDATORY, not optional — read before, write after:**
+
+* Before starting any non-trivial task, read the relevant docs listed above
+  (and `docs/TODO.md`/`docs/DECISIONS.md` always) — not "if convenient."
+* After finishing a task, update docs in the SAME turn, before reporting
+  done — not "later," not "if I remember." A task is not complete until its
+  doc footprint is updated. Concretely:
+  - finished work that was tracked in `docs/TODO.md` → remove it there;
+  - a real decision, deferral, or open question → dated entry in
+    `docs/DECISIONS.md`;
+  - new backlog/deferred item discovered mid-task → added to `docs/TODO.md`
+    before ending the turn, not left only in chat or a local plan file.
+* This is a recurring failure mode for this agent specifically — docs were
+  forgotten more than once. Treat "did I touch `/docs`?" as a mandatory
+  self-check before ending any turn that changed behavior, scope, or
+  decisions, the same way tests/typecheck are mandatory before a commit.
+
 ---
 
 # Keep `/docs` Lean

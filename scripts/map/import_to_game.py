@@ -54,6 +54,13 @@ ZONE_CODES_BY_OWNER = {
     "KOR": {"SUN": "QKS", "USA": "QKA"},
 }
 
+# MAP использует составной (не 3-буквенный) код для Британского Сомалиленда —
+# единственное нарушение конвенции "все коды стран — 3 буквы" во всём
+# датасете. Нормализуем на private-use код, как остальные кастомные сущности.
+OWNER_CODE_ALIASES = {
+    "SOM_GBR": "QSO",
+}
+
 # Скобочные хвосты в конце имени — от технических индексов ("Burgas (5)")
 # до прямых заметок составителя MAP, протёкших в данные ("Nepal (план:
 # 'каждый в отдельный регион')", "Gibraltar (отдельный iso_a2='GI', не
@@ -77,9 +84,10 @@ def resolve_owner(region_id: str, ownership: dict, overlay: dict) -> str | None:
     if controller:
         # Территория без собственного правительства на 1946 (военная
         # администрация/лизинг) — присваиваем оккупанту напрямую.
-        return controller
+        return OWNER_CODE_ALIASES.get(controller, controller)
 
-    return overlay.get(region_id) or owner
+    resolved = overlay.get(region_id) or owner
+    return OWNER_CODE_ALIASES.get(resolved, resolved)
 
 
 def load_json(path: Path):
