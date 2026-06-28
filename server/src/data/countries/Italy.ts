@@ -39,6 +39,6 @@ export const Italy = createCountry({
     corruption: 20,
     governmentSupport: 55
   },
-  stockpile: { oil: 200, coal: 300, iron: 150, uranium: 0, gas: 100, food: 500, copper: 50, timber: 80, bauxite: 30, gold: 30, aluminum: 50, rareEarths: 0, lithium: 0 },
+  stockpile: { oil: 200, coal: 300, gas: 100, iron: 150, copper: 50, gold: 30, tin: 0, nickel: 0, bauxite: 80, tungsten: 0, manganese: 0, chromium: 0, uranium: 0, rareEarths: 0, lithium: 0, food: 500, timber: 80, cotton: 0, rubber: 0, nitrates: 0 },
   goals: []
 });

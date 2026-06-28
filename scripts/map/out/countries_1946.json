@@ -1,0 +1,1038 @@
+{
+ "SUN": {
+  "name_en": "Soviet Union",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "YUG": {
+  "name_en": "Yugoslavia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "DEU": {
+  "name_en": "Germany",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "KOR": {
+  "name_en": "Korea",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "CHN": {
+  "name_en": "China",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "AND": {
+  "name_en": "Andorra",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "AFG": {
+  "name_en": "Afghanistan",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ALB": {
+  "name_en": "Albania",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ARG": {
+  "name_en": "Argentina",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "AUT": {
+  "name_en": "Austria",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "BEL": {
+  "name_en": "Belgium",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "BGR": {
+  "name_en": "Bulgaria",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "BOL": {
+  "name_en": "Bolivia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "BRA": {
+  "name_en": "Brazil",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "CHE": {
+  "name_en": "Switzerland",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "CHL": {
+  "name_en": "Chile",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "COL": {
+  "name_en": "Colombia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "CRI": {
+  "name_en": "Costa Rica",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "CUB": {
+  "name_en": "Cuba",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "CSK": {
+  "name_en": "Czechoslovakia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "DNK": {
+  "name_en": "Denmark",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "DOM": {
+  "name_en": "Dominican Republic",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ECU": {
+  "name_en": "Ecuador",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "EGY": {
+  "name_en": "Egypt",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ESP": {
+  "name_en": "Spain",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ETH": {
+  "name_en": "Ethiopia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "FIN": {
+  "name_en": "Finland",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "FRA": {
+  "name_en": "France",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "GBR": {
+  "name_en": "United Kingdom",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "GRC": {
+  "name_en": "Greece",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "GTM": {
+  "name_en": "Guatemala",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "HND": {
+  "name_en": "Honduras",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "HTI": {
+  "name_en": "Haiti",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "HUN": {
+  "name_en": "Hungary",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "IRL": {
+  "name_en": "Ireland",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "IRQ": {
+  "name_en": "Iraq",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "IRN": {
+  "name_en": "Iran",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ISL": {
+  "name_en": "Iceland",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ITA": {
+  "name_en": "Italy",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "JOR": {
+  "name_en": "Jordan",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "JPN": {
+  "name_en": "Japan",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "LBN": {
+  "name_en": "Lebanon",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "LIE": {
+  "name_en": "Liechtenstein",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "LBR": {
+  "name_en": "Liberia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "LUX": {
+  "name_en": "Luxembourg",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "MCO": {
+  "name_en": "Monaco",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "MEX": {
+  "name_en": "Mexico",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "MNG": {
+  "name_en": "Mongolia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "NIC": {
+  "name_en": "Nicaragua",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "NLD": {
+  "name_en": "Netherlands",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "NOR": {
+  "name_en": "Norway",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "NPL": {
+  "name_en": "Nepal",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "OMN": {
+  "name_en": "Oman",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "PAN": {
+  "name_en": "Panama",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "PER": {
+  "name_en": "Peru",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "PHL": {
+  "name_en": "Philippines",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "POL": {
+  "name_en": "Poland",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "PRT": {
+  "name_en": "Portugal",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "PRY": {
+  "name_en": "Paraguay",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ROU": {
+  "name_en": "Romania",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "SAU": {
+  "name_en": "Saudi Arabia",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "SWE": {
+  "name_en": "Sweden",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "SMR": {
+  "name_en": "San Marino",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "SLV": {
+  "name_en": "El Salvador",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "THA": {
+  "name_en": "Thailand",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "TUR": {
+  "name_en": "Turkey",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "USA": {
+  "name_en": "United States",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "URY": {
+  "name_en": "Uruguay",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "VAT": {
+  "name_en": "Vatican City",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "VEN": {
+  "name_en": "Venezuela",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "YEM": {
+  "name_en": "Yemen",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ATA": {
+  "name_en": "Antarctica",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "SYR": {
+  "name_en": "Syria",
+  "subject_of": null,
+  "subject_type": null
+ },
+ "ARE": {
+  "name_en": "Trucial States",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "ATG": {
+  "name_en": "Antigua and Barbuda",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "AIA": {
+  "name_en": "Anguilla",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "AUS": {
+  "name_en": "Australia",
+  "subject_of": "GBR",
+  "subject_type": "dominion"
+ },
+ "BRB": {
+  "name_en": "Barbados",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "BHR": {
+  "name_en": "Bahrain",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "BMU": {
+  "name_en": "Bermuda",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "BRN": {
+  "name_en": "Brunei",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "BHS": {
+  "name_en": "Bahamas",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "BTN": {
+  "name_en": "Bhutan",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "BWA": {
+  "name_en": "Bechuanaland",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "BLZ": {
+  "name_en": "British Honduras",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "CAN": {
+  "name_en": "Canada",
+  "subject_of": "GBR",
+  "subject_type": "dominion"
+ },
+ "CYP": {
+  "name_en": "Cyprus",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "DMA": {
+  "name_en": "Dominica",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "FJI": {
+  "name_en": "Fiji",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "FLK": {
+  "name_en": "Falkland Islands",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "GRD": {
+  "name_en": "Grenada",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "GHA": {
+  "name_en": "Gold Coast",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "GIB": {
+  "name_en": "Gibraltar",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "GMB": {
+  "name_en": "Gambia",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "SGS": {
+  "name_en": "South Georgia",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "GUY": {
+  "name_en": "British Guiana",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "HKG": {
+  "name_en": "Hong Kong",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "IND": {
+  "name_en": "British Raj",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "IOT": {
+  "name_en": "British Indian Ocean Territory",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "JAM": {
+  "name_en": "Jamaica",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "KEN": {
+  "name_en": "Kenya",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "KIR": {
+  "name_en": "Gilbert and Ellice Islands",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "KNA": {
+  "name_en": "Saint Kitts and Nevis",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "KWT": {
+  "name_en": "Kuwait",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "CYM": {
+  "name_en": "Cayman Islands",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "LCA": {
+  "name_en": "Saint Lucia",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "LKA": {
+  "name_en": "Ceylon",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "LSO": {
+  "name_en": "Basutoland",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "MWI": {
+  "name_en": "Nyasaland",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "MYS": {
+  "name_en": "Malaya",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "MLT": {
+  "name_en": "Malta",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "MMR": {
+  "name_en": "Burma",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "MSR": {
+  "name_en": "Montserrat",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "MUS": {
+  "name_en": "Mauritius",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "NFD": {
+  "name_en": "Newfoundland",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "NGA": {
+  "name_en": "Nigeria",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "NRU": {
+  "name_en": "Nauru",
+  "subject_of": "GBR",
+  "subject_type": "mandate"
+ },
+ "NZL": {
+  "name_en": "New Zealand",
+  "subject_of": "GBR",
+  "subject_type": "dominion"
+ },
+ "PCN": {
+  "name_en": "Pitcairn Islands",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "PSE": {
+  "name_en": "Palestine Mandate",
+  "subject_of": "GBR",
+  "subject_type": "mandate"
+ },
+ "QAT": {
+  "name_en": "Qatar",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "SLB": {
+  "name_en": "Solomon Islands",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "SYC": {
+  "name_en": "Seychelles",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "SGP": {
+  "name_en": "Singapore",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "SHN": {
+  "name_en": "Saint Helena",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "SLE": {
+  "name_en": "Sierra Leone",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "SOM_GBR": {
+  "name_en": "British Somaliland",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "SWZ": {
+  "name_en": "Swaziland",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "TCA": {
+  "name_en": "Turks and Caicos Islands",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "TON": {
+  "name_en": "Tonga",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "TTO": {
+  "name_en": "Trinidad and Tobago",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "TUV": {
+  "name_en": "Ellice Islands",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "TZA": {
+  "name_en": "Tanganyika",
+  "subject_of": "GBR",
+  "subject_type": "mandate"
+ },
+ "UGA": {
+  "name_en": "Uganda",
+  "subject_of": "GBR",
+  "subject_type": "protectorate"
+ },
+ "VCT": {
+  "name_en": "Saint Vincent and the Grenadines",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "VGB": {
+  "name_en": "British Virgin Islands",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "ZAF": {
+  "name_en": "South Africa",
+  "subject_of": "GBR",
+  "subject_type": "dominion"
+ },
+ "ZMB": {
+  "name_en": "Northern Rhodesia",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "ZWE": {
+  "name_en": "Southern Rhodesia",
+  "subject_of": "GBR",
+  "subject_type": "colony"
+ },
+ "BFA": {
+  "name_en": "French Upper Volta",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "BEN": {
+  "name_en": "Dahomey",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "CAF": {
+  "name_en": "Ubangi-Shari",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "COG": {
+  "name_en": "Middle Congo",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "CIV": {
+  "name_en": "Ivory Coast",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "CMR": {
+  "name_en": "French Cameroun",
+  "subject_of": "FRA",
+  "subject_type": "mandate"
+ },
+ "COM": {
+  "name_en": "Comoros",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "DJI": {
+  "name_en": "French Somaliland",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "DZA": {
+  "name_en": "French Algeria",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "GAB": {
+  "name_en": "Gabon",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "GUF": {
+  "name_en": "French Guiana",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "GIN": {
+  "name_en": "French Guinea",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "KHM": {
+  "name_en": "French Cambodia",
+  "subject_of": "FRA",
+  "subject_type": "protectorate"
+ },
+ "LAO": {
+  "name_en": "French Laos",
+  "subject_of": "FRA",
+  "subject_type": "protectorate"
+ },
+ "MDG": {
+  "name_en": "Madagascar",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "MLI": {
+  "name_en": "French Sudan",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "MRT": {
+  "name_en": "Mauritania",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "NCL": {
+  "name_en": "New Caledonia",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "NER": {
+  "name_en": "Niger",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "PYF": {
+  "name_en": "French Polynesia",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "SPM": {
+  "name_en": "Saint Pierre and Miquelon",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "SEN": {
+  "name_en": "Senegal",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "TCD": {
+  "name_en": "Chad",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "TGO": {
+  "name_en": "French Togoland",
+  "subject_of": "FRA",
+  "subject_type": "mandate"
+ },
+ "TUN": {
+  "name_en": "French Tunisia",
+  "subject_of": "FRA",
+  "subject_type": "protectorate"
+ },
+ "VNM": {
+  "name_en": "French Indochina",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "WLF": {
+  "name_en": "Wallis and Futuna",
+  "subject_of": "FRA",
+  "subject_type": "colony"
+ },
+ "MAR": {
+  "name_en": "French Morocco",
+  "subject_of": "FRA",
+  "subject_type": "protectorate"
+ },
+ "AGO": {
+  "name_en": "Angola",
+  "subject_of": "PRT",
+  "subject_type": "colony"
+ },
+ "CPV": {
+  "name_en": "Cape Verde",
+  "subject_of": "PRT",
+  "subject_type": "colony"
+ },
+ "GNB": {
+  "name_en": "Portuguese Guinea",
+  "subject_of": "PRT",
+  "subject_type": "colony"
+ },
+ "MAC": {
+  "name_en": "Macau",
+  "subject_of": "PRT",
+  "subject_type": "colony"
+ },
+ "MOZ": {
+  "name_en": "Mozambique",
+  "subject_of": "PRT",
+  "subject_type": "colony"
+ },
+ "STP": {
+  "name_en": "São Tomé and Príncipe",
+  "subject_of": "PRT",
+  "subject_type": "colony"
+ },
+ "TLS": {
+  "name_en": "Portuguese Timor",
+  "subject_of": "PRT",
+  "subject_type": "colony"
+ },
+ "ABW": {
+  "name_en": "Aruba",
+  "subject_of": "NLD",
+  "subject_type": "colony"
+ },
+ "CUW": {
+  "name_en": "Curaçao",
+  "subject_of": "NLD",
+  "subject_type": "colony"
+ },
+ "IDN": {
+  "name_en": "Dutch East Indies",
+  "subject_of": "NLD",
+  "subject_type": "colony"
+ },
+ "SUR": {
+  "name_en": "Suriname",
+  "subject_of": "NLD",
+  "subject_type": "colony"
+ },
+ "SXM": {
+  "name_en": "Sint Maarten",
+  "subject_of": "NLD",
+  "subject_type": "colony"
+ },
+ "BDI": {
+  "name_en": "Ruanda-Urundi",
+  "subject_of": "BEL",
+  "subject_type": "mandate"
+ },
+ "COD": {
+  "name_en": "Belgian Congo",
+  "subject_of": "BEL",
+  "subject_type": "colony"
+ },
+ "RWA": {
+  "name_en": "Ruanda-Urundi",
+  "subject_of": "BEL",
+  "subject_type": "mandate"
+ },
+ "ESH": {
+  "name_en": "Spanish Sahara",
+  "subject_of": "ESP",
+  "subject_type": "colony"
+ },
+ "GNQ": {
+  "name_en": "Spanish Guinea",
+  "subject_of": "ESP",
+  "subject_type": "colony"
+ },
+ "ASM": {
+  "name_en": "American Samoa",
+  "subject_of": "USA",
+  "subject_type": "colony"
+ },
+ "FSM": {
+  "name_en": "Micronesia",
+  "subject_of": "USA",
+  "subject_type": "mandate"
+ },
+ "GUM": {
+  "name_en": "Guam",
+  "subject_of": "USA",
+  "subject_type": "colony"
+ },
+ "MHL": {
+  "name_en": "Marshall Islands",
+  "subject_of": "USA",
+  "subject_type": "mandate"
+ },
+ "MNP": {
+  "name_en": "Northern Mariana Islands",
+  "subject_of": "USA",
+  "subject_type": "mandate"
+ },
+ "PRI": {
+  "name_en": "Puerto Rico",
+  "subject_of": "USA",
+  "subject_type": "colony"
+ },
+ "PLW": {
+  "name_en": "Palau",
+  "subject_of": "USA",
+  "subject_type": "mandate"
+ },
+ "UMI": {
+  "name_en": "United States Minor Outlying Islands",
+  "subject_of": "USA",
+  "subject_type": "colony"
+ },
+ "VIR": {
+  "name_en": "United States Virgin Islands",
+  "subject_of": "USA",
+  "subject_type": "colony"
+ },
+ "GRL": {
+  "name_en": "Greenland",
+  "subject_of": "DNK",
+  "subject_type": "colony"
+ },
+ "COK": {
+  "name_en": "Cook Islands",
+  "subject_of": "NZL",
+  "subject_type": "colony"
+ },
+ "NIU": {
+  "name_en": "Niue",
+  "subject_of": "NZL",
+  "subject_type": "colony"
+ },
+ "TKL": {
+  "name_en": "Tokelau",
+  "subject_of": "NZL",
+  "subject_type": "colony"
+ },
+ "WSM": {
+  "name_en": "Western Samoa",
+  "subject_of": "NZL",
+  "subject_type": "mandate"
+ },
+ "PNG": {
+  "name_en": "Papua and New Guinea",
+  "subject_of": "AUS",
+  "subject_type": "mandate"
+ },
+ "SOM": {
+  "name_en": "Somalia",
+  "subject_of": "ITA",
+  "subject_type": "occupied"
+ },
+ "ERI": {
+  "name_en": "Eritrea",
+  "subject_of": "ITA",
+  "subject_type": "occupied"
+ },
+ "NAM": {
+  "name_en": "South West Africa",
+  "subject_of": "ZAF",
+  "subject_type": "mandate"
+ },
+ "ALA": {
+  "name_en": "Åland Islands",
+  "subject_of": "FIN",
+  "subject_type": "colony"
+ },
+ "SDN": {
+  "name_en": "Anglo-Egyptian Sudan",
+  "subject_of": [
+   "GBR",
+   "EGY"
+  ],
+  "subject_type": "condominium"
+ },
+ "VUT": {
+  "name_en": "New Hebrides",
+  "subject_of": [
+   "GBR",
+   "FRA"
+  ],
+  "subject_type": "condominium"
+ },
+ "LBY": {
+  "name_en": "Libya",
+  "subject_of": "ITA",
+  "subject_type": "occupied"
+ }
+}

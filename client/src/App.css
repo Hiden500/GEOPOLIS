@@ -827,6 +827,11 @@ button.stat-pill:hover .stat-pill-value {
   cursor: default;
 }
 
+.resource-chip-icon {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
 .resource-chip-code {
   font-family: var(--font-mono);
   font-size: 0.65rem;

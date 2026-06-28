@@ -43,6 +43,6 @@ export const GermanyUSSR = createCountry({
     corruption: 45,
     governmentSupport: 15
   },
-  stockpile: { oil: 30, coal: 150, iron: 60, uranium: 0, gas: 15, food: 100, copper: 15, timber: 30, bauxite: 5, gold: 15, aluminum: 10, rareEarths: 0, lithium: 0 },
+  stockpile: { oil: 30, coal: 150, gas: 15, iron: 60, copper: 15, gold: 15, tin: 0, nickel: 0, bauxite: 15, tungsten: 0, manganese: 0, chromium: 0, uranium: 0, rareEarths: 0, lithium: 0, food: 100, timber: 30, cotton: 0, rubber: 0, nitrates: 0 },
   goals: []
 });

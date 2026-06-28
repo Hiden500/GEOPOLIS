@@ -6,7 +6,6 @@ interface Props {
 }
 
 const RESOURCE_LABELS: Partial<Record<ResourceType, string>> = {
-  [ResourceType.Aluminum]: "Алюминий",
   [ResourceType.Bauxite]: "Бокситы",
   [ResourceType.Coal]: "Уголь",
   [ResourceType.Copper]: "Медь",
@@ -19,10 +18,17 @@ const RESOURCE_LABELS: Partial<Record<ResourceType, string>> = {
   [ResourceType.RareEarths]: "Редкие металлы",
   [ResourceType.Timber]: "Древесина",
   [ResourceType.Uranium]: "Уран",
+  [ResourceType.Tin]: "Олово",
+  [ResourceType.Nickel]: "Никель",
+  [ResourceType.Tungsten]: "Вольфрам",
+  [ResourceType.Manganese]: "Марганец",
+  [ResourceType.Chromium]: "Хром",
+  [ResourceType.Cotton]: "Хлопок",
+  [ResourceType.Rubber]: "Каучук",
+  [ResourceType.Nitrates]: "Селитра",
 };
 
 const RESOURCE_CODES: Partial<Record<ResourceType, string>> = {
-  [ResourceType.Aluminum]: "ALU",
   [ResourceType.Bauxite]: "BAU",
   [ResourceType.Coal]: "COL",
   [ResourceType.Copper]: "CU",
@@ -35,6 +41,37 @@ const RESOURCE_CODES: Partial<Record<ResourceType, string>> = {
   [ResourceType.RareEarths]: "REE",
   [ResourceType.Timber]: "TMB",
   [ResourceType.Uranium]: "URN",
+  [ResourceType.Tin]: "TIN",
+  [ResourceType.Nickel]: "NI",
+  [ResourceType.Tungsten]: "TUN",
+  [ResourceType.Manganese]: "MN",
+  [ResourceType.Chromium]: "CR",
+  [ResourceType.Cotton]: "COT",
+  [ResourceType.Rubber]: "RUB",
+  [ResourceType.Nitrates]: "NIT",
+};
+
+const RESOURCE_ICONS: Partial<Record<ResourceType, string>> = {
+  [ResourceType.Oil]: "🛢️",
+  [ResourceType.Coal]: "⚫",
+  [ResourceType.Gas]: "🔥",
+  [ResourceType.Iron]: "⛓️",
+  [ResourceType.Copper]: "🔶",
+  [ResourceType.Gold]: "🥇",
+  [ResourceType.Tin]: "🥫",
+  [ResourceType.Nickel]: "⚙️",
+  [ResourceType.Bauxite]: "⛏️",
+  [ResourceType.Tungsten]: "💡",
+  [ResourceType.Manganese]: "🔩",
+  [ResourceType.Chromium]: "✨",
+  [ResourceType.Uranium]: "☢️",
+  [ResourceType.RareEarths]: "💎",
+  [ResourceType.Lithium]: "🔋",
+  [ResourceType.Food]: "🌾",
+  [ResourceType.Timber]: "🪵",
+  [ResourceType.Cotton]: "🧵",
+  [ResourceType.Rubber]: "⭕",
+  [ResourceType.Nitrates]: "🧪",
 };
 
 function formatAmount(amount: number): string {
@@ -56,6 +93,7 @@ export function ResourceTicker({ stockpile }: Props) {
           className="resource-chip"
           title={`${RESOURCE_LABELS[resource as ResourceType] ?? resource}: ${Math.round(amount).toLocaleString("ru-RU")}`}
         >
+          <span className="resource-chip-icon">{RESOURCE_ICONS[resource as ResourceType] ?? "•"}</span>
           <span className="resource-chip-code">{RESOURCE_CODES[resource as ResourceType] ?? resource.slice(0, 3).toUpperCase()}</span>
           <span className="resource-chip-value">{formatAmount(amount)}</span>
         </div>

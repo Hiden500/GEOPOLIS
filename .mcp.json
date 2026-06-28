@@ -2,8 +2,13 @@
   "mcpServers": {
     "repowise": {
       "command": "repowise",
-      "args": ["mcp", "D:/Pax Historia LOCAL", "--transport", "stdio"],
-      "description": "repowise: codebase intelligence — docs, graph, git signals, dead code, decisions"
+      "args": [
+        "mcp",
+        "D:/Pax Historia LOCAL",
+        "--transport",
+        "stdio"
+      ],
+      "description": "repowise: codebase intelligence \u2014 docs, graph, git signals, dead code, decisions"
     },
     "context7": {
       "type": "http",

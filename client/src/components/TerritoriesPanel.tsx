@@ -1,4 +1,5 @@
 import { type Region } from "@shared/types/map/Region";
+import { getText } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
   regions: Region[];
@@ -21,7 +22,7 @@ export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: 
             className={`region-list-item ${selectedRegionId === region.id ? "selected" : ""}`}
             onClick={() => onSelectRegion(region.id)}
           >
-            <strong>{region.name}</strong>
+            <strong>{getText(region.names)}</strong>
             <span className="region-population">{region.population.toLocaleString("ru-RU")} чел.</span>
             <div className="region-resources">
               {Object.entries(region.resourceProduction).map(([resource, amount]) => (

@@ -1,0 +1,4616 @@
+{
+ "EUR-0001": {
+  "owner": "AND"
+ },
+ "EUR-0002": {
+  "owner": "ALB"
+ },
+ "EUR-0003": {
+  "owner": "AUT"
+ },
+ "EUR-0004": {
+  "owner": "AUT"
+ },
+ "EUR-0005": {
+  "owner": "AUT"
+ },
+ "EUR-0006": {
+  "owner": "AUT"
+ },
+ "EUR-0007": {
+  "owner": "AUT"
+ },
+ "EUR-0008": {
+  "owner": "AUT"
+ },
+ "EUR-0009": {
+  "owner": "AUT"
+ },
+ "EUR-0010": {
+  "owner": "AUT"
+ },
+ "EUR-0011": {
+  "owner": "AUT"
+ },
+ "EUR-0012": {
+  "owner": "ALA"
+ },
+ "EUR-0013": {
+  "owner": "YUG"
+ },
+ "EUR-0014": {
+  "owner": "YUG"
+ },
+ "EUR-0015": {
+  "owner": "BEL"
+ },
+ "EUR-0016": {
+  "owner": "BEL"
+ },
+ "EUR-0017": {
+  "owner": "BEL"
+ },
+ "EUR-0018": {
+  "owner": "BGR"
+ },
+ "EUR-0019": {
+  "owner": "BGR"
+ },
+ "EUR-0020": {
+  "owner": "BGR"
+ },
+ "EUR-0021": {
+  "owner": "BGR"
+ },
+ "EUR-0022": {
+  "owner": "BGR"
+ },
+ "EUR-0023": {
+  "owner": "BGR"
+ },
+ "EUR-0024": {
+  "owner": "SUN"
+ },
+ "EUR-0025": {
+  "owner": "SUN"
+ },
+ "EUR-0026": {
+  "owner": "SUN"
+ },
+ "EUR-0027": {
+  "owner": "SUN"
+ },
+ "EUR-0028": {
+  "owner": "SUN"
+ },
+ "EUR-0029": {
+  "owner": "SUN"
+ },
+ "EUR-0030": {
+  "owner": "SUN"
+ },
+ "EUR-0031": {
+  "owner": "CHE"
+ },
+ "EUR-0032": {
+  "owner": "CHE"
+ },
+ "EUR-0033": {
+  "owner": "CHE"
+ },
+ "EUR-0034": {
+  "owner": "CHE"
+ },
+ "EUR-0035": {
+  "owner": "CHE"
+ },
+ "EUR-0036": {
+  "owner": "CHE"
+ },
+ "EUR-0037": {
+  "owner": "CHE"
+ },
+ "EUR-0038": {
+  "owner": "CHE"
+ },
+ "EUR-0039": {
+  "owner": "CYP"
+ },
+ "EUR-0040": {
+  "owner": "CYP"
+ },
+ "EUR-0041": {
+  "owner": "CYP"
+ },
+ "EUR-0042": {
+  "owner": "CYP"
+ },
+ "EUR-0043": {
+  "owner": "CYP"
+ },
+ "EUR-0044": {
+  "owner": "CSK"
+ },
+ "EUR-0045": {
+  "owner": "CSK"
+ },
+ "EUR-0046": {
+  "owner": "CSK"
+ },
+ "EUR-0047": {
+  "owner": "CSK"
+ },
+ "EUR-0048": {
+  "owner": "CSK"
+ },
+ "EUR-0049": {
+  "owner": "DEU",
+  "controller": "SUN"
+ },
+ "EUR-0050": {
+  "owner": "DEU",
+  "controller": "USA"
+ },
+ "EUR-0051": {
+  "owner": "DEU",
+  "controller": "FRA"
+ },
+ "EUR-0052": {
+  "owner": "DEU",
+  "controller": "FRA"
+ },
+ "EUR-0053": {
+  "owner": "DEU",
+  "controller": "GBR"
+ },
+ "EUR-0054": {
+  "owner": "DEU",
+  "controller": "GBR"
+ },
+ "EUR-0055": {
+  "owner": "DEU",
+  "controller": "GBR"
+ },
+ "EUR-0056": {
+  "owner": "DEU",
+  "controller": "SUN"
+ },
+ "EUR-0057": {
+  "owner": "DEU",
+  "controller": "SUN"
+ },
+ "EUR-0058": {
+  "owner": "DEU",
+  "controller": "USA"
+ },
+ "EUR-0059": {
+  "owner": "DEU",
+  "controller": "GBR"
+ },
+ "EUR-0060": {
+  "owner": "DEU",
+  "controller": "USA"
+ },
+ "EUR-0061": {
+  "owner": "DEU",
+  "controller": "SUN"
+ },
+ "EUR-0062": {
+  "owner": "DEU",
+  "controller": "SUN"
+ },
+ "EUR-0063": {
+  "owner": "DNK"
+ },
+ "EUR-0064": {
+  "owner": "DNK"
+ },
+ "EUR-0065": {
+  "owner": "DNK"
+ },
+ "EUR-0066": {
+  "owner": "DNK"
+ },
+ "EUR-0067": {
+  "owner": "DNK"
+ },
+ "EUR-0068": {
+  "owner": "SUN"
+ },
+ "EUR-0069": {
+  "owner": "SUN"
+ },
+ "EUR-0070": {
+  "owner": "SUN"
+ },
+ "EUR-0071": {
+  "owner": "ESP"
+ },
+ "EUR-0072": {
+  "owner": "ESP"
+ },
+ "EUR-0073": {
+  "owner": "ESP"
+ },
+ "EUR-0074": {
+  "owner": "ESP"
+ },
+ "EUR-0075": {
+  "owner": "ESP"
+ },
+ "EUR-0076": {
+  "owner": "ESP"
+ },
+ "EUR-0077": {
+  "owner": "ESP"
+ },
+ "EUR-0078": {
+  "owner": "ESP"
+ },
+ "EUR-0079": {
+  "owner": "ESP"
+ },
+ "EUR-0080": {
+  "owner": "ESP"
+ },
+ "EUR-0081": {
+  "owner": "ESP"
+ },
+ "EUR-0082": {
+  "owner": "ESP"
+ },
+ "EUR-0083": {
+  "owner": "ESP"
+ },
+ "EUR-0084": {
+  "owner": "ESP"
+ },
+ "EUR-0085": {
+  "owner": "ESP"
+ },
+ "EUR-0086": {
+  "owner": "ESP"
+ },
+ "EUR-0087": {
+  "owner": "ESP"
+ },
+ "EUR-0088": {
+  "owner": "ESP"
+ },
+ "EUR-0089": {
+  "owner": "ESP"
+ },
+ "EUR-0090": {
+  "owner": "FIN"
+ },
+ "EUR-0091": {
+  "owner": "FIN"
+ },
+ "EUR-0092": {
+  "owner": "FIN"
+ },
+ "EUR-0093": {
+  "owner": "FIN"
+ },
+ "EUR-0094": {
+  "owner": "FIN"
+ },
+ "EUR-0095": {
+  "owner": "FIN"
+ },
+ "EUR-0096": {
+  "owner": "FRA"
+ },
+ "EUR-0097": {
+  "owner": "FRA"
+ },
+ "EUR-0098": {
+  "owner": "FRA"
+ },
+ "EUR-0099": {
+  "owner": "FRA"
+ },
+ "EUR-0100": {
+  "owner": "FRA"
+ },
+ "EUR-0101": {
+  "owner": "FRA"
+ },
+ "EUR-0102": {
+  "owner": "FRA"
+ },
+ "EUR-0103": {
+  "owner": "FRA"
+ },
+ "EUR-0104": {
+  "owner": "FRA"
+ },
+ "EUR-0105": {
+  "owner": "FRA"
+ },
+ "EUR-0106": {
+  "owner": "FRA"
+ },
+ "EUR-0107": {
+  "owner": "FRA"
+ },
+ "EUR-0108": {
+  "owner": "FRA"
+ },
+ "EUR-0109": {
+  "owner": "GBR"
+ },
+ "EUR-0110": {
+  "owner": "GBR"
+ },
+ "EUR-0111": {
+  "owner": "GBR"
+ },
+ "EUR-0112": {
+  "owner": "GBR"
+ },
+ "EUR-0113": {
+  "owner": "GBR"
+ },
+ "EUR-0114": {
+  "owner": "GBR"
+ },
+ "EUR-0115": {
+  "owner": "GBR"
+ },
+ "EUR-0116": {
+  "owner": "GBR"
+ },
+ "EUR-0117": {
+  "owner": "GBR"
+ },
+ "EUR-0118": {
+  "owner": "GBR"
+ },
+ "EUR-0119": {
+  "owner": "GBR"
+ },
+ "EUR-0120": {
+  "owner": "GBR"
+ },
+ "EUR-0121": {
+  "owner": "GBR"
+ },
+ "EUR-0122": {
+  "owner": "GBR"
+ },
+ "EUR-0123": {
+  "owner": "GBR"
+ },
+ "EUR-0124": {
+  "owner": "GBR"
+ },
+ "EUR-0125": {
+  "owner": "GIB"
+ },
+ "EUR-0126": {
+  "owner": "GRC"
+ },
+ "EUR-0127": {
+  "owner": "GRC"
+ },
+ "EUR-0128": {
+  "owner": "GRC"
+ },
+ "EUR-0129": {
+  "owner": "GRC"
+ },
+ "EUR-0130": {
+  "owner": "GRC"
+ },
+ "EUR-0131": {
+  "owner": "GRC"
+ },
+ "EUR-0132": {
+  "owner": "GRC"
+ },
+ "EUR-0133": {
+  "owner": "GRC"
+ },
+ "EUR-0134": {
+  "owner": "GRC"
+ },
+ "EUR-0135": {
+  "owner": "GRC"
+ },
+ "EUR-0136": {
+  "owner": "GRC"
+ },
+ "EUR-0137": {
+  "owner": "GRC"
+ },
+ "EUR-0138": {
+  "owner": "GRC"
+ },
+ "EUR-0139": {
+  "owner": "GRC"
+ },
+ "EUR-0140": {
+  "owner": "YUG"
+ },
+ "EUR-0141": {
+  "owner": "YUG"
+ },
+ "EUR-0142": {
+  "owner": "YUG"
+ },
+ "EUR-0143": {
+  "owner": "YUG"
+ },
+ "EUR-0144": {
+  "owner": "HUN"
+ },
+ "EUR-0145": {
+  "owner": "HUN"
+ },
+ "EUR-0146": {
+  "owner": "HUN"
+ },
+ "EUR-0147": {
+  "owner": "HUN"
+ },
+ "EUR-0148": {
+  "owner": "HUN"
+ },
+ "EUR-0149": {
+  "owner": "HUN"
+ },
+ "EUR-0150": {
+  "owner": "HUN"
+ },
+ "EUR-0151": {
+  "owner": "IRL"
+ },
+ "EUR-0152": {
+  "owner": "IRL"
+ },
+ "EUR-0153": {
+  "owner": "IRL"
+ },
+ "EUR-0154": {
+  "owner": "IRL"
+ },
+ "EUR-0155": {
+  "owner": "IRL"
+ },
+ "EUR-0156": {
+  "owner": "IRL"
+ },
+ "EUR-0157": {
+  "owner": "IRL"
+ },
+ "EUR-0158": {
+  "owner": "IRL"
+ },
+ "EUR-0159": {
+  "owner": "ISL"
+ },
+ "EUR-0160": {
+  "owner": "ITA"
+ },
+ "EUR-0161": {
+  "owner": "ITA"
+ },
+ "EUR-0162": {
+  "owner": "ITA"
+ },
+ "EUR-0163": {
+  "owner": "ITA"
+ },
+ "EUR-0164": {
+  "owner": "ITA"
+ },
+ "EUR-0165": {
+  "owner": "ITA"
+ },
+ "EUR-0166": {
+  "owner": "ITA"
+ },
+ "EUR-0167": {
+  "owner": "ITA"
+ },
+ "EUR-0168": {
+  "owner": "ITA"
+ },
+ "EUR-0169": {
+  "owner": "ITA"
+ },
+ "EUR-0170": {
+  "owner": "ITA"
+ },
+ "EUR-0171": {
+  "owner": "ITA"
+ },
+ "EUR-0172": {
+  "owner": "ITA"
+ },
+ "EUR-0173": {
+  "owner": "ITA"
+ },
+ "EUR-0174": {
+  "owner": "ITA"
+ },
+ "EUR-0175": {
+  "owner": "ITA"
+ },
+ "EUR-0176": {
+  "owner": "ITA"
+ },
+ "EUR-0177": {
+  "owner": "ITA"
+ },
+ "EUR-0178": {
+  "owner": "ITA"
+ },
+ "EUR-0179": {
+  "owner": "ITA"
+ },
+ "EUR-0180": {
+  "owner": "LIE"
+ },
+ "EUR-0181": {
+  "owner": "SUN"
+ },
+ "EUR-0182": {
+  "owner": "SUN"
+ },
+ "EUR-0183": {
+  "owner": "SUN"
+ },
+ "EUR-0184": {
+  "owner": "LUX"
+ },
+ "EUR-0185": {
+  "owner": "SUN"
+ },
+ "EUR-0186": {
+  "owner": "SUN"
+ },
+ "EUR-0187": {
+  "owner": "SUN"
+ },
+ "EUR-0188": {
+  "owner": "SUN"
+ },
+ "EUR-0189": {
+  "owner": "SUN"
+ },
+ "EUR-0190": {
+  "owner": "MCO"
+ },
+ "EUR-0191": {
+  "owner": "SUN"
+ },
+ "EUR-0192": {
+  "owner": "YUG"
+ },
+ "EUR-0193": {
+  "owner": "YUG"
+ },
+ "EUR-0194": {
+  "owner": "MLT"
+ },
+ "EUR-0195": {
+  "owner": "MLT"
+ },
+ "EUR-0196": {
+  "owner": "MLT"
+ },
+ "EUR-0197": {
+  "owner": "NLD"
+ },
+ "EUR-0198": {
+  "owner": "NLD"
+ },
+ "EUR-0199": {
+  "owner": "NLD"
+ },
+ "EUR-0200": {
+  "owner": "NLD"
+ },
+ "EUR-0201": {
+  "owner": "NLD"
+ },
+ "EUR-0202": {
+  "owner": "NOR"
+ },
+ "EUR-0203": {
+  "owner": "NOR"
+ },
+ "EUR-0204": {
+  "owner": "NOR"
+ },
+ "EUR-0205": {
+  "owner": "NOR"
+ },
+ "EUR-0206": {
+  "owner": "NOR"
+ },
+ "EUR-0207": {
+  "owner": "NOR"
+ },
+ "EUR-0208": {
+  "owner": "POL"
+ },
+ "EUR-0209": {
+  "owner": "POL"
+ },
+ "EUR-0210": {
+  "owner": "POL"
+ },
+ "EUR-0211": {
+  "owner": "POL"
+ },
+ "EUR-0212": {
+  "owner": "POL"
+ },
+ "EUR-0213": {
+  "owner": "POL"
+ },
+ "EUR-0214": {
+  "owner": "POL"
+ },
+ "EUR-0215": {
+  "owner": "POL"
+ },
+ "EUR-0216": {
+  "owner": "POL"
+ },
+ "EUR-0217": {
+  "owner": "PRT"
+ },
+ "EUR-0218": {
+  "owner": "PRT"
+ },
+ "EUR-0219": {
+  "owner": "PRT"
+ },
+ "EUR-0220": {
+  "owner": "PRT"
+ },
+ "EUR-0221": {
+  "owner": "PRT"
+ },
+ "EUR-0222": {
+  "owner": "PRT"
+ },
+ "EUR-0223": {
+  "owner": "PRT"
+ },
+ "EUR-0224": {
+  "owner": "PRT"
+ },
+ "EUR-0225": {
+  "owner": "ROU"
+ },
+ "EUR-0226": {
+  "owner": "ROU"
+ },
+ "EUR-0227": {
+  "owner": "ROU"
+ },
+ "EUR-0228": {
+  "owner": "ROU"
+ },
+ "EUR-0229": {
+  "owner": "ROU"
+ },
+ "EUR-0230": {
+  "owner": "ROU"
+ },
+ "EUR-0231": {
+  "owner": "YUG"
+ },
+ "EUR-0232": {
+  "owner": "YUG"
+ },
+ "EUR-0233": {
+  "owner": "YUG"
+ },
+ "EUR-0234": {
+  "owner": "YUG"
+ },
+ "EUR-0235": {
+  "owner": "YUG"
+ },
+ "EUR-0236": {
+  "owner": "YUG"
+ },
+ "EUR-0237": {
+  "owner": "YUG"
+ },
+ "EUR-0238": {
+  "owner": "SUN"
+ },
+ "EUR-0239": {
+  "owner": "SUN"
+ },
+ "EUR-0240": {
+  "owner": "SUN"
+ },
+ "EUR-0241": {
+  "owner": "SUN"
+ },
+ "EUR-0242": {
+  "owner": "SUN"
+ },
+ "EUR-0243": {
+  "owner": "SUN"
+ },
+ "EUR-0244": {
+  "owner": "SUN"
+ },
+ "EUR-0245": {
+  "owner": "SUN"
+ },
+ "EUR-0246": {
+  "owner": "SUN"
+ },
+ "EUR-0247": {
+  "owner": "SUN"
+ },
+ "EUR-0248": {
+  "owner": "SUN"
+ },
+ "EUR-0249": {
+  "owner": "SUN"
+ },
+ "EUR-0250": {
+  "owner": "SUN"
+ },
+ "EUR-0251": {
+  "owner": "SUN"
+ },
+ "EUR-0252": {
+  "owner": "SUN"
+ },
+ "EUR-0253": {
+  "owner": "SUN"
+ },
+ "EUR-0254": {
+  "owner": "SUN"
+ },
+ "EUR-0255": {
+  "owner": "SUN"
+ },
+ "EUR-0256": {
+  "owner": "SUN"
+ },
+ "EUR-0257": {
+  "owner": "SUN"
+ },
+ "EUR-0258": {
+  "owner": "SUN"
+ },
+ "EUR-0259": {
+  "owner": "SUN"
+ },
+ "EUR-0260": {
+  "owner": "SUN"
+ },
+ "EUR-0261": {
+  "owner": "SUN"
+ },
+ "EUR-0262": {
+  "owner": "SUN"
+ },
+ "EUR-0263": {
+  "owner": "SUN"
+ },
+ "EUR-0264": {
+  "owner": "SUN"
+ },
+ "EUR-0265": {
+  "owner": "SUN"
+ },
+ "EUR-0266": {
+  "owner": "SUN"
+ },
+ "EUR-0267": {
+  "owner": "SUN"
+ },
+ "EUR-0268": {
+  "owner": "SUN"
+ },
+ "EUR-0269": {
+  "owner": "SUN"
+ },
+ "EUR-0270": {
+  "owner": "SUN"
+ },
+ "EUR-0271": {
+  "owner": "SUN"
+ },
+ "EUR-0272": {
+  "owner": "SUN"
+ },
+ "EUR-0273": {
+  "owner": "SUN"
+ },
+ "EUR-0274": {
+  "owner": "SUN"
+ },
+ "EUR-0275": {
+  "owner": "SUN"
+ },
+ "EUR-0276": {
+  "owner": "SUN"
+ },
+ "EUR-0277": {
+  "owner": "SUN"
+ },
+ "EUR-0278": {
+  "owner": "SUN"
+ },
+ "EUR-0279": {
+  "owner": "SUN"
+ },
+ "EUR-0280": {
+  "owner": "SUN"
+ },
+ "EUR-0281": {
+  "owner": "SUN"
+ },
+ "EUR-0282": {
+  "owner": "SUN"
+ },
+ "EUR-0283": {
+  "owner": "SUN"
+ },
+ "EUR-0284": {
+  "owner": "SUN"
+ },
+ "EUR-0285": {
+  "owner": "SUN"
+ },
+ "EUR-0286": {
+  "owner": "SUN"
+ },
+ "EUR-0287": {
+  "owner": "SUN"
+ },
+ "EUR-0288": {
+  "owner": "SUN"
+ },
+ "EUR-0289": {
+  "owner": "SUN"
+ },
+ "EUR-0290": {
+  "owner": "SUN"
+ },
+ "EUR-0291": {
+  "owner": "SUN"
+ },
+ "EUR-0292": {
+  "owner": "SUN"
+ },
+ "EUR-0293": {
+  "owner": "SUN"
+ },
+ "EUR-0294": {
+  "owner": "SUN"
+ },
+ "EUR-0295": {
+  "owner": "SUN"
+ },
+ "EUR-0296": {
+  "owner": "SUN"
+ },
+ "EUR-0297": {
+  "owner": "SUN"
+ },
+ "EUR-0298": {
+  "owner": "SUN"
+ },
+ "EUR-0299": {
+  "owner": "SUN"
+ },
+ "EUR-0300": {
+  "owner": "SUN"
+ },
+ "EUR-0301": {
+  "owner": "SUN"
+ },
+ "EUR-0302": {
+  "owner": "SUN"
+ },
+ "EUR-0303": {
+  "owner": "SUN"
+ },
+ "EUR-0304": {
+  "owner": "SUN"
+ },
+ "EUR-0305": {
+  "owner": "SUN"
+ },
+ "EUR-0306": {
+  "owner": "SUN"
+ },
+ "EUR-0307": {
+  "owner": "SUN"
+ },
+ "EUR-0308": {
+  "owner": "SUN"
+ },
+ "EUR-0309": {
+  "owner": "SUN"
+ },
+ "EUR-0310": {
+  "owner": "SUN"
+ },
+ "EUR-0311": {
+  "owner": "SUN"
+ },
+ "EUR-0312": {
+  "owner": "SUN"
+ },
+ "EUR-0313": {
+  "owner": "SUN"
+ },
+ "EUR-0314": {
+  "owner": "SUN"
+ },
+ "EUR-0315": {
+  "owner": "SUN"
+ },
+ "EUR-0316": {
+  "owner": "SUN"
+ },
+ "EUR-0317": {
+  "owner": "SUN"
+ },
+ "EUR-0318": {
+  "owner": "SUN"
+ },
+ "EUR-0319": {
+  "owner": "SUN"
+ },
+ "EUR-0320": {
+  "owner": "SUN"
+ },
+ "EUR-0321": {
+  "owner": "SUN"
+ },
+ "EUR-0322": {
+  "owner": "SWE"
+ },
+ "EUR-0323": {
+  "owner": "SWE"
+ },
+ "EUR-0324": {
+  "owner": "SWE"
+ },
+ "EUR-0325": {
+  "owner": "SWE"
+ },
+ "EUR-0326": {
+  "owner": "SWE"
+ },
+ "EUR-0327": {
+  "owner": "SWE"
+ },
+ "EUR-0328": {
+  "owner": "SWE"
+ },
+ "EUR-0329": {
+  "owner": "YUG"
+ },
+ "EUR-0330": {
+  "owner": "CSK"
+ },
+ "EUR-0331": {
+  "owner": "CSK"
+ },
+ "EUR-0332": {
+  "owner": "CSK"
+ },
+ "EUR-0333": {
+  "owner": "CSK"
+ },
+ "EUR-0334": {
+  "owner": "CSK"
+ },
+ "EUR-0335": {
+  "owner": "CSK"
+ },
+ "EUR-0336": {
+  "owner": "CSK"
+ },
+ "EUR-0337": {
+  "owner": "CSK"
+ },
+ "EUR-0338": {
+  "owner": "SMR"
+ },
+ "EUR-0339": {
+  "owner": "SUN"
+ },
+ "EUR-0340": {
+  "owner": "SUN"
+ },
+ "EUR-0341": {
+  "owner": "SUN"
+ },
+ "EUR-0342": {
+  "owner": "SUN"
+ },
+ "EUR-0343": {
+  "owner": "SUN"
+ },
+ "EUR-0344": {
+  "owner": "SUN"
+ },
+ "EUR-0345": {
+  "owner": "SUN"
+ },
+ "EUR-0346": {
+  "owner": "SUN"
+ },
+ "EUR-0347": {
+  "owner": "SUN"
+ },
+ "EUR-0348": {
+  "owner": "SUN"
+ },
+ "EUR-0349": {
+  "owner": "SUN"
+ },
+ "EUR-0350": {
+  "owner": "SUN"
+ },
+ "EUR-0351": {
+  "owner": "SUN"
+ },
+ "EUR-0352": {
+  "owner": "SUN"
+ },
+ "EUR-0353": {
+  "owner": "SUN"
+ },
+ "EUR-0354": {
+  "owner": "SUN"
+ },
+ "EUR-0355": {
+  "owner": "SUN"
+ },
+ "EUR-0356": {
+  "owner": "SUN"
+ },
+ "EUR-0357": {
+  "owner": "SUN"
+ },
+ "EUR-0358": {
+  "owner": "SUN"
+ },
+ "EUR-0359": {
+  "owner": "SUN"
+ },
+ "EUR-0360": {
+  "owner": "SUN"
+ },
+ "EUR-0361": {
+  "owner": "SUN"
+ },
+ "EUR-0362": {
+  "owner": "SUN"
+ },
+ "EUR-0363": {
+  "owner": "SUN"
+ },
+ "EUR-0364": {
+  "owner": "VAT"
+ },
+ "EUR-0365": {
+  "owner": "YUG"
+ },
+ "EUR-0366": {
+  "owner": "DEU"
+ },
+ "EUR-0367": {
+  "owner": "DEU",
+  "controller": "SUN"
+ },
+ "EUR-0368": {
+  "owner": "DEU",
+  "controller": "USA"
+ },
+ "EUR-0369": {
+  "owner": "DEU",
+  "controller": "GBR"
+ },
+ "EUR-0370": {
+  "owner": "DEU",
+  "controller": "FRA"
+ },
+ "EUR-0371": {
+  "owner": "DEU",
+  "controller": "USA"
+ },
+ "EUR-0372": {
+  "owner": "DEU",
+  "controller": "FRA"
+ },
+ "ASI-0001": {
+  "owner": "CHN"
+ },
+ "ASI-0002": {
+  "owner": "CHN"
+ },
+ "ASI-0003": {
+  "owner": "CHN"
+ },
+ "ASI-0004": {
+  "owner": "CHN"
+ },
+ "ASI-0005": {
+  "owner": "CHN"
+ },
+ "ASI-0006": {
+  "owner": "CHN"
+ },
+ "ASI-0007": {
+  "owner": "CHN"
+ },
+ "ASI-0008": {
+  "owner": "CHN"
+ },
+ "ASI-0009": {
+  "owner": "CHN"
+ },
+ "ASI-0010": {
+  "owner": "CHN"
+ },
+ "ASI-0011": {
+  "owner": "CHN"
+ },
+ "ASI-0012": {
+  "owner": "CHN"
+ },
+ "ASI-0013": {
+  "owner": "CHN"
+ },
+ "ASI-0014": {
+  "owner": "CHN"
+ },
+ "ASI-0015": {
+  "owner": "CHN"
+ },
+ "ASI-0016": {
+  "owner": "CHN"
+ },
+ "ASI-0017": {
+  "owner": "CHN"
+ },
+ "ASI-0018": {
+  "owner": "CHN"
+ },
+ "ASI-0019": {
+  "owner": "CHN"
+ },
+ "ASI-0020": {
+  "owner": "CHN"
+ },
+ "ASI-0021": {
+  "owner": "CHN"
+ },
+ "ASI-0022": {
+  "owner": "CHN"
+ },
+ "ASI-0023": {
+  "owner": "CHN"
+ },
+ "ASI-0024": {
+  "owner": "CHN"
+ },
+ "ASI-0025": {
+  "owner": "CHN"
+ },
+ "ASI-0026": {
+  "owner": "CHN"
+ },
+ "ASI-0027": {
+  "owner": "CHN"
+ },
+ "ASI-0028": {
+  "owner": "CHN"
+ },
+ "ASI-0029": {
+  "owner": "CHN"
+ },
+ "ASI-0030": {
+  "owner": "CHN"
+ },
+ "ASI-0031": {
+  "owner": "CHN"
+ },
+ "ASI-0032": {
+  "owner": "CHN"
+ },
+ "ASI-0033": {
+  "owner": "CHN"
+ },
+ "ASI-0034": {
+  "owner": "CHN"
+ },
+ "ASI-0035": {
+  "owner": "CHN"
+ },
+ "ASI-0036": {
+  "owner": "CHN"
+ },
+ "ASI-0037": {
+  "owner": "CHN"
+ },
+ "ASI-0038": {
+  "owner": "CHN"
+ },
+ "ASI-0039": {
+  "owner": "CHN"
+ },
+ "ASI-0040": {
+  "owner": "CHN"
+ },
+ "ASI-0041": {
+  "owner": "CHN",
+  "note": "De facto autonomous region with zero central GMD government control"
+ },
+ "ASI-0042": {
+  "owner": "CHN"
+ },
+ "ASI-0043": {
+  "owner": "CHN"
+ },
+ "ASI-0044": {
+  "owner": "CHN"
+ },
+ "ASI-0045": {
+  "owner": "CHN"
+ },
+ "ASI-0046": {
+  "owner": "CHN"
+ },
+ "ASI-0047": {
+  "owner": "CHN"
+ },
+ "ASI-0048": {
+  "owner": "SUN"
+ },
+ "ASI-0049": {
+  "owner": "IND"
+ },
+ "ASI-0050": {
+  "owner": null
+ },
+ "ASI-0051": {
+  "owner": "ARE"
+ },
+ "ASI-0052": {
+  "owner": "ARE"
+ },
+ "ASI-0053": {
+  "owner": "ARE"
+ },
+ "ASI-0054": {
+  "owner": "ARE"
+ },
+ "ASI-0055": {
+  "owner": "ARE"
+ },
+ "ASI-0056": {
+  "owner": "ARE"
+ },
+ "ASI-0057": {
+  "owner": "ARE"
+ },
+ "ASI-0058": {
+  "owner": "AFG"
+ },
+ "ASI-0059": {
+  "owner": "AFG"
+ },
+ "ASI-0060": {
+  "owner": "AFG"
+ },
+ "ASI-0061": {
+  "owner": "AFG"
+ },
+ "ASI-0062": {
+  "owner": "AFG"
+ },
+ "ASI-0063": {
+  "owner": "AFG"
+ },
+ "ASI-0064": {
+  "owner": "AFG"
+ },
+ "ASI-0065": {
+  "owner": "AFG"
+ },
+ "ASI-0066": {
+  "owner": "SUN"
+ },
+ "ASI-0067": {
+  "owner": "SUN"
+ },
+ "ASI-0068": {
+  "owner": "SUN"
+ },
+ "ASI-0069": {
+  "owner": "SUN"
+ },
+ "ASI-0070": {
+  "owner": "SUN"
+ },
+ "ASI-0071": {
+  "owner": "SUN"
+ },
+ "ASI-0072": {
+  "owner": "SUN"
+ },
+ "ASI-0073": {
+  "owner": "SUN"
+ },
+ "ASI-0074": {
+  "owner": "SUN"
+ },
+ "ASI-0075": {
+  "owner": "SUN"
+ },
+ "ASI-0076": {
+  "owner": "SUN"
+ },
+ "ASI-0077": {
+  "owner": "SUN"
+ },
+ "ASI-0078": {
+  "owner": "SUN"
+ },
+ "ASI-0079": {
+  "owner": "IND"
+ },
+ "ASI-0080": {
+  "owner": "IND"
+ },
+ "ASI-0081": {
+  "owner": "IND"
+ },
+ "ASI-0082": {
+  "owner": "IND"
+ },
+ "ASI-0083": {
+  "owner": "IND"
+ },
+ "ASI-0084": {
+  "owner": "BHR"
+ },
+ "ASI-0085": {
+  "owner": "BRN"
+ },
+ "ASI-0086": {
+  "owner": "BTN"
+ },
+ "ASI-0087": {
+  "owner": "SUN"
+ },
+ "ASI-0088": {
+  "owner": "SUN"
+ },
+ "ASI-0089": {
+  "owner": "SUN"
+ },
+ "ASI-0090": {
+  "owner": "HKG"
+ },
+ "ASI-0091": {
+  "owner": "IDN"
+ },
+ "ASI-0092": {
+  "owner": "IDN"
+ },
+ "ASI-0093": {
+  "owner": "IDN"
+ },
+ "ASI-0094": {
+  "owner": "IDN"
+ },
+ "ASI-0095": {
+  "owner": "IDN"
+ },
+ "ASI-0096": {
+  "owner": "IDN"
+ },
+ "ASI-0097": {
+  "owner": "IDN"
+ },
+ "ASI-0098": {
+  "owner": "IDN"
+ },
+ "ASI-0099": {
+  "owner": "IDN"
+ },
+ "ASI-0100": {
+  "owner": "IDN"
+ },
+ "ASI-0101": {
+  "owner": "IDN"
+ },
+ "ASI-0102": {
+  "owner": "IDN"
+ },
+ "ASI-0103": {
+  "owner": "IDN"
+ },
+ "ASI-0104": {
+  "owner": "IDN"
+ },
+ "ASI-0105": {
+  "owner": "IDN"
+ },
+ "ASI-0106": {
+  "owner": "IDN"
+ },
+ "ASI-0107": {
+  "owner": "IDN"
+ },
+ "ASI-0108": {
+  "owner": "IDN"
+ },
+ "ASI-0109": {
+  "owner": "IDN"
+ },
+ "ASI-0110": {
+  "owner": "IDN"
+ },
+ "ASI-0111": {
+  "owner": "PSE"
+ },
+ "ASI-0112": {
+  "owner": "PSE"
+ },
+ "ASI-0113": {
+  "owner": "PSE"
+ },
+ "ASI-0114": {
+  "owner": "PSE"
+ },
+ "ASI-0115": {
+  "owner": "PSE"
+ },
+ "ASI-0116": {
+  "owner": "PSE"
+ },
+ "ASI-0117": {
+  "owner": "IND"
+ },
+ "ASI-0118": {
+  "owner": "IND"
+ },
+ "ASI-0119": {
+  "owner": "IND"
+ },
+ "ASI-0120": {
+  "owner": "IND"
+ },
+ "ASI-0121": {
+  "owner": "IND"
+ },
+ "ASI-0122": {
+  "owner": "IND"
+ },
+ "ASI-0123": {
+  "owner": "IND"
+ },
+ "ASI-0124": {
+  "owner": "IND"
+ },
+ "ASI-0125": {
+  "owner": "IND"
+ },
+ "ASI-0126": {
+  "owner": "IND"
+ },
+ "ASI-0127": {
+  "owner": "IND"
+ },
+ "ASI-0128": {
+  "owner": "IND"
+ },
+ "ASI-0129": {
+  "owner": "IND"
+ },
+ "ASI-0130": {
+  "owner": "IND"
+ },
+ "ASI-0131": {
+  "owner": "IND"
+ },
+ "ASI-0132": {
+  "owner": "IND"
+ },
+ "ASI-0133": {
+  "owner": "IND"
+ },
+ "ASI-0134": {
+  "owner": "IND"
+ },
+ "ASI-0135": {
+  "owner": "IND"
+ },
+ "ASI-0136": {
+  "owner": "IND"
+ },
+ "ASI-0137": {
+  "owner": "IND"
+ },
+ "ASI-0138": {
+  "owner": "IND"
+ },
+ "ASI-0139": {
+  "owner": "IND"
+ },
+ "ASI-0140": {
+  "owner": "IND"
+ },
+ "ASI-0141": {
+  "owner": "IND"
+ },
+ "ASI-0142": {
+  "owner": "IND"
+ },
+ "ASI-0143": {
+  "owner": "IND"
+ },
+ "ASI-0144": {
+  "owner": "IND"
+ },
+ "ASI-0145": {
+  "owner": "IND"
+ },
+ "ASI-0146": {
+  "owner": "IND"
+ },
+ "ASI-0147": {
+  "owner": "IND"
+ },
+ "ASI-0148": {
+  "owner": "IND"
+ },
+ "ASI-0149": {
+  "owner": "IND"
+ },
+ "ASI-0150": {
+  "owner": "IND"
+ },
+ "ASI-0151": {
+  "owner": "IND"
+ },
+ "ASI-0152": {
+  "owner": "IND"
+ },
+ "ASI-0153": {
+  "owner": "IRQ"
+ },
+ "ASI-0154": {
+  "owner": "IRQ"
+ },
+ "ASI-0155": {
+  "owner": "IRQ"
+ },
+ "ASI-0156": {
+  "owner": "IRQ"
+ },
+ "ASI-0157": {
+  "owner": "IRQ"
+ },
+ "ASI-0158": {
+  "owner": "IRQ"
+ },
+ "ASI-0159": {
+  "owner": "IRQ"
+ },
+ "ASI-0160": {
+  "owner": "IRQ"
+ },
+ "ASI-0161": {
+  "owner": "IRQ"
+ },
+ "ASI-0162": {
+  "owner": "IRQ"
+ },
+ "ASI-0163": {
+  "owner": "IRN"
+ },
+ "ASI-0164": {
+  "owner": "IRN"
+ },
+ "ASI-0165": {
+  "owner": "IRN"
+ },
+ "ASI-0166": {
+  "owner": "IRN"
+ },
+ "ASI-0167": {
+  "owner": "IRN"
+ },
+ "ASI-0168": {
+  "owner": "IRN"
+ },
+ "ASI-0169": {
+  "owner": "IRN"
+ },
+ "ASI-0170": {
+  "owner": "IRN"
+ },
+ "ASI-0171": {
+  "owner": "IRN"
+ },
+ "ASI-0172": {
+  "owner": "IRN"
+ },
+ "ASI-0173": {
+  "owner": "JOR"
+ },
+ "ASI-0174": {
+  "owner": "JOR"
+ },
+ "ASI-0175": {
+  "owner": "JOR"
+ },
+ "ASI-0176": {
+  "owner": "JOR"
+ },
+ "ASI-0177": {
+  "owner": "JOR"
+ },
+ "ASI-0178": {
+  "owner": "JOR"
+ },
+ "ASI-0179": {
+  "owner": "JPN"
+ },
+ "ASI-0180": {
+  "owner": "JPN"
+ },
+ "ASI-0181": {
+  "owner": "JPN"
+ },
+ "ASI-0182": {
+  "owner": "JPN"
+ },
+ "ASI-0183": {
+  "owner": "JPN"
+ },
+ "ASI-0184": {
+  "owner": "JPN"
+ },
+ "ASI-0185": {
+  "owner": "JPN"
+ },
+ "ASI-0186": {
+  "owner": "JPN"
+ },
+ "ASI-0187": {
+  "owner": "JPN"
+ },
+ "ASI-0188": {
+  "owner": "JPN"
+ },
+ "ASI-0189": {
+  "owner": "JPN"
+ },
+ "ASI-0190": {
+  "owner": "SUN"
+ },
+ "ASI-0191": {
+  "owner": "SUN"
+ },
+ "ASI-0192": {
+  "owner": "SUN"
+ },
+ "ASI-0193": {
+  "owner": "SUN"
+ },
+ "ASI-0194": {
+  "owner": "KHM"
+ },
+ "ASI-0195": {
+  "owner": "KHM"
+ },
+ "ASI-0196": {
+  "owner": "KHM"
+ },
+ "ASI-0197": {
+  "owner": "KHM"
+ },
+ "ASI-0198": {
+  "owner": "KHM"
+ },
+ "ASI-0199": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0200": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0201": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0202": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0203": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0204": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0205": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0206": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0207": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0208": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0209": {
+  "owner": "KOR",
+  "controller": "SUN",
+  "note": "Occupied by Soviet forces north of 38th parallel"
+ },
+ "ASI-0210": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0211": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0212": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0213": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0214": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0215": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0216": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0217": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0218": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0219": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0220": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0221": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0222": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0223": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0224": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0225": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0226": {
+  "owner": "KOR",
+  "controller": "USA",
+  "note": "Occupied by US forces south of 38th parallel"
+ },
+ "ASI-0227": {
+  "owner": "KWT"
+ },
+ "ASI-0228": {
+  "owner": "KWT"
+ },
+ "ASI-0229": {
+  "owner": "SUN"
+ },
+ "ASI-0230": {
+  "owner": "SUN"
+ },
+ "ASI-0231": {
+  "owner": "SUN"
+ },
+ "ASI-0232": {
+  "owner": "SUN"
+ },
+ "ASI-0233": {
+  "owner": "SUN"
+ },
+ "ASI-0234": {
+  "owner": "SUN"
+ },
+ "ASI-0235": {
+  "owner": "SUN"
+ },
+ "ASI-0236": {
+  "owner": "SUN"
+ },
+ "ASI-0237": {
+  "owner": "SUN"
+ },
+ "ASI-0238": {
+  "owner": "SUN"
+ },
+ "ASI-0239": {
+  "owner": "LAO"
+ },
+ "ASI-0240": {
+  "owner": "LAO"
+ },
+ "ASI-0241": {
+  "owner": "LAO"
+ },
+ "ASI-0242": {
+  "owner": "LAO"
+ },
+ "ASI-0243": {
+  "owner": "LBN"
+ },
+ "ASI-0244": {
+  "owner": "LBN"
+ },
+ "ASI-0245": {
+  "owner": "LBN"
+ },
+ "ASI-0246": {
+  "owner": "LBN"
+ },
+ "ASI-0247": {
+  "owner": "LKA"
+ },
+ "ASI-0248": {
+  "owner": "MMR"
+ },
+ "ASI-0249": {
+  "owner": "MMR"
+ },
+ "ASI-0250": {
+  "owner": "MMR"
+ },
+ "ASI-0251": {
+  "owner": "MMR"
+ },
+ "ASI-0252": {
+  "owner": "MMR"
+ },
+ "ASI-0253": {
+  "owner": "MMR"
+ },
+ "ASI-0254": {
+  "owner": "MNG"
+ },
+ "ASI-0255": {
+  "owner": "MNG"
+ },
+ "ASI-0256": {
+  "owner": "MNG"
+ },
+ "ASI-0257": {
+  "owner": "MNG"
+ },
+ "ASI-0258": {
+  "owner": "MNG"
+ },
+ "ASI-0259": {
+  "owner": "MNG"
+ },
+ "ASI-0260": {
+  "owner": "MNG"
+ },
+ "ASI-0261": {
+  "owner": "MNG"
+ },
+ "ASI-0262": {
+  "owner": "MAC"
+ },
+ "ASI-0263": {
+  "owner": "MYS"
+ },
+ "ASI-0264": {
+  "owner": "MYS"
+ },
+ "ASI-0265": {
+  "owner": "MYS"
+ },
+ "ASI-0266": {
+  "owner": "MYS"
+ },
+ "ASI-0267": {
+  "owner": "MYS"
+ },
+ "ASI-0268": {
+  "owner": "MYS"
+ },
+ "ASI-0269": {
+  "owner": "NPL"
+ },
+ "ASI-0270": {
+  "owner": "OMN"
+ },
+ "ASI-0271": {
+  "owner": "OMN"
+ },
+ "ASI-0272": {
+  "owner": "OMN"
+ },
+ "ASI-0273": {
+  "owner": "OMN"
+ },
+ "ASI-0274": {
+  "owner": "PHL"
+ },
+ "ASI-0275": {
+  "owner": "PHL"
+ },
+ "ASI-0276": {
+  "owner": "PHL"
+ },
+ "ASI-0277": {
+  "owner": "PHL"
+ },
+ "ASI-0278": {
+  "owner": "PHL"
+ },
+ "ASI-0279": {
+  "owner": "PHL"
+ },
+ "ASI-0280": {
+  "owner": "PHL"
+ },
+ "ASI-0281": {
+  "owner": "PHL"
+ },
+ "ASI-0282": {
+  "owner": "PHL"
+ },
+ "ASI-0283": {
+  "owner": "PHL"
+ },
+ "ASI-0284": {
+  "owner": "PHL"
+ },
+ "ASI-0285": {
+  "owner": "PHL"
+ },
+ "ASI-0286": {
+  "owner": "PHL"
+ },
+ "ASI-0287": {
+  "owner": "PHL"
+ },
+ "ASI-0288": {
+  "owner": "PHL"
+ },
+ "ASI-0289": {
+  "owner": "PHL"
+ },
+ "ASI-0290": {
+  "owner": "PHL"
+ },
+ "ASI-0291": {
+  "owner": "IND"
+ },
+ "ASI-0292": {
+  "owner": "IND"
+ },
+ "ASI-0293": {
+  "owner": "IND"
+ },
+ "ASI-0294": {
+  "owner": "IND"
+ },
+ "ASI-0295": {
+  "owner": "IND"
+ },
+ "ASI-0296": {
+  "owner": "IND"
+ },
+ "ASI-0297": {
+  "owner": "IND"
+ },
+ "ASI-0298": {
+  "owner": "IND"
+ },
+ "ASI-0299": {
+  "owner": "PSE"
+ },
+ "ASI-0300": {
+  "owner": "PSE"
+ },
+ "ASI-0301": {
+  "owner": "QAT"
+ },
+ "ASI-0302": {
+  "owner": "SAU"
+ },
+ "ASI-0303": {
+  "owner": "SAU"
+ },
+ "ASI-0304": {
+  "owner": "SAU"
+ },
+ "ASI-0305": {
+  "owner": "SAU"
+ },
+ "ASI-0306": {
+  "owner": "SAU"
+ },
+ "ASI-0307": {
+  "owner": "SAU"
+ },
+ "ASI-0308": {
+  "owner": "SAU"
+ },
+ "ASI-0309": {
+  "owner": "SAU"
+ },
+ "ASI-0310": {
+  "owner": "SGP"
+ },
+ "ASI-0311": {
+  "owner": "SYR"
+ },
+ "ASI-0312": {
+  "owner": "SYR"
+ },
+ "ASI-0313": {
+  "owner": "SYR"
+ },
+ "ASI-0314": {
+  "owner": "SYR"
+ },
+ "ASI-0315": {
+  "owner": "SYR"
+ },
+ "ASI-0316": {
+  "owner": "SYR"
+ },
+ "ASI-0317": {
+  "owner": "SYR"
+ },
+ "ASI-0318": {
+  "owner": "SYR"
+ },
+ "ASI-0319": {
+  "owner": "SYR"
+ },
+ "ASI-0320": {
+  "owner": "SYR"
+ },
+ "ASI-0321": {
+  "owner": "THA"
+ },
+ "ASI-0322": {
+  "owner": "THA"
+ },
+ "ASI-0323": {
+  "owner": "THA"
+ },
+ "ASI-0324": {
+  "owner": "THA"
+ },
+ "ASI-0325": {
+  "owner": "THA"
+ },
+ "ASI-0326": {
+  "owner": "THA"
+ },
+ "ASI-0327": {
+  "owner": "THA"
+ },
+ "ASI-0328": {
+  "owner": "THA"
+ },
+ "ASI-0329": {
+  "owner": "THA"
+ },
+ "ASI-0330": {
+  "owner": "THA"
+ },
+ "ASI-0331": {
+  "owner": "THA"
+ },
+ "ASI-0332": {
+  "owner": "SUN"
+ },
+ "ASI-0333": {
+  "owner": "SUN"
+ },
+ "ASI-0334": {
+  "owner": "SUN"
+ },
+ "ASI-0335": {
+  "owner": "SUN"
+ },
+ "ASI-0336": {
+  "owner": "TLS"
+ },
+ "ASI-0337": {
+  "owner": "SUN"
+ },
+ "ASI-0338": {
+  "owner": "SUN"
+ },
+ "ASI-0339": {
+  "owner": "SUN"
+ },
+ "ASI-0340": {
+  "owner": "SUN"
+ },
+ "ASI-0341": {
+  "owner": "SUN"
+ },
+ "ASI-0342": {
+  "owner": "TUR"
+ },
+ "ASI-0343": {
+  "owner": "TUR"
+ },
+ "ASI-0344": {
+  "owner": "TUR"
+ },
+ "ASI-0345": {
+  "owner": "TUR"
+ },
+ "ASI-0346": {
+  "owner": "TUR"
+ },
+ "ASI-0347": {
+  "owner": "TUR"
+ },
+ "ASI-0348": {
+  "owner": "TUR"
+ },
+ "ASI-0349": {
+  "owner": "TUR"
+ },
+ "ASI-0350": {
+  "owner": "TUR"
+ },
+ "ASI-0351": {
+  "owner": "CHN"
+ },
+ "ASI-0352": {
+  "owner": "CHN"
+ },
+ "ASI-0353": {
+  "owner": "CHN"
+ },
+ "ASI-0354": {
+  "owner": "CHN"
+ },
+ "ASI-0355": {
+  "owner": "SUN"
+ },
+ "ASI-0356": {
+  "owner": "SUN"
+ },
+ "ASI-0357": {
+  "owner": "SUN"
+ },
+ "ASI-0358": {
+  "owner": "SUN"
+ },
+ "ASI-0359": {
+  "owner": "SUN"
+ },
+ "ASI-0360": {
+  "owner": "SUN"
+ },
+ "ASI-0361": {
+  "owner": "VNM"
+ },
+ "ASI-0362": {
+  "owner": "VNM"
+ },
+ "ASI-0363": {
+  "owner": "VNM"
+ },
+ "ASI-0364": {
+  "owner": "VNM"
+ },
+ "ASI-0365": {
+  "owner": "VNM"
+ },
+ "ASI-0366": {
+  "owner": "VNM"
+ },
+ "ASI-0367": {
+  "owner": "VNM"
+ },
+ "ASI-0368": {
+  "owner": "VNM"
+ },
+ "ASI-0369": {
+  "owner": "VNM"
+ },
+ "ASI-0370": {
+  "owner": "VNM"
+ },
+ "ASI-0371": {
+  "owner": "VNM"
+ },
+ "ASI-0372": {
+  "owner": "VNM"
+ },
+ "ASI-0373": {
+  "owner": "VNM"
+ },
+ "ASI-0374": {
+  "owner": "VNM"
+ },
+ "ASI-0375": {
+  "owner": "VNM"
+ },
+ "ASI-0376": {
+  "owner": "VNM"
+ },
+ "ASI-0377": {
+  "owner": "VNM"
+ },
+ "ASI-0378": {
+  "owner": "VNM"
+ },
+ "ASI-0379": {
+  "owner": "VNM"
+ },
+ "ASI-0380": {
+  "owner": "VNM"
+ },
+ "ASI-0381": {
+  "owner": "VNM"
+ },
+ "ASI-0382": {
+  "owner": "VNM"
+ },
+ "ASI-0383": {
+  "owner": "VNM"
+ },
+ "ASI-0384": {
+  "owner": "VNM"
+ },
+ "ASI-0385": {
+  "owner": "VNM"
+ },
+ "ASI-0386": {
+  "owner": "VNM"
+ },
+ "ASI-0387": {
+  "owner": "VNM"
+ },
+ "ASI-0388": {
+  "owner": "VNM"
+ },
+ "ASI-0389": {
+  "owner": "VNM"
+ },
+ "ASI-0390": {
+  "owner": "VNM"
+ },
+ "ASI-0391": {
+  "owner": "VNM"
+ },
+ "ASI-0392": {
+  "owner": "VNM"
+ },
+ "ASI-0393": {
+  "owner": "VNM"
+ },
+ "ASI-0394": {
+  "owner": "VNM"
+ },
+ "ASI-0395": {
+  "owner": "VNM"
+ },
+ "ASI-0396": {
+  "owner": "YEM"
+ },
+ "ASI-0397": {
+  "owner": "YEM"
+ },
+ "ASI-0398": {
+  "owner": "YEM"
+ },
+ "ASI-0399": {
+  "owner": "YEM"
+ },
+ "ASI-0400": {
+  "owner": "YEM"
+ },
+ "ASI-0401": {
+  "owner": "YEM"
+ },
+ "NAM-0001": {
+  "owner": "FRA"
+ },
+ "NAM-0002": {
+  "owner": "FRA"
+ },
+ "NAM-0003": {
+  "owner": "NLD"
+ },
+ "NAM-0004": {
+  "owner": "NLD"
+ },
+ "NAM-0005": {
+  "owner": "NLD"
+ },
+ "NAM-0006": {
+  "owner": "CUB",
+  "controller": "USA",
+  "note": "US Naval Base leased from Cuba"
+ },
+ "NAM-0007": {
+  "owner": "FRA"
+ },
+ "NAM-0008": {
+  "owner": "NFD"
+ },
+ "NAM-0009": {
+  "owner": "CAN"
+ },
+ "NAM-0010": {
+  "owner": "CAN"
+ },
+ "NAM-0011": {
+  "owner": "CAN"
+ },
+ "NAM-0012": {
+  "owner": "CAN"
+ },
+ "NAM-0013": {
+  "owner": "CAN"
+ },
+ "NAM-0014": {
+  "owner": "CAN"
+ },
+ "NAM-0015": {
+  "owner": "CAN"
+ },
+ "NAM-0016": {
+  "owner": "CAN"
+ },
+ "NAM-0017": {
+  "owner": "CAN"
+ },
+ "NAM-0018": {
+  "owner": "CAN"
+ },
+ "NAM-0019": {
+  "owner": "CAN"
+ },
+ "NAM-0020": {
+  "owner": "CUB"
+ },
+ "NAM-0021": {
+  "owner": "CUB"
+ },
+ "NAM-0022": {
+  "owner": "CUB"
+ },
+ "NAM-0023": {
+  "owner": "CUB"
+ },
+ "NAM-0024": {
+  "owner": "CUB"
+ },
+ "NAM-0025": {
+  "owner": "CUB"
+ },
+ "NAM-0026": {
+  "owner": "CUB"
+ },
+ "NAM-0027": {
+  "owner": "HTI"
+ },
+ "NAM-0028": {
+  "owner": "HTI"
+ },
+ "NAM-0029": {
+  "owner": "HTI"
+ },
+ "NAM-0030": {
+  "owner": "HTI"
+ },
+ "NAM-0031": {
+  "owner": "HTI"
+ },
+ "NAM-0032": {
+  "owner": "DOM"
+ },
+ "NAM-0033": {
+  "owner": "DOM"
+ },
+ "NAM-0034": {
+  "owner": "DOM"
+ },
+ "NAM-0035": {
+  "owner": "DOM"
+ },
+ "NAM-0036": {
+  "owner": "DOM"
+ },
+ "NAM-0037": {
+  "owner": "DOM"
+ },
+ "NAM-0038": {
+  "owner": "DOM"
+ },
+ "NAM-0039": {
+  "owner": "DOM"
+ },
+ "NAM-0040": {
+  "owner": "DOM"
+ },
+ "NAM-0041": {
+  "owner": "DOM"
+ },
+ "NAM-0042": {
+  "owner": "DOM"
+ },
+ "NAM-0043": {
+  "owner": "DOM"
+ },
+ "NAM-0044": {
+  "owner": "DOM"
+ },
+ "NAM-0045": {
+  "owner": "DOM"
+ },
+ "NAM-0046": {
+  "owner": "DOM"
+ },
+ "NAM-0047": {
+  "owner": "DOM"
+ },
+ "NAM-0048": {
+  "owner": "DOM"
+ },
+ "NAM-0049": {
+  "owner": "DOM"
+ },
+ "NAM-0050": {
+  "owner": "DOM"
+ },
+ "NAM-0051": {
+  "owner": "ATG"
+ },
+ "NAM-0052": {
+  "owner": "AIA"
+ },
+ "NAM-0053": {
+  "owner": "ABW"
+ },
+ "NAM-0054": {
+  "owner": "BRB"
+ },
+ "NAM-0055": {
+  "owner": "BMU"
+ },
+ "NAM-0056": {
+  "owner": "BHS"
+ },
+ "NAM-0057": {
+  "owner": "BLZ"
+ },
+ "NAM-0058": {
+  "owner": "BLZ"
+ },
+ "NAM-0059": {
+  "owner": "BLZ"
+ },
+ "NAM-0060": {
+  "owner": "BLZ"
+ },
+ "NAM-0061": {
+  "owner": "BLZ"
+ },
+ "NAM-0062": {
+  "owner": "BLZ"
+ },
+ "NAM-0063": {
+  "owner": "CRI"
+ },
+ "NAM-0064": {
+  "owner": "CRI"
+ },
+ "NAM-0065": {
+  "owner": "CRI"
+ },
+ "NAM-0066": {
+  "owner": "CRI"
+ },
+ "NAM-0067": {
+  "owner": "CRI"
+ },
+ "NAM-0068": {
+  "owner": "CRI"
+ },
+ "NAM-0069": {
+  "owner": "CRI"
+ },
+ "NAM-0070": {
+  "owner": "CUW"
+ },
+ "NAM-0071": {
+  "owner": "DMA"
+ },
+ "NAM-0072": {
+  "owner": "GRD"
+ },
+ "NAM-0073": {
+  "owner": "GRL"
+ },
+ "NAM-0074": {
+  "owner": "GTM"
+ },
+ "NAM-0075": {
+  "owner": "GTM"
+ },
+ "NAM-0076": {
+  "owner": "GTM"
+ },
+ "NAM-0077": {
+  "owner": "GTM"
+ },
+ "NAM-0078": {
+  "owner": "GTM"
+ },
+ "NAM-0079": {
+  "owner": "GTM"
+ },
+ "NAM-0080": {
+  "owner": "GTM"
+ },
+ "NAM-0081": {
+  "owner": "GTM"
+ },
+ "NAM-0082": {
+  "owner": "HND"
+ },
+ "NAM-0083": {
+  "owner": "HND"
+ },
+ "NAM-0084": {
+  "owner": "HND"
+ },
+ "NAM-0085": {
+  "owner": "HND"
+ },
+ "NAM-0086": {
+  "owner": "HND"
+ },
+ "NAM-0087": {
+  "owner": "HND"
+ },
+ "NAM-0088": {
+  "owner": "HND"
+ },
+ "NAM-0089": {
+  "owner": "JAM"
+ },
+ "NAM-0090": {
+  "owner": "KNA"
+ },
+ "NAM-0091": {
+  "owner": "KNA"
+ },
+ "NAM-0092": {
+  "owner": "CYM"
+ },
+ "NAM-0093": {
+  "owner": "LCA"
+ },
+ "NAM-0094": {
+  "owner": "MSR"
+ },
+ "NAM-0095": {
+  "owner": "MEX"
+ },
+ "NAM-0096": {
+  "owner": "MEX"
+ },
+ "NAM-0097": {
+  "owner": "MEX"
+ },
+ "NAM-0098": {
+  "owner": "MEX"
+ },
+ "NAM-0099": {
+  "owner": "MEX"
+ },
+ "NAM-0100": {
+  "owner": "MEX"
+ },
+ "NAM-0101": {
+  "owner": "MEX"
+ },
+ "NAM-0102": {
+  "owner": "MEX"
+ },
+ "NAM-0103": {
+  "owner": "MEX"
+ },
+ "NAM-0104": {
+  "owner": "MEX"
+ },
+ "NAM-0105": {
+  "owner": "MEX"
+ },
+ "NAM-0106": {
+  "owner": "MEX"
+ },
+ "NAM-0107": {
+  "owner": "MEX"
+ },
+ "NAM-0108": {
+  "owner": "MEX"
+ },
+ "NAM-0109": {
+  "owner": "MEX"
+ },
+ "NAM-0110": {
+  "owner": "MEX"
+ },
+ "NAM-0111": {
+  "owner": "MEX"
+ },
+ "NAM-0112": {
+  "owner": "MEX"
+ },
+ "NAM-0113": {
+  "owner": "MEX"
+ },
+ "NAM-0114": {
+  "owner": "MEX"
+ },
+ "NAM-0115": {
+  "owner": "MEX"
+ },
+ "NAM-0116": {
+  "owner": "MEX"
+ },
+ "NAM-0117": {
+  "owner": "MEX"
+ },
+ "NAM-0118": {
+  "owner": "MEX"
+ },
+ "NAM-0119": {
+  "owner": "MEX"
+ },
+ "NAM-0120": {
+  "owner": "MEX"
+ },
+ "NAM-0121": {
+  "owner": "MEX"
+ },
+ "NAM-0122": {
+  "owner": "MEX"
+ },
+ "NAM-0123": {
+  "owner": "MEX"
+ },
+ "NAM-0124": {
+  "owner": "MEX"
+ },
+ "NAM-0125": {
+  "owner": "MEX"
+ },
+ "NAM-0126": {
+  "owner": "MEX"
+ },
+ "NAM-0127": {
+  "owner": "MEX"
+ },
+ "NAM-0128": {
+  "owner": "NIC"
+ },
+ "NAM-0129": {
+  "owner": "NIC"
+ },
+ "NAM-0130": {
+  "owner": "NIC"
+ },
+ "NAM-0131": {
+  "owner": "NIC"
+ },
+ "NAM-0132": {
+  "owner": "NIC"
+ },
+ "NAM-0133": {
+  "owner": "NIC"
+ },
+ "NAM-0134": {
+  "owner": "NIC"
+ },
+ "NAM-0135": {
+  "owner": "PAN"
+ },
+ "NAM-0136": {
+  "owner": "PAN"
+ },
+ "NAM-0137": {
+  "owner": "PAN"
+ },
+ "NAM-0138": {
+  "owner": "PAN"
+ },
+ "NAM-0139": {
+  "owner": "PAN"
+ },
+ "NAM-0140": {
+  "owner": "PAN"
+ },
+ "NAM-0141": {
+  "owner": "SPM"
+ },
+ "NAM-0142": {
+  "owner": "PRI"
+ },
+ "NAM-0143": {
+  "owner": "SLV"
+ },
+ "NAM-0144": {
+  "owner": "SLV"
+ },
+ "NAM-0145": {
+  "owner": "SLV"
+ },
+ "NAM-0146": {
+  "owner": "SLV"
+ },
+ "NAM-0147": {
+  "owner": "SLV"
+ },
+ "NAM-0148": {
+  "owner": "SLV"
+ },
+ "NAM-0149": {
+  "owner": "SXM"
+ },
+ "NAM-0150": {
+  "owner": "TCA"
+ },
+ "NAM-0151": {
+  "owner": "TTO"
+ },
+ "NAM-0152": {
+  "owner": "TTO"
+ },
+ "NAM-0153": {
+  "owner": "VCT"
+ },
+ "NAM-0154": {
+  "owner": "VGB"
+ },
+ "NAM-0155": {
+  "owner": "VIR"
+ },
+ "NAM-0156": {
+  "owner": "USA"
+ },
+ "NAM-0157": {
+  "owner": "USA"
+ },
+ "NAM-0158": {
+  "owner": "USA"
+ },
+ "NAM-0159": {
+  "owner": "USA"
+ },
+ "NAM-0160": {
+  "owner": "USA"
+ },
+ "NAM-0161": {
+  "owner": "USA"
+ },
+ "NAM-0162": {
+  "owner": "USA"
+ },
+ "NAM-0163": {
+  "owner": "USA"
+ },
+ "NAM-0164": {
+  "owner": "USA"
+ },
+ "NAM-0165": {
+  "owner": "USA"
+ },
+ "NAM-0166": {
+  "owner": "USA"
+ },
+ "NAM-0167": {
+  "owner": "USA"
+ },
+ "NAM-0168": {
+  "owner": "USA"
+ },
+ "NAM-0169": {
+  "owner": "USA"
+ },
+ "NAM-0170": {
+  "owner": "USA"
+ },
+ "NAM-0171": {
+  "owner": "USA"
+ },
+ "NAM-0172": {
+  "owner": "USA"
+ },
+ "NAM-0173": {
+  "owner": "USA"
+ },
+ "NAM-0174": {
+  "owner": "USA"
+ },
+ "NAM-0175": {
+  "owner": "USA"
+ },
+ "NAM-0176": {
+  "owner": "USA"
+ },
+ "NAM-0177": {
+  "owner": "USA"
+ },
+ "NAM-0178": {
+  "owner": "USA"
+ },
+ "NAM-0179": {
+  "owner": "USA"
+ },
+ "NAM-0180": {
+  "owner": "USA"
+ },
+ "NAM-0181": {
+  "owner": "USA"
+ },
+ "NAM-0182": {
+  "owner": "USA"
+ },
+ "NAM-0183": {
+  "owner": "USA"
+ },
+ "NAM-0184": {
+  "owner": "USA"
+ },
+ "NAM-0185": {
+  "owner": "USA"
+ },
+ "NAM-0186": {
+  "owner": "USA"
+ },
+ "NAM-0187": {
+  "owner": "USA"
+ },
+ "NAM-0188": {
+  "owner": "USA"
+ },
+ "NAM-0189": {
+  "owner": "USA"
+ },
+ "NAM-0190": {
+  "owner": "USA"
+ },
+ "NAM-0191": {
+  "owner": "USA"
+ },
+ "NAM-0192": {
+  "owner": "USA"
+ },
+ "NAM-0193": {
+  "owner": "USA"
+ },
+ "NAM-0194": {
+  "owner": "USA"
+ },
+ "NAM-0195": {
+  "owner": "USA"
+ },
+ "NAM-0196": {
+  "owner": "USA"
+ },
+ "NAM-0197": {
+  "owner": "USA"
+ },
+ "NAM-0198": {
+  "owner": "USA"
+ },
+ "NAM-0199": {
+  "owner": "USA"
+ },
+ "NAM-0200": {
+  "owner": "USA"
+ },
+ "NAM-0201": {
+  "owner": "USA"
+ },
+ "NAM-0202": {
+  "owner": "USA"
+ },
+ "NAM-0203": {
+  "owner": "USA"
+ },
+ "NAM-0204": {
+  "owner": "USA"
+ },
+ "NAM-0205": {
+  "owner": "USA"
+ },
+ "NAM-0206": {
+  "owner": "USA"
+ },
+ "NAM-0207": {
+  "owner": "USA"
+ },
+ "NAM-0208": {
+  "owner": "USA"
+ },
+ "NAM-0209": {
+  "owner": "USA"
+ },
+ "NAM-0210": {
+  "owner": "USA"
+ },
+ "NAM-0211": {
+  "owner": "USA"
+ },
+ "NAM-0212": {
+  "owner": "USA"
+ },
+ "NAM-0213": {
+  "owner": "USA"
+ },
+ "NAM-0214": {
+  "owner": "USA"
+ },
+ "NAM-0215": {
+  "owner": "USA"
+ },
+ "NAM-0216": {
+  "owner": "USA"
+ },
+ "NAM-0217": {
+  "owner": "USA"
+ },
+ "NAM-0218": {
+  "owner": "USA"
+ },
+ "NAM-0219": {
+  "owner": "USA"
+ },
+ "NAM-0220": {
+  "owner": "USA"
+ },
+ "NAM-0221": {
+  "owner": "USA"
+ },
+ "NAM-0222": {
+  "owner": "USA"
+ },
+ "NAM-0223": {
+  "owner": "USA"
+ },
+ "NAM-0224": {
+  "owner": "USA"
+ },
+ "NAM-0225": {
+  "owner": "USA"
+ },
+ "NAM-0226": {
+  "owner": "USA"
+ },
+ "NAM-0227": {
+  "owner": "USA"
+ },
+ "NAM-0228": {
+  "owner": "USA"
+ },
+ "NAM-0229": {
+  "owner": "USA"
+ },
+ "NAM-0230": {
+  "owner": "USA"
+ },
+ "NAM-0231": {
+  "owner": "USA"
+ },
+ "NAM-0232": {
+  "owner": "USA"
+ },
+ "NAM-0233": {
+  "owner": "USA"
+ },
+ "NAM-0234": {
+  "owner": "USA"
+ },
+ "NAM-0235": {
+  "owner": "USA"
+ },
+ "NAM-0236": {
+  "owner": "USA"
+ },
+ "NAM-0237": {
+  "owner": "USA"
+ },
+ "NAM-0238": {
+  "owner": "USA"
+ },
+ "NAM-0239": {
+  "owner": "USA"
+ },
+ "NAM-0240": {
+  "owner": "USA"
+ },
+ "NAM-0241": {
+  "owner": "USA"
+ },
+ "NAM-0242": {
+  "owner": "USA"
+ },
+ "NAM-0243": {
+  "owner": "USA"
+ },
+ "NAM-0244": {
+  "owner": "USA"
+ },
+ "NAM-0245": {
+  "owner": "USA"
+ },
+ "NAM-0246": {
+  "owner": "USA"
+ },
+ "NAM-0247": {
+  "owner": "USA"
+ },
+ "NAM-0248": {
+  "owner": "USA"
+ },
+ "NAM-0249": {
+  "owner": "USA"
+ },
+ "NAM-0250": {
+  "owner": "USA"
+ },
+ "NAM-0251": {
+  "owner": "USA"
+ },
+ "NAM-0252": {
+  "owner": "USA"
+ },
+ "NAM-0253": {
+  "owner": "USA"
+ },
+ "NAM-0254": {
+  "owner": "USA"
+ },
+ "NAM-0255": {
+  "owner": "USA"
+ },
+ "NAM-0256": {
+  "owner": "USA"
+ },
+ "NAM-0257": {
+  "owner": "USA"
+ },
+ "NAM-0258": {
+  "owner": "USA"
+ },
+ "NAM-0259": {
+  "owner": "USA"
+ },
+ "NAM-0260": {
+  "owner": "USA"
+ },
+ "NAM-0261": {
+  "owner": "USA"
+ },
+ "NAM-0262": {
+  "owner": "USA"
+ },
+ "NAM-0263": {
+  "owner": "USA"
+ },
+ "NAM-0264": {
+  "owner": "USA"
+ },
+ "NAM-0265": {
+  "owner": "USA"
+ },
+ "NAM-0266": {
+  "owner": "USA"
+ },
+ "NAM-0267": {
+  "owner": "USA"
+ },
+ "NAM-0268": {
+  "owner": "PAN",
+  "controller": "USA",
+  "note": "Panama Canal Zone under US administration"
+ },
+ "SAM-0001": {
+  "owner": "BRA"
+ },
+ "SAM-0002": {
+  "owner": "BRA"
+ },
+ "SAM-0003": {
+  "owner": "BRA"
+ },
+ "SAM-0004": {
+  "owner": "BRA"
+ },
+ "SAM-0005": {
+  "owner": "BRA"
+ },
+ "SAM-0006": {
+  "owner": "BRA"
+ },
+ "SAM-0007": {
+  "owner": "BRA"
+ },
+ "SAM-0008": {
+  "owner": "BRA"
+ },
+ "SAM-0009": {
+  "owner": "BRA"
+ },
+ "SAM-0010": {
+  "owner": "BRA"
+ },
+ "SAM-0011": {
+  "owner": "BRA"
+ },
+ "SAM-0012": {
+  "owner": "BRA"
+ },
+ "SAM-0013": {
+  "owner": "BRA"
+ },
+ "SAM-0014": {
+  "owner": "BRA"
+ },
+ "SAM-0015": {
+  "owner": "BRA"
+ },
+ "SAM-0016": {
+  "owner": "BRA"
+ },
+ "SAM-0017": {
+  "owner": "BRA"
+ },
+ "SAM-0018": {
+  "owner": "BRA"
+ },
+ "SAM-0019": {
+  "owner": "BRA"
+ },
+ "SAM-0020": {
+  "owner": "BRA"
+ },
+ "SAM-0021": {
+  "owner": "BRA"
+ },
+ "SAM-0022": {
+  "owner": "BRA"
+ },
+ "SAM-0023": {
+  "owner": "BRA"
+ },
+ "SAM-0024": {
+  "owner": "BRA"
+ },
+ "SAM-0025": {
+  "owner": "BRA"
+ },
+ "SAM-0026": {
+  "owner": "BRA"
+ },
+ "SAM-0027": {
+  "owner": "BRA"
+ },
+ "SAM-0028": {
+  "owner": "BRA"
+ },
+ "SAM-0029": {
+  "owner": "GUF"
+ },
+ "SAM-0030": {
+  "owner": "SGS"
+ },
+ "SAM-0031": {
+  "owner": "FLK"
+ },
+ "SAM-0032": {
+  "owner": "ARG"
+ },
+ "SAM-0033": {
+  "owner": "ARG"
+ },
+ "SAM-0034": {
+  "owner": "ARG"
+ },
+ "SAM-0035": {
+  "owner": "ARG"
+ },
+ "SAM-0036": {
+  "owner": "ARG"
+ },
+ "SAM-0037": {
+  "owner": "ARG"
+ },
+ "SAM-0038": {
+  "owner": "ARG"
+ },
+ "SAM-0039": {
+  "owner": "COL"
+ },
+ "SAM-0040": {
+  "owner": "COL"
+ },
+ "SAM-0041": {
+  "owner": "COL"
+ },
+ "SAM-0042": {
+  "owner": "COL"
+ },
+ "SAM-0043": {
+  "owner": "COL"
+ },
+ "SAM-0044": {
+  "owner": "COL"
+ },
+ "SAM-0045": {
+  "owner": "COL"
+ },
+ "SAM-0046": {
+  "owner": "PER"
+ },
+ "SAM-0047": {
+  "owner": "PER"
+ },
+ "SAM-0048": {
+  "owner": "PER"
+ },
+ "SAM-0049": {
+  "owner": "PER"
+ },
+ "SAM-0050": {
+  "owner": "PER"
+ },
+ "SAM-0051": {
+  "owner": "PER"
+ },
+ "SAM-0052": {
+  "owner": "PER"
+ },
+ "SAM-0053": {
+  "owner": "VEN"
+ },
+ "SAM-0054": {
+  "owner": "VEN"
+ },
+ "SAM-0055": {
+  "owner": "VEN"
+ },
+ "SAM-0056": {
+  "owner": "VEN"
+ },
+ "SAM-0057": {
+  "owner": "VEN"
+ },
+ "SAM-0058": {
+  "owner": "VEN"
+ },
+ "SAM-0059": {
+  "owner": "CHL"
+ },
+ "SAM-0060": {
+  "owner": "CHL"
+ },
+ "SAM-0061": {
+  "owner": "CHL"
+ },
+ "SAM-0062": {
+  "owner": "CHL"
+ },
+ "SAM-0063": {
+  "owner": "CHL"
+ },
+ "SAM-0064": {
+  "owner": "CHL"
+ },
+ "SAM-0065": {
+  "owner": "BOL"
+ },
+ "SAM-0066": {
+  "owner": "BOL"
+ },
+ "SAM-0067": {
+  "owner": "BOL"
+ },
+ "SAM-0068": {
+  "owner": "BOL"
+ },
+ "SAM-0069": {
+  "owner": "ECU"
+ },
+ "SAM-0070": {
+  "owner": "ECU"
+ },
+ "SAM-0071": {
+  "owner": "ECU"
+ },
+ "SAM-0072": {
+  "owner": "ECU"
+ },
+ "SAM-0073": {
+  "owner": "GUY"
+ },
+ "SAM-0074": {
+  "owner": "GUY"
+ },
+ "SAM-0075": {
+  "owner": "SUR"
+ },
+ "SAM-0076": {
+  "owner": "SUR"
+ },
+ "SAM-0077": {
+  "owner": "PRY"
+ },
+ "SAM-0078": {
+  "owner": "URY"
+ },
+ "AFR-0001": {
+  "owner": "FRA"
+ },
+ "AFR-0002": {
+  "owner": "FRA"
+ },
+ "AFR-0003": {
+  "owner": "SOM_GBR"
+ },
+ "AFR-0004": {
+  "owner": "COM"
+ },
+ "AFR-0005": {
+  "owner": "ESH"
+ },
+ "AFR-0006": {
+  "owner": "SHN"
+ },
+ "AFR-0007": {
+  "owner": "IOT"
+ },
+ "AFR-0008": {
+  "owner": "UGA"
+ },
+ "AFR-0009": {
+  "owner": "GMB"
+ },
+ "AFR-0010": {
+  "owner": "RWA"
+ },
+ "AFR-0011": {
+  "owner": "RWA"
+ },
+ "AFR-0012": {
+  "owner": "RWA"
+ },
+ "AFR-0013": {
+  "owner": "RWA"
+ },
+ "AFR-0014": {
+  "owner": "RWA"
+ },
+ "AFR-0015": {
+  "owner": "EGY"
+ },
+ "AFR-0016": {
+  "owner": "EGY"
+ },
+ "AFR-0017": {
+  "owner": "EGY"
+ },
+ "AFR-0018": {
+  "owner": "EGY"
+ },
+ "AFR-0019": {
+  "owner": "EGY"
+ },
+ "AFR-0020": {
+  "owner": "EGY"
+ },
+ "AFR-0021": {
+  "owner": "EGY"
+ },
+ "AFR-0022": {
+  "owner": "EGY"
+ },
+ "AFR-0023": {
+  "owner": "EGY"
+ },
+ "AFR-0024": {
+  "owner": "LBY",
+  "controller": "GBR",
+  "note": "Under British Military Administration"
+ },
+ "AFR-0025": {
+  "owner": "LBY",
+  "controller": "GBR",
+  "note": "Under British Military Administration"
+ },
+ "AFR-0026": {
+  "owner": "LBY",
+  "controller": "FRA",
+  "note": "Under French Military Administration"
+ },
+ "AFR-0027": {
+  "owner": "DZA"
+ },
+ "AFR-0028": {
+  "owner": "DZA"
+ },
+ "AFR-0029": {
+  "owner": "DZA"
+ },
+ "AFR-0030": {
+  "owner": "DZA"
+ },
+ "AFR-0031": {
+  "owner": "DZA"
+ },
+ "AFR-0032": {
+  "owner": "BFA"
+ },
+ "AFR-0033": {
+  "owner": "BFA"
+ },
+ "AFR-0034": {
+  "owner": "BFA"
+ },
+ "AFR-0035": {
+  "owner": "BFA"
+ },
+ "AFR-0036": {
+  "owner": "BFA"
+ },
+ "AFR-0037": {
+  "owner": "BFA"
+ },
+ "AFR-0038": {
+  "owner": "BFA"
+ },
+ "AFR-0039": {
+  "owner": "BFA"
+ },
+ "AFR-0040": {
+  "owner": "BFA"
+ },
+ "AFR-0041": {
+  "owner": "BFA"
+ },
+ "AFR-0042": {
+  "owner": "BFA"
+ },
+ "AFR-0043": {
+  "owner": "BFA"
+ },
+ "AFR-0044": {
+  "owner": "BFA"
+ },
+ "AFR-0045": {
+  "owner": "GIN"
+ },
+ "AFR-0046": {
+  "owner": "GIN"
+ },
+ "AFR-0047": {
+  "owner": "GIN"
+ },
+ "AFR-0048": {
+  "owner": "GIN"
+ },
+ "AFR-0049": {
+  "owner": "GIN"
+ },
+ "AFR-0050": {
+  "owner": "GIN"
+ },
+ "AFR-0051": {
+  "owner": "GIN"
+ },
+ "AFR-0052": {
+  "owner": "GIN"
+ },
+ "AFR-0053": {
+  "owner": "GNB"
+ },
+ "AFR-0054": {
+  "owner": "GNB"
+ },
+ "AFR-0055": {
+  "owner": "GNB"
+ },
+ "AFR-0056": {
+  "owner": "GNB"
+ },
+ "AFR-0057": {
+  "owner": "MWI"
+ },
+ "AFR-0058": {
+  "owner": "MWI"
+ },
+ "AFR-0059": {
+  "owner": "MWI"
+ },
+ "AFR-0060": {
+  "owner": "MWI"
+ },
+ "AFR-0061": {
+  "owner": "MWI"
+ },
+ "AFR-0062": {
+  "owner": "MWI"
+ },
+ "AFR-0063": {
+  "owner": "SDN"
+ },
+ "AFR-0064": {
+  "owner": "SDN"
+ },
+ "AFR-0065": {
+  "owner": "SDN"
+ },
+ "AFR-0066": {
+  "owner": "SDN"
+ },
+ "AFR-0067": {
+  "owner": "SDN"
+ },
+ "AFR-0068": {
+  "owner": "SDN"
+ },
+ "AFR-0069": {
+  "owner": "SDN"
+ },
+ "AFR-0070": {
+  "owner": "SDN"
+ },
+ "AFR-0071": {
+  "owner": "SDN"
+ },
+ "AFR-0072": {
+  "owner": "NGA"
+ },
+ "AFR-0073": {
+  "owner": "NGA"
+ },
+ "AFR-0074": {
+  "owner": "NGA"
+ },
+ "AFR-0075": {
+  "owner": "ZAF"
+ },
+ "AFR-0076": {
+  "owner": "ZAF"
+ },
+ "AFR-0077": {
+  "owner": "ZAF"
+ },
+ "AFR-0078": {
+  "owner": "ZAF"
+ },
+ "AFR-0079": {
+  "owner": "ETH"
+ },
+ "AFR-0080": {
+  "owner": "ETH"
+ },
+ "AFR-0081": {
+  "owner": "ETH"
+ },
+ "AFR-0082": {
+  "owner": "ETH"
+ },
+ "AFR-0083": {
+  "owner": "ETH"
+ },
+ "AFR-0084": {
+  "owner": "MDG"
+ },
+ "AFR-0085": {
+  "owner": "MDG"
+ },
+ "AFR-0086": {
+  "owner": "MDG"
+ },
+ "AFR-0087": {
+  "owner": "MDG"
+ },
+ "AFR-0088": {
+  "owner": "MDG"
+ },
+ "AFR-0089": {
+  "owner": "TZA"
+ },
+ "AFR-0090": {
+  "owner": "TZA"
+ },
+ "AFR-0091": {
+  "owner": "TZA"
+ },
+ "AFR-0092": {
+  "owner": "TZA"
+ },
+ "AFR-0093": {
+  "owner": "TZA"
+ },
+ "AFR-0094": {
+  "owner": "MAR"
+ },
+ "AFR-0095": {
+  "owner": "MAR"
+ },
+ "AFR-0096": {
+  "owner": "MAR"
+ },
+ "AFR-0097": {
+  "owner": "MAR"
+ },
+ "AFR-0098": {
+  "owner": "AGO"
+ },
+ "AFR-0099": {
+  "owner": "AGO"
+ },
+ "AFR-0100": {
+  "owner": "AGO"
+ },
+ "AFR-0101": {
+  "owner": "AGO"
+ },
+ "AFR-0102": {
+  "owner": "AGO"
+ },
+ "AFR-0103": {
+  "owner": "MOZ"
+ },
+ "AFR-0104": {
+  "owner": "MOZ"
+ },
+ "AFR-0105": {
+  "owner": "MOZ"
+ },
+ "AFR-0106": {
+  "owner": "MOZ"
+ },
+ "AFR-0107": {
+  "owner": "MOZ"
+ },
+ "AFR-0108": {
+  "owner": "COD"
+ },
+ "AFR-0109": {
+  "owner": "COD"
+ },
+ "AFR-0110": {
+  "owner": "COD"
+ },
+ "AFR-0111": {
+  "owner": "COD"
+ },
+ "AFR-0112": {
+  "owner": "COD"
+ },
+ "AFR-0113": {
+  "owner": "COD"
+ },
+ "AFR-0114": {
+  "owner": "SOM",
+  "controller": "GBR",
+  "note": "Italian Somaliland under British Military Administration"
+ },
+ "AFR-0115": {
+  "owner": "SOM",
+  "controller": "GBR",
+  "note": "Italian Somaliland under British Military Administration"
+ },
+ "AFR-0116": {
+  "owner": "SOM",
+  "controller": "GBR",
+  "note": "Italian Somaliland under British Military Administration"
+ },
+ "AFR-0117": {
+  "owner": "SOM",
+  "controller": "GBR",
+  "note": "Italian Somaliland under British Military Administration"
+ },
+ "AFR-0118": {
+  "owner": "KEN"
+ },
+ "AFR-0119": {
+  "owner": "KEN"
+ },
+ "AFR-0120": {
+  "owner": "KEN"
+ },
+ "AFR-0121": {
+  "owner": "KEN"
+ },
+ "AFR-0122": {
+  "owner": "TUN"
+ },
+ "AFR-0123": {
+  "owner": "TUN"
+ },
+ "AFR-0124": {
+  "owner": "TUN"
+ },
+ "AFR-0125": {
+  "owner": "TUN"
+ },
+ "AFR-0126": {
+  "owner": "GHA"
+ },
+ "AFR-0127": {
+  "owner": "GHA"
+ },
+ "AFR-0128": {
+  "owner": "GHA"
+ },
+ "AFR-0129": {
+  "owner": "CMR"
+ },
+ "AFR-0130": {
+  "owner": "CMR"
+ },
+ "AFR-0131": {
+  "owner": "CMR"
+ },
+ "AFR-0132": {
+  "owner": "CMR"
+ },
+ "AFR-0133": {
+  "owner": "CIV"
+ },
+ "AFR-0134": {
+  "owner": "CIV"
+ },
+ "AFR-0135": {
+  "owner": "CIV"
+ },
+ "AFR-0136": {
+  "owner": "CIV"
+ },
+ "AFR-0137": {
+  "owner": "MLI"
+ },
+ "AFR-0138": {
+  "owner": "MLI"
+ },
+ "AFR-0139": {
+  "owner": "MLI"
+ },
+ "AFR-0140": {
+  "owner": "MLI"
+ },
+ "AFR-0141": {
+  "owner": "NER"
+ },
+ "AFR-0142": {
+  "owner": "NER"
+ },
+ "AFR-0143": {
+  "owner": "NER"
+ },
+ "AFR-0144": {
+  "owner": "TCD"
+ },
+ "AFR-0145": {
+  "owner": "TCD"
+ },
+ "AFR-0146": {
+  "owner": "TCD"
+ },
+ "AFR-0147": {
+  "owner": "TCD"
+ },
+ "AFR-0148": {
+  "owner": "ZMB"
+ },
+ "AFR-0149": {
+  "owner": "ZMB"
+ },
+ "AFR-0150": {
+  "owner": "ZMB"
+ },
+ "AFR-0151": {
+  "owner": "ZMB"
+ },
+ "AFR-0152": {
+  "owner": "ZWE"
+ },
+ "AFR-0153": {
+  "owner": "ZWE"
+ },
+ "AFR-0154": {
+  "owner": "ZWE"
+ },
+ "AFR-0155": {
+  "owner": "SEN"
+ },
+ "AFR-0156": {
+  "owner": "SEN"
+ },
+ "AFR-0157": {
+  "owner": "SEN"
+ },
+ "AFR-0158": {
+  "owner": "NAM"
+ },
+ "AFR-0159": {
+  "owner": "NAM"
+ },
+ "AFR-0160": {
+  "owner": "NAM"
+ },
+ "AFR-0161": {
+  "owner": "CPV"
+ },
+ "AFR-0162": {
+  "owner": "CPV"
+ },
+ "AFR-0163": {
+  "owner": "CPV"
+ },
+ "AFR-0164": {
+  "owner": "CPV"
+ },
+ "AFR-0165": {
+  "owner": "CPV"
+ },
+ "AFR-0166": {
+  "owner": "CPV"
+ },
+ "AFR-0167": {
+  "owner": "CPV"
+ },
+ "AFR-0168": {
+  "owner": "CPV"
+ },
+ "AFR-0169": {
+  "owner": "CPV"
+ },
+ "AFR-0170": {
+  "owner": "SYC"
+ },
+ "AFR-0171": {
+  "owner": "SYC"
+ },
+ "AFR-0172": {
+  "owner": "SYC"
+ },
+ "AFR-0173": {
+  "owner": "SYC"
+ },
+ "AFR-0174": {
+  "owner": "DJI"
+ },
+ "AFR-0175": {
+  "owner": "ERI",
+  "controller": "GBR",
+  "note": "Eritrea under British Military Administration"
+ },
+ "AFR-0176": {
+  "owner": "ERI",
+  "controller": "GBR",
+  "note": "Eritrea under British Military Administration"
+ },
+ "AFR-0177": {
+  "owner": "GAB"
+ },
+ "AFR-0178": {
+  "owner": "GAB"
+ },
+ "AFR-0179": {
+  "owner": "GNQ"
+ },
+ "AFR-0180": {
+  "owner": "GNQ"
+ },
+ "AFR-0181": {
+  "owner": "GNQ"
+ },
+ "AFR-0182": {
+  "owner": "LBR"
+ },
+ "AFR-0183": {
+  "owner": "LBR"
+ },
+ "AFR-0184": {
+  "owner": "LSO"
+ },
+ "AFR-0185": {
+  "owner": "MRT"
+ },
+ "AFR-0186": {
+  "owner": "MRT"
+ },
+ "AFR-0187": {
+  "owner": "MUS"
+ },
+ "AFR-0188": {
+  "owner": "MUS"
+ },
+ "AFR-0189": {
+  "owner": "MUS"
+ },
+ "AFR-0190": {
+  "owner": "SLE"
+ },
+ "AFR-0191": {
+  "owner": "STP"
+ },
+ "AFR-0192": {
+  "owner": "STP"
+ },
+ "AFR-0193": {
+  "owner": "SWZ"
+ },
+ "AFR-0194": {
+  "owner": "TGO"
+ },
+ "AFR-0195": {
+  "owner": "BEN"
+ },
+ "AFR-0196": {
+  "owner": "BEN"
+ },
+ "AFR-0197": {
+  "owner": "BWA"
+ },
+ "AFR-0198": {
+  "owner": "BWA"
+ },
+ "AFR-0199": {
+  "owner": "CAF"
+ },
+ "AFR-0200": {
+  "owner": "CAF"
+ },
+ "AFR-0201": {
+  "owner": "COG"
+ },
+ "AFR-0202": {
+  "owner": "COG"
+ },
+ "AFR-0203": {
+  "owner": "BDI"
+ },
+ "AFR-0204": {
+  "owner": "BDI"
+ },
+ "AFR-0205": {
+  "owner": "BDI"
+ },
+ "OCE-0001": {
+  "owner": "NCL"
+ },
+ "OCE-0002": {
+  "owner": "PYF"
+ },
+ "OCE-0003": {
+  "owner": "ASM"
+ },
+ "OCE-0004": {
+  "owner": "GUM"
+ },
+ "OCE-0005": {
+  "owner": "MNP"
+ },
+ "OCE-0006": {
+  "owner": "COK"
+ },
+ "OCE-0007": {
+  "owner": "NIU"
+ },
+ "OCE-0008": {
+  "owner": "NFD"
+ },
+ "OCE-0009": {
+  "owner": "PCN"
+ },
+ "OCE-0010": {
+  "owner": "UMI"
+ },
+ "OCE-0011": {
+  "owner": "WLF"
+ },
+ "OCE-0012": {
+  "owner": "TKL"
+ },
+ "OCE-0013": {
+  "owner": "NRU"
+ },
+ "OCE-0014": {
+  "owner": "TUV"
+ },
+ "OCE-0015": {
+  "owner": "KIR"
+ },
+ "OCE-0016": {
+  "owner": "MHL"
+ },
+ "OCE-0017": {
+  "owner": "TON"
+ },
+ "OCE-0018": {
+  "owner": "AUS"
+ },
+ "OCE-0019": {
+  "owner": "AUS"
+ },
+ "OCE-0020": {
+  "owner": "AUS"
+ },
+ "OCE-0021": {
+  "owner": "AUS"
+ },
+ "OCE-0022": {
+  "owner": "AUS"
+ },
+ "OCE-0023": {
+  "owner": "AUS"
+ },
+ "OCE-0024": {
+  "owner": "AUS"
+ },
+ "OCE-0025": {
+  "owner": "AUS"
+ },
+ "OCE-0026": {
+  "owner": "NZL"
+ },
+ "OCE-0027": {
+  "owner": "NZL"
+ },
+ "OCE-0028": {
+  "owner": "NZL"
+ },
+ "OCE-0029": {
+  "owner": "NZL"
+ },
+ "OCE-0030": {
+  "owner": "PNG"
+ },
+ "OCE-0031": {
+  "owner": "PNG"
+ },
+ "OCE-0032": {
+  "owner": "PNG"
+ },
+ "OCE-0033": {
+  "owner": "PNG"
+ },
+ "OCE-0034": {
+  "owner": "PNG"
+ },
+ "OCE-0035": {
+  "owner": "SLB"
+ },
+ "OCE-0036": {
+  "owner": "SLB"
+ },
+ "OCE-0037": {
+  "owner": "SLB"
+ },
+ "OCE-0038": {
+  "owner": "VUT"
+ },
+ "OCE-0039": {
+  "owner": "WSM"
+ },
+ "OCE-0040": {
+  "owner": "PLW"
+ },
+ "OCE-0041": {
+  "owner": "FJI"
+ },
+ "OCE-0042": {
+  "owner": "FSM"
+ },
+ "OCE-0043": {
+  "owner": "FSM"
+ },
+ "ANT-0001": {
+  "owner": null,
+  "claimant": []
+ },
+ "ANT-0002": {
+  "owner": null,
+  "claimant": [
+   "GBR",
+   "CHL",
+   "ARG"
+  ]
+ },
+ "ANT-0003": {
+  "owner": null,
+  "claimant": [
+   "NOR"
+  ]
+ },
+ "ANT-0004": {
+  "owner": null,
+  "claimant": [
+   "AUS"
+  ]
+ },
+ "ANT-0005": {
+  "owner": null,
+  "claimant": [
+   "FRA"
+  ]
+ },
+ "ANT-0006": {
+  "owner": null,
+  "claimant": [
+   "AUS"
+  ]
+ },
+ "ANT-0007": {
+  "owner": null,
+  "claimant": [
+   "NZL"
+  ]
+ },
+ "SEA-0001": {
+  "owner": null
+ },
+ "SEA-0002": {
+  "owner": null
+ },
+ "SEA-0003": {
+  "owner": null
+ },
+ "SEA-0004": {
+  "owner": null
+ },
+ "SEA-0005": {
+  "owner": null
+ },
+ "SEA-0006": {
+  "owner": null
+ },
+ "SEA-0007": {
+  "owner": null
+ },
+ "SEA-0008": {
+  "owner": null
+ },
+ "SEA-0009": {
+  "owner": null
+ },
+ "SEA-0010": {
+  "owner": null
+ },
+ "SEA-0011": {
+  "owner": null
+ },
+ "SEA-0012": {
+  "owner": null
+ },
+ "SEA-0013": {
+  "owner": null
+ },
+ "SEA-0014": {
+  "owner": null
+ },
+ "SEA-0015": {
+  "owner": null
+ },
+ "SEA-0016": {
+  "owner": null
+ },
+ "SEA-0017": {
+  "owner": null
+ },
+ "SEA-0018": {
+  "owner": null
+ },
+ "SEA-0019": {
+  "owner": null
+ },
+ "SEA-0020": {
+  "owner": null
+ },
+ "SEA-0021": {
+  "owner": null
+ },
+ "SEA-0022": {
+  "owner": null
+ },
+ "SEA-0023": {
+  "owner": null
+ },
+ "SEA-0024": {
+  "owner": null
+ },
+ "SEA-0025": {
+  "owner": null
+ },
+ "SEA-0026": {
+  "owner": null
+ },
+ "SEA-0027": {
+  "owner": null
+ },
+ "SEA-0028": {
+  "owner": null
+ },
+ "SEA-0029": {
+  "owner": null
+ },
+ "SEA-0030": {
+  "owner": null
+ },
+ "SEA-0031": {
+  "owner": null
+ },
+ "SEA-0032": {
+  "owner": null
+ },
+ "SEA-0033": {
+  "owner": null
+ },
+ "SEA-0034": {
+  "owner": null
+ },
+ "SEA-0035": {
+  "owner": null
+ },
+ "SEA-0036": {
+  "owner": null
+ },
+ "SEA-0037": {
+  "owner": null
+ },
+ "SEA-0038": {
+  "owner": null
+ },
+ "SEA-0039": {
+  "owner": null
+ },
+ "SEA-0040": {
+  "owner": null
+ },
+ "SEA-0041": {
+  "owner": null
+ },
+ "SEA-0042": {
+  "owner": null
+ },
+ "SEA-0043": {
+  "owner": null
+ },
+ "SEA-0044": {
+  "owner": null
+ },
+ "SEA-0045": {
+  "owner": null
+ },
+ "SEA-0046": {
+  "owner": null
+ },
+ "SEA-0047": {
+  "owner": null
+ },
+ "SEA-0048": {
+  "owner": null
+ },
+ "SEA-0049": {
+  "owner": null
+ },
+ "SEA-0050": {
+  "owner": null
+ },
+ "SEA-0051": {
+  "owner": null
+ },
+ "SEA-0052": {
+  "owner": null
+ },
+ "SEA-0053": {
+  "owner": null
+ },
+ "SEA-0054": {
+  "owner": null
+ },
+ "SEA-0055": {
+  "owner": null
+ },
+ "SEA-0056": {
+  "owner": null
+ },
+ "SEA-0057": {
+  "owner": null
+ },
+ "SEA-0058": {
+  "owner": null
+ },
+ "SEA-0059": {
+  "owner": null
+ },
+ "SEA-0060": {
+  "owner": null
+ },
+ "SEA-0061": {
+  "owner": null
+ },
+ "SEA-0062": {
+  "owner": null
+ },
+ "SEA-0063": {
+  "owner": null
+ },
+ "SEA-0064": {
+  "owner": null
+ },
+ "SEA-0065": {
+  "owner": null
+ },
+ "SEA-0066": {
+  "owner": null
+ },
+ "SEA-0067": {
+  "owner": null
+ },
+ "SEA-0068": {
+  "owner": null
+ },
+ "SEA-0069": {
+  "owner": null
+ },
+ "SEA-0070": {
+  "owner": null
+ },
+ "SEA-0071": {
+  "owner": null
+ },
+ "SEA-0072": {
+  "owner": null
+ },
+ "SEA-0073": {
+  "owner": null
+ },
+ "SEA-0074": {
+  "owner": null
+ },
+ "SEA-0075": {
+  "owner": null
+ },
+ "SEA-0076": {
+  "owner": null
+ },
+ "SEA-0077": {
+  "owner": null
+ },
+ "SEA-0078": {
+  "owner": null
+ },
+ "SEA-0079": {
+  "owner": null
+ },
+ "SEA-0080": {
+  "owner": null
+ },
+ "SEA-0081": {
+  "owner": null
+ },
+ "SEA-0082": {
+  "owner": null
+ },
+ "SEA-0083": {
+  "owner": null
+ },
+ "SEA-0084": {
+  "owner": null
+ },
+ "SEA-0085": {
+  "owner": null
+ },
+ "SEA-0086": {
+  "owner": null
+ },
+ "SEA-0087": {
+  "owner": null
+ },
+ "SEA-0088": {
+  "owner": null
+ },
+ "SEA-0089": {
+  "owner": null
+ },
+ "SEA-0090": {
+  "owner": null
+ },
+ "SEA-0091": {
+  "owner": null
+ },
+ "SEA-0092": {
+  "owner": null
+ },
+ "SEA-0093": {
+  "owner": null
+ },
+ "SEA-0094": {
+  "owner": null
+ },
+ "SEA-0095": {
+  "owner": null
+ },
+ "SEA-0096": {
+  "owner": null
+ },
+ "SEA-0097": {
+  "owner": null
+ },
+ "SEA-0098": {
+  "owner": null
+ },
+ "SEA-0099": {
+  "owner": null
+ },
+ "SEA-0100": {
+  "owner": null
+ },
+ "SEA-0101": {
+  "owner": null
+ },
+ "SEA-0102": {
+  "owner": null
+ },
+ "SEA-0103": {
+  "owner": null
+ },
+ "SEA-0104": {
+  "owner": null
+ },
+ "SEA-0105": {
+  "owner": null
+ },
+ "SEA-0106": {
+  "owner": null
+ },
+ "SEA-0107": {
+  "owner": null
+ },
+ "SEA-0108": {
+  "owner": null
+ },
+ "SEA-0109": {
+  "owner": null
+ },
+ "SEA-0110": {
+  "owner": null
+ },
+ "SEA-0111": {
+  "owner": null
+ },
+ "SEA-0112": {
+  "owner": null
+ },
+ "SEA-0113": {
+  "owner": null
+ },
+ "LAK-0001": {
+  "owner": null
+ },
+ "LAK-0002": {
+  "owner": null
+ },
+ "LAK-0003": {
+  "owner": null
+ },
+ "LAK-0004": {
+  "owner": null
+ },
+ "LAK-0005": {
+  "owner": null
+ },
+ "LAK-0006": {
+  "owner": null
+ },
+ "LAK-0007": {
+  "owner": null
+ },
+ "LAK-0008": {
+  "owner": null
+ },
+ "LAK-0009": {
+  "owner": null
+ },
+ "LAK-0010": {
+  "owner": null
+ },
+ "LAK-0011": {
+  "owner": null
+ }
+}

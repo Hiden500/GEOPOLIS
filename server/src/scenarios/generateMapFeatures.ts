@@ -3,6 +3,7 @@ import { type Region } from "@shared/types/map/Region";
 import { type MapFeature } from "@shared/types/map/MapFeature";
 import { MapFeatureService } from "../services/MapFeatureService";
 import { type GameState } from "@shared/types/GameState";
+import { getText } from "@shared/types/i18n/LocalizedText";
 
 /**
  * Генерирует начальные Map Features для сценария.
@@ -23,7 +24,7 @@ export function generateInitialMapFeatures(
         type: 'capital',
         regionId: capitalRegion.id,
         ownerId: country.id,
-        name: capitalRegion.name,
+        name: getText(capitalRegion.names),
         tags: ['capital', 'settlement'],
         visibleAtZoom: 0, // видна на любом зуме
       });
@@ -43,7 +44,7 @@ export function generateInitialMapFeatures(
         type: cityType,
         regionId: region.id,
         ownerId: region.ownerCountryId,
-        name: region.name,
+        name: getText(region.names),
         tags: ['settlement', cityType],
         visibleAtZoom: cityType === 'megacity' ? 3 : 6,
       });
@@ -58,7 +59,7 @@ export function generateInitialMapFeatures(
         type: 'port',
         regionId: region.id,
         ownerId: region.ownerCountryId,
-        name: `${region.name} Port`,
+        name: `${getText(region.names)} Port`,
         tags: ['infrastructure', 'port'],
         visibleAtZoom: 6,
       });
@@ -73,7 +74,7 @@ export function generateInitialMapFeatures(
         type: 'factory',
         regionId: region.id,
         ownerId: region.ownerCountryId,
-        name: `${region.name} Industrial Zone`,
+        name: `${getText(region.names)} Industrial Zone`,
         tags: ['industry', 'factory'],
         visibleAtZoom: 9,
       });

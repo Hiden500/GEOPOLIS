@@ -1,11 +1,13 @@
 node_modules
 dist
 build
+!/scripts/map/build/
 .env
 *.db
 
 # Карта мира
 *.geojson
+!/client/public/world_1946.geojson
 *.7z
 
 # Логи
@@ -51,7 +53,21 @@ savegames/
 # Данные и кэш (генерируемые/большие дампы — не путать с исходным кодом
 # в server/src/data, shared/src/data: широкое правило "data/" раньше
 # матчило их тоже и тихо роняло 13 файлов из git, см. docs/DECISIONS.md)
-/server/data/
+#
+# Сценарий 1946 (regions.json/countries.json) — игровые данные сценария,
+# генерируются scripts/map/, но коммитятся (как world_1946.geojson выше) —
+# не build-артефакт в обычном смысле, исходники не во всех средах доступны.
+# Найдено 2026-06-28: правило ниже тихо роняло их из git с момента
+# появления (тот же класс бага, что в комментарии выше) — у директории
+# нельзя отрицать файл внутри без отрицания всех родительских директорий,
+# отсюда вложенная структура ниже вместо плоского /server/data/.
+/server/data/*
+!/server/data/scenarios
+/server/data/scenarios/*
+!/server/data/scenarios/1946
+/server/data/scenarios/1946/*
+!/server/data/scenarios/1946/regions.json
+!/server/data/scenarios/1946/countries.json
 /client/data/
 logs/
 

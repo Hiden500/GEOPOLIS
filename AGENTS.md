@@ -49,6 +49,32 @@ e.g. "Выполнено" ≠ "проверено end-to-end"). Therefore:
 
 ---
 
+# Keep `/docs` Lean
+
+`docs/TODO.md` and `docs/DECISIONS.md` are easy to let balloon into a second
+commit history. Don't let them — git already is one.
+
+* `docs/TODO.md` lists only currently-open and future work. When an item is
+  done, **delete it from TODO.md** — don't leave it checked off in place.
+  If the rationale is non-obvious and worth keeping, it gets a one-line dated
+  entry in `docs/DECISIONS.md` (existing convention — see entries dated
+  2026-06-22 onward), not a paragraph in TODO.md. The "Готово (архив)" section
+  at the bottom of TODO.md stays terse bullet points, not a changelog.
+* `docs/DECISIONS.md` is an append-only dated log plus a live "Открытые
+  вопросы" index. Add new decisions as dated entries; when an open question
+  resolves, strike it from the index (already the existing pattern) rather
+  than rewriting history.
+* Do not create a new tracking doc per task/feature/refactor backlog item —
+  it fragments visibility. Add backlog items to the existing TODO.md sections
+  (or DECISIONS.md's open-questions index if it's a design question, not a
+  task). Only add a new file under `/docs` for a genuinely new *design
+  domain* (the existing per-system docs — ECONOMY/POLITICS/WAR/etc. — are the
+  precedent), never for "things to do later."
+* Detailed historical narrative (what changed, why, step by step) belongs in
+  commit messages, not docs — `git log` is authoritative for that.
+
+---
+
 # Tooling Authority
 
 Codebase intelligence (this repo) → Repowise MCP. External library docs → Context7 MCP.
@@ -88,6 +114,25 @@ Before adding a system, search for existing implementations, services, and
 patterns — and reuse them. Do not create parallel or duplicate implementations
 of existing functionality. If you find an architectural conflict, name it
 explicitly and propose alternatives.
+
+---
+
+# Design for Multi-Locale From the Start
+
+Any user-facing name/label/text introduced into a shared type (`Region`,
+`Country`, UI copy, generated content) must be designed for multiple
+languages from the first commit — `shared/src/types/i18n/LocalizedText.ts`
+(`type LocalizedText = Partial<Record<Locale, string>>` + `getText()`) is the
+established pattern (see `Region.names`). Do not add a new plain-`string`
+name field and plan to migrate it later — the migration cost compounds with
+every consumer added in between.
+
+Known remaining gap (not yet migrated, fix when touched next, not
+proactively): `Country.name`/`shortName` are still plain `string` — the 12
+legacy hand-authored country files (`server/src/data/countries/*.ts`, used by
+the 1836/2000 scenarios) and the generated 1946 registry both rely on this.
+Migrating `Country` to `LocalizedText` requires updating those legacy files
+too — do it as one pass when next working on countries, not as a drive-by.
 
 ---
 

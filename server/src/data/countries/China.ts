@@ -37,6 +37,6 @@ export const China = createCountry({
     corruption: 30,
     governmentSupport: 60
   },
-  stockpile: { oil: 200, coal: 2000, iron: 500, uranium: 0, gas: 50, food: 3000, copper: 100, timber: 500, bauxite: 50, gold: 100, aluminum: 50, rareEarths: 0, lithium: 0 },
+  stockpile: { oil: 200, coal: 2000, gas: 50, iron: 500, copper: 100, gold: 100, tin: 0, nickel: 0, bauxite: 100, tungsten: 0, manganese: 0, chromium: 0, uranium: 0, rareEarths: 0, lithium: 0, food: 3000, timber: 500, cotton: 0, rubber: 0, nitrates: 0 },
   goals: []
 });

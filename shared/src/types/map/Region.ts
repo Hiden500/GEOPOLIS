@@ -1,4 +1,5 @@
 import { ResourceType } from "../resources/ResourcesType";
+import { type LocalizedText } from "../i18n/LocalizedText";
 
 export interface Region {
 
@@ -6,7 +7,7 @@ export interface Region {
 
   geoJsonId: string;
 
-  name: string;
+  names: LocalizedText;
 
   ownerCountryId: string;
 

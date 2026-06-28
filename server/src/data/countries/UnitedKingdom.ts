@@ -106,34 +106,7 @@ export const UK = createCountry({
     governmentSupport: 70
   },
 
-  stockpile: {
-
-    oil: 400,
-
-    coal: 200,
-
-    iron: 100,
-
-    bauxite: 50,
-
-    uranium: 20,
-
-    aluminum: 30,
-
-    rareEarths: 10,
-
-    food: 500,
-
-    timber: 300,
-
-    gold: 20,
-
-    copper: 40,
-
-    lithium: 10,
-    
-    gas: 50
-  },
+  stockpile: { oil: 400, coal: 200, gas: 50, iron: 100, copper: 40, gold: 20, tin: 0, nickel: 0, bauxite: 80, tungsten: 0, manganese: 0, chromium: 0, uranium: 20, rareEarths: 10, lithium: 10, food: 500, timber: 300, cotton: 0, rubber: 0, nitrates: 0 },
 
   goals: []
 });

@@ -1,0 +1,182 @@
+"""
+import_to_game.py — превращает выходы пайплайна MAP (scripts/map/out/) в игровые
+артефакты сценария 1946: геометрию для клиента и скелеты регионов для сервера.
+
+Вход (scripts/map/out/):
+  world_1946.geojson    — геометрия, properties.region_id/continent/region_type/...
+  ownership_1946.json   — region_id -> {"owner": ISO3}
+  neighbor_graph.json   — {"neighbors": {region_id: [region_id, ...]}}
+  names_ru.json         — region_id -> {name_en, name_ru, ...}
+
+Конфиг (scripts/map/config/):
+  occupation_overlay.json — region_id -> игровой код владельца, для случаев,
+                            которые НЕ выражены в ownership_1946.json.controller
+                            (советская оккупация Маньчжурии отдельно от
+                            остального Китая, раздел Китая КПК/Гоминьдан).
+
+Зоны оккупации Германии и Кореи читаются из НАТИВНОГО поля
+ownership_1946.json[region_id].controller (MAP уже знает про 4 зоны в
+Германии и раздел по 38-й параллели в Корее, с исторической пометкой
+note) — см. resolve_owner().
+
+Выход:
+  client/public/world_1946.geojson         — геометрия с числовым id + region_id,
+                                              type нормализован (land->region, sea/lake->ocean)
+  server/data/scenarios/1946/regions.json  — Region[] скелеты (без экономики —
+                                              её заполняет отдельная модель, см.
+                                              docs/tasks/REGION_ECONOMY_FILL.md)
+
+Экономические поля (population, urbanization, stability, infrastructure,
+development, gdp, resourceProduction) заполняются нулевыми плейсхолдерами —
+это намеренно, не баг: их назначение out of scope для этого импортера.
+"""
+import json
+import re
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
+CONFIG_DIR = REPO_ROOT / "scripts" / "map" / "config"
+
+CLIENT_GEOJSON_OUT = REPO_ROOT / "client" / "public" / "world_1946.geojson"
+REGIONS_OUT = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "regions.json"
+
+# MAP's region_type -> формат, который потребляет GeoJsonLoader/MapView
+TYPE_MAP = {"land": "region", "sea": "ocean", "lake": "ocean"}
+
+# controller (зона оккупации) -> игровой код, для owner-значений MAP, где
+# население региона достаточно велико, чтобы прямое присвоение controller'у
+# искажало бы его агрегаты (Германия/Корея). Для мелких случаев (Гуантанамо,
+# зона Панамского канала, Ливия, Сомали, Эритрея) ownership.controller
+# используется как owner напрямую — см. resolve_owner().
+ZONE_CODES_BY_OWNER = {
+    "DEU": {"SUN": "QGS", "USA": "QGA", "GBR": "QGB", "FRA": "QGF"},
+    "KOR": {"SUN": "QKS", "USA": "QKA"},
+}
+
+# Технический "(N)" в конце имени — индекс/код исходной геометрии, протёкший
+# в name/name_en/name_ru при сборке MAP. Не несёт смысловой информации.
+TRAILING_INDEX_RE = re.compile(r"\s*\(\d+\)\s*$")
+
+
+def strip_trailing_index(name: str) -> str:
+    return TRAILING_INDEX_RE.sub("", name).strip()
+
+
+def resolve_owner(region_id: str, ownership: dict, overlay: dict) -> str | None:
+    entry = ownership.get(region_id) or {}
+    owner = entry.get("owner")
+    controller = entry.get("controller")
+
+    zone_codes = ZONE_CODES_BY_OWNER.get(owner)
+    if zone_codes and controller in zone_codes:
+        return zone_codes[controller]
+    if controller:
+        # Территория без собственного правительства на 1946 (военная
+        # администрация/лизинг) — присваиваем оккупанту напрямую.
+        return controller
+
+    return overlay.get(region_id) or owner
+
+
+def load_json(path: Path):
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def main():
+    world = load_json(OUT_DIR / "world_1946.geojson")
+    ownership = load_json(OUT_DIR / "ownership_1946.json")
+    neighbors = load_json(OUT_DIR / "neighbor_graph.json")["neighbors"]
+    names = {n["region_id"]: n for n in load_json(OUT_DIR / "names_ru.json")}
+    overlay = load_json(CONFIG_DIR / "occupation_overlay.json")
+    overlay = {k: v for k, v in overlay.items() if not k.startswith("_")}
+
+    features = world["features"]
+
+    # Числовой id — стабильный, в порядке region_id (уже continent-префиксован
+    # и последовательный в world_1946.geojson).
+    region_id_to_numeric: dict[str, int] = {}
+    for i, ft in enumerate(features, start=1):
+        region_id_to_numeric[ft["properties"]["region_id"]] = i
+
+    # --- 1. Геометрия для клиента ---
+    out_features = []
+    for ft in features:
+        props = ft["properties"]
+        region_id = props["region_id"]
+        region_type = props.get("region_type", "land")
+        numeric_id = region_id_to_numeric[region_id]
+
+        out_features.append({
+            "type": "Feature",
+            "id": numeric_id,
+            "properties": {
+                "id": numeric_id,
+                "region_id": region_id,
+                "type": TYPE_MAP.get(region_type, "region"),
+                "name": strip_trailing_index(props.get("name", "")),
+                "iso_a2": props.get("iso_a2", ""),
+                "continent": props.get("continent"),
+            },
+            "geometry": ft["geometry"],
+        })
+
+    CLIENT_GEOJSON_OUT.parent.mkdir(parents=True, exist_ok=True)
+    with open(CLIENT_GEOJSON_OUT, "w", encoding="utf-8") as f:
+        json.dump({"type": "FeatureCollection", "features": out_features}, f, ensure_ascii=False)
+
+    # --- 2. Регионы для сервера (только land — sea/lake не становятся Region) ---
+    regions = []
+    skipped_no_owner = []
+    for ft in features:
+        props = ft["properties"]
+        region_id = props["region_id"]
+        if props.get("region_type", "land") != "land":
+            continue
+
+        owner = resolve_owner(region_id, ownership, overlay)
+        if not owner:
+            skipped_no_owner.append(region_id)
+            continue
+
+        name_entry = names.get(region_id, {})
+        neighbor_ids = [
+            region_id_to_numeric[n]
+            for n in neighbors.get(region_id, [])
+            # сосед должен сам быть land-регионом (только такие становятся Region)
+            if n in region_id_to_numeric and names.get(n, {}).get("region_type", "land") == "land"
+        ]
+
+        regions.append({
+            "id": region_id_to_numeric[region_id],
+            "geoJsonId": region_id,
+            "names": {
+                "en": strip_trailing_index(name_entry.get("name_en", props.get("name", region_id))),
+                "ru": strip_trailing_index(name_entry.get("name_ru", name_entry.get("name_en", region_id))),
+            },
+            "ownerCountryId": owner,
+            "population": 0,
+            "area": props.get("area_km2", 0),
+            "urbanization": 0,
+            "stability": 0,
+            "infrastructure": 0,
+            "development": 0,
+            "gdp": 0,
+            "resourceProduction": {},
+            "neighboringRegionIds": neighbor_ids,
+            "sourceAdm1Codes": [region_id],
+        })
+
+    REGIONS_OUT.parent.mkdir(parents=True, exist_ok=True)
+    with open(REGIONS_OUT, "w", encoding="utf-8") as f:
+        json.dump(regions, f, ensure_ascii=False, indent=2)
+
+    print(f"Геометрия: {len(out_features)} фич -> {CLIENT_GEOJSON_OUT}")
+    print(f"Регионы: {len(regions)} -> {REGIONS_OUT}")
+    if skipped_no_owner:
+        print(f"ВНИМАНИЕ: {len(skipped_no_owner)} land-регионов без владельца пропущены: {skipped_no_owner[:10]}")
+
+
+if __name__ == "__main__":
+    main()

@@ -146,33 +146,7 @@ export const USSR = createCountry({
 
     governmentSupport: 85
   },
-  stockpile: {
-    oil: 5000,
-
-    coal: 8000,
-
-    iron: 3000,
-
-    bauxite: 2000,
-
-    uranium: 1000,
-
-    rareEarths: 500,
-
-    food: 10000,
-
-    timber: 7000,
-
-    gold: 200,
-
-    copper: 1500,
-
-    aluminum: 1200,
-
-    lithium: 300,
-
-    gas: 4000
-  },
+  stockpile: { oil: 5000, coal: 8000, gas: 4000, iron: 3000, copper: 1500, gold: 200, tin: 0, nickel: 0, bauxite: 3200, tungsten: 0, manganese: 0, chromium: 0, uranium: 1000, rareEarths: 500, lithium: 300, food: 10000, timber: 7000, cotton: 0, rubber: 0, nitrates: 0 },
 
   goals: []
 });

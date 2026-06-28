@@ -110,34 +110,7 @@ export const USA = createCountry({
     governmentSupport: 75
   },
 
-  stockpile: {
-
-    oil: 3500,
-
-    coal: 3000,
-
-    iron: 2500,
-
-    uranium: 500,
-
-    gas: 2000,
-
-    food: 3500,
-
-    copper: 1000,
-
-    timber: 1500,
-
-    bauxite: 800,
-
-    gold: 500,
-
-    aluminum: 1200,
-
-    rareEarths: 0,
-
-    lithium: 0
-  },
+  stockpile: { oil: 3500, coal: 3000, gas: 2000, iron: 2500, copper: 1000, gold: 500, tin: 0, nickel: 0, bauxite: 2000, tungsten: 0, manganese: 0, chromium: 0, uranium: 500, rareEarths: 0, lithium: 0, food: 3500, timber: 1500, cotton: 0, rubber: 0, nitrates: 0 },
 
   goals: []
 });

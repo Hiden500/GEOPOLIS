@@ -62,20 +62,6 @@ export const FRA = createCountry({
     corruption: 12,
     governmentSupport: 65
   },
-  stockpile: {
-    oil: 300,
-    coal: 150,
-    iron: 80,
-    bauxite: 40,
-    uranium: 30,
-    aluminum: 25,
-    rareEarths: 5,
-    food: 400,
-    timber: 200,
-    gold: 15,
-    copper: 30,
-    lithium: 8,
-    gas: 60
-  },
+  stockpile: { oil: 300, coal: 150, gas: 60, iron: 80, copper: 30, gold: 15, tin: 0, nickel: 0, bauxite: 65, tungsten: 0, manganese: 0, chromium: 0, uranium: 30, rareEarths: 5, lithium: 8, food: 400, timber: 200, cotton: 0, rubber: 0, nitrates: 0 },
   goals: []
 });

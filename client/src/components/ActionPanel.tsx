@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { type PlayerAction } from "@shared/types/actions/PlayerAction";
 import { type Region } from "@shared/types/map/Region";
+import { getText } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
   actions: PlayerAction[];
@@ -60,7 +61,7 @@ export function ActionPanel({ actions, regions, onCreateAction, onDeleteAction }
             <option value="">{regions.length === 0 ? "Нет своих регионов" : "Выберите регион..."}</option>
             {regions.map((region) => (
               <option key={region.id} value={region.id}>
-                {region.name}
+                {getText(region.names)}
               </option>
             ))}
           </select>

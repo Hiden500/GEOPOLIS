@@ -37,6 +37,6 @@ export const Taiwan = createCountry({
     corruption: 25,
     governmentSupport: 45
   },
-  stockpile: { oil: 50, coal: 100, iron: 30, uranium: 0, gas: 20, food: 200, copper: 10, timber: 30, bauxite: 5, gold: 20, aluminum: 10, rareEarths: 0, lithium: 0 },
+  stockpile: { oil: 50, coal: 100, gas: 20, iron: 30, copper: 10, gold: 20, tin: 0, nickel: 0, bauxite: 15, tungsten: 0, manganese: 0, chromium: 0, uranium: 0, rareEarths: 0, lithium: 0, food: 200, timber: 30, cotton: 0, rubber: 0, nitrates: 0 },
   goals: []
 });

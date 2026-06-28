@@ -152,9 +152,7 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
     const loadMap = async () => {
       try {
         console.log('Loading map with countries:', countries.map(c => ({ id: c.id, name: c.name, color: c.color })));
-        // TEMP: /1world-map-full.geojson не существует пока карта в работе у пользователя.
-        // game_map.json — временная подмена только для прототипа интерфейса.
-        const data = await loadGameMapData('/game_map.json', regions, countries);
+        const data = await loadGameMapData('/world_1946.geojson', regions, countries);
         setMapData(data);
 
         if (m.getSource('regions')) {
@@ -164,6 +162,30 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
             type: 'geojson',
             data: data.featureCollection,
             maxzoom: 8
+          });
+
+          // Слои морей/океанов — заливка по собственному цвету фичи + границы
+          // между водными объектами (под слоями регионов/стран).
+          m.addLayer({
+            id: 'oceans-fill',
+            type: 'fill',
+            source: 'regions',
+            filter: ['==', ['get', 'type'], 'ocean'],
+            paint: {
+              'fill-color': ['get', 'color'],
+              'fill-opacity': 0.85
+            }
+          });
+
+          m.addLayer({
+            id: 'oceans-outline',
+            type: 'line',
+            source: 'regions',
+            filter: ['==', ['get', 'type'], 'ocean'],
+            paint: {
+              'line-color': '#0d2438',
+              'line-width': 0.4
+            }
           });
 
           // Слой для стран и регионов (поверх океанов)
