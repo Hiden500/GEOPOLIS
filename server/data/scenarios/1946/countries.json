@@ -3,7 +3,7 @@
     "id": "AFG",
     "name": "Afghanistan",
     "shortName": "Afghanistan",
-    "color": "#4edfb3",
+    "color": "#47bd9a",
     "capitalRegionId": 436,
     "population": 0,
     "economyProfile": {
@@ -131,7 +131,7 @@
     "id": "ALA",
     "name": "Åland Islands",
     "shortName": "Åland Islands",
-    "color": "#c89ee0",
+    "color": "#b7a3c2",
     "capitalRegionId": 12,
     "population": 0,
     "economyProfile": {
@@ -259,7 +259,7 @@
     "id": "ALB",
     "name": "Albania",
     "shortName": "Albania",
-    "color": "#d55320",
+    "color": "#c66139",
     "capitalRegionId": 2,
     "population": 0,
     "economyProfile": {
@@ -387,7 +387,7 @@
     "id": "AND",
     "name": "Andorra",
     "shortName": "Andorra",
-    "color": "#d5bf53",
+    "color": "#c8b246",
     "capitalRegionId": 1,
     "population": 0,
     "economyProfile": {
@@ -515,7 +515,7 @@
     "id": "ARE",
     "name": "Trucial States",
     "shortName": "Trucial States",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 425,
     "population": 0,
     "economyProfile": {
@@ -643,7 +643,7 @@
     "id": "ARG",
     "name": "Argentina",
     "shortName": "Argentina",
-    "color": "#33d7c1",
+    "color": "#59b1a5",
     "capitalRegionId": 1079,
     "population": 0,
     "economyProfile": {
@@ -771,7 +771,7 @@
     "id": "AUS",
     "name": "Australia",
     "shortName": "Australia",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1342,
     "population": 0,
     "economyProfile": {
@@ -903,7 +903,7 @@
     "id": "AUT",
     "name": "Austria",
     "shortName": "Austria",
-    "color": "#d54db6",
+    "color": "#a03b89",
     "capitalRegionId": 3,
     "population": 0,
     "economyProfile": {
@@ -1031,7 +1031,7 @@
     "id": "BDI",
     "name": "Ruanda-Urundi",
     "shortName": "Ruanda-Urundi",
-    "color": "#d8a5d9",
+    "color": "#c68fc6",
     "capitalRegionId": 1324,
     "population": 0,
     "economyProfile": {
@@ -1159,7 +1159,7 @@
     "id": "BEL",
     "name": "Belgium",
     "shortName": "Belgium",
-    "color": "#d24ed4",
+    "color": "#bd3bbf",
     "capitalRegionId": 16,
     "population": 0,
     "economyProfile": {
@@ -1295,7 +1295,7 @@
     "id": "BGR",
     "name": "Bulgaria",
     "shortName": "Bulgaria",
-    "color": "#d9546e",
+    "color": "#924554",
     "capitalRegionId": 23,
     "population": 0,
     "economyProfile": {
@@ -1423,7 +1423,7 @@
     "id": "BHR",
     "name": "Bahrain",
     "shortName": "Bahrain",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 456,
     "population": 0,
     "economyProfile": {
@@ -1551,7 +1551,7 @@
     "id": "BOL",
     "name": "Bolivia",
     "shortName": "Bolivia",
-    "color": "#9637cd",
+    "color": "#643e79",
     "capitalRegionId": 1107,
     "population": 0,
     "economyProfile": {
@@ -1679,7 +1679,7 @@
     "id": "BRA",
     "name": "Brazil",
     "shortName": "Brazil",
-    "color": "#3fb3ca",
+    "color": "#42a0b3",
     "capitalRegionId": 1058,
     "population": 0,
     "economyProfile": {
@@ -1807,7 +1807,7 @@
     "id": "BRN",
     "name": "Brunei",
     "shortName": "Brunei",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 457,
     "population": 0,
     "economyProfile": {
@@ -1935,7 +1935,7 @@
     "id": "BTN",
     "name": "Bhutan",
     "shortName": "Bhutan",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 458,
     "population": 0,
     "economyProfile": {
@@ -2063,7 +2063,7 @@
     "id": "BWA",
     "name": "Bechuanaland",
     "shortName": "Bechuanaland",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1317,
     "population": 0,
     "economyProfile": {
@@ -2191,7 +2191,7 @@
     "id": "CAN",
     "name": "Canada",
     "shortName": "Canada",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 782,
     "population": 0,
     "economyProfile": {
@@ -2319,7 +2319,7 @@
     "id": "CHE",
     "name": "Switzerland",
     "shortName": "Switzerland",
-    "color": "#2190ab",
+    "color": "#367281",
     "capitalRegionId": 38,
     "population": 0,
     "economyProfile": {
@@ -2447,7 +2447,7 @@
     "id": "CHL",
     "name": "Chile",
     "shortName": "Chile",
-    "color": "#6133e1",
+    "color": "#6b51b3",
     "capitalRegionId": 1105,
     "population": 0,
     "economyProfile": {
@@ -2575,7 +2575,7 @@
     "id": "CHN",
     "name": "China",
     "shortName": "China",
-    "color": "#d35400",
+    "color": "#bd6332",
     "capitalRegionId": 410,
     "population": 0,
     "economyProfile": {
@@ -2703,7 +2703,7 @@
     "id": "CMR",
     "name": "French Cameroun",
     "shortName": "French Cameroun",
-    "color": "#97c1bd",
+    "color": "#80aaa5",
     "capitalRegionId": 1251,
     "population": 0,
     "economyProfile": {
@@ -2831,7 +2831,7 @@
     "id": "COD",
     "name": "Belgian Congo",
     "shortName": "Belgian Congo",
-    "color": "#d8a5d9",
+    "color": "#c68fc6",
     "capitalRegionId": 1228,
     "population": 0,
     "economyProfile": {
@@ -2959,7 +2959,7 @@
     "id": "COL",
     "name": "Colombia",
     "shortName": "Colombia",
-    "color": "#59c229",
+    "color": "#60b937",
     "capitalRegionId": 1086,
     "population": 0,
     "economyProfile": {
@@ -3087,7 +3087,7 @@
     "id": "CRI",
     "name": "Costa Rica",
     "shortName": "Costa Rica",
-    "color": "#df7b34",
+    "color": "#b7794e",
     "capitalRegionId": 839,
     "population": 0,
     "economyProfile": {
@@ -3215,7 +3215,7 @@
     "id": "CSK",
     "name": "Czechoslovakia",
     "shortName": "Czechoslovakia",
-    "color": "#bf4acf",
+    "color": "#ab41b9",
     "capitalRegionId": 48,
     "population": 0,
     "economyProfile": {
@@ -3343,7 +3343,7 @@
     "id": "CUB",
     "name": "Cuba",
     "shortName": "Cuba",
-    "color": "#e3e62d",
+    "color": "#818235",
     "capitalRegionId": 798,
     "population": 0,
     "economyProfile": {
@@ -3471,7 +3471,7 @@
     "id": "DNK",
     "name": "Denmark",
     "shortName": "Denmark",
-    "color": "#cc7a28",
+    "color": "#8f5c28",
     "capitalRegionId": 64,
     "population": 0,
     "economyProfile": {
@@ -3603,7 +3603,7 @@
     "id": "DOM",
     "name": "Dominican Republic",
     "shortName": "Dominican Republic",
-    "color": "#1eb366",
+    "color": "#358d5f",
     "capitalRegionId": 820,
     "population": 0,
     "economyProfile": {
@@ -3731,7 +3731,7 @@
     "id": "ECU",
     "name": "Ecuador",
     "shortName": "Ecuador",
-    "color": "#d2e52a",
+    "color": "#b0ba4f",
     "capitalRegionId": 1111,
     "population": 0,
     "economyProfile": {
@@ -3859,7 +3859,7 @@
     "id": "EGY",
     "name": "Egypt",
     "shortName": "Egypt",
-    "color": "#aeba26",
+    "color": "#b0b950",
     "capitalRegionId": 1142,
     "population": 0,
     "economyProfile": {
@@ -3987,7 +3987,7 @@
     "id": "ESP",
     "name": "Spain",
     "shortName": "Spain",
-    "color": "#41c332",
+    "color": "#35972b",
     "capitalRegionId": 80,
     "population": 0,
     "economyProfile": {
@@ -4115,7 +4115,7 @@
     "id": "ETH",
     "name": "Ethiopia",
     "shortName": "Ethiopia",
-    "color": "#a54dcb",
+    "color": "#6b3f7d",
     "capitalRegionId": 1199,
     "population": 0,
     "economyProfile": {
@@ -4243,7 +4243,7 @@
     "id": "FIN",
     "name": "Finland",
     "shortName": "Finland",
-    "color": "#a642e0",
+    "color": "#9156b3",
     "capitalRegionId": 90,
     "population": 0,
     "economyProfile": {
@@ -4375,7 +4375,7 @@
     "id": "FRA",
     "name": "France",
     "shortName": "France",
-    "color": "#45b8ac",
+    "color": "#3f8f86",
     "capitalRegionId": 1145,
     "population": 0,
     "economyProfile": {
@@ -4519,7 +4519,7 @@
     "id": "FSM",
     "name": "Micronesia",
     "shortName": "Micronesia",
-    "color": "#75a8c9",
+    "color": "#7c98aa",
     "capitalRegionId": 1367,
     "population": 0,
     "economyProfile": {
@@ -4647,7 +4647,7 @@
     "id": "GBR",
     "name": "United Kingdom",
     "shortName": "United Kingdom",
-    "color": "#e8a0bc",
+    "color": "#b5657c",
     "capitalRegionId": 1144,
     "population": 0,
     "economyProfile": {
@@ -4826,7 +4826,7 @@
     "id": "GRC",
     "name": "Greece",
     "shortName": "Greece",
-    "color": "#25bb37",
+    "color": "#359740",
     "capitalRegionId": 128,
     "population": 0,
     "economyProfile": {
@@ -4954,7 +4954,7 @@
     "id": "GRL",
     "name": "Greenland",
     "shortName": "Greenland",
-    "color": "#d1a87f",
+    "color": "#b48a5f",
     "capitalRegionId": 846,
     "population": 0,
     "economyProfile": {
@@ -5082,7 +5082,7 @@
     "id": "GTM",
     "name": "Guatemala",
     "shortName": "Guatemala",
-    "color": "#641cb0",
+    "color": "#624087",
     "capitalRegionId": 847,
     "population": 0,
     "economyProfile": {
@@ -5210,7 +5210,7 @@
     "id": "HND",
     "name": "Honduras",
     "shortName": "Honduras",
-    "color": "#c7da1b",
+    "color": "#848b46",
     "capitalRegionId": 860,
     "population": 0,
     "economyProfile": {
@@ -5338,7 +5338,7 @@
     "id": "HTI",
     "name": "Haiti",
     "shortName": "Haiti",
-    "color": "#df5134",
+    "color": "#b15a48",
     "capitalRegionId": 800,
     "population": 0,
     "economyProfile": {
@@ -5466,7 +5466,7 @@
     "id": "HUN",
     "name": "Hungary",
     "shortName": "Hungary",
-    "color": "#3163bf",
+    "color": "#2b529c",
     "capitalRegionId": 145,
     "population": 0,
     "economyProfile": {
@@ -5594,7 +5594,7 @@
     "id": "IRL",
     "name": "Ireland",
     "shortName": "Ireland",
-    "color": "#2d6cbe",
+    "color": "#3e587a",
     "capitalRegionId": 157,
     "population": 0,
     "economyProfile": {
@@ -5722,7 +5722,7 @@
     "id": "IRN",
     "name": "Iran",
     "shortName": "Iran",
-    "color": "#5632c3",
+    "color": "#4d3e79",
     "capitalRegionId": 543,
     "population": 0,
     "economyProfile": {
@@ -5850,7 +5850,7 @@
     "id": "IRQ",
     "name": "Iraq",
     "shortName": "Iraq",
-    "color": "#547cd9",
+    "color": "#536ba2",
     "capitalRegionId": 532,
     "population": 0,
     "economyProfile": {
@@ -5978,7 +5978,7 @@
     "id": "ISL",
     "name": "Iceland",
     "shortName": "Iceland",
-    "color": "#40c32c",
+    "color": "#4da63f",
     "capitalRegionId": 159,
     "population": 0,
     "economyProfile": {
@@ -6106,7 +6106,7 @@
     "id": "ITA",
     "name": "Italy",
     "shortName": "Italy",
-    "color": "#2e8b57",
+    "color": "#4f8f63",
     "capitalRegionId": 177,
     "population": 0,
     "economyProfile": {
@@ -6242,7 +6242,7 @@
     "id": "JOR",
     "name": "Jordan",
     "shortName": "Jordan",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 547,
     "population": 0,
     "economyProfile": {
@@ -6370,7 +6370,7 @@
     "id": "JPN",
     "name": "Japan",
     "shortName": "Japan",
-    "color": "#3628a4",
+    "color": "#8f4a4a",
     "capitalRegionId": 558,
     "population": 0,
     "economyProfile": {
@@ -6498,7 +6498,7 @@
     "id": "KHM",
     "name": "French Cambodia",
     "shortName": "French Cambodia",
-    "color": "#97c1bd",
+    "color": "#80aaa5",
     "capitalRegionId": 570,
     "population": 0,
     "economyProfile": {
@@ -6626,7 +6626,7 @@
     "id": "KWT",
     "name": "Kuwait",
     "shortName": "Kuwait",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 599,
     "population": 0,
     "economyProfile": {
@@ -6754,7 +6754,7 @@
     "id": "LAO",
     "name": "French Laos",
     "shortName": "French Laos",
-    "color": "#97c1bd",
+    "color": "#80aaa5",
     "capitalRegionId": 613,
     "population": 0,
     "economyProfile": {
@@ -6882,7 +6882,7 @@
     "id": "LBN",
     "name": "Lebanon",
     "shortName": "Lebanon",
-    "color": "#d025b9",
+    "color": "#c748b6",
     "capitalRegionId": 615,
     "population": 0,
     "economyProfile": {
@@ -7010,7 +7010,7 @@
     "id": "LBR",
     "name": "Liberia",
     "shortName": "Liberia",
-    "color": "#a53fe4",
+    "color": "#8e41be",
     "capitalRegionId": 1302,
     "population": 0,
     "economyProfile": {
@@ -7138,7 +7138,7 @@
     "id": "LIE",
     "name": "Liechtenstein",
     "shortName": "Liechtenstein",
-    "color": "#a53be3",
+    "color": "#8d58ad",
     "capitalRegionId": 180,
     "population": 0,
     "economyProfile": {
@@ -7266,7 +7266,7 @@
     "id": "LSO",
     "name": "Basutoland",
     "shortName": "Basutoland",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1303,
     "population": 0,
     "economyProfile": {
@@ -7394,7 +7394,7 @@
     "id": "LUX",
     "name": "Luxembourg",
     "shortName": "Luxembourg",
-    "color": "#361ddd",
+    "color": "#574d99",
     "capitalRegionId": 184,
     "population": 0,
     "economyProfile": {
@@ -7522,7 +7522,7 @@
     "id": "MAR",
     "name": "French Morocco",
     "shortName": "French Morocco",
-    "color": "#97c1bd",
+    "color": "#80aaa5",
     "capitalRegionId": 1215,
     "population": 0,
     "economyProfile": {
@@ -7650,7 +7650,7 @@
     "id": "MCO",
     "name": "Monaco",
     "shortName": "Monaco",
-    "color": "#4cdcc4",
+    "color": "#2a9382",
     "capitalRegionId": 190,
     "population": 0,
     "economyProfile": {
@@ -7778,7 +7778,7 @@
     "id": "MEX",
     "name": "Mexico",
     "shortName": "Mexico",
-    "color": "#42d1be",
+    "color": "#479e93",
     "capitalRegionId": 870,
     "population": 0,
     "economyProfile": {
@@ -7906,7 +7906,7 @@
     "id": "MHL",
     "name": "Marshall Islands",
     "shortName": "Marshall Islands",
-    "color": "#75a8c9",
+    "color": "#7c98aa",
     "capitalRegionId": 1340,
     "population": 0,
     "economyProfile": {
@@ -8034,7 +8034,7 @@
     "id": "MNG",
     "name": "Mongolia",
     "shortName": "Mongolia",
-    "color": "#e7b040",
+    "color": "#c59a44",
     "capitalRegionId": 632,
     "population": 0,
     "economyProfile": {
@@ -8162,7 +8162,7 @@
     "id": "MNP",
     "name": "Northern Mariana Islands",
     "shortName": "Northern Mariana Islands",
-    "color": "#75a8c9",
+    "color": "#7c98aa",
     "capitalRegionId": 1329,
     "population": 0,
     "economyProfile": {
@@ -8290,7 +8290,7 @@
     "id": "MWI",
     "name": "Nyasaland",
     "shortName": "Nyasaland",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1177,
     "population": 0,
     "economyProfile": {
@@ -8418,7 +8418,7 @@
     "id": "NAM",
     "name": "South West Africa",
     "shortName": "South West Africa",
-    "color": "#9ad7df",
+    "color": "#6ca0a7",
     "capitalRegionId": 1279,
     "population": 0,
     "economyProfile": {
@@ -8546,7 +8546,7 @@
     "id": "NIC",
     "name": "Nicaragua",
     "shortName": "Nicaragua",
-    "color": "#20b6b6",
+    "color": "#4ac4c4",
     "capitalRegionId": 902,
     "population": 0,
     "economyProfile": {
@@ -8674,7 +8674,7 @@
     "id": "NLD",
     "name": "Netherlands",
     "shortName": "Netherlands",
-    "color": "#c1651a",
+    "color": "#a36e43",
     "capitalRegionId": 201,
     "population": 0,
     "economyProfile": {
@@ -8802,7 +8802,7 @@
     "id": "NOR",
     "name": "Norway",
     "shortName": "Norway",
-    "color": "#50bb30",
+    "color": "#478235",
     "capitalRegionId": 207,
     "population": 0,
     "economyProfile": {
@@ -8930,7 +8930,7 @@
     "id": "NPL",
     "name": "Nepal",
     "shortName": "Nepal",
-    "color": "#34bee5",
+    "color": "#47889a",
     "capitalRegionId": 641,
     "population": 0,
     "economyProfile": {
@@ -9058,7 +9058,7 @@
     "id": "NRU",
     "name": "Nauru",
     "shortName": "Nauru",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1337,
     "population": 0,
     "economyProfile": {
@@ -9186,7 +9186,7 @@
     "id": "NZL",
     "name": "New Zealand",
     "shortName": "New Zealand",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1352,
     "population": 0,
     "economyProfile": {
@@ -9318,7 +9318,7 @@
     "id": "OMN",
     "name": "Oman",
     "shortName": "Oman",
-    "color": "#34cb91",
+    "color": "#56b38f",
     "capitalRegionId": 645,
     "population": 0,
     "economyProfile": {
@@ -9446,7 +9446,7 @@
     "id": "PAN",
     "name": "Panama",
     "shortName": "Panama",
-    "color": "#4ac8d9",
+    "color": "#3098a6",
     "capitalRegionId": 913,
     "population": 0,
     "economyProfile": {
@@ -9574,7 +9574,7 @@
     "id": "PER",
     "name": "Peru",
     "shortName": "Peru",
-    "color": "#26ab4c",
+    "color": "#3e9858",
     "capitalRegionId": 1087,
     "population": 0,
     "economyProfile": {
@@ -9702,7 +9702,7 @@
     "id": "PHL",
     "name": "Philippines",
     "shortName": "Philippines",
-    "color": "#3282d2",
+    "color": "#4178af",
     "capitalRegionId": 649,
     "population": 0,
     "economyProfile": {
@@ -9830,7 +9830,7 @@
     "id": "PLW",
     "name": "Palau",
     "shortName": "Palau",
-    "color": "#75a8c9",
+    "color": "#7c98aa",
     "capitalRegionId": 1364,
     "population": 0,
     "economyProfile": {
@@ -9958,7 +9958,7 @@
     "id": "PNG",
     "name": "Papua and New Guinea",
     "shortName": "Papua and New Guinea",
-    "color": "#dac690",
+    "color": "#c4b896",
     "capitalRegionId": 1358,
     "population": 0,
     "economyProfile": {
@@ -10086,7 +10086,7 @@
     "id": "POL",
     "name": "Poland",
     "shortName": "Poland",
-    "color": "#b45322",
+    "color": "#9e532e",
     "capitalRegionId": 216,
     "population": 0,
     "economyProfile": {
@@ -10214,7 +10214,7 @@
     "id": "PRT",
     "name": "Portugal",
     "shortName": "Portugal",
-    "color": "#1cb531",
+    "color": "#3b8745",
     "capitalRegionId": 217,
     "population": 0,
     "economyProfile": {
@@ -10342,7 +10342,7 @@
     "id": "PRY",
     "name": "Paraguay",
     "shortName": "Paraguay",
-    "color": "#cd452d",
+    "color": "#9d594d",
     "capitalRegionId": 1118,
     "population": 0,
     "economyProfile": {
@@ -10470,7 +10470,7 @@
     "id": "PSE",
     "name": "Palestine Mandate",
     "shortName": "Palestine Mandate",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 483,
     "population": 0,
     "economyProfile": {
@@ -10598,7 +10598,7 @@
     "id": "QAT",
     "name": "Qatar",
     "shortName": "Qatar",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 673,
     "population": 0,
     "economyProfile": {
@@ -10726,7 +10726,7 @@
     "id": "QAZ",
     "name": "Azerbaijan People's Government",
     "shortName": "Azerbaijan People's Gove",
-    "color": "#cb837c",
+    "color": "#b87c7c",
     "capitalRegionId": 536,
     "population": 0,
     "economyProfile": {
@@ -10854,7 +10854,7 @@
     "id": "QCF",
     "name": "France Colonies",
     "shortName": "France Colonies",
-    "color": "#c6472a",
+    "color": "#9d503f",
     "capitalRegionId": 1146,
     "population": 0,
     "economyProfile": {
@@ -10982,7 +10982,7 @@
     "id": "QCG",
     "name": "United Kingdom Colonies",
     "shortName": "United Kingdom Colonies",
-    "color": "#e0a34d",
+    "color": "#826235",
     "capitalRegionId": 781,
     "population": 0,
     "economyProfile": {
@@ -11110,7 +11110,7 @@
     "id": "QCN",
     "name": "Netherlands Colonies",
     "shortName": "Netherlands Colonies",
-    "color": "#3229b3",
+    "color": "#3d34bc",
     "capitalRegionId": 466,
     "population": 0,
     "economyProfile": {
@@ -11238,7 +11238,7 @@
     "id": "QCP",
     "name": "Portugal Colonies",
     "shortName": "Portugal Colonies",
-    "color": "#b62fad",
+    "color": "#9b3b95",
     "capitalRegionId": 1221,
     "population": 0,
     "economyProfile": {
@@ -11366,7 +11366,7 @@
     "id": "QCS",
     "name": "Spain Colonies",
     "shortName": "Spain Colonies",
-    "color": "#b02762",
+    "color": "#893459",
     "capitalRegionId": 1124,
     "population": 0,
     "economyProfile": {
@@ -11494,7 +11494,7 @@
     "id": "QCU",
     "name": "United States Colonies",
     "shortName": "United States Colonies",
-    "color": "#aa2734",
+    "color": "#b25760",
     "capitalRegionId": 915,
     "population": 0,
     "economyProfile": {
@@ -11622,7 +11622,7 @@
     "id": "QCZ",
     "name": "New Zealand Colonies",
     "shortName": "New Zealand Colonies",
-    "color": "#2b64bf",
+    "color": "#375b95",
     "capitalRegionId": 1331,
     "population": 0,
     "economyProfile": {
@@ -11750,7 +11750,7 @@
     "id": "QGA",
     "name": "American Occupation Zone (Germany)",
     "shortName": "American Occupation Zone",
-    "color": "#75a8c9",
+    "color": "#7c98aa",
     "capitalRegionId": 50,
     "population": 0,
     "economyProfile": {
@@ -11878,7 +11878,7 @@
     "id": "QGB",
     "name": "British Occupation Zone (Germany)",
     "shortName": "British Occupation Zone ",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 54,
     "population": 0,
     "economyProfile": {
@@ -12006,7 +12006,7 @@
     "id": "QGF",
     "name": "French Occupation Zone (Germany)",
     "shortName": "French Occupation Zone (",
-    "color": "#97c1bd",
+    "color": "#80aaa5",
     "capitalRegionId": 51,
     "population": 0,
     "economyProfile": {
@@ -12134,7 +12134,7 @@
     "id": "QGS",
     "name": "Soviet Occupation Zone (Germany)",
     "shortName": "Soviet Occupation Zone (",
-    "color": "#cb837c",
+    "color": "#b87c7c",
     "capitalRegionId": 56,
     "population": 0,
     "economyProfile": {
@@ -12262,7 +12262,7 @@
     "id": "QKA",
     "name": "American Occupation Zone (Korea)",
     "shortName": "American Occupation Zone",
-    "color": "#75a8c9",
+    "color": "#7c98aa",
     "capitalRegionId": 582,
     "population": 0,
     "economyProfile": {
@@ -12390,7 +12390,7 @@
     "id": "QKS",
     "name": "Soviet Occupation Zone (Korea)",
     "shortName": "Soviet Occupation Zone (",
-    "color": "#cb837c",
+    "color": "#b87c7c",
     "capitalRegionId": 580,
     "population": 0,
     "economyProfile": {
@@ -12518,7 +12518,7 @@
     "id": "QMH",
     "name": "Republic of Mahabad",
     "shortName": "Republic of Mahabad",
-    "color": "#cb837c",
+    "color": "#b87c7c",
     "capitalRegionId": 544,
     "population": 0,
     "economyProfile": {
@@ -12646,7 +12646,7 @@
     "id": "QMS",
     "name": "Soviet-administered Manchuria",
     "shortName": "Soviet-administered Manc",
-    "color": "#cb837c",
+    "color": "#b87c7c",
     "capitalRegionId": 407,
     "population": 0,
     "economyProfile": {
@@ -12774,7 +12774,7 @@
     "id": "QSO",
     "name": "British Somaliland",
     "shortName": "British Somaliland",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1122,
     "population": 0,
     "economyProfile": {
@@ -12902,7 +12902,7 @@
     "id": "ROU",
     "name": "Romania",
     "shortName": "Romania",
-    "color": "#b0e01f",
+    "color": "#7a922f",
     "capitalRegionId": 230,
     "population": 0,
     "economyProfile": {
@@ -13030,7 +13030,7 @@
     "id": "RWA",
     "name": "Ruanda-Urundi",
     "shortName": "Ruanda-Urundi",
-    "color": "#d8a5d9",
+    "color": "#c68fc6",
     "capitalRegionId": 1129,
     "population": 0,
     "economyProfile": {
@@ -13158,7 +13158,7 @@
     "id": "SAU",
     "name": "Saudi Arabia",
     "shortName": "Saudi Arabia",
-    "color": "#4ad37d",
+    "color": "#4d9d6b",
     "capitalRegionId": 674,
     "population": 0,
     "economyProfile": {
@@ -13286,7 +13286,7 @@
     "id": "SDN",
     "name": "Anglo-Egyptian Sudan",
     "shortName": "Anglo-Egyptian Sudan",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1182,
     "population": 0,
     "economyProfile": {
@@ -13414,7 +13414,7 @@
     "id": "SLB",
     "name": "Solomon Islands",
     "shortName": "Solomon Islands",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1361,
     "population": 0,
     "economyProfile": {
@@ -13542,7 +13542,7 @@
     "id": "SLV",
     "name": "El Salvador",
     "shortName": "El Salvador",
-    "color": "#d7632d",
+    "color": "#9f5838",
     "capitalRegionId": 921,
     "population": 0,
     "economyProfile": {
@@ -13670,7 +13670,7 @@
     "id": "SMR",
     "name": "San Marino",
     "shortName": "San Marino",
-    "color": "#a7612f",
+    "color": "#956441",
     "capitalRegionId": 338,
     "population": 0,
     "economyProfile": {
@@ -13798,7 +13798,7 @@
     "id": "SUN",
     "name": "Soviet Union",
     "shortName": "Soviet Union",
-    "color": "#c0392b",
+    "color": "#a23636",
     "capitalRegionId": 253,
     "population": 0,
     "economyProfile": {
@@ -13932,7 +13932,7 @@
     "id": "SWE",
     "name": "Sweden",
     "shortName": "Sweden",
-    "color": "#6fe12d",
+    "color": "#69b040",
     "capitalRegionId": 322,
     "population": 0,
     "economyProfile": {
@@ -14060,7 +14060,7 @@
     "id": "SWZ",
     "name": "Swaziland",
     "shortName": "Swaziland",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1312,
     "population": 0,
     "economyProfile": {
@@ -14188,7 +14188,7 @@
     "id": "SYR",
     "name": "Syria",
     "shortName": "Syria",
-    "color": "#37c84d",
+    "color": "#3bba4e",
     "capitalRegionId": 692,
     "population": 0,
     "economyProfile": {
@@ -14316,7 +14316,7 @@
     "id": "TGO",
     "name": "French Togoland",
     "shortName": "French Togoland",
-    "color": "#97c1bd",
+    "color": "#80aaa5",
     "capitalRegionId": 1313,
     "population": 0,
     "economyProfile": {
@@ -14444,7 +14444,7 @@
     "id": "THA",
     "name": "Thailand",
     "shortName": "Thailand",
-    "color": "#1a80e0",
+    "color": "#2e6da8",
     "capitalRegionId": 703,
     "population": 0,
     "economyProfile": {
@@ -14572,7 +14572,7 @@
     "id": "TON",
     "name": "Tonga",
     "shortName": "Tonga",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1341,
     "population": 0,
     "economyProfile": {
@@ -14700,7 +14700,7 @@
     "id": "TUN",
     "name": "French Tunisia",
     "shortName": "French Tunisia",
-    "color": "#97c1bd",
+    "color": "#80aaa5",
     "capitalRegionId": 1243,
     "population": 0,
     "economyProfile": {
@@ -14828,7 +14828,7 @@
     "id": "TUR",
     "name": "Turkey",
     "shortName": "Turkey",
-    "color": "#31b449",
+    "color": "#4d995b",
     "capitalRegionId": 720,
     "population": 0,
     "economyProfile": {
@@ -14956,7 +14956,7 @@
     "id": "TWN",
     "name": "Republic of China (Kuomintang)",
     "shortName": "Republic of China (Kuomi",
-    "color": "#1f3a93",
+    "color": "#33538f",
     "capitalRegionId": 373,
     "population": 0,
     "economyProfile": {
@@ -15084,7 +15084,7 @@
     "id": "TZA",
     "name": "Tanganyika",
     "shortName": "Tanganyika",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1211,
     "population": 0,
     "economyProfile": {
@@ -15212,7 +15212,7 @@
     "id": "UGA",
     "name": "Uganda",
     "shortName": "Uganda",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1127,
     "population": 0,
     "economyProfile": {
@@ -15340,7 +15340,7 @@
     "id": "URY",
     "name": "Uruguay",
     "shortName": "Uruguay",
-    "color": "#ac36e2",
+    "color": "#723b8c",
     "capitalRegionId": 1119,
     "population": 0,
     "economyProfile": {
@@ -15468,7 +15468,7 @@
     "id": "USA",
     "name": "United States",
     "shortName": "United States",
-    "color": "#2980b9",
+    "color": "#3b6e8f",
     "capitalRegionId": 969,
     "population": 0,
     "economyProfile": {
@@ -15606,7 +15606,7 @@
     "id": "VAT",
     "name": "Vatican City",
     "shortName": "Vatican City",
-    "color": "#bea519",
+    "color": "#b2a353",
     "capitalRegionId": 364,
     "population": 0,
     "economyProfile": {
@@ -15734,7 +15734,7 @@
     "id": "VEN",
     "name": "Venezuela",
     "shortName": "Venezuela",
-    "color": "#972cb5",
+    "color": "#7a348d",
     "capitalRegionId": 1099,
     "population": 0,
     "economyProfile": {
@@ -15862,7 +15862,7 @@
     "id": "VUT",
     "name": "New Hebrides",
     "shortName": "New Hebrides",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1362,
     "population": 0,
     "economyProfile": {
@@ -15990,7 +15990,7 @@
     "id": "WSM",
     "name": "Western Samoa",
     "shortName": "Western Samoa",
-    "color": "#e392ae",
+    "color": "#c799a9",
     "capitalRegionId": 1363,
     "population": 0,
     "economyProfile": {
@@ -16118,7 +16118,7 @@
     "id": "YEM",
     "name": "Yemen",
     "shortName": "Yemen",
-    "color": "#ac2a99",
+    "color": "#c23dae",
     "capitalRegionId": 773,
     "population": 0,
     "economyProfile": {
@@ -16246,7 +16246,7 @@
     "id": "YUG",
     "name": "Yugoslavia",
     "shortName": "Yugoslavia",
-    "color": "#26b556",
+    "color": "#4b9564",
     "capitalRegionId": 13,
     "population": 0,
     "economyProfile": {
@@ -16374,7 +16374,7 @@
     "id": "ZAF",
     "name": "South Africa",
     "shortName": "South Africa",
-    "color": "#e4becd",
+    "color": "#c9adb5",
     "capitalRegionId": 1197,
     "population": 0,
     "economyProfile": {

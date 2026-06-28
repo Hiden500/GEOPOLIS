@@ -1,10 +1,41 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { centroid, area } from '@turf/turf';
+import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import type { MapFeature } from '@shared/types/map/MapFeature';
-import { loadGameMapData, updateMapData, type GameMapData } from './GeoJsonLoader';
+import { loadGameMapData, updateMapData, type GameMapData, type MapRegionProperties } from './GeoJsonLoader';
+
+/** Точка-метка страны — центроид самого крупного по площади её региона. */
+function buildCountryLabels(mapData: GameMapData): FeatureCollection<Point, { name: string }> {
+  type RegionFeature = Feature<Polygon | MultiPolygon, MapRegionProperties>;
+  const byCountry = new Map<string, { feature: RegionFeature; area: number }>();
+
+  for (const feature of mapData.featureCollection.features) {
+    const props = feature.properties;
+    if (props.type !== 'region' || !props.ownerCountryId) continue;
+
+    const featureArea = area(feature);
+    const existing = byCountry.get(props.ownerCountryId);
+    if (!existing || featureArea > existing.area) {
+      byCountry.set(props.ownerCountryId, { feature, area: featureArea });
+    }
+  }
+
+  const labelFeatures: Feature<Point, { name: string }>[] = [];
+  for (const [, { feature }] of byCountry) {
+    const point = centroid(feature);
+    labelFeatures.push({
+      type: 'Feature',
+      geometry: point.geometry,
+      properties: { name: feature.properties.ownerName }
+    });
+  }
+
+  return { type: 'FeatureCollection', features: labelFeatures };
+}
 
 interface MapViewProps {
   regions: Region[];
@@ -220,8 +251,8 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
                 ['boolean', ['feature-state', 'selected'], false],
                 '#FFD700',
                 // Тёмная почти-чёрная линия — читается на любом цвете
-                // заливки (полупрозрачной), в отличие от прежнего #334155,
-                // который терялся на похожих по тону холодных оттенках.
+                // заливки, в отличие от прежнего #334155, который терялся
+                // на похожих по тону холодных оттенках.
                 '#0b0e14'
               ],
               'line-width': [
@@ -231,6 +262,18 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
                 ['boolean', ['feature-state', 'selected'], false],
                 2.5,
                 0.7
+              ],
+              // Прозрачность для границ по умолчанию — сплошная чёрная
+              // линия слишком бросалась в глаза на некоторых цветах заливки
+              // ("слишком выбиваются"). hover/selected остаются полностью
+              // непрозрачными — это активная подсветка, не базовая линия.
+              'line-opacity': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                1,
+                ['boolean', ['feature-state', 'selected'], false],
+                1,
+                0.45
               ]
             }
           });
@@ -259,6 +302,42 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regions, countries]);
+
+  // Названия стран — видны при отдалении (мало деталей регионов на экране),
+  // гаснут при приближении (там читаются отдельные регионы кликом/попапом).
+  useEffect(() => {
+    if (!mapRef.current || !mapData) return;
+    const m = mapRef.current;
+
+    const labels = buildCountryLabels(mapData);
+
+    const source = m.getSource('country-labels') as maplibregl.GeoJSONSource | undefined;
+    if (source) {
+      source.setData(labels);
+      return;
+    }
+
+    m.addSource('country-labels', { type: 'geojson', data: labels });
+
+    m.addLayer({
+      id: 'country-labels',
+      type: 'symbol',
+      source: 'country-labels',
+      maxzoom: 6,
+      layout: {
+        'text-field': ['get', 'name'],
+        'text-size': ['interpolate', ['linear'], ['zoom'], 2, 11, 5, 15],
+        'text-font': ['Open Sans Bold'],
+        'text-allow-overlap': false,
+      },
+      paint: {
+        'text-color': '#f1f5f9',
+        'text-halo-color': '#0b0e14',
+        'text-halo-width': 1.4,
+        'text-opacity': ['interpolate', ['linear'], ['zoom'], 2, 1, 4.5, 1, 6, 0],
+      },
+    });
+  }, [mapData]);
 
   // Выделение региона
   useEffect(() => {
