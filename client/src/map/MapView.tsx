@@ -1,36 +1,244 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { centroid, area } from '@turf/turf';
-import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
+import { centroid, bbox, bezierSpline } from '@turf/turf';
+import type { Feature, FeatureCollection, LineString, Position, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import type { MapFeature } from '@shared/types/map/MapFeature';
 import { loadGameMapData, updateMapData, type GameMapData, type MapRegionProperties } from './GeoJsonLoader';
 
-/** Точка-метка страны — центроид самого крупного по площади её региона. */
-function buildCountryLabels(mapData: GameMapData): FeatureCollection<Point, { name: string }> {
-  type RegionFeature = Feature<Polygon | MultiPolygon, MapRegionProperties>;
-  const byCountry = new Map<string, { feature: RegionFeature; area: number }>();
+type RegionFeature = Feature<Polygon | MultiPolygon, MapRegionProperties>;
+interface CountryLabelProps { name: string; sizeZ2: number; sizeZ7: number; sortKey: number }
 
-  for (const feature of mapData.featureCollection.features) {
-    const props = feature.properties;
-    if (props.type !== 'region' || !props.ownerCountryId) continue;
+// letter-spacing для подписей стран (em) — небольшой постоянный, основное
+// "растягивание на страну" даёт text-size (геометрический рост с зумом),
+// не spacing (большой spacing на символ-линии переносил текст в столбик).
+const LABEL_LETTER_SPACING_EM = 0.08;
 
-    const featureArea = area(feature);
-    const existing = byCountry.get(props.ownerCountryId);
-    if (!existing || featureArea > existing.area) {
-      byCountry.set(props.ownerCountryId, { feature, area: featureArea });
+/**
+ * Долготный разброс территории в градусах, нормализованный на переход
+ * через антимеридиан (иначе ложно раздувается пересечением -180/180,
+ * напр. у СССР с Чукоткой). Нужен для расчёта пиксельной ширины на экране.
+ */
+function lonSpanDegrees(features: RegionFeature[]): number {
+  const [minLon, , maxLon] = bbox({ type: 'FeatureCollection', features });
+  let span = maxLon - minLon;
+  if (span > 180) {
+    const normalized = features.flatMap(f => {
+      const [lon0, , lon1] = bbox(f);
+      return [lon0 < 0 ? lon0 + 360 : lon0, lon1 < 0 ? lon1 + 360 : lon1];
+    });
+    span = Math.max(...normalized) - Math.min(...normalized);
+  }
+  return span;
+}
+
+/**
+ * Кегль подписи на двух опорных зумах (2 и 7) — растёт геометрически с
+ * зумом (имя стремится занять ширину страны на экране), клампится в
+ * [9,48]px. Между опорами maplibre интерполирует exponential-base-2.
+ */
+function computeLabelSizes(name: string, lonSpanDeg: number): { sizeZ2: number; sizeZ7: number } {
+  const charCount = Math.max(1, name.length);
+  const sizeAtZoom = (zoom: number): number => {
+    const pixelWidth = (lonSpanDeg / 360) * 512 * Math.pow(2, zoom);
+    const raw = (0.9 * pixelWidth) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM));
+    return Math.min(48, Math.max(9, raw));
+  };
+  return { sizeZ2: sizeAtZoom(2), sizeZ7: sizeAtZoom(7) };
+}
+
+/**
+ * Связная по суше "метрополия" страны — через graph BFS по
+ * neighboringRegionIds, отфильтрованному на "тот же владелец". Нужно, чтобы
+ * заморские департаменты/удалённые администрации, принадлежащие метрополии
+ * напрямую (не колониальный блок — Франция, Норвегия, Нидерланды; Ливия как
+ * прямое владение GBR/FRA через controller, см. occupation_overlay), не
+ * раздували геометрию метрополии через весь земной шар: они не граничат по
+ * суше с метрополией и попадают в свой отдельный компонент связности.
+ *
+ * Критерий выбора — число регионов в компоненте, НЕ суммарная площадь.
+ * Площадь обманчива: историческая метрополия почти всегда раздроблена на
+ * много провинций, тогда как удалённая военная администрация (напр. Феццан
+ * под французским контролем — один регион ~596k км², физически БОЛЬШЕ всей
+ * метрополии Франции из 13 регионов ~548k км² суммарно) — единственный
+ * регион. По площади побеждает пустыня, по числу регионов — метрополия.
+ */
+function largestMainlandCluster(ownedRegions: Region[]): Region[] {
+  const ownedIds = new Set(ownedRegions.map(r => r.id));
+  const byId = new Map(ownedRegions.map(r => [r.id, r]));
+  const visited = new Set<number>();
+  let best: Region[] = [];
+  let bestArea = -1;
+
+  for (const start of ownedRegions) {
+    if (visited.has(start.id)) continue;
+    const queue = [start.id];
+    visited.add(start.id);
+    const component: Region[] = [];
+    while (queue.length > 0) {
+      const id = queue.pop()!;
+      const region = byId.get(id);
+      if (!region) continue;
+      component.push(region);
+      for (const neighborId of region.neighboringRegionIds) {
+        if (ownedIds.has(neighborId) && !visited.has(neighborId)) {
+          visited.add(neighborId);
+          queue.push(neighborId);
+        }
+      }
+    }
+    const componentArea = component.reduce((sum, r) => sum + (r.area || 0), 0);
+    const better = component.length > best.length
+      || (component.length === best.length && componentArea > bestArea);
+    if (better) {
+      bestArea = componentArea;
+      best = component;
+    }
+  }
+  return best;
+}
+
+/**
+ * Изогнутая "осевая линия" территории — для symbol-placement: line-center,
+ * чтобы название огибало форму страны (EU5-стиль), а не сидело точкой.
+ * Алгоритм: центроиды регионов (вес = площадь) → площадь-взвешенный PCA
+ * (главная ось через atan2 на ковариации) → проекция на ось, биннинг
+ * вдоль неё → обратное преобразование. lon/lat не евклидовы — все
+ * расчёты в локальных км (x = Δlon·111·cos(lat0), y = Δlat·111), чтобы
+ * ось PCA отражала реальную форму, а не искажение долготы по широте.
+ */
+function buildSpine(paired: { region: Region; feature: RegionFeature }[]): Position[] {
+  let points = paired.map(({ region, feature }) => {
+    const [lon, lat] = centroid(feature).geometry.coordinates;
+    return { lon, lat, weight: region.area || 1 };
+  });
+
+  // Антимеридиан: нормализуем долготы в [0,360) на время расчёта, если
+  // разброс выглядит как пересечение -180/180.
+  const lons = points.map(p => p.lon);
+  if (Math.max(...lons) - Math.min(...lons) > 180) {
+    points = points.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
+  }
+
+  const sumW = points.reduce((s, p) => s + p.weight, 0);
+  const lon0 = points.reduce((s, p) => s + p.lon * p.weight, 0) / sumW;
+  const lat0 = points.reduce((s, p) => s + p.lat * p.weight, 0) / sumW;
+  const lat0Rad = (lat0 * Math.PI) / 180;
+  const kmPerDegLon = 111 * Math.cos(lat0Rad);
+
+  const xy = points.map(p => ({
+    x: (p.lon - lon0) * kmPerDegLon,
+    y: (p.lat - lat0) * 111,
+    w: p.weight,
+  }));
+
+  let Sxx = 0, Syy = 0, Sxy = 0;
+  for (const p of xy) { Sxx += p.w * p.x * p.x; Syy += p.w * p.y * p.y; Sxy += p.w * p.x * p.y; }
+  Sxx /= sumW; Syy /= sumW; Sxy /= sumW;
+  const theta = xy.length > 1 ? 0.5 * Math.atan2(2 * Sxy, Sxx - Syy) : 0;
+
+  const rotated = xy.map(p => ({
+    u: p.x * Math.cos(theta) + p.y * Math.sin(theta),
+    v: -p.x * Math.sin(theta) + p.y * Math.cos(theta),
+    w: p.w,
+  }));
+
+  const uVals = rotated.map(p => p.u);
+  const uMin = Math.min(...uVals), uMax = Math.max(...uVals);
+  const span = uMax - uMin;
+  const nBins = Math.min(8, Math.max(2, Math.round(Math.sqrt(paired.length)) + 1));
+
+  const bins = Array.from({ length: nBins }, () => ({ sumU: 0, sumV: 0, sumW: 0 }));
+  if (span < 1e-6) {
+    for (const p of rotated) { bins[0].sumU += p.u * p.w; bins[0].sumV += p.v * p.w; bins[0].sumW += p.w; }
+  } else {
+    for (const p of rotated) {
+      const idx = Math.min(nBins - 1, Math.max(0, Math.floor(((p.u - uMin) / span) * nBins)));
+      bins[idx].sumU += p.u * p.w;
+      bins[idx].sumV += p.v * p.w;
+      bins[idx].sumW += p.w;
     }
   }
 
-  const labelFeatures: Feature<Point, { name: string }>[] = [];
-  for (const [, { feature }] of byCountry) {
-    const point = centroid(feature);
+  let spineUV = bins.filter(b => b.sumW > 0).map(b => ({ u: b.sumU / b.sumW, v: b.sumV / b.sumW }));
+
+  if (spineUV.length < 2) {
+    // Однорегионные/крошечные страны — нужна валидная линия ненулевой
+    // длины для symbol-placement: line-center, иначе текст не разместится.
+    const base = spineUV[0] ?? { u: 0, v: 0 };
+    spineUV = [{ u: base.u - 15, v: base.v }, { u: base.u + 15, v: base.v }];
+  }
+
+  return spineUV.map(({ u, v }): Position => {
+    const x = u * Math.cos(theta) - v * Math.sin(theta);
+    const y = u * Math.sin(theta) + v * Math.cos(theta);
+    let lon = lon0 + x / kmPerDegLon;
+    if (lon > 180) lon -= 360;
+    return [lon, lat0 + y / 111];
+  });
+}
+
+/**
+ * Подписи стран в стиле EU5 — изогнутая линия вдоль формы территории
+ * (symbol-placement: line-center в слое), кегль растёт геометрически с
+ * зумом (см. computeLabelSizes), sortKey по площади для declutter
+ * (крупные державы всегда видны, мелкие проявляются при приближении).
+ */
+function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCollection<LineString, CountryLabelProps> {
+  const featureByRegionId = new Map<number, RegionFeature>();
+  for (const feature of mapData.featureCollection.features) {
+    const props = feature.properties;
+    if (props.type === 'region' && props.regionId != null) {
+      featureByRegionId.set(props.regionId, feature);
+    }
+  }
+
+  const regionsByCountry = new Map<string, Region[]>();
+  for (const region of regions) {
+    const list = regionsByCountry.get(region.ownerCountryId);
+    if (list) list.push(region); else regionsByCountry.set(region.ownerCountryId, [region]);
+  }
+
+  const labelFeatures: Feature<LineString, CountryLabelProps>[] = [];
+  for (const ownedRegions of regionsByCountry.values()) {
+    const mainland = largestMainlandCluster(ownedRegions);
+    if (mainland.length === 0) continue;
+
+    const paired = mainland
+      .map(region => ({ region, feature: featureByRegionId.get(region.id) }))
+      .filter((p): p is { region: Region; feature: RegionFeature } => p.feature != null);
+    if (paired.length === 0) continue;
+
+    const rawSpine = buildSpine(paired);
+    let line: Position[] = rawSpine;
+    if (rawSpine.length >= 3) {
+      try {
+        // Дефолтные опции turf (resolution=10000) дают плавную кривую за
+        // ~1-2мс на страну (замерено) — пониженный resolution здесь ранее
+        // по ошибке означал МЕНЬШЕ сглаживания (resolution у turf — это не
+        // "точек на кривую", а параметр плотности самплинга; меньшее
+        // значение почти отключает сглаживание, оставляя сырые острые
+        // углы спайна, которые потом режутся text-max-angle).
+        const smoothed = bezierSpline(
+          { type: 'Feature', geometry: { type: 'LineString', coordinates: rawSpine }, properties: {} }
+        );
+        line = smoothed.geometry.coordinates as Position[];
+      } catch {
+        // Вырожденная геометрия (коллинеарные/совпадающие точки) — оставляем прямую линию (rawSpine).
+      }
+    }
+
+    const mainlandFeatures = paired.map(p => p.feature);
+    const name = mainlandFeatures[0].properties.ownerName;
+    const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
+    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, lonSpanDegrees(mainlandFeatures));
+
     labelFeatures.push({
       type: 'Feature',
-      geometry: point.geometry,
-      properties: { name: feature.properties.ownerName }
+      geometry: { type: 'LineString', coordinates: line },
+      properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea }
     });
   }
 
@@ -309,7 +517,7 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
     if (!mapRef.current || !mapData) return;
     const m = mapRef.current;
 
-    const labels = buildCountryLabels(mapData);
+    const labels = buildCountryLabels(mapData, regions);
 
     const source = m.getSource('country-labels') as maplibregl.GeoJSONSource | undefined;
     if (source) {
@@ -323,21 +531,42 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
       id: 'country-labels',
       type: 'symbol',
       source: 'country-labels',
-      maxzoom: 6,
+      maxzoom: 7,
       layout: {
         'text-field': ['get', 'name'],
-        'text-size': ['interpolate', ['linear'], ['zoom'], 2, 11, 5, 15],
+        // Изогнутая подпись вдоль формы страны (EU5-стиль) — геометрия
+        // линии строится в buildSpine, здесь только режим размещения.
+        'symbol-placement': 'line-center',
+        // 60 (план) оказался слишком строгим: даже на гладких bezier-кривых
+        // (501 точка) локальный угол между соседними отрезками местами его
+        // превышает → maplibre тихо отказывает в размещении ВСЕЙ подписи
+        // (проверено: на 60 пропадали все страны кроме CCCP, на 180 —
+        // появлялись все). 100 — компромисс без риска самоперекрытия букв.
+        'text-max-angle': 100,
+        // Кегль растёт геометрически с зумом (предвычислен на двух опорных
+        // зумах в computeLabelSizes) — имя стремится занимать ширину
+        // страны на экране на любом зуме, не фиксированный размер.
+        'text-size': ['interpolate', ['exponential', 2], ['zoom'],
+          2, ['get', 'sizeZ2'],
+          7, ['get', 'sizeZ7']
+        ],
+        'text-letter-spacing': LABEL_LETTER_SPACING_EM,
         'text-font': ['Open Sans Bold'],
         'text-allow-overlap': false,
+        'text-ignore-placement': false,
+        // EU5-declutter: крупные страны (меньший sortKey = -area) размещаются
+        // первыми и выигрывают коллизии — видны издалека; мелкие уступают
+        // место, пока зум не освободит его под их подпись.
+        'symbol-sort-key': ['get', 'sortKey'],
       },
       paint: {
         'text-color': '#f1f5f9',
         'text-halo-color': '#0b0e14',
         'text-halo-width': 1.4,
-        'text-opacity': ['interpolate', ['linear'], ['zoom'], 2, 1, 4.5, 1, 6, 0],
+        'text-opacity': ['interpolate', ['linear'], ['zoom'], 2, 1, 5.5, 1, 6.5, 0],
       },
     });
-  }, [mapData]);
+  }, [mapData, regions]);
 
   // Выделение региона
   useEffect(() => {
