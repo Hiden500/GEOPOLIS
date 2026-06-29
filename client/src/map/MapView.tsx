@@ -1,15 +1,36 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { centroid, bbox, bezierSpline } from '@turf/turf';
-import type { Feature, FeatureCollection, LineString, Position, Polygon, MultiPolygon } from 'geojson';
+import { centroid, bbox } from '@turf/turf';
+import type { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
+import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import type { MapFeature } from '@shared/types/map/MapFeature';
 import { loadGameMapData, updateMapData, type GameMapData, type MapRegionProperties } from './GeoJsonLoader';
 
 type RegionFeature = Feature<Polygon | MultiPolygon, MapRegionProperties>;
-interface CountryLabelProps { name: string; sizeZ2: number; sizeZ7: number; sortKey: number }
+interface CountryLabelProps { name: string; sizeZ2: number; sizeZ7: number; sortKey: number; appearZoom: number; rotateDeg: number }
+
+// Зум, на котором (несглаженный) размер подписи пересекает порог
+// читаемости — ниже appearZoom страна не показывается совсем (см.
+// computeAppearZoom/text-opacity), это и заменяет коллизионный declutter.
+const READABLE_PX = 11;
+// Ширина перехода (в уровнях зума) от невидимого к полностью видимому —
+// см. сэмплинг text-opacity ниже.
+const APPEAR_TRANSITION = 0.6;
+
+// Фиксированная зум-сетка для сэмплинга data-driven text-opacity (шаг 0.5,
+// сопоставим с шириной перехода APPEAR_TRANSITION — даёт точную аппроксимацию
+// между соседними стопами). Диапазон — весь zoom карты (minZoom=2..maxZoom=8).
+const APPEAR_ZOOM_STOPS = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8];
+
+/** clamp((stopZoom − appearZoom) / APPEAR_TRANSITION, 0, 1) на конкретном
+ * фиксированном zoom-стопе — stopZoom здесь обычное число (не ['zoom']),
+ * поэтому выражение валидно использовать как output внутри interpolate. */
+function appearOpacityExpr(stopZoom: number): ExpressionSpecification {
+  return ['max', 0, ['min', 1, ['/', ['-', stopZoom, ['get', 'appearZoom']], APPEAR_TRANSITION]]];
+}
 
 // letter-spacing для подписей стран (em) — небольшой постоянный, основное
 // "растягивание на страну" даёт text-size (геометрический рост с зумом),
@@ -47,6 +68,31 @@ function computeLabelSizes(name: string, lonSpanDeg: number): { sizeZ2: number; 
     return Math.min(48, Math.max(9, raw));
   };
   return { sizeZ2: sizeAtZoom(2), sizeZ7: sizeAtZoom(7) };
+}
+
+/**
+ * Зум, начиная с которого подпись становится читаемой (раскрытая форма
+ * `computeLabelSizes`'s sizeAtZoom без клампа в [9,48]: raw(z) = K·2^z,
+ * решаем raw(z) = READABLE_PX → z = log2(READABLE_PX / K)). Заменяет
+ * коллизионный declutter (`text-allow-overlap:false`) — тот на мировом
+ * zoom выбрасывал все подписи кроме одной крупнейшей, т.к. почти ни одна
+ * страна не помещалась без налезания на соседей. Теперь вместо "выбросить
+ * при коллизии" — "не показывать, пока не достаточно крупно".
+ *
+ * НЕ клампить нижнюю границу к minZoom карты (2): у крупных держав порог
+ * читаемости пройден далеко ДО zoom 2 (раскрытый размер уже за 48px-кап),
+ * appearZoom должен уйти в отрицательные числа, иначе на самом zoom=2
+ * (zoom == appearZoom) формула (zoom−appearZoom)/transition даёт ровно 0 —
+ * подпись остаётся невидимой на старте именно у самых крупных стран
+ * (воспроизведено: СССР с appearZoom=2 не показывался при старте на zoom 2).
+ * Верхний предел — мягкая страховка, чтобы не улетать в астрономические
+ * числа для микрогосударств; не влияет на корректность (вне диапазона
+ * стопов 2..8 формула всё равно даёт чистый 0).
+ */
+function computeAppearZoom(name: string, lonSpanDeg: number): number {
+  const charCount = Math.max(1, name.length);
+  const k = Math.max(1e-9, (0.9 * (lonSpanDeg / 360) * 512) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM)));
+  return Math.min(20, Math.log2(READABLE_PX / k));
 }
 
 /**
@@ -101,15 +147,28 @@ function largestMainlandCluster(ownedRegions: Region[]): Region[] {
 }
 
 /**
- * Изогнутая "осевая линия" территории — для symbol-placement: line-center,
- * чтобы название огибало форму страны (EU5-стиль), а не сидело точкой.
- * Алгоритм: центроиды регионов (вес = площадь) → площадь-взвешенный PCA
- * (главная ось через atan2 на ковариации) → проекция на ось, биннинг
- * вдоль неё → обратное преобразование. lon/lat не евклидовы — все
- * расчёты в локальных км (x = Δlon·111·cos(lat0), y = Δlat·111), чтобы
- * ось PCA отражала реальную форму, а не искажение долготы по широте.
+ * Якорная точка + угол поворота подписи страны — площадь-взвешенный центр
+ * масс по центроидам регионов + площадь-взвешенный PCA (главная ось через
+ * atan2 на ковариации). Вытянутые страны (Aragon/Moldavia-подобные)
+ * получают вертикальный/диагональный поворот, компактные — горизонтальный.
+ *
+ * НЕ используем symbol-placement:'line-center' для изогнутой вдоль формы
+ * подписи (что давало бы более EU5-точную S-кривую) — GeoJSON-источники в
+ * maplibre внутренне тайлятся как любой источник, и на мировом zoom
+ * континентальные линии (СССР, Канада) пересекают границы нескольких
+ * тайлов → каждый тайл независимо ставит свою копию подписи в её центре,
+ * визуально дублируя текст (воспроизведено: "Soviet Union" дважды на
+ * экране). Точечное размещение с поворотом не подвержено этому — точка
+ * всегда принадлежит ровно одному тайлу. Второй референс-скрин
+ * пользователя (близкий зум) показывает в основном именно наклонённый
+ * текст (Hungary/Poland/Kyiv), а не драматичные изгибы — компромисс
+ * приемлем визуально и устраняет архитектурный баг.
+ *
+ * lon/lat не евклидовы — все расчёты в локальных км
+ * (x = Δlon·111·cos(lat0), y = Δlat·111), чтобы ось PCA отражала реальную
+ * форму, а не искажение долготы по широте.
  */
-function buildSpine(paired: { region: Region; feature: RegionFeature }[]): Position[] {
+function computeCountryAxis(paired: { region: Region; feature: RegionFeature }[]): { lon: number; lat: number; rotateDeg: number } {
   let points = paired.map(({ region, feature }) => {
     const [lon, lat] = centroid(feature).geometry.coordinates;
     return { lon, lat, weight: region.area || 1 };
@@ -139,54 +198,23 @@ function buildSpine(paired: { region: Region; feature: RegionFeature }[]): Posit
   Sxx /= sumW; Syy /= sumW; Sxy /= sumW;
   const theta = xy.length > 1 ? 0.5 * Math.atan2(2 * Sxy, Sxx - Syy) : 0;
 
-  const rotated = xy.map(p => ({
-    u: p.x * Math.cos(theta) + p.y * Math.sin(theta),
-    v: -p.x * Math.sin(theta) + p.y * Math.cos(theta),
-    w: p.w,
-  }));
-
-  const uVals = rotated.map(p => p.u);
-  const uMin = Math.min(...uVals), uMax = Math.max(...uVals);
-  const span = uMax - uMin;
-  const nBins = Math.min(8, Math.max(2, Math.round(Math.sqrt(paired.length)) + 1));
-
-  const bins = Array.from({ length: nBins }, () => ({ sumU: 0, sumV: 0, sumW: 0 }));
-  if (span < 1e-6) {
-    for (const p of rotated) { bins[0].sumU += p.u * p.w; bins[0].sumV += p.v * p.w; bins[0].sumW += p.w; }
-  } else {
-    for (const p of rotated) {
-      const idx = Math.min(nBins - 1, Math.max(0, Math.floor(((p.u - uMin) / span) * nBins)));
-      bins[idx].sumU += p.u * p.w;
-      bins[idx].sumV += p.v * p.w;
-      bins[idx].sumW += p.w;
-    }
-  }
-
-  let spineUV = bins.filter(b => b.sumW > 0).map(b => ({ u: b.sumU / b.sumW, v: b.sumV / b.sumW }));
-
-  if (spineUV.length < 2) {
-    // Однорегионные/крошечные страны — нужна валидная линия ненулевой
-    // длины для symbol-placement: line-center, иначе текст не разместится.
-    const base = spineUV[0] ?? { u: 0, v: 0 };
-    spineUV = [{ u: base.u - 15, v: base.v }, { u: base.u + 15, v: base.v }];
-  }
-
-  return spineUV.map(({ u, v }): Position => {
-    const x = u * Math.cos(theta) - v * Math.sin(theta);
-    const y = u * Math.sin(theta) + v * Math.cos(theta);
-    let lon = lon0 + x / kmPerDegLon;
-    if (lon > 180) lon -= 360;
-    return [lon, lat0 + y / 111];
-  });
+  let lon = lon0;
+  if (lon > 180) lon -= 360;
+  // theta — математический угол от оси "восток" против часовой стрелки;
+  // text-rotate — угол по часовой в экранных координатах, поэтому знак инвертирован.
+  return { lon, lat: lat0, rotateDeg: (-theta * 180) / Math.PI };
 }
 
 /**
- * Подписи стран в стиле EU5 — изогнутая линия вдоль формы территории
- * (symbol-placement: line-center в слое), кегль растёт геометрически с
- * зумом (см. computeLabelSizes), sortKey по площади для declutter
- * (крупные державы всегда видны, мелкие проявляются при приближении).
+ * Подписи стран в стиле EU5 — точка-якорь + поворот вдоль главной оси
+ * формы (см. computeCountryAxis), кегль растёт геометрически с зумом (см.
+ * computeLabelSizes). Видимость — порог читаемости (`appearZoom`, см.
+ * computeAppearZoom) вместо коллизионного declutter: крупные державы видны
+ * с малого зума, мелкие проявляются по мере приближения, ничего не
+ * "выбрасывается" из-за overlap (слой использует text-allow-overlap:true).
+ * sortKey по площади задаёт только порядок отрисовки (крупные сверху).
  */
-function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCollection<LineString, CountryLabelProps> {
+function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCollection<Point, CountryLabelProps> {
   const featureByRegionId = new Map<number, RegionFeature>();
   for (const feature of mapData.featureCollection.features) {
     const props = feature.properties;
@@ -201,7 +229,7 @@ function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCol
     if (list) list.push(region); else regionsByCountry.set(region.ownerCountryId, [region]);
   }
 
-  const labelFeatures: Feature<LineString, CountryLabelProps>[] = [];
+  const labelFeatures: Feature<Point, CountryLabelProps>[] = [];
   for (const ownedRegions of regionsByCountry.values()) {
     const mainland = largestMainlandCluster(ownedRegions);
     if (mainland.length === 0) continue;
@@ -211,34 +239,19 @@ function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCol
       .filter((p): p is { region: Region; feature: RegionFeature } => p.feature != null);
     if (paired.length === 0) continue;
 
-    const rawSpine = buildSpine(paired);
-    let line: Position[] = rawSpine;
-    if (rawSpine.length >= 3) {
-      try {
-        // Дефолтные опции turf (resolution=10000) дают плавную кривую за
-        // ~1-2мс на страну (замерено) — пониженный resolution здесь ранее
-        // по ошибке означал МЕНЬШЕ сглаживания (resolution у turf — это не
-        // "точек на кривую", а параметр плотности самплинга; меньшее
-        // значение почти отключает сглаживание, оставляя сырые острые
-        // углы спайна, которые потом режутся text-max-angle).
-        const smoothed = bezierSpline(
-          { type: 'Feature', geometry: { type: 'LineString', coordinates: rawSpine }, properties: {} }
-        );
-        line = smoothed.geometry.coordinates as Position[];
-      } catch {
-        // Вырожденная геометрия (коллинеарные/совпадающие точки) — оставляем прямую линию (rawSpine).
-      }
-    }
+    const axis = computeCountryAxis(paired);
 
     const mainlandFeatures = paired.map(p => p.feature);
     const name = mainlandFeatures[0].properties.ownerName;
     const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
-    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, lonSpanDegrees(mainlandFeatures));
+    const lonSpanDeg = lonSpanDegrees(mainlandFeatures);
+    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, lonSpanDeg);
+    const appearZoom = computeAppearZoom(name, lonSpanDeg);
 
     labelFeatures.push({
       type: 'Feature',
-      geometry: { type: 'LineString', coordinates: line },
-      properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea }
+      geometry: { type: 'Point', coordinates: [axis.lon, axis.lat] },
+      properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea, appearZoom, rotateDeg: axis.rotateDeg }
     });
   }
 
@@ -531,18 +544,13 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
       id: 'country-labels',
       type: 'symbol',
       source: 'country-labels',
-      maxzoom: 7,
       layout: {
         'text-field': ['get', 'name'],
-        // Изогнутая подпись вдоль формы страны (EU5-стиль) — геометрия
-        // линии строится в buildSpine, здесь только режим размещения.
-        'symbol-placement': 'line-center',
-        // 60 (план) оказался слишком строгим: даже на гладких bezier-кривых
-        // (501 точка) локальный угол между соседними отрезками местами его
-        // превышает → maplibre тихо отказывает в размещении ВСЕЙ подписи
-        // (проверено: на 60 пропадали все страны кроме CCCP, на 180 —
-        // появлялись все). 100 — компромисс без риска самоперекрытия букв.
-        'text-max-angle': 100,
+        // Точка-якорь + поворот вдоль главной оси страны (computeCountryAxis)
+        // — не line-center (см. комментарий у computeCountryAxis про
+        // тайловый баг дублирования подписи у континентальных стран).
+        'text-rotate': ['get', 'rotateDeg'],
+        'text-rotation-alignment': 'map',
         // Кегль растёт геометрически с зумом (предвычислен на двух опорных
         // зумах в computeLabelSizes) — имя стремится занимать ширину
         // страны на экране на любом зуме, не фиксированный размер.
@@ -552,18 +560,30 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
         ],
         'text-letter-spacing': LABEL_LETTER_SPACING_EM,
         'text-font': ['Open Sans Bold'],
-        'text-allow-overlap': false,
-        'text-ignore-placement': false,
-        // EU5-declutter: крупные страны (меньший sortKey = -area) размещаются
-        // первыми и выигрывают коллизии — видны издалека; мелкие уступают
-        // место, пока зум не освободит его под их подпись.
+        // Видимость теперь регулирует appearZoom (порог читаемости, см.
+        // text-opacity), не коллизия — allow-overlap:false на мировом зуме
+        // выбрасывал все подписи кроме одной крупнейшей (почти ни одна
+        // страна не вмещалась без налезания на соседей).
+        'text-allow-overlap': true,
+        'text-ignore-placement': true,
+        // Порядок отрисовки (не видимость) — крупные страны рисуются сверху.
         'symbol-sort-key': ['get', 'sortKey'],
       },
       paint: {
         'text-color': '#f1f5f9',
         'text-halo-color': '#0b0e14',
         'text-halo-width': 1.4,
-        'text-opacity': ['interpolate', ['linear'], ['zoom'], 2, 1, 5.5, 1, 6.5, 0],
+        // Порог читаемости вместо коллизии: на каждом из APPEAR_ZOOM_STOPS
+        // считаем clamp((stopZoom - appearZoom)/APPEAR_TRANSITION, 0, 1) —
+        // ['zoom'] разрешён только как вход interpolate/step, поэтому
+        // нельзя просто вычесть ['get','appearZoom'] из текущего зума одним
+        // выражением; вместо этого сэмплируем data-driven результат на
+        // фиксированной зум-сетке (стандартный приём для zoom+property
+        // функций в maplibre).
+        'text-opacity': [
+          'interpolate', ['linear'], ['zoom'],
+          ...APPEAR_ZOOM_STOPS.flatMap(z => [z, appearOpacityExpr(z)])
+        ],
       },
     });
   }, [mapData, regions]);
