@@ -53,6 +53,12 @@ button, select, input {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  /* body{overflow:hidden} + #root{height:100vh} means the page itself
+     never scrolls — without this the country grid below can push the
+     "Начать игру" button off-screen with no way to reach it. */
+  max-height: 100vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .scenario-selector h1 {
@@ -166,6 +172,28 @@ button, select, input {
   gap: 0.75rem;
   flex-wrap: wrap;
   margin-bottom: 2rem;
+  /* Scenarios can have 100+ countries — cap height and scroll within the
+     grid itself so the "Начать игру" button stays reachable below it. */
+  max-height: 38vh;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.country-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.country-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.country-list::-webkit-scrollbar-thumb {
+  background: var(--color-hairline);
+  border-radius: 2px;
+}
+
+.country-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brass-dim);
 }
 
 .country-button {
