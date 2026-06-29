@@ -89,6 +89,16 @@ commit history. Don't let them — git already is one.
   precedent), never for "things to do later."
 * Detailed historical narrative (what changed, why, step by step) belongs in
   commit messages, not docs — `git log` is authoritative for that.
+* New entries should already be terse (Decision/Reason/Status, pointer to the
+  commit for detail) — don't write commit-message-level narrative into
+  `DECISIONS.md` in the first place; that defeats the point of archiving.
+* **Archive convention:** when `DECISIONS.md` grows past a comfortable scan
+  length, move closed/old dated entries verbatim (no rewriting — the
+  "append-only" rule still applies) into `docs/decisions/<YYYY-MM>.md`. Keep
+  in `DECISIONS.md`: the intro, the most recent entries, and the live "Открытые
+  вопросы" index — that index never moves to the archive. Add a one-line
+  pointer in the intro to where the archive lives. Precedent: `docs/decisions/2026-06.md`
+  (2026-06-29, entries 06-22 through 06-27 archived, ~750→~280 lines).
 
 ---
 
