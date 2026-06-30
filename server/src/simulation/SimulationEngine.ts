@@ -8,6 +8,7 @@ import { aggregateAllCountries } from "@shared/utils/aggregateCountryData";
 import { MapFeatureService } from "../services/MapFeatureService";
 import { diplomacyTick } from "./diplomacy/DiplomacyTick";
 import { aiBehaviorTick } from "./ai/AiBehaviorTick";
+import { tierTick } from "./tier/TierTick";
 
 export function simulateMonth(
     game: GameState
@@ -42,8 +43,15 @@ export function simulateMonth(
     mapFeatureService.removeExpiredFeatures();
 
     // Продвигаем дату на один месяц
-    const [year, month] = game.currentDate.split("-").map(Number);
+    const parts = game.currentDate.split("-");
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
     const nextMonth = month === 12 ? 1 : month + 1;
     const nextYear = month === 12 ? year + 1 : year;
     game.currentDate = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
+
+    // Раз в год (январь) пересчитываем тиры по актуальным данным
+    if (nextMonth === 1) {
+        tierTick(game.countries);
+    }
 }

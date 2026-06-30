@@ -5,6 +5,7 @@ import { buildRegionIndex } from "@shared/utils/buildRegionIndex";
 import { updateAllRegionsAndAggregate } from "@shared/utils/aggregateCountryData";
 import { generateInitialMapFeatures } from "../scenarios/generateMapFeatures";
 import { RegionEconomyService } from "../services/RegionEconomyService";
+import { assignInitialTiers } from "../simulation/tier/TierTick";
 
 /**
  * Выводит денежные поля economy из economyProfile (масштаб-свободные доли,
@@ -71,6 +72,9 @@ export function createGame(
   for (const country of countries) {
     deriveCountryEconomy(country);
   }
+
+  // Выставляем начальные тиры (исторические для 1946, иначе minor)
+  assignInitialTiers(countries, scenarioId);
 
   // Создаём базовое состояние игры
   const game: GameState = {

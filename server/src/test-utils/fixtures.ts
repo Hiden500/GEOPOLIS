@@ -11,6 +11,7 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
     name: "Test Country",
     shortName: "TEST",
     color: "#FF0000",
+    tier: "minor",
     capitalRegionId: 1,
     population: 10_000_000,
     // Не источник истины для тиков (они читают economy напрямую) — нужен только

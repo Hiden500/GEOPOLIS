@@ -17,6 +17,7 @@ describe('MapFeatureService', () => {
         name: 'United States',
         shortName: 'USA',
         color: '#3C3B6E',
+        tier: 'major' as const,
         capitalRegionId: 1,
         population: 330000000,
         // Не используется этим тестом (MapFeatureService не читает экономику) —

@@ -8,6 +8,8 @@ import { type PoliticsState } from "./PoliticsState";
 import { type ResourceStockpile } from "./resources/ResourceStockpile";
 import { type EconomyType } from "./EconomyType";
 
+export type CountryTier = "major" | "regional" | "minor";
+
 export interface Country {
   id: string;
 
@@ -16,6 +18,10 @@ export interface Country {
   shortName: string;
 
   color: string;
+
+  /** Важность страны. Пересчитывается раз в год по gdp+military+influence.
+   *  При нулевых данных (плейсхолдеры) остаётся на историческом стартовом значении. */
+  tier: CountryTier;
 
   capitalRegionId: number;
 

@@ -196,8 +196,55 @@ button, select, input {
   background: var(--color-brass-dim);
 }
 
+.country-group {
+  width: 100%;
+}
+
+.country-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--color-hairline);
+  color: var(--color-brass-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.country-group-header:hover {
+  color: var(--color-brass);
+}
+
+.country-group-count {
+  opacity: 0.6;
+}
+
+.country-group-toggle {
+  margin-left: auto;
+  font-size: 0.6rem;
+}
+
+.country-group-list {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
 .country-button {
-  padding: 0.7rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.5rem 0.9rem;
   border: 1px solid var(--color-hairline);
   border-radius: 2px;
   cursor: pointer;
@@ -205,8 +252,22 @@ button, select, input {
   background: var(--color-steel);
   color: var(--color-paper);
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   letter-spacing: 0.5px;
+}
+
+.country-name {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.country-id {
+  font-size: 0.65rem;
+  opacity: 0.5;
+  letter-spacing: 1px;
 }
 
 .country-button:hover {
@@ -217,6 +278,10 @@ button, select, input {
   background-color: var(--color-brass);
   color: var(--color-ink);
   border-color: var(--color-brass);
+}
+
+.country-button.selected .country-id {
+  opacity: 0.7;
 }
 
 .start-game-button {

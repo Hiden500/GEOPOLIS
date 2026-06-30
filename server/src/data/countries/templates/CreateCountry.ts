@@ -9,7 +9,7 @@ import { ECONOMY_ARCHETYPES } from "./economyArchetypes";
  * по economyType — авторить нужно только оверрайды, не весь профиль).
  * См. docs/ECONOMY.md ("Модель единиц") и docs/TODO.md (упрощение создания стран).
  */
-export type CountryInput = Omit<Country, "economy" | "economyProfile"> & {
+export type CountryInput = Omit<Country, "economy" | "economyProfile" | "tier"> & {
   economyProfile?: Partial<Omit<EconomyProfile, "spending">> & {
     spending?: Partial<EconomyProfile["spending"]>;
   };
@@ -32,6 +32,7 @@ export function createCountry(input: CountryInput): Country {
 
   return {
     ...input,
+    tier: "minor", // переопределяется assignInitialTiers при createGame
     economyProfile,
     economy: {
       ...createEmptyEconomyState(),

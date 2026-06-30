@@ -1,10 +1,63 @@
 import { useState, useEffect } from "react";
-import { type ScenarioInfo } from "@shared/types/ScenarioInfo";
+import { type ScenarioInfo, type FeaturedCountry } from "@shared/types/ScenarioInfo";
 import { getScenarios } from "../api/gameApi";
 
 interface ScenarioSelectorProps {
   onScenarioSelect: (scenarioId: string, countryId: string) => void;
   error?: string | null;
+}
+
+const TIER_LABELS: Record<string, string> = {
+  major: "Великие державы",
+  regional: "Региональные державы",
+  minor: "Малые государства",
+};
+
+function CountryGroup({
+  label,
+  countries,
+  selectedCountry,
+  onSelect,
+  defaultExpanded = true,
+}: {
+  label: string;
+  countries: FeaturedCountry[];
+  selectedCountry: string | null;
+  onSelect: (id: string) => void;
+  defaultExpanded?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  if (countries.length === 0) return null;
+
+  return (
+    <div className="country-group">
+      <button
+        type="button"
+        className="country-group-header"
+        onClick={() => setExpanded(e => !e)}
+      >
+        <span>{label}</span>
+        <span className="country-group-count">({countries.length})</span>
+        <span className="country-group-toggle">{expanded ? "▲" : "▼"}</span>
+      </button>
+      {expanded && (
+        <div className="country-group-list">
+          {countries.map(c => (
+            <button
+              key={c.id}
+              className={`country-button ${selectedCountry === c.id ? "selected" : ""}`}
+              onClick={() => onSelect(c.id)}
+              title={c.name}
+            >
+              <span className="country-name">{c.name}</span>
+              <span className="country-id">{c.id}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function ScenarioSelector({
@@ -63,6 +116,10 @@ export function ScenarioSelector({
 
   const currentScenario = scenarios.find(s => s.id === selectedScenario);
 
+  const majorCountries = currentScenario?.featuredCountries.filter(c => c.tier === "major") ?? [];
+  const regionalCountries = currentScenario?.featuredCountries.filter(c => c.tier === "regional") ?? [];
+  const minorCountries = currentScenario?.featuredCountries.filter(c => c.tier === "minor") ?? [];
+
   return (
     <div className="scenario-selector">
       <h1>Geopolis</h1>
@@ -96,15 +153,27 @@ export function ScenarioSelector({
         <div className="country-selection">
           <h2>Выберите страну</h2>
           <div className="country-list">
-            {currentScenario.featuredCountries.map(countryId => (
-              <button
-                key={countryId}
-                className={`country-button ${selectedCountry === countryId ? "selected" : ""}`}
-                onClick={() => setSelectedCountry(countryId)}
-              >
-                {countryId}
-              </button>
-            ))}
+            <CountryGroup
+              label={TIER_LABELS.major}
+              countries={majorCountries}
+              selectedCountry={selectedCountry}
+              onSelect={setSelectedCountry}
+              defaultExpanded
+            />
+            <CountryGroup
+              label={TIER_LABELS.regional}
+              countries={regionalCountries}
+              selectedCountry={selectedCountry}
+              onSelect={setSelectedCountry}
+              defaultExpanded
+            />
+            <CountryGroup
+              label={TIER_LABELS.minor}
+              countries={minorCountries}
+              selectedCountry={selectedCountry}
+              onSelect={setSelectedCountry}
+              defaultExpanded={false}
+            />
           </div>
         </div>
       )}

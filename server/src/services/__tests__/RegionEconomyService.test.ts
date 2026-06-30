@@ -37,6 +37,7 @@ describe('RegionEconomyService', () => {
       name: 'Test Country',
       shortName: 'TEST',
       color: '#FF0000',
+      tier: 'minor' as const,
       capitalRegionId: 1,
       population: 10000000,
       // Не используется этим тестом (RegionEconomyService не читает economyProfile) —

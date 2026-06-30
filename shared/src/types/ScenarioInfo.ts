@@ -1,3 +1,11 @@
+import { type CountryTier } from "./Country";
+
+export interface FeaturedCountry {
+  id: string;
+  name: string;
+  tier: CountryTier;
+}
+
 /**
  * Информация о сценарии для отображения в UI
  */
@@ -9,5 +17,5 @@ export interface ScenarioInfo {
   description: string;
   era: string;
   difficulty?: 'easy' | 'normal' | 'hard';
-  featuredCountries: string[];
+  featuredCountries: FeaturedCountry[];
 }
