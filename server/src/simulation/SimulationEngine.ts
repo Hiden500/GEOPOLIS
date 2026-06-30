@@ -40,4 +40,10 @@ export function simulateMonth(
     // Очищаем истёкшие Map Features
     const mapFeatureService = new MapFeatureService(game);
     mapFeatureService.removeExpiredFeatures();
+
+    // Продвигаем дату на один месяц
+    const [year, month] = game.currentDate.split("-").map(Number);
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextYear = month === 12 ? year + 1 : year;
+    game.currentDate = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
 }
