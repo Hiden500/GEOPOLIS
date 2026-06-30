@@ -206,7 +206,7 @@ function computeCountryAxis(
     spanLongAxisDeg: Lu / 111,
     spanShortAxisDeg: Lv / 111,
   };
-
+}
 
 /**
  * Подписи стран в стиле EU5 — точка-якорь + поворот вдоль главной оси
@@ -242,14 +242,15 @@ function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCol
       .filter((p): p is { region: Region; feature: RegionFeature } => p.feature != null);
     if (paired.length === 0) continue;
 
-    const axis = computeCountryAxis(paired);
-
     const mainlandFeatures = paired.map(p => p.feature);
+    const points = getGeometryPoints(mainlandFeatures);
+    const axis = computeCountryAxis(points, paired);
+
     const name = mainlandFeatures[0].properties.ownerName;
     const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
-    const lonSpanDeg = lonSpanDegrees(mainlandFeatures);
-    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, lonSpanDeg);
-    const appearZoom = computeAppearZoom(name, lonSpanDeg);
+    
+    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, axis.spanLongAxisDeg, axis.spanShortAxisDeg);
+    const appearZoom = computeAppearZoom(name, axis.spanLongAxisDeg);
 
     labelFeatures.push({
       type: 'Feature',
