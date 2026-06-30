@@ -9,6 +9,7 @@ import { MapFeatureService } from "../services/MapFeatureService";
 import { diplomacyTick } from "./diplomacy/DiplomacyTick";
 import { aiBehaviorTick } from "./ai/AiBehaviorTick";
 import { tierTick } from "./tier/TierTick";
+import { politicsTick } from "./politics/PoliticsTick";
 
 export function simulateMonth(
     game: GameState
@@ -24,6 +25,8 @@ export function simulateMonth(
         populationTick(country, game.regions);
 
         militaryTick(country, game.regions);
+
+        politicsTick(country);
     }
 
     // Агрегируем данные от регионов к странам после всех тиков. НЕ пересчитывает

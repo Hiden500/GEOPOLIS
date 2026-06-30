@@ -65,6 +65,19 @@ governmentSupport: number
 
 ---
 
+## Реализация (2026-06-30)
+
+`server/src/simulation/politics/PoliticsTick.ts`, вписан в `SimulationEngine`.
+
+| Поле | Механика |
+|---|---|
+| `stability` | Дрейф к равновесию × 0.05/мес. Eq = 50 ± unemployment/deficit/inflation-поправки |
+| `governmentSupport` | Дрейф × 0.08/мес. Eq = 50 ± unemployment/deficit/welfare-поправки |
+| `legitimacy` | Дрейф × 0.005/мес к идеологическому базису (70 демократия, 60 коммунизм, 50 национализм, 55 прочее) |
+| `corruption` | −0.1 за тик, пол 0 |
+
+Война как драйвер `legitimacy` — после `WAR.md` (блокер). Нудж P2 "низкая stability → welfare" теперь разблокирован.
+
 ## ⚠️ Открытые вопросы (Q4)
 
 **Что двигает `stability`/`legitimacy`/`corruption`/`governmentSupport`?**
