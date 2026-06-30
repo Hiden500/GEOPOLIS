@@ -397,16 +397,13 @@ export function MapView({
         sources: {},
         layers: [],
         glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
-        'font-faces': [
-          {
-            'text-font': ['EB Garamond Bold'],
-            'font-files': [
-              {
-                url: '/fonts/EBGaramond-Bold.ttf'
-              }
-            ]
-          }
-        ]
+        'font-faces': {
+          'EB Garamond Bold': [
+            {
+              url: '/fonts/EBGaramond-Bold.ttf'
+            }
+          ]
+        }
       } as any,
       center: [37.6173, 55.7558],
       zoom: 2,

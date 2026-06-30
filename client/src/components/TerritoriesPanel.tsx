@@ -23,7 +23,7 @@ export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: 
             onClick={() => onSelectRegion(region.id)}
           >
             <strong>{getText(region.names)}</strong>
-            <span className="region-population">{region.population.toLocaleString("ru-RU")} чел.</span>
+            <span className="region-population">{(region.population ?? 0).toLocaleString("ru-RU")} чел.</span>
             <div className="region-resources">
               {Object.entries(region.resourceProduction).map(([resource, amount]) => (
                 <span key={resource} className="resource-tag">

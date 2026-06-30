@@ -101,7 +101,7 @@ function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number
       <dl className="stat-list">
         <div>
           <dt>Население</dt>
-          <dd>{region.population.toLocaleString("ru-RU")}</dd>
+          <dd>{(region.population ?? 0).toLocaleString("ru-RU")}</dd>
         </div>
         <div>
           <dt>Площадь</dt>
