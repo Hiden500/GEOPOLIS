@@ -13,13 +13,51 @@ const IDEOLOGY_LEGITIMACY_BASE: Record<string, number> = {
     "Center-Right": 68,
 };
 
+// Структурный базис коррупции по типу режима.
+// Это нижний потолок — без институциональных изменений ниже не упасть.
+const GOVERNMENT_TYPE_CORRUPTION_BASE: Record<string, number> = {
+    "Democracy": 20,
+    "Liberal Democracy": 20,
+    "Democratic": 20,
+    "Communism": 40,
+    "Communist": 40,
+    "Nationalism": 55,
+    "Fascism": 55,
+    "Capitalism": 30,
+    "Center-Left": 25,
+    "Center-Right": 28,
+};
+
+// Утечка казны из-за коррупции: % ВВП в месяц на единицу коррупции.
+// При corruption=50, GDP=1 трлн → 2.5 млрд/мес утечки.
+const CORRUPTION_TREASURY_DRAIN = 0.00005;
+
 function clamp(value: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, value));
 }
 
+function corruptionEquilibrium(country: Country): number {
+    const p = country.politics;
+    const { educationSpending } = country.economy;
+    const income = country.economy.taxRevenue
+        + country.economy.exportIncome
+        + country.economy.stateEnterpriseIncome
+        + country.economy.otherIncome;
+
+    let eq = GOVERNMENT_TYPE_CORRUPTION_BASE[p.ideology] ?? 35;
+
+    if (p.stability < 40) eq += 15;
+    else if (p.stability > 70) eq -= 5;
+
+    // Низкие расходы на образование → слабые институты → рост коррупции
+    if (income > 0 && educationSpending / income < 0.05) eq += 10;
+
+    return clamp(eq, 0, 100);
+}
+
 function stabilityEquilibrium(country: Country): number {
-    const { unemployment } = country.economy;
-    const { budgetBalance, gdp, inflation } = country.economy;
+    const { unemployment, budgetBalance, gdp, inflation } = country.economy;
+    const corruption = country.politics.corruption;
 
     let eq = 50;
 
@@ -31,6 +69,9 @@ function stabilityEquilibrium(country: Country): number {
     else eq -= 10;
 
     if (inflation > 20) eq -= 5;
+
+    // Высокая коррупция подтачивает институты — давит на stability
+    if (corruption > 60) eq -= 10;
 
     return clamp(eq, 0, 100);
 }
@@ -58,8 +99,20 @@ function legitimacyBase(ideology: string): number {
 
 export function politicsTick(country: Country): void {
     const p = country.politics;
+    const e = country.economy;
 
-    // stability: медленный дрейф к равновесию
+    // corruption: дрейфует к структурному равновесию (режим + stability + образование).
+    // Без институциональных изменений не упадёт ниже базиса режима.
+    const corruptionEq = corruptionEquilibrium(country);
+    p.corruption += (corruptionEq - p.corruption) * 0.003;
+    p.corruption = clamp(p.corruption, 0, 100);
+
+    // Утечка казны из-за коррупции: пропорциональна ВВП × уровень коррупции.
+    if (e.gdp > 0) {
+        e.treasury -= e.gdp * p.corruption * CORRUPTION_TREASURY_DRAIN;
+    }
+
+    // stability: медленный дрейф к равновесию (учитывает corruption внутри)
     const stabilityEq = stabilityEquilibrium(country);
     p.stability += (stabilityEq - p.stability) * 0.05;
     p.stability = clamp(p.stability, 0, 100);
@@ -73,7 +126,4 @@ export function politicsTick(country: Country): void {
     const legitBase = legitimacyBase(p.ideology);
     p.legitimacy += (legitBase - p.legitimacy) * 0.005;
     p.legitimacy = clamp(p.legitimacy, 0, 100);
-
-    // corruption: очень медленно снижается
-    p.corruption = clamp(p.corruption - 0.1, 0, 100);
 }
