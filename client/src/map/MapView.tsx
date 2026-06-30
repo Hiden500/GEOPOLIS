@@ -22,95 +22,67 @@ const APPEAR_TRANSITION = 0.6;
 
 // Фиксированная зум-сетка для сэмплинга data-driven text-opacity (шаг 0.5,
 // сопоставим с шириной перехода APPEAR_TRANSITION — даёт точную аппроксимацию
-// между соседними стопами). Диапазон — весь zoom карты (minZoom=2..maxZoom=8).
 const APPEAR_ZOOM_STOPS = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8];
 
-/** clamp((stopZoom − appearZoom) / APPEAR_TRANSITION, 0, 1) на конкретном
- * фиксированном zoom-стопе — stopZoom здесь обычное число (не ['zoom']),
- * поэтому выражение валидно использовать как output внутри interpolate. */
 function appearOpacityExpr(stopZoom: number): ExpressionSpecification {
   return ['max', 0, ['min', 1, ['/', ['-', stopZoom, ['get', 'appearZoom']], APPEAR_TRANSITION]]];
 }
 
-// letter-spacing для подписей стран (em) — небольшой постоянный, основное
-// "растягивание на страну" даёт text-size (геометрический рост с зумом),
-// не spacing (большой spacing на символ-линии переносил текст в столбик).
 const LABEL_LETTER_SPACING_EM = 0.08;
 
-/**
- * Долготный разброс территории в градусах, нормализованный на переход
- * через антимеридиан (иначе ложно раздувается пересечением -180/180,
- * напр. у СССР с Чукоткой). Нужен для расчёта пиксельной ширины на экране.
- */
-function lonSpanDegrees(features: RegionFeature[]): number {
-  const [minLon, , maxLon] = bbox({ type: 'FeatureCollection', features });
-  let span = maxLon - minLon;
-  if (span > 180) {
-    const normalized = features.flatMap(f => {
-      const [lon0, , lon1] = bbox(f);
-      return [lon0 < 0 ? lon0 + 360 : lon0, lon1 < 0 ? lon1 + 360 : lon1];
-    });
-    span = Math.max(...normalized) - Math.min(...normalized);
+function getGeometryPoints(features: RegionFeature[]): { lon: number; lat: number }[] {
+  const points: { lon: number; lat: number }[] = [];
+  for (const f of features) {
+    const geom = f.geometry;
+    if (!geom) continue;
+    if (geom.type === 'Polygon') {
+      const ring = geom.coordinates[0];
+      if (ring) {
+        for (const coords of ring) {
+          points.push({ lon: coords[0], lat: coords[1] });
+        }
+      }
+    } else if (geom.type === 'MultiPolygon') {
+      for (const poly of geom.coordinates) {
+        const ring = poly[0];
+        if (ring) {
+          for (const coords of ring) {
+            points.push({ lon: coords[0], lat: coords[1] });
+          }
+        }
+      }
+    }
   }
-  return span;
+  return points;
 }
 
-/**
- * Кегль подписи на двух опорных зумах (2 и 7) — растёт геометрически с
- * зумом (имя стремится занять ширину страны на экране), клампится в
- * [9,48]px. Между опорами maplibre интерполирует exponential-base-2.
- */
-function computeLabelSizes(name: string, lonSpanDeg: number): { sizeZ2: number; sizeZ7: number } {
+function computeLabelSizes(
+  name: string,
+  spanLongAxisDeg: number,
+  spanShortAxisDeg: number
+): { sizeZ2: number; sizeZ7: number } {
   const charCount = Math.max(1, name.length);
+  
   const sizeAtZoom = (zoom: number): number => {
-    const pixelWidth = (lonSpanDeg / 360) * 512 * Math.pow(2, zoom);
-    const raw = (0.9 * pixelWidth) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM));
-    return Math.min(48, Math.max(9, raw));
+    const pixelLengthLimit = (spanLongAxisDeg / 360) * 512 * Math.pow(2, zoom);
+    const pixelHeightLimit = (spanShortAxisDeg / 360) * 512 * Math.pow(2, zoom);
+    
+    const rawSizeFromLength = (0.6 * pixelLengthLimit) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM));
+    const maxHeightAllowed = 0.45 * pixelHeightLimit;
+    
+    const size = Math.min(rawSizeFromLength, maxHeightAllowed);
+    return Math.min(48, Math.max(9, size));
   };
+  
   return { sizeZ2: sizeAtZoom(2), sizeZ7: sizeAtZoom(7) };
 }
 
-/**
- * Зум, начиная с которого подпись становится читаемой (раскрытая форма
- * `computeLabelSizes`'s sizeAtZoom без клампа в [9,48]: raw(z) = K·2^z,
- * решаем raw(z) = READABLE_PX → z = log2(READABLE_PX / K)). Заменяет
- * коллизионный declutter (`text-allow-overlap:false`) — тот на мировом
- * zoom выбрасывал все подписи кроме одной крупнейшей, т.к. почти ни одна
- * страна не помещалась без налезания на соседей. Теперь вместо "выбросить
- * при коллизии" — "не показывать, пока не достаточно крупно".
- *
- * НЕ клампить нижнюю границу к minZoom карты (2): у крупных держав порог
- * читаемости пройден далеко ДО zoom 2 (раскрытый размер уже за 48px-кап),
- * appearZoom должен уйти в отрицательные числа, иначе на самом zoom=2
- * (zoom == appearZoom) формула (zoom−appearZoom)/transition даёт ровно 0 —
- * подпись остаётся невидимой на старте именно у самых крупных стран
- * (воспроизведено: СССР с appearZoom=2 не показывался при старте на zoom 2).
- * Верхний предел — мягкая страховка, чтобы не улетать в астрономические
- * числа для микрогосударств; не влияет на корректность (вне диапазона
- * стопов 2..8 формула всё равно даёт чистый 0).
- */
-function computeAppearZoom(name: string, lonSpanDeg: number): number {
+function computeAppearZoom(name: string, spanLongAxisDeg: number): number {
   const charCount = Math.max(1, name.length);
-  const k = Math.max(1e-9, (0.9 * (lonSpanDeg / 360) * 512) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM)));
+  const k = Math.max(1e-9, (0.6 * (spanLongAxisDeg / 360) * 512) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM)));
   return Math.min(20, Math.log2(READABLE_PX / k));
 }
 
-/**
- * Связная по суше "метрополия" страны — через graph BFS по
- * neighboringRegionIds, отфильтрованному на "тот же владелец". Нужно, чтобы
- * заморские департаменты/удалённые администрации, принадлежащие метрополии
- * напрямую (не колониальный блок — Франция, Норвегия, Нидерланды; Ливия как
- * прямое владение GBR/FRA через controller, см. occupation_overlay), не
- * раздували геометрию метрополии через весь земной шар: они не граничат по
- * суше с метрополией и попадают в свой отдельный компонент связности.
- *
- * Критерий выбора — число регионов в компоненте, НЕ суммарная площадь.
- * Площадь обманчива: историческая метрополия почти всегда раздроблена на
- * много провинций, тогда как удалённая военная администрация (напр. Феццан
- * под французским контролем — один регион ~596k км², физически БОЛЬШЕ всей
- * метрополии Франции из 13 регионов ~548k км² суммарно) — единственный
- * регион. По площади побеждает пустыня, по числу регионов — метрополия.
- */
 function largestMainlandCluster(ownedRegions: Region[]): Region[] {
   const ownedIds = new Set(ownedRegions.map(r => r.id));
   const byId = new Map(ownedRegions.map(r => [r.id, r]));
@@ -146,64 +118,95 @@ function largestMainlandCluster(ownedRegions: Region[]): Region[] {
   return best;
 }
 
-/**
- * Якорная точка + угол поворота подписи страны — площадь-взвешенный центр
- * масс по центроидам регионов + площадь-взвешенный PCA (главная ось через
- * atan2 на ковариации). Вытянутые страны (Aragon/Moldavia-подобные)
- * получают вертикальный/диагональный поворот, компактные — горизонтальный.
- *
- * НЕ используем symbol-placement:'line-center' для изогнутой вдоль формы
- * подписи (что давало бы более EU5-точную S-кривую) — GeoJSON-источники в
- * maplibre внутренне тайлятся как любой источник, и на мировом zoom
- * континентальные линии (СССР, Канада) пересекают границы нескольких
- * тайлов → каждый тайл независимо ставит свою копию подписи в её центре,
- * визуально дублируя текст (воспроизведено: "Soviet Union" дважды на
- * экране). Точечное размещение с поворотом не подвержено этому — точка
- * всегда принадлежит ровно одному тайлу. Второй референс-скрин
- * пользователя (близкий зум) показывает в основном именно наклонённый
- * текст (Hungary/Poland/Kyiv), а не драматичные изгибы — компромисс
- * приемлем визуально и устраняет архитектурный баг.
- *
- * lon/lat не евклидовы — все расчёты в локальных км
- * (x = Δlon·111·cos(lat0), y = Δlat·111), чтобы ось PCA отражала реальную
- * форму, а не искажение долготы по широте.
- */
-function computeCountryAxis(paired: { region: Region; feature: RegionFeature }[]): { lon: number; lat: number; rotateDeg: number } {
-  let points = paired.map(({ region, feature }) => {
+function computeCountryAxis(
+  points: { lon: number; lat: number }[],
+  paired: { region: Region; feature: RegionFeature }[]
+): { lon: number; lat: number; rotateDeg: number; spanLongAxisDeg: number; spanShortAxisDeg: number } {
+  let centroidPoints = paired.map(({ region, feature }) => {
     const [lon, lat] = centroid(feature).geometry.coordinates;
     return { lon, lat, weight: region.area || 1 };
   });
 
-  // Антимеридиан: нормализуем долготы в [0,360) на время расчёта, если
-  // разброс выглядит как пересечение -180/180.
-  const lons = points.map(p => p.lon);
-  if (Math.max(...lons) - Math.min(...lons) > 180) {
-    points = points.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
+  const lonsCentroid = centroidPoints.map(p => p.lon);
+  if (Math.max(...lonsCentroid) - Math.min(...lonsCentroid) > 180) {
+    centroidPoints = centroidPoints.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
   }
 
-  const sumW = points.reduce((s, p) => s + p.weight, 0);
-  const lon0 = points.reduce((s, p) => s + p.lon * p.weight, 0) / sumW;
-  const lat0 = points.reduce((s, p) => s + p.lat * p.weight, 0) / sumW;
-  const lat0Rad = (lat0 * Math.PI) / 180;
-  const kmPerDegLon = 111 * Math.cos(lat0Rad);
+  const sumW = centroidPoints.reduce((s, p) => s + p.weight, 0);
+  const lon0 = centroidPoints.reduce((s, p) => s + p.lon * p.weight, 0) / sumW;
+  const lat0 = centroidPoints.reduce((s, p) => s + p.lat * p.weight, 0) / sumW;
+  let labelLon = lon0;
+  if (labelLon > 180) labelLon -= 360;
 
-  const xy = points.map(p => ({
-    x: (p.lon - lon0) * kmPerDegLon,
-    y: (p.lat - lat0) * 111,
-    w: p.weight,
+  if (points.length === 0) {
+    return { lon: labelLon, lat: lat0, rotateDeg: 0, spanLongAxisDeg: 5, spanShortAxisDeg: 5 };
+  }
+
+  let normalizedPoints = points.map(p => ({ ...p }));
+  const lons = normalizedPoints.map(p => p.lon);
+  if (Math.max(...lons) - Math.min(...lons) > 180) {
+    normalizedPoints = normalizedPoints.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
+  }
+
+  const n = normalizedPoints.length;
+  const sumLon = normalizedPoints.reduce((s, p) => s + p.lon, 0);
+  const sumLat = normalizedPoints.reduce((s, p) => s + p.lat, 0);
+  const meanLon = sumLon / n;
+  const meanLat = sumLat / n;
+
+  const latRad = (meanLat * Math.PI) / 180;
+  const kmPerDegLon = 111 * Math.cos(latRad);
+
+  const xy = normalizedPoints.map(p => ({
+    x: (p.lon - meanLon) * kmPerDegLon,
+    y: (p.lat - meanLat) * 111,
   }));
 
   let Sxx = 0, Syy = 0, Sxy = 0;
-  for (const p of xy) { Sxx += p.w * p.x * p.x; Syy += p.w * p.y * p.y; Sxy += p.w * p.x * p.y; }
-  Sxx /= sumW; Syy /= sumW; Sxy /= sumW;
-  const theta = xy.length > 1 ? 0.5 * Math.atan2(2 * Sxy, Sxx - Syy) : 0;
+  for (const p of xy) {
+    Sxx += p.x * p.x;
+    Syy += p.y * p.y;
+    Sxy += p.x * p.y;
+  }
+  Sxx /= n;
+  Syy /= n;
+  Sxy /= n;
 
-  let lon = lon0;
-  if (lon > 180) lon -= 360;
-  // theta — математический угол от оси "восток" против часовой стрелки;
-  // text-rotate — угол по часовой в экранных координатах, поэтому знак инвертирован.
-  return { lon, lat: lat0, rotateDeg: (-theta * 180) / Math.PI };
-}
+  let theta = 0.5 * Math.atan2(2 * Sxy, Sxx - Syy);
+
+  const cosT = Math.cos(theta);
+  const sinT = Math.sin(theta);
+
+  const projU = xy.map(p => p.x * cosT + p.y * sinT);
+  const projV = xy.map(p => -p.x * sinT + p.y * cosT);
+
+  let Lu = Math.max(...projU) - Math.min(...projU);
+  let Lv = Math.max(...projV) - Math.min(...projV);
+
+  if (Lu < Lv) {
+    const temp = Lu;
+    Lu = Lv;
+    Lv = temp;
+    theta = theta + Math.PI / 2;
+  }
+
+  let rotateDeg = (-theta * 180) / Math.PI;
+
+  while (rotateDeg < -90) rotateDeg += 180;
+  while (rotateDeg > 90) rotateDeg -= 180;
+
+  if (Lu / Math.max(1e-3, Lv) < 1.25) {
+    rotateDeg = 0;
+  }
+
+  return {
+    lon: labelLon,
+    lat: lat0,
+    rotateDeg,
+    spanLongAxisDeg: Lu / 111,
+    spanShortAxisDeg: Lv / 111,
+  };
+
 
 /**
  * Подписи стран в стиле EU5 — точка-якорь + поворот вдоль главной оси
@@ -554,65 +557,32 @@ export function MapView({
             data: countryOutlines
           });
 
-          // 1. Фоновая подложка (океан по умолчанию)
-          m.addLayer({
-            id: 'background',
-            type: 'background',
-            paint: {
-              'background-color': '#323f4f' // Мягкий стальной серо-синий цвет воды
-            }
-          });
-
-          // 2. Слои морей/океанов
+          // 1. Слои морей/океанов — заливка по собственному цвету фичи
           m.addLayer({
             id: 'oceans-fill',
             type: 'fill',
             source: 'regions',
             filter: ['==', ['get', 'type'], 'ocean'],
             paint: {
-              'fill-color': '#323f4f',
-              'fill-opacity': 1.0
+              'fill-color': ['get', 'color'],
+              'fill-opacity': 0.85
             }
           });
 
-          // 3. Сетка широт и долгот (graticule) — только над океанами
-          m.addLayer({
-            id: 'graticule-lines',
-            type: 'line',
-            source: 'graticule',
-            paint: {
-              'line-color': '#ffffff', 
-              'line-width': 0.4,
-              'line-opacity': 0.08
-            }
-          });
-
-          // 4. Береговое свечение (glow)
+          // 2. Береговое свечение (glow) — темно-синее, как было
           m.addLayer({
             id: 'coastline-glow',
             type: 'line',
             source: 'country-outlines',
             paint: {
-              'line-color': '#ffffff',
-              'line-width': 6.0,
-              'line-blur': 4.0,
-              'line-opacity': 0.16
+              'line-color': '#1b3a5f', // Бирюзово-синий
+              'line-width': 4.0,
+              'line-blur': 3.0,
+              'line-opacity': 0.35
             }
           });
 
-          // 5. Теплый кремовый задник суши (старая бумага)
-          m.addLayer({
-            id: 'land-background',
-            type: 'fill',
-            source: 'regions',
-            filter: ['==', ['get', 'type'], 'region'],
-            paint: {
-              'fill-color': '#eae5d8', // Пергаментный оттенок
-              'fill-opacity': 1.0
-            }
-          });
-
-          // 6. Политическая раскраска регионов (полупрозрачное наложение поверх пергамента)
+          // 3. Слой для стран и регионов (поверх океанов)
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -623,15 +593,15 @@ export function MapView({
               'fill-opacity': [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
-                0.55,
+                0.8,
                 ['boolean', ['feature-state', 'selected'], false],
-                0.6,
-                0.35 // Мягкие пастельные цвета стран
+                0.85,
+                0.6
               ]
             }
           });
 
-          // 7. Внутренние границы провинций (мягкие, гаснут при отдалении)
+          // 4. Внутренние границы провинций (мягкие, гаснут при отдалении)
           m.addLayer({
             id: 'regions-outline',
             type: 'line',
@@ -644,35 +614,35 @@ export function MapView({
                 '#FFFFFF',
                 ['boolean', ['feature-state', 'selected'], false],
                 '#FFD700',
-                '#9e978a' // Мягкий коричневато-серый для границ
+                '#0b0e14'
               ],
               'line-width': [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
-                1.5,
+                2,
                 ['boolean', ['feature-state', 'selected'], false],
-                2.0,
+                2.5,
                 0.35
               ],
               'line-opacity': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                3.0, 0.04,
-                5.5, 0.35
+                3.0, 0.05,
+                5.5, 0.45
               ]
             }
           });
 
-          // 8. Внешние государственные границы (изящные темные линии)
+          // 5. Внешние государственные границы (четкие, всегда видны)
           m.addLayer({
             id: 'country-outlines',
             type: 'line',
             source: 'country-outlines',
             paint: {
-              'line-color': '#282828', // Мягкий темно-серый контур
-              'line-width': 1.0,
-              'line-opacity': 0.5
+              'line-color': '#070a0e', // Насыщенно-темный контур
+              'line-width': 1.6,
+              'line-opacity': 0.85
             }
           });
 
