@@ -284,6 +284,36 @@ button, select, input {
   opacity: 0.7;
 }
 
+.country-button.major {
+  border-color: var(--color-brass-dim);
+  box-shadow: 0 0 6px rgba(181, 137, 0, 0.15);
+}
+
+.country-button.major:hover {
+  border-color: var(--color-brass);
+  box-shadow: 0 0 10px rgba(181, 137, 0, 0.3);
+}
+
+.country-button.major.selected {
+  background-color: var(--color-brass);
+  color: var(--color-ink);
+  border-color: var(--color-brass);
+  box-shadow: 0 0 12px rgba(181, 137, 0, 0.4);
+}
+
+.country-major-badge {
+  font-size: 0.55rem;
+  color: var(--color-brass);
+  margin-top: 0.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.country-button.selected .country-major-badge {
+  color: var(--color-ink);
+}
+
 .start-game-button {
   display: block;
   margin: 0 auto;

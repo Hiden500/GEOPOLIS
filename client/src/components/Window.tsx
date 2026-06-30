@@ -23,14 +23,17 @@ export function Window({ title, position, size, zIndex, onMove, onResize, onFocu
   const windowRef = useRef<HTMLDivElement | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
 
-  // Ограничивает позицию так, чтобы окно не ушло целиком за пределы экрана:
+  // Ограничивает позицию так, чтобы окно не ушло целиком за пределы родительского элемента (game-content):
   // минимум KEEP_VISIBLE px по горизонтали остаётся видимым, а титулбар —
-  // всегда в пределах высоты вьюпорта (иначе окно не за что схватить).
+  // всегда в пределах высоты родителя (иначе окно не за что схватить).
   const clampToViewport = (x: number, y: number) => {
+    const parent = windowRef.current?.parentElement;
+    const parentWidth = parent?.clientWidth ?? window.innerWidth;
+    const parentHeight = parent?.clientHeight ?? window.innerHeight;
     const w = windowRef.current?.offsetWidth ?? 320;
     return {
-      x: Math.min(Math.max(x, KEEP_VISIBLE - w), window.innerWidth - KEEP_VISIBLE),
-      y: Math.min(Math.max(y, 0), window.innerHeight - TITLEBAR_REACH),
+      x: Math.min(Math.max(x, KEEP_VISIBLE - w), parentWidth - KEEP_VISIBLE),
+      y: Math.min(Math.max(y, 0), parentHeight - TITLEBAR_REACH),
     };
   };
 
@@ -70,9 +73,18 @@ export function Window({ title, position, size, zIndex, onMove, onResize, onFocu
   const handleResizeMove = (e: MouseEvent) => {
     const resize = resizeState.current;
     if (!resize) return;
+    const parent = windowRef.current?.parentElement;
+    const parentWidth = parent?.clientWidth ?? window.innerWidth;
+    const parentHeight = parent?.clientHeight ?? window.innerHeight;
+
+    // Ограничиваем максимальную ширину и высоту так, чтобы правый нижний угол окна
+    // не уходил за пределы родительского элемента, сохраняя ручку ресайза доступной.
+    const maxWidth = Math.max(220, parentWidth - position.x);
+    const maxHeight = Math.max(120, parentHeight - position.y);
+
     onResize({
-      width: Math.max(220, resize.startWidth + (e.clientX - resize.startX)),
-      height: Math.max(120, resize.startHeight + (e.clientY - resize.startY)),
+      width: Math.min(maxWidth, Math.max(220, resize.startWidth + (e.clientX - resize.startX))),
+      height: Math.min(maxHeight, Math.max(120, resize.startHeight + (e.clientY - resize.startY))),
     });
   };
 

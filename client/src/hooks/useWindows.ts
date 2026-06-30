@@ -29,6 +29,41 @@ function windowId(kind: WindowKind): string {
 }
 
 const LEFT_SIDE: WindowKind["type"][] = ["country", "region"];
+const SETTINGS_KEY = "geopolis_window_settings";
+
+interface WindowSetting {
+  position: { x: number; y: number };
+  size?: { width: number; height: number };
+}
+
+function getSettingsKey(id: string): string {
+  if (id.startsWith("country:")) return "country";
+  if (id.startsWith("region:")) return "region";
+  return id;
+}
+
+function loadSavedSettings(): Record<string, WindowSetting> {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveWindowSetting(id: string, setting: WindowSetting) {
+  try {
+    const settings = loadSavedSettings();
+    const key = getSettingsKey(id);
+    settings[key] = {
+      position: setting.position,
+      size: setting.size || settings[key]?.size
+    };
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  } catch (e) {
+    console.error("Failed to save window settings:", e);
+  }
+}
 
 export function useWindows() {
   const [windows, setWindows] = useState<WindowInstance[]>([]);
@@ -46,10 +81,20 @@ export function useWindows() {
         const z = nextZIndex(prev);
         return prev.map(w => (w.id === id ? { ...w, zIndex: z } : w));
       }
+
+      // Загружаем сохраненные настройки
+      const saved = loadSavedSettings()[getSettingsKey(id)];
       const sameSideCount = prev.filter(w => LEFT_SIDE.includes(kind.type) === LEFT_SIDE.includes(w.kind.type)).length;
-      const baseX = LEFT_SIDE.includes(kind.type) ? 16 : window.innerWidth - 360;
-      const position = { x: baseX + sameSideCount * 24, y: 100 + sameSideCount * 24 };
-      return [...prev, { id, kind, position, zIndex: nextZIndex(prev) }];
+
+      let position = saved?.position;
+      if (!position) {
+        const baseX = LEFT_SIDE.includes(kind.type) ? 16 : window.innerWidth - 360;
+        position = { x: baseX + sameSideCount * 24, y: 100 + sameSideCount * 24 };
+      }
+
+      const size = saved?.size;
+
+      return [...prev, { id, kind, position, size, zIndex: nextZIndex(prev) }];
     });
   }, [nextZIndex]);
 
@@ -59,10 +104,20 @@ export function useWindows() {
       if (prev.some(w => w.id === id)) {
         return prev.filter(w => w.id !== id);
       }
+
+      // Загружаем сохраненные настройки
+      const saved = loadSavedSettings()[getSettingsKey(id)];
       const sameSideCount = prev.filter(w => LEFT_SIDE.includes(kind.type) === LEFT_SIDE.includes(w.kind.type)).length;
-      const baseX = LEFT_SIDE.includes(kind.type) ? 16 : window.innerWidth - 360;
-      const position = { x: baseX + sameSideCount * 24, y: 100 + sameSideCount * 24 };
-      return [...prev, { id, kind, position, zIndex: nextZIndex(prev) }];
+
+      let position = saved?.position;
+      if (!position) {
+        const baseX = LEFT_SIDE.includes(kind.type) ? 16 : window.innerWidth - 360;
+        position = { x: baseX + sameSideCount * 24, y: 100 + sameSideCount * 24 };
+      }
+
+      const size = saved?.size;
+
+      return [...prev, { id, kind, position, size, zIndex: nextZIndex(prev) }];
     });
   }, [nextZIndex]);
 
@@ -78,11 +133,23 @@ export function useWindows() {
   }, [nextZIndex]);
 
   const move = useCallback((id: string, position: { x: number; y: number }) => {
-    setWindows(prev => prev.map(w => (w.id === id ? { ...w, position } : w)));
+    setWindows(prev => {
+      const wInstance = prev.find(w => w.id === id);
+      if (wInstance) {
+        saveWindowSetting(id, { position, size: wInstance.size });
+      }
+      return prev.map(w => (w.id === id ? { ...w, position } : w));
+    });
   }, []);
 
   const resize = useCallback((id: string, size: { width: number; height: number }) => {
-    setWindows(prev => prev.map(w => (w.id === id ? { ...w, size } : w)));
+    setWindows(prev => {
+      const wInstance = prev.find(w => w.id === id);
+      if (wInstance) {
+        saveWindowSetting(id, { position: wInstance.position, size });
+      }
+      return prev.map(w => (w.id === id ? { ...w, size } : w));
+    });
   }, []);
 
   const isOpen = useCallback((kind: WindowKind) => windows.some(w => w.id === windowId(kind)), [windows]);

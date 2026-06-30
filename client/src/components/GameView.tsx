@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { type GameState } from "@shared/types/GameState";
 import { TopStatBar } from "./TopStatBar";
 import { ResourceTicker } from "./ResourceTicker";
@@ -39,7 +39,38 @@ const WINDOW_TITLES: Record<string, string> = {
 export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
+  const [closePopupTrigger, setClosePopupTrigger] = useState(0);
   const { windows, openOrFocus, toggle, close, focus, move, resize, isOpen } = useWindows();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        const target = e.target as HTMLElement;
+        if (
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+
+        if (isMapPopupOpen) {
+          setClosePopupTrigger(prev => prev + 1);
+        } else if (windows.length > 0) {
+          const activeWindow = windows.reduce(
+            (max, w) => (w.zIndex > max.zIndex ? w : max),
+            windows[0]
+          );
+          if (activeWindow) {
+            close(activeWindow.id);
+          }
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMapPopupOpen, windows, close]);
 
   const playerCountry = game.countries.find(
     c => c.id === game.playerCountryId
@@ -161,6 +192,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             mapFeatures={game.mapFeatures}
             onRegionClick={handleRegionClick}
             selectedRegionId={selectedRegionId}
+            onPopupStateChange={setIsMapPopupOpen}
+            closePopupTrigger={closePopupTrigger}
           />
         </div>
 

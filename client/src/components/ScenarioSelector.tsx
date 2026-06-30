@@ -46,12 +46,13 @@ function CountryGroup({
           {countries.map(c => (
             <button
               key={c.id}
-              className={`country-button ${selectedCountry === c.id ? "selected" : ""}`}
+              className={`country-button ${c.tier || ""} ${selectedCountry === c.id ? "selected" : ""}`}
               onClick={() => onSelect(c.id)}
               title={c.name}
             >
               <span className="country-name">{c.name}</span>
               <span className="country-id">{c.id}</span>
+              {c.tier === "major" && <span className="country-major-badge">★ Великая держава</span>}
             </button>
           ))}
         </div>

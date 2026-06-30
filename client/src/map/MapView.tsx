@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { centroid, bbox } from '@turf/turf';
+import { centroid, bbox, union } from '@turf/turf';
 import type { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
 import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
@@ -258,15 +258,114 @@ function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCol
   return { type: 'FeatureCollection', features: labelFeatures };
 }
 
+function buildGraticule(): FeatureCollection {
+  const features: any[] = [];
+  // Линии долготы (меридианы) с шагом 15 градусов
+  for (let lon = -180; lon <= 180; lon += 15) {
+    const coordinates: [number, number][] = [];
+    for (let lat = -80; lat <= 80; lat += 5) {
+      coordinates.push([lon, lat]);
+    }
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates },
+      properties: { type: 'meridian', value: lon }
+    });
+  }
+  // Линии широты (параллели) с шагом 15 градусов
+  for (let lat = -75; lat <= 75; lat += 15) {
+    const coordinates: [number, number][] = [];
+    for (let lon = -180; lon <= 180; lon += 5) {
+      coordinates.push([lon, lat]);
+    }
+    features.push({
+      type: 'Feature',
+      geometry: { type: 'LineString', coordinates },
+      properties: { type: 'parallel', value: lat }
+    });
+  }
+  return { type: 'FeatureCollection', features };
+}
+
+function buildCountryOutlines(mapData: GameMapData): FeatureCollection<Polygon | MultiPolygon> {
+  const featuresByCountry = new Map<string, any[]>();
+  
+  for (const feature of mapData.featureCollection.features) {
+    const props = feature.properties;
+    if (props.type === 'region' && props.ownerCountryId) {
+      const list = featuresByCountry.get(props.ownerCountryId) || [];
+      list.push(feature);
+      featuresByCountry.set(props.ownerCountryId, list);
+    }
+  }
+
+  const countryFeatures: any[] = [];
+  for (const [countryId, features] of featuresByCountry.entries()) {
+    if (features.length === 0) continue;
+    try {
+      let united: any = null;
+      if (features.length === 1) {
+        united = features[0];
+      } else {
+        // Turf union в v7 принимает FeatureCollection
+        united = union({
+          type: 'FeatureCollection',
+          features: features
+        });
+      }
+      if (united) {
+        countryFeatures.push({
+          type: 'Feature',
+          geometry: united.geometry,
+          properties: {
+            ownerCountryId: countryId,
+            ownerColor: features[0].properties.ownerColor,
+            ownerName: features[0].properties.ownerName
+          }
+        });
+      }
+    } catch (e) {
+      console.warn(`Failed to union regions for country ${countryId}:`, e);
+      // Фолбек в случае ошибки геометрии
+      features.forEach(f => {
+        countryFeatures.push({
+          type: 'Feature',
+          geometry: f.geometry,
+          properties: {
+            ownerCountryId: countryId,
+            ownerColor: f.properties.ownerColor,
+            ownerName: f.properties.ownerName
+          }
+        });
+      });
+    }
+  }
+
+  return {
+    type: 'FeatureCollection',
+    features: countryFeatures
+  };
+}
+
 interface MapViewProps {
   regions: Region[];
   countries: Country[];
   mapFeatures: MapFeature[];
   onRegionClick?: (regionId: number) => void;
   selectedRegionId?: number | null;
+  onPopupStateChange?: (isOpen: boolean) => void;
+  closePopupTrigger?: number;
 }
 
-export function MapView({ regions, countries, mapFeatures, onRegionClick, selectedRegionId }: MapViewProps) {
+export function MapView({
+  regions,
+  countries,
+  mapFeatures,
+  onRegionClick,
+  selectedRegionId,
+  onPopupStateChange,
+  closePopupTrigger
+}: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
@@ -297,9 +396,18 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
         version: 8,
         sources: {},
         layers: [],
-        // Тёмный фон для карты
-        glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'
-      },
+        glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        'font-faces': [
+          {
+            'text-font': ['EB Garamond Bold'],
+            'font-files': [
+              {
+                url: '/fonts/EBGaramond-Bold.ttf'
+              }
+            ]
+          }
+        ]
+      } as any,
       center: [37.6173, 55.7558],
       zoom: 2,
       maxZoom: 8,
@@ -333,6 +441,16 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
       mapRef.current = null;
     };
   }, []);
+
+  // Закрытие попапа по триггеру извне
+  useEffect(() => {
+    if (popupRef.current) {
+      popupRef.current.remove();
+      popupRef.current = null;
+      if (onPopupStateChange) onPopupStateChange(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [closePopupTrigger]);
 
   function setupInteractions(m: maplibregl.Map) {
     m.on('mousemove', 'regions-fill', (e) => {
@@ -385,7 +503,13 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
           </div>`)
         .addTo(m);
 
+      popup.on('close', () => {
+        popupRef.current = null;
+        if (onPopupStateChange) onPopupStateChange(false);
+      });
+
       popupRef.current = popup;
+      if (onPopupStateChange) onPopupStateChange(true);
 
       if (onRegionClick) {
         const rawId = feature.id != null ? feature.id : props.id;
@@ -409,6 +533,10 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
 
         if (m.getSource('regions')) {
           (m.getSource('regions') as maplibregl.GeoJSONSource).setData(data.featureCollection);
+          const countrySource = m.getSource('country-outlines') as maplibregl.GeoJSONSource | undefined;
+          if (countrySource) {
+            countrySource.setData(buildCountryOutlines(data));
+          }
         } else {
           m.addSource('regions', {
             type: 'geojson',
@@ -416,8 +544,20 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
             maxzoom: 8
           });
 
-          // Слои морей/океанов — заливка по собственному цвету фичи + границы
-          // между водными объектами (под слоями регионов/стран).
+          // Сетка координат
+          m.addSource('graticule', {
+            type: 'geojson',
+            data: buildGraticule()
+          });
+
+          // Внешние контуры стран
+          const countryOutlines = buildCountryOutlines(data);
+          m.addSource('country-outlines', {
+            type: 'geojson',
+            data: countryOutlines
+          });
+
+          // 1. Слои морей/океанов — заливка по собственному цвету фичи
           m.addLayer({
             id: 'oceans-fill',
             type: 'fill',
@@ -426,6 +566,31 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
             paint: {
               'fill-color': ['get', 'color'],
               'fill-opacity': 0.85
+            }
+          });
+
+          // 2. Сетка широт и долгот (graticule) — только над океанами
+          m.addLayer({
+            id: 'graticule-lines',
+            type: 'line',
+            source: 'graticule',
+            paint: {
+              'line-color': '#11253c', // Темно-синий, близкий к воде
+              'line-width': 0.5,
+              'line-opacity': 0.15
+            }
+          });
+
+          // 3. Береговое свечение (glow)
+          m.addLayer({
+            id: 'coastline-glow',
+            type: 'line',
+            source: 'country-outlines',
+            paint: {
+              'line-color': '#1b3a5f', // Бирюзово-синий
+              'line-width': 4.0,
+              'line-blur': 3.0,
+              'line-opacity': 0.35
             }
           });
 
@@ -440,7 +605,7 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
             }
           });
 
-          // Слой для стран и регионов (поверх океанов)
+          // 4. Слой для стран и регионов (поверх океанов)
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -459,6 +624,7 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
             }
           });
 
+          // 5. Внутренние границы провинций (мягкие, гаснут при отдалении)
           m.addLayer({
             id: 'regions-outline',
             type: 'line',
@@ -471,9 +637,6 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
                 '#FFFFFF',
                 ['boolean', ['feature-state', 'selected'], false],
                 '#FFD700',
-                // Тёмная почти-чёрная линия — читается на любом цвете
-                // заливки, в отличие от прежнего #334155, который терялся
-                // на похожих по тону холодных оттенках.
                 '#0b0e14'
               ],
               'line-width': [
@@ -482,20 +645,34 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
                 2,
                 ['boolean', ['feature-state', 'selected'], false],
                 2.5,
-                0.7
+                0.35
               ],
-              // Прозрачность для границ по умолчанию — сплошная чёрная
-              // линия слишком бросалась в глаза на некоторых цветах заливки
-              // ("слишком выбиваются"). hover/selected остаются полностью
-              // непрозрачными — это активная подсветка, не базовая линия.
               'line-opacity': [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
                 1,
                 ['boolean', ['feature-state', 'selected'], false],
                 1,
-                0.45
+                [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  3.0, 0.05,
+                  5.5, 0.45
+                ]
               ]
+            }
+          });
+
+          // 6. Внешние государственные границы (четкие, всегда видны)
+          m.addLayer({
+            id: 'country-outlines',
+            type: 'line',
+            source: 'country-outlines',
+            paint: {
+              'line-color': '#070a0e', // Насыщенно-темный контур
+              'line-width': 1.6,
+              'line-opacity': 0.85
             }
           });
 
@@ -521,6 +698,11 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
     if (source) {
       source.setData(updatedData);
     }
+
+    const countrySource = mapRef.current.getSource('country-outlines') as maplibregl.GeoJSONSource;
+    if (countrySource) {
+      countrySource.setData(buildCountryOutlines({ featureCollection: updatedData }));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regions, countries]);
 
@@ -535,57 +717,89 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
     const source = m.getSource('country-labels') as maplibregl.GeoJSONSource | undefined;
     if (source) {
       source.setData(labels);
-      return;
+    } else {
+      m.addSource('country-labels', { type: 'geojson', data: labels });
     }
 
-    m.addSource('country-labels', { type: 'geojson', data: labels });
+    if (!m.getLayer('country-labels')) {
+      m.addLayer({
+        id: 'country-labels',
+        type: 'symbol',
+        source: 'country-labels',
+        layout: {
+          'text-field': ['get', 'name'],
+          // Точка-якорь + поворот вдоль главной оси страны (computeCountryAxis)
+          // — не line-center (см. комментарий у computeCountryAxis про
+          // тайловый баг дублирования подписи у континентальных стран).
+          'text-rotate': ['get', 'rotateDeg'],
+          'text-rotation-alignment': 'map',
+          // Кегль растёт геометрически с зумом (предвычислен на двух опорных
+          // зумах в computeLabelSizes) — имя стремится занимать ширину
+          // страны на экране на любом зуме, не фиксированный размер.
+          'text-size': ['interpolate', ['exponential', 2], ['zoom'],
+            2, ['get', 'sizeZ2'],
+            7, ['get', 'sizeZ7']
+          ],
+          'text-letter-spacing': 0.15, // Красивая разрядка
+          'text-font': ['EB Garamond Bold'], // Исторический Serif-шрифт
+          // Видимость теперь регулирует appearZoom (порог читаемости, см.
+          // text-opacity), не коллизия — allow-overlap:false на мировом зуме
+          // выбрасывал все подписи кроме одной крупнейшей (почти ни одна
+          // страна не вмещалась без налезания на соседей).
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+          // Порядок отрисовки (не видимость) — крупные страны рисуются сверху.
+          'symbol-sort-key': ['get', 'sortKey'],
+        },
+        paint: {
+          'text-color': '#f3e9d2', // Теплый кремово-золотой оттенок
+          'text-halo-color': '#070a0e', // Темный контур
+          'text-halo-width': 1.6,
+          // Порог читаемости вместо коллизии: на каждом из APPEAR_ZOOM_STOPS
+          // считаем clamp((stopZoom - appearZoom)/APPEAR_TRANSITION, 0, 1) —
+          // ['zoom'] разрешён только как вход interpolate/step, поэтому
+          // нельзя просто вычесть ['get','appearZoom'] из текущего зума одним
+          // выражением; вместо этого сэмплируем data-driven результат на
+          // фиксированной зум-сетке (стандартный приём для zoom+property
+          // функций в maplibre).
+          'text-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            ...APPEAR_ZOOM_STOPS.flatMap(z => [z, appearOpacityExpr(z)])
+          ],
+        },
+      });
+    }
 
-    m.addLayer({
-      id: 'country-labels',
-      type: 'symbol',
-      source: 'country-labels',
-      layout: {
-        'text-field': ['get', 'name'],
-        // Точка-якорь + поворот вдоль главной оси страны (computeCountryAxis)
-        // — не line-center (см. комментарий у computeCountryAxis про
-        // тайловый баг дублирования подписи у континентальных стран).
-        'text-rotate': ['get', 'rotateDeg'],
-        'text-rotation-alignment': 'map',
-        // Кегль растёт геометрически с зумом (предвычислен на двух опорных
-        // зумах в computeLabelSizes) — имя стремится занимать ширину
-        // страны на экране на любом зуме, не фиксированный размер.
-        'text-size': ['interpolate', ['exponential', 2], ['zoom'],
-          2, ['get', 'sizeZ2'],
-          7, ['get', 'sizeZ7']
-        ],
-        'text-letter-spacing': LABEL_LETTER_SPACING_EM,
-        'text-font': ['Open Sans Bold'],
-        // Видимость теперь регулирует appearZoom (порог читаемости, см.
-        // text-opacity), не коллизия — allow-overlap:false на мировом зуме
-        // выбрасывал все подписи кроме одной крупнейшей (почти ни одна
-        // страна не вмещалась без налезания на соседей).
-        'text-allow-overlap': true,
-        'text-ignore-placement': true,
-        // Порядок отрисовки (не видимость) — крупные страны рисуются сверху.
-        'symbol-sort-key': ['get', 'sortKey'],
-      },
-      paint: {
-        'text-color': '#f1f5f9',
-        'text-halo-color': '#0b0e14',
-        'text-halo-width': 1.4,
-        // Порог читаемости вместо коллизии: на каждом из APPEAR_ZOOM_STOPS
-        // считаем clamp((stopZoom - appearZoom)/APPEAR_TRANSITION, 0, 1) —
-        // ['zoom'] разрешён только как вход interpolate/step, поэтому
-        // нельзя просто вычесть ['get','appearZoom'] из текущего зума одним
-        // выражением; вместо этого сэмплируем data-driven результат на
-        // фиксированной зум-сетке (стандартный приём для zoom+property
-        // функций в maplibre).
-        'text-opacity': [
-          'interpolate', ['linear'], ['zoom'],
-          ...APPEAR_ZOOM_STOPS.flatMap(z => [z, appearOpacityExpr(z)])
-        ],
-      },
-    });
+    // Подписи регионов на высоком зуме (zoom >= 5.5)
+    if (!m.getLayer('region-labels')) {
+      m.addLayer({
+        id: 'region-labels',
+        type: 'symbol',
+        source: 'regions',
+        filter: ['==', ['get', 'type'], 'region'],
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Regular'], // Sans-Serif для четкости
+          'text-size': 10,
+          'text-max-width': 8,
+          'text-allow-overlap': false, // Предотвращаем кашу из надписей
+          'text-ignore-placement': false
+        },
+        paint: {
+          'text-color': '#cbd5e1', // Светло-серый
+          'text-halo-color': '#0b0e14',
+          'text-halo-width': 1.0,
+          // Появляются плавно на zoom >= 5.5, полностью видны на zoom >= 6.0
+          'text-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            5.5, 0.0,
+            6.0, 0.8
+          ]
+        }
+      });
+    }
   }, [mapData, regions]);
 
   // Выделение региона
@@ -619,11 +833,27 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
       type: 'circle',
       source: 'map-features',
       paint: {
-        'circle-radius': 6,
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          2, ['case', ['==', ['get', 'type'], 'capital'], 5, 4],
+          8, ['case', ['==', ['get', 'type'], 'capital'], 11, 8]
+        ],
         'circle-color': ['get', 'color'],
-        'circle-opacity': 0.8,
-        'circle-stroke-width': 2,
-        'circle-stroke-color': '#ffffff',
+        'circle-opacity': 0.85,
+        'circle-stroke-width': [
+          'case',
+          ['==', ['get', 'type'], 'capital'],
+          2.5,
+          1.5
+        ],
+        'circle-stroke-color': [
+          'case',
+          ['==', ['get', 'type'], 'capital'],
+          '#FFD700', // Золотистый контур для столицы
+          '#ffffff'
+        ]
       },
     });
 
@@ -633,7 +863,13 @@ export function MapView({ regions, countries, mapFeatures, onRegionClick, select
       source: 'map-features',
       layout: {
         'text-field': ['get', 'icon'],
-        'text-size': 16,
+        'text-size': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          2, ['case', ['==', ['get', 'type'], 'capital'], 12, 10],
+          8, ['case', ['==', ['get', 'type'], 'capital'], 20, 16]
+        ],
         'text-anchor': 'center',
         'text-allow-overlap': true,
       },
