@@ -2,7 +2,7 @@
 
 # Geopolis — Agent Instructions
 
-Last updated: 2026-06-23
+Last updated: 2026-06-30
 
 Global rules for the AI agent working on Geopolis. Mandatory.
 
@@ -268,6 +268,58 @@ Maddison Project, CIA historical publications, academic publications, historical
 atlases. Do not invent numbers when reliable estimates exist. When estimates are
 required, document assumptions, keep internal consistency, and separate
 estimates from verified data.
+
+---
+
+# Координация моделей (Claude + Gemini)
+
+Над проектом могут работать несколько AI-моделей. Чтобы не дублировать работу
+и не создавать конфликты, соблюдается следующий протокол.
+
+## Доменное разделение
+
+| Домен | Владелец |
+|---|---|
+| `server/` — симуляция, сервисы, маршруты | Claude |
+| `client/` — UI, карта, компоненты | Gemini |
+| `shared/types/` — общие типы | **только через `main`, не параллельно** |
+| `docs/`, `scripts/` | любой, не одновременно |
+
+Эти границы — дефолт, не жёсткий закон. Менять через запись в `docs/DECISIONS.md`.
+
+## Ветки
+
+Каждая модель работает в своей ветке:
+- `claude/<feature>` — работа Claude
+- `gemini/<feature>` — работа Gemini
+
+Ветки мержатся в `main` когда фича готова и тесты зелёные.
+После мержа в `main` — другая модель делает `git merge main` перед следующей задачей.
+
+## Протокол старта (обязателен для каждой сессии)
+
+1. `git checkout main && git pull` — взять актуальный `main`
+2. Прочитать `git log --oneline -10` — что сделала другая модель
+3. Прочитать `docs/TODO.md` — что открыто, что в работе
+4. Прочитать `docs/DECISIONS.md` — свежие архитектурные решения
+5. Создать ветку: `git checkout -b claude/<task>` или `gemini/<task>`
+
+## Правила shared/types/
+
+`shared/types/` — общая земля, конфликты здесь болезненны.
+
+- Никогда не менять `shared/types/` в параллельных ветках.
+- Нужно добавить тип → сначала смержить текущую ветку в `main`, потом
+  создать отдельный маленький PR только с типами, остальные ветки ребейзятся.
+- Если нужен новый тип прямо сейчас — записать в `docs/DECISIONS.md`
+  ("резервирую shared/types/ до мержа ветки X") и сообщить пользователю.
+
+## Что НЕ делать
+
+- Не брать задачи из чужого домена без явной записи в `DECISIONS.md`.
+- Не работать с `shared/types/` в параллельных ветках.
+- Не создавать ветку от незамерженной ветки другой модели.
+- Не мержить в `main` с красными тестами.
 
 ---
 
