@@ -398,7 +398,7 @@ export function MapView({
         layers: [],
         glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
         'font-faces': {
-          'EB Garamond Bold': [
+          'EB Garamond': [
             {
               url: '/fonts/EBGaramond-Bold.ttf'
             }
@@ -554,55 +554,65 @@ export function MapView({
             data: countryOutlines
           });
 
-          // 1. Слои морей/океанов — заливка по собственному цвету фичи
+          // 1. Фоновая подложка (океан по умолчанию)
+          m.addLayer({
+            id: 'background',
+            type: 'background',
+            paint: {
+              'background-color': '#323f4f' // Мягкий стальной серо-синий цвет воды
+            }
+          });
+
+          // 2. Слои морей/океанов
           m.addLayer({
             id: 'oceans-fill',
             type: 'fill',
             source: 'regions',
             filter: ['==', ['get', 'type'], 'ocean'],
             paint: {
-              'fill-color': ['get', 'color'],
-              'fill-opacity': 0.85
+              'fill-color': '#323f4f',
+              'fill-opacity': 1.0
             }
           });
 
-          // 2. Сетка широт и долгот (graticule) — только над океанами
+          // 3. Сетка широт и долгот (graticule) — только над океанами
           m.addLayer({
             id: 'graticule-lines',
             type: 'line',
             source: 'graticule',
             paint: {
-              'line-color': '#11253c', // Темно-синий, близкий к воде
-              'line-width': 0.5,
-              'line-opacity': 0.15
+              'line-color': '#ffffff', 
+              'line-width': 0.4,
+              'line-opacity': 0.08
             }
           });
 
-          // 3. Береговое свечение (glow)
+          // 4. Береговое свечение (glow)
           m.addLayer({
             id: 'coastline-glow',
             type: 'line',
             source: 'country-outlines',
             paint: {
-              'line-color': '#1b3a5f', // Бирюзово-синий
-              'line-width': 4.0,
-              'line-blur': 3.0,
-              'line-opacity': 0.35
+              'line-color': '#ffffff',
+              'line-width': 6.0,
+              'line-blur': 4.0,
+              'line-opacity': 0.16
             }
           });
 
+          // 5. Теплый кремовый задник суши (старая бумага)
           m.addLayer({
-            id: 'oceans-outline',
-            type: 'line',
+            id: 'land-background',
+            type: 'fill',
             source: 'regions',
-            filter: ['==', ['get', 'type'], 'ocean'],
+            filter: ['==', ['get', 'type'], 'region'],
             paint: {
-              'line-color': '#0d2438',
-              'line-width': 0.4
+              'fill-color': '#eae5d8', // Пергаментный оттенок
+              'fill-opacity': 1.0
             }
           });
 
-          // 4. Слой для стран и регионов (поверх океанов)
+          // 6. Политическая раскраска регионов (полупрозрачное наложение поверх пергамента)
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -613,15 +623,15 @@ export function MapView({
               'fill-opacity': [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
-                0.8,
+                0.55,
                 ['boolean', ['feature-state', 'selected'], false],
-                0.85,
-                0.6
+                0.6,
+                0.35 // Мягкие пастельные цвета стран
               ]
             }
           });
 
-          // 5. Внутренние границы провинций (мягкие, гаснут при отдалении)
+          // 7. Внутренние границы провинций (мягкие, гаснут при отдалении)
           m.addLayer({
             id: 'regions-outline',
             type: 'line',
@@ -634,42 +644,35 @@ export function MapView({
                 '#FFFFFF',
                 ['boolean', ['feature-state', 'selected'], false],
                 '#FFD700',
-                '#0b0e14'
+                '#9e978a' // Мягкий коричневато-серый для границ
               ],
               'line-width': [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
-                2,
+                1.5,
                 ['boolean', ['feature-state', 'selected'], false],
-                2.5,
+                2.0,
                 0.35
               ],
               'line-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                1,
-                ['boolean', ['feature-state', 'selected'], false],
-                1,
-                [
-                  'interpolate',
-                  ['linear'],
-                  ['zoom'],
-                  3.0, 0.05,
-                  5.5, 0.45
-                ]
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                3.0, 0.04,
+                5.5, 0.35
               ]
             }
           });
 
-          // 6. Внешние государственные границы (четкие, всегда видны)
+          // 8. Внешние государственные границы (изящные темные линии)
           m.addLayer({
             id: 'country-outlines',
             type: 'line',
             source: 'country-outlines',
             paint: {
-              'line-color': '#070a0e', // Насыщенно-темный контур
-              'line-width': 1.6,
-              'line-opacity': 0.85
+              'line-color': '#282828', // Мягкий темно-серый контур
+              'line-width': 1.0,
+              'line-opacity': 0.5
             }
           });
 
@@ -738,7 +741,7 @@ export function MapView({
             7, ['get', 'sizeZ7']
           ],
           'text-letter-spacing': 0.15, // Красивая разрядка
-          'text-font': ['EB Garamond Bold'], // Исторический Serif-шрифт
+          'text-font': ['EB Garamond'], // Исторический Serif-шрифт
           // Видимость теперь регулирует appearZoom (порог читаемости, см.
           // text-opacity), не коллизия — allow-overlap:false на мировом зуме
           // выбрасывал все подписи кроме одной крупнейшей (почти ни одна
@@ -749,9 +752,10 @@ export function MapView({
           'symbol-sort-key': ['get', 'sortKey'],
         },
         paint: {
-          'text-color': '#f3e9d2', // Теплый кремово-золотой оттенок
-          'text-halo-color': '#070a0e', // Темный контур
-          'text-halo-width': 1.6,
+          'text-color': '#2a2a2a', // Элегантный темно-серый цвет букв (как в EU5)
+          'text-halo-color': '#eae5d8', // Нежно-кремовое свечение под цвет суши
+          'text-halo-width': 1.2,
+          'text-halo-blur': 0.5,
           // Порог читаемости вместо коллизии: на каждом из APPEAR_ZOOM_STOPS
           // считаем clamp((stopZoom - appearZoom)/APPEAR_TRANSITION, 0, 1) —
           // ['zoom'] разрешён только как вход interpolate/step, поэтому
@@ -783,9 +787,9 @@ export function MapView({
           'text-ignore-placement': false
         },
         paint: {
-          'text-color': '#cbd5e1', // Светло-серый
-          'text-halo-color': '#0b0e14',
-          'text-halo-width': 1.0,
+          'text-color': '#4a4a4a', // Темно-серый
+          'text-halo-color': '#eae5d8', // Нежно-кремовый контур
+          'text-halo-width': 0.8,
           // Появляются плавно на zoom >= 5.5, полностью видны на zoom >= 6.0
           'text-opacity': [
             'interpolate',
