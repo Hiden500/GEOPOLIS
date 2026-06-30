@@ -20,14 +20,6 @@ const READABLE_PX = 11;
 // см. сэмплинг text-opacity ниже.
 const APPEAR_TRANSITION = 0.6;
 
-// Фиксированная зум-сетка для сэмплинга data-driven text-opacity (шаг 0.5,
-// сопоставим с шириной перехода APPEAR_TRANSITION — даёт точную аппроксимацию
-const APPEAR_ZOOM_STOPS = [2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8];
-
-function appearOpacityExpr(stopZoom: number): ExpressionSpecification {
-  return ['max', 0, ['min', 1, ['/', ['-', stopZoom, ['get', 'appearZoom']], APPEAR_TRANSITION]]];
-}
-
 const LABEL_LETTER_SPACING_EM = 0.08;
 
 function getGeometryPoints(features: RegionFeature[]): { lon: number; lat: number }[] {
@@ -64,13 +56,13 @@ function computeLabelSizes(
   const charCount = Math.max(1, name.length);
   
   const sizeAtZoom = (zoom: number): number => {
-    // Желаемая длина надписи на экране (75% от длинной оси страны)
+    // Желаемая длина надписи на экране (55% от длинной оси страны)
     const pixelLengthLimit = (spanLongAxisDeg / 360) * 512 * Math.pow(2, zoom);
-    // Максимально допустимая высота (кегль) шрифта (50% от ширины короткой оси страны)
+    // Максимально допустимая высота (кегль) шрифта (85% от ширины короткой оси страны)
     const pixelHeightLimit = (spanShortAxisDeg / 360) * 512 * Math.pow(2, zoom);
     
-    const rawSizeFromLength = (0.75 * pixelLengthLimit) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM));
-    const maxHeightAllowed = 0.5 * pixelHeightLimit;
+    const rawSizeFromLength = (0.55 * pixelLengthLimit) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM));
+    const maxHeightAllowed = 0.85 * pixelHeightLimit;
     
     const size = Math.min(rawSizeFromLength, maxHeightAllowed);
     return Math.min(150, Math.max(9, size));
@@ -81,7 +73,7 @@ function computeLabelSizes(
 
 function computeAppearZoom(name: string, spanLongAxisDeg: number): number {
   const charCount = Math.max(1, name.length);
-  const k = Math.max(1e-9, (0.75 * (spanLongAxisDeg / 360) * 512) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM)));
+  const k = Math.max(1e-9, (0.55 * (spanLongAxisDeg / 360) * 512) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM)));
   return Math.min(20, Math.log2(READABLE_PX / k));
 }
 
@@ -197,7 +189,7 @@ function computeCountryAxis(
   while (rotateDeg < -90) rotateDeg += 180;
   while (rotateDeg > 90) rotateDeg -= 180;
 
-  if (Lu / Math.max(1e-3, Lv) < 1.25) {
+  if (Lu / Math.max(1e-3, Lv) < 1.15) {
     rotateDeg = 0;
   }
 
@@ -210,16 +202,86 @@ function computeCountryAxis(
   };
 }
 
+function getLineLength(pts: [number, number][]): number {
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const dx = pts[i][0] - pts[i - 1][0];
+    const dy = pts[i][1] - pts[i - 1][1];
+    len += Math.sqrt(dx * dx + dy * dy);
+  }
+  return len;
+}
+
+function buildCountryLabelLine(
+  paired: { region: Region; feature: RegionFeature }[],
+  axis: { lon: number; lat: number; rotateDeg: number; spanLongAxisDeg: number; spanShortAxisDeg: number }
+): [number, number][] {
+  const thetaRad = (-axis.rotateDeg * Math.PI) / 180;
+  
+  if (paired.length < 3) {
+    // Для стран с малым количеством провинций строим прямую линию вдоль главной оси
+    const halfLen = 0.45 * axis.spanLongAxisDeg;
+    const latRad = (axis.lat * Math.PI) / 180;
+    const cosFactor = Math.cos(latRad);
+    
+    const dx = (halfLen * Math.cos(thetaRad)) / Math.max(0.1, cosFactor);
+    const dy = halfLen * Math.sin(thetaRad);
+    
+    return [
+      [axis.lon - dx, axis.lat - dy],
+      [axis.lon + dx, axis.lat + dy]
+    ];
+  }
+
+  // Для крупных стран сортируем центроиды регионов вдоль оси
+  const centroids = paired.map(({ region, feature }) => {
+    const [lon, lat] = centroid(feature).geometry.coordinates;
+    const proj = lon * Math.cos(thetaRad) + lat * Math.sin(thetaRad);
+    return { lon, lat, proj };
+  });
+
+  centroids.sort((a, b) => a.proj - b.proj);
+
+  // Ресемплинг: разбиваем центроиды на K бакетов для генерализации формы страны
+  const K = Math.min(10, centroids.length);
+  const pts: { lon: number; lat: number }[] = [];
+  for (let k = 0; k < K; k++) {
+    const startIdx = Math.floor((k * centroids.length) / K);
+    const endIdx = Math.floor(((k + 1) * centroids.length) / K);
+    const bucket = centroids.slice(startIdx, endIdx);
+    if (bucket.length > 0) {
+      const avgLon = bucket.reduce((sum, p) => sum + p.lon, 0) / bucket.length;
+      const avgLat = bucket.reduce((sum, p) => sum + p.lat, 0) / bucket.length;
+      pts.push({ lon: avgLon, lat: avgLat });
+    }
+  }
+
+  // Сглаживание прореженной линии скользящим средним (2 прохода, окно 3)
+  let smoothed = pts;
+  for (let pass = 0; pass < 2; pass++) {
+    const nextPts: { lon: number; lat: number }[] = [];
+    for (let i = 0; i < smoothed.length; i++) {
+      const startIdx = Math.max(0, i - 1);
+      const endIdx = Math.min(smoothed.length - 1, i + 1);
+      const windowPts = smoothed.slice(startIdx, endIdx + 1);
+      
+      const avgLon = windowPts.reduce((sum, p) => sum + p.lon, 0) / windowPts.length;
+      const avgLat = windowPts.reduce((sum, p) => sum + p.lat, 0) / windowPts.length;
+      nextPts.push({ lon: avgLon, lat: avgLat });
+    }
+    smoothed = nextPts;
+  }
+
+  return smoothed.map(p => [p.lon, p.lat]);
+}
+
 /**
- * Подписи стран в стиле EU5 — точка-якорь + поворот вдоль главной оси
- * формы (см. computeCountryAxis), кегль растёт геометрически с зумом (см.
+ * Подписи стран в стиле EU5 — направляющая линия (LineString) + изгиб вдоль главной оси
+ * формы (см. buildCountryLabelLine), кегль растёт геометрически с зумом (см.
  * computeLabelSizes). Видимость — порог читаемости (`appearZoom`, см.
- * computeAppearZoom) вместо коллизионного declutter: крупные державы видны
- * с малого зума, мелкие проявляются по мере приближения, ничего не
- * "выбрасывается" из-за overlap (слой использует text-allow-overlap:true).
- * sortKey по площади задаёт только порядок отрисовки (крупные сверху).
+ * computeAppearZoom) вместо коллизионного declutter.
  */
-function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCollection<Point, CountryLabelProps> {
+function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCollection<LineString, CountryLabelProps> {
   const featureByRegionId = new Map<number, RegionFeature>();
   for (const feature of mapData.featureCollection.features) {
     const props = feature.properties;
@@ -234,7 +296,7 @@ function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCol
     if (list) list.push(region); else regionsByCountry.set(region.ownerCountryId, [region]);
   }
 
-  const labelFeatures: Feature<Point, CountryLabelProps>[] = [];
+  const labelFeatures: Feature<LineString, CountryLabelProps>[] = [];
   for (const ownedRegions of regionsByCountry.values()) {
     const mainland = largestMainlandCluster(ownedRegions);
     if (mainland.length === 0) continue;
@@ -251,12 +313,18 @@ function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCol
     const name = mainlandFeatures[0].properties.ownerName;
     const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
     
-    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, axis.spanLongAxisDeg, axis.spanShortAxisDeg);
-    const appearZoom = computeAppearZoom(name, axis.spanLongAxisDeg);
+    const lineCoords = buildCountryLabelLine(paired, axis);
+    const lineLength = getLineLength(lineCoords);
+    
+    // Используем минимум из реальной длины линии и PCA-оси, чтобы текст помещался на линии
+    const effectiveSpanLongAxis = Math.min(axis.spanLongAxisDeg, lineLength);
+
+    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, effectiveSpanLongAxis, axis.spanShortAxisDeg);
+    const appearZoom = computeAppearZoom(name, effectiveSpanLongAxis);
 
     labelFeatures.push({
       type: 'Feature',
-      geometry: { type: 'Point', coordinates: [axis.lon, axis.lat] },
+      geometry: { type: 'LineString', coordinates: lineCoords },
       properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea, appearZoom, rotateDeg: axis.rotateDeg }
     });
   }
@@ -336,6 +404,16 @@ function buildRegionLabels(mapData: GameMapData): FeatureCollection<Point, { nam
   return { type: 'FeatureCollection', features: labelFeatures };
 }
 
+function roundCoords(coords: any): any {
+  if (typeof coords === 'number') {
+    return Math.round(coords * 100000) / 100000;
+  }
+  if (Array.isArray(coords)) {
+    return coords.map(roundCoords);
+  }
+  return coords;
+}
+
 function buildCountryOutlines(mapData: GameMapData): FeatureCollection<Polygon | MultiPolygon> {
   const featuresByCountry = new Map<string, any[]>();
   
@@ -343,7 +421,12 @@ function buildCountryOutlines(mapData: GameMapData): FeatureCollection<Polygon |
     const props = feature.properties;
     if (props.type === 'region' && props.ownerCountryId) {
       const list = featuresByCountry.get(props.ownerCountryId) || [];
-      list.push(feature);
+      // Округляем координаты вершин для схлопывания микро-щелей/разрывов
+      const cleanedGeometry = roundCoords(feature.geometry);
+      list.push({
+        ...feature,
+        geometry: cleanedGeometry
+      });
       featuresByCountry.set(props.ownerCountryId, list);
     }
   }
@@ -445,7 +528,7 @@ export function MapView({
         version: 8,
         sources: {},
         layers: [],
-        glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        glyphs: 'https://tiles.basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf',
         'font-faces': {
           'EB Garamond': [
             {
@@ -460,6 +543,8 @@ export function MapView({
       minZoom: 2,
       attributionControl: false
     });
+
+    (window as any).map = m;
 
     m.on('load', () => {
       // Фон — тёмно-синий (подложка под океаны)
@@ -628,7 +713,24 @@ export function MapView({
             }
           });
 
-          // 3. Слой для стран и регионов (поверх океанов)
+          // 2.5. Слитная заливка стран на отдалении (скрывает sub-pixel швы регионов)
+          m.addLayer({
+            id: 'country-fills',
+            type: 'fill',
+            source: 'country-outlines',
+            paint: {
+              'fill-color': ['get', 'ownerColor'],
+              'fill-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4.0, 0.6,
+                5.0, 0.0
+              ]
+            }
+          });
+
+          // 3. Заливка отдельных регионов (появляется при приближении)
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -637,17 +739,23 @@ export function MapView({
             paint: {
               'fill-color': ['get', 'ownerColor'],
               'fill-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                0.8,
-                ['boolean', ['feature-state', 'selected'], false],
-                0.85,
-                0.6
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4.0, 0.0,
+                5.0, [
+                  'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  0.8,
+                  ['boolean', ['feature-state', 'selected'], false],
+                  0.85,
+                  0.6
+                ]
               ]
             }
           });
 
-          // 4. Внутренние границы провинций (мягкие, полностью гаснут на мировом зуме)
+          // 4. Внутренние границы провинций (мягкие, гаснут на мировом зуме, становятся четче при приближении)
           m.addLayer({
             id: 'regions-outline',
             type: 'line',
@@ -674,8 +782,9 @@ export function MapView({
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                3.8, 0.0,
-                5.5, 0.3
+                4.0, 0.0,
+                5.5, 0.45,
+                7.0, 0.85
               ]
             }
           });
@@ -743,26 +852,61 @@ export function MapView({
         source: 'country-labels',
         layout: {
           'text-field': ['get', 'name'],
+          'symbol-placement': 'point',
           'text-rotate': ['get', 'rotateDeg'],
-          'text-rotation-alignment': 'map',
+          'text-keep-upright': true,
           'text-size': ['interpolate', ['exponential', 2], ['zoom'],
             2, ['get', 'sizeZ2'],
             7, ['get', 'sizeZ7']
           ],
-          'text-letter-spacing': 0.15,
-          'text-font': ['EB Garamond'],
+          'text-letter-spacing': 0.18,
+          'text-font': ['Open Sans Semibold'],
+          'symbol-sort-key': ['get', 'sortKey'],
           'text-allow-overlap': true,
           'text-ignore-placement': true,
-          'symbol-sort-key': ['get', 'sortKey'],
+          'text-padding': 2
         },
         paint: {
           'text-color': '#2a2a2a',
           'text-halo-color': '#eae5d8',
           'text-halo-width': 1.2,
           'text-halo-blur': 0.5,
+          // Прозрачность с затуханием по зуму и плавным проявлением по порогу читаемости (appearZoom)
           'text-opacity': [
-            'interpolate', ['linear'], ['zoom'],
-            ...APPEAR_ZOOM_STOPS.flatMap(z => [z, appearOpacityExpr(z)])
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            2.0,
+            [
+              'case',
+              ['<', 2.0, ['get', 'appearZoom']],
+              0.0,
+              ['<', 2.0, ['+', ['get', 'appearZoom'], 0.6]],
+              ['/', ['-', 2.0, ['get', 'appearZoom']], 0.6],
+              1.0
+            ],
+            4.2,
+            [
+              'case',
+              ['<', 4.2, ['get', 'appearZoom']],
+              0.0,
+              ['<', 4.2, ['+', ['get', 'appearZoom'], 0.6]],
+              ['/', ['-', 4.2, ['get', 'appearZoom']], 0.6],
+              1.0
+            ],
+            4.8,
+            [
+              'case',
+              ['<', 4.8, ['get', 'appearZoom']],
+              0.0,
+              ['<', 4.8, ['+', ['get', 'appearZoom'], 0.6]],
+              ['*', ['/', ['-', 4.8, ['get', 'appearZoom']], 0.6], 0.4],
+              0.4
+            ],
+            5.2,
+            0.0,
+            8.0,
+            0.0
           ],
         },
       });
