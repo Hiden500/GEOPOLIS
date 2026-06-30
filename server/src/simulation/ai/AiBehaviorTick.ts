@@ -8,17 +8,21 @@ import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
  *  - Правило A: аустерити по дефициту.
  *  - Правило B: ответ на угрозу с полной балансировкой (военный ответ +
  *    контр-блок соперников + power→influence→сфера для бандвагонинга).
+ *  - Правило C: при низкой stability сдвиг расходов с military → welfare.
  *
- * Применяется только к ИИ-странам (id !== playerCountryId). Войну и динамику
- * политики не трогает — их в движке пока нет (отложено в P3).
+ * Применяется только к ИИ-странам (id !== playerCountryId). Войну не трогает —
+ * war-системы в движке пока нет.
  */
 
-const AUSTERITY_CUT = 0.95; // −5% дискреционных расходов за тик при дефиците
-const THREAT_LEVEL = 50; // порог доминирования игрока (calculateBaseInfluence), ~×2.5
-const MILITARY_RAMP = 1.05; // +5% military за тик у угрожаемых соперников
-const MILITARY_CAP_SHARE = 0.4; // потолок military как доля дохода
-const COALITION_STEP = 5; // +отношение/тик между со-угрожаемыми соперниками
-const INFLUENCE_GRAVITY = 0.1; // скорость роста влияния игрока (бандвагонинг)
+const AUSTERITY_CUT = 0.95;        // −5% дискреционных расходов за тик при дефиците
+const THREAT_LEVEL = 50;           // порог доминирования игрока (calculateBaseInfluence), ~×2.5
+const MILITARY_RAMP = 1.05;        // +5% military за тик у угрожаемых соперников
+const MILITARY_CAP_SHARE = 0.4;    // потолок military как доля дохода
+const COALITION_STEP = 5;          // +отношение/тик между со-угрожаемыми соперниками
+const INFLUENCE_GRAVITY = 0.1;     // скорость роста влияния игрока (бандвагонинг)
+const STABILITY_LOW = 40;          // порог "низкой" stability для Правила C
+const WELFARE_SHIFT_RATE = 0.02;   // доля дохода, переводимая military→welfare за тик
+const WELFARE_CAP_SHARE = 0.30;    // потолок welfare как доля дохода
 
 type SpendKey =
   | "militarySpending"
@@ -55,6 +59,31 @@ function applyDeficitAusterity(c: Country): void {
   for (const key of DISCRETIONARY) {
     e[key] = Math.max(e[key] * AUSTERITY_CUT, e.spendingFloor[key]);
   }
+}
+
+/**
+ * Правило C — при низкой stability (< 40) переносит расходы с military → welfare.
+ * Не опускает military ниже пола; не поднимает welfare выше 30% дохода.
+ */
+function applyStabilityWelfareNudge(c: Country): void {
+  if (c.politics.stability >= STABILITY_LOW || !c.economy.spendingFloor) return;
+
+  const income = totalIncome(c);
+  if (income <= 0) return;
+
+  const welfareCap = income * WELFARE_CAP_SHARE;
+  if (c.economy.welfareSpending >= welfareCap) return;
+
+  const shift = Math.min(
+    income * WELFARE_SHIFT_RATE,
+    welfareCap - c.economy.welfareSpending,
+    c.economy.militarySpending - c.economy.spendingFloor.militarySpending
+  );
+
+  if (shift <= 0) return;
+
+  c.economy.militarySpending -= shift;
+  c.economy.welfareSpending += shift;
 }
 
 /**
@@ -108,6 +137,7 @@ export function aiBehaviorTick(game: GameState): void {
 
   for (const c of aiCountries) {
     applyDeficitAusterity(c);
+    applyStabilityWelfareNudge(c);
   }
 
   if (player) {

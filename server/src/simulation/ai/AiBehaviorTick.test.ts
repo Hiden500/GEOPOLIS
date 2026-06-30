@@ -149,3 +149,90 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
     expect(rival.economy.militarySpending).toBe(72_000_000_000);
   });
 });
+
+describe("aiBehaviorTick — Правило C (низкая stability → welfare)", () => {
+  function unstableAI(stability: number): Country {
+    const c = country("AI");
+    c.politics.stability = stability;
+    // income = taxRevenue (1000) + exportIncome (500) + stateEnterprise (200) + other (100) = 1800
+    c.economy.taxRevenue = 1000;
+    c.economy.exportIncome = 500;
+    c.economy.stateEnterpriseIncome = 200;
+    c.economy.otherIncome = 100;
+    c.economy.militarySpending = 500;
+    c.economy.welfareSpending = 100;
+    c.economy.spendingFloor = {
+      militarySpending: 200,
+      researchSpending: 50,
+      educationSpending: 50,
+      infrastructureSpending: 50,
+      welfareSpending: 50,
+    };
+    return c;
+  }
+
+  it("при stability < 40 переносит расходы с military на welfare", () => {
+    const ai = unstableAI(30);
+    const milBefore = ai.economy.militarySpending;
+    const welfareBefore = ai.economy.welfareSpending;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.militarySpending).toBeLessThan(milBefore);
+    expect(ai.economy.welfareSpending).toBeGreaterThan(welfareBefore);
+  });
+
+  it("перевод military → welfare равен по сумме (zero-sum)", () => {
+    const ai = unstableAI(30);
+    const totalBefore = ai.economy.militarySpending + ai.economy.welfareSpending;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    const totalAfter = ai.economy.militarySpending + ai.economy.welfareSpending;
+    expect(totalAfter).toBeCloseTo(totalBefore, 5);
+  });
+
+  it("при stability >= 40 нудж не срабатывает", () => {
+    const ai = unstableAI(40);
+    const milBefore = ai.economy.militarySpending;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.militarySpending).toBe(milBefore);
+  });
+
+  it("military не опускается ниже пола", () => {
+    const ai = unstableAI(10);
+    ai.economy.militarySpending = ai.economy.spendingFloor!.militarySpending + 1; // почти у пола
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.militarySpending).toBeGreaterThanOrEqual(ai.economy.spendingFloor!.militarySpending);
+  });
+
+  it("welfare не превышает 30% дохода", () => {
+    const ai = unstableAI(10);
+    const income = 1800;
+    ai.economy.welfareSpending = income * 0.30 - 1; // почти у потолка
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.welfareSpending).toBeLessThanOrEqual(income * 0.30 + 0.001);
+  });
+
+  it("не трогает страну игрока", () => {
+    const player = unstableAI(10);
+    player.id = "PLAYER";
+    const milBefore = player.economy.militarySpending;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [player] });
+
+    aiBehaviorTick(game);
+
+    expect(player.economy.militarySpending).toBe(milBefore);
+  });
+});
