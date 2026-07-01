@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { centroid, bbox, union } from '@turf/turf';
 import type { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
-import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
+import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon, LineString } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import type { MapFeature } from '@shared/types/map/MapFeature';
 import { loadGameMapData, updateMapData, type GameMapData, type MapRegionProperties } from './GeoJsonLoader';
+import { buildTopologyEdges, type SharedEdgeProperties } from './engine/TopologyBuilder';
+import { buildCountryLabels, buildRegionLabels, type CountryLabelProps } from './engine/GeometryEngine';
 
 type RegionFeature = Feature<Polygon | MultiPolygon, MapRegionProperties>;
-interface CountryLabelProps { name: string; sizeZ2: number; sizeZ7: number; sortKey: number; appearZoom: number; rotateDeg: number }
 
 // Зум, на котором (несглаженный) размер подписи пересекает порог
 // читаемости — ниже appearZoom страна не показывается совсем (см.
@@ -21,316 +21,6 @@ const READABLE_PX = 11;
 const APPEAR_TRANSITION = 0.6;
 
 const LABEL_LETTER_SPACING_EM = 0.08;
-
-function getGeometryPoints(features: RegionFeature[]): { lon: number; lat: number }[] {
-  const points: { lon: number; lat: number }[] = [];
-  for (const f of features) {
-    const geom = f.geometry;
-    if (!geom) continue;
-    if (geom.type === 'Polygon') {
-      const ring = geom.coordinates[0];
-      if (ring) {
-        for (const coords of ring) {
-          points.push({ lon: coords[0], lat: coords[1] });
-        }
-      }
-    } else if (geom.type === 'MultiPolygon') {
-      for (const poly of geom.coordinates) {
-        const ring = poly[0];
-        if (ring) {
-          for (const coords of ring) {
-            points.push({ lon: coords[0], lat: coords[1] });
-          }
-        }
-      }
-    }
-  }
-  return points;
-}
-
-function computeLabelSizes(
-  name: string,
-  spanLongAxisDeg: number,
-  spanShortAxisDeg: number
-): { sizeZ2: number; sizeZ7: number } {
-  const charCount = Math.max(1, name.length);
-  
-  const sizeAtZoom = (zoom: number): number => {
-    // Желаемая длина надписи на экране (55% от длинной оси страны)
-    const pixelLengthLimit = (spanLongAxisDeg / 360) * 512 * Math.pow(2, zoom);
-    // Максимально допустимая высота (кегль) шрифта (85% от ширины короткой оси страны)
-    const pixelHeightLimit = (spanShortAxisDeg / 360) * 512 * Math.pow(2, zoom);
-    
-    const rawSizeFromLength = (0.55 * pixelLengthLimit) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM));
-    const maxHeightAllowed = 0.85 * pixelHeightLimit;
-    
-    const size = Math.min(rawSizeFromLength, maxHeightAllowed);
-    return Math.min(150, Math.max(9, size));
-  };
-  
-  return { sizeZ2: sizeAtZoom(2), sizeZ7: sizeAtZoom(7) };
-}
-
-function computeAppearZoom(name: string, spanLongAxisDeg: number): number {
-  const charCount = Math.max(1, name.length);
-  const k = Math.max(1e-9, (0.55 * (spanLongAxisDeg / 360) * 512) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM)));
-  return Math.min(20, Math.log2(READABLE_PX / k));
-}
-
-function largestMainlandCluster(ownedRegions: Region[]): Region[] {
-  const ownedIds = new Set(ownedRegions.map(r => r.id));
-  const byId = new Map(ownedRegions.map(r => [r.id, r]));
-  const visited = new Set<number>();
-  let best: Region[] = [];
-  let bestArea = -1;
-
-  for (const start of ownedRegions) {
-    if (visited.has(start.id)) continue;
-    const queue = [start.id];
-    visited.add(start.id);
-    const component: Region[] = [];
-    while (queue.length > 0) {
-      const id = queue.pop()!;
-      const region = byId.get(id);
-      if (!region) continue;
-      component.push(region);
-      for (const neighborId of region.neighboringRegionIds) {
-        if (ownedIds.has(neighborId) && !visited.has(neighborId)) {
-          visited.add(neighborId);
-          queue.push(neighborId);
-        }
-      }
-    }
-    const componentArea = component.reduce((sum, r) => sum + (r.area || 0), 0);
-    const better = component.length > best.length
-      || (component.length === best.length && componentArea > bestArea);
-    if (better) {
-      bestArea = componentArea;
-      best = component;
-    }
-  }
-  return best;
-}
-
-function computeCountryAxis(
-  points: { lon: number; lat: number }[],
-  paired: { region: Region; feature: RegionFeature }[]
-): { lon: number; lat: number; rotateDeg: number; spanLongAxisDeg: number; spanShortAxisDeg: number } {
-  let centroidPoints = paired.map(({ region, feature }) => {
-    const [lon, lat] = centroid(feature).geometry.coordinates;
-    return { lon, lat, weight: region.area || 1 };
-  });
-
-  const lonsCentroid = centroidPoints.map(p => p.lon);
-  if (Math.max(...lonsCentroid) - Math.min(...lonsCentroid) > 180) {
-    centroidPoints = centroidPoints.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
-  }
-
-  const sumW = centroidPoints.reduce((s, p) => s + p.weight, 0);
-  const lon0 = centroidPoints.reduce((s, p) => s + p.lon * p.weight, 0) / sumW;
-  const lat0 = centroidPoints.reduce((s, p) => s + p.lat * p.weight, 0) / sumW;
-  let labelLon = lon0;
-  if (labelLon > 180) labelLon -= 360;
-
-  if (points.length === 0) {
-    return { lon: labelLon, lat: lat0, rotateDeg: 0, spanLongAxisDeg: 5, spanShortAxisDeg: 5 };
-  }
-
-  let normalizedPoints = points.map(p => ({ ...p }));
-  const lons = normalizedPoints.map(p => p.lon);
-  if (Math.max(...lons) - Math.min(...lons) > 180) {
-    normalizedPoints = normalizedPoints.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
-  }
-
-  const n = normalizedPoints.length;
-  const sumLon = normalizedPoints.reduce((s, p) => s + p.lon, 0);
-  const sumLat = normalizedPoints.reduce((s, p) => s + p.lat, 0);
-  const meanLon = sumLon / n;
-  const meanLat = sumLat / n;
-
-  const latRad = (meanLat * Math.PI) / 180;
-  const kmPerDegLon = 111 * Math.cos(latRad);
-
-  const xy = normalizedPoints.map(p => ({
-    x: (p.lon - meanLon) * kmPerDegLon,
-    y: (p.lat - meanLat) * 111,
-  }));
-
-  let Sxx = 0, Syy = 0, Sxy = 0;
-  for (const p of xy) {
-    Sxx += p.x * p.x;
-    Syy += p.y * p.y;
-    Sxy += p.x * p.y;
-  }
-  Sxx /= n;
-  Syy /= n;
-  Sxy /= n;
-
-  let theta = 0.5 * Math.atan2(2 * Sxy, Sxx - Syy);
-
-  const cosT = Math.cos(theta);
-  const sinT = Math.sin(theta);
-
-  const projU = xy.map(p => p.x * cosT + p.y * sinT);
-  const projV = xy.map(p => -p.x * sinT + p.y * cosT);
-
-  let Lu = Math.max(...projU) - Math.min(...projU);
-  let Lv = Math.max(...projV) - Math.min(...projV);
-
-  if (Lu < Lv) {
-    const temp = Lu;
-    Lu = Lv;
-    Lv = temp;
-    theta = theta + Math.PI / 2;
-  }
-
-  let rotateDeg = (-theta * 180) / Math.PI;
-
-  while (rotateDeg < -90) rotateDeg += 180;
-  while (rotateDeg > 90) rotateDeg -= 180;
-
-  if (Lu / Math.max(1e-3, Lv) < 1.15) {
-    rotateDeg = 0;
-  }
-
-  return {
-    lon: labelLon,
-    lat: lat0,
-    rotateDeg,
-    spanLongAxisDeg: Lu / 111,
-    spanShortAxisDeg: Lv / 111,
-  };
-}
-
-function getLineLength(pts: [number, number][]): number {
-  let len = 0;
-  for (let i = 1; i < pts.length; i++) {
-    const dx = pts[i][0] - pts[i - 1][0];
-    const dy = pts[i][1] - pts[i - 1][1];
-    len += Math.sqrt(dx * dx + dy * dy);
-  }
-  return len;
-}
-
-function buildCountryLabelLine(
-  paired: { region: Region; feature: RegionFeature }[],
-  axis: { lon: number; lat: number; rotateDeg: number; spanLongAxisDeg: number; spanShortAxisDeg: number }
-): [number, number][] {
-  const thetaRad = (-axis.rotateDeg * Math.PI) / 180;
-  
-  if (paired.length < 3) {
-    // Для стран с малым количеством провинций строим прямую линию вдоль главной оси
-    const halfLen = 0.45 * axis.spanLongAxisDeg;
-    const latRad = (axis.lat * Math.PI) / 180;
-    const cosFactor = Math.cos(latRad);
-    
-    const dx = (halfLen * Math.cos(thetaRad)) / Math.max(0.1, cosFactor);
-    const dy = halfLen * Math.sin(thetaRad);
-    
-    return [
-      [axis.lon - dx, axis.lat - dy],
-      [axis.lon + dx, axis.lat + dy]
-    ];
-  }
-
-  // Для крупных стран сортируем центроиды регионов вдоль оси
-  const centroids = paired.map(({ region, feature }) => {
-    const [lon, lat] = centroid(feature).geometry.coordinates;
-    const proj = lon * Math.cos(thetaRad) + lat * Math.sin(thetaRad);
-    return { lon, lat, proj };
-  });
-
-  centroids.sort((a, b) => a.proj - b.proj);
-
-  // Ресемплинг: разбиваем центроиды на K бакетов для генерализации формы страны
-  const K = Math.min(10, centroids.length);
-  const pts: { lon: number; lat: number }[] = [];
-  for (let k = 0; k < K; k++) {
-    const startIdx = Math.floor((k * centroids.length) / K);
-    const endIdx = Math.floor(((k + 1) * centroids.length) / K);
-    const bucket = centroids.slice(startIdx, endIdx);
-    if (bucket.length > 0) {
-      const avgLon = bucket.reduce((sum, p) => sum + p.lon, 0) / bucket.length;
-      const avgLat = bucket.reduce((sum, p) => sum + p.lat, 0) / bucket.length;
-      pts.push({ lon: avgLon, lat: avgLat });
-    }
-  }
-
-  // Сглаживание прореженной линии скользящим средним (2 прохода, окно 3)
-  let smoothed = pts;
-  for (let pass = 0; pass < 2; pass++) {
-    const nextPts: { lon: number; lat: number }[] = [];
-    for (let i = 0; i < smoothed.length; i++) {
-      const startIdx = Math.max(0, i - 1);
-      const endIdx = Math.min(smoothed.length - 1, i + 1);
-      const windowPts = smoothed.slice(startIdx, endIdx + 1);
-      
-      const avgLon = windowPts.reduce((sum, p) => sum + p.lon, 0) / windowPts.length;
-      const avgLat = windowPts.reduce((sum, p) => sum + p.lat, 0) / windowPts.length;
-      nextPts.push({ lon: avgLon, lat: avgLat });
-    }
-    smoothed = nextPts;
-  }
-
-  return smoothed.map(p => [p.lon, p.lat]);
-}
-
-/**
- * Подписи стран в стиле EU5 — направляющая линия (LineString) + изгиб вдоль главной оси
- * формы (см. buildCountryLabelLine), кегль растёт геометрически с зумом (см.
- * computeLabelSizes). Видимость — порог читаемости (`appearZoom`, см.
- * computeAppearZoom) вместо коллизионного declutter.
- */
-function buildCountryLabels(mapData: GameMapData, regions: Region[]): FeatureCollection<LineString, CountryLabelProps> {
-  const featureByRegionId = new Map<number, RegionFeature>();
-  for (const feature of mapData.featureCollection.features) {
-    const props = feature.properties;
-    if (props.type === 'region' && props.regionId != null) {
-      featureByRegionId.set(props.regionId, feature);
-    }
-  }
-
-  const regionsByCountry = new Map<string, Region[]>();
-  for (const region of regions) {
-    const list = regionsByCountry.get(region.ownerCountryId);
-    if (list) list.push(region); else regionsByCountry.set(region.ownerCountryId, [region]);
-  }
-
-  const labelFeatures: Feature<LineString, CountryLabelProps>[] = [];
-  for (const ownedRegions of regionsByCountry.values()) {
-    const mainland = largestMainlandCluster(ownedRegions);
-    if (mainland.length === 0) continue;
-
-    const paired = mainland
-      .map(region => ({ region, feature: featureByRegionId.get(region.id) }))
-      .filter((p): p is { region: Region; feature: RegionFeature } => p.feature != null);
-    if (paired.length === 0) continue;
-
-    const mainlandFeatures = paired.map(p => p.feature);
-    const points = getGeometryPoints(mainlandFeatures);
-    const axis = computeCountryAxis(points, paired);
-
-    const name = mainlandFeatures[0].properties.ownerName;
-    const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
-    
-    const lineCoords = buildCountryLabelLine(paired, axis);
-    const lineLength = getLineLength(lineCoords);
-    
-    // Используем минимум из реальной длины линии и PCA-оси, чтобы текст помещался на линии
-    const effectiveSpanLongAxis = Math.min(axis.spanLongAxisDeg, lineLength);
-
-    const { sizeZ2, sizeZ7 } = computeLabelSizes(name, effectiveSpanLongAxis, axis.spanShortAxisDeg);
-    const appearZoom = computeAppearZoom(name, effectiveSpanLongAxis);
-
-    labelFeatures.push({
-      type: 'Feature',
-      geometry: { type: 'LineString', coordinates: lineCoords },
-      properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea, appearZoom, rotateDeg: axis.rotateDeg }
-    });
-  }
-
-  return { type: 'FeatureCollection', features: labelFeatures };
-}
 
 function buildGraticule(): FeatureCollection {
   const features: any[] = [];
@@ -361,122 +51,28 @@ function buildGraticule(): FeatureCollection {
   return { type: 'FeatureCollection', features };
 }
 
-function buildRegionLabels(mapData: GameMapData): FeatureCollection<Point, { name: string; regionId: number }> {
-  const featuresByRegionId = new Map<number, RegionFeature[]>();
-  
-  for (const feature of mapData.featureCollection.features) {
-    const props = feature.properties;
-    if (props.type === 'region' && props.regionId != null) {
-      const list = featuresByRegionId.get(props.regionId) || [];
-      list.push(feature);
-      featuresByRegionId.set(props.regionId, list);
-    }
+function syncEdgesState(
+  map: maplibregl.Map | null,
+  regs: Region[],
+  topo: { edges: FeatureCollection<LineString, SharedEdgeProperties> } | null
+) {
+  if (!map || !topo) return;
+  const regionOwnerMap = new Map<number, string>();
+  regs.forEach(r => {
+    regionOwnerMap.set(r.id, r.ownerCountryId || 'neutral');
+  });
+
+  for (const edge of topo.edges.features) {
+    const leftOwner = regionOwnerMap.get(edge.properties.leftRegionId) || 'neutral';
+    const rightOwner = edge.properties.rightRegionId === -1 
+      ? 'water' 
+      : (regionOwnerMap.get(edge.properties.rightRegionId) || 'neutral');
+
+    map.setFeatureState(
+      { source: 'shared-edges', id: edge.properties.id },
+      { leftOwner, rightOwner }
+    );
   }
-
-  const labelFeatures: Feature<Point, { name: string; regionId: number }>[] = [];
-  for (const [regionId, features] of featuresByRegionId.entries()) {
-    if (features.length === 0) continue;
-    
-    let mainFeature = features[0];
-    let maxArea = -1;
-    for (const f of features) {
-      const b = bbox(f);
-      const areaEstimate = (b[2] - b[0]) * (b[3] - b[1]);
-      if (areaEstimate > maxArea) {
-        maxArea = areaEstimate;
-        mainFeature = f;
-      }
-    }
-
-    const name = mainFeature.properties.name || `Region ${regionId}`;
-    const ctr = centroid(mainFeature);
-
-    labelFeatures.push({
-      type: 'Feature',
-      geometry: ctr.geometry as Point,
-      properties: {
-        name,
-        regionId
-      }
-    });
-  }
-
-  return { type: 'FeatureCollection', features: labelFeatures };
-}
-
-function roundCoords(coords: any): any {
-  if (typeof coords === 'number') {
-    return Math.round(coords * 100000) / 100000;
-  }
-  if (Array.isArray(coords)) {
-    return coords.map(roundCoords);
-  }
-  return coords;
-}
-
-function buildCountryOutlines(mapData: GameMapData): FeatureCollection<Polygon | MultiPolygon> {
-  const featuresByCountry = new Map<string, any[]>();
-  
-  for (const feature of mapData.featureCollection.features) {
-    const props = feature.properties;
-    if (props.type === 'region' && props.ownerCountryId) {
-      const list = featuresByCountry.get(props.ownerCountryId) || [];
-      // Округляем координаты вершин для схлопывания микро-щелей/разрывов
-      const cleanedGeometry = roundCoords(feature.geometry);
-      list.push({
-        ...feature,
-        geometry: cleanedGeometry
-      });
-      featuresByCountry.set(props.ownerCountryId, list);
-    }
-  }
-
-  const countryFeatures: any[] = [];
-  for (const [countryId, features] of featuresByCountry.entries()) {
-    if (features.length === 0) continue;
-    try {
-      let united: any = null;
-      if (features.length === 1) {
-        united = features[0];
-      } else {
-        // Turf union в v7 принимает FeatureCollection
-        united = union({
-          type: 'FeatureCollection',
-          features: features
-        });
-      }
-      if (united) {
-        countryFeatures.push({
-          type: 'Feature',
-          geometry: united.geometry,
-          properties: {
-            ownerCountryId: countryId,
-            ownerColor: features[0].properties.ownerColor,
-            ownerName: features[0].properties.ownerName
-          }
-        });
-      }
-    } catch (e) {
-      console.warn(`Failed to union regions for country ${countryId}:`, e);
-      // Фолбек в случае ошибки геометрии
-      features.forEach(f => {
-        countryFeatures.push({
-          type: 'Feature',
-          geometry: f.geometry,
-          properties: {
-            ownerCountryId: countryId,
-            ownerColor: f.properties.ownerColor,
-            ownerName: f.properties.ownerName
-          }
-        });
-      });
-    }
-  }
-
-  return {
-    type: 'FeatureCollection',
-    features: countryFeatures
-  };
 }
 
 interface MapViewProps {
@@ -506,6 +102,11 @@ export function MapView({
   const [currentZoom, setCurrentZoom] = useState(2);
   const hoveredRef = useRef<string | number | null | undefined>(null);
   const countryMapRef = useRef<Map<string, Country>>(new Map());
+  const topologyRef = useRef<{
+    edges: FeatureCollection<LineString, SharedEdgeProperties>;
+    regionNeighbours: Map<number, Set<number>>;
+    regionEdges: Map<number, number[]>;
+  } | null>(null);
   const regionsRef = useRef<Region[]>(regions);
 
   console.log('MapView render - regions:', regions.length, 'countries:', countries.length);
@@ -662,11 +263,15 @@ export function MapView({
         const data = await loadGameMapData('/world_1946.geojson', regions, countries);
         setMapData(data);
 
+        // Строим топологию ребер один раз при инициализации
+        const topology = buildTopologyEdges(data.featureCollection);
+        topologyRef.current = topology;
+
         if (m.getSource('regions')) {
           (m.getSource('regions') as maplibregl.GeoJSONSource).setData(data.featureCollection);
-          const countrySource = m.getSource('country-outlines') as maplibregl.GeoJSONSource | undefined;
-          if (countrySource) {
-            countrySource.setData(buildCountryOutlines(data));
+          const sharedEdgesSource = m.getSource('shared-edges') as maplibregl.GeoJSONSource | undefined;
+          if (sharedEdgesSource) {
+            sharedEdgesSource.setData(topology.edges);
           }
         } else {
           m.addSource('regions', {
@@ -681,11 +286,10 @@ export function MapView({
             data: buildGraticule()
           });
 
-          // Внешние контуры стран
-          const countryOutlines = buildCountryOutlines(data);
-          m.addSource('country-outlines', {
+          // Общие ребра границ
+          m.addSource('shared-edges', {
             type: 'geojson',
-            data: countryOutlines
+            data: topology.edges
           });
 
           // 1. Слои морей/океанов — заливка по собственному цвету фичи
@@ -700,37 +304,21 @@ export function MapView({
             }
           });
 
-          // 2. Береговое свечение (glow) — темно-синее, как было
+          // 2. Береговое свечение (glow) — темно-синее по береговым ребрам
           m.addLayer({
             id: 'coastline-glow',
             type: 'line',
-            source: 'country-outlines',
+            source: 'shared-edges',
+            filter: ['==', ['get', 'isCoast'], true],
             paint: {
-              'line-color': '#1b3a5f', // Бирюзово-синий
+              'line-color': '#1b3a5f',
               'line-width': 4.0,
               'line-blur': 3.0,
               'line-opacity': 0.35
             }
           });
 
-          // 2.5. Слитная заливка стран на отдалении (скрывает sub-pixel швы регионов)
-          m.addLayer({
-            id: 'country-fills',
-            type: 'fill',
-            source: 'country-outlines',
-            paint: {
-              'fill-color': ['get', 'ownerColor'],
-              'fill-opacity': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                4.0, 0.6,
-                5.0, 0.0
-              ]
-            }
-          });
-
-          // 3. Заливка отдельных регионов (появляется при приближении)
+          // 3. Заливка отдельных регионов (всегда включена на малом зуме, сливается с границами для маскировки швов)
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -739,23 +327,17 @@ export function MapView({
             paint: {
               'fill-color': ['get', 'ownerColor'],
               'fill-opacity': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                4.0, 0.0,
-                5.0, [
-                  'case',
-                  ['boolean', ['feature-state', 'hover'], false],
-                  0.8,
-                  ['boolean', ['feature-state', 'selected'], false],
-                  0.85,
-                  0.6
-                ]
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                0.8,
+                ['boolean', ['feature-state', 'selected'], false],
+                0.85,
+                0.6
               ]
             }
           });
 
-          // 4. Внутренние границы провинций (мягкие, гаснут на мировом зуме, становятся четче при приближении)
+          // 4. Границы провинций (красятся в цвет владельца на зумах < 5.0 для сокрытия швов, становятся четкими при приближении)
           m.addLayer({
             id: 'regions-outline',
             type: 'line',
@@ -763,46 +345,77 @@ export function MapView({
             filter: ['==', ['get', 'type'], 'region'],
             paint: {
               'line-color': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                '#FFFFFF',
-                ['boolean', ['feature-state', 'selected'], false],
-                '#FFD700',
-                '#0b0e14'
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4.8, ['get', 'ownerColor'],
+                5.2, [
+                  'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  '#FFFFFF',
+                  ['boolean', ['feature-state', 'selected'], false],
+                  '#FFD700',
+                  '#0b0e14'
+                ]
               ],
               'line-width': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                2,
-                ['boolean', ['feature-state', 'selected'], false],
-                2.5,
-                0.35
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4.8, 1.2,
+                5.2, [
+                  'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  2,
+                  ['boolean', ['feature-state', 'selected'], false],
+                  2.5,
+                  0.35
+                ]
               ],
               'line-opacity': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                4.0, 0.0,
-                5.5, 0.45,
+                4.0, 0.6,
+                5.5, 0.6,
                 7.0, 0.85
               ]
             }
           });
 
-          // 5. Внешние государственные границы (четкие, но тонкие и аккуратные в стиле EU5)
+          // 5. Внешние сухопутные государственные границы (динамическая видимость по feature-state)
           m.addLayer({
-            id: 'country-outlines',
+            id: 'country-borders',
             type: 'line',
-            source: 'country-outlines',
+            source: 'shared-edges',
+            filter: ['==', ['get', 'isCoast'], false],
             paint: {
-              'line-color': '#1f252e', // Мягкий темно-серый контур
-              'line-width': 1.0,      // Тонкий контур
-              'line-opacity': 0.7
+              'line-color': '#1f252e',
+              'line-width': 1.0,
+              'line-opacity': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                4.0, [
+                  'case',
+                  ['==', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0,
+                  0.7
+                ],
+                5.0, [
+                  'case',
+                  ['==', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0,
+                  0.7
+                ],
+                5.2, 0.0
+              ]
             }
           });
 
           setupInteractions(m);
         }
+
+        // Синхронизируем начальные состояния ребер
+        syncEdgesState(m, regions, topology);
       } catch (error) {
         console.error('Ошибка загрузки карты:', error);
       }
@@ -824,10 +437,8 @@ export function MapView({
       source.setData(updatedData);
     }
 
-    const countrySource = mapRef.current.getSource('country-outlines') as maplibregl.GeoJSONSource;
-    if (countrySource) {
-      countrySource.setData(buildCountryOutlines({ featureCollection: updatedData }));
-    }
+    // Синхронизируем состояния ребер (вместо медленного turf.union)
+    syncEdgesState(mapRef.current, regions, topologyRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regions, countries]);
 
@@ -837,7 +448,7 @@ export function MapView({
     const m = mapRef.current;
 
     // 1. Обновление подписей стран
-    const countryLabels = buildCountryLabels(mapData, regions);
+    const countryLabels = buildCountryLabels(mapData.featureCollection, regions);
     const countrySource = m.getSource('country-labels') as maplibregl.GeoJSONSource | undefined;
     if (countrySource) {
       countrySource.setData(countryLabels);
