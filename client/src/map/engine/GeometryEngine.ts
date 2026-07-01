@@ -137,11 +137,6 @@ export function computeCountryAxis(
   while (rotateDeg < -90) rotateDeg += 180;
   while (rotateDeg > 90) rotateDeg -= 180;
 
-  // Если страна квадратная/круглая, пишем горизонтально
-  if (Lu / Math.max(1e-3, Lv) < 1.15) {
-    rotateDeg = 0;
-  }
-
   return {
     lon: labelLon,
     lat: lat0,
@@ -195,7 +190,7 @@ export function buildCountryLabelLine(
   const thetaRad = (-axis.rotateDeg * Math.PI) / 180;
   
   if (paired.length < 3) {
-    const halfLen = 0.45 * axis.spanLongAxisDeg;
+    const halfLen = axis.spanLongAxisDeg * 5; // Сделаем линию очень длинной!
     const latRad = (axis.lat * Math.PI) / 180;
     const cosFactor = Math.cos(latRad);
     
@@ -242,6 +237,23 @@ export function buildCountryLabelLine(
       nextPts.push({ lon: avgLon, lat: avgLat });
     }
     smoothed = nextPts;
+  }
+
+  // Extend the line by 10x in both directions to ensure MapLibre never drops the text because the line is "too short"
+  if (smoothed.length >= 2) {
+    const first = smoothed[0];
+    const second = smoothed[1];
+    const dxStart = first.lon - second.lon;
+    const dyStart = first.lat - second.lat;
+    const extendedFirst = { lon: first.lon + dxStart * 10, lat: first.lat + dyStart * 10 };
+
+    const last = smoothed[smoothed.length - 1];
+    const prev = smoothed[smoothed.length - 2];
+    const dxEnd = last.lon - prev.lon;
+    const dyEnd = last.lat - prev.lat;
+    const extendedLast = { lon: last.lon + dxEnd * 10, lat: last.lat + dyEnd * 10 };
+
+    smoothed = [extendedFirst, ...smoothed, extendedLast];
   }
 
   return smoothed.map(p => [p.lon, p.lat]);
@@ -291,7 +303,7 @@ export function largestMainlandCluster(ownedRegions: Region[]): Region[] {
 export function buildCountryLabels(
   featureCollection: FeatureCollection<Polygon | MultiPolygon, any>,
   regions: Region[]
-): FeatureCollection<LineString, CountryLabelProps> {
+): FeatureCollection<Point, CountryLabelProps> {
   const featureByRegionId = new Map<number, Feature<Polygon | MultiPolygon, any>>();
   for (const feature of featureCollection.features) {
     const props = feature.properties;
@@ -306,7 +318,7 @@ export function buildCountryLabels(
     if (list) list.push(region); else regionsByCountry.set(region.ownerCountryId, [region]);
   }
 
-  const labelFeatures: Feature<LineString, CountryLabelProps>[] = [];
+  const labelFeatures: Feature<Point, CountryLabelProps>[] = [];
   for (const ownedRegions of regionsByCountry.values()) {
     const mainland = largestMainlandCluster(ownedRegions);
     if (mainland.length === 0) continue;
@@ -322,17 +334,18 @@ export function buildCountryLabels(
     const name = mainlandFeatures[0].properties.ownerName;
     const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
     
-    const lineCoords = buildCountryLabelLine(paired, axis);
-    const lineLength = getLineLength(lineCoords);
-    
-    const effectiveSpanLongAxis = Math.min(axis.spanLongAxisDeg, lineLength);
+    const effectiveSpanLongAxis = axis.spanLongAxisDeg;
 
     const { sizeZ2, sizeZ7 } = computeLabelSizes(name, effectiveSpanLongAxis, axis.spanShortAxisDeg);
     const appearZoom = computeAppearZoom(name, effectiveSpanLongAxis);
 
+    if (name === 'Norway') {
+        console.log(`Norway PCA Debug: axis.rotateDeg=${axis.rotateDeg}, Lu=${axis.spanLongAxisDeg}, Lv=${axis.spanShortAxisDeg}`);
+    }
+
     labelFeatures.push({
       type: 'Feature',
-      geometry: { type: 'LineString', coordinates: lineCoords },
+      geometry: { type: 'Point', coordinates: [axis.lon, axis.lat] },
       properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea, appearZoom, rotateDeg: axis.rotateDeg }
     });
   }
@@ -382,3 +395,4 @@ export function buildRegionLabels(mapData: GameMapData): FeatureCollection<Point
 
   return { type: 'FeatureCollection', features: labelFeatures };
 }
+

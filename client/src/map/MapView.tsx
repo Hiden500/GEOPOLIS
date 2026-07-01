@@ -54,23 +54,31 @@ function buildGraticule(): FeatureCollection {
 function syncEdgesState(
   map: maplibregl.Map | null,
   regs: Region[],
-  topo: { edges: FeatureCollection<LineString, SharedEdgeProperties> } | null
+  topo: { edges: FeatureCollection<LineString, SharedEdgeProperties> } | null,
+  countries: Country[]
 ) {
   if (!map || !topo) return;
   const regionOwnerMap = new Map<number, string>();
+  const countryColorMap = new Map<string, string>();
+  
   regs.forEach(r => {
     regionOwnerMap.set(r.id, r.ownerCountryId || 'neutral');
   });
+  countries.forEach(c => countryColorMap.set(c.id, c.color));
+  countryColorMap.set('neutral', '#808080');
+  countryColorMap.set('water', '#0a1628');
 
   for (const edge of topo.edges.features) {
     const leftOwner = regionOwnerMap.get(edge.properties.leftRegionId) || 'neutral';
     const rightOwner = edge.properties.rightRegionId === -1 
       ? 'water' 
       : (regionOwnerMap.get(edge.properties.rightRegionId) || 'neutral');
+    
+    const leftColor = countryColorMap.get(leftOwner) || '#808080';
 
     map.setFeatureState(
       { source: 'shared-edges', id: edge.properties.id },
-      { leftOwner, rightOwner }
+      { leftOwner, rightOwner, leftColor }
     );
   }
 }
@@ -318,7 +326,20 @@ export function MapView({
             }
           });
 
-          // 3. Заливка отдельных регионов (всегда включена на малом зуме, сливается с границами для маскировки швов)
+          // 2.5. Четкая береговая линия
+          m.addLayer({
+            id: 'coastline-solid',
+            type: 'line',
+            source: 'shared-edges',
+            filter: ['==', ['get', 'isCoast'], true],
+            paint: {
+              'line-color': '#0d1c2e',
+              'line-width': 2.5,
+              'line-opacity': 1.0
+            }
+          });
+
+          // 3. Заливка регионов — opacity 1.0 + antialias false чтобы убрать белые швы
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -326,60 +347,60 @@ export function MapView({
             filter: ['==', ['get', 'type'], 'region'],
             paint: {
               'fill-color': ['get', 'ownerColor'],
-              'fill-opacity': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                0.8,
-                ['boolean', ['feature-state', 'selected'], false],
-                0.85,
-                0.6
-              ]
+              'fill-opacity': 1.0,
+              'fill-antialias': false
             }
           });
 
-          // 4. Границы провинций (красятся в цвет владельца на зумах < 5.0 для сокрытия швов, становятся четкими при приближении)
+          // 4. Внутренние границы регионов (для скрытия швов на малом зуме и показа границ на большом)
           m.addLayer({
-            id: 'regions-outline',
+            id: 'internal-borders',
             type: 'line',
-            source: 'regions',
-            filter: ['==', ['get', 'type'], 'region'],
+            source: 'shared-edges',
+            filter: ['==', ['get', 'isCoast'], false],
             paint: {
               'line-color': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                4.8, ['get', 'ownerColor'],
-                5.2, [
-                  'case',
-                  ['boolean', ['feature-state', 'hover'], false],
-                  '#FFFFFF',
-                  ['boolean', ['feature-state', 'selected'], false],
-                  '#FFD700',
-                  '#0b0e14'
-                ]
+                4.8, ['feature-state', 'leftColor'],
+                5.2, '#0b0e14'
               ],
               'line-width': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
                 4.8, 1.2,
-                5.2, [
-                  'case',
-                  ['boolean', ['feature-state', 'hover'], false],
-                  2,
-                  ['boolean', ['feature-state', 'selected'], false],
-                  2.5,
-                  0.35
-                ]
+                5.2, 0.35
               ],
               'line-opacity': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                4.0, 0.6,
-                5.5, 0.6,
-                7.0, 0.85
+                4.0, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 1.0],
+                5.5, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 0.6],
+                7.0, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 0.85]
               ]
+            }
+          });
+
+          // 4.5 Контур подсветки при наведении/выделении
+          m.addLayer({
+            id: 'regions-outline-highlight',
+            type: 'line',
+            source: 'regions',
+            filter: ['==', ['get', 'type'], 'region'],
+            paint: {
+              'line-color': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                '#FFFFFF',
+                ['boolean', ['feature-state', 'selected'], false],
+                '#FFD700',
+                'transparent'
+              ],
+              'line-width': 2.0,
+              'line-opacity': 1.0
             }
           });
 
@@ -415,7 +436,7 @@ export function MapView({
         }
 
         // Синхронизируем начальные состояния ребер
-        syncEdgesState(m, regions, topology);
+        syncEdgesState(m, regions, topology, countries);
       } catch (error) {
         console.error('Ошибка загрузки карты:', error);
       }
@@ -438,7 +459,7 @@ export function MapView({
     }
 
     // Синхронизируем состояния ребер (вместо медленного turf.union)
-    syncEdgesState(mapRef.current, regions, topologyRef.current);
+    syncEdgesState(mapRef.current, regions, topologyRef.current, countries);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regions, countries]);
 
@@ -449,6 +470,7 @@ export function MapView({
 
     // 1. Обновление подписей стран
     const countryLabels = buildCountryLabels(mapData.featureCollection, regions);
+    console.log("COUNTRY LABELS DATA:", countryLabels);
     const countrySource = m.getSource('country-labels') as maplibregl.GeoJSONSource | undefined;
     if (countrySource) {
       countrySource.setData(countryLabels);
@@ -465,12 +487,12 @@ export function MapView({
           'text-field': ['get', 'name'],
           'symbol-placement': 'point',
           'text-rotate': ['get', 'rotateDeg'],
-          'text-keep-upright': true,
+          'text-keep-upright': false,
           'text-size': ['interpolate', ['exponential', 2], ['zoom'],
             2, ['get', 'sizeZ2'],
             7, ['get', 'sizeZ7']
           ],
-          'text-letter-spacing': 0.18,
+          'text-letter-spacing': 0.1,
           'text-font': ['Open Sans Semibold'],
           'symbol-sort-key': ['get', 'sortKey'],
           'text-allow-overlap': true,
@@ -478,9 +500,9 @@ export function MapView({
           'text-padding': 2
         },
         paint: {
-          'text-color': '#2a2a2a',
-          'text-halo-color': '#eae5d8',
-          'text-halo-width': 1.2,
+          'text-color': '#111111',
+          'text-halo-color': '#f2eedf',
+          'text-halo-width': 1.5,
           'text-halo-blur': 0.5,
           // Прозрачность с затуханием по зуму и плавным проявлением по порогу читаемости (appearZoom)
           'text-opacity': [
@@ -740,3 +762,5 @@ function getColorForType(type: string): string {
   };
   return colorMap[type] || '#FFFFFF';
 }
+
+
