@@ -1,5 +1,5 @@
-import { centroid, bbox } from '@turf/turf';
-import type { Feature, FeatureCollection, Point, LineString, Polygon, MultiPolygon } from 'geojson';
+import { centroid, bbox, lineString, length, along, bearing } from '@turf/turf';
+import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { GameMapData } from '../GeoJsonLoader';
 
@@ -173,15 +173,7 @@ export function computeAppearZoom(name: string, spanLongAxisDeg: number): number
   return Math.min(20, Math.log2(READABLE_PX / k));
 }
 
-function getLineLength(pts: [number, number][]): number {
-  let len = 0;
-  for (let i = 1; i < pts.length; i++) {
-    const dx = pts[i][0] - pts[i - 1][0];
-    const dy = pts[i][1] - pts[i - 1][1];
-    len += Math.sqrt(dx * dx + dy * dy);
-  }
-  return len;
-}
+
 
 export function buildCountryLabelLine(
   paired: { region: Region; feature: Feature<Polygon | MultiPolygon, any> }[],
@@ -190,7 +182,7 @@ export function buildCountryLabelLine(
   const thetaRad = (-axis.rotateDeg * Math.PI) / 180;
   
   if (paired.length < 3) {
-    const halfLen = axis.spanLongAxisDeg * 5; // Сделаем линию очень длинной!
+    const halfLen = axis.spanLongAxisDeg * 0.5; // Линия длиной ровно в spanLongAxisDeg
     const latRad = (axis.lat * Math.PI) / 180;
     const cosFactor = Math.cos(latRad);
     
@@ -203,7 +195,7 @@ export function buildCountryLabelLine(
     ];
   }
 
-  const centroids = paired.map(({ region, feature }) => {
+  const centroids = paired.map(({ feature }) => {
     const [lon, lat] = centroid(feature).geometry.coordinates;
     const proj = lon * Math.cos(thetaRad) + lat * Math.sin(thetaRad);
     return { lon, lat, proj };
@@ -237,23 +229,6 @@ export function buildCountryLabelLine(
       nextPts.push({ lon: avgLon, lat: avgLat });
     }
     smoothed = nextPts;
-  }
-
-  // Extend the line by 10x in both directions to ensure MapLibre never drops the text because the line is "too short"
-  if (smoothed.length >= 2) {
-    const first = smoothed[0];
-    const second = smoothed[1];
-    const dxStart = first.lon - second.lon;
-    const dyStart = first.lat - second.lat;
-    const extendedFirst = { lon: first.lon + dxStart * 10, lat: first.lat + dyStart * 10 };
-
-    const last = smoothed[smoothed.length - 1];
-    const prev = smoothed[smoothed.length - 2];
-    const dxEnd = last.lon - prev.lon;
-    const dyEnd = last.lat - prev.lat;
-    const extendedLast = { lon: last.lon + dxEnd * 10, lat: last.lat + dyEnd * 10 };
-
-    smoothed = [extendedFirst, ...smoothed, extendedLast];
   }
 
   return smoothed.map(p => [p.lon, p.lat]);
@@ -331,23 +306,97 @@ export function buildCountryLabels(
     const mainlandFeatures = paired.map(p => p.feature);
     const axis = computeCountryAxis(mainlandFeatures, paired);
 
-    const name = mainlandFeatures[0].properties.ownerName;
+    const name = mainlandFeatures[0].properties.ownerName || '';
+    if (!name) continue;
+
     const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
-    
     const effectiveSpanLongAxis = axis.spanLongAxisDeg;
 
     const { sizeZ2, sizeZ7 } = computeLabelSizes(name, effectiveSpanLongAxis, axis.spanShortAxisDeg);
     const appearZoom = computeAppearZoom(name, effectiveSpanLongAxis);
 
-    if (name === 'Norway') {
-        console.log(`Norway PCA Debug: axis.rotateDeg=${axis.rotateDeg}, Lu=${axis.spanLongAxisDeg}, Lv=${axis.spanShortAxisDeg}`);
+    const lineCoords = buildCountryLabelLine(paired, axis);
+    if (lineCoords.length < 2) {
+      // Fallback
+      labelFeatures.push({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [axis.lon, axis.lat] },
+        properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea, appearZoom, rotateDeg: axis.rotateDeg }
+      });
+      continue;
     }
 
-    labelFeatures.push({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [axis.lon, axis.lat] },
-      properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea, appearZoom, rotateDeg: axis.rotateDeg }
-    });
+    const lineFeature = lineString(lineCoords);
+    const L_base = length(lineFeature, { units: 'kilometers' });
+
+    if (L_base <= 0) {
+      labelFeatures.push({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [axis.lon, axis.lat] },
+        properties: { name, sizeZ2, sizeZ7, sortKey: -totalArea, appearZoom, rotateDeg: axis.rotateDeg }
+      });
+      continue;
+    }
+
+    // Рассчитываем коэффициент масштабирования км/пиксель на широте центра
+    const latRad = (axis.lat * Math.PI) / 180;
+    const scale_km_per_px = (360 * 111.12 * Math.cos(latRad)) / 2048;
+
+    // Оценка размеров текста в километрах
+    const charCount = name.length;
+    const char_width_km = sizeZ2 * 0.55 * scale_km_per_px;
+    const letter_spacing_km = sizeZ2 * LABEL_LETTER_SPACING_EM * scale_km_per_px;
+    const text_width_km = charCount * char_width_km + (charCount - 1) * letter_spacing_km;
+
+    // Растягивание: по умолчанию хотим занять 70% до 85% длины оси
+    let W_target_km = L_base * 0.8;
+    if (W_target_km < text_width_km) {
+      W_target_km = text_width_km;
+    }
+    if (W_target_km > L_base * 0.95) {
+      W_target_km = Math.max(text_width_km, L_base * 0.95);
+    }
+
+    const start_dist = (L_base - W_target_km) / 2;
+    const step_km = charCount > 1 ? (W_target_km - char_width_km) / (charCount - 1) : 0;
+
+    for (let i = 0; i < charCount; i++) {
+      const char = name[i];
+      const d_i = charCount > 1 ? start_dist + char_width_km / 2 + i * step_km : L_base / 2;
+      const clamped_d_i = Math.max(0, Math.min(L_base, d_i));
+
+      const pt = along(lineFeature, clamped_d_i, { units: 'kilometers' });
+
+      // Вычисляем угол наклона (касательную к кривой в данной точке)
+      let d_next = Math.min(L_base, clamped_d_i + 0.1);
+      let pt2 = along(lineFeature, d_next, { units: 'kilometers' });
+      let pt1 = pt;
+
+      if (clamped_d_i === d_next) {
+        // Достигли конца линии, проецируем назад
+        const d_prev = Math.max(0, clamped_d_i - 0.1);
+        pt1 = along(lineFeature, d_prev, { units: 'kilometers' });
+        pt2 = pt;
+      }
+
+      const b = bearing(pt1, pt2);
+      let rotateDeg = b - 90;
+      while (rotateDeg < -90) rotateDeg += 180;
+      while (rotateDeg > 90) rotateDeg -= 180;
+
+      labelFeatures.push({
+        type: 'Feature',
+        geometry: pt.geometry as Point,
+        properties: {
+          name: char,
+          sizeZ2,
+          sizeZ7,
+          sortKey: -totalArea,
+          appearZoom,
+          rotateDeg
+        }
+      });
+    }
   }
 
   return { type: 'FeatureCollection', features: labelFeatures };

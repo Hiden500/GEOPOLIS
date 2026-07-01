@@ -1,26 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import type { ExpressionSpecification } from '@maplibre/maplibre-gl-style-spec';
-import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon, LineString } from 'geojson';
+import type { FeatureCollection, LineString } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import type { MapFeature } from '@shared/types/map/MapFeature';
-import { loadGameMapData, updateMapData, type GameMapData, type MapRegionProperties } from './GeoJsonLoader';
+import { loadGameMapData, updateMapData, type GameMapData } from './GeoJsonLoader';
 import { buildTopologyEdges, type SharedEdgeProperties } from './engine/TopologyBuilder';
-import { buildCountryLabels, buildRegionLabels, type CountryLabelProps } from './engine/GeometryEngine';
+import { buildCountryLabels, buildRegionLabels } from './engine/GeometryEngine';
 
-type RegionFeature = Feature<Polygon | MultiPolygon, MapRegionProperties>;
 
-// Зум, на котором (несглаженный) размер подписи пересекает порог
-// читаемости — ниже appearZoom страна не показывается совсем (см.
-// computeAppearZoom/text-opacity), это и заменяет коллизионный declutter.
-const READABLE_PX = 11;
-// Ширина перехода (в уровнях зума) от невидимого к полностью видимому —
-// см. сэмплинг text-opacity ниже.
-const APPEAR_TRANSITION = 0.6;
-
-const LABEL_LETTER_SPACING_EM = 0.08;
 
 function buildGraticule(): FeatureCollection {
   const features: any[] = [];
@@ -492,7 +481,6 @@ export function MapView({
             2, ['get', 'sizeZ2'],
             7, ['get', 'sizeZ7']
           ],
-          'text-letter-spacing': 0.1,
           'text-font': ['Open Sans Semibold'],
           'symbol-sort-key': ['get', 'sortKey'],
           'text-allow-overlap': true,

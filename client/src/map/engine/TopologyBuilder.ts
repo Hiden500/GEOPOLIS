@@ -1,5 +1,4 @@
 import type { FeatureCollection, Feature, LineString, Polygon, MultiPolygon } from 'geojson';
-import type { Region } from '@shared/types/map/Region';
 
 export interface SharedEdgeProperties {
   id: number;
