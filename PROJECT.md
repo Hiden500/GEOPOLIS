@@ -14,10 +14,10 @@
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
 | 1 | E2E Test Suite Development | Create comprehensive E2E tests (Tiers 1-4) in a test harness verifying placement, rotation, kerning, and compilation. | none | DONE (8d32f046-6e3a-4676-b919-0cd89054e799) |
-| 2 | Codebase Exploration | Run read-only analysis of coordinate systems, PCA, and layout implementation. | M1 | IN_PROGRESS (227050de-eb17-4070-b68e-fed197155c53) |
-| 3 | Math and Layout Implementation | Implement Web Mercator conversion, straight vs curved baseline heuristics, letter-specific kerning, linear extrapolation, and correct rotations. | M2 | PLANNED (227050de-eb17-4070-b68e-fed197155c53) |
-| 4 | Map Style Integration | Refine MapLibre layers in `MapView.tsx` to display letters correctly without overlap or wavy distortions. | M3 | PLANNED (227050de-eb17-4070-b68e-fed197155c53) |
-| 5 | Validation and Hardening | Run reviews, challenger tests, and forensic auditing to confirm correctness and integrity. | M4 | PLANNED (227050de-eb17-4070-b68e-fed197155c53) |
+| 2 | Codebase Exploration | Run read-only analysis of coordinate systems, PCA, and layout implementation. | M1 | DONE (4ea29e19-93d6-42b1-8b32-8294cfaaf0e8) |
+| 3 | Math and Layout Implementation | Implement Web Mercator conversion, straight vs curved baseline heuristics, letter-specific kerning, linear extrapolation, and correct rotations. | M2 | DONE (4ea29e19-93d6-42b1-8b32-8294cfaaf0e8) |
+| 4 | Map Style Integration | Refine MapLibre layers in `MapView.tsx` to display letters correctly without overlap or wavy distortions. | M3 | DONE (4ea29e19-93d6-42b1-8b32-8294cfaaf0e8) |
+| 5 | Validation and Hardening | Run reviews, challenger tests, and forensic auditing to confirm correctness and integrity. | M4 | DONE (4ea29e19-93d6-42b1-8b32-8294cfaaf0e8) |
 
 ## Interface Contracts
 ### `GeometryEngine` ↔ `MapView`
