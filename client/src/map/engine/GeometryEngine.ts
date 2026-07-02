@@ -1,7 +1,41 @@
-import { centroid, bbox, lineString, length, along, bearing } from '@turf/turf';
+import { centroid, bbox } from '@turf/turf';
 import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { GameMapData } from '../GeoJsonLoader';
+
+interface Point2D {
+  x: number;
+  y: number;
+}
+
+function lonToX(lon: number): number {
+  return (lon + 180) / 360;
+}
+
+function latToY(lat: number): number {
+  const clampedLat = Math.max(-85.05112878, Math.min(85.05112878, lat));
+  const latRad = (clampedLat * Math.PI) / 180;
+  return (1 - Math.log(Math.tan(latRad) + 1.0 / Math.cos(latRad)) / Math.PI) / 2;
+}
+
+function xToLon(x: number): number {
+  return x * 360 - 180;
+}
+
+function yToLat(y: number): number {
+  const n = Math.PI - 2 * Math.PI * y;
+  return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+}
+
+const CHAR_WIDTH_FACTORS: Record<string, number> = {
+  'i': 0.25, 'l': 0.25, 't': 0.3, 'f': 0.35, 'r': 0.35,
+  'm': 0.8, 'w': 0.8, 'M': 0.85, 'W': 0.9, 'I': 0.3,
+  ' ': 0.4
+};
+
+function getCharWidthFactor(char: string): number {
+  return CHAR_WIDTH_FACTORS[char] !== undefined ? CHAR_WIDTH_FACTORS[char] : 0.55;
+}
 
 export interface LabelAxis {
   lon: number;
@@ -180,8 +214,9 @@ export function buildCountryLabelLine(
   axis: LabelAxis
 ): [number, number][] {
   const thetaRad = (-axis.rotateDeg * Math.PI) / 180;
+  const ratio = axis.spanLongAxisDeg / Math.max(1e-5, axis.spanShortAxisDeg);
   
-  if (paired.length < 3) {
+  if (paired.length < 3 || ratio < 1.4) {
     const halfLen = axis.spanLongAxisDeg * 0.5; // Линия длиной ровно в spanLongAxisDeg
     const latRad = (axis.lat * Math.PI) / 180;
     const cosFactor = Math.cos(latRad);
@@ -326,8 +361,27 @@ export function buildCountryLabels(
       continue;
     }
 
-    const lineFeature = lineString(lineCoords);
-    const L_base = length(lineFeature, { units: 'kilometers' });
+    // Преобразуем географические координаты в плоские Web Mercator Point2D[]
+    const path: Point2D[] = lineCoords.map(([lon, lat]) => ({
+      x: lonToX(lon),
+      y: latToY(lat)
+    }));
+
+    // Убеждаемся, что базовая линия течет строго слева направо
+    if (path[path.length - 1].x < path[0].x) {
+      path.reverse();
+    }
+
+    // Вычисляем длины сегментов и кумулятивные длины в Web Mercator
+    const cumulativeLengths: number[] = [0];
+    let L_base = 0;
+    for (let i = 1; i < path.length; i++) {
+      const dx = path[i].x - path[i - 1].x;
+      const dy = path[i].y - path[i - 1].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      L_base += dist;
+      cumulativeLengths.push(L_base);
+    }
 
     if (L_base <= 0) {
       labelFeatures.push({
@@ -338,55 +392,105 @@ export function buildCountryLabels(
       continue;
     }
 
-    // Рассчитываем коэффициент масштабирования км/пиксель на широте центра
-    const latRad = (axis.lat * Math.PI) / 180;
-    const scale_km_per_px = (360 * 111.12 * Math.cos(latRad)) / 2048;
+    // Переводим пиксельные размеры в плоские Mercator на zoom 2
+    // Ширина мира на zoom 2 = 2048 px
+    const px_to_mercator = 1.0 / 2048.0;
+    const sizeZ2_mercator = sizeZ2 * px_to_mercator;
 
-    // Оценка размеров текста в километрах
     const charCount = name.length;
-    const char_width_km = sizeZ2 * 0.55 * scale_km_per_px;
-    const letter_spacing_km = sizeZ2 * LABEL_LETTER_SPACING_EM * scale_km_per_px;
-    const text_width_km = charCount * char_width_km + (charCount - 1) * letter_spacing_km;
-
-    // Растягивание: по умолчанию хотим занять 70% до 85% длины оси
-    let W_target_km = L_base * 0.8;
-    if (W_target_km < text_width_km) {
-      W_target_km = text_width_km;
+    const charWidths: number[] = [];
+    let text_width_mercator = 0;
+    for (let i = 0; i < charCount; i++) {
+      const factor = getCharWidthFactor(name[i]);
+      const w = sizeZ2_mercator * factor;
+      charWidths.push(w);
+      text_width_mercator += w;
     }
-    if (W_target_km > L_base * 0.95) {
-      W_target_km = Math.max(text_width_km, L_base * 0.95);
+    const spacing_mercator = sizeZ2_mercator * LABEL_LETTER_SPACING_EM;
+    text_width_mercator += (charCount - 1) * spacing_mercator;
+
+    // Целевая ширина растягивания
+    let W_target = L_base * 0.8;
+    if (W_target < text_width_mercator) {
+      W_target = text_width_mercator;
+    }
+    if (W_target > L_base * 0.95) {
+      W_target = Math.max(text_width_mercator, L_base * 0.95);
     }
 
-    const start_dist = (L_base - W_target_km) / 2;
-    const step_km = charCount > 1 ? (W_target_km - char_width_km) / (charCount - 1) : 0;
+    const start_dist = (L_base - W_target) / 2;
+    const gap = charCount > 1 ? (W_target - text_width_mercator) / (charCount - 1) + spacing_mercator : 0;
 
+    let current_dist = start_dist;
     for (let i = 0; i < charCount; i++) {
       const char = name[i];
-      const d_i = charCount > 1 ? start_dist + char_width_km / 2 + i * step_km : L_base / 2;
-      const clamped_d_i = Math.max(0, Math.min(L_base, d_i));
+      const w = charWidths[i];
+      const d_i = current_dist + w / 2;
+      current_dist += w + gap;
 
-      const pt = along(lineFeature, clamped_d_i, { units: 'kilometers' });
+      // Интерполяция и экстраполяция по касательным
+      let pt: Point2D;
+      let tangent: Point2D;
 
-      // Вычисляем угол наклона (касательную к кривой в данной точке)
-      let d_next = Math.min(L_base, clamped_d_i + 0.1);
-      let pt2 = along(lineFeature, d_next, { units: 'kilometers' });
-      let pt1 = pt;
+      const n = path.length;
+      if (d_i < 0) {
+        // Экстраполируем назад от начала линии
+        const pt0 = path[0];
+        const pt1 = path[1];
+        const dx = pt1.x - pt0.x;
+        const dy = pt1.y - pt0.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const ux = len > 0 ? dx / len : 1;
+        const uy = len > 0 ? dy / len : 0;
 
-      if (clamped_d_i === d_next) {
-        // Достигли конца линии, проецируем назад
-        const d_prev = Math.max(0, clamped_d_i - 0.1);
-        pt1 = along(lineFeature, d_prev, { units: 'kilometers' });
-        pt2 = pt;
+        pt = { x: pt0.x + d_i * ux, y: pt0.y + d_i * uy };
+        tangent = { x: ux, y: uy };
+      } else if (d_i > L_base) {
+        // Экстраполируем вперед от конца линии
+        const ptn2 = path[n - 2];
+        const ptn1 = path[n - 1];
+        const dx = ptn1.x - ptn2.x;
+        const dy = ptn1.y - ptn2.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const ux = len > 0 ? dx / len : 1;
+        const uy = len > 0 ? dy / len : 0;
+
+        pt = { x: ptn1.x + (d_i - L_base) * ux, y: ptn1.y + (d_i - L_base) * uy };
+        tangent = { x: ux, y: uy };
+      } else {
+        // Обычная линейная интерполяция внутри линии
+        let idx = 0;
+        for (let j = 0; j < n - 1; j++) {
+          if (cumulativeLengths[j] <= d_i && d_i <= cumulativeLengths[j + 1]) {
+            idx = j;
+            break;
+          }
+        }
+        const pt0 = path[idx];
+        const pt1 = path[idx + 1];
+        const segLen = cumulativeLengths[idx + 1] - cumulativeLengths[idx];
+        const t = segLen > 0 ? (d_i - cumulativeLengths[idx]) / segLen : 0;
+
+        const dx = pt1.x - pt0.x;
+        const dy = pt1.y - pt0.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const ux = len > 0 ? dx / len : 1;
+        const uy = len > 0 ? dy / len : 0;
+
+        pt = { x: pt0.x + t * dx, y: pt0.y + t * dy };
+        tangent = { x: ux, y: uy };
       }
 
-      const b = bearing(pt1, pt2);
-      let rotateDeg = b - 90;
-      while (rotateDeg < -90) rotateDeg += 180;
-      while (rotateDeg > 90) rotateDeg -= 180;
+      // Переводим точку Web Mercator обратно в градусы
+      const lon = xToLon(pt.x);
+      const lat = yToLat(pt.y);
+
+      // Угол поворота буквы (в градусах по часовой стрелке)
+      const rotateDeg = Math.atan2(tangent.y, tangent.x) * 180 / Math.PI;
 
       labelFeatures.push({
         type: 'Feature',
-        geometry: pt.geometry as Point,
+        geometry: { type: 'Point', coordinates: [lon, lat] },
         properties: {
           name: char,
           sizeZ2,
