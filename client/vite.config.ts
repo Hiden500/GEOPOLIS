@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react()],
 
   resolve: {
+    preserveSymlinks: true,
     alias: {
       "@shared": path.resolve(__dirname, "../shared/src")
     },

@@ -1,8 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import { useWindows } from "../useWindows";
 
 describe("useWindows", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("стартует без окон", () => {
     const { result } = renderHook(() => useWindows());
     expect(result.current.windows).toEqual([]);
