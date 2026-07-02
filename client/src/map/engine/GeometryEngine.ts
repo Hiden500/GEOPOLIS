@@ -3,40 +3,6 @@ import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'g
 import type { Region } from '@shared/types/map/Region';
 import type { GameMapData } from '../GeoJsonLoader';
 
-interface Point2D {
-  x: number;
-  y: number;
-}
-
-function lonToX(lon: number): number {
-  return (lon + 180) / 360;
-}
-
-function latToY(lat: number): number {
-  const clampedLat = Math.max(-85.05112878, Math.min(85.05112878, lat));
-  const latRad = (clampedLat * Math.PI) / 180;
-  return (1 - Math.log(Math.tan(latRad) + 1.0 / Math.cos(latRad)) / Math.PI) / 2;
-}
-
-function xToLon(x: number): number {
-  return x * 360 - 180;
-}
-
-function yToLat(y: number): number {
-  const n = Math.PI - 2 * Math.PI * y;
-  return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
-}
-
-const CHAR_WIDTH_FACTORS: Record<string, number> = {
-  'i': 0.25, 'l': 0.25, 't': 0.3, 'f': 0.35, 'r': 0.35,
-  'm': 0.8, 'w': 0.8, 'M': 0.85, 'W': 0.9, 'I': 0.3,
-  ' ': 0.4
-};
-
-function getCharWidthFactor(char: string): number {
-  return CHAR_WIDTH_FACTORS[char] !== undefined ? CHAR_WIDTH_FACTORS[char] : 0.55;
-}
-
 export interface LabelAxis {
   lon: number;
   lat: number;
@@ -60,7 +26,123 @@ export interface CountryLabelProps {
 }
 
 const READABLE_PX = 11;
-const LABEL_LETTER_SPACING_EM = 0.08;
+
+export function lonLatToMercator(lon: number, lat: number): [number, number] {
+  const clampedLat = Math.max(-85.051128, Math.min(85.051128, lat));
+  const x = 512 * (lon + 180) / 360;
+  const latRad = (clampedLat * Math.PI) / 180;
+  const y = 256 - (256 / Math.PI) * Math.log(Math.tan(Math.PI / 4 + latRad / 2));
+  return [x, y];
+}
+
+export function mercatorToLonLat(x: number, y: number): [number, number] {
+  const lon = (x / 512) * 360 - 180;
+  const expVal = Math.exp(((256 - y) * Math.PI) / 256);
+  const lat = (2 * Math.atan(expVal) - Math.PI / 2) * 180 / Math.PI;
+  return [lon, lat];
+}
+
+export function getCharacterWidth(char: string): number {
+  if (['I', 'l', '1', ' ', '!', '.'].includes(char)) return 0.22;
+  if (['E', 'F', 'J', 'L', 't'].includes(char)) return 0.45;
+  if (['W', 'M'].includes(char)) return 0.85;
+  if (/^[A-Z]$/.test(char)) return 0.55;
+  return 0.55;
+}
+
+export function getLineLength(line: [number, number][]): number {
+  let len = 0;
+  for (let i = 0; i < line.length - 1; i++) {
+    const dx = line[i + 1][0] - line[i][0];
+    const dy = line[i + 1][1] - line[i][1];
+    len += Math.sqrt(dx * dx + dy * dy);
+  }
+  return len;
+}
+
+interface PointAlongLineResult {
+  point: [number, number];
+  tangent: [number, number];
+}
+
+export function getPointAlongLine(
+  line: [number, number][],
+  d: number
+): PointAlongLineResult {
+  if (line.length === 0) {
+    return { point: [0, 0], tangent: [1, 0] };
+  }
+  if (line.length === 1) {
+    return { point: line[0], tangent: [1, 0] };
+  }
+
+  const m = line.length - 1;
+  const segments: number[] = [];
+  const dists: number[] = [0];
+  let L_base = 0;
+
+  for (let i = 0; i < m; i++) {
+    const dx = line[i + 1][0] - line[i][0];
+    const dy = line[i + 1][1] - line[i][1];
+    const len = Math.sqrt(dx * dx + dy * dy);
+    segments.push(len);
+    L_base += len;
+    dists.push(L_base);
+  }
+
+  // 1. Экстраполяция до начала
+  if (d < 0) {
+    const p0 = line[0];
+    const p1 = line[1];
+    const dx = p1[0] - p0[0];
+    const dy = p1[1] - p0[1];
+    const len = segments[0] || 1e-9;
+    const ux = dx / len;
+    const uy = dy / len;
+    return {
+      point: [p0[0] + d * ux, p0[1] + d * uy],
+      tangent: [ux, uy]
+    };
+  }
+
+  // 2. Экстраполяция после конца
+  if (d > L_base) {
+    const pm1 = line[m - 1];
+    const pm = line[m];
+    const dx = pm[0] - pm1[0];
+    const dy = pm[1] - pm1[1];
+    const len = segments[m - 1] || 1e-9;
+    const ux = dx / len;
+    const uy = dy / len;
+    return {
+      point: [pm[0] + (d - L_base) * ux, pm[1] + (d - L_base) * uy],
+      tangent: [ux, uy]
+    };
+  }
+
+  // 3. Точка внутри линии
+  for (let i = 0; i < m; i++) {
+    if (d >= dists[i] && d <= dists[i + 1]) {
+      const segLen = segments[i];
+      if (segLen <= 1e-9) {
+        return { point: line[i], tangent: [1, 0] };
+      }
+      const t = (d - dists[i]) / segLen;
+      const pStart = line[i];
+      const pEnd = line[i + 1];
+      const dx = pEnd[0] - pStart[0];
+      const dy = pEnd[1] - pStart[1];
+      const ux = dx / segLen;
+      const uy = dy / segLen;
+      return {
+        point: [pStart[0] + t * dx, pStart[1] + t * dy],
+        tangent: [ux, uy]
+      };
+    }
+  }
+
+  return { point: line[m], tangent: [1, 0] };
+}
 
 function getGeometryPoints(features: Feature<Polygon | MultiPolygon, any>[]): { lon: number; lat: number }[] {
   const points: { lon: number; lat: number }[] = [];
@@ -100,42 +182,46 @@ export function computeCountryAxis(
 
   let centroidPoints = paired.map(({ region, feature }) => {
     const [lon, lat] = centroid(feature).geometry.coordinates;
-    return { lon, lat, weight: region.area || 1 };
+    const [x, y] = lonLatToMercator(lon, lat);
+    return { x, y, weight: region.area || 1 };
   });
 
-  const lonsCentroid = centroidPoints.map(p => p.lon);
-  if (Math.max(...lonsCentroid) - Math.min(...lonsCentroid) > 180) {
-    centroidPoints = centroidPoints.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
+  const xsCentroid = centroidPoints.map(p => p.x);
+  if (xsCentroid.length > 0 && Math.max(...xsCentroid) - Math.min(...xsCentroid) > 256) {
+    centroidPoints = centroidPoints.map(p => ({ ...p, x: p.x < 256 ? p.x + 512 : p.x }));
   }
 
   const sumW = centroidPoints.reduce((s, p) => s + p.weight, 0);
-  const lon0 = centroidPoints.reduce((s, p) => s + p.lon * p.weight, 0) / sumW;
-  const lat0 = centroidPoints.reduce((s, p) => s + p.lat * p.weight, 0) / sumW;
-  let labelLon = lon0;
-  if (labelLon > 180) labelLon -= 360;
+  const meanX = sumW > 0 ? centroidPoints.reduce((s, p) => s + p.x * p.weight, 0) / sumW : 256;
+  const meanY = sumW > 0 ? centroidPoints.reduce((s, p) => s + p.y * p.weight, 0) / sumW : 256;
+
+  let labelX = meanX;
+  if (labelX >= 512) labelX -= 512;
+  const [labelLon, labelLat] = mercatorToLonLat(labelX, meanY);
 
   if (points.length === 0) {
-    return { lon: labelLon, lat: lat0, rotateDeg: 0, spanLongAxisDeg: 5, spanShortAxisDeg: 5 };
+    return { lon: labelLon, lat: labelLat, rotateDeg: 0, spanLongAxisDeg: 5, spanShortAxisDeg: 5 };
   }
 
-  let normalizedPoints = points.map(p => ({ ...p }));
-  const lons = normalizedPoints.map(p => p.lon);
-  if (Math.max(...lons) - Math.min(...lons) > 180) {
-    normalizedPoints = normalizedPoints.map(p => ({ ...p, lon: p.lon < 0 ? p.lon + 360 : p.lon }));
+  let normalizedPoints = points.map(p => {
+    const [x, y] = lonLatToMercator(p.lon, p.lat);
+    return { x, y };
+  });
+
+  const xs = normalizedPoints.map(p => p.x);
+  if (Math.max(...xs) - Math.min(...xs) > 256) {
+    normalizedPoints = normalizedPoints.map(p => ({ ...p, x: p.x < 256 ? p.x + 512 : p.x }));
   }
 
   const n = normalizedPoints.length;
-  const sumLon = normalizedPoints.reduce((s, p) => s + p.lon, 0);
-  const sumLat = normalizedPoints.reduce((s, p) => s + p.lat, 0);
-  const meanLon = sumLon / n;
-  const meanLat = sumLat / n;
-
-  const latRad = (meanLat * Math.PI) / 180;
-  const kmPerDegLon = 111 * Math.cos(latRad);
+  const sumX = normalizedPoints.reduce((s, p) => s + p.x, 0);
+  const sumY = normalizedPoints.reduce((s, p) => s + p.y, 0);
+  const mX = sumX / n;
+  const mY = sumY / n;
 
   const xy = normalizedPoints.map(p => ({
-    x: (p.lon - meanLon) * kmPerDegLon,
-    y: (p.lat - meanLat) * 111,
+    x: p.x - mX,
+    y: p.y - mY,
   }));
 
   let Sxx = 0, Syy = 0, Sxy = 0;
@@ -166,17 +252,17 @@ export function computeCountryAxis(
     theta = theta + Math.PI / 2;
   }
 
-  let rotateDeg = (-theta * 180) / Math.PI;
+  let rotateDeg = (theta * 180) / Math.PI;
 
   while (rotateDeg < -90) rotateDeg += 180;
   while (rotateDeg > 90) rotateDeg -= 180;
 
   return {
     lon: labelLon,
-    lat: lat0,
+    lat: labelLat,
     rotateDeg,
-    spanLongAxisDeg: Lu / 111,
-    spanShortAxisDeg: Lv / 111,
+    spanLongAxisDeg: Lu,
+    spanShortAxisDeg: Lv,
   };
 }
 
@@ -186,12 +272,14 @@ export function computeLabelSizes(
   spanShortAxisDeg: number
 ): LabelSizes {
   const charCount = Math.max(1, name.length);
+  const textWidthEm = name.split('').reduce((sum: number, c: string) => sum + getCharacterWidth(c), 0);
   
   const sizeAtZoom = (zoom: number): number => {
-    const pixelLengthLimit = (spanLongAxisDeg / 360) * 512 * Math.pow(2, zoom);
-    const pixelHeightLimit = (spanShortAxisDeg / 360) * 512 * Math.pow(2, zoom);
+    const pixelLengthLimit = spanLongAxisDeg * Math.pow(2, zoom);
+    const pixelHeightLimit = spanShortAxisDeg * Math.pow(2, zoom);
     
-    const rawSizeFromLength = (0.55 * pixelLengthLimit) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM));
+    const minSpacingEm = 0.08;
+    const rawSizeFromLength = (0.8 * pixelLengthLimit) / (textWidthEm + (charCount - 1) * minSpacingEm);
     const maxHeightAllowed = 0.85 * pixelHeightLimit;
     
     const size = Math.min(rawSizeFromLength, maxHeightAllowed);
@@ -203,70 +291,78 @@ export function computeLabelSizes(
 
 export function computeAppearZoom(name: string, spanLongAxisDeg: number): number {
   const charCount = Math.max(1, name.length);
-  const k = Math.max(1e-9, (0.55 * (spanLongAxisDeg / 360) * 512) / (charCount * (0.55 + LABEL_LETTER_SPACING_EM)));
+  const textWidthEm = name.split('').reduce((sum: number, c: string) => sum + getCharacterWidth(c), 0);
+  const minSpacingEm = 0.08;
+  const k = Math.max(1e-9, (0.8 * spanLongAxisDeg) / (textWidthEm + (charCount - 1) * minSpacingEm));
   return Math.min(20, Math.log2(READABLE_PX / k));
 }
-
-
 
 export function buildCountryLabelLine(
   paired: { region: Region; feature: Feature<Polygon | MultiPolygon, any> }[],
   axis: LabelAxis
 ): [number, number][] {
-  const thetaRad = (-axis.rotateDeg * Math.PI) / 180;
-  const ratio = axis.spanLongAxisDeg / Math.max(1e-5, axis.spanShortAxisDeg);
-  
-  if (paired.length < 3 || ratio < 1.4) {
-    const halfLen = axis.spanLongAxisDeg * 0.5; // Линия длиной ровно в spanLongAxisDeg
-    const latRad = (axis.lat * Math.PI) / 180;
-    const cosFactor = Math.cos(latRad);
-    
-    const dx = (halfLen * Math.cos(thetaRad)) / Math.max(0.1, cosFactor);
+  const thetaRad = (axis.rotateDeg * Math.PI) / 180;
+  const aspectRatio = axis.spanLongAxisDeg / Math.max(0.1, axis.spanShortAxisDeg);
+
+  if (aspectRatio < 1.4 || paired.length < 3) {
+    const halfLen = axis.spanLongAxisDeg * 0.5;
+    const [cx, cy] = lonLatToMercator(axis.lon, axis.lat);
+    const dx = halfLen * Math.cos(thetaRad);
     const dy = halfLen * Math.sin(thetaRad);
-    
-    return [
-      [axis.lon - dx, axis.lat - dy],
-      [axis.lon + dx, axis.lat + dy]
+    let line: [number, number][] = [
+      [cx - dx, cy - dy],
+      [cx + dx, cy + dy]
     ];
+    if (line[1][0] < line[0][0]) {
+      line.reverse();
+    }
+    return line;
   }
 
   const centroids = paired.map(({ feature }) => {
     const [lon, lat] = centroid(feature).geometry.coordinates;
-    const proj = lon * Math.cos(thetaRad) + lat * Math.sin(thetaRad);
-    return { lon, lat, proj };
+    const [x, y] = lonLatToMercator(lon, lat);
+    const proj = x * Math.cos(thetaRad) + y * Math.sin(thetaRad);
+    return { x, y, proj };
   });
 
   centroids.sort((a, b) => a.proj - b.proj);
 
   const K = Math.min(10, centroids.length);
-  const pts: { lon: number; lat: number }[] = [];
+  const pts: { x: number; y: number }[] = [];
   for (let k = 0; k < K; k++) {
     const startIdx = Math.floor((k * centroids.length) / K);
     const endIdx = Math.floor(((k + 1) * centroids.length) / K);
     const bucket = centroids.slice(startIdx, endIdx);
     if (bucket.length > 0) {
-      const avgLon = bucket.reduce((sum, p) => sum + p.lon, 0) / bucket.length;
-      const avgLat = bucket.reduce((sum, p) => sum + p.lat, 0) / bucket.length;
-      pts.push({ lon: avgLon, lat: avgLat });
+      const avgX = bucket.reduce((sum, p) => sum + p.x, 0) / bucket.length;
+      const avgY = bucket.reduce((sum, p) => sum + p.y, 0) / bucket.length;
+      pts.push({ x: avgX, y: avgY });
     }
   }
 
   let smoothed = pts;
   for (let pass = 0; pass < 2; pass++) {
-    const nextPts: { lon: number; lat: number }[] = [];
+    const nextPts: { x: number; y: number }[] = [];
     for (let i = 0; i < smoothed.length; i++) {
       const startIdx = Math.max(0, i - 1);
       const endIdx = Math.min(smoothed.length - 1, i + 1);
       const windowPts = smoothed.slice(startIdx, endIdx + 1);
       
-      const avgLon = windowPts.reduce((sum, p) => sum + p.lon, 0) / windowPts.length;
-      const avgLat = windowPts.reduce((sum, p) => sum + p.lat, 0) / windowPts.length;
-      nextPts.push({ lon: avgLon, lat: avgLat });
+      const avgX = windowPts.reduce((sum, p) => sum + p.x, 0) / windowPts.length;
+      const avgY = windowPts.reduce((sum, p) => sum + p.y, 0) / windowPts.length;
+      nextPts.push({ x: avgX, y: avgY });
     }
     smoothed = nextPts;
   }
 
-  return smoothed.map(p => [p.lon, p.lat]);
+  const line = smoothed.map(p => [p.x, p.y] as [number, number]);
+  if (line.length >= 2) {
+    if (line[line.length - 1][0] < line[0][0]) {
+      line.reverse();
+    }
+  }
+  return line;
 }
 
 /**
@@ -352,7 +448,6 @@ export function buildCountryLabels(
 
     const lineCoords = buildCountryLabelLine(paired, axis);
     if (lineCoords.length < 2) {
-      // Fallback
       labelFeatures.push({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [axis.lon, axis.lat] },
@@ -361,28 +456,7 @@ export function buildCountryLabels(
       continue;
     }
 
-    // Преобразуем географические координаты в плоские Web Mercator Point2D[]
-    const path: Point2D[] = lineCoords.map(([lon, lat]) => ({
-      x: lonToX(lon),
-      y: latToY(lat)
-    }));
-
-    // Убеждаемся, что базовая линия течет строго слева направо
-    if (path[path.length - 1].x < path[0].x) {
-      path.reverse();
-    }
-
-    // Вычисляем длины сегментов и кумулятивные длины в Web Mercator
-    const cumulativeLengths: number[] = [0];
-    let L_base = 0;
-    for (let i = 1; i < path.length; i++) {
-      const dx = path[i].x - path[i - 1].x;
-      const dy = path[i].y - path[i - 1].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      L_base += dist;
-      cumulativeLengths.push(L_base);
-    }
-
+    const L_base = getLineLength(lineCoords);
     if (L_base <= 0) {
       labelFeatures.push({
         type: 'Feature',
@@ -392,105 +466,40 @@ export function buildCountryLabels(
       continue;
     }
 
-    // Переводим пиксельные размеры в плоские Mercator на zoom 2
-    // Ширина мира на zoom 2 = 2048 px
-    const px_to_mercator = 1.0 / 2048.0;
-    const sizeZ2_mercator = sizeZ2 * px_to_mercator;
-
     const charCount = name.length;
-    const charWidths: number[] = [];
-    let text_width_mercator = 0;
-    for (let i = 0; i < charCount; i++) {
-      const factor = getCharWidthFactor(name[i]);
-      const w = sizeZ2_mercator * factor;
-      charWidths.push(w);
-      text_width_mercator += w;
-    }
-    const spacing_mercator = sizeZ2_mercator * LABEL_LETTER_SPACING_EM;
-    text_width_mercator += (charCount - 1) * spacing_mercator;
+    const fontSize = sizeZ2 / 4;
+    const textWidthEm = name.split('').reduce((sum: number, c: string) => sum + getCharacterWidth(c), 0);
+    const W_target = L_base * 0.8;
 
-    // Целевая ширина растягивания
-    let W_target = L_base * 0.8;
-    if (W_target < text_width_mercator) {
-      W_target = text_width_mercator;
-    }
-    if (W_target > L_base * 0.95) {
-      W_target = Math.max(text_width_mercator, L_base * 0.95);
-    }
+    const letterSpacing = charCount > 1 ? (W_target / fontSize - textWidthEm) / (charCount - 1) : 0.08;
+    const clampedSpacing = Math.max(0.08, Math.min(0.60, letterSpacing));
+    const W_word = (textWidthEm + (charCount - 1) * clampedSpacing) * fontSize;
+    const start_d = (L_base - W_word + getCharacterWidth(name[0]) * fontSize) / 2;
 
-    const start_dist = (L_base - W_target) / 2;
-    const gap = charCount > 1 ? (W_target - text_width_mercator) / (charCount - 1) + spacing_mercator : 0;
-
-    let current_dist = start_dist;
+    let currentOffset = 0;
     for (let i = 0; i < charCount; i++) {
       const char = name[i];
-      const w = charWidths[i];
-      const d_i = current_dist + w / 2;
-      current_dist += w + gap;
-
-      // Интерполяция и экстраполяция по касательным
-      let pt: Point2D;
-      let tangent: Point2D;
-
-      const n = path.length;
-      if (d_i < 0) {
-        // Экстраполируем назад от начала линии
-        const pt0 = path[0];
-        const pt1 = path[1];
-        const dx = pt1.x - pt0.x;
-        const dy = pt1.y - pt0.y;
-        const len = Math.sqrt(dx * dx + dy * dy);
-        const ux = len > 0 ? dx / len : 1;
-        const uy = len > 0 ? dy / len : 0;
-
-        pt = { x: pt0.x + d_i * ux, y: pt0.y + d_i * uy };
-        tangent = { x: ux, y: uy };
-      } else if (d_i > L_base) {
-        // Экстраполируем вперед от конца линии
-        const ptn2 = path[n - 2];
-        const ptn1 = path[n - 1];
-        const dx = ptn1.x - ptn2.x;
-        const dy = ptn1.y - ptn2.y;
-        const len = Math.sqrt(dx * dx + dy * dy);
-        const ux = len > 0 ? dx / len : 1;
-        const uy = len > 0 ? dy / len : 0;
-
-        pt = { x: ptn1.x + (d_i - L_base) * ux, y: ptn1.y + (d_i - L_base) * uy };
-        tangent = { x: ux, y: uy };
-      } else {
-        // Обычная линейная интерполяция внутри линии
-        let idx = 0;
-        for (let j = 0; j < n - 1; j++) {
-          if (cumulativeLengths[j] <= d_i && d_i <= cumulativeLengths[j + 1]) {
-            idx = j;
-            break;
-          }
-        }
-        const pt0 = path[idx];
-        const pt1 = path[idx + 1];
-        const segLen = cumulativeLengths[idx + 1] - cumulativeLengths[idx];
-        const t = segLen > 0 ? (d_i - cumulativeLengths[idx]) / segLen : 0;
-
-        const dx = pt1.x - pt0.x;
-        const dy = pt1.y - pt0.y;
-        const len = Math.sqrt(dx * dx + dy * dy);
-        const ux = len > 0 ? dx / len : 1;
-        const uy = len > 0 ? dy / len : 0;
-
-        pt = { x: pt0.x + t * dx, y: pt0.y + t * dy };
-        tangent = { x: ux, y: uy };
+      const w_i = getCharacterWidth(char);
+      if (i > 0) {
+        const w_prev = getCharacterWidth(name[i - 1]);
+        currentOffset += (w_prev / 2 + w_i / 2 + clampedSpacing) * fontSize;
       }
+      const d_i = start_d + currentOffset;
 
-      // Переводим точку Web Mercator обратно в градусы
-      const lon = xToLon(pt.x);
-      const lat = yToLat(pt.y);
+      const { point, tangent } = getPointAlongLine(lineCoords, d_i);
+      const [lon, lat] = mercatorToLonLat(point[0], point[1]);
 
-      // Угол поворота буквы (в градусах по часовой стрелке)
-      const rotateDeg = Math.atan2(tangent.y, tangent.x) * 180 / Math.PI;
+      const rotateRad = Math.atan2(tangent[1], tangent[0]);
+      let rotateDeg = rotateRad * 180 / Math.PI;
+      while (rotateDeg < -90) rotateDeg += 180;
+      while (rotateDeg > 90) rotateDeg -= 180;
 
       labelFeatures.push({
         type: 'Feature',
-        geometry: { type: 'Point', coordinates: [lon, lat] },
+        geometry: {
+          type: 'Point',
+          coordinates: [lon, lat]
+        },
         properties: {
           name: char,
           sizeZ2,
