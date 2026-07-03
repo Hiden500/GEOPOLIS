@@ -16,26 +16,31 @@ data) live only in `/docs` — link there instead of restating numbers here.
 
 # Documentation Authority
 
-Mandatory rules also live in `/docs`. Inspect the relevant ones before any task:
+Mandatory rules also live in `/docs`. Always read `docs/TODO.md` and
+`docs/DECISIONS.md` first — everything else is routed by what the task
+touches, not read wholesale:
 
-* docs/PROJECT.md
-* docs/ARCHITECTURE.md
-* docs/AI_RULES.md
-* docs/LLM_RULES.md
-* docs/WORLD.md
-* docs/HISTORICAL_ACCURACY.md
-* docs/ECONOMY.md (заготовка, открытые вопросы — см. предупреждение в файле)
-* docs/POLITICS.md (заготовка, открытые вопросы — см. предупреждение в файле)
-* docs/WAR.md (заготовка, открытые вопросы — см. предупреждение в файле)
-* docs/TRADE.md (заготовка, открытые вопросы — см. предупреждение в файле)
-* docs/DIPLOMACY.md (в основном консолидация, частично заготовка — см. предупреждение в файле)
-* docs/MAP_FEATURES.md (заготовка, открытые вопросы — см. предупреждение в файле)
-* docs/SCENARIOS.md (заготовка, открытые вопросы — см. предупреждение в файле)
-* docs/TECH_TREE.md (черновик, не продумано — см. предупреждение в файле)
-* docs/EVENTS.md (черновик, не продумано — см. предупреждение в файле)
-* docs/GEMINI_MAP_ENGINE.md (промпты и архитектурный пайплайн MAS для Gemini)
-* docs/TODO.md
-* docs/DECISIONS.md (журнал архитектурных решений и открытых вопросов — проверять перед спорными решениями)
+| Task touches | Read |
+|---|---|
+| simulation ticks, `SimulationEngine.ts` order | `docs/AI_RULES.md` §Симуляция (status of each tick — trust the file listed there, not this table) |
+| economy (GDP, budget, resources) | `docs/ECONOMY.md` |
+| politics (`stability`/`legitimacy`/`corruption`) | `docs/POLITICS.md` |
+| war/combat (currently unbuilt) | `docs/WAR.md` |
+| trade/logistics (currently unbuilt) | `docs/TRADE.md` |
+| diplomacy, alliances, Threat/Rivalry | `docs/DIPLOMACY.md` |
+| LLM prompt/response/validation | `docs/LLM_RULES.md` |
+| map features (factories, mines, ports, battalions) | `docs/MAP_FEATURES.md` |
+| starting scenarios (1836/1946/2000) | `docs/SCENARIOS.md` |
+| tech tree | `docs/TECH_TREE.md` (draft, unresolved) |
+| world events | `docs/EVENTS.md` (draft, unresolved) |
+| map geometry/rendering (frozen — see TODO) | `docs/GEMINI_MAP_ENGINE.md` |
+| world scale, region counts | `docs/WORLD.md` |
+| historical sourcing standards | `docs/HISTORICAL_ACCURACY.md` |
+| overall architecture/module map | `docs/ARCHITECTURE.md`, `docs/PROJECT.md` |
+
+Docs marked "заготовка"/"черновик" in their own header carry unresolved
+open questions — read the warning at the top of the file before treating
+anything in it as settled.
 
 Any future documentation added to `/docs` is authoritative.
 
@@ -248,17 +253,12 @@ situation — not pure randomness.
 
 # LLM Integration
 
-The simulation uses an external LLM. It does NOT receive the full game state —
-only relevant context.
-
-The LLM IS responsible for: world events, political developments, diplomatic
-reactions, alternate-history outcomes, narrative developments.
-
-The LLM is NOT responsible for: economy calculations, production calculations,
-combat calculations, pathfinding, savegame integrity. These systems must remain
-deterministic.
-
-See `docs/LLM_RULES.md` for prompt construction and response validation detail.
+Determinism boundary (the one fact worth restating here — violating it is the
+most likely LLM-integration mistake): the LLM never calculates economy,
+production, combat, or pathfinding, and never touches savegame integrity —
+those stay deterministic in the engine. Everything else about the LLM's role
+(prompt construction, response validation, event generation) is canonical in
+`docs/LLM_RULES.md` — not duplicated here.
 
 ---
 
@@ -328,6 +328,11 @@ estimates from verified data.
 - Не работать с `shared/types/` в параллельных ветках.
 - Не создавать ветку от незамерженной ветки другой модели.
 - Не мержить в `main` с красными тестами.
+
+CI (`.github/workflows/doc-guardrails.yml`) блокирует PR/push в `main`, если
+закоммичен `.repowise/` или дока в корне репо вне `README.md`/`AGENTS.md` —
+это не заменяет правила выше, а страхует от их нарушения (см.
+`docs/DECISIONS.md`, 2026-07-03, чистка ветки `gemini/ui-map-improvements`).
 
 ---
 

@@ -1,6 +1,3 @@
----
-trigger: always_on
----
 # HISTORICAL_ACCURACY.md
 
 Last updated: 2026-06-21

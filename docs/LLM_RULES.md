@@ -1,9 +1,6 @@
----
-trigger: always_on
----
 # LLM World Simulation Rules
 
-Last updated: 2026-06-30
+Last updated: 2026-07-03
 
 ## Роль LLM в архитектуре
 

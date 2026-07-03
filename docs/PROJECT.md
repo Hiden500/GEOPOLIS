@@ -1,6 +1,3 @@
----
-trigger: always_on
----
 # Geopolis
 
 Last updated: 2026-06-21
