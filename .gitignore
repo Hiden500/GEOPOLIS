@@ -75,17 +75,7 @@ logs/
 # пайплайном server/data/scenarios/1946/regions.json)
 /shared/src/data/regions_1946.json
 
-# repowise API keys (local)
-.repowise/.env
-
-# repowise local caches (config .mcp.json IS tracked; these are machine-local)
-.repowise/*.pkl
-.repowise/wiki.db
-.repowise/wiki.db-shm
-.repowise/wiki.db-wal
-.repowise/centrality_cache.pkl
-.repowise/.augment-session.json
-.repowise/.augment-warned
-.repowise/state.json
-.repowise/knowledge-graph.json
-.repowise/jobs/
+# repowise — весь каталог machine-local (индекс lancedb, кэши, ключи);
+# конфиг MCP трекается в корневом .mcp.json. В main .repowise никогда не
+# трекался; ветка gemini однажды закоммитила 362 файла индекса — не повторять.
+.repowise/

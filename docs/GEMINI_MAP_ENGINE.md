@@ -383,3 +383,22 @@ Goal:
 
 Provide architecture and production code.
 ```
+
+---
+
+## Тестовая инфраструктура E2E (подписи стран)
+
+Требование-ориентированные opaque-box тесты `buildCountryLabels`
+(Category-Partition + BVA + Pairwise + сценарии реального мира).
+
+- Запуск: `npx vitest run src/map/engine/__tests__/buildCountryLabels.e2e.test.ts` (из каталога `client/`).
+- 60 тест-кейсов: 25 покрытие фич (F1–F5 по 5), 25 граничных, 5 кросс-фичевых,
+  5 реальных сценариев (Франция, Чили, Суматра, СССР, Карибы).
+- Фичи: F1 Flat Web Mercator Layout, F2 Dynamic Baseline (straight/curved),
+  F3 Proportional Kerning, F4 Out-of-Bounds Extrapolation, F5 Continuous Rotation.
+- Контракт: `buildCountryLabels(featureCollection, regions)` →
+  `FeatureCollection<Point, CountryLabelProps>` — по одной Point-фиче на букву
+  (`name`, `sizeZ2`, `sizeZ7`, `sortKey`, `appearZoom`, `rotateDeg`), координаты в `[lon, lat]`.
+
+(Перенесено из корневых TEST_INFRA.md / TEST_READY.md / PROJECT.md при мерже в main —
+задачные трекинг-доки в корне противоречат конвенции "Keep /docs Lean" в AGENTS.md.)
