@@ -313,7 +313,10 @@ export function buildCountryLabelLine(
       [cx - dx, cy - dy],
       [cx + dx, cy + dy]
     ];
-    if (line[1][0] < line[0][0]) {
+    const dxFlow = line[line.length - 1][0] - line[0][0];
+    const dyFlow = line[line.length - 1][1] - line[0][1];
+    const shouldReverse = Math.abs(dxFlow) >= Math.abs(dyFlow) ? dxFlow < 0 : dyFlow > 0;
+    if (shouldReverse) {
       line.reverse();
     }
     return line;
@@ -358,7 +361,10 @@ export function buildCountryLabelLine(
 
   const line = smoothed.map(p => [p.x, p.y] as [number, number]);
   if (line.length >= 2) {
-    if (line[line.length - 1][0] < line[0][0]) {
+    const dxFlow = line[line.length - 1][0] - line[0][0];
+    const dyFlow = line[line.length - 1][1] - line[0][1];
+    const shouldReverse = Math.abs(dxFlow) >= Math.abs(dyFlow) ? dxFlow < 0 : dyFlow > 0;
+    if (shouldReverse) {
       line.reverse();
     }
   }
@@ -476,6 +482,11 @@ export function buildCountryLabels(
     const W_word = (textWidthEm + (charCount - 1) * clampedSpacing) * fontSize;
     const start_d = (L_base - W_word + getCharacterWidth(name[0]) * fontSize) / 2;
 
+    const globalAngle = Math.atan2(
+      lineCoords[lineCoords.length - 1][1] - lineCoords[0][1],
+      lineCoords[lineCoords.length - 1][0] - lineCoords[0][0]
+    ) * 180 / Math.PI;
+
     let currentOffset = 0;
     for (let i = 0; i < charCount; i++) {
       const char = name[i];
@@ -487,12 +498,15 @@ export function buildCountryLabels(
       const d_i = start_d + currentOffset;
 
       const { point, tangent } = getPointAlongLine(lineCoords, d_i);
-      const [lon, lat] = mercatorToLonLat(point[0], point[1]);
+      const [rawLon, lat] = mercatorToLonLat(point[0], point[1]);
+      let lon = rawLon;
+      while (lon < -180) lon += 360;
+      while (lon > 180) lon -= 360;
 
       const rotateRad = Math.atan2(tangent[1], tangent[0]);
       let rotateDeg = rotateRad * 180 / Math.PI;
-      while (rotateDeg < -90) rotateDeg += 180;
-      while (rotateDeg > 90) rotateDeg -= 180;
+      while (rotateDeg - globalAngle > 90) rotateDeg -= 180;
+      while (rotateDeg - globalAngle < -90) rotateDeg += 180;
 
       labelFeatures.push({
         type: 'Feature',

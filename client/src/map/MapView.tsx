@@ -477,9 +477,10 @@ export function MapView({
           'symbol-placement': 'point',
           'text-rotate': ['get', 'rotateDeg'],
           'text-keep-upright': false,
-          'text-size': ['interpolate', ['exponential', 2], ['zoom'],
-            2, ['get', 'sizeZ2'],
-            7, ['get', 'sizeZ7']
+          'text-size': [
+            'min',
+            ['get', 'sizeZ7'],
+            ['*', ['get', 'sizeZ2'], ['^', 2, ['-', ['zoom'], 2]]]
           ],
           'text-font': ['Open Sans Semibold'],
           'symbol-sort-key': ['get', 'sortKey'],
