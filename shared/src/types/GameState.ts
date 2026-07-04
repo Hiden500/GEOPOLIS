@@ -29,6 +29,11 @@ export interface GameState {
   llmResponse?: string; // последний ответ LLM
   llmTurn?: number; // номер хода для LLM симуляции
   pendingLlmActions?: LLMAction[]; // действия от LLM ожидающие применения
+  // Индекс ротации "Spotlight Countries" (детерминированный round-robin по
+  // не-major странам, id-sort) — расширение круга стран, реально ощущающих
+  // LLM (docs/DECISIONS.md, 2026-07-04, вопрос 11). Двигается только при
+  // успешном processResponse, не при простом generatePrompt.
+  llmSpotlightCursor?: number;
 }
 
 export interface LLMAction {

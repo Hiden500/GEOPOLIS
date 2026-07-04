@@ -7,8 +7,8 @@ function gameWithUsaUssr(overrides: Partial<GameState> = {}): GameState {
   return createTestGameState({
     playerCountryId: "USA",
     countries: [
-      createTestCountry({ id: "USA", name: "USA" }),
-      createTestCountry({ id: "USSR", name: "USSR" }),
+      createTestCountry({ id: "USA", name: "USA", tier: "major" }),
+      createTestCountry({ id: "USSR", name: "USSR", tier: "major" }),
     ],
     ...overrides,
   });
@@ -49,7 +49,7 @@ describe("LLMService", () => {
       expect(prompt).toContain("Never invent, abbreviate, or guess an id from a");
     });
 
-    it("Country IDs: включает союзников/соперников игрока и стороны напряжённостей, даже если не в топ-5 по ВВП", () => {
+    it("Country IDs: включает союзников/соперников игрока и стороны напряжённостей, даже если tier не major", () => {
       const g = createTestGameState({
         playerCountryId: "USA",
         countries: [
@@ -103,6 +103,91 @@ describe("LLMService", () => {
       svc.generatePrompt();
       // generatePrompt сортирует копию, исходный порядок сохраняется
       expect(g.countries.map(c => c.id)).toEqual(["WEAK", "STRONG"]);
+    });
+  });
+
+  describe("Spotlight Countries (расширение круга стран, вопрос 11)", () => {
+    function gameWithRoster(): GameState {
+      return createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({ id: "USA", name: "USA", tier: "major" }),
+          createTestCountry({ id: "BBB", name: "Bravo" }),
+          createTestCountry({ id: "AAA", name: "Alpha" }),
+          createTestCountry({ id: "DDD", name: "Delta" }),
+          createTestCountry({ id: "CCC", name: "Charlie" }),
+          createTestCountry({ id: "EEE", name: "Echo" }),
+          createTestCountry({ id: "FFF", name: "Foxtrot" }),
+        ],
+      });
+    }
+
+    it("выбирает первые LLM_SPOTLIGHT_COUNT не-major стран по id, начиная с курсора 0", () => {
+      const g = gameWithRoster();
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
+      // Пул по id: AAA, BBB, CCC, DDD, EEE, FFF — первые 5 от курсора 0
+      expect(section).toContain("Alpha");
+      expect(section).toContain("Bravo");
+      expect(section).toContain("Charlie");
+      expect(section).toContain("Delta");
+      expect(section).toContain("Echo");
+      expect(section).not.toContain("Foxtrot");
+    });
+
+    it("generatePrompt не двигает курсор ротации (идемпотентно)", () => {
+      const g = gameWithRoster();
+      const svc = new LLMService(g);
+      svc.generatePrompt();
+      svc.generatePrompt();
+      expect(g.llmSpotlightCursor ?? 0).toBe(0);
+    });
+
+    it("курсор двигается только после успешного processResponse, с оборачиванием пула", () => {
+      const g = gameWithRoster();
+      const svc = new LLMService(g);
+      const response = JSON.stringify({ descriptions: "x", actions: [] });
+
+      svc.processResponse(response);
+      // Пул из 6 стран, шаг 5 → курсор 5
+      expect(g.llmSpotlightCursor).toBe(5);
+
+      const promptAfter = svc.generatePrompt();
+      const section = promptAfter.slice(
+        promptAfter.indexOf("## Spotlight Countries"),
+        promptAfter.indexOf("## Active Wars")
+      );
+      // От курсора 5 в пуле из 6 (AAA..FFF): FFF, затем оборот на AAA..DDD
+      expect(section).toContain("Foxtrot");
+      expect(section).toContain("Alpha");
+
+      svc.processResponse(response);
+      // (5 + 5) % 6 = 4
+      expect(g.llmSpotlightCursor).toBe(4);
+    });
+
+    it("майоры никогда не попадают в пул ротации", () => {
+      const g = gameWithRoster();
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      const majorsSection = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
+      expect(majorsSection).toContain("USA");
+    });
+
+    it("пустой пул (все страны major) не роняет промт", () => {
+      const g = gameWithUsaUssr(); // и USA, и USSR — major
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      expect(prompt).toContain("No spotlight countries this cycle");
+    });
+
+    it("страны в ротации попадают в ## Country IDs", () => {
+      const g = gameWithRoster();
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      expect(prompt).toContain("- AAA: Alpha");
+      expect(prompt).toContain("- EEE: Echo");
     });
   });
 

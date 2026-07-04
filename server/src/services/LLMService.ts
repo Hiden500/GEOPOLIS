@@ -1,5 +1,6 @@
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
+import { type Country } from "@shared/types/Country";
 import { DiplomacyService } from "./DiplomacyService";
 import {
   LLMResponseValidator,
@@ -7,6 +8,15 @@ import {
   MAX_RELATION_CHANGE,
   MAX_INFLUENCE_CHANGE,
 } from "../llm/LLMResponseValidator";
+
+/**
+ * Сколько не-major стран попадают в "## Spotlight Countries" за один цикл.
+ * Тюнингуемая константа (как THREAT-пороги в AiBehaviorTick) — балансировать
+ * на симуляции. При ~117 не-major странах (10 major/25 regional из
+ * TierTick.ts, остальное minor) и этом значении полный оборот ротации —
+ * ~24 месяца (см. docs/DECISIONS.md, 2026-07-04, вопрос 11).
+ */
+const LLM_SPOTLIGHT_COUNT = 5;
 
 /**
  * Итог одного прохода LLM-цикла: что применено, что отклонено и почему.
@@ -73,6 +83,7 @@ export class LLMService {
     this.applyLlmActions(appliedActions);
     this.saveResponse(rawResponse);
     this.incrementLlmTurn();
+    this.advanceSpotlightCursor();
 
     this.game.eventHistory.push({
       id: `llm-turn-${this.game.llmTurn}`,
@@ -106,6 +117,11 @@ ${this.getPlayerCountryInfo()}
 
 ## Major Powers
 ${this.getMajorPowersInfo()}
+
+## Spotlight Countries
+Not major powers, but on stage this cycle — feel free to narrate developments
+or actions for them if it makes sense, not mandatory every cycle for each one.
+${this.getSpotlightInfo()}
 
 ## Active Wars
 ${this.getActiveWarsInfo()}
@@ -303,32 +319,84 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
-   * Топ-5 держав по ВВП. Копия перед сортировкой: .sort() мутирует на месте,
-   * а generatePrompt не должен переупорядочивать game.countries как побочный
-   * эффект. Общий источник для getMajorPowersInfo и getReferencedCountries —
-   * список "видимых" LLM держав не должен расходиться между секциями промта.
+   * Страны с tier === 'major' (TierTick.ts — 10 стран, пересчитывается раз в
+   * год по составному скору ВВП/военной/влияния). До 2026-07-04 здесь был
+   * top-5 по ВВП — ad-hoc метрика, не знавшая о существующем поле `tier`; см.
+   * docs/DECISIONS.md, вопрос 11. Отсортировано по ВВП только для порядка
+   * отображения — на выбор набора не влияет.
    */
-  private getTopMajorPowers() {
-    return [...this.game.countries]
-      .sort((a, b) => b.economy.gdp - a.economy.gdp)
-      .slice(0, 5);
+  private getMajorPowers(): Country[] {
+    return this.game.countries
+      .filter(c => c.tier === 'major')
+      .sort((a, b) => b.economy.gdp - a.economy.gdp);
   }
 
   /**
    * Получает информацию о крупных державах.
    */
   private getMajorPowersInfo(): string {
-    return this.getTopMajorPowers().map(c =>
+    const majors = this.getMajorPowers();
+    if (majors.length === 0) return 'No major powers';
+    return majors.map(c =>
       `- ${c.name}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}`
     ).join('\n');
   }
 
   /**
+   * Пул кандидатов на ротацию — все не-major страны, отсортированные по id.
+   * Сортировка по id (не по ВВП/скору) намеренно: эти поля меняются каждый
+   * тик и сдвигали бы порядок ротации непредсказуемо — id страны стабилен
+   * всю партию, гарантируя, что полный оборот действительно проходит по
+   * всем странам без пропусков/повторов.
+   */
+  private getSpotlightPool(): Country[] {
+    return [...this.game.countries]
+      .filter(c => c.tier !== 'major')
+      .sort((a, b) => a.id.localeCompare(b.id));
+  }
+
+  /**
+   * Следующие LLM_SPOTLIGHT_COUNT стран пула начиная с llmSpotlightCursor
+   * (round-robin с оборачиванием). Не двигает курсор — генерация промта
+   * должна быть идемпотентной; курсор двигает только advanceSpotlightCursor
+   * (вызывается из processResponse при успешном проходе цикла).
+   */
+  private getSpotlightCountries(): Country[] {
+    const pool = this.getSpotlightPool();
+    if (pool.length === 0) return [];
+
+    const cursor = (this.game.llmSpotlightCursor ?? 0) % pool.length;
+    const count = Math.min(LLM_SPOTLIGHT_COUNT, pool.length);
+    return Array.from({ length: count }, (_, i) => pool[(cursor + i) % pool.length]!);
+  }
+
+  /** Продвигает курсор ротации на LLM_SPOTLIGHT_COUNT, с оборачиванием. */
+  private advanceSpotlightCursor(): void {
+    const pool = this.getSpotlightPool();
+    if (pool.length === 0) return;
+
+    const cursor = (this.game.llmSpotlightCursor ?? 0) % pool.length;
+    this.game.llmSpotlightCursor = (cursor + LLM_SPOTLIGHT_COUNT) % pool.length;
+  }
+
+  /**
+   * Получает информацию о странах в ротации ("Spotlight Countries").
+   */
+  private getSpotlightInfo(): string {
+    const spotlight = this.getSpotlightCountries();
+    if (spotlight.length === 0) return 'No spotlight countries this cycle';
+    return spotlight.map(c =>
+      `- ${c.name} (${c.tier}): GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, stability ${Math.round(c.politics.stability)}`
+    ).join('\n');
+  }
+
+  /**
    * Собирает id→name всех стран, упомянутых по имени где-либо в промте
-   * (игрок, топ-державы, стороны напряжённостей, союзники/соперники игрока).
-   * LLM должна использовать эти id как есть — никогда не угадывать код из
-   * имени (регрессия 2026-07-04: ChatGPT вернул "SOV"/"ROM" вместо реальных
-   * "SUN"/"ROU", потому что промт до этого фикса не давал id вообще).
+   * (игрок, крупные державы, ротация, стороны напряжённостей, союзники/
+   * соперники игрока). LLM должна использовать эти id как есть — никогда не
+   * угадывать код из имени (регрессия 2026-07-04: ChatGPT вернул "SOV"/"ROM"
+   * вместо реальных "SUN"/"ROU", потому что промт до этого фикса не давал id
+   * вообще).
    */
   private getReferencedCountries(): Map<string, string> {
     const referenced = new Map<string, string>();
@@ -339,7 +407,8 @@ Hard limits (actions violating them are rejected):
     };
 
     add(this.game.playerCountryId);
-    for (const c of this.getTopMajorPowers()) add(c.id);
+    for (const c of this.getMajorPowers()) add(c.id);
+    for (const c of this.getSpotlightCountries()) add(c.id);
 
     const player = this.game.countries.find(c => c.id === this.game.playerCountryId);
     if (player) {
