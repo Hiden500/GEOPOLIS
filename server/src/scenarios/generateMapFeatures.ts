@@ -15,16 +15,37 @@ export function generateInitialMapFeatures(
   const mapFeatureService = new MapFeatureService(game);
   const features: MapFeature[] = [];
 
+  // Курированные имена и точные координаты столиц для основных держав 1946 года
+  const CAPITAL_OVERRIDES: Record<string, { name: string; coordinates?: [number, number] }> = {
+    SUN: { name: "Москва", coordinates: [37.6173, 55.7558] },
+    USA: { name: "Вашингтон", coordinates: [-77.0369, 38.8951] },
+    GBR: { name: "Лондон", coordinates: [-0.1278, 51.5074] },
+    FRA: { name: "Париж", coordinates: [2.3522, 48.8566] },
+    DNK: { name: "Копенгаген", coordinates: [12.5683, 55.6761] },
+    CAN: { name: "Оттава", coordinates: [-75.6972, 45.4215] },
+    BRA: { name: "Рио-де-Жанейро", coordinates: [-43.1729, -22.9068] },
+    ITA: { name: "Рим", coordinates: [12.4964, 41.9028] },
+    JPN: { name: "Токио", coordinates: [139.6917, 35.6895] },
+    TWN: { name: "Нанкин", coordinates: [118.7969, 32.0603] },
+    CHN: { name: "Яньань", coordinates: [109.4897, 36.5855] },
+    AFG: { name: "Кабул", coordinates: [69.1725, 34.5553] },
+    EGY: { name: "Каир", coordinates: [31.2357, 30.0444] },
+  };
+
   // Генерируем столицы
   for (const country of game.countries) {
     const capitalRegion = game.regions.find(r => r.id === country.capitalRegionId);
     if (capitalRegion) {
-      // Столица
+      const override = CAPITAL_OVERRIDES[country.id];
+      const name = override ? override.name : getText(capitalRegion.names);
+      const coordinates = override ? override.coordinates : undefined;
+
       const capital = mapFeatureService.createMapFeature({
         type: 'capital',
         regionId: capitalRegion.id,
         ownerId: country.id,
-        name: getText(capitalRegion.names),
+        name,
+        ...(coordinates ? { coordinates } : {}),
         tags: ['capital', 'settlement'],
         visibleAtZoom: 0, // видна на любом зуме
       });

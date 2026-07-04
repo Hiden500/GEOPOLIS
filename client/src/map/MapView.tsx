@@ -8,6 +8,7 @@ import type { MapFeature } from '@shared/types/map/MapFeature';
 import { loadGameMapData, updateMapData, type GameMapData } from './GeoJsonLoader';
 import { buildTopologyEdges, type SharedEdgeProperties } from './engine/TopologyBuilder';
 import { buildCountryLabels, buildRegionLabels } from './engine/GeometryEngine';
+import { centroid } from '@turf/turf';
 
 
 
@@ -145,12 +146,18 @@ export function MapView({
     (window as any).map = m;
 
     m.on('load', () => {
-      // Фон — тёмно-синий (подложка под океаны)
+      // Регистрируем кастомные иконки для столиц и городов
+      const capitalCanvas = createCapitalStarIcon();
+      const cityCanvas = createCityDotIcon();
+      m.addImage('capital-icon', capitalCanvas);
+      m.addImage('city-icon', cityCanvas);
+
+      // Фон — глубокий тёмный сланец
       m.addLayer({
         id: 'background',
         type: 'background',
         paint: {
-          'background-color': '#0a1628'
+          'background-color': '#0c1016'
         }
       });
 
@@ -297,7 +304,7 @@ export function MapView({
             filter: ['==', ['get', 'type'], 'ocean'],
             paint: {
               'fill-color': ['get', 'color'],
-              'fill-opacity': 0.85
+              'fill-opacity': 0.22
             }
           });
 
@@ -328,7 +335,7 @@ export function MapView({
             }
           });
 
-          // 3. Заливка регионов — opacity 1.0 + antialias false чтобы убрать белые швы
+          // 3. Заливка регионов — opacity 0.36 чтобы приглушить цвета и показать подложку
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -336,7 +343,7 @@ export function MapView({
             filter: ['==', ['get', 'type'], 'region'],
             paint: {
               'fill-color': ['get', 'ownerColor'],
-              'fill-opacity': 1.0,
+              'fill-opacity': 0.36,
               'fill-antialias': false
             }
           });
@@ -366,9 +373,9 @@ export function MapView({
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                4.0, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 1.0],
-                5.5, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 0.6],
-                7.0, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 0.85]
+                4.5, 0.0,
+                5.2, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 0.35],
+                7.0, ['case', ['!=', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0, 0.7]
               ]
             }
           });
@@ -393,28 +400,28 @@ export function MapView({
             }
           });
 
-          // 5. Внешние сухопутные государственные границы (динамическая видимость по feature-state)
+          // 5. Внешние сухопутные государственные границы
           m.addLayer({
             id: 'country-borders',
             type: 'line',
             source: 'shared-edges',
             filter: ['==', ['get', 'isCoast'], false],
             paint: {
-              'line-color': '#1f252e',
-              'line-width': 1.0,
+              'line-color': '#0d1117',
+              'line-width': 1.6,
               'line-opacity': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                4.0, [
+                2.0, [
                   'case',
                   ['==', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0,
-                  0.7
+                  0.75
                 ],
                 5.0, [
                   'case',
                   ['==', ['feature-state', 'leftOwner'], ['feature-state', 'rightOwner']], 0.0,
-                  0.7
+                  0.75
                 ],
                 5.2, 0.0
               ]
@@ -473,7 +480,7 @@ export function MapView({
         type: 'symbol',
         source: 'country-labels',
         layout: {
-          'text-field': ['get', 'name'],
+          'text-field': ['upcase', ['get', 'name']],
           'symbol-placement': 'point',
           'text-rotate': ['get', 'rotateDeg'],
           'text-keep-upright': false,
@@ -482,17 +489,17 @@ export function MapView({
             ['get', 'sizeZ7'],
             ['*', ['get', 'sizeZ2'], ['^', 2, ['-', ['zoom'], 2]]]
           ],
-          'text-font': ['Open Sans Semibold'],
+          'text-font': ['EB Garamond'],
           'symbol-sort-key': ['get', 'sortKey'],
           'text-allow-overlap': true,
           'text-ignore-placement': true,
           'text-padding': 2
         },
         paint: {
-          'text-color': '#111111',
-          'text-halo-color': '#f2eedf',
-          'text-halo-width': 1.5,
-          'text-halo-blur': 0.5,
+          'text-color': '#eae5d899', // теплый белый с 60% прозрачностью
+          'text-halo-color': '#0c1016', // темная подложка
+          'text-halo-width': 0.8,
+          'text-halo-blur': 0.2,
           // Прозрачность с затуханием по зуму и плавным проявлением по порогу читаемости (appearZoom)
           'text-opacity': [
             'interpolate',
@@ -582,79 +589,73 @@ export function MapView({
     }
   }, [selectedRegionId]);
 
-  // Инициализация Map Features слоя
+  // Управление Map Features (инициализация и обновление)
   useEffect(() => {
-    if (!mapRef.current || !loaded) return;
+    if (!mapRef.current || !loaded || !mapData) return;
 
     const m = mapRef.current;
 
-    if (m.getSource('map-features')) return;
+    // 1. Инициализация источника и слоев, если их еще нет
+    if (!m.getSource('map-features')) {
+      m.addSource('map-features', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [],
+        },
+      });
 
-    m.addSource('map-features', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: [],
-      },
-    });
+      // Слой иконок (звезды/точки с Canvas)
+      m.addLayer({
+        id: 'map-features-icons',
+        type: 'symbol',
+        source: 'map-features',
+        layout: {
+          'icon-image': [
+            'case',
+            ['==', ['get', 'type'], 'capital'], 'capital-icon',
+            'city-icon'
+          ],
+          'icon-size': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            2, 0.7,
+            8, 1.2
+          ],
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true,
+        },
+      });
 
-    m.addLayer({
-      id: 'map-features-points',
-      type: 'circle',
-      source: 'map-features',
-      paint: {
-        'circle-radius': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          2, ['case', ['==', ['get', 'type'], 'capital'], 5, 4],
-          8, ['case', ['==', ['get', 'type'], 'capital'], 11, 8]
-        ],
-        'circle-color': ['get', 'color'],
-        'circle-opacity': 0.85,
-        'circle-stroke-width': [
-          'case',
-          ['==', ['get', 'type'], 'capital'],
-          2.5,
-          1.5
-        ],
-        'circle-stroke-color': [
-          'case',
-          ['==', ['get', 'type'], 'capital'],
-          '#FFD700', // Золотистый контур для столицы
-          '#ffffff'
-        ]
-      },
-    });
+      // Слой текстовых подписей городов ниже иконки
+      m.addLayer({
+        id: 'map-features-labels',
+        type: 'symbol',
+        source: 'map-features',
+        layout: {
+          'text-field': ['get', 'name'],
+          'text-font': ['Open Sans Regular'],
+          'text-size': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            2, 9,
+            8, 12
+          ],
+          'text-offset': [0, 0.9],
+          'text-anchor': 'top',
+          'text-allow-overlap': false,
+        },
+        paint: {
+          'text-color': '#eae5d8',
+          'text-halo-color': '#0c1016',
+          'text-halo-width': 1.5,
+        },
+      });
+    }
 
-    m.addLayer({
-      id: 'map-features-icons',
-      type: 'symbol',
-      source: 'map-features',
-      layout: {
-        'text-field': ['get', 'icon'],
-        'text-size': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          2, ['case', ['==', ['get', 'type'], 'capital'], 12, 10],
-          8, ['case', ['==', ['get', 'type'], 'capital'], 20, 16]
-        ],
-        'text-anchor': 'center',
-        'text-allow-overlap': true,
-      },
-      paint: {
-        'text-color': '#ffffff',
-      },
-    });
-  }, [loaded]);
-
-  // Обновление Map Features
-  useEffect(() => {
-    if (!mapRef.current || !loaded) return;
-
-    const m = mapRef.current;
-
+    // 2. Обновление данных
     const visibleFeatures = mapFeatures.filter(f => {
       if (f.visibleAtZoom === undefined) return true;
       return currentZoom >= f.visibleAtZoom;
@@ -663,14 +664,29 @@ export function MapView({
     const featureCollection = {
       type: 'FeatureCollection' as const,
       features: visibleFeatures
-        .filter(f => f.coordinates)
         .map(f => {
+          let coords = f.coordinates;
+          
+          if (!coords && f.regionId != null && mapData) {
+            const geoFeature = mapData.featureCollection.features.find(
+              feat => feat.properties?.regionId === f.regionId
+            );
+            if (geoFeature) {
+              const c = centroid(geoFeature as any);
+              if (c && c.geometry && c.geometry.coordinates) {
+                coords = c.geometry.coordinates as [number, number];
+              }
+            }
+          }
+
+          if (!coords) return null;
+
           const country = countries.find(c => c.id === f.ownerId);
           return {
             type: 'Feature' as const,
             geometry: {
               type: 'Point' as const,
-              coordinates: f.coordinates!,
+              coordinates: coords,
             },
             properties: {
               id: f.id,
@@ -682,14 +698,15 @@ export function MapView({
               color: getColorForType(f.type),
             },
           };
-        }),
+        })
+        .filter(f => f !== null) as any[],
     };
 
     const source = m.getSource('map-features') as maplibregl.GeoJSONSource;
     if (source) {
       source.setData(featureCollection);
     }
-  }, [mapFeatures, countries, currentZoom, loaded]);
+  }, [mapFeatures, countries, currentZoom, loaded, mapData]);
 
   return <div ref={mapContainer} style={{ width: '100%', height: '100%' }} />;
 }
@@ -750,6 +767,65 @@ function getColorForType(type: string): string {
     border_dispute: '#FFA07A',
   };
   return colorMap[type] || '#FFFFFF';
+}
+
+function createCapitalStarIcon(): ImageData {
+  const canvas = document.createElement('canvas');
+  canvas.width = 16;
+  canvas.height = 16;
+  const ctx = canvas.getContext('2d')!;
+
+  const cx = 8;
+  const cy = 8;
+  const spikes = 5;
+  const outerRadius = 6;
+  const innerRadius = 2.5;
+
+  let rot = (Math.PI / 2) * 3;
+  let x = cx;
+  let y = cy;
+  const step = Math.PI / spikes;
+
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - outerRadius);
+  for (let i = 0; i < spikes; i++) {
+    x = cx + Math.cos(rot) * outerRadius;
+    y = cy + Math.sin(rot) * outerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+
+    x = cx + Math.cos(rot) * innerRadius;
+    y = cy + Math.sin(rot) * innerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+  }
+  ctx.lineTo(cx, cy - outerRadius);
+  ctx.closePath();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.strokeStyle = '#0c1016';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  return ctx.getImageData(0, 0, 16, 16);
+}
+
+function createCityDotIcon(): ImageData {
+  const canvas = document.createElement('canvas');
+  canvas.width = 10;
+  canvas.height = 10;
+  const ctx = canvas.getContext('2d')!;
+
+  ctx.beginPath();
+  ctx.arc(5, 5, 2.5, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.strokeStyle = '#0c1016';
+  ctx.lineWidth = 1.2;
+  ctx.stroke();
+
+  return ctx.getImageData(0, 0, 10, 10);
 }
 
 

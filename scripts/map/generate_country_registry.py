@@ -350,9 +350,26 @@ def main():
         suzerain_color = base_colors.get(suzerain) or deterministic_color(suzerain) if suzerain else None
         colors[country_id] = tint_from_suzerain(suzerain_color) if suzerain_color else deterministic_color(country_id)
 
+    CAPITAL_REGION_OVERRIDES = {
+        "SUN": 318,   # Москва
+        "USA": 990,   # Округ Колумбия (Вашингтон)
+        "GBR": 124,   # Большой Лондон
+        "FRA": 108,   # Иль-де-Франс (Париж)
+        "DNK": 67,    # Столичный регион (Копенгаген)
+        "CAN": 787,   # Онтарио (Оттава)
+        "BRA": 1055,  # Рио-де-Жанейро
+        "ITA": 175,   # Лацио (Рим)
+        "JPN": 557,   # Канто (Токио)
+        "TWN": 382,   # Цзянсу (Нанкин)
+        "AFG": 433,   # Баглан (Кабул)
+        "EGY": 1134,  # Каир
+    }
+
     countries = []
     for country_id in sorted(final_owner_ids):
-        capital_region_id = best_region_by_owner.get(country_id, (None, 0))[0]
+        capital_region_id = CAPITAL_REGION_OVERRIDES.get(country_id)
+        if capital_region_id is None:
+            capital_region_id = best_region_by_owner.get(country_id, (None, 0))[0]
         puppets = puppets_by_suzerain.get(country_id, [])
         color = colors[country_id]
 

@@ -4,7 +4,7 @@
     "name": "Afghanistan",
     "shortName": "Afghanistan",
     "color": "#47bd9a",
-    "capitalRegionId": 436,
+    "capitalRegionId": 433,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -1680,7 +1680,7 @@
     "name": "Brazil",
     "shortName": "Brazil",
     "color": "#42a0b3",
-    "capitalRegionId": 1058,
+    "capitalRegionId": 1055,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -2192,7 +2192,7 @@
     "name": "Canada",
     "shortName": "Canada",
     "color": "#c9adb5",
-    "capitalRegionId": 782,
+    "capitalRegionId": 787,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -3472,7 +3472,7 @@
     "name": "Denmark",
     "shortName": "Denmark",
     "color": "#8f5c28",
-    "capitalRegionId": 64,
+    "capitalRegionId": 67,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -3860,7 +3860,7 @@
     "name": "Egypt",
     "shortName": "Egypt",
     "color": "#b0b950",
-    "capitalRegionId": 1142,
+    "capitalRegionId": 1134,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -4376,7 +4376,7 @@
     "name": "France",
     "shortName": "France",
     "color": "#3f8f86",
-    "capitalRegionId": 1145,
+    "capitalRegionId": 108,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -4648,7 +4648,7 @@
     "name": "United Kingdom",
     "shortName": "United Kingdom",
     "color": "#b5657c",
-    "capitalRegionId": 1144,
+    "capitalRegionId": 124,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -6107,7 +6107,7 @@
     "name": "Italy",
     "shortName": "Italy",
     "color": "#4f8f63",
-    "capitalRegionId": 177,
+    "capitalRegionId": 175,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -6371,7 +6371,7 @@
     "name": "Japan",
     "shortName": "Japan",
     "color": "#8f4a4a",
-    "capitalRegionId": 558,
+    "capitalRegionId": 557,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -13799,7 +13799,7 @@
     "name": "Soviet Union",
     "shortName": "Soviet Union",
     "color": "#a23636",
-    "capitalRegionId": 253,
+    "capitalRegionId": 318,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.2,
@@ -14957,7 +14957,7 @@
     "name": "Republic of China (Kuomintang)",
     "shortName": "Republic of China (Kuomi",
     "color": "#33538f",
-    "capitalRegionId": 373,
+    "capitalRegionId": 382,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
@@ -15469,7 +15469,7 @@
     "name": "United States",
     "shortName": "United States",
     "color": "#3b6e8f",
-    "capitalRegionId": 969,
+    "capitalRegionId": 990,
     "population": 0,
     "economyProfile": {
       "taxRate": 0.15,
