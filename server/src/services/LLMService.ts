@@ -119,6 +119,11 @@ ${this.getDiplomaticSituation()}
 ## Player Actions
 ${this.getPlayerActionsInfo()}
 
+## Country IDs
+Every country mentioned above by name, mapped to its real id. Country names
+are for readability only — actions are matched by id, not by name or guess.
+${this.getCountryIdsSection()}
+
 ## Instructions
 Simulate the world for the next month. Consider:
 - All countries continue their development
@@ -144,7 +149,11 @@ Hard limits (actions violating them are rejected):
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
 - data.relationChange: number within ±${MAX_RELATION_CHANGE}.
 - data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
-- sourceCountryId and targetCountryId must differ and must be ids present in this prompt.
+- sourceCountryId and targetCountryId MUST be ids copied verbatim from the
+  ## Country IDs section. Never invent, abbreviate, or guess an id from a
+  country's name (e.g. do not turn "Soviet Union" into "SOV" or "USSR",
+  or "Romania" into "ROM" — look up the real id in ## Country IDs).
+- sourceCountryId and targetCountryId must differ.
 `;
     return prompt;
   }
@@ -294,18 +303,74 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
+   * Топ-5 держав по ВВП. Копия перед сортировкой: .sort() мутирует на месте,
+   * а generatePrompt не должен переупорядочивать game.countries как побочный
+   * эффект. Общий источник для getMajorPowersInfo и getReferencedCountries —
+   * список "видимых" LLM держав не должен расходиться между секциями промта.
+   */
+  private getTopMajorPowers() {
+    return [...this.game.countries]
+      .sort((a, b) => b.economy.gdp - a.economy.gdp)
+      .slice(0, 5);
+  }
+
+  /**
    * Получает информацию о крупных державах.
    */
   private getMajorPowersInfo(): string {
-    // Копируем перед сортировкой: .sort() мутирует на месте, а generatePrompt
-    // не должен переупорядочивать game.countries как побочный эффект.
-    const topCountries = [...this.game.countries]
-      .sort((a, b) => b.economy.gdp - a.economy.gdp)
-      .slice(0, 5);
-
-    return topCountries.map(c => 
+    return this.getTopMajorPowers().map(c =>
       `- ${c.name}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}`
     ).join('\n');
+  }
+
+  /**
+   * Собирает id→name всех стран, упомянутых по имени где-либо в промте
+   * (игрок, топ-державы, стороны напряжённостей, союзники/соперники игрока).
+   * LLM должна использовать эти id как есть — никогда не угадывать код из
+   * имени (регрессия 2026-07-04: ChatGPT вернул "SOV"/"ROM" вместо реальных
+   * "SUN"/"ROU", потому что промт до этого фикса не давал id вообще).
+   */
+  private getReferencedCountries(): Map<string, string> {
+    const referenced = new Map<string, string>();
+    const add = (id: string | undefined) => {
+      if (!id) return;
+      const country = this.game.countries.find(c => c.id === id);
+      if (country) referenced.set(country.id, country.name);
+    };
+
+    add(this.game.playerCountryId);
+    for (const c of this.getTopMajorPowers()) add(c.id);
+
+    const player = this.game.countries.find(c => c.id === this.game.playerCountryId);
+    if (player) {
+      for (const id of player.diplomacy.allies) add(id);
+      for (const id of player.diplomacy.rivals) add(id);
+    }
+
+    for (const country of this.game.countries) {
+      for (const rivalId of country.diplomacy.rivals) {
+        if (this.game.countries.some(c => c.id === rivalId)) {
+          add(country.id);
+          add(rivalId);
+        }
+      }
+    }
+
+    return referenced;
+  }
+
+  /**
+   * Форматирует секцию "## Country IDs" — id стран, отсортированные для
+   * детерминированности промта (не порядок обхода Map).
+   */
+  private getCountryIdsSection(): string {
+    const referenced = this.getReferencedCountries();
+    if (referenced.size === 0) return 'No countries referenced';
+
+    return [...referenced.entries()]
+      .sort(([idA], [idB]) => idA.localeCompare(idB))
+      .map(([id, name]) => `- ${id}: ${name}`)
+      .join('\n');
   }
 
   /**

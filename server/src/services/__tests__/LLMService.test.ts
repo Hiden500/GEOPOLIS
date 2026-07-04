@@ -41,6 +41,50 @@ describe("LLMService", () => {
       expect(prompt).toContain("±20");
     });
 
+    it("Country IDs: даёт реальные id упомянутых стран, не только имена (регрессия 2026-07-04: SOV/ROM вместо SUN/ROU)", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("## Country IDs");
+      expect(prompt).toContain("- USA: USA");
+      expect(prompt).toContain("- USSR: USSR");
+      expect(prompt).toContain("Never invent, abbreviate, or guess an id from a");
+    });
+
+    it("Country IDs: включает союзников/соперников игрока и стороны напряжённостей, даже если не в топ-5 по ВВП", () => {
+      const g = createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({ id: "USA", name: "USA" }),
+          createTestCountry({
+            id: "SUN",
+            name: "Soviet Union",
+            diplomacy: { ...createTestCountry().diplomacy, rivals: ["ROU"] },
+          }),
+          createTestCountry({ id: "ROU", name: "Romania" }),
+        ],
+      });
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      expect(prompt).toContain("- ROU: Romania");
+      expect(prompt).toContain("- SUN: Soviet Union");
+    });
+
+    it("Country IDs: не включает id, которых нет в game.countries (нет самоподтверждения выдумки)", () => {
+      const g = createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({
+            id: "USA",
+            name: "USA",
+            diplomacy: { ...createTestCountry().diplomacy, allies: ["ATLANTIS"] },
+          }),
+        ],
+      });
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      const idsSection = prompt.slice(prompt.indexOf("## Country IDs"), prompt.indexOf("## Instructions"));
+      expect(idsSection).not.toContain("ATLANTIS");
+    });
+
     it("детерминирован: два вызова дают одинаковый промт", () => {
       const a = service.generatePrompt();
       const b = service.generatePrompt();
