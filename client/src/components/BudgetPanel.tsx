@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { type Country } from "@shared/types/Country";
+import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
 
 interface BudgetFormState {
-  militarySpending: number;
-  researchSpending: number;
-  educationSpending: number;
-  infrastructureSpending: number;
-  welfareSpending: number;
+  military: number;
+  research: number;
+  education: number;
+  infrastructure: number;
+  welfare: number;
 }
 
 interface Props {
@@ -14,42 +15,62 @@ interface Props {
   onUpdateBudget: (budget: BudgetFormState) => void;
 }
 
-function budgetFromCountry(country: Country): BudgetFormState {
-  return {
-    militarySpending: country.economy.militarySpending,
-    researchSpending: country.economy.researchSpending,
-    educationSpending: country.economy.educationSpending,
-    infrastructureSpending: country.economy.infrastructureSpending,
-    welfareSpending: country.economy.welfareSpending,
-  };
-}
+function sharesFromCountry(country: Country): BudgetFormState {
+  const shares = country.economy.spendingShares;
+  if (shares) return { ...shares };
 
-export function BudgetPanel({ country, onUpdateBudget }: Props) {
-  const [budget, setBudget] = useState<BudgetFormState>(() => budgetFromCountry(country));
-
-  const setField = (field: keyof BudgetFormState) => (value: number) => {
-    setBudget(prev => ({ ...prev, [field]: value }));
-  };
-
-  const totalExpenses =
-    budget.militarySpending +
-    budget.researchSpending +
-    budget.educationSpending +
-    budget.infrastructureSpending +
-    budget.welfareSpending;
+  // Страна без spendingShares (ИИ-архетип на старте, до первого сохранения
+  // игроком) — приблизить текущими абсолютными *Spending / income, чтобы
+  // слайдеры не стартовали с нуля при первом открытии панели.
   const income =
     country.economy.taxRevenue +
     country.economy.exportIncome +
     country.economy.stateEnterpriseIncome +
     country.economy.otherIncome;
+  if (income <= 0) {
+    return { military: 0, research: 0, education: 0, infrastructure: 0, welfare: 0 };
+  }
+  return {
+    military: country.economy.militarySpending / income,
+    research: country.economy.researchSpending / income,
+    education: country.economy.educationSpending / income,
+    infrastructure: country.economy.infrastructureSpending / income,
+    welfare: country.economy.welfareSpending / income,
+  };
+}
+
+const CATEGORY_LABELS: Record<keyof BudgetFormState, string> = {
+  military: "Военные расходы",
+  research: "Исследования",
+  education: "Образование",
+  infrastructure: "Инфраструктура",
+  welfare: "Социальные программы",
+};
+
+export function BudgetPanel({ country, onUpdateBudget }: Props) {
+  const [shares, setShares] = useState<BudgetFormState>(() => sharesFromCountry(country));
+
+  const setField = (field: keyof BudgetFormState) => (value: number) => {
+    setShares(prev => ({ ...prev, [field]: value }));
+  };
+
+  const income =
+    country.economy.taxRevenue +
+    country.economy.exportIncome +
+    country.economy.stateEnterpriseIncome +
+    country.economy.otherIncome;
+
+  const discretionaryExpenses =
+    (shares.military + shares.research + shares.education + shares.infrastructure + shares.welfare) * income;
+  const totalExpenses = discretionaryExpenses + country.economy.debtInterest + country.economy.otherExpenses;
   const balance = income - totalExpenses;
 
   const handleSave = () => {
-    onUpdateBudget(budget);
+    onUpdateBudget(shares);
   };
 
   const handleReset = () => {
-    setBudget(budgetFromCountry(country));
+    setShares(sharesFromCountry(country));
   };
 
   return (
@@ -78,80 +99,23 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
       </div>
 
       <div className="budget-sliders">
-        <div className="slider-group">
-          <label htmlFor="budget-military">
-            Военные расходы: {Math.round(budget.militarySpending).toLocaleString("ru-RU")}
-          </label>
-          <input
-            id="budget-military"
-            type="range"
-            min="0"
-            max={country.economy.gdp * 0.3}
-            step={1000}
-            value={budget.militarySpending}
-            onChange={(e) => setField("militarySpending")(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="slider-group">
-          <label htmlFor="budget-research">
-            Исследования: {Math.round(budget.researchSpending).toLocaleString("ru-RU")}
-          </label>
-          <input
-            id="budget-research"
-            type="range"
-            min="0"
-            max={country.economy.gdp * 0.2}
-            step={1000}
-            value={budget.researchSpending}
-            onChange={(e) => setField("researchSpending")(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="slider-group">
-          <label htmlFor="budget-education">
-            Образование: {Math.round(budget.educationSpending).toLocaleString("ru-RU")}
-          </label>
-          <input
-            id="budget-education"
-            type="range"
-            min="0"
-            max={country.economy.gdp * 0.2}
-            step={1000}
-            value={budget.educationSpending}
-            onChange={(e) => setField("educationSpending")(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="slider-group">
-          <label htmlFor="budget-infrastructure">
-            Инфраструктура: {Math.round(budget.infrastructureSpending).toLocaleString("ru-RU")}
-          </label>
-          <input
-            id="budget-infrastructure"
-            type="range"
-            min="0"
-            max={country.economy.gdp * 0.15}
-            step={1000}
-            value={budget.infrastructureSpending}
-            onChange={(e) => setField("infrastructureSpending")(Number(e.target.value))}
-          />
-        </div>
-
-        <div className="slider-group">
-          <label htmlFor="budget-welfare">
-            Социальные программы: {Math.round(budget.welfareSpending).toLocaleString("ru-RU")}
-          </label>
-          <input
-            id="budget-welfare"
-            type="range"
-            min="0"
-            max={country.economy.gdp * 0.15}
-            step={1000}
-            value={budget.welfareSpending}
-            onChange={(e) => setField("welfareSpending")(Number(e.target.value))}
-          />
-        </div>
+        {(Object.keys(CATEGORY_LABELS) as (keyof BudgetFormState)[]).map(field => (
+          <div className="slider-group" key={field}>
+            <label htmlFor={`budget-${field}`}>
+              {CATEGORY_LABELS[field]}: {(shares[field] * 100).toFixed(1)}%
+              {" "}({Math.round(shares[field] * income).toLocaleString("ru-RU")})
+            </label>
+            <input
+              id={`budget-${field}`}
+              type="range"
+              min="0"
+              max={BUDGET_SPENDING_SHARE_CAPS[field]}
+              step={0.005}
+              value={shares[field]}
+              onChange={(e) => setField(field)(Number(e.target.value))}
+            />
+          </div>
+        ))}
       </div>
 
       {balance < 0 && (

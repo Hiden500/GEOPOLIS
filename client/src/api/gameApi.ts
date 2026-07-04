@@ -4,12 +4,13 @@ import { type PlayerAction } from "@shared/types/actions/PlayerAction";
 
 const API = "";
 
+/** Доли income по категориям (не абсолютные деньги) — см. docs/ECONOMY.md "Модель единиц". */
 export interface BudgetUpdate {
-  militarySpending: number;
-  researchSpending: number;
-  educationSpending: number;
-  infrastructureSpending: number;
-  welfareSpending: number;
+  military: number;
+  research: number;
+  education: number;
+  infrastructure: number;
+  welfare: number;
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {

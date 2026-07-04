@@ -49,4 +49,19 @@ export interface EconomyState {
     infrastructureSpending: number;
     welfareSpending: number;
   };
+
+  // Доли income по категориям (тот же паттерн, что и EconomyProfile.spending,
+  // но задаётся игроком через PUT /budget, не при createGame). Опционально —
+  // ИИ-страны его не имеют, их *Spending остаются абсолютными числами,
+  // которые двигает AiBehaviorTick напрямую. Когда задано, EconomyTick
+  // пересчитывает militarySpending/.../welfareSpending = income × доля
+  // каждый тик (тот же паттерн, что taxRate → taxRevenue). См.
+  // docs/DECISIONS.md (2026-07-04, "Бюджет: доли/проценты").
+  spendingShares?: {
+    military: number;
+    research: number;
+    education: number;
+    infrastructure: number;
+    welfare: number;
+  };
 }

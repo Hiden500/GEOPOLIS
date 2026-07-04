@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
 
 /**
  * Схема для создания игры.
@@ -16,21 +17,19 @@ export const advanceTurnSchema = z.object({
 });
 
 /**
- * Схема для изменения бюджета.
- *
- * .finite() — защита от Infinity/-Infinity/NaN (zod пропускает NaN как
- * "number" без явного finite()). Дефицит намеренно разрешён (см.
- * docs/TODO.md), поэтому нет проверки суммы — только форма и разумность
- * отдельных полей. Смысловая проверка "статья ≤ gdp страны" требует
- * знать gdp страны из game state — она в CountryService.validateBudgetUpdate,
- * не здесь (zod-схема не видит игровое состояние).
+ * Схема для изменения бюджета — доли income по категориям (тот же паттерн,
+ * что EconomyProfile.spending, см. docs/ECONOMY.md "Модель единиц"), не
+ * абсолютные деньги. Потолки — BUDGET_SPENDING_SHARE_CAPS, общие с клиентом
+ * и с EconomyTick, единый источник истины. .finite() — защита от
+ * Infinity/-Infinity/NaN (zod пропускает NaN как "number" без finite()).
+ * Нет проверки суммы — дефицит (Σ > 1) намеренно разрешён, см. docs/TODO.md.
  */
 export const updateBudgetSchema = z.object({
-  militarySpending: z.number().min(0).finite(),
-  researchSpending: z.number().min(0).finite(),
-  educationSpending: z.number().min(0).finite(),
-  infrastructureSpending: z.number().min(0).finite(),
-  welfareSpending: z.number().min(0).finite()
+  military: z.number().min(0).max(BUDGET_SPENDING_SHARE_CAPS.military).finite(),
+  research: z.number().min(0).max(BUDGET_SPENDING_SHARE_CAPS.research).finite(),
+  education: z.number().min(0).max(BUDGET_SPENDING_SHARE_CAPS.education).finite(),
+  infrastructure: z.number().min(0).max(BUDGET_SPENDING_SHARE_CAPS.infrastructure).finite(),
+  welfare: z.number().min(0).max(BUDGET_SPENDING_SHARE_CAPS.welfare).finite()
 });
 
 /**

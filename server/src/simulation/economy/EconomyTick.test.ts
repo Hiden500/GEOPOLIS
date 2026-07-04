@@ -47,6 +47,54 @@ describe("economyTick", () => {
     expect(country.economy.taxRevenue).toBe(42);
   });
 
+  it("пересчитывает *Spending из spendingShares × income каждый тик (тот же паттерн, что taxRate → taxRevenue)", () => {
+    const country = createTestCountry({
+      economy: {
+        ...createTestCountry().economy,
+        spendingShares: { military: 0.2, research: 0.1, education: 0.1, infrastructure: 0.05, welfare: 0.05 },
+      },
+    });
+    const income =
+      country.economy.taxRevenue +
+      country.economy.exportIncome +
+      country.economy.stateEnterpriseIncome +
+      country.economy.otherIncome;
+
+    economyTick(country, []);
+
+    expect(country.economy.militarySpending).toBe(income * 0.2);
+    expect(country.economy.researchSpending).toBe(income * 0.1);
+    expect(country.economy.educationSpending).toBe(income * 0.1);
+    expect(country.economy.infrastructureSpending).toBe(income * 0.05);
+    expect(country.economy.welfareSpending).toBe(income * 0.05);
+  });
+
+  it("не трогает *Spending, когда spendingShares не задан (ИИ-страны — AiBehaviorTick двигает абсолюты напрямую)", () => {
+    const country = createTestCountry(); // spendingShares по умолчанию undefined
+    const militaryBefore = country.economy.militarySpending;
+
+    economyTick(country, []);
+
+    expect(country.economy.militarySpending).toBe(militaryBefore);
+  });
+
+  it("spendingShares масштабируется с income при росте ВВП (та же эргономика, что taxRevenue)", () => {
+    const country = createTestCountry({
+      economy: {
+        ...createTestCountry().economy,
+        gdp: 1_000_000_000_000,
+        taxRate: 0.2,
+        exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
+        spendingShares: { military: 0.3, research: 0, education: 0, infrastructure: 0, welfare: 0 },
+      },
+    });
+
+    economyTick(country, []);
+
+    // income = gdp × taxRate = 1_000_000_000_000 × 0.2 = 200_000_000_000
+    expect(country.economy.militarySpending).toBe(200_000_000_000 * 0.3);
+  });
+
   it("is deterministic for identical inputs", () => {
     const countryA = createTestCountry();
     const countryB = createTestCountry();

@@ -8,45 +8,26 @@ import { type UpdateBudgetInput } from "../validation/schemas";
  */
 export class CountryService {
   /**
-   * Проверяет бюджетный ввод против реального состояния страны — то, что
-   * zod-схема не может: она видит только форму запроса, не game state.
-   * Дефицит намеренно разрешён (docs/TODO.md) — это не проверка суммы,
-   * а защита от абсурда: ни одна статья не может быть больше всего ВВП
-   * страны. Точные per-category потолки (доля income) приходят в шаге 2
-   * "доли/проценты" — здесь только грубая защита от нонсенса.
-   */
-  validateBudgetUpdate(country: Country, budgetUpdate: UpdateBudgetInput): { valid: boolean; error?: string } {
-    const gdp = country.economy.gdp;
-    const fields: [string, number][] = [
-      ["militarySpending", budgetUpdate.militarySpending],
-      ["researchSpending", budgetUpdate.researchSpending],
-      ["educationSpending", budgetUpdate.educationSpending],
-      ["infrastructureSpending", budgetUpdate.infrastructureSpending],
-      ["welfareSpending", budgetUpdate.welfareSpending],
-    ];
-
-    for (const [field, value] of fields) {
-      if (value > gdp) {
-        return { valid: false, error: `${field} (${value}) exceeds country GDP (${gdp})` };
-      }
-    }
-
-    return { valid: true };
-  }
-
-  /**
-   * Обновляет распределение бюджета страны и пересчитывает баланс.
+   * Обновляет распределение бюджета страны как доли income (не абсолюты —
+   * см. docs/ECONOMY.md "Модель единиц") и сразу выводит абсолютные
+   * *Spending из текущего income, чтобы UI не ждал следующего хода.
+   * EconomyTick пересчитывает те же поля из этих же долей каждый тик,
+   * когда income меняется (тот же паттерн, что taxRate → taxRevenue) —
+   * per-category потолки уже проверены zod-схемой (BUDGET_SPENDING_SHARE_CAPS),
+   * здесь их не дублируем.
    */
   updateBudget(country: Country, budgetUpdate: UpdateBudgetInput): Country["economy"] {
     const { economy } = country;
 
-    economy.militarySpending = budgetUpdate.militarySpending;
-    economy.researchSpending = budgetUpdate.researchSpending;
-    economy.educationSpending = budgetUpdate.educationSpending;
-    economy.infrastructureSpending = budgetUpdate.infrastructureSpending;
-    economy.welfareSpending = budgetUpdate.welfareSpending;
+    economy.spendingShares = { ...budgetUpdate };
 
     const income = economy.taxRevenue + economy.exportIncome + economy.stateEnterpriseIncome + economy.otherIncome;
+    economy.militarySpending = income * budgetUpdate.military;
+    economy.researchSpending = income * budgetUpdate.research;
+    economy.educationSpending = income * budgetUpdate.education;
+    economy.infrastructureSpending = income * budgetUpdate.infrastructure;
+    economy.welfareSpending = income * budgetUpdate.welfare;
+
     const expenses = economy.militarySpending + economy.researchSpending + economy.educationSpending +
       economy.infrastructureSpending + economy.welfareSpending + economy.debtInterest + economy.otherExpenses;
 

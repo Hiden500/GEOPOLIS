@@ -11,7 +11,7 @@ describe("CountryService", () => {
   });
 
   describe("updateBudget", () => {
-    it("записывает новые статьи расходов и пересчитывает budgetBalance", () => {
+    it("сохраняет доли в spendingShares и выводит *Spending = income × доля немедленно", () => {
       const country = createTestCountry({
         economy: {
           ...createTestCountry().economy,
@@ -25,19 +25,22 @@ describe("CountryService", () => {
       });
 
       const economy = service.updateBudget(country, {
-        militarySpending: 10,
-        researchSpending: 20,
-        educationSpending: 5,
-        infrastructureSpending: 5,
-        welfareSpending: 10,
+        military: 0.1,
+        research: 0.2,
+        education: 0.05,
+        infrastructure: 0.05,
+        welfare: 0.1,
       });
 
+      expect(economy.spendingShares).toEqual({
+        military: 0.1, research: 0.2, education: 0.05, infrastructure: 0.05, welfare: 0.1,
+      });
+      // income = 100 → 10 + 20 + 5 + 5 + 10 = 50
       expect(economy.militarySpending).toBe(10);
       expect(economy.researchSpending).toBe(20);
       expect(economy.educationSpending).toBe(5);
       expect(economy.infrastructureSpending).toBe(5);
       expect(economy.welfareSpending).toBe(10);
-      // income 100 - expenses (10+20+5+5+10) = 50
       expect(economy.budgetBalance).toBe(50);
     });
 
@@ -55,11 +58,7 @@ describe("CountryService", () => {
       });
 
       const economy = service.updateBudget(country, {
-        militarySpending: 0,
-        researchSpending: 0,
-        educationSpending: 0,
-        infrastructureSpending: 0,
-        welfareSpending: 0,
+        military: 0, research: 0, education: 0, infrastructure: 0, welfare: 0,
       });
 
       // income 100 - expenses (0 + debtInterest 5 + otherExpenses 5) = 90
@@ -69,65 +68,10 @@ describe("CountryService", () => {
     it("мутирует переданный объект страны (возвращает ту же ссылку economy)", () => {
       const country = createTestCountry();
       const economy = service.updateBudget(country, {
-        militarySpending: 1,
-        researchSpending: 1,
-        educationSpending: 1,
-        infrastructureSpending: 1,
-        welfareSpending: 1,
+        military: 0.01, research: 0.01, education: 0.01, infrastructure: 0.01, welfare: 0.01,
       });
       expect(economy).toBe(country.economy);
-      expect(country.economy.militarySpending).toBe(1);
-    });
-  });
-
-  describe("validateBudgetUpdate", () => {
-    it("принимает бюджет в пределах ВВП", () => {
-      const country = createTestCountry(); // gdp = 500_000_000_000
-      const result = service.validateBudgetUpdate(country, {
-        militarySpending: 10_000_000_000,
-        researchSpending: 20_000_000_000,
-        educationSpending: 5_000_000_000,
-        infrastructureSpending: 5_000_000_000,
-        welfareSpending: 10_000_000_000,
-      });
-      expect(result.valid).toBe(true);
-    });
-
-    it("отклоняет статью, превышающую весь ВВП страны", () => {
-      const country = createTestCountry(); // gdp = 500_000_000_000
-      const result = service.validateBudgetUpdate(country, {
-        militarySpending: 600_000_000_000,
-        researchSpending: 0,
-        educationSpending: 0,
-        infrastructureSpending: 0,
-        welfareSpending: 0,
-      });
-      expect(result.valid).toBe(false);
-      expect(result.error).toContain("militarySpending");
-    });
-
-    it("допускает равенство статьи и ВВП (граница включительно)", () => {
-      const country = createTestCountry();
-      const result = service.validateBudgetUpdate(country, {
-        militarySpending: country.economy.gdp,
-        researchSpending: 0,
-        educationSpending: 0,
-        infrastructureSpending: 0,
-        welfareSpending: 0,
-      });
-      expect(result.valid).toBe(true);
-    });
-
-    it("не проверяет сумму статей — дефицит и суммарное превышение gdp разрешены (docs/TODO.md)", () => {
-      const country = createTestCountry();
-      const result = service.validateBudgetUpdate(country, {
-        militarySpending: 400_000_000_000,
-        researchSpending: 400_000_000_000,
-        educationSpending: 0,
-        infrastructureSpending: 0,
-        welfareSpending: 0,
-      });
-      expect(result.valid).toBe(true);
+      expect(country.economy.spendingShares?.military).toBe(0.01);
     });
   });
 

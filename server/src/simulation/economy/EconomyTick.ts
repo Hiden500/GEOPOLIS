@@ -29,7 +29,11 @@ const UNEMPLOYMENT_DEFICIT_COEFFICIENT = 0.05;
 /**
  * Налог/доход/расходы/баланс бюджета. taxRevenue следует за gdp (taxRate
  * выводится в createGame); остальные компоненты дохода пока статичны —
- * см. docs/DECISIONS.md.
+ * см. docs/DECISIONS.md. Если игрок задал spendingShares (PUT /budget,
+ * см. docs/DECISIONS.md 2026-07-04 "Бюджет: доли/проценты"), *Spending
+ * пересчитываются из income × доля каждый тик — тот же паттерн, что
+ * taxRate → taxRevenue выше. ИИ-страны spendingShares не имеют — их
+ * *Spending остаются абсолютными числами, которые двигает AiBehaviorTick.
  */
 function updateBudget(economy: EconomyState): { income: number; expenses: number } {
   if (economy.taxRate !== undefined) {
@@ -41,6 +45,14 @@ function updateBudget(economy: EconomyState): { income: number; expenses: number
     economy.exportIncome +
     economy.stateEnterpriseIncome +
     economy.otherIncome;
+
+  if (economy.spendingShares) {
+    economy.militarySpending = income * economy.spendingShares.military;
+    economy.researchSpending = income * economy.spendingShares.research;
+    economy.educationSpending = income * economy.spendingShares.education;
+    economy.infrastructureSpending = income * economy.spendingShares.infrastructure;
+    economy.welfareSpending = income * economy.spendingShares.welfare;
+  }
 
   const expenses =
     economy.militarySpending +
