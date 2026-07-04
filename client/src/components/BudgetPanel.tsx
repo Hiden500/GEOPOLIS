@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { type Country } from "@shared/types/Country";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
+import { BUDGET_PRESETS } from "./budgetPresets";
 
 interface BudgetFormState {
   military: number;
@@ -96,6 +97,19 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
             {Math.round(balance).toLocaleString("ru-RU")}
           </span>
         </div>
+      </div>
+
+      <div className="budget-presets">
+        {BUDGET_PRESETS.map(preset => (
+          <button
+            key={preset.name}
+            type="button"
+            className="budget-preset-button"
+            onClick={() => setShares(preset.shares)}
+          >
+            {preset.name}
+          </button>
+        ))}
       </div>
 
       <div className="budget-sliders">

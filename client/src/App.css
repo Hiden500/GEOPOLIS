@@ -1139,6 +1139,29 @@ button.stat-pill:hover .stat-pill-value {
   font-weight: 500;
 }
 
+.budget-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+
+.budget-preset-button {
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+  border: 1px solid var(--color-hairline);
+  background: transparent;
+  color: var(--color-paper-dim);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.budget-preset-button:hover {
+  border-color: var(--color-brass-dim);
+  color: var(--color-paper);
+}
+
 .budget-sliders {
   display: flex;
   flex-direction: column;
