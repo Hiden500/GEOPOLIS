@@ -33,6 +33,11 @@ router.put("/", (req, res) => {
       throw new CountryError("Player country not found");
     }
 
+    const semanticValidation = countryService.validateBudgetUpdate(playerCountry, budgetUpdate);
+    if (!semanticValidation.valid) {
+      throw new ValidationError(semanticValidation.error ?? "Invalid budget");
+    }
+
     const economy = countryService.updateBudget(playerCountry, budgetUpdate);
 
     setGame(game);

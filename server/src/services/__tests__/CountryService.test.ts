@@ -80,6 +80,57 @@ describe("CountryService", () => {
     });
   });
 
+  describe("validateBudgetUpdate", () => {
+    it("принимает бюджет в пределах ВВП", () => {
+      const country = createTestCountry(); // gdp = 500_000_000_000
+      const result = service.validateBudgetUpdate(country, {
+        militarySpending: 10_000_000_000,
+        researchSpending: 20_000_000_000,
+        educationSpending: 5_000_000_000,
+        infrastructureSpending: 5_000_000_000,
+        welfareSpending: 10_000_000_000,
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("отклоняет статью, превышающую весь ВВП страны", () => {
+      const country = createTestCountry(); // gdp = 500_000_000_000
+      const result = service.validateBudgetUpdate(country, {
+        militarySpending: 600_000_000_000,
+        researchSpending: 0,
+        educationSpending: 0,
+        infrastructureSpending: 0,
+        welfareSpending: 0,
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("militarySpending");
+    });
+
+    it("допускает равенство статьи и ВВП (граница включительно)", () => {
+      const country = createTestCountry();
+      const result = service.validateBudgetUpdate(country, {
+        militarySpending: country.economy.gdp,
+        researchSpending: 0,
+        educationSpending: 0,
+        infrastructureSpending: 0,
+        welfareSpending: 0,
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("не проверяет сумму статей — дефицит и суммарное превышение gdp разрешены (docs/TODO.md)", () => {
+      const country = createTestCountry();
+      const result = service.validateBudgetUpdate(country, {
+        militarySpending: 400_000_000_000,
+        researchSpending: 400_000_000_000,
+        educationSpending: 0,
+        infrastructureSpending: 0,
+        welfareSpending: 0,
+      });
+      expect(result.valid).toBe(true);
+    });
+  });
+
   describe("findCountryById", () => {
     it("возвращает страну по id", () => {
       const a = createTestCountry({ id: "A" });

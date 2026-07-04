@@ -17,24 +17,21 @@ export const advanceTurnSchema = z.object({
 
 /**
  * Схема для изменения бюджета.
+ *
+ * .finite() — защита от Infinity/-Infinity/NaN (zod пропускает NaN как
+ * "number" без явного finite()). Дефицит намеренно разрешён (см.
+ * docs/TODO.md), поэтому нет проверки суммы — только форма и разумность
+ * отдельных полей. Смысловая проверка "статья ≤ gdp страны" требует
+ * знать gdp страны из game state — она в CountryService.validateBudgetUpdate,
+ * не здесь (zod-схема не видит игровое состояние).
  */
 export const updateBudgetSchema = z.object({
-  militarySpending: z.number().min(0),
-  researchSpending: z.number().min(0),
-  educationSpending: z.number().min(0),
-  infrastructureSpending: z.number().min(0),
-  welfareSpending: z.number().min(0)
-}).refine(
-  (data: any) => {
-    const total = data.militarySpending + data.researchSpending +
-                  data.educationSpending + data.infrastructureSpending +
-                  data.welfareSpending;
-    return total >= 0;
-  },
-  {
-    message: "Total spending cannot be negative"
-  }
-);
+  militarySpending: z.number().min(0).finite(),
+  researchSpending: z.number().min(0).finite(),
+  educationSpending: z.number().min(0).finite(),
+  infrastructureSpending: z.number().min(0).finite(),
+  welfareSpending: z.number().min(0).finite()
+});
 
 /**
  * Схема для старта исследования.

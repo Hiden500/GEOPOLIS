@@ -8,6 +8,33 @@ import { type UpdateBudgetInput } from "../validation/schemas";
  */
 export class CountryService {
   /**
+   * Проверяет бюджетный ввод против реального состояния страны — то, что
+   * zod-схема не может: она видит только форму запроса, не game state.
+   * Дефицит намеренно разрешён (docs/TODO.md) — это не проверка суммы,
+   * а защита от абсурда: ни одна статья не может быть больше всего ВВП
+   * страны. Точные per-category потолки (доля income) приходят в шаге 2
+   * "доли/проценты" — здесь только грубая защита от нонсенса.
+   */
+  validateBudgetUpdate(country: Country, budgetUpdate: UpdateBudgetInput): { valid: boolean; error?: string } {
+    const gdp = country.economy.gdp;
+    const fields: [string, number][] = [
+      ["militarySpending", budgetUpdate.militarySpending],
+      ["researchSpending", budgetUpdate.researchSpending],
+      ["educationSpending", budgetUpdate.educationSpending],
+      ["infrastructureSpending", budgetUpdate.infrastructureSpending],
+      ["welfareSpending", budgetUpdate.welfareSpending],
+    ];
+
+    for (const [field, value] of fields) {
+      if (value > gdp) {
+        return { valid: false, error: `${field} (${value}) exceeds country GDP (${gdp})` };
+      }
+    }
+
+    return { valid: true };
+  }
+
+  /**
    * Обновляет распределение бюджета страны и пересчитывает баланс.
    */
   updateBudget(country: Country, budgetUpdate: UpdateBudgetInput): Country["economy"] {
