@@ -102,7 +102,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const handleUpdateBudget = async (budget: BudgetUpdate) => {
     try {
       await updateBudget(budget);
-      const updated = await nextTurn();
+      // Сохранение бюджета не продвигает ход — отдельно от "Следующий месяц".
+      const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка обновления бюджета");
