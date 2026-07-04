@@ -34,6 +34,13 @@ describe("LLMService", () => {
       expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence");
     });
 
+    it("сообщает LLM жёсткие пределы магнитуды (Hard limits)", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("Hard limits");
+      expect(prompt).toContain("±40");
+      expect(prompt).toContain("±20");
+    });
+
     it("детерминирован: два вызова дают одинаковый промт", () => {
       const a = service.generatePrompt();
       const b = service.generatePrompt();
@@ -235,6 +242,22 @@ describe("LLMService", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Source country not found");
+    });
+
+    it("действие с магнитудой за пределами отклоняется точечно с причиной", () => {
+      const result = service.processResponse(JSON.stringify({
+        descriptions: "x",
+        actions: [
+          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 500 } },
+          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
+        ],
+      }));
+
+      expect(result.success).toBe(true);
+      expect(result.appliedActions).toHaveLength(1);
+      expect(result.rejectedActions).toHaveLength(1);
+      expect(result.rejectedActions[0]!.reason).toContain("relationChange out of range");
+      expect(usa().diplomacy.relations["USSR"]).toBe(10);
     });
 
     it("неприменимое действие отклоняется точечно с причиной, остальные применяются", () => {

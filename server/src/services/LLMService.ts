@@ -1,7 +1,12 @@
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { DiplomacyService } from "./DiplomacyService";
-import { LLMResponseValidator } from "../llm/LLMResponseValidator";
+import {
+  LLMResponseValidator,
+  MAX_ACTIONS_PER_RESPONSE,
+  MAX_RELATION_CHANGE,
+  MAX_INFLUENCE_CHANGE,
+} from "../llm/LLMResponseValidator";
 
 /**
  * Итог одного прохода LLM-цикла: что применено, что отклонено и почему.
@@ -55,6 +60,13 @@ export class LLMService {
         rejectedActions.push({ action, reason: applicability.error ?? "Not applicable" });
         continue;
       }
+
+      const magnitude = validator.validateActionMagnitude(action);
+      if (!magnitude.valid) {
+        rejectedActions.push({ action, reason: magnitude.error ?? "Magnitude out of bounds" });
+        continue;
+      }
+
       appliedActions.push(action);
     }
 
@@ -127,6 +139,12 @@ Return your response in JSON format with the following structure:
     }
   ]
 }
+
+Hard limits (actions violating them are rejected):
+- Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
+- data.relationChange: number within ±${MAX_RELATION_CHANGE}.
+- data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
+- sourceCountryId and targetCountryId must differ and must be ids present in this prompt.
 `;
     return prompt;
   }

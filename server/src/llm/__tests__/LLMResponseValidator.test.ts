@@ -171,5 +171,73 @@ describe("LLMResponseValidator", () => {
       ];
       expect(validator.filterValidActions(actions)).toEqual([]);
     });
+
+    it("отбрасывает действия с магнитудой за пределами", () => {
+      const actions = [
+        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 500 } },
+        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
+      ] as const;
+      const result = validator.filterValidActions([...actions]);
+      expect(result).toHaveLength(1);
+      expect(result[0]?.data?.relationChange).toBe(10);
+    });
+  });
+
+  describe("валидация магнитуды и source==target", () => {
+    it("отклоняет действие, где источник и цель совпадают", () => {
+      const result = validator.validateAction({ type: "war", sourceCountryId: "USA", targetCountryId: "USA" });
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("Source and target country are the same");
+    });
+
+    it("принимает relationChange на границе ±40 и отклоняет за ней", () => {
+      const at = validator.validateActionMagnitude({
+        type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: -40 },
+      });
+      expect(at.valid).toBe(true);
+
+      const over = validator.validateActionMagnitude({
+        type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 41 },
+      });
+      expect(over.valid).toBe(false);
+      expect(over.error).toContain("relationChange out of range");
+    });
+
+    it("отклоняет influenceChange за пределом ±20", () => {
+      const result = validator.validateActionMagnitude({
+        type: "influence", sourceCountryId: "USA", targetCountryId: "USSR", data: { influenceChange: -50 },
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("influenceChange out of range");
+    });
+
+    it("отклоняет нечисловые и NaN значения числовых полей", () => {
+      const nan = validator.validateActionMagnitude({
+        type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: NaN },
+      });
+      expect(nan.valid).toBe(false);
+
+      const str = validator.validateActionMagnitude({
+        type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR",
+        data: { relationChange: "big" as unknown as number },
+      });
+      expect(str.valid).toBe(false);
+    });
+
+    it("действие без data проходит проверку магнитуды", () => {
+      const result = validator.validateActionMagnitude({
+        type: "peace", sourceCountryId: "USA", targetCountryId: "USSR",
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("validateResponse отклоняет ответ с более чем 20 действиями", () => {
+      const actions = Array.from({ length: 21 }, () => ({
+        type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR",
+      }));
+      const result = validator.validateResponse(JSON.stringify({ descriptions: "x", actions }));
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("Too many actions");
+    });
   });
 });

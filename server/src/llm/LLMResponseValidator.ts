@@ -2,6 +2,16 @@ import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 
 /**
+ * Пределы магнитуды последствий (тюнингуемые константы — балансировать на
+ * симуляции, как THREAT-пороги в AiBehaviorTick). Движок выставляет пределы,
+ * LLM работает внутри них (docs/LLM_RULES.md): ответ с выходом за предел —
+ * ошибка данных LLM, а не «сильное событие».
+ */
+export const MAX_ACTIONS_PER_RESPONSE = 20;
+export const MAX_RELATION_CHANGE = 40;
+export const MAX_INFLUENCE_CHANGE = 20;
+
+/**
  * Валидатор ответов от LLM.
  * Проверяет структуру и корректность данных в ответе LLM.
  */
@@ -33,6 +43,13 @@ export class LLMResponseValidator {
 
       if (!parsed.actions || !Array.isArray(parsed.actions)) {
         return { valid: false, error: 'Missing or invalid actions field' };
+      }
+
+      if (parsed.actions.length > MAX_ACTIONS_PER_RESPONSE) {
+        return {
+          valid: false,
+          error: `Too many actions: ${parsed.actions.length} (max ${MAX_ACTIONS_PER_RESPONSE})`,
+        };
       }
 
       // Валидируем каждое действие
@@ -87,6 +104,37 @@ export class LLMResponseValidator {
       const targetCountry = this.game.countries.find(c => c.id === action.targetCountryId);
       if (!targetCountry) {
         return { valid: false, error: `Target country not found: ${action.targetCountryId}` };
+      }
+
+      if (action.targetCountryId === action.sourceCountryId) {
+        return { valid: false, error: `Source and target country are the same: ${action.sourceCountryId}` };
+      }
+    }
+
+    return { valid: true };
+  }
+
+  /**
+   * Валидирует магнитуду последствий действия — движок выставляет пределы,
+   * выход за них означает ошибку данных LLM, действие отклоняется точечно.
+   */
+  validateActionMagnitude(action: LLMAction): { valid: boolean; error?: string } {
+    const data = action.data;
+    if (!data) return { valid: true };
+
+    const numericLimits: Record<string, number> = {
+      relationChange: MAX_RELATION_CHANGE,
+      influenceChange: MAX_INFLUENCE_CHANGE,
+    };
+
+    for (const [field, limit] of Object.entries(numericLimits)) {
+      if (!(field in data)) continue;
+      const value = data[field];
+      if (typeof value !== 'number' || !Number.isFinite(value)) {
+        return { valid: false, error: `${field} must be a finite number, got: ${String(value)}` };
+      }
+      if (Math.abs(value) > limit) {
+        return { valid: false, error: `${field} out of range: ${value} (max ±${limit})` };
       }
     }
 
@@ -149,6 +197,12 @@ export class LLMResponseValidator {
       const applicability = this.validateActionApplicability(action);
       if (!applicability.valid) {
         console.warn(`Action not applicable: ${applicability.error}`);
+        continue;
+      }
+
+      const magnitude = this.validateActionMagnitude(action);
+      if (!magnitude.valid) {
+        console.warn(`Action magnitude out of bounds: ${magnitude.error}`);
         continue;
       }
 

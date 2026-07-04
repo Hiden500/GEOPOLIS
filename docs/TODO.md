@@ -58,7 +58,6 @@ export/stateEnterprise/other остаются статичными в перво
 вставка ответа → валидация → применение → событие в `eventHistory` с
 привязкой к ходу) — **реализовано 2026-07-03**, см. `docs/DECISIONS.md`.
 
-- расширить `LLMResponseValidator` на проверку магнитуды последствий (не только структуры).
 - механизм "памяти страны" между вызовами LLM.
 - `LLMProvider`-абстракция (`ManualClipboardProvider`/`GigaChat`/`OpenRouter`/`Ollama`) +
   тестирование провайдеров на реальном промте.
