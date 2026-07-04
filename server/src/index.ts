@@ -5,6 +5,7 @@ import scenarioRoutes from "./routes/scenarios";
 import actionsRoutes from "./routes/actions";
 import budgetRoutes from "./routes/budget";
 import researchRoutes from "./routes/research";
+import llmRoutes from "./routes/llm";
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,7 @@ app.use("/scenarios", scenarioRoutes);
 app.use("/actions", actionsRoutes);
 app.use("/budget", budgetRoutes);
 app.use("/research", researchRoutes);
+app.use("/llm", llmRoutes);
 
 app.listen(3000, () => {
   console.log("Server started");

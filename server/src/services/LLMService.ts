@@ -1,6 +1,18 @@
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { DiplomacyService } from "./DiplomacyService";
+import { LLMResponseValidator } from "../llm/LLMResponseValidator";
+
+/**
+ * Итог одного прохода LLM-цикла: что применено, что отклонено и почему.
+ */
+export interface LlmCycleResult {
+  success: boolean;
+  error?: string;
+  descriptions?: string;
+  appliedActions: LLMAction[];
+  rejectedActions: { action: LLMAction; reason: string }[];
+}
 
 /**
  * Сервис для работы с LLM симуляцией.
@@ -13,6 +25,58 @@ export class LLMService {
   constructor(game: GameState) {
     this.game = game;
     this.diplomacyService = new DiplomacyService();
+  }
+
+  /**
+   * Полный проход цикла по сырому ответу LLM: структурная валидация →
+   * фильтрация неприменимых действий → применение → журнал в eventHistory.
+   * Невалидная структура/JSON отклоняет ответ целиком (ничего не применяется);
+   * неприменимое отдельное действие отклоняется точечно с причиной.
+   */
+  processResponse(rawResponse: string): LlmCycleResult {
+    const validator = new LLMResponseValidator(this.game);
+    const validation = validator.validateResponse(rawResponse);
+    if (!validation.valid || !validation.parsedData) {
+      return {
+        success: false,
+        error: validation.error ?? "Unknown validation error",
+        appliedActions: [],
+        rejectedActions: [],
+      };
+    }
+
+    const { descriptions, actions } = validation.parsedData;
+    const appliedActions: LLMAction[] = [];
+    const rejectedActions: { action: LLMAction; reason: string }[] = [];
+
+    for (const action of actions) {
+      const applicability = validator.validateActionApplicability(action);
+      if (!applicability.valid) {
+        rejectedActions.push({ action, reason: applicability.error ?? "Not applicable" });
+        continue;
+      }
+      appliedActions.push(action);
+    }
+
+    this.applyLlmActions(appliedActions);
+    this.saveResponse(rawResponse);
+    this.incrementLlmTurn();
+
+    this.game.eventHistory.push({
+      id: `llm-turn-${this.game.llmTurn}`,
+      date: this.game.currentDate,
+      title: `Мировые события (LLM, ход ${this.game.llmTurn})`,
+      description: descriptions,
+      countries: [
+        ...new Set(
+          appliedActions.flatMap(a =>
+            a.targetCountryId ? [a.sourceCountryId, a.targetCountryId] : [a.sourceCountryId]
+          )
+        ),
+      ],
+    });
+
+    return { success: true, descriptions, appliedActions, rejectedActions };
   }
 
   /**

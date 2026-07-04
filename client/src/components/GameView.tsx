@@ -11,6 +11,7 @@ import { ResearchPanel } from "./ResearchPanel";
 import { ActionPanel } from "./ActionPanel";
 import { WorldRankingPanel } from "./WorldRankingPanel";
 import { TerritoriesPanel } from "./TerritoriesPanel";
+import { LLMPanel } from "./LLMPanel";
 import { MapView } from "../map/MapView";
 import {
   nextTurn,
@@ -19,6 +20,7 @@ import {
   stopResearch,
   createAction,
   deleteAction,
+  getGameState,
   type BudgetUpdate,
 } from "../api/gameApi";
 
@@ -34,6 +36,7 @@ const WINDOW_TITLES: Record<string, string> = {
   actions: "Действия",
   ranking: "Мировой рейтинг",
   territories: "Территории",
+  llm: "LLM-симуляция",
 };
 
 export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
@@ -150,6 +153,15 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     }
   };
 
+  const handleLlmApplied = async () => {
+    try {
+      const updated = await getGameState();
+      onGameUpdate(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка обновления состояния");
+    }
+  };
+
   const handleRegionClick = useCallback((regionId: number) => {
     openOrFocus({ type: "region", regionId });
   }, [openOrFocus]);
@@ -245,6 +257,9 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
                   selectedRegionId={selectedRegionId}
                   onSelectRegion={handleRegionClick}
                 />
+              )}
+              {w.kind.type === "llm" && (
+                <LLMPanel llmTurn={game.llmTurn ?? 0} onApplied={handleLlmApplied} />
               )}
             </Window>
           );

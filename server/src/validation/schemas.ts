@@ -53,6 +53,15 @@ export const playerActionSchema = z.object({
 });
 
 /**
+ * Схема для сырого ответа LLM (ручной цикл: вставка текста ответа).
+ * Содержимое (JSON-структура actions/descriptions) валидируется глубже
+ * в LLMResponseValidator — здесь только транспортный контракт.
+ */
+export const llmResponseSchema = z.object({
+  response: z.string().min(1, "LLM response is required")
+});
+
+/**
  * Типы для создания игры.
  */
 export type CreateGameInput = z.infer<typeof createGameSchema>;
@@ -76,3 +85,8 @@ export type StartResearchInput = z.infer<typeof startResearchSchema>;
  * Типы для действия игрока.
  */
 export type PlayerActionInput = z.infer<typeof playerActionSchema>;
+
+/**
+ * Типы для ответа LLM.
+ */
+export type LlmResponseInput = z.infer<typeof llmResponseSchema>;

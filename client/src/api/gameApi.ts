@@ -1,4 +1,4 @@
-import { type GameState } from "@shared/types/GameState";
+import { type GameState, type LLMAction } from "@shared/types/GameState";
 import { type ScenarioInfo } from "@shared/types/ScenarioInfo";
 import { type PlayerAction } from "@shared/types/actions/PlayerAction";
 
@@ -85,6 +85,38 @@ export async function createAction(action: {
 export async function deleteAction(actionId: string): Promise<{ success: true }> {
   const response = await fetch(`${API}/actions/${actionId}`, {
     method: "DELETE",
+  });
+  return handleResponse(response);
+}
+
+export async function getGameState(): Promise<GameState> {
+  const response = await fetch(`${API}/game/state`);
+  return handleResponse(response);
+}
+
+export interface LlmPromptResult {
+  prompt: string;
+  llmTurn: number;
+}
+
+export interface LlmCycleResult {
+  success: boolean;
+  error?: string;
+  descriptions?: string;
+  appliedActions: LLMAction[];
+  rejectedActions: { action: LLMAction; reason: string }[];
+}
+
+export async function getLlmPrompt(): Promise<LlmPromptResult> {
+  const response = await fetch(`${API}/llm/prompt`);
+  return handleResponse(response);
+}
+
+export async function submitLlmResponse(llmResponse: string): Promise<LlmCycleResult> {
+  const response = await fetch(`${API}/llm/response`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ response: llmResponse }),
   });
   return handleResponse(response);
 }

@@ -7,7 +7,8 @@ export type WindowKind =
   | { type: "research" }
   | { type: "actions" }
   | { type: "ranking" }
-  | { type: "territories" };
+  | { type: "territories" }
+  | { type: "llm" };
 
 export interface WindowInstance {
   id: string;

@@ -170,4 +170,98 @@ describe("LLMService", () => {
       expect(service.getPendingActions()).toEqual([]);
     });
   });
+
+  describe("processResponse (полный проход LLM-цикла)", () => {
+    let game: GameState;
+    let service: LLMService;
+
+    beforeEach(() => {
+      game = gameWithUsaUssr();
+      service = new LLMService(game);
+    });
+
+    const usa = () => game.countries.find(c => c.id === "USA")!;
+
+    const validResponse = JSON.stringify({
+      descriptions: "США улучшают отношения с СССР.",
+      actions: [
+        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 20 } },
+      ],
+    });
+
+    it("валидный ответ: применяет действия, пишет response/turn/eventHistory", () => {
+      const result = service.processResponse(validResponse);
+
+      expect(result.success).toBe(true);
+      expect(result.descriptions).toBe("США улучшают отношения с СССР.");
+      expect(result.appliedActions).toHaveLength(1);
+      expect(result.rejectedActions).toHaveLength(0);
+
+      expect(usa().diplomacy.relations["USSR"]).toBe(20);
+      expect(game.llmResponse).toBe(validResponse);
+      expect(game.llmTurn).toBe(1);
+
+      expect(game.eventHistory).toHaveLength(1);
+      const event = game.eventHistory[0]!;
+      expect(event.id).toBe("llm-turn-1");
+      expect(event.date).toBe(game.currentDate);
+      expect(event.description).toBe("США улучшают отношения с СССР.");
+      expect(event.countries).toEqual(["USA", "USSR"]);
+    });
+
+    it("невалидный JSON: отказ целиком, ничего не применяется", () => {
+      const result = service.processResponse("это не JSON");
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Invalid JSON format");
+      expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
+      expect(game.llmTurn).toBeUndefined();
+      expect(game.eventHistory).toHaveLength(0);
+    });
+
+    it("невалидная структура (нет descriptions): отказ с причиной", () => {
+      const result = service.processResponse(JSON.stringify({ actions: [] }));
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("Missing descriptions field");
+      expect(game.eventHistory).toHaveLength(0);
+    });
+
+    it("действие с несуществующей страной: отказ целиком (структурная валидация)", () => {
+      const result = service.processResponse(JSON.stringify({
+        descriptions: "x",
+        actions: [{ type: "war", sourceCountryId: "MARS", targetCountryId: "USA" }],
+      }));
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Source country not found");
+    });
+
+    it("неприменимое действие отклоняется точечно с причиной, остальные применяются", () => {
+      // Повторная гарантия неприменима
+      usa().diplomacy.guarantees.push("USSR");
+
+      const result = service.processResponse(JSON.stringify({
+        descriptions: "x",
+        actions: [
+          { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
+          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 5 } },
+        ],
+      }));
+
+      expect(result.success).toBe(true);
+      expect(result.appliedActions).toHaveLength(1);
+      expect(result.rejectedActions).toHaveLength(1);
+      expect(result.rejectedActions[0]!.reason).toBe("Guarantee already exists");
+      expect(usa().diplomacy.relations["USSR"]).toBe(5);
+    });
+
+    it("счётчик хода и id события растут при повторных проходах", () => {
+      service.processResponse(validResponse);
+      service.processResponse(validResponse);
+
+      expect(game.llmTurn).toBe(2);
+      expect(game.eventHistory.map(e => e.id)).toEqual(["llm-turn-1", "llm-turn-2"]);
+    });
+  });
 });
