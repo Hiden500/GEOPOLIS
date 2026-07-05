@@ -84,7 +84,7 @@ export function createGame(
     countries,
     regions,
     regionIndex: buildRegionIndex(regions),
-    playerActions: [],
+    playerIntent: "",
     eventHistory: [],
     mapFeatures: []
   };

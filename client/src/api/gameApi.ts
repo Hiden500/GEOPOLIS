@@ -1,6 +1,5 @@
 import { type GameState, type LLMAction } from "@shared/types/GameState";
 import { type ScenarioInfo } from "@shared/types/ScenarioInfo";
-import { type PlayerAction } from "@shared/types/actions/PlayerAction";
 
 const API = "";
 
@@ -70,22 +69,11 @@ export async function stopResearch(projectId: string): Promise<{ success: true }
   return handleResponse(response);
 }
 
-export async function createAction(action: {
-  type: string;
-  regionId: number;
-  parameters?: Record<string, unknown>;
-}): Promise<{ success: true; action: PlayerAction }> {
-  const response = await fetch(`${API}/actions`, {
-    method: "POST",
+export async function savePlayerIntent(intent: string): Promise<{ success: true; intent: string }> {
+  const response = await fetch(`${API}/player-intent`, {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(action),
-  });
-  return handleResponse(response);
-}
-
-export async function deleteAction(actionId: string): Promise<{ success: true }> {
-  const response = await fetch(`${API}/actions/${actionId}`, {
-    method: "DELETE",
+    body: JSON.stringify({ intent }),
   });
   return handleResponse(response);
 }

@@ -41,6 +41,19 @@ describe("LLMService", () => {
       expect(prompt).toContain("±20");
     });
 
+    it("Player Intent: включает текст намерения игрока, если оно задано", () => {
+      game.playerIntent = "наращиваем добычу угля в 12: Силезия";
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("## Player Intent");
+      expect(prompt).toContain("наращиваем добычу угля в 12: Силезия");
+    });
+
+    it("Player Intent: fallback-строка, если намерение пустое", () => {
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Player Intent"), prompt.indexOf("## Country IDs"));
+      expect(section).toContain("No player intent this cycle");
+    });
+
     it("Country IDs: даёт реальные id упомянутых стран, не только имена (регрессия 2026-07-04: SOV/ROM вместо SUN/ROU)", () => {
       const prompt = service.generatePrompt();
       expect(prompt).toContain("## Country IDs");
@@ -343,6 +356,18 @@ describe("LLMService", () => {
       expect(event.date).toBe(game.currentDate);
       expect(event.description).toBe("США улучшают отношения с СССР.");
       expect(event.countries).toEqual(["USA", "USSR"]);
+    });
+
+    it("валидный ответ: очищает playerIntent (одноразовое, не история)", () => {
+      game.playerIntent = "построить укрепления на границе";
+      service.processResponse(validResponse);
+      expect(game.playerIntent).toBe("");
+    });
+
+    it("невалидный ответ: НЕ очищает playerIntent (ничего не применено)", () => {
+      game.playerIntent = "построить укрепления на границе";
+      service.processResponse("это не JSON");
+      expect(game.playerIntent).toBe("построить укрепления на границе");
     });
 
     it("невалидный JSON: отказ целиком, ничего не применяется", () => {

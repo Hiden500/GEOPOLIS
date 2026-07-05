@@ -5,7 +5,7 @@ export type WindowKind =
   | { type: "region"; regionId: number }
   | { type: "budget" }
   | { type: "research" }
-  | { type: "actions" }
+  | { type: "intent" }
   | { type: "ranking" }
   | { type: "territories" }
   | { type: "llm" };

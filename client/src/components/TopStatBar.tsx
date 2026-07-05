@@ -92,8 +92,8 @@ export function TopStatBar({
           <button className={isOpen({ type: "ranking" }) ? "active" : ""} onClick={() => onToggle({ type: "ranking" })}>
             Мир
           </button>
-          <button className={isOpen({ type: "actions" }) ? "active" : ""} onClick={() => onToggle({ type: "actions" })}>
-            Действия
+          <button className={isOpen({ type: "intent" }) ? "active" : ""} onClick={() => onToggle({ type: "intent" })}>
+            Намерение
           </button>
           <button className={isOpen({ type: "llm" }) ? "active" : ""} onClick={() => onToggle({ type: "llm" })}>
             LLM

@@ -84,6 +84,7 @@ export class LLMService {
     this.saveResponse(rawResponse);
     this.incrementLlmTurn();
     this.advanceSpotlightCursor();
+    this.game.playerIntent = "";
 
     this.game.eventHistory.push({
       id: `llm-turn-${this.game.llmTurn}`,
@@ -132,8 +133,8 @@ ${this.getRecentEventsInfo()}
 ## Diplomatic Situation
 ${this.getDiplomaticSituation()}
 
-## Player Actions
-${this.getPlayerActionsInfo()}
+## Player Intent
+${this.getPlayerIntentInfo()}
 
 ## Country IDs
 Every country mentioned above by name, mapped to its real id. Country names
@@ -484,15 +485,12 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
-   * Получает информацию о действиях игрока.
+   * Получает намерение игрока на текущий ход (свободный текст).
    */
-  private getPlayerActionsInfo(): string {
-    const recentActions = this.game.playerActions.slice(-3);
-    if (recentActions.length === 0) return 'No recent player actions';
-
-    return recentActions.map(a => 
-      `- ${a.type}: ${JSON.stringify(a.parameters)}`
-    ).join('\n');
+  private getPlayerIntentInfo(): string {
+    const intent = this.game.playerIntent?.trim();
+    if (!intent) return 'No player intent this cycle';
+    return intent;
   }
 
   /**

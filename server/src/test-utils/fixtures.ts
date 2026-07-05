@@ -150,7 +150,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     },
     regions: [],
     regionIndex: new Map<string, number[]>(),
-    playerActions: [],
+    playerIntent: "",
     eventHistory: [],
     mapFeatures: [],
     ...overrides,

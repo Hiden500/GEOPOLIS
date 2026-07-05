@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { updateBudgetSchema } from "../schemas";
+import { updateBudgetSchema, playerIntentSchema } from "../schemas";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
 
 const VALID_BUDGET = {
@@ -52,5 +52,28 @@ describe("updateBudgetSchema", () => {
       welfare: BUDGET_SPENDING_SHARE_CAPS.welfare,
     });
     expect(result.success).toBe(true);
+  });
+});
+
+describe("playerIntentSchema", () => {
+  it("принимает непустую строку намерения", () => {
+    expect(playerIntentSchema.safeParse({ intent: "усилить оборону на границе" }).success).toBe(true);
+  });
+
+  it("принимает пустую строку — способ очистить намерение", () => {
+    expect(playerIntentSchema.safeParse({ intent: "" }).success).toBe(true);
+  });
+
+  it("отклоняет строку длиннее 2000 символов", () => {
+    const result = playerIntentSchema.safeParse({ intent: "a".repeat(2001) });
+    expect(result.success).toBe(false);
+  });
+
+  it("принимает строку ровно в 2000 символов (граница включительно)", () => {
+    expect(playerIntentSchema.safeParse({ intent: "a".repeat(2000) }).success).toBe(true);
+  });
+
+  it("отклоняет нестроковое значение", () => {
+    expect(playerIntentSchema.safeParse({ intent: 123 }).success).toBe(false);
   });
 });

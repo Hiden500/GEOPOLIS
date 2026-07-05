@@ -1226,36 +1226,66 @@ button.stat-pill:hover .stat-pill-value {
 }
 
 /* ==========================================
-   ACTION PANEL
+   PLAYER INTENT PANEL
    ========================================== */
 
-.action-panel h2 {
+.player-intent-panel h2 {
   font-family: var(--font-display);
   font-size: 1.3rem;
   color: var(--color-paper);
   margin-bottom: 0.75rem;
 }
 
-.action-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.action-form select {
+.player-intent-panel textarea {
+  width: 100%;
+  resize: vertical;
   padding: 0.5rem;
   background: var(--color-ink);
   color: var(--color-paper);
   border: 1px solid var(--color-hairline);
   border-radius: 2px;
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.4;
 }
 
-.action-form select:disabled {
-  opacity: 0.5;
+.player-intent-autocomplete-wrap {
+  position: relative;
 }
 
-.action-form button.primary {
+.player-intent-autocomplete {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 5;
+  max-height: 160px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0.25rem 0;
+  background: var(--color-ink);
+  border: 1px solid var(--color-hairline);
+  border-radius: 2px;
+}
+
+.player-intent-autocomplete li button {
+  width: 100%;
+  text-align: left;
+  padding: 0.35rem 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--color-paper);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.player-intent-autocomplete li button:hover {
+  background: var(--color-brass);
+  color: var(--color-ink);
+}
+
+.player-intent-panel button.primary {
   padding: 0.5rem;
   background: var(--color-brass);
   color: var(--color-ink);
@@ -1265,62 +1295,19 @@ button.stat-pill:hover .stat-pill-value {
   cursor: pointer;
 }
 
-.action-form button.primary:hover {
+.player-intent-panel button.primary:hover {
   background: #d6ad5e;
 }
 
-.action-form button.primary:disabled {
+.player-intent-panel button.primary:disabled {
   background: var(--color-hairline);
   color: var(--color-paper-dim);
   cursor: not-allowed;
 }
 
-.action-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.action-item {
-  background: var(--color-ink);
-  border: 1px solid var(--color-hairline);
-  border-radius: 2px;
-  padding: 0.6rem;
-}
-
-.action-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.3rem;
-}
-
-.action-title {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--color-paper);
-}
-
-.action-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  font-size: 0.7rem;
-  font-family: var(--font-mono);
+.player-intent-saved {
   color: var(--color-paper-dim);
-}
-
-.action-description {
-  color: var(--color-paper-dim);
-}
-
-.action-date {
-  color: var(--color-paper-dim);
-  opacity: 0.7;
+  font-size: 0.75rem;
 }
 
 button.small {

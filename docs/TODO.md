@@ -62,6 +62,10 @@ $0.00B). Детали — датированная запись в `DECISIONS.md
 Ручной цикл (route `/llm` + окно «LLM-симуляция»: промт → буфер обмена →
 вставка ответа → валидация → применение → событие в `eventHistory` с
 привязкой к ходу) — **реализовано 2026-07-03**, см. `docs/DECISIONS.md`.
+~~Действия игрока свободным текстом~~ — **реализовано 2026-07-05**:
+`ActionPanel`/`PlayerActionService` удалены, окно «Намерение» (`PlayerIntentPanel`)
+с автокомплитом по regionId, `GameState.playerIntent` уходит в `## Player Intent`
+промта. Детали — датированная запись в `DECISIONS.md`.
 
 - механизм "памяти страны" между вызовами LLM.
 - `LLMProvider`-абстракция (`ManualClipboardProvider`/`GigaChat`/`OpenRouter`/`Ollama`) +
@@ -69,20 +73,6 @@ $0.00B). Детали — датированная запись в `DECISIONS.md
 - наполнение промта реальным контекстом: ВВП стран 1946 теперь реальный
   (см. P1, перезаполнение регионов, 2026-07-04) — осталось "активные войны"
   (заглушка, делать вместе с war-системой).
-- **Действия игрока свободным текстом** (дизайн одобрен пользователем
-  2026-07-04, реализация не начата — потерялась между другими задачами,
-  зафиксировано здесь чтобы не потерять снова). Решение: убрать
-  `ActionPanel`/`PlayerActionService` как отдельную структурную систему
-  (сейчас чисто декоративна — `createAction` кладёт запись в массив, ни
-  один тик её не читает, единственный потребитель — `getPlayerActionsInfo()`
-  в промте текстом). Игрок пишет намерение словами (с подсказками по
-  доступным `regionId`/типам, не жёсткий dropdown), намерение уходит в тот
-  же ежемесячный LLM-промт, LLM интерпретирует его в структурированные
-  `LLMAction[]` (тот же тип, что уже применяет `LLMService.processResponse`)
-  — числа считает движок, LLM только решает "что". Не реализовано:
-  UI-поле ввода + автокомплит, секция промта с намерениями игрока, привязка
-  regionId к промту по той же grounding-логике, что уже есть для country id
-  (не дать LLM угадывать regionId из текста).
 - **Исторические развилки в промте** (черновик каталога — `docs/tasks/
   HISTORICAL_HINGE_POINTS_1946.md`, 6 записей на реальных id + 3 заблокированы
   нехваткой сущностей). Не реализовано — открытые вопросы (кто ведёт каталог,
@@ -231,9 +221,10 @@ $0.00B). Детали — датированная запись в `DECISIONS.md
 
 - **Движок:** тики Economy/Resource/Population/Military/Research/Diplomacy; агрегация регион→страна.
 - **Сервисы:** GameService, SimulationService, CountryService, RegionService, DiplomacyService,
-  RegionEconomyService, MapFeatureService, ResearchService, PlayerActionService, LLMService;
+  RegionEconomyService, MapFeatureService, ResearchService, LLMService;
   zod-валидация, кастомные error types; роуты только валидируют и зовут сервис.
-- **Игрок (backend + панели):** действия, бюджет, исследования; BudgetPanel/ResearchPanel/ActionPanel.
+- **Игрок (backend + панели):** намерение свободным текстом, бюджет, исследования;
+  BudgetPanel/ResearchPanel/PlayerIntentPanel (заменила декоративную ActionPanel, 2026-07-05).
 - **Интерфейс:** оконный редизайн (2 итерации) — TopStatBar, InspectorPanel, Window, useWindows,
   ResourceTicker, WorldRankingPanel, TerritoriesPanel; ErrorBoundary; единый API-клиент.
 - **Тесты:** сервер ~187 (тики + все сервисы + Diplomacy + LLM-слой); клиентская инфра

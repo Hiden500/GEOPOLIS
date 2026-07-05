@@ -61,15 +61,15 @@ describe("useWindows", () => {
   describe("toggle", () => {
     it("открывает закрытое окно", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.toggle({ type: "actions" }));
-      expect(result.current.isOpen({ type: "actions" })).toBe(true);
+      act(() => result.current.toggle({ type: "intent" }));
+      expect(result.current.isOpen({ type: "intent" })).toBe(true);
     });
 
     it("закрывает уже открытое окно", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.toggle({ type: "actions" }));
-      act(() => result.current.toggle({ type: "actions" }));
-      expect(result.current.isOpen({ type: "actions" })).toBe(false);
+      act(() => result.current.toggle({ type: "intent" }));
+      act(() => result.current.toggle({ type: "intent" }));
+      expect(result.current.isOpen({ type: "intent" })).toBe(false);
       expect(result.current.windows).toHaveLength(0);
     });
   });

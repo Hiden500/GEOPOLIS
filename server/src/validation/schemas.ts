@@ -40,12 +40,11 @@ export const startResearchSchema = z.object({
 });
 
 /**
- * Схема для действия игрока.
+ * Схема для намерения игрока свободным текстом (docs/DECISIONS.md, 2026-07-04).
+ * Пустая строка — валидна, это способ очистить намерение.
  */
-export const playerActionSchema = z.object({
-  type: z.enum(["build_factory", "build_mine", "build_infrastructure", "recruit_units"]),
-  regionId: z.number().int().positive(),
-  parameters: z.record(z.string(), z.any()).optional()
+export const playerIntentSchema = z.object({
+  intent: z.string().max(2000, "Intent is too long (max 2000 chars)")
 });
 
 /**
@@ -78,9 +77,9 @@ export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
 export type StartResearchInput = z.infer<typeof startResearchSchema>;
 
 /**
- * Типы для действия игрока.
+ * Типы для намерения игрока.
  */
-export type PlayerActionInput = z.infer<typeof playerActionSchema>;
+export type PlayerIntentInput = z.infer<typeof playerIntentSchema>;
 
 /**
  * Типы для ответа LLM.

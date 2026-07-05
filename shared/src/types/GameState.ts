@@ -1,7 +1,6 @@
 import { type Country } from "../types/Country";
 import { type Region } from "./map/Region";
 import { type Event } from "../types/Event";
-import { type PlayerAction } from "../types/actions/PlayerAction";
 import { type EraDefinition } from "../types/research/EraDefinition";
 import { type MapFeature } from "./map/MapFeature";
 
@@ -18,7 +17,10 @@ export interface GameState {
 
   regionIndex: Map<string, number[]>;
 
-  playerActions: PlayerAction[];
+  // Намерение игрока на текущий ход свободным текстом (docs/DECISIONS.md,
+  // 2026-07-04) — уходит в LLM-промт, LLM интерпретирует его в LLMAction[].
+  // Одноразовое: очищается после успешного processResponse, не история.
+  playerIntent: string;
 
   eventHistory: Event[];
 

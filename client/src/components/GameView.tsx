@@ -8,7 +8,7 @@ import { Window } from "./Window";
 import { useWindows } from "../hooks/useWindows";
 import { BudgetPanel } from "./BudgetPanel";
 import { ResearchPanel } from "./ResearchPanel";
-import { ActionPanel } from "./ActionPanel";
+import { PlayerIntentPanel } from "./PlayerIntentPanel";
 import { WorldRankingPanel } from "./WorldRankingPanel";
 import { TerritoriesPanel } from "./TerritoriesPanel";
 import { LLMPanel } from "./LLMPanel";
@@ -18,8 +18,7 @@ import {
   updateBudget,
   startResearch,
   stopResearch,
-  createAction,
-  deleteAction,
+  savePlayerIntent,
   getGameState,
   type BudgetUpdate,
 } from "../api/gameApi";
@@ -33,7 +32,7 @@ interface GameViewProps {
 const WINDOW_TITLES: Record<string, string> = {
   budget: "Бюджет",
   research: "Исследования",
-  actions: "Действия",
+  intent: "Намерение",
   ranking: "Мировой рейтинг",
   territories: "Территории",
   llm: "LLM-симуляция",
@@ -130,27 +129,14 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     }
   };
 
-  const handleCreateAction = async (action: {
-    type: string;
-    regionId: number;
-    parameters?: Record<string, unknown>;
-  }) => {
+  const handleSavePlayerIntent = async (intent: string) => {
     try {
-      await createAction(action);
-      const updated = await nextTurn();
+      await savePlayerIntent(intent);
+      const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка создания действия");
-    }
-  };
-
-  const handleDeleteAction = async (actionId: string) => {
-    try {
-      await deleteAction(actionId);
-      const updated = await nextTurn();
-      onGameUpdate(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка удаления действия");
+      setError(err instanceof Error ? err.message : "Ошибка сохранения намерения");
+      throw err;
     }
   };
 
@@ -241,12 +227,11 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
                   onStopResearch={handleStopResearch}
                 />
               )}
-              {w.kind.type === "actions" && (
-                <ActionPanel
-                  actions={game.playerActions || []}
+              {w.kind.type === "intent" && (
+                <PlayerIntentPanel
                   regions={playerRegions}
-                  onCreateAction={handleCreateAction}
-                  onDeleteAction={handleDeleteAction}
+                  intent={game.playerIntent}
+                  onSave={handleSavePlayerIntent}
                 />
               )}
               {w.kind.type === "ranking" && (

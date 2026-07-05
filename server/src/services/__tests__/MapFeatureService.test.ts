@@ -142,7 +142,7 @@ describe('MapFeatureService', () => {
       countries,
       regions,
       regionIndex: new Map(),
-      playerActions: [],
+      playerIntent: "",
       eventHistory: [],
       mapFeatures: [],
     };

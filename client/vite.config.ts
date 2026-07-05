@@ -33,7 +33,7 @@ export default defineConfig({
         target: "http://localhost:3000",
         changeOrigin: true,
       },
-      "^/actions($|/)": {
+      "^/player-intent($|/)": {
         target: "http://localhost:3000",
         changeOrigin: true,
       },
