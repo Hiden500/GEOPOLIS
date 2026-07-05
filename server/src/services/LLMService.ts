@@ -30,6 +30,19 @@ const LANGUAGE_NAMES: Record<Locale, string> = {
 };
 
 /**
+ * Окно "памяти страны" между вызовами LLM (docs/DECISIONS.md, 2026-07-05,
+ * вопрос 7): движок берёт последние N заголовков (Event.title) из уже
+ * существующего eventHistory по стране — LLM ничего дополнительно не пишет
+ * (title она и так производит каждый цикл), только форматирование. Решает
+ * проблему Spotlight-ротации (страна выпадает из промта на ~24 хода и теряет
+ * контекст) без лишних выходных токенов. Размер окна по тиру — тот же
+ * принцип тюнинга, что LLM_SPOTLIGHT_COUNT.
+ */
+const PLAYER_RECENT_TITLES_COUNT = 5;
+const MAJOR_RECENT_TITLES_COUNT = 3;
+const SPOTLIGHT_RECENT_TITLES_COUNT = 2;
+
+/**
  * Итог одного прохода LLM-цикла: что применено, что отклонено и почему.
  */
 export interface LlmCycleResult {
@@ -354,8 +367,22 @@ Hard limits (actions violating them are rejected):
 - Population: ${(player.population / 1e6).toFixed(2)}M
 - Military: ${player.military.manpower.toLocaleString()}
 - Allies: ${player.diplomacy.allies.join(', ') || 'None'}
-- Rivals: ${player.diplomacy.rivals.join(', ') || 'None'}
+- Rivals: ${player.diplomacy.rivals.join(', ') || 'None'}${this.getRecentTitlesLine(player.id, PLAYER_RECENT_TITLES_COUNT)}
 `;
+  }
+
+  /**
+   * "Память страны" без записи от LLM: последние `limit` заголовков её
+   * событий из eventHistory, самые свежие первыми. Пустая строка, если по
+   * стране ещё не было событий (не засорять промт для новой партии).
+   */
+  private getRecentTitlesLine(countryId: string, limit: number): string {
+    const relevant = this.game.eventHistory.filter(e => e.countries.includes(countryId));
+    if (relevant.length === 0) return '';
+
+    const recent = relevant.slice(-limit).reverse();
+    const formatted = recent.map(e => `${e.title} (${e.date})`).join('; ');
+    return `\n  Recent: ${formatted}`;
   }
 
   /**
@@ -378,7 +405,8 @@ Hard limits (actions violating them are rejected):
     const majors = this.getMajorPowers();
     if (majors.length === 0) return 'No major powers';
     return majors.map(c =>
-      `- ${c.name}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}`
+      `- ${c.name}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}` +
+      this.getRecentTitlesLine(c.id, MAJOR_RECENT_TITLES_COUNT)
     ).join('\n');
   }
 
@@ -426,7 +454,8 @@ Hard limits (actions violating them are rejected):
     const spotlight = this.getSpotlightCountries();
     if (spotlight.length === 0) return 'No spotlight countries this cycle';
     return spotlight.map(c =>
-      `- ${c.name} (${c.tier}): GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, stability ${Math.round(c.politics.stability)}`
+      `- ${c.name} (${c.tier}): GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, stability ${Math.round(c.politics.stability)}` +
+      this.getRecentTitlesLine(c.id, SPOTLIGHT_RECENT_TITLES_COUNT)
     ).join('\n');
   }
 

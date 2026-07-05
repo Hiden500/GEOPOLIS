@@ -80,6 +80,55 @@ describe("LLMService", () => {
       expect(section).toContain("not just a passing mention");
     });
 
+    it("Память страны: показывает последние заголовки eventHistory по стране игрока, самые свежие первыми (2026-07-05, вопрос 7)", () => {
+      game.eventHistory = [
+        { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"] },
+        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", countries: ["USA"] },
+      ];
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
+      expect(section).toContain("Recent: Event Two (1946-02-01); Event One (1946-01-01)");
+    });
+
+    it("Память страны: ничего не показывает, если по стране ещё не было событий", () => {
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
+      expect(section).not.toContain("Recent:");
+    });
+
+    it("Память страны: у Major Powers окно ограничено MAJOR_RECENT_TITLES_COUNT (3)", () => {
+      game.eventHistory = [
+        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", countries: ["USSR"] },
+        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", countries: ["USSR"] },
+        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", countries: ["USSR"] },
+        { id: "e4", date: "1946-04-01", title: "Newest", description: "", countries: ["USSR"] },
+      ];
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
+      expect(section).toContain("Recent: Newest (1946-04-01); Middle2 (1946-03-01); Middle1 (1946-02-01)");
+      expect(section).not.toContain("Oldest");
+    });
+
+    it("Память страны: у Spotlight-стран окно ограничено SPOTLIGHT_RECENT_TITLES_COUNT (2)", () => {
+      const g = createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({ id: "USA", name: "USA", tier: "major" }),
+          createTestCountry({ id: "AAA", name: "Alpha" }),
+        ],
+        eventHistory: [
+          { id: "e1", date: "1946-01-01", title: "Old", description: "", countries: ["AAA"] },
+          { id: "e2", date: "1946-02-01", title: "Mid", description: "", countries: ["AAA"] },
+          { id: "e3", date: "1946-03-01", title: "New", description: "", countries: ["AAA"] },
+        ],
+      });
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
+      expect(section).toContain("Recent: New (1946-03-01); Mid (1946-02-01)");
+      expect(section).not.toContain("Old");
+    });
+
     it("Player Intent: включает текст намерения игрока, если оно задано", () => {
       game.playerIntent = "наращиваем добычу угля в 12: Силезия";
       const prompt = service.generatePrompt();
