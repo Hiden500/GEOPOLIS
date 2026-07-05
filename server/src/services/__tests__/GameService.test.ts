@@ -27,9 +27,18 @@ describe("GameService", () => {
 
       const result = service.createGame("1946", "USA");
 
-      expect(createGame).toHaveBeenCalledWith("1946", "USA");
+      expect(createGame).toHaveBeenCalledWith("1946", "USA", undefined);
       expect(result).toBe(fakeGame);
       expect(service.getCurrentGame()).toBe(fakeGame);
+    });
+
+    it("передаёт locale в createGame, если он указан (2026-07-05)", () => {
+      const fakeGame = createTestGameState();
+      vi.mocked(createGame).mockReturnValue(fakeGame);
+
+      service.createGame("1946", "USA", "en");
+
+      expect(createGame).toHaveBeenCalledWith("1946", "USA", "en");
     });
   });
 

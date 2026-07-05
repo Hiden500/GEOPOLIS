@@ -36,6 +36,24 @@ describe("LLMResponseValidator", () => {
       expect(result.parsedData?.actions).toEqual([]);
     });
 
+    it("парсит title, если он есть (2026-07-05, для заголовков таймлайна)", () => {
+      const response = JSON.stringify({
+        title: "Kosovo Peace Talks Collapse",
+        descriptions: "Some narrative",
+        actions: [],
+      });
+      const result = validator.validateResponse(response);
+      expect(result.valid).toBe(true);
+      expect(result.parsedData?.title).toBe("Kosovo Peace Talks Collapse");
+    });
+
+    it("title необязателен — принимает ответ без него", () => {
+      const response = JSON.stringify({ descriptions: "Some narrative", actions: [] });
+      const result = validator.validateResponse(response);
+      expect(result.valid).toBe(true);
+      expect(result.parsedData?.title).toBeUndefined();
+    });
+
     it("отклоняет невалидный JSON", () => {
       const result = validator.validateResponse("{ not json");
       expect(result.valid).toBe(false);

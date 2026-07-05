@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { type ScenarioInfo, type FeaturedCountry } from "@shared/types/ScenarioInfo";
+import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { getScenarios } from "../api/gameApi";
 
 interface ScenarioSelectorProps {
-  onScenarioSelect: (scenarioId: string, countryId: string) => void;
+  onScenarioSelect: (scenarioId: string, countryId: string, locale: Locale) => void;
   error?: string | null;
 }
+
+const LOCALE_LABELS: Record<Locale, string> = {
+  ru: "Русский",
+  en: "English",
+};
 
 const TIER_LABELS: Record<string, string> = {
   major: "Великие державы",
@@ -68,6 +74,7 @@ export function ScenarioSelector({
   const [scenarios, setScenarios] = useState<ScenarioInfo[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+  const [locale, setLocale] = useState<Locale>("ru");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -97,7 +104,7 @@ export function ScenarioSelector({
 
   const handleStartGame = () => {
     if (selectedScenario && selectedCountry) {
-      onScenarioSelect(selectedScenario, selectedCountry);
+      onScenarioSelect(selectedScenario, selectedCountry, locale);
     }
   };
 
@@ -180,9 +187,25 @@ export function ScenarioSelector({
       )}
 
       {selectedScenario && selectedCountry && (
-        <button className="start-game-button" onClick={handleStartGame}>
-          Начать игру
-        </button>
+        <div className="locale-selection">
+          <h2>Язык повествования LLM</h2>
+          <div className="locale-options">
+            {(Object.keys(LOCALE_LABELS) as Locale[]).map(l => (
+              <button
+                key={l}
+                type="button"
+                className={`locale-button ${locale === l ? "selected" : ""}`}
+                aria-pressed={locale === l}
+                onClick={() => setLocale(l)}
+              >
+                {LOCALE_LABELS[l]}
+              </button>
+            ))}
+          </div>
+          <button className="start-game-button" onClick={handleStartGame}>
+            Начать игру
+          </button>
+        </div>
       )}
     </div>
   );

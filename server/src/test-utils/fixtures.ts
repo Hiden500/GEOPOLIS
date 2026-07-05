@@ -2,6 +2,7 @@ import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type ResearchProject } from "@shared/types/research/ResearchProject";
 import { type GameState } from "@shared/types/GameState";
+import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 
@@ -150,6 +151,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     },
     regions: [],
     regionIndex: new Map<string, number[]>(),
+    locale: DEFAULT_LOCALE,
     playerIntent: "",
     eventHistory: [],
     mapFeatures: [],

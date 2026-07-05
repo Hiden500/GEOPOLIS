@@ -98,6 +98,9 @@ export function TopStatBar({
           <button className={isOpen({ type: "llm" }) ? "active" : ""} onClick={() => onToggle({ type: "llm" })}>
             LLM
           </button>
+          <button className={isOpen({ type: "timeline" }) ? "active" : ""} onClick={() => onToggle({ type: "timeline" })}>
+            Хроника
+          </button>
         </nav>
 
         <div className="header-right">

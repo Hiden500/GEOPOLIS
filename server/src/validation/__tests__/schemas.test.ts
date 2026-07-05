@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { updateBudgetSchema, playerIntentSchema } from "../schemas";
+import { updateBudgetSchema, playerIntentSchema, createGameSchema } from "../schemas";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
 
 const VALID_BUDGET = {
@@ -75,5 +75,23 @@ describe("playerIntentSchema", () => {
 
   it("отклоняет нестроковое значение", () => {
     expect(playerIntentSchema.safeParse({ intent: 123 }).success).toBe(false);
+  });
+});
+
+describe("createGameSchema", () => {
+  it("принимает locale ru/en", () => {
+    expect(createGameSchema.safeParse({ scenarioId: "1946", playerCountryId: "USA", locale: "ru" }).success).toBe(true);
+    expect(createGameSchema.safeParse({ scenarioId: "1946", playerCountryId: "USA", locale: "en" }).success).toBe(true);
+  });
+
+  it("locale необязателен — по умолчанию ru (2026-07-05)", () => {
+    const result = createGameSchema.safeParse({ scenarioId: "1946", playerCountryId: "USA" });
+    expect(result.success).toBe(true);
+    expect(result.success && result.data.locale).toBe("ru");
+  });
+
+  it("отклоняет неподдерживаемую локаль", () => {
+    const result = createGameSchema.safeParse({ scenarioId: "1946", playerCountryId: "USA", locale: "fr" });
+    expect(result.success).toBe(false);
   });
 });

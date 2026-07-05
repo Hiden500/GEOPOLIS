@@ -1,4 +1,5 @@
 import { type GameState } from "@shared/types/GameState";
+import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { createGame } from "../game/CreateGame";
 import { simulateMonth } from "../simulation/SimulationEngine";
 import { getGame, setGame } from "../game/GameStore";
@@ -11,8 +12,8 @@ export class GameService {
   /**
    * Создаёт новую игру по сценарию.
    */
-  createGame(scenarioId: string, playerCountryId: string): GameState {
-    const game = createGame(scenarioId as any, playerCountryId);
+  createGame(scenarioId: string, playerCountryId: string, locale?: Locale): GameState {
+    const game = createGame(scenarioId as any, playerCountryId, locale);
     setGame(game);
     return game;
   }

@@ -1,6 +1,7 @@
 import { ScenarioRegistry } from "../scenarios/ScenarioRegistry";
 import { type Country } from "@shared/types/Country";
 import { type GameState } from "@shared/types/GameState";
+import { type Locale, DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { buildRegionIndex } from "@shared/utils/buildRegionIndex";
 import { updateAllRegionsAndAggregate } from "@shared/utils/aggregateCountryData";
 import { generateInitialMapFeatures } from "../scenarios/generateMapFeatures";
@@ -54,7 +55,8 @@ function deriveCountryEconomy(country: Country): void {
 
 export function createGame(
   scenarioId: keyof typeof ScenarioRegistry,
-  playerCountryId: string
+  playerCountryId: string,
+  locale: Locale = DEFAULT_LOCALE
 ): GameState {
   const scenario = ScenarioRegistry[scenarioId];
   const regions = structuredClone(scenario.regions);
@@ -84,6 +86,7 @@ export function createGame(
     countries,
     regions,
     regionIndex: buildRegionIndex(regions),
+    locale,
     playerIntent: "",
     eventHistory: [],
     mapFeatures: []

@@ -3,6 +3,7 @@ import { type Region } from "./map/Region";
 import { type Event } from "../types/Event";
 import { type EraDefinition } from "../types/research/EraDefinition";
 import { type MapFeature } from "./map/MapFeature";
+import { type Locale } from "./i18n/LocalizedText";
 
 export interface GameState {
   currentDate: string;
@@ -16,6 +17,12 @@ export interface GameState {
   regions: Region[];
 
   regionIndex: Map<string, number[]>;
+
+  // Язык генерируемого LLM текста (title/descriptions), зафиксирован при
+  // создании игры (docs/DECISIONS.md, 2026-07-05) — не переключается на
+  // лету. Не влияет на язык статичной UI-обвязки (остаётся русской) и не
+  // влияет на имена стран/регионов в промте (те используют LLM_LOCALE).
+  locale: Locale;
 
   // Намерение игрока на текущий ход свободным текстом (docs/DECISIONS.md,
   // 2026-07-04) — уходит в LLM-промт, LLM интерпретирует его в LLMAction[].

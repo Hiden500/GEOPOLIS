@@ -28,10 +28,22 @@ describe("LLMService", () => {
       const prompt = service.generatePrompt();
       expect(prompt).toContain(game.currentDate);
       expect(prompt).toContain("USA");
+      expect(prompt).toContain('"title"');
       expect(prompt).toContain('"descriptions"');
       expect(prompt).toContain('"actions"');
       // перечень допустимых типов действий присутствует в инструкции
       expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence");
+    });
+
+    it("## Language: требует писать нарратив на языке локали игры (2026-07-05)", () => {
+      game.locale = "ru";
+      let prompt = service.generatePrompt();
+      expect(prompt).toContain("## Language");
+      expect(prompt).toContain("in Russian");
+
+      game.locale = "en";
+      prompt = service.generatePrompt();
+      expect(prompt).toContain("in English");
     });
 
     it("сообщает LLM жёсткие пределы магнитуды (Hard limits)", () => {
@@ -39,6 +51,33 @@ describe("LLMService", () => {
       expect(prompt).toContain("Hard limits");
       expect(prompt).toContain("±40");
       expect(prompt).toContain("±20");
+    });
+
+    it("Narrative requirements: требует минимум 3 абзаца и охват Spotlight-стран (2026-07-05, живой тест на Groq/Gemini)", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("Narrative requirements");
+      expect(prompt).toContain("at least 3 distinct paragraphs");
+      expect(prompt).toContain("at least 2 of the");
+      expect(prompt).toContain("Spotlight Countries specifically");
+    });
+
+    it("Narrative requirements: запрещает страны вне ## Country IDs", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("MUST NOT mention, narrate about, or take action for any country");
+      expect(prompt).toContain("## Country IDs");
+    });
+
+    it("Narrative requirements: требует историческую конкретику месяца, с оговоркой про альтернативную историю", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("concrete real historical events");
+      expect(prompt).toContain("Deviations from real history");
+    });
+
+    it("Spotlight Countries: секция требует минимум 2 конкретных страны, не просто упоминание", () => {
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
+      expect(section).toContain("MUST give at least 2 of them a");
+      expect(section).toContain("not just a passing mention");
     });
 
     it("Player Intent: включает текст намерения игрока, если оно задано", () => {
@@ -362,6 +401,23 @@ describe("LLMService", () => {
       game.playerIntent = "построить укрепления на границе";
       service.processResponse(validResponse);
       expect(game.playerIntent).toBe("");
+    });
+
+    it("title: использует title из ответа LLM как Event.title, если он есть (2026-07-05, для таймлайна)", () => {
+      const responseWithTitle = JSON.stringify({
+        title: "USA-USSR Relations Thaw",
+        descriptions: "США улучшают отношения с СССР.",
+        actions: [],
+      });
+      const result = service.processResponse(responseWithTitle);
+      expect(result.title).toBe("USA-USSR Relations Thaw");
+      expect(game.eventHistory[0]!.title).toBe("USA-USSR Relations Thaw");
+    });
+
+    it("title: fallback на общий заголовок, если LLM его не прислала", () => {
+      const result = service.processResponse(validResponse);
+      expect(result.title).toBe(`Мировые события (LLM, ход ${game.llmTurn})`);
+      expect(game.eventHistory[0]!.title).toBe(`Мировые события (LLM, ход ${game.llmTurn})`);
     });
 
     it("невалидный ответ: НЕ очищает playerIntent (ничего не применено)", () => {

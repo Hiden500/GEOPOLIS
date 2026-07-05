@@ -29,6 +29,7 @@ export class LLMResponseValidator {
     valid: boolean;
     error?: string;
     parsedData?: {
+      title?: string;
       descriptions: string;
       actions: LLMAction[];
     };
@@ -63,6 +64,7 @@ export class LLMResponseValidator {
       return {
         valid: true,
         parsedData: {
+          title: typeof parsed.title === 'string' ? parsed.title : undefined,
           descriptions: parsed.descriptions,
           actions: parsed.actions,
         },

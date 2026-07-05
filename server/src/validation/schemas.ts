@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
+import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 
 /**
- * Схема для создания игры.
+ * Схема для создания игры. locale — язык генерируемого LLM-текста на весь
+ * плейтру (docs/DECISIONS.md, 2026-07-05), не язык интерфейса.
  */
 export const createGameSchema = z.object({
   scenarioId: z.string().min(1, "Scenario ID is required"),
-  playerCountryId: z.string().min(1, "Player country ID is required")
+  playerCountryId: z.string().min(1, "Player country ID is required"),
+  locale: z.enum(["ru", "en"]).default(DEFAULT_LOCALE)
 });
 
 /**

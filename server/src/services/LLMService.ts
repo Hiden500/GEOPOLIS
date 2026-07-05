@@ -1,6 +1,7 @@
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
+import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { DiplomacyService } from "./DiplomacyService";
 import {
   LLMResponseValidator,
@@ -19,11 +20,22 @@ import {
 const LLM_SPOTLIGHT_COUNT = 5;
 
 /**
+ * Полные имена языков для секции "## Language" промта — сама инструкция
+ * промта всегда на английском, меняется только язык генерируемого текста
+ * LLM (docs/DECISIONS.md, 2026-07-05: язык фиксируется на старте игры).
+ */
+const LANGUAGE_NAMES: Record<Locale, string> = {
+  ru: "Russian",
+  en: "English",
+};
+
+/**
  * Итог одного прохода LLM-цикла: что применено, что отклонено и почему.
  */
 export interface LlmCycleResult {
   success: boolean;
   error?: string;
+  title?: string;
   descriptions?: string;
   appliedActions: LLMAction[];
   rejectedActions: { action: LLMAction; reason: string }[];
@@ -60,7 +72,7 @@ export class LLMService {
       };
     }
 
-    const { descriptions, actions } = validation.parsedData;
+    const { title, descriptions, actions } = validation.parsedData;
     const appliedActions: LLMAction[] = [];
     const rejectedActions: { action: LLMAction; reason: string }[] = [];
 
@@ -86,10 +98,12 @@ export class LLMService {
     this.advanceSpotlightCursor();
     this.game.playerIntent = "";
 
+    const eventTitle = title?.trim() || `Мировые события (LLM, ход ${this.game.llmTurn})`;
+
     this.game.eventHistory.push({
       id: `llm-turn-${this.game.llmTurn}`,
       date: this.game.currentDate,
-      title: `Мировые события (LLM, ход ${this.game.llmTurn})`,
+      title: eventTitle,
       description: descriptions,
       countries: [
         ...new Set(
@@ -100,7 +114,7 @@ export class LLMService {
       ],
     });
 
-    return { success: true, descriptions, appliedActions, rejectedActions };
+    return { success: true, title: eventTitle, descriptions, appliedActions, rejectedActions };
   }
 
   /**
@@ -113,6 +127,12 @@ export class LLMService {
 ## Current Date
 ${this.game.currentDate}
 
+## Language
+Write "title", "descriptions", and any other free-text narrative you generate
+in ${LANGUAGE_NAMES[this.game.locale]}. This applies only to the prose you write —
+country ids, region ids, and other identifiers elsewhere in this prompt are
+never translated, copy them verbatim.
+
 ## Player Country
 ${this.getPlayerCountryInfo()}
 
@@ -120,8 +140,9 @@ ${this.getPlayerCountryInfo()}
 ${this.getMajorPowersInfo()}
 
 ## Spotlight Countries
-Not major powers, but on stage this cycle — feel free to narrate developments
-or actions for them if it makes sense, not mandatory every cycle for each one.
+Not major powers, but on stage this cycle. You MUST give at least 2 of them a
+concrete narrative beat in "descriptions" this cycle (a development, decision,
+or event specific to that country) — not just a passing mention.
 ${this.getSpotlightInfo()}
 
 ## Active Wars
@@ -149,8 +170,26 @@ Simulate the world for the next month. Consider:
 - Military movements and tensions
 - Historical context of the current year
 
+Narrative requirements (strict):
+- "descriptions" MUST be at least 3 distinct paragraphs: (1) what happened
+  this month among the Major Powers, (2) what happened in at least 2 of the
+  Spotlight Countries specifically (name them, give each a concrete beat —
+  not a vague aggregate sentence), (3) a forward-looking read of where
+  tensions/opportunities are heading next month.
+- You MUST NOT mention, narrate about, or take action for any country that
+  is not listed in the "## Country IDs" section above. If a country is not
+  in that list, it does not exist in this simulation right now — do not
+  invent events for it.
+- Where applicable, ground the narrative in concrete real historical events
+  of this specific month/year rather than generic statements (e.g. prefer a
+  real, dated development over a vague "tensions continue to rise").
+  Deviations from real history caused by earlier player/LLM actions take
+  priority over this — follow the world's own logic, don't force events back
+  to the historical outcome.
+
 Return your response in JSON format with the following structure:
 {
+  "title": "Short one-line headline for this cycle's single most important development",
   "descriptions": "Narrative description of world events",
   "actions": [
     {

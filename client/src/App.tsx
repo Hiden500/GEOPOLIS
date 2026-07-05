@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { type GameState } from "@shared/types/GameState";
+import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { ScenarioSelector } from "./components/ScenarioSelector";
 import { GameView } from "./components/GameView";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -13,12 +14,13 @@ export default function App() {
 
   const handleScenarioSelect = async (
     scenarioId: string,
-    countryId: string
+    countryId: string,
+    locale: Locale
   ) => {
     setStarting(true);
     setError(null);
     try {
-      const state = await startGame(scenarioId, countryId);
+      const state = await startGame(scenarioId, countryId, locale);
       setGame(state);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось начать игру");

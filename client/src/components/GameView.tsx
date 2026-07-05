@@ -12,6 +12,7 @@ import { PlayerIntentPanel } from "./PlayerIntentPanel";
 import { WorldRankingPanel } from "./WorldRankingPanel";
 import { TerritoriesPanel } from "./TerritoriesPanel";
 import { LLMPanel } from "./LLMPanel";
+import { EventTimelinePanel } from "./EventTimelinePanel";
 import { MapView } from "../map/MapView";
 import {
   nextTurn,
@@ -36,6 +37,7 @@ const WINDOW_TITLES: Record<string, string> = {
   ranking: "Мировой рейтинг",
   territories: "Территории",
   llm: "LLM-симуляция",
+  timeline: "Хроника",
 };
 
 export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
@@ -246,6 +248,13 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
               )}
               {w.kind.type === "llm" && (
                 <LLMPanel llmTurn={game.llmTurn ?? 0} onApplied={handleLlmApplied} />
+              )}
+              {w.kind.type === "timeline" && (
+                <EventTimelinePanel
+                  events={game.eventHistory}
+                  countries={game.countries}
+                  onSelectCountry={handleSelectCountry}
+                />
               )}
             </Window>
           );

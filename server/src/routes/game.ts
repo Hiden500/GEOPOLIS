@@ -15,14 +15,14 @@ router.post("/start", (req, res) => {
       throw new ValidationError("Invalid input", validationResult.error.issues);
     }
 
-    const { scenarioId, playerCountryId } = validationResult.data;
+    const { scenarioId, playerCountryId, locale } = validationResult.data;
 
     // Проверка существования сценария
     if (!ScenarioRegistry[scenarioId as keyof typeof ScenarioRegistry]) {
       throw new ValidationError("Invalid scenario ID");
     }
 
-    const game = gameService.createGame(scenarioId, playerCountryId);
+    const game = gameService.createGame(scenarioId, playerCountryId, locale);
     res.json(game);
   } catch (error) {
     if (error instanceof ValidationError) {

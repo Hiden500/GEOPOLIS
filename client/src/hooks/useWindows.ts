@@ -8,7 +8,8 @@ export type WindowKind =
   | { type: "intent" }
   | { type: "ranking" }
   | { type: "territories" }
-  | { type: "llm" };
+  | { type: "llm" }
+  | { type: "timeline" };
 
 export interface WindowInstance {
   id: string;

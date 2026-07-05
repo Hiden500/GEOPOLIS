@@ -1,5 +1,6 @@
 import { type GameState, type LLMAction } from "@shared/types/GameState";
 import { type ScenarioInfo } from "@shared/types/ScenarioInfo";
+import { type Locale } from "@shared/types/i18n/LocalizedText";
 
 const API = "";
 
@@ -27,12 +28,13 @@ export async function getScenarios(): Promise<ScenarioInfo[]> {
 
 export async function startGame(
   scenarioId: string,
-  playerCountryId: string
+  playerCountryId: string,
+  locale: Locale
 ): Promise<GameState> {
   const response = await fetch(`${API}/game/start`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ scenarioId, playerCountryId }),
+    body: JSON.stringify({ scenarioId, playerCountryId, locale }),
   });
   return handleResponse(response);
 }
