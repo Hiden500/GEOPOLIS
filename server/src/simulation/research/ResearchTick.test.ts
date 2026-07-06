@@ -1,58 +1,81 @@
 import { describe, it, expect } from "vitest";
 import { researchTick } from "./ResearchTick";
-import { createTestCountry, createTestRegion, createTestResearchProject } from "../../test-utils/fixtures";
+import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
 
 describe("researchTick", () => {
-  it("advances progress on an eligible project", () => {
-    const project = createTestResearchProject({ progress: 0, requiredProgress: 1_000_000 });
-    const country = createTestCountry({ technology: { domains: {}, projects: [project] } });
+  it("растит прогресс доменов при положительном researchSpending, поровну без явного распределения", () => {
+    const country = createTestCountry({
+      technology: { domains: { armor: 0, naval: 0 } },
+    });
 
     researchTick(country, []);
 
-    expect(country.technology.projects[0]!.progress).toBeGreaterThan(0);
+    expect(country.technology.domains.armor).toBeGreaterThan(0);
+    expect(country.technology.domains.naval).toBeGreaterThan(0);
+    // Поровну — без явного распределения оба домена получают одинаковую долю.
+    expect(country.technology.domains.armor).toBeCloseTo(country.technology.domains.naval!, 5);
   });
 
-  it("skips projects whose required technologies are not yet researched", () => {
-    const project = createTestResearchProject({ requiredTechnologyIds: ["prerequisite"], requiredProgress: 1_000_000 });
-    const country = createTestCountry({ technology: { domains: {}, projects: [project] } });
+  it("не растит прогресс при researchSpending <= 0", () => {
+    const country = createTestCountry({
+      technology: { domains: { armor: 0 } },
+      economy: { ...createTestCountry().economy, researchSpending: 0 },
+    });
 
     researchTick(country, []);
 
-    expect(country.technology.projects[0]!.progress).toBe(0);
+    expect(country.technology.domains.armor).toBe(0);
   });
 
-  it("skips projects whose required resources are not in stock", () => {
-    const project = createTestResearchProject({ requiredResources: { uranium: 1_000_000_000 }, requiredProgress: 1_000_000 });
-    const country = createTestCountry({ technology: { domains: {}, projects: [project] } });
+  it("не падает и не мутирует при пустом наборе доменов", () => {
+    const country = createTestCountry({ technology: { domains: {} } });
+    expect(() => researchTick(country, [])).not.toThrow();
+    expect(country.technology.domains).toEqual({});
+  });
+
+  it("явное распределение фокуса ускоряет один домен, остальные делят остаток поровну", () => {
+    const country = createTestCountry({
+      technology: {
+        domains: { armor: 0, naval: 0, aviation: 0 },
+        researchAllocation: { armor: 0.7 },
+      },
+    });
 
     researchTick(country, []);
 
-    expect(country.technology.projects[0]!.progress).toBe(0);
+    // armor получил 70%, naval/aviation делят оставшиеся 30% поровну (15% каждый)
+    expect(country.technology.domains.armor).toBeGreaterThan(country.technology.domains.naval!);
+    expect(country.technology.domains.naval).toBeCloseTo(country.technology.domains.aviation!, 5);
   });
 
-  it("completes a project, unlocks its domain level, and removes it from the active list once requiredProgress is reached", () => {
-    const project = createTestResearchProject({ domain: "Industry", progress: 90, requiredProgress: 100, progressPerMonth: 1000 });
-    const country = createTestCountry({ technology: { domains: {}, projects: [project] } });
+  it("исследовательские центры (development > 0.7) ускоряют прогресс", () => {
+    const withCenters = createTestCountry({
+      id: "WITH_CENTERS",
+      technology: { domains: { armor: 0 } },
+    });
+    const withoutCenters = createTestCountry({
+      id: "WITHOUT_CENTERS",
+      technology: { domains: { armor: 0 } },
+    });
+    const centerRegion = createTestRegion({ id: 1, ownerCountryId: "WITH_CENTERS", development: 0.9 });
+    const plainRegion = createTestRegion({ id: 2, ownerCountryId: "WITHOUT_CENTERS", development: 0.3 });
 
-    researchTick(country, []);
+    researchTick(withCenters, [centerRegion]);
+    researchTick(withoutCenters, [plainRegion]);
 
-    expect(country.technology.projects).toHaveLength(0);
-    expect(country.technology.domains.Industry).toBe(1);
-    expect(country.researchedTechnologyIds).toContain(project.id);
+    expect(withCenters.technology.domains.armor).toBeGreaterThan(withoutCenters.technology.domains.armor!);
   });
 
-  it("gives a bonus for regions with high development (research centers)", () => {
-    const lowDevProject = createTestResearchProject({ requiredProgress: 1_000_000 });
-    const lowDevCountry = createTestCountry({ id: "LOW", technology: { domains: {}, projects: [lowDevProject] } });
-    const lowDevRegion = createTestRegion({ ownerCountryId: "LOW", development: 0.3 });
+  it("замедляется на более высоком тире (не Victoria — поздний прорыв труднее)", () => {
+    const lowTier = createTestCountry({ id: "LOW", technology: { domains: { armor: 0 } } });
+    const highTier = createTestCountry({ id: "HIGH", technology: { domains: { armor: 1000 } } });
 
-    const highDevProject = createTestResearchProject({ requiredProgress: 1_000_000 });
-    const highDevCountry = createTestCountry({ id: "HIGH", technology: { domains: {}, projects: [highDevProject] } });
-    const highDevRegion = createTestRegion({ ownerCountryId: "HIGH", development: 0.9 });
+    researchTick(lowTier, []);
+    researchTick(highTier, []);
 
-    researchTick(lowDevCountry, [lowDevRegion]);
-    researchTick(highDevCountry, [highDevRegion]);
+    const lowGain = lowTier.technology.domains.armor!;
+    const highGain = highTier.technology.domains.armor! - 1000;
 
-    expect(highDevCountry.technology.projects[0]!.progress).toBeGreaterThan(lowDevCountry.technology.projects[0]!.progress);
+    expect(highGain).toBeLessThan(lowGain);
   });
 });

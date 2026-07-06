@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { ResearchService } from "../ResearchService";
-import { createTestCountry, createTestResearchProject } from "../../test-utils/fixtures";
-import { ValidationError, GameError } from "../../errors/AppError";
+import { createTestCountry } from "../../test-utils/fixtures";
+import { ValidationError } from "../../errors/AppError";
 
 describe("ResearchService", () => {
   let service: ResearchService;
@@ -10,92 +10,68 @@ describe("ResearchService", () => {
     service = new ResearchService();
   });
 
-  describe("startProject", () => {
-    it("создаёт новый проект и добавляет его в technology.projects", () => {
-      const country = createTestCountry();
-      const project = service.startProject(country, "radar");
+  describe("setAllocation", () => {
+    it("задаёт долю домена в researchAllocation", () => {
+      const country = createTestCountry({ technology: { domains: { armor: 0, naval: 0 } } });
 
-      expect(project.technologyId).toBe("radar");
-      expect(project.progress).toBe(0);
-      expect(project.completed).toBe(false);
-      expect(country.technology.projects).toContain(project);
+      service.setAllocation(country, "armor", 0.6);
+
+      expect(country.technology.researchAllocation).toEqual({ armor: 0.6 });
     });
 
-    it("берёт cost из economy.researchSpending страны", () => {
-      const country = createTestCountry({
-        economy: { ...createTestCountry().economy, researchSpending: 777 },
-      });
-      const project = service.startProject(country, "radar");
-      expect(project.cost).toBe(777);
+    it("не трогает долю других доменов при повторном вызове для нового домена", () => {
+      const country = createTestCountry({ technology: { domains: { armor: 0, naval: 0 } } });
+
+      service.setAllocation(country, "armor", 0.5);
+      service.setAllocation(country, "naval", 0.3);
+
+      expect(country.technology.researchAllocation).toEqual({ armor: 0.5, naval: 0.3 });
     });
 
-    it("бросает ValidationError, если технология уже исследуется", () => {
-      const country = createTestCountry({
-        technology: {
-          domains: {},
-          projects: [createTestResearchProject({ technologyId: "radar" })],
-        },
-      });
-      expect(() => service.startProject(country, "radar")).toThrow(ValidationError);
-      // не добавляет дубликат
-      expect(country.technology.projects).toHaveLength(1);
+    it("перезаписывает долю того же домена", () => {
+      const country = createTestCountry({ technology: { domains: { armor: 0 } } });
+
+      service.setAllocation(country, "armor", 0.5);
+      service.setAllocation(country, "armor", 0.2);
+
+      expect(country.technology.researchAllocation).toEqual({ armor: 0.2 });
     });
 
-    it("бросает ValidationError, если технология уже исследована", () => {
-      const country = createTestCountry({ researchedTechnologyIds: ["radar"] });
-      expect(() => service.startProject(country, "radar")).toThrow(ValidationError);
-    });
-  });
+    it("бросает ValidationError для несуществующего домена", () => {
+      const country = createTestCountry({ technology: { domains: { armor: 0 } } });
 
-  describe("stopProject", () => {
-    it("удаляет проект по id", () => {
-      const project = createTestResearchProject({ id: "p-1" });
-      const country = createTestCountry({
-        technology: { domains: {}, projects: [project] },
-      });
-      service.stopProject(country, "p-1");
-      expect(country.technology.projects).toHaveLength(0);
-    });
-
-    it("удаляет только указанный проект, остальные сохраняет", () => {
-      const country = createTestCountry({
-        technology: {
-          domains: {},
-          projects: [
-            createTestResearchProject({ id: "p-1" }),
-            createTestResearchProject({ id: "p-2" }),
-          ],
-        },
-      });
-      service.stopProject(country, "p-1");
-      expect(country.technology.projects.map(p => p.id)).toEqual(["p-2"]);
-    });
-
-    it("бросает GameError для несуществующего проекта", () => {
-      const country = createTestCountry();
-      expect(() => service.stopProject(country, "missing")).toThrow(GameError);
-    });
-  });
-
-  describe("getActiveProjects", () => {
-    it("возвращает текущий список проектов страны", () => {
-      const projects = [createTestResearchProject({ id: "p-1" })];
-      const country = createTestCountry({ technology: { domains: {}, projects } });
-      expect(service.getActiveProjects(country)).toBe(projects);
+      expect(() => service.setAllocation(country, "cyberwarfare", 0.5)).toThrow(ValidationError);
     });
   });
 
   describe("getTechnologyState", () => {
-    it("возвращает domains, researchedIds и projects страны", () => {
-      const projects = [createTestResearchProject({ id: "p-1" })];
+    it("возвращает прогресс и тир по каждому домену", () => {
       const country = createTestCountry({
-        technology: { domains: { Industry: 3 }, projects },
-        researchedTechnologyIds: ["radar"],
+        technology: { domains: { armor: 250, naval: 50 } },
       });
+
       const state = service.getTechnologyState(country);
-      expect(state.domains).toEqual({ Industry: 3 });
-      expect(state.researchedIds).toEqual(["radar"]);
-      expect(state.projects).toBe(projects);
+
+      expect(state.domains.armor).toEqual({ progress: 250, tier: 2 });
+      expect(state.domains.naval).toEqual({ progress: 50, tier: 0 });
+    });
+
+    it("возвращает текущее распределение фокуса", () => {
+      const country = createTestCountry({
+        technology: { domains: { armor: 0 }, researchAllocation: { armor: 0.6 } },
+      });
+
+      const state = service.getTechnologyState(country);
+
+      expect(state.researchAllocation).toEqual({ armor: 0.6 });
+    });
+
+    it("возвращает пустое распределение, если не задано", () => {
+      const country = createTestCountry({ technology: { domains: { armor: 0 } } });
+
+      const state = service.getTechnologyState(country);
+
+      expect(state.researchAllocation).toEqual({});
     });
   });
 });

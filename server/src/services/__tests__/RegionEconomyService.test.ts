@@ -68,7 +68,6 @@ describe('RegionEconomyService', () => {
       economyType: 'market',
       technology: {
         domains: {},
-        projects: [],
       },
       researchedTechnologyIds: [],
       military: {

@@ -36,13 +36,6 @@ export const updateBudgetSchema = z.object({
 });
 
 /**
- * Схема для старта исследования.
- */
-export const startResearchSchema = z.object({
-  projectId: z.string().min(1, "Project ID is required")
-});
-
-/**
  * Схема для намерения игрока свободным текстом (docs/DECISIONS.md, 2026-07-04).
  * Пустая строка — валидна, это способ очистить намерение.
  */
@@ -73,11 +66,6 @@ export type AdvanceTurnInput = z.infer<typeof advanceTurnSchema>;
  * Типы для изменения бюджета.
  */
 export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
-
-/**
- * Типы для старта исследования.
- */
-export type StartResearchInput = z.infer<typeof startResearchSchema>;
 
 /**
  * Типы для намерения игрока.

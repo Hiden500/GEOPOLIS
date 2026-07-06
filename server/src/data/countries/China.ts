@@ -12,8 +12,7 @@ export const China = createCountry({
   economyType: EconomyType.Planned,
   economyProfile: { inflation: 15, unemployment: 20 },
   technology: {
-    domains: { nuclear: 0, rocketry: 0, electronics: 0, aviation: 0, biology: 0, armor: 0, naval: 0, infantry: 0 },
-    projects: []
+    domains: { nuclear: 0, rocketry: 0, electronics: 0, aviation: 0, biology: 0, armor: 0, naval: 0, infantry: 0 }
   },
   researchedTechnologyIds: [],
   military: {

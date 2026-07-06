@@ -131,6 +131,11 @@ describe("LLMResponseValidator", () => {
       const result = validator.validateAction({ type: "sanction", sourceCountryId: "USA", targetCountryId: "USSR" });
       expect(result.valid).toBe(true);
     });
+
+    it("research_shift: валиден без targetCountryId (2026-07-06, самодействие)", () => {
+      const result = validator.validateAction({ type: "research_shift", sourceCountryId: "USA" });
+      expect(result.valid).toBe(true);
+    });
   });
 
   describe("validateActionApplicability", () => {
@@ -165,6 +170,34 @@ describe("LLMResponseValidator", () => {
         targetCountryId: "USSR",
       });
       expect(result.valid).toBe(true);
+    });
+
+    it("research_shift: разрешает известный домен страны (2026-07-06)", () => {
+      game.countries.find(c => c.id === "USA")!.technology.domains = { armor: 0 };
+      const result = validator.validateActionApplicability({
+        type: "research_shift",
+        sourceCountryId: "USA",
+        data: { domain: "armor", share: 0.5 },
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("research_shift: отклоняет несуществующий у страны домен", () => {
+      game.countries.find(c => c.id === "USA")!.technology.domains = { armor: 0 };
+      const result = validator.validateActionApplicability({
+        type: "research_shift",
+        sourceCountryId: "USA",
+        data: { domain: "cyberwarfare", share: 0.5 },
+      });
+      expect(result.valid).toBe(false);
+    });
+
+    it("research_shift: отклоняет отсутствующий domain в data", () => {
+      const result = validator.validateActionApplicability({
+        type: "research_shift",
+        sourceCountryId: "USA",
+      });
+      expect(result.valid).toBe(false);
     });
 
     it("war: разрешает объявление, если сторона ещё не воюет и не союзник (2026-07-06)", () => {
@@ -280,6 +313,19 @@ describe("LLMResponseValidator", () => {
       });
       expect(result.valid).toBe(false);
       expect(result.error).toContain("influenceChange out of range");
+    });
+
+    it("research_shift: принимает share на границе 0.7 и отклоняет за ней (2026-07-06)", () => {
+      const at = validator.validateActionMagnitude({
+        type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.7 },
+      });
+      expect(at.valid).toBe(true);
+
+      const over = validator.validateActionMagnitude({
+        type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.71 },
+      });
+      expect(over.valid).toBe(false);
+      expect(over.error).toContain("share out of range");
     });
 
     it("отклоняет нечисловые и NaN значения числовых полей", () => {

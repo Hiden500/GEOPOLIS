@@ -36,9 +36,8 @@ export const UK = createCountry({
       naval: 2,
 
       infantry: 1
-    },
+    }
 
-    projects: []
   },
   
   researchedTechnologyIds: [],

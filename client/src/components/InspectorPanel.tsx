@@ -1,4 +1,5 @@
 import { type GameState } from "@shared/types/GameState";
+import { getDomainTier } from "@shared/utils/technology";
 
 interface Props {
   target: { type: "country"; countryId: string } | { type: "region"; regionId: number };
@@ -10,7 +11,9 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
   const country = game.countries.find(c => c.id === countryId);
   if (!country) return <p>Страна не найдена</p>;
 
-  const activeProjects = country.technology.projects.filter(p => !p.completed);
+  const domainsWithProgress = Object.entries(country.technology.domains).filter(
+    ([, progress]) => getDomainTier(progress) > 0
+  );
   const relationEntries = Object.entries(country.diplomacy.relations)
     .map(([id, value]) => ({ id, value, other: game.countries.find(c => c.id === id) }))
     .filter(entry => entry.other)
@@ -53,10 +56,10 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
         </div>
       </dl>
 
-      {activeProjects.length > 0 && (
+      {domainsWithProgress.length > 0 && (
         <section className="panel-section">
-          <h4>Активные проекты</h4>
-          <p>{activeProjects.length}</p>
+          <h4>Освоенные направления</h4>
+          <p>{domainsWithProgress.length}</p>
         </section>
       )}
 

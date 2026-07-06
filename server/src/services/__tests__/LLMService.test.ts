@@ -125,6 +125,35 @@ describe("LLMService", () => {
       expect(prompt).toContain("proxy support");
     });
 
+    it("Instructions: упоминает research_shift и его пределы (2026-07-06)", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("research_shift");
+      expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift");
+    });
+
+    it("Player Country: показывает ВВП/чел, индекс благосостояния и тиры технологий (2026-07-06)", () => {
+      game.countries.find(c => c.id === "USA")!.technology.domains = { armor: 250, naval: 0 };
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
+      expect(section).toContain("per capita");
+      expect(section).toContain("Living standard index");
+      expect(section).toContain("armor T2");
+      expect(section).not.toContain("naval"); // тир 0 — не показывается
+    });
+
+    it("Player Country: 'no notable tech progress yet' без прогресса", () => {
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
+      expect(section).toContain("no notable tech progress yet");
+    });
+
+    it("Major Powers: показывает тиры технологий по каждой державе (2026-07-06)", () => {
+      game.countries.find(c => c.id === "USSR")!.technology.domains = { rocketry: 300 };
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
+      expect(section).toContain("rocketry T3");
+    });
+
     it("Память страны: показывает последние заголовки eventHistory по стране игрока, самые свежие первыми (2026-07-05, вопрос 7)", () => {
       game.eventHistory = [
         { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"] },
@@ -428,6 +457,20 @@ describe("LLMService", () => {
     it("действие без targetCountryId — no-op (не падает, не меняет отношения)", () => {
       service.applyLlmActions([{ type: "diplomacy", sourceCountryId: "USA" }]);
       expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
+    });
+
+    it("research_shift: задаёт долю домена в researchAllocation (2026-07-06)", () => {
+      usa().technology.domains = { armor: 0, naval: 0 };
+      service.applyLlmActions([
+        { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.6 } },
+      ]);
+      expect(usa().technology.researchAllocation).toEqual({ armor: 0.6 });
+    });
+
+    it("research_shift: не падает и не применяет без domain/share в data", () => {
+      usa().technology.domains = { armor: 0 };
+      service.applyLlmActions([{ type: "research_shift", sourceCountryId: "USA" }]);
+      expect(usa().technology.researchAllocation).toBeUndefined();
     });
 
     it("применяет несколько действий подряд", () => {

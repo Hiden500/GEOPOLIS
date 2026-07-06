@@ -37,9 +37,8 @@ export const USSR = createCountry({
       naval: 1,
 
       infantry: 1
-    },
+    }
 
-    projects: []
   },
 
   researchedTechnologyIds: [],

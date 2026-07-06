@@ -13,6 +13,14 @@ export const MAX_RELATION_CHANGE = 40;
 export const MAX_INFLUENCE_CHANGE = 20;
 
 /**
+ * Потолок доли researchSpending на один домен за один сдвиг фокуса
+ * (docs/DECISIONS.md, 2026-07-06) — остаток делят поровну домены без явной
+ * доли (ResearchTick.ts). Не 1.0 — сфокусированность не бесплатна, остальные
+ * направления всё равно получают что-то.
+ */
+export const MAX_RESEARCH_SHARE = 0.7;
+
+/**
  * Валидатор ответов от LLM.
  * Проверяет структуру и корректность данных в ответе LLM.
  */
@@ -85,7 +93,7 @@ export class LLMResponseValidator {
       return { valid: false, error: 'Missing type field' };
     }
 
-    const validTypes = ['diplomacy', 'war', 'peace', 'annex', 'puppet', 'sanction', 'guarantee', 'influence'];
+    const validTypes = ['diplomacy', 'war', 'peace', 'annex', 'puppet', 'sanction', 'guarantee', 'influence', 'research_shift'];
     if (!validTypes.includes(action.type)) {
       return { valid: false, error: `Invalid type: ${action.type}` };
     }
@@ -130,6 +138,7 @@ export class LLMResponseValidator {
     const numericLimits: Record<string, number> = {
       relationChange: MAX_RELATION_CHANGE,
       influenceChange: MAX_INFLUENCE_CHANGE,
+      share: MAX_RESEARCH_SHARE,
     };
 
     for (const [field, limit] of Object.entries(numericLimits)) {
@@ -153,6 +162,13 @@ export class LLMResponseValidator {
     const source = this.game.countries.find(c => c.id === action.sourceCountryId);
     if (!source) {
       return { valid: false, error: 'Source country not found' };
+    }
+
+    if (action.type === 'research_shift') {
+      const domain = action.data?.domain;
+      if (typeof domain !== 'string' || !(domain in source.technology.domains)) {
+        return { valid: false, error: `Unknown technology domain: ${String(domain)}` };
+      }
     }
 
     if (action.targetCountryId) {

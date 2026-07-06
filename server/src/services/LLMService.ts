@@ -4,11 +4,15 @@ import { type Country } from "@shared/types/Country";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { DiplomacyService } from "./DiplomacyService";
 import { WarService } from "./WarService";
+import { ResearchService } from "./ResearchService";
+import { getDomainTier } from "@shared/utils/technology";
+import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMetrics";
 import {
   LLMResponseValidator,
   MAX_ACTIONS_PER_RESPONSE,
   MAX_RELATION_CHANGE,
   MAX_INFLUENCE_CHANGE,
+  MAX_RESEARCH_SHARE,
 } from "../llm/LLMResponseValidator";
 
 /**
@@ -63,11 +67,13 @@ export class LLMService {
   private game: GameState;
   private diplomacyService: DiplomacyService;
   private warService: WarService;
+  private researchService: ResearchService;
 
   constructor(game: GameState) {
     this.game = game;
     this.diplomacyService = new DiplomacyService();
     this.warService = new WarService(game);
+    this.researchService = new ResearchService();
   }
 
   /**
@@ -207,6 +213,12 @@ Narrative requirements (strict):
   strongly, explicitly grounded in real historical events — prefer narrating
   proxy support (a patron backing a client state's own conflict) over direct
   war between such powers.
+- You may direct a Major Power's research focus via a "research_shift" action
+  (data.domain, data.share) — there is no fixed catalog of named technologies;
+  a domain's "tier" is just accumulated investment. When a country's domain
+  tier crosses a meaningful new threshold, narrate what this represents in
+  concrete terms (what got invented/achieved) — you invent the specific
+  breakthrough, the engine only tracks the number.
 
 Return your response in JSON format with the following structure:
 {
@@ -214,7 +226,7 @@ Return your response in JSON format with the following structure:
   "descriptions": "Narrative description of world events",
   "actions": [
     {
-      "type": "diplomacy|war|peace|annex|puppet|sanction|guarantee|influence",
+      "type": "diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift",
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
@@ -226,6 +238,8 @@ Hard limits (actions violating them are rejected):
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
 - data.relationChange: number within ±${MAX_RELATION_CHANGE}.
 - data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
+- research_shift: data.domain must be a real domain of the source country
+  (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
 - sourceCountryId and targetCountryId MUST be ids copied verbatim from the
   ## Country IDs section. Never invent, abbreviate, or guess an id from a
   country's name (e.g. do not turn "Soviet Union" into "SOV" or "USSR",
@@ -258,6 +272,9 @@ Hard limits (actions violating them are rejected):
           break;
         case 'influence':
           this.applyInfluenceAction(action);
+          break;
+        case 'research_shift':
+          this.applyResearchShiftAction(action);
           break;
         case 'annex':
         case 'puppet':
@@ -365,6 +382,23 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
+   * Применяет сдвиг фокуса исследований (docs/DECISIONS.md, 2026-07-06) —
+   * без каталога именных технологий, только доля researchSpending на домен.
+   * Доступно и игроку, и топ-державам через LLM (sourceCountryId — любая
+   * страна ростера, тот же паттерн, что объявление войны).
+   */
+  private applyResearchShiftAction(action: LLMAction): void {
+    const domain = action.data?.domain;
+    const share = action.data?.share;
+    if (typeof domain !== 'string' || typeof share !== 'number') return;
+
+    const country = this.game.countries.find(c => c.id === action.sourceCountryId);
+    if (!country) return;
+
+    this.researchService.setAllocation(country, domain, share);
+  }
+
+  /**
    * Получает информацию о стране игрока.
    */
   private getPlayerCountryInfo(): string {
@@ -373,12 +407,29 @@ Hard limits (actions violating them are rejected):
 
     return `
 - Name: ${player.name}
-- GDP: $${(player.economy.gdp / 1e9).toFixed(2)}B
+- GDP: $${(player.economy.gdp / 1e9).toFixed(2)}B (per capita: $${Math.round(getGdpPerCapita(player)).toLocaleString()})
 - Population: ${(player.population / 1e6).toFixed(2)}M
+- Living standard index: ${Math.round(getLivingStandardIndex(player, this.game.regions))}/100
 - Military: ${player.military.manpower.toLocaleString()}
+- Technology: ${this.getTechTierSummary(player)}
 - Allies: ${player.diplomacy.allies.join(', ') || 'None'}
 - Rivals: ${player.diplomacy.rivals.join(', ') || 'None'}${this.getRecentTitlesLine(player.id, PLAYER_RECENT_TITLES_COUNT)}
 `;
+  }
+
+  /**
+   * Компактная сводка тиров доменов технологий (docs/DECISIONS.md,
+   * 2026-07-06) — только домены с тиром > 0, чтобы не перечислять все ~14
+   * доменов эры каждый цикл. Тир — не именная технология, декоративное имя
+   * прорыва при пересечении порога придумывает сам LLM в нарративе.
+   */
+  private getTechTierSummary(country: Country): string {
+    const entries = Object.entries(country.technology.domains)
+      .map(([domain, progress]) => [domain, getDomainTier(progress)] as const)
+      .filter(([, tier]) => tier > 0)
+      .sort((a, b) => b[1] - a[1]);
+    if (entries.length === 0) return 'no notable tech progress yet';
+    return entries.map(([domain, tier]) => `${domain} T${tier}`).join(', ');
   }
 
   /**
@@ -415,7 +466,7 @@ Hard limits (actions violating them are rejected):
     const majors = this.getMajorPowers();
     if (majors.length === 0) return 'No major powers';
     return majors.map(c =>
-      `- ${c.name}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}` +
+      `- ${c.name}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}, Tech: ${this.getTechTierSummary(c)}` +
       this.getRecentTitlesLine(c.id, MAJOR_RECENT_TITLES_COUNT)
     ).join('\n');
   }

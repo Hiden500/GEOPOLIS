@@ -19,8 +19,7 @@ export const FRA = createCountry({
       armor: 1,
       naval: 2,
       infantry: 1
-    },
-    projects: []
+    }
   },
   researchedTechnologyIds: [],
   military: {

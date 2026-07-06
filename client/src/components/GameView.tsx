@@ -17,8 +17,6 @@ import { MapView } from "../map/MapView";
 import {
   nextTurn,
   updateBudget,
-  startResearch,
-  stopResearch,
   savePlayerIntent,
   getGameState,
   type BudgetUpdate,
@@ -108,27 +106,6 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       onGameUpdate(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка обновления бюджета");
-    }
-  };
-
-  const handleStartResearch = async (projectId: string) => {
-    try {
-      await startResearch(projectId);
-      // Не продвигает ход — просто обновляет состояние, как бюджет/намерение.
-      const updated = await getGameState();
-      onGameUpdate(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка запуска исследования");
-    }
-  };
-
-  const handleStopResearch = async (projectId: string) => {
-    try {
-      await stopResearch(projectId);
-      const updated = await getGameState();
-      onGameUpdate(updated);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка остановки исследования");
     }
   };
 
@@ -223,13 +200,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
               {w.kind.type === "budget" && (
                 <BudgetPanel country={playerCountry} onUpdateBudget={handleUpdateBudget} />
               )}
-              {w.kind.type === "research" && (
-                <ResearchPanel
-                  country={playerCountry}
-                  onStartResearch={handleStartResearch}
-                  onStopResearch={handleStopResearch}
-                />
-              )}
+              {w.kind.type === "research" && <ResearchPanel country={playerCountry} />}
               {w.kind.type === "intent" && (
                 <PlayerIntentPanel
                   regions={playerRegions}

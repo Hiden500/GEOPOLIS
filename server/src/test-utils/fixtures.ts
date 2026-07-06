@@ -1,6 +1,5 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
-import { type ResearchProject } from "@shared/types/research/ResearchProject";
 import { type GameState } from "@shared/types/GameState";
 import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
@@ -66,7 +65,6 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
     economyType: "market",
     technology: {
       domains: {},
-      projects: [],
     },
     researchedTechnologyIds: [],
     military: {
@@ -157,27 +155,6 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     mapFeatures: [],
     wars: [],
     llmRespondedThisTurn: true,
-    ...overrides,
-  };
-}
-
-export function createTestResearchProject(overrides: Partial<ResearchProject> = {}): ResearchProject {
-  return {
-    id: "project-1",
-    technologyId: "tech-1",
-    name: "Test Project",
-    domain: "Industry",
-    progress: 0,
-    requiredProgress: 100,
-    progressPerMonth: 10,
-    // Matches the default fixture's researchSpending so progress/tick stays small
-    // and predictable instead of completing the project in a single tick.
-    cost: 20_000_000_000,
-    requiredTechnologyIds: [],
-    requiredResources: {},
-    startDate: "1946-01-01",
-    estimatedMonths: 10,
-    completed: false,
     ...overrides,
   };
 }

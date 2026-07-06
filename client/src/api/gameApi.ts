@@ -62,19 +62,17 @@ export async function updateBudget(budget: BudgetUpdate): Promise<{ success: tru
   return handleResponse(response);
 }
 
-export async function startResearch(projectId: string): Promise<{ success: true; project: unknown }> {
-  const response = await fetch(`${API}/research/start`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ projectId }),
-  });
-  return handleResponse(response);
-}
-
-export async function stopResearch(projectId: string): Promise<{ success: true }> {
-  const response = await fetch(`${API}/research/stop/${projectId}`, {
-    method: "POST",
-  });
+/**
+ * Состояние технологий страны — тиры по доменам, текущее распределение
+ * фокуса (docs/DECISIONS.md, 2026-07-06). Нет каталога именных технологий —
+ * фокус меняется через "Намерение" (PlayerIntent → LLM 'research_shift'),
+ * не через отдельный REST-эндпоинт.
+ */
+export async function getResearchState(): Promise<{
+  domains: Record<string, { progress: number; tier: number }>;
+  researchAllocation: Partial<Record<string, number>>;
+}> {
+  const response = await fetch(`${API}/research/state`);
   return handleResponse(response);
 }
 

@@ -1,6 +1,6 @@
 # Журнал архитектурных решений
 
-Last updated: 2026-07-06 (war-система Phase 1)
+Last updated: 2026-07-06 (механика технологий реализована)
 
 Append-only журнал. Когда решение полностью спроектировано и реализовано, его суть должна перекочевать в `ARCHITECTURE.md`/`AI_RULES.md`/`LLM_RULES.md`/`TODO.md` как постоянное правило — но запись здесь не удаляется, это история "почему".
 
@@ -43,6 +43,14 @@ Append-only журнал. Когда решение полностью спро�
 3. Пример пользователя (предотвращение/разгром высадки в Инчхоне) подтверждает важность уже отложенной механики морских десантов (Phase 1 War, ждёт починки `isCoastalRegion()`) — решение отложить не меняется, просто находится дополнительное обоснование.
 
 Статус: дизайн согласован полностью, реализация начинается сразу после записи этого решения (домен-инвестиции + ВВП/благосостояние в этом заходе; национальные цели и правка промта — отдельно позже).
+
+**Реализовано (2026-07-06).** Модель без каталога: `TechnologyState { domains: Record<string, number>, researchAllocation?: Partial<Record<string, number>> }` — `shared/src/types/TechnologyState.ts`. Тир выводится из накопленного прогресса (`shared/src/utils/technology.ts::getDomainTier`, `TIER_PROGRESS_THRESHOLD=100`), не хранится отдельно. `ResearchTick.ts` переписан целиком: прогресс = `researchSpending × доля домена / RESEARCH_SPENDING_SCALE × бонусы (образование/исследовательские центры) / замедление_по_тиру`; домены без явной доли в `researchAllocation` делят остаток поровну. Новый `LLMAction 'research_shift'` (`data.domain`, `data.share` до `MAX_RESEARCH_SHARE=0.7`) — доступен и игроку, и топ-державам через LLM (`sourceCountryId` — любая страна, как объявление войны), обработчик `LLMService.applyResearchShiftAction` → `ResearchService.setAllocation`. Промт: секция `## Player Country`/`## Major Powers` показывает тиры (`Technology: armor T1, ...`, только домены с тиром > 0), `## Instructions` объясняет LLM правило "нет каталога, тир — вложения, содержание прорыва придумываешь сам".
+
+Старая модель (`TechnologyDefinition`/`ResearchProject`/`canResearch`/`coldWarTechTree.ts`/дропдаун в `ResearchPanel.tsx`) удалена целиком, не мигрирована — разбор кода в этот день показал её полностью разорванной (см. запись выше: `domain: "Research"` вместо реального домена, `researchedTechnologyIds.push(project.id)` вместо `technologyId`, `canResearch()` не вызывался нигде, клиентский дропдаун не пересекался с реальными id). `ResearchPanel.tsx` — теперь read-only отображение тиров/фокуса (нет кнопки "начать исследование" — фокус меняется только через `PlayerIntent`). Роут `/research/start`/`/stop`/`/active` удалены, остался только `/research/state`.
+
+Заодно реализованы **ВВП на душу** (`getGdpPerCapita`) и **индекс благосостояния** (`getLivingStandardIndex`, композит из ВВП/чел + доля welfare + средняя урбанизация/инфраструктура регионов, `shared/src/utils/countryMetrics.ts`) — обе показаны в `## Player Country` промта.
+
+Живая проверка (`curl`): создана игра → `research_shift` на `armor` (0.7) → 11 месяцев → `armor` тир 1 (прогресс 109.9), остальные 13 доменов синхронно на ~3.3 (поровну от остатка 0.3/13 — пропорция подтверждена математически: 60.07/6мес ≈ 10.01/мес против 1.98/6мес ≈ 0.33/мес, отношение 30.3 ≈ 0.7/(0.3/13)=30.33). Промт показал `Technology: armor T1`, `GDP: $133.98B (per capita: $970)`, `Living standard index: 81/100`. tsc/тесты зелёные (347 сервер: +20 новых тестов — `countryMetrics.test.ts`, `technology.test.ts`, `ResearchTick.test.ts`/`ResearchService.test.ts` переписаны с нуля, +6 в `LLMService.test.ts`, +6 в `LLMResponseValidator.test.ts`; 83 клиент).
 
 ---
 

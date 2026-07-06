@@ -1,76 +1,45 @@
 import { type Country } from "@shared/types/Country";
-import { type ResearchProject } from "@shared/types/research/ResearchProject";
-import { ValidationError, GameError } from "../errors/AppError";
+import { getDomainTier } from "@shared/utils/technology";
+import { ValidationError } from "../errors/AppError";
 
 /**
- * Сервис для управления исследованиями страны.
+ * Сервис распределения фокуса исследований (docs/DECISIONS.md, 2026-07-06)
+ * — без каталога именных технологий. Прогресс по доменам считает
+ * ResearchTick.ts, этот сервис только меняет, куда направлена доля
+ * researchSpending, и отдаёт текущее состояние (тиры) для отображения/промта.
  */
 export class ResearchService {
   /**
-   * Запускает исследование технологии. Бросает ValidationError, если технология
-   * уже исследуется или уже исследована.
+   * Задаёт долю researchSpending для одного домена — остальные домены без
+   * явной доли делят остаток поровну (см. ResearchTick.ts). Сдвигает фокус
+   * на один домен за раз, не переприсваивает распределение целиком.
    */
-  startProject(country: Country, technologyId: string): ResearchProject {
-    const existingProject = country.technology.projects.find(p => p.technologyId === technologyId);
-    if (existingProject) {
-      throw new ValidationError("Project already being researched");
+  setAllocation(country: Country, domain: string, share: number): void {
+    if (!(domain in country.technology.domains)) {
+      throw new ValidationError(`Unknown technology domain: ${domain}`);
     }
 
-    if (country.researchedTechnologyIds.includes(technologyId)) {
-      throw new ValidationError("Technology already researched");
-    }
-
-    const newProject: ResearchProject = {
-      id: `project-${Date.now()}`,
-      technologyId,
-      name: `Research ${technologyId}`,
-      domain: "Research",
-      progress: 0,
-      requiredProgress: 100,
-      progressPerMonth: 10,
-      cost: country.economy.researchSpending,
-      requiredTechnologyIds: [],
-      requiredResources: {},
-      startDate: new Date().toISOString(),
-      estimatedMonths: 10,
-      completed: false
+    country.technology.researchAllocation = {
+      ...country.technology.researchAllocation,
+      [domain]: share,
     };
-
-    country.technology.projects.push(newProject);
-    return newProject;
   }
 
   /**
-   * Останавливает (удаляет) исследование по ID проекта. Бросает GameError, если не найдено.
-   */
-  stopProject(country: Country, projectId: string): void {
-    const projectIndex = country.technology.projects.findIndex(p => p.id === projectId);
-    if (projectIndex === -1) {
-      throw new GameError("Project not found");
-    }
-
-    country.technology.projects.splice(projectIndex, 1);
-  }
-
-  /**
-   * Возвращает список активных исследований страны.
-   */
-  getActiveProjects(country: Country): ResearchProject[] {
-    return country.technology.projects;
-  }
-
-  /**
-   * Возвращает сводное состояние технологий страны.
+   * Сводное состояние технологий страны — прогресс и тир по домену, текущее
+   * распределение фокуса.
    */
   getTechnologyState(country: Country): {
-    domains: Record<string, number>;
-    researchedIds: string[];
-    projects: ResearchProject[];
+    domains: Record<string, { progress: number; tier: number }>;
+    researchAllocation: Partial<Record<string, number>>;
   } {
+    const domains: Record<string, { progress: number; tier: number }> = {};
+    for (const [domain, progress] of Object.entries(country.technology.domains)) {
+      domains[domain] = { progress, tier: getDomainTier(progress) };
+    }
     return {
-      domains: country.technology.domains,
-      researchedIds: country.researchedTechnologyIds,
-      projects: country.technology.projects
+      domains,
+      researchAllocation: country.technology.researchAllocation ?? {},
     };
   }
 }

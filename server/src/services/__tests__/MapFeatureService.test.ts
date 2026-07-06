@@ -48,7 +48,6 @@ describe('MapFeatureService', () => {
         economyType: 'market',
         technology: {
           domains: {},
-          projects: [],
         },
         researchedTechnologyIds: [],
         military: {

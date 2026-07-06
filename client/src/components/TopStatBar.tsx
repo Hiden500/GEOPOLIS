@@ -1,5 +1,6 @@
 import { type Country } from "@shared/types/Country";
 import { type WindowKind } from "../hooks/useWindows";
+import { getDomainTier } from "@shared/utils/technology";
 
 interface Props {
   country: Country;
@@ -73,7 +74,7 @@ export function TopStatBar({
           <StatPill label="Стабильность" value={`${Math.round(country.politics.stability)}`} />
           <StatPill
             label="Технологии"
-            value={`${country.researchedTechnologyIds.length}`}
+            value={`${Object.values(country.technology.domains).filter(p => getDomainTier(p) > 0).length}`}
             onClick={() => onToggle({ type: "research" })}
           />
           <StatPill label="Легитимность" value={`${Math.round(country.politics.legitimacy)}%`} />
