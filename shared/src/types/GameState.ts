@@ -43,6 +43,13 @@ export interface GameState {
   // LLM (docs/DECISIONS.md, 2026-07-04, вопрос 11). Двигается только при
   // успешном processResponse, не при простом generatePrompt.
   llmSpotlightCursor?: number;
+
+  // Гейт хода (docs/DECISIONS.md, 2026-07-06): true после успешного
+  // processResponse текущего цикла, сбрасывается в false при каждом
+  // успешном advanceMonth. GameService.advanceMonth() отказывает, если
+  // false — ход не продвигается без ответа LLM ("LLM — главный двигатель",
+  // docs/LLM_RULES.md).
+  llmRespondedThisTurn: boolean;
 }
 
 export interface LLMAction {

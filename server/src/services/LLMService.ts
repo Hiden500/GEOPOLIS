@@ -110,6 +110,7 @@ export class LLMService {
     this.incrementLlmTurn();
     this.advanceSpotlightCursor();
     this.game.playerIntent = "";
+    this.game.llmRespondedThisTurn = true;
 
     const eventTitle = title?.trim() || `Мировые события (LLM, ход ${this.game.llmTurn})`;
 

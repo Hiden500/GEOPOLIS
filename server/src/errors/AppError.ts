@@ -50,3 +50,14 @@ export class LLMProviderError extends AppError {
     super(message, "LLM_PROVIDER_ERROR", 502);
   }
 }
+
+/**
+ * Гейт хода (docs/DECISIONS.md, 2026-07-06): ход не может продвинуться без
+ * ответа LLM в текущем цикле ("LLM — главный двигатель", docs/LLM_RULES.md).
+ * 409 — конфликт состояния, не ошибка входных данных и не "не найдено".
+ */
+export class LLMGateError extends AppError {
+  constructor(message: string) {
+    super(message, "LLM_GATE_ERROR", 409);
+  }
+}

@@ -114,7 +114,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const handleStartResearch = async (projectId: string) => {
     try {
       await startResearch(projectId);
-      const updated = await nextTurn();
+      // Не продвигает ход — просто обновляет состояние, как бюджет/намерение.
+      const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка запуска исследования");
@@ -124,7 +125,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const handleStopResearch = async (projectId: string) => {
     try {
       await stopResearch(projectId);
-      const updated = await nextTurn();
+      const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Ошибка остановки исследования");

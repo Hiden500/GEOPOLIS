@@ -155,6 +155,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     playerIntent: "",
     eventHistory: [],
     mapFeatures: [],
+    llmRespondedThisTurn: true,
     ...overrides,
   };
 }

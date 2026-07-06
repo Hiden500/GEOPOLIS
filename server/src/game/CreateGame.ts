@@ -89,7 +89,8 @@ export function createGame(
     locale,
     playerIntent: "",
     eventHistory: [],
-    mapFeatures: []
+    mapFeatures: [],
+    llmRespondedThisTurn: false
   };
 
   // Генерируем начальные Map Features

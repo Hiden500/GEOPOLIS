@@ -59,6 +59,30 @@ describe("GameService", () => {
       expect(result).toBe(fakeGame);
       expect(service.getCurrentGame()).toBe(fakeGame);
     });
+
+    it("гейт (2026-07-06): отказывает, если LLM ещё не ответила в этом цикле", () => {
+      const fakeGame = createTestGameState({ llmRespondedThisTurn: false });
+      vi.mocked(createGame).mockReturnValue(fakeGame);
+      service.createGame("1946", "USA");
+
+      expect(() => service.advanceMonth()).toThrow(
+        "Ход недоступен: сначала получите ответ LLM (ручной или автоматический цикл)."
+      );
+      expect(simulateMonth).not.toHaveBeenCalled();
+    });
+
+    it("гейт (2026-07-06): сбрасывает llmRespondedThisTurn после успешного хода", () => {
+      const fakeGame = createTestGameState({ llmRespondedThisTurn: true });
+      vi.mocked(createGame).mockReturnValue(fakeGame);
+      service.createGame("1946", "USA");
+
+      service.advanceMonth();
+
+      expect(fakeGame.llmRespondedThisTurn).toBe(false);
+      expect(() => service.advanceMonth()).toThrow(
+        "Ход недоступен: сначала получите ответ LLM (ручной или автоматический цикл)."
+      );
+    });
   });
 
   describe("getCurrentGame", () => {

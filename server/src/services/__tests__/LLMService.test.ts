@@ -452,6 +452,18 @@ describe("LLMService", () => {
       expect(game.playerIntent).toBe("");
     });
 
+    it("гейт (2026-07-06): валидный ответ выставляет llmRespondedThisTurn в true", () => {
+      game.llmRespondedThisTurn = false;
+      service.processResponse(validResponse);
+      expect(game.llmRespondedThisTurn).toBe(true);
+    });
+
+    it("гейт (2026-07-06): невалидный ответ НЕ выставляет llmRespondedThisTurn", () => {
+      game.llmRespondedThisTurn = false;
+      service.processResponse("это не JSON");
+      expect(game.llmRespondedThisTurn).toBe(false);
+    });
+
     it("title: использует title из ответа LLM как Event.title, если он есть (2026-07-05, для таймлайна)", () => {
       const responseWithTitle = JSON.stringify({
         title: "USA-USSR Relations Thaw",

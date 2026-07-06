@@ -146,6 +146,7 @@ describe('MapFeatureService', () => {
       playerIntent: "",
       eventHistory: [],
       mapFeatures: [],
+      llmRespondedThisTurn: true,
     };
 
     service = new MapFeatureService(game);

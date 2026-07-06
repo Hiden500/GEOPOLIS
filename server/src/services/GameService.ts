@@ -3,6 +3,7 @@ import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { createGame } from "../game/CreateGame";
 import { simulateMonth } from "../simulation/SimulationEngine";
 import { getGame, setGame } from "../game/GameStore";
+import { LLMGateError } from "../errors/AppError";
 
 /**
  * Сервис для управления игрой.
@@ -20,6 +21,9 @@ export class GameService {
 
   /**
    * Выполняет один месяц симуляции.
+   * Гейт (docs/DECISIONS.md, 2026-07-06): отказывает, если LLM ещё не
+   * ответила в текущем цикле — "LLM — главный двигатель" (docs/LLM_RULES.md),
+   * ход не должен листаться без единого обращения к LLM.
    */
   advanceMonth(): GameState {
     const game = getGame();
@@ -27,7 +31,14 @@ export class GameService {
       throw new Error("No active game");
     }
 
+    if (!game.llmRespondedThisTurn) {
+      throw new LLMGateError(
+        "Ход недоступен: сначала получите ответ LLM (ручной или автоматический цикл)."
+      );
+    }
+
     simulateMonth(game);
+    game.llmRespondedThisTurn = false;
     setGame(game);
     return game;
   }

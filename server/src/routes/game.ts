@@ -2,7 +2,7 @@ import express from "express";
 import { GameService } from "../services/GameService";
 import { ScenarioRegistry } from "../scenarios/ScenarioRegistry";
 import { createGameSchema } from "../validation/schemas";
-import { ValidationError, GameError } from "../errors/AppError";
+import { ValidationError, GameError, LLMGateError } from "../errors/AppError";
 
 const router = express.Router();
 const gameService = new GameService();
@@ -56,7 +56,9 @@ router.post("/next-turn", (req, res) => {
     const game = gameService.advanceMonth();
     res.json(game);
   } catch (error) {
-    if (error instanceof GameError) {
+    if (error instanceof LLMGateError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else if (error instanceof GameError) {
       res.status(404).json({ error: error.message });
     } else {
       res.status(500).json({ error: "Internal server error" });
