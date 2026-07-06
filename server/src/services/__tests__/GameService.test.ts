@@ -83,6 +83,18 @@ describe("GameService", () => {
         "Ход недоступен: сначала получите ответ LLM (ручной или автоматический цикл)."
       );
     });
+
+    it("переменная длина хода (2026-07-06): months=3 прогоняет simulateMonth трижды за один гейт-чек", () => {
+      const fakeGame = createTestGameState({ llmRespondedThisTurn: true });
+      vi.mocked(createGame).mockReturnValue(fakeGame);
+      service.createGame("1946", "USA");
+
+      const result = service.advanceMonth(3);
+
+      expect(simulateMonth).toHaveBeenCalledTimes(3);
+      expect(result).toBe(fakeGame);
+      expect(fakeGame.llmRespondedThisTurn).toBe(false);
+    });
   });
 
   describe("getCurrentGame", () => {

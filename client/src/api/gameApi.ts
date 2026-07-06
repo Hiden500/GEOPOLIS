@@ -39,9 +39,16 @@ export async function startGame(
   return handleResponse(response);
 }
 
-export async function nextTurn(): Promise<GameState> {
+/**
+ * Продвигает ход на `months` месяцев (переменная длина хода, docs/DECISIONS.md,
+ * 2026-07-05/07-06) — один ответ LLM разблокирует весь мульти-месячный ход.
+ * Без UI-селектора (интерфейс заморожен) — параметр готов к использованию.
+ */
+export async function nextTurn(months?: number): Promise<GameState> {
   const response = await fetch(`${API}/game/next-turn`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(months !== undefined ? { months } : {}),
   });
   return handleResponse(response);
 }

@@ -1,7 +1,7 @@
 import express from "express";
 import { GameService } from "../services/GameService";
 import { ScenarioRegistry } from "../scenarios/ScenarioRegistry";
-import { createGameSchema } from "../validation/schemas";
+import { createGameSchema, advanceTurnSchema } from "../validation/schemas";
 import { ValidationError, GameError, LLMGateError } from "../errors/AppError";
 
 const router = express.Router();
@@ -53,10 +53,17 @@ router.get("/state", (req, res) => {
 
 router.post("/next-turn", (req, res) => {
   try {
-    const game = gameService.advanceMonth();
+    const validationResult = advanceTurnSchema.safeParse(req.body ?? {});
+    if (!validationResult.success) {
+      throw new ValidationError("Invalid input", validationResult.error.issues);
+    }
+
+    const game = gameService.advanceMonth(validationResult.data.months);
     res.json(game);
   } catch (error) {
-    if (error instanceof LLMGateError) {
+    if (error instanceof ValidationError) {
+      res.status(400).json({ error: error.message, details: error.details });
+    } else if (error instanceof LLMGateError) {
       res.status(error.statusCode).json({ error: error.message });
     } else if (error instanceof GameError) {
       res.status(404).json({ error: error.message });

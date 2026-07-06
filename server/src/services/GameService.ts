@@ -20,12 +20,15 @@ export class GameService {
   }
 
   /**
-   * Выполняет один месяц симуляции.
+   * Выполняет `months` месяцев симуляции подряд (переменная длина хода,
+   * docs/DECISIONS.md, 2026-07-05: тики остаются месячными, длина хода —
+   * каденция решений, не новый шаг симуляции).
    * Гейт (docs/DECISIONS.md, 2026-07-06): отказывает, если LLM ещё не
-   * ответила в текущем цикле — "LLM — главный двигатель" (docs/LLM_RULES.md),
-   * ход не должен листаться без единого обращения к LLM.
+   * ответила в текущем цикле — "LLM — главный двигатель" (docs/LLM_RULES.md).
+   * Один ответ LLM разблокирует весь мульти-месячный ход: гейт проверяется
+   * один раз на входе, флаг сбрасывается один раз в конце.
    */
-  advanceMonth(): GameState {
+  advanceMonth(months: number = 1): GameState {
     const game = getGame();
     if (!game) {
       throw new Error("No active game");
@@ -37,7 +40,9 @@ export class GameService {
       );
     }
 
-    simulateMonth(game);
+    for (let i = 0; i < months; i++) {
+      simulateMonth(game);
+    }
     game.llmRespondedThisTurn = false;
     setGame(game);
     return game;
