@@ -7,6 +7,7 @@ import { militaryTick } from "./military/MilitaryTick";
 import { aggregateAllCountries } from "@shared/utils/aggregateCountryData";
 import { MapFeatureService } from "../services/MapFeatureService";
 import { diplomacyTick } from "./diplomacy/DiplomacyTick";
+import { warTick } from "./war/WarTick";
 import { aiBehaviorTick } from "./ai/AiBehaviorTick";
 import { tierTick } from "./tier/TierTick";
 import { politicsTick } from "./politics/PoliticsTick";
@@ -37,7 +38,11 @@ export function simulateMonth(
     // Дипломатические изменения
     diplomacyTick(game.countries);
 
-    // Детерминированное поведение ИИ-стран (аустерити + ответ на угрозу).
+    // Фронт активных войн (docs/WAR.md, Phase 1) — до aiBehaviorTick, чтобы
+    // новые войны от ИИ-порога стартовали с чистого состояния фронта.
+    warTick(game);
+
+    // Детерминированное поведение ИИ-стран (аустерити + ответ на угрозу + порог войны).
     // После диплом. тика: реагирует на актуальные отношения/влияние/силу.
     aiBehaviorTick(game);
 

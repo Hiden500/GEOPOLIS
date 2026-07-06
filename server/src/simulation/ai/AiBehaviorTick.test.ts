@@ -236,3 +236,91 @@ describe("aiBehaviorTick — Правило C (низкая stability → welfar
     expect(player.economy.militarySpending).toBe(milBefore);
   });
 });
+
+describe("aiBehaviorTick — Правило D (порог войны для non-major)", () => {
+  it("объявляет войну: соперник с отношениями ниже порога и манпауэр-перевес инициатора", () => {
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+    });
+    const b = country("B", { tier: "minor" });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    const war = game.wars.find(w => w.attackers.includes("A") && w.defenders.includes("B"));
+    expect(war).toBeDefined();
+    expect(war!.active).toBe(true);
+  });
+
+  it("не объявляет войну, если отношения не ниже порога", () => {
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -50 } },
+    });
+    const b = country("B", { tier: "minor" });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    expect(game.wars).toHaveLength(0);
+  });
+
+  it("не объявляет войну без манпауэр-перевеса ('нет другого выхода')", () => {
+    const a = country("A", {
+      tier: "minor",
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+    });
+    const b = country("B", { tier: "minor" }); // те же activePersonnel, что и A (фикстура)
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    expect(game.wars).toHaveLength(0);
+  });
+
+  it("не применяется, если соперник — major (войну решает только LLM)", () => {
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+    });
+    const b = country("B", { tier: "major" });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    expect(game.wars).toHaveLength(0);
+  });
+
+  it("не применяется к самому major-инициатору", () => {
+    const a = country("A", {
+      tier: "major",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+    });
+    const b = country("B", { tier: "minor" });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    expect(game.wars).toHaveLength(0);
+  });
+
+  it("идемпотентно: не дублирует уже идущую войну между той же парой", () => {
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+    });
+    const b = country("B", { tier: "minor" });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+    aiBehaviorTick(game);
+
+    expect(game.wars).toHaveLength(1);
+  });
+});

@@ -3,6 +3,7 @@ import { type LLMAction } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { DiplomacyService } from "./DiplomacyService";
+import { WarService } from "./WarService";
 import {
   LLMResponseValidator,
   MAX_ACTIONS_PER_RESPONSE,
@@ -61,10 +62,12 @@ export interface LlmCycleResult {
 export class LLMService {
   private game: GameState;
   private diplomacyService: DiplomacyService;
+  private warService: WarService;
 
   constructor(game: GameState) {
     this.game = game;
     this.diplomacyService = new DiplomacyService();
+    this.warService = new WarService(game);
   }
 
   /**
@@ -200,6 +203,10 @@ Narrative requirements (strict):
   Deviations from real history caused by earlier player/LLM actions take
   priority over this — follow the world's own logic, don't force events back
   to the historical outcome.
+- Avoid a direct "war" action between two nuclear-armed Major Powers unless
+  strongly, explicitly grounded in real historical events — prefer narrating
+  proxy support (a patron backing a client state's own conflict) over direct
+  war between such powers.
 
 Return your response in JSON format with the following structure:
 {
@@ -282,8 +289,8 @@ Hard limits (actions violating them are rejected):
   private applyWarAction(action: LLMAction): void {
     if (!action.targetCountryId) return;
 
-    // В будущем это должно создавать объект War
-    console.log(`War declared: ${action.sourceCountryId} vs ${action.targetCountryId}`);
+    const warGoal = typeof action.data?.warGoal === "string" ? action.data.warGoal : undefined;
+    this.warService.declareWar(action.sourceCountryId, action.targetCountryId, warGoal);
 
     // Ухудшаем отношения
     this.diplomacyService.changeRelation(
@@ -300,8 +307,10 @@ Hard limits (actions violating them are rejected):
   private applyPeaceAction(action: LLMAction): void {
     if (!action.targetCountryId) return;
 
-    // В будущем это должно заканчивать войну
-    console.log(`Peace treaty: ${action.sourceCountryId} and ${action.targetCountryId}`);
+    const war = this.warService.getActiveWarBetween(action.sourceCountryId, action.targetCountryId);
+    if (war) {
+      this.warService.makePeace(war.id);
+    }
 
     // Улучшаем отношения
     this.diplomacyService.changeRelation(
@@ -516,8 +525,22 @@ Hard limits (actions violating them are rejected):
    * Получает информацию об активных войнах.
    */
   private getActiveWarsInfo(): string {
-    // В будущем это должно возвращать реальные данные о войнах
-    return 'No active wars (war system not yet implemented)';
+    const activeWars = this.game.wars.filter(w => w.active);
+    if (activeWars.length === 0) return 'No active wars';
+
+    const nameOf = (id: string) => this.game.countries.find(c => c.id === id)?.name ?? id;
+
+    return activeWars.map(w => {
+      const attackerNames = w.attackers.map(nameOf).join(', ');
+      const defenderNames = w.defenders.map(nameOf).join(', ');
+      const { toAttackers, toDefenders } = w.territoryFlips;
+      const front =
+        toAttackers > toDefenders ? 'attackers advancing' :
+        toDefenders > toAttackers ? 'defenders advancing' :
+        'front stable';
+      const goal = w.warGoal ? `, goal: ${w.warGoal}` : '';
+      return `- ${attackerNames} vs ${defenderNames}: ${front}${goal}`;
+    }).join('\n');
   }
 
   /**

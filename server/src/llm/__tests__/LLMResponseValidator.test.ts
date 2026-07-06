@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { LLMResponseValidator } from "../LLMResponseValidator";
+import { WarService } from "../../services/WarService";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
 
@@ -160,6 +161,58 @@ describe("LLMResponseValidator", () => {
     it("разрешает санкции, если их ещё нет", () => {
       const result = validator.validateActionApplicability({
         type: "sanction",
+        sourceCountryId: "USA",
+        targetCountryId: "USSR",
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("war: разрешает объявление, если сторона ещё не воюет и не союзник (2026-07-06)", () => {
+      const result = validator.validateActionApplicability({
+        type: "war",
+        sourceCountryId: "USA",
+        targetCountryId: "USSR",
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("war: отклоняет, если уже идёт война между этими странами (2026-07-06)", () => {
+      new WarService(game).declareWar("USA", "USSR");
+      const result = validator.validateActionApplicability({
+        type: "war",
+        sourceCountryId: "USA",
+        targetCountryId: "USSR",
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("Already at war with this country");
+    });
+
+    it("war: отклоняет объявление войны союзнику (2026-07-06)", () => {
+      const usa = game.countries.find(c => c.id === "USA")!;
+      usa.diplomacy.allies.push("USSR");
+      const result = validator.validateActionApplicability({
+        type: "war",
+        sourceCountryId: "USA",
+        targetCountryId: "USSR",
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("Cannot declare war on an ally");
+    });
+
+    it("peace: отклоняет, если между странами нет активной войны (2026-07-06)", () => {
+      const result = validator.validateActionApplicability({
+        type: "peace",
+        sourceCountryId: "USA",
+        targetCountryId: "USSR",
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("No active war between these countries");
+    });
+
+    it("peace: разрешает, если между странами есть активная война (2026-07-06)", () => {
+      new WarService(game).declareWar("USA", "USSR");
+      const result = validator.validateActionApplicability({
+        type: "peace",
         sourceCountryId: "USA",
         targetCountryId: "USSR",
       });

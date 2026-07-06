@@ -90,6 +90,7 @@ export function createGame(
     playerIntent: "",
     eventHistory: [],
     mapFeatures: [],
+    wars: [],
     llmRespondedThisTurn: false
   };
 

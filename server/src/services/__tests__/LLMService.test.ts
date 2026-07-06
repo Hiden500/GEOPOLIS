@@ -80,6 +80,51 @@ describe("LLMService", () => {
       expect(section).toContain("not just a passing mention");
     });
 
+    it("Active Wars: 'No active wars', если войн нет (2026-07-06)", () => {
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
+      expect(section).toContain("No active wars");
+    });
+
+    it("Active Wars: показывает стороны, статус фронта и цель войны по именам стран (2026-07-06)", () => {
+      game.wars.push({
+        id: "war-1",
+        attackers: ["USA"],
+        defenders: ["USSR"],
+        supporters: [],
+        startDate: game.currentDate,
+        warGoal: "Contain communism",
+        active: true,
+        territoryFlips: { toAttackers: 3, toDefenders: 0 },
+      });
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
+      expect(section).toContain("USA vs USSR");
+      expect(section).toContain("attackers advancing");
+      expect(section).toContain("goal: Contain communism");
+    });
+
+    it("Active Wars: не показывает завершённые (active: false) войны (2026-07-06)", () => {
+      game.wars.push({
+        id: "war-1",
+        attackers: ["USA"],
+        defenders: ["USSR"],
+        supporters: [],
+        startDate: game.currentDate,
+        active: false,
+        territoryFlips: { toAttackers: 0, toDefenders: 0 },
+      });
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
+      expect(section).toContain("No active wars");
+    });
+
+    it("Narrative requirements: инструктирует избегать прямой войны между ядерными державами (2026-07-06)", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("nuclear-armed Major Powers");
+      expect(prompt).toContain("proxy support");
+    });
+
     it("Память страны: показывает последние заголовки eventHistory по стране игрока, самые свежие первыми (2026-07-05, вопрос 7)", () => {
       game.eventHistory = [
         { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"] },
@@ -312,16 +357,38 @@ describe("LLMService", () => {
       expect(ussr().diplomacy.relations["USA"]).toBe(10);
     });
 
-    it("war: обрушивает отношения (delta -100, обратная сторона -50)", () => {
+    it("war: обрушивает отношения (delta -100, обратная сторона -50) и создаёт реальную War (2026-07-06)", () => {
       service.applyLlmActions([{ type: "war", sourceCountryId: "USA", targetCountryId: "USSR" }]);
       expect(usa().diplomacy.relations["USSR"]).toBe(-100);
       expect(ussr().diplomacy.relations["USA"]).toBe(-50);
+
+      const war = game.wars.find(w => w.attackers.includes("USA") && w.defenders.includes("USSR"));
+      expect(war).toBeDefined();
+      expect(war!.active).toBe(true);
     });
 
-    it("peace: улучшает отношения (delta +50)", () => {
+    it("war: сохраняет warGoal из data.warGoal, если передан (2026-07-06)", () => {
+      service.applyLlmActions([
+        { type: "war", sourceCountryId: "USA", targetCountryId: "USSR", data: { warGoal: "Liberate Manchuria" } },
+      ]);
+      const war = game.wars.find(w => w.attackers.includes("USA"));
+      expect(war!.warGoal).toBe("Liberate Manchuria");
+    });
+
+    it("peace: улучшает отношения (delta +50) и завершает реальную войну (2026-07-06)", () => {
+      service.applyLlmActions([{ type: "war", sourceCountryId: "USA", targetCountryId: "USSR" }]);
+      service.applyLlmActions([{ type: "peace", sourceCountryId: "USA", targetCountryId: "USSR" }]);
+      expect(usa().diplomacy.relations["USSR"]).toBe(50 - 100);
+      expect(ussr().diplomacy.relations["USA"]).toBe(25 - 50);
+
+      const war = game.wars.find(w => w.attackers.includes("USA") && w.defenders.includes("USSR"));
+      expect(war!.active).toBe(false);
+    });
+
+    it("peace: не падает, если активной войны нет (2026-07-06)", () => {
       service.applyLlmActions([{ type: "peace", sourceCountryId: "USA", targetCountryId: "USSR" }]);
       expect(usa().diplomacy.relations["USSR"]).toBe(50);
-      expect(ussr().diplomacy.relations["USA"]).toBe(25);
+      expect(game.wars).toHaveLength(0);
     });
 
     it("sanction: добавляет санкцию по умолчанию и ухудшает отношения на -25", () => {

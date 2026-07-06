@@ -1,6 +1,7 @@
 import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
+import { WarService } from "../../services/WarService";
 
 /**
  * Детерминированное поведение ИИ-стран (без полноценного utility-AI).
@@ -9,9 +10,11 @@ import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
  *  - Правило B: ответ на угрозу с полной балансировкой (военный ответ +
  *    контр-блок соперников + power→influence→сфера для бандвагонинга).
  *  - Правило C: при низкой stability сдвиг расходов с military → welfare.
+ *  - Правило D (docs/WAR.md, 2026-07-06): порог объявления войны для
+ *    non-major стран — топ-державы объявляют войну только через LLM
+ *    (решение A), это правило их не трогает.
  *
- * Применяется только к ИИ-странам (id !== playerCountryId). Войну не трогает —
- * war-системы в движке пока нет.
+ * Применяется только к ИИ-странам (id !== playerCountryId).
  */
 
 const AUSTERITY_CUT = 0.95;        // −5% дискреционных расходов за тик при дефиците
@@ -23,6 +26,7 @@ const INFLUENCE_GRAVITY = 0.1;     // скорость роста влияния
 const STABILITY_LOW = 40;          // порог "низкой" stability для Правила C
 const WELFARE_SHIFT_RATE = 0.02;   // доля дохода, переводимая military→welfare за тик
 const WELFARE_CAP_SHARE = 0.30;    // потолок welfare как доля дохода
+const WAR_RELATION_THRESHOLD = -80; // порог отношений для Правила D — почти дно шкалы, войны редки
 
 type SpendKey =
   | "militarySpending"
@@ -131,6 +135,31 @@ function applyThreatResponse(player: Country, aiCountries: Country[]): void {
   }
 }
 
+/**
+ * Правило D — порог объявления войны для non-major (топ-державы — только
+ * через LLM, см. docs/WAR.md решение A). Соперник (`rivals`) с отношениями
+ * ниже почти-дна шкалы И при манпауэр-перевесе инициатора ("нет другого
+ * выхода", черновик docs/WAR.md) — объявляется война. `WarService.declareWar`
+ * идемпотентен (не дублирует уже идущую войну), доп. проверка не нужна.
+ */
+function applyWarThreshold(game: GameState, aiCountries: Country[]): void {
+  const warService = new WarService(game);
+  const nonMajor = aiCountries.filter(c => c.tier !== "major");
+
+  for (const c of nonMajor) {
+    for (const rivalId of c.diplomacy.rivals) {
+      const rival = nonMajor.find(r => r.id === rivalId);
+      if (!rival) continue; // major-тир соперник — войну решает только LLM
+
+      const relation = c.diplomacy.relations[rivalId] ?? 0;
+      if (relation > WAR_RELATION_THRESHOLD) continue;
+      if (c.military.activePersonnel <= rival.military.activePersonnel) continue;
+
+      warService.declareWar(c.id, rivalId);
+    }
+  }
+}
+
 export function aiBehaviorTick(game: GameState): void {
   const player = game.countries.find(c => c.id === game.playerCountryId);
   const aiCountries = game.countries.filter(c => c.id !== game.playerCountryId);
@@ -143,4 +172,6 @@ export function aiBehaviorTick(game: GameState): void {
   if (player) {
     applyThreatResponse(player, aiCountries);
   }
+
+  applyWarThreshold(game, aiCountries);
 }

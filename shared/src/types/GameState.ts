@@ -4,6 +4,7 @@ import { type Event } from "../types/Event";
 import { type EraDefinition } from "../types/research/EraDefinition";
 import { type MapFeature } from "./map/MapFeature";
 import { type Locale } from "./i18n/LocalizedText";
+import { type War } from "./War";
 
 export interface GameState {
   currentDate: string;
@@ -32,6 +33,10 @@ export interface GameState {
   eventHistory: Event[];
 
   mapFeatures: MapFeature[];
+
+  // Активные и завершённые войны (docs/WAR.md, Phase 1) — состояние живёт
+  // здесь, не в отдельной подсистеме (AI_RULES.md принцип: числа у движка).
+  wars: War[];
 
   // LLM Simulation fields
   llmContext?: string; // контекст для LLM (промт)
