@@ -59,11 +59,3 @@ export type ResourceId = keyof typeof RESOURCE_CATALOG;
 
 /** Все id ресурсов суперсета. */
 export const RESOURCE_IDS = Object.keys(RESOURCE_CATALOG) as ResourceId[];
-
-/**
- * Активный набор ресурсов для года старта сценария: те, чей `eraIntroduced`
- * не позже года. `techGate` фильтрует доступность по технологиям отдельно (в рантайме).
- */
-export function activeResourcesForYear(startYear: number): ResourceId[] {
-  return RESOURCE_IDS.filter((id) => RESOURCE_CATALOG[id].eraIntroduced <= startYear);
-}

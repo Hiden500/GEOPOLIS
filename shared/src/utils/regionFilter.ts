@@ -155,15 +155,3 @@ export function mergeSmallCountryRegions(
     features: mergedFeatures,
   };
 }
-
-/**
- * Применяет полную фильтрацию GeoJSON
- */
-export function applyRegionFilter(
-  geoJson: FeatureCollection,
-  detailLevel: DetailLevel = DetailLevel.MEDIUM
-): FeatureCollection {
-  let filtered = filterGeoJsonByDetailLevel(geoJson, detailLevel);
-  filtered = mergeSmallCountryRegions(filtered);
-  return filtered;
-}

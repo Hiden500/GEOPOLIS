@@ -62,20 +62,6 @@ export async function updateBudget(budget: BudgetUpdate): Promise<{ success: tru
   return handleResponse(response);
 }
 
-/**
- * Состояние технологий страны — тиры по доменам, текущее распределение
- * фокуса (docs/DECISIONS.md, 2026-07-06). Нет каталога именных технологий —
- * фокус меняется через "Намерение" (PlayerIntent → LLM 'research_shift'),
- * не через отдельный REST-эндпоинт.
- */
-export async function getResearchState(): Promise<{
-  domains: Record<string, { progress: number; tier: number }>;
-  researchAllocation: Partial<Record<string, number>>;
-}> {
-  const response = await fetch(`${API}/research/state`);
-  return handleResponse(response);
-}
-
 export async function savePlayerIntent(intent: string): Promise<{ success: true; intent: string }> {
   const response = await fetch(`${API}/player-intent`, {
     method: "PUT",
