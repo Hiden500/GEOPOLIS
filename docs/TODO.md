@@ -61,11 +61,21 @@ export/stateEnterprise/other остаются статичными в перво
 - **Переменная длина хода** (1нед/1мес/3мес/6мес): тики остаются месячными (решение —
   `docs/DECISIONS.md`, 2026-07-05). `advanceTurnSchema` уже существует, но не используется —
   довести до применения.
-- `LLMProvider`-абстракция (`ManualClipboardProvider`/`GigaChat`/`OpenRouter`/`Ollama`/`Gemini`) +
-  тестирование на реальном промте. Groq и Gemini (с корректной `responseSchema`) оба годятся —
-  детали сравнения `docs/DECISIONS.md`. Разблокирует жёсткий гейт "ход только после ответа LLM"
-  (принцип уже в `LLM_RULES.md`, не применён в коде) — гейт делать вместе с первым рабочим
-  провайдером.
+~~`LLMProvider`-абстракция~~ — **`GeminiProvider` реализован и подтверждён живым вызовом
+  2026-07-06**. `LLMProvider` (интерфейс `generateResponse(prompt): Promise<string>`) +
+  `GeminiProvider` (`generateContent`, модель `gemini-3.1-flash-lite` по умолчанию, `GEMINI_MODEL`
+  переопределяет), `responseSchema` под `{title, descriptions, actions[]}`,
+  `thinkingConfig.thinkingLevel: "high"`. Роут `POST /llm/auto`: промт → провайдер → та же
+  `LLMService.processResponse`, что и у ручного `/response` — без дублирования валидации. Ключ —
+  только `server/.env` (`GEMINI_API_KEY`, см. `server/.env.example`), не уходит на клиент. Кнопка
+  "Автоматически" в `LLMPanel`, рядом с ручным способом, не вместо него. Ошибки провайдера — 502
+  (`LLMProviderError`), ход не продвигается. `GigaChat`/`OpenRouter`/`Ollama`/Groq — не реализованы,
+  не блокеры (см. `docs/DECISIONS.md` про сравнение Groq/Gemini). tsc/тесты зелёные (282 сервер,
+  83 клиент, +6 тестов `GeminiProvider`), живая проверка: реальный вызов `/llm/auto` вернул чистый
+  JSON на русском (локаль игры), 2 применённых действия, память страны (`Recent: ...`) подхватила
+  созданное событие в следующем промте.
+  Разблокирует жёсткий гейт "ход только после ответа LLM" (принцип уже в `LLM_RULES.md`, не
+  применён в коде) — гейт всё ещё отдельная, не сделанная задача.
 - наполнение промта реальным контекстом: осталось "активные войны" (заглушка, делать вместе с
   war-системой).
 - **Исторические развилки в промте** (черновик — `docs/tasks/HISTORICAL_HINGE_POINTS_1946.md`).

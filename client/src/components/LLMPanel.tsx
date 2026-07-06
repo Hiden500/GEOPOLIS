@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   getLlmPrompt,
   submitLlmResponse,
+  runAutoLlmCycle,
   type LlmCycleResult,
 } from "../api/gameApi";
 
@@ -11,8 +12,10 @@ interface Props {
 }
 
 /**
- * Ручной LLM-цикл (ManualClipboardProvider):
+ * LLM-цикл: автоматически через Gemini API (POST /llm/auto, требует
+ * server/.env с GEMINI_API_KEY) или вручную (ManualClipboardProvider) —
  * скопировать промт → внешняя LLM → вставить ответ → валидация → применение.
+ * Оба используют одну и ту же валидацию/применение на сервере.
  */
 export function LLMPanel({ llmTurn, onApplied }: Props) {
   const [prompt, setPrompt] = useState<string | null>(null);
@@ -62,13 +65,37 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
     }
   };
 
+  const handleAuto = async () => {
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    try {
+      const res = await runAutoLlmCycle();
+      setResult(res);
+      if (res.success) {
+        onApplied();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка автоматического цикла");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div className="llm-panel">
       <h2>LLM-симуляция</h2>
       <p className="llm-turn">Ход LLM: {llmTurn}</p>
 
       <section className="panel-section">
-        <h3>1. Промт</h3>
+        <h3>Автоматически (Gemini)</h3>
+        <button className="primary" onClick={handleAuto} disabled={busy}>
+          Сгенерировать и применить автоматически
+        </button>
+      </section>
+
+      <section className="panel-section">
+        <h3>1. Промт (ручной способ)</h3>
         <button className="primary" onClick={handleGetPrompt} disabled={busy}>
           {copied ? "Промт скопирован ✓" : "Получить и скопировать промт"}
         </button>
@@ -107,7 +134,7 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
 
       {result && result.success && (
         <section className="panel-section llm-result">
-          <h3>Результат</h3>
+          <h3>{result.title || "Результат"}</h3>
           {result.descriptions && (
             <p className="llm-descriptions">{result.descriptions}</p>
           )}

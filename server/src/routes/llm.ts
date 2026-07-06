@@ -2,10 +2,12 @@ import express from "express";
 import { GameService } from "../services/GameService";
 import { LLMService } from "../services/LLMService";
 import { llmResponseSchema } from "../validation/schemas";
-import { ValidationError, GameError } from "../errors/AppError";
+import { ValidationError, GameError, LLMProviderError } from "../errors/AppError";
+import { GeminiProvider } from "../llm/providers/GeminiProvider";
 
 const router = express.Router();
 const gameService = new GameService();
+const geminiProvider = new GeminiProvider();
 
 /**
  * Ручной LLM-цикл, шаг 1: отдать промт для копирования в внешнюю LLM.
@@ -63,6 +65,43 @@ router.post("/response", (req, res) => {
       res.status(400).json({ error: error.message, details: error.details });
     } else if (error instanceof GameError) {
       res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+/**
+ * Автоматизированный LLM-цикл: промт → Gemini API → та же валидация и
+ * применение, что и в ручном /response (LLMService.processResponse) — не
+ * дублирует логику, только заменяет источник сырого ответа. Ошибка
+ * провайдера (нет ключа, сеть, битый формат) — 502, ход не продвигается.
+ */
+router.post("/auto", async (req, res) => {
+  try {
+    const game = gameService.getCurrentGame();
+    if (!game) {
+      throw new GameError("No active game");
+    }
+
+    const llmService = new LLMService(game);
+    const prompt = llmService.generatePrompt();
+    llmService.savePrompt(prompt);
+
+    const rawResponse = await geminiProvider.generateResponse(prompt);
+    const result = llmService.processResponse(rawResponse);
+
+    if (!result.success) {
+      res.status(400).json({ error: result.error });
+      return;
+    }
+
+    res.json(result);
+  } catch (error) {
+    if (error instanceof GameError) {
+      res.status(404).json({ error: error.message });
+    } else if (error instanceof LLMProviderError) {
+      res.status(502).json({ error: error.message });
     } else {
       res.status(500).json({ error: "Internal server error" });
     }

@@ -93,6 +93,7 @@ export interface LlmPromptResult {
 export interface LlmCycleResult {
   success: boolean;
   error?: string;
+  title?: string;
   descriptions?: string;
   appliedActions: LLMAction[];
   rejectedActions: { action: LLMAction; reason: string }[];
@@ -109,5 +110,12 @@ export async function submitLlmResponse(llmResponse: string): Promise<LlmCycleRe
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ response: llmResponse }),
   });
+  return handleResponse(response);
+}
+
+/** Автоматизированный LLM-цикл через Gemini API (POST /llm/auto) — промт и
+ * применение ответа делает сервер, ключ API никогда не уходит на клиент. */
+export async function runAutoLlmCycle(): Promise<LlmCycleResult> {
+  const response = await fetch(`${API}/llm/auto`, { method: "POST" });
   return handleResponse(response);
 }

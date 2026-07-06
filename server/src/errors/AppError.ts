@@ -39,3 +39,14 @@ export class CountryError extends AppError {
     super(message, "COUNTRY_ERROR", 404);
   }
 }
+
+/**
+ * Ошибка автоматизированного LLM-провайдера (ключ не настроен, сеть,
+ * невалидный формат ответа) — 502, так как сбой находится выше по цепочке
+ * (внешний API), не в самом приложении.
+ */
+export class LLMProviderError extends AppError {
+  constructor(message: string) {
+    super(message, "LLM_PROVIDER_ERROR", 502);
+  }
+}
