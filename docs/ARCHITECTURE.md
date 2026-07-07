@@ -1,6 +1,6 @@
 # Архитектура проекта
 
-Last updated: 2026-06-21
+Last updated: 2026-07-06
 
 ## Структура
 
@@ -30,6 +30,8 @@ docs/
 * politics: PoliticsState
 * stockpile: ResourceStockpile
 * goals: StrategicGoal[]
+* tier: CountryTier — "major"/"regional"/"minor", определяет участие в LLM-промте (постоянно/по ротации/только пороговые правила)
+* economyProfile: EconomyProfile — масштаб-свободные доли экономики страны, источник истины для дизайна страны (детали — `docs/ECONOMY.md`)
 
 ### Region (`shared/src/types/map/Region.ts`)
 
@@ -37,7 +39,7 @@ docs/
 
 Поля:
 
-* id, geoJsonId, name
+* id, geoJsonId, names: LocalizedText
 * ownerCountryId
 * population, area
 * urbanization, stability, infrastructure, development
@@ -61,8 +63,8 @@ docs/
 
 Поля:
 
-* domains: Record<string, number>
-* projects: ResearchProject[]
+* domains: Record<string, number> — прогресс (накопленные вложения) по доменам
+* researchAllocation?: Partial<Record<string, number>> — текущее распределение фокуса исследований по доменам
 
 ### MilitaryState (`shared/src/types/MilitaryState.ts`)
 
@@ -156,7 +158,7 @@ LLM является основным компонентом, отвечающи
 9. Игровой движок валидирует ответ.
 10. Игровой движок применяет изменения к миру.
 
-**Текущий статус реализации**: шаги 2 (`buildSimulationPrompt` в `server/src/llm/BuildSimulationPrompt.ts`, `LLMService` в `server/src/services/LLMService.ts`) и 9 (`LLMResponseValidator` в `server/src/llm/LLMResponseValidator.ts`) написаны в коде, но **не подключены** ни к одному route и ни к одному элементу UI — шаги 4, 5, 6, 7, 8, 10 физически нечем выполнить прямо сейчас. Это не баг и не повод переделывать сами модули — ручной цикл задуман архитектурно (см. "Работа без API" ниже), просто отсутствует связующий route/кнопка "скопировать промт" + поле "вставить ответ". Подробности и причины — `docs/DECISIONS.md`.
+**Текущий статус реализации**: ручной LLM-цикл работает целиком — `GET /llm/prompt` отдаёт промт, `client/src/components/LLMPanel.tsx` копирует его в буфер обмена и предоставляет поле вставки ответа, `POST /llm/response` принимает и применяет ответ. Дополнительно есть автоматизированный путь через `GeminiProvider` (`POST /llm/auto`), не требующий ручного копирования. Ход защищён гейтом: `GameState.llmRespondedThisTurn` — `GameService.advanceMonth` бросает `LLMGateError`/409, если LLM не ответила за цикл. Длина хода переменная (1–12 месяцев): `advanceTurnSchema`, параметр `months` в `POST /game/next-turn`. Подробности и история решений — `docs/DECISIONS.md`.
 
 ---
 

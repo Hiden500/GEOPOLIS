@@ -1,6 +1,6 @@
 # Экономика
 
-Last updated: 2026-06-26
+Last updated: 2026-07-06
 
 > ⚠️ Заготовка. Часть решений не принята — см. разделы "Открытые вопросы" ниже.
 > Непомеченные числа — не источник истины, пока раздел не финализирован.
@@ -44,7 +44,8 @@ Last updated: 2026-06-26
 baseGrowthRate = 0.001 + avgDevelopment×0.002 + avgInfrastructure×0.001
 infrastructureBonus = infrastructureSpending / gdp × 0.5
 deficitPenalty = budgetBalance < 0 ? |budgetBalance| / gdp × 0.3 : 0
-growthRate = max(0, baseGrowthRate + infrastructureBonus - deficitPenalty)
+growthRate = min(MAX_MONTHLY_GROWTH_RATE, max(0, baseGrowthRate + infrastructureBonus - deficitPenalty))
+// MAX_MONTHLY_GROWTH_RATE = 0.05 — защитный потолок, не даёт архетипу разогнаться неограниченно
 region.gdp *= (1 + growthRate + sectorBonus)   // sectorBonus от industry/services региона
 ```
 
@@ -64,11 +65,27 @@ inflation    += 0.1 × (expenses - income) / gdp
 unemployment += 0.05 × (expenses - income) / gdp   // floored at 0
 ```
 
+Если у страны задан `EconomyState.spendingShares?: { military, research,
+education, infrastructure, welfare }` (`PUT /budget`), каждый тик до расчёта
+`expenses` пересчитываются абсолютные `militarySpending/researchSpending/
+educationSpending/infrastructureSpending/welfareSpending = income × доля` —
+тот же паттерн, что `taxRate → taxRevenue` выше. Потолки на каждую статью
+независимые (`shared/src/constants/budgetSpendingShareCaps.ts`,
+`BUDGET_SPENDING_SHARE_CAPS`), сумма долей может превышать 1 — разрешено
+осознанно. ИИ-страны `spendingShares` не имеют, их `*Spending` остаются
+абсолютными числами, которые двигает `AiBehaviorTick`. В интерфейсе — 4
+пресета (`client/src/components/budgetPresets.ts`), роут `PUT /budget`;
+смена бюджета **не** продвигает игровой ход.
+
 `RegionEconomyService.calculateRegionalProduction`/`aggregateRegionEconomy`
 существуют и протестированы, но **не подключены** к общему циклу — зарезервированы
 под будущую MapFeature-экономику (см. `MAP_FEATURES.md`). Не включать их в
 `EconomyTick` без явного решения, кто считает что — иначе задвоение
 (прецедент: удалённый `ProductionTick`, см. `DECISIONS.md` 2026-06-22).
+`RegionEconomyService.initializeRegionEconomy` — отдельно от этих двух,
+**подключён и используется**: строит нулевой economy-снимок региона при
+`createGame` (`CreateGame.ts`) и лениво в `ResourceTick.ts` для регионов без
+`economy`.
 
 ### Добыча ресурсов
 
@@ -92,6 +109,9 @@ unemployment += 0.05 × (expenses - income) / gdp   // floored at 0
 - Снимок `spendingFloor` (50% старта) и ИИ-аустерити по дефициту — реализованы,
   детали в `docs/DECISIONS.md` (2026-06-23) и [`POLITICS.md`](POLITICS.md)
   (там же — связь с дальнейшими нудж-правилами).
+- **Бюджет игрока переведён на доли income + пресеты** (`docs/decisions/2026-07.md`,
+  2026-07-04): `*Spending` пересчитываются тиком из `EconomyState.spendingShares`,
+  детали см. в "Петля бюджета" выше.
 
 ---
 
@@ -158,4 +178,6 @@ input/output, см. `MAP_FEATURES.md`?), как ресурс превращае�
   один раз в `createGame`, но не пересчитываются по тикам (нет тика, который
   бы их трогал) — оживут их торговля (`exportIncome` → `TRADE.md`) и,
   возможно, отдельное решение по `stateEnterpriseIncome` (госпредприятия, не
-  спроектировано вообще).
+  спроектировано вообще). Это верно только для доходов: `*Spending` теперь
+  пересчитывается тиком, если у страны задан `spendingShares` (см. "Петля
+  бюджета" выше) — не смешивать эти две категории.
