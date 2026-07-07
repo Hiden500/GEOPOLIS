@@ -74,7 +74,7 @@ export interface GameState {
 }
 
 export interface LLMAction {
-  type: 'diplomacy' | 'war' | 'peace' | 'annex' | 'puppet' | 'sanction' | 'guarantee' | 'influence' | 'research_shift';
+  type: 'diplomacy' | 'war' | 'peace' | 'annex' | 'puppet' | 'sanction' | 'guarantee' | 'influence' | 'research_shift' | 'production_shift';
   sourceCountryId: string;
   targetCountryId?: string;
   data?: Record<string, any>;

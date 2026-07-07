@@ -1,5 +1,16 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
+import { EquipmentType } from "@shared/types/military/EquipmentType";
+
+/**
+ * Сколько единиц эквивалентной стоимости даёт 1 единица militarySpending при
+ * полной (share=1) отдаче на тир 0 — тюнингуемая константа, как
+ * RESEARCH_SPENDING_SCALE в ResearchTick.ts. Подобрана так, чтобы полностью
+ * сфокусированная держава (share=0.7) набирала тысячи единиц техники за
+ * несколько лет, не за один месяц и не за десятилетия (War Phase 2,
+ * независимый гейм-дизайн разбор, 2026-07-06).
+ */
+const EQUIPMENT_SPENDING_SCALE = 200_000_000;
 
 /**
  * Полная реализация MilitaryTick.
@@ -53,9 +64,24 @@ export function militaryTick(
   military.activePersonnel = Math.floor(military.manpower * 0.1);
   military.reservePersonnel = Math.floor(military.manpower * 0.9);
 
-  // Производство техники (упрощённая модель)
-  // Зависит от военных расходов и ВВП
-  const productionCapacity = economy.militarySpending / 1000;
-  // Здесь можно добавить логику производства конкретных типов техники
-  // Для будущего расширения
+  // Производство техники по категориям (War Phase 2, 2026-07-06) — доля
+  // militarySpending на категорию даёт прирост equipment[type]; категории без
+  // явной доли в productionAllocation делят остаток поровну — тот же паттерн,
+  // что распределение researchSpending по доменам в ResearchTick.ts.
+  if (economy.militarySpending > 0) {
+    const equipmentTypes = Object.values(EquipmentType);
+    const allocation = military.productionAllocation ?? {};
+    const explicitShareSum = equipmentTypes.reduce((sum, t) => sum + (allocation[t] ?? 0), 0);
+    const unallocatedTypes = equipmentTypes.filter(t => allocation[t] === undefined);
+    const remainingShare = Math.max(0, 1 - explicitShareSum);
+    const evenShare = unallocatedTypes.length > 0 ? remainingShare / unallocatedTypes.length : 0;
+
+    for (const type of equipmentTypes) {
+      const share = allocation[type] ?? evenShare;
+      if (share <= 0) continue;
+
+      const gain = (economy.militarySpending * share) / EQUIPMENT_SPENDING_SCALE;
+      military.equipment[type] += gain;
+    }
+  }
 }

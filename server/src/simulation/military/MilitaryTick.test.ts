@@ -56,4 +56,58 @@ describe("militaryTick", () => {
 
     expect(() => militaryTick(country, [])).not.toThrow();
   });
+
+  describe("производство техники (War Phase 2, 2026-07-06)", () => {
+    it("без явного productionAllocation все 8 категорий получают равную долю", () => {
+      const country = createTestCountry();
+
+      militaryTick(country, []);
+
+      const gains = Object.values(country.military.equipment);
+      expect(gains.every(g => g > 0)).toBe(true);
+      const first = gains[0]!;
+      for (const g of gains) {
+        expect(g).toBeCloseTo(first);
+      }
+    });
+
+    it("явная доля в productionAllocation даёт этой категории больше остальных", () => {
+      const country = createTestCountry({
+        military: {
+          ...createTestCountry().military,
+          productionAllocation: { tanks: 0.7 },
+        },
+      });
+
+      militaryTick(country, []);
+
+      expect(country.military.equipment.tanks).toBeGreaterThan(country.military.equipment.rifles);
+    });
+
+    it("прирост техники растёт с militarySpending", () => {
+      const lowSpend = createTestCountry({
+        id: "LOW",
+        economy: { ...createTestCountry().economy, militarySpending: 5_000_000_000 },
+      });
+      const highSpend = createTestCountry({
+        id: "HIGH",
+        economy: { ...createTestCountry().economy, militarySpending: 50_000_000_000 },
+      });
+
+      militaryTick(lowSpend, []);
+      militaryTick(highSpend, []);
+
+      expect(highSpend.military.equipment.rifles).toBeGreaterThan(lowSpend.military.equipment.rifles);
+    });
+
+    it("не производит технику при нулевом militarySpending (страна без территории)", () => {
+      const country = createTestCountry({
+        economy: { ...createTestCountry().economy, militarySpending: 0 },
+      });
+
+      militaryTick(country, []);
+
+      expect(Object.values(country.military.equipment).every(v => v === 0)).toBe(true);
+    });
+  });
 });

@@ -21,6 +21,12 @@ export interface MilitaryState {
 
   units: Unit[];
 
-  equipment: 
+  equipment:
     Record<EquipmentType, number>;
+
+  // Распределение фокуса производства техники по категориям (War Phase 2,
+  // независимый гейм-дизайн разбор, 2026-07-06) — мирор
+  // TechnologyState.researchAllocation. Категории без явной доли делят
+  // остаток поровну (см. MilitaryTick.ts).
+  productionAllocation?: Partial<Record<EquipmentType, number>>;
 }

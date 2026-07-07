@@ -1,5 +1,6 @@
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
+import { type EquipmentType } from "@shared/types/military/EquipmentType";
 import { WarService } from "../services/WarService";
 
 /**
@@ -32,6 +33,16 @@ export const WAR_RESEARCH_SHARE_PENALTY = 0.1;
 
 /** Пол потолка research_shift — даже страна на нескольких фронтах не теряет фокус целиком. */
 export const MIN_RESEARCH_SHARE_CAP = 0.3;
+
+/**
+ * Потолок доли militarySpending на одну категорию техники за один сдвиг
+ * фокуса (War Phase 2, независимый гейм-дизайн разбор, 2026-07-06) — тот же
+ * принцип, что MAX_RESEARCH_SHARE. Плоский, БЕЗ снижения за активную войну
+ * (в отличие от research_shift) — война логически повышает фокус на
+ * производстве, а не распыляет его, поэтому admin-capacity штраф сюда не
+ * переносится.
+ */
+export const MAX_PRODUCTION_SHARE = 0.7;
 
 /**
  * Валидатор ответов от LLM.
@@ -106,7 +117,7 @@ export class LLMResponseValidator {
       return { valid: false, error: 'Missing type field' };
     }
 
-    const validTypes = ['diplomacy', 'war', 'peace', 'annex', 'puppet', 'sanction', 'guarantee', 'influence', 'research_shift'];
+    const validTypes = ['diplomacy', 'war', 'peace', 'annex', 'puppet', 'sanction', 'guarantee', 'influence', 'research_shift', 'production_shift'];
     if (!validTypes.includes(action.type)) {
       return { valid: false, error: `Invalid type: ${action.type}` };
     }
@@ -172,6 +183,10 @@ export class LLMResponseValidator {
       numericLimits.share = this.getResearchShareCap(action.sourceCountryId);
     }
 
+    if (action.type === 'production_shift' && 'share' in data) {
+      numericLimits.share = MAX_PRODUCTION_SHARE;
+    }
+
     for (const [field, limit] of Object.entries(numericLimits)) {
       if (!(field in data)) continue;
       const value = data[field];
@@ -199,6 +214,13 @@ export class LLMResponseValidator {
       const domain = action.data?.domain;
       if (typeof domain !== 'string' || !(domain in source.technology.domains)) {
         return { valid: false, error: `Unknown technology domain: ${String(domain)}` };
+      }
+    }
+
+    if (action.type === 'production_shift') {
+      const equipmentType = action.data?.equipmentType as EquipmentType | undefined;
+      if (typeof equipmentType !== 'string' || !(equipmentType in source.military.equipment)) {
+        return { valid: false, error: `Unknown equipment type: ${String(equipmentType)}` };
       }
     }
 

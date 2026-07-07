@@ -3,6 +3,16 @@ import { type Region } from "@shared/types/map/Region";
 import { type War } from "@shared/types/War";
 import { MapFeatureService } from "../../services/MapFeatureService";
 import { getCombinedArmsMultiplier } from "@shared/utils/technology";
+import { getEquipmentPower } from "@shared/utils/equipment";
+
+/**
+ * Переводит "боевую мощь" экипировки (shared/src/utils/equipment.ts,
+ * единицы техники × эффективность по тиру домена) в масштаб, сопоставимый с
+ * activePersonnel — War Phase 2, независимый гейм-дизайн разбор, 2026-07-06.
+ * Тюнингуемая константа: при нулевой технике (дефолт всех стран сейчас)
+ * вклад равен 0, не меняет поведение Phase 1.
+ */
+const EQUIPMENT_STRENGTH_WEIGHT = 500;
 
 /**
  * Перевес силы над обороной, нужный для флипа контактного региона (AI_RULES.md,
@@ -16,14 +26,17 @@ const FLIP_THRESHOLD_RATIO = 1.5;
  * см. MilitaryTick.ts — `armyStrength`/`navyStrength`/`airStrength` остаются
  * статичными нулями во всех сгенерированных странах, негодны как прокси),
  * умноженный на combined-arms бонус страны (2026-07-06, широта вложений в
- * военные домены — shared/src/utils/technology.ts). Phase 2 заменит
- * activePersonnel на честную tier-бакетную технику, сигнатура не изменится.
+ * военные домены — shared/src/utils/technology.ts), плюс вклад произведённой
+ * техники по категориям (War Phase 2, 2026-07-06 —
+ * shared/src/utils/equipment.ts, взвешено EQUIPMENT_STRENGTH_WEIGHT).
  */
 function sideStrength(game: GameState, countryIds: string[]): number {
   return countryIds.reduce((sum, id) => {
     const country = game.countries.find(c => c.id === id);
     if (!country) return sum;
-    return sum + country.military.activePersonnel * getCombinedArmsMultiplier(country);
+    return sum
+      + country.military.activePersonnel * getCombinedArmsMultiplier(country)
+      + getEquipmentPower(country) * EQUIPMENT_STRENGTH_WEIGHT;
   }, 0);
 }
 

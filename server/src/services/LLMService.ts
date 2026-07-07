@@ -2,9 +2,11 @@ import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
+import { type EquipmentType } from "@shared/types/military/EquipmentType";
 import { DiplomacyService } from "./DiplomacyService";
 import { WarService } from "./WarService";
 import { ResearchService } from "./ResearchService";
+import { MilitaryService } from "./MilitaryService";
 import { getDomainTier } from "@shared/utils/technology";
 import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMetrics";
 import { getEligibleHingePoints } from "@shared/utils/hingePoints";
@@ -15,6 +17,7 @@ import {
   MAX_RELATION_CHANGE,
   MAX_INFLUENCE_CHANGE,
   MAX_RESEARCH_SHARE,
+  MAX_PRODUCTION_SHARE,
 } from "../llm/LLMResponseValidator";
 
 /**
@@ -70,12 +73,14 @@ export class LLMService {
   private diplomacyService: DiplomacyService;
   private warService: WarService;
   private researchService: ResearchService;
+  private militaryService: MilitaryService;
 
   constructor(game: GameState) {
     this.game = game;
     this.diplomacyService = new DiplomacyService();
     this.warService = new WarService(game);
     this.researchService = new ResearchService();
+    this.militaryService = new MilitaryService();
   }
 
   /**
@@ -237,6 +242,11 @@ Narrative requirements (strict):
   tier crosses a meaningful new threshold, narrate what this represents in
   concrete terms (what got invented/achieved) — you invent the specific
   breakthrough, the engine only tracks the number.
+- You may direct a Major Power's military production focus via a
+  "production_shift" action (data.equipmentType, data.share) — fixed
+  categories (rifles/trucks/tanks/artillery/fighters/bombers/destroyers/
+  submarines), no named unit models; quality is decorative, invent it the
+  same way you invent research breakthroughs.
 
 Return your response in JSON format with the following structure:
 {
@@ -244,7 +254,7 @@ Return your response in JSON format with the following structure:
   "descriptions": "Narrative description of world events",
   "actions": [
     {
-      "type": "diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift",
+      "type": "diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift|production_shift",
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
@@ -258,6 +268,9 @@ Hard limits (actions violating them are rejected):
 - data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
 - research_shift: data.domain must be a real domain of the source country
   (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
+- production_shift: data.equipmentType must be one of rifles/trucks/tanks/
+  artillery/fighters/bombers/destroyers/submarines; data.share within
+  0-${MAX_PRODUCTION_SHARE}.
 - sourceCountryId and targetCountryId MUST be ids copied verbatim from the
   ## Country IDs section. Never invent, abbreviate, or guess an id from a
   country's name (e.g. do not turn "Soviet Union" into "SOV" or "USSR",
@@ -293,6 +306,9 @@ Hard limits (actions violating them are rejected):
           break;
         case 'research_shift':
           this.applyResearchShiftAction(action);
+          break;
+        case 'production_shift':
+          this.applyProductionShiftAction(action);
           break;
         case 'annex':
         case 'puppet':
@@ -414,6 +430,24 @@ Hard limits (actions violating them are rejected):
     if (!country) return;
 
     this.researchService.setAllocation(country, domain, share);
+  }
+
+  /**
+   * Применяет сдвиг фокуса производства техники (War Phase 2, независимый
+   * гейм-дизайн разбор, 2026-07-06) — доля militarySpending на категорию
+   * техники (EquipmentType), без именных единиц. Доступно и игроку, и
+   * топ-державам через LLM (sourceCountryId — любая страна ростера, тот же
+   * паттерн, что research_shift/война).
+   */
+  private applyProductionShiftAction(action: LLMAction): void {
+    const equipmentType = action.data?.equipmentType;
+    const share = action.data?.share;
+    if (typeof equipmentType !== 'string' || typeof share !== 'number') return;
+
+    const country = this.game.countries.find(c => c.id === action.sourceCountryId);
+    if (!country) return;
+
+    this.militaryService.setProductionAllocation(country, equipmentType as EquipmentType, share);
   }
 
   /**

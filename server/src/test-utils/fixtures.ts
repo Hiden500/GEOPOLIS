@@ -77,16 +77,21 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       airStrength: 0.5,
       nuclearWarheads: 0,
       units: [],
+      // Нули по всем 8 реальным категориям EquipmentType — как и в реальных
+      // данных сценария (server/data/scenarios/1946/countries.json). Раньше
+      // здесь были ненулевые placeholder-значения (плюс лишний ключ "ships",
+      // не входящий в EquipmentType) — безобидно, пока equipment нигде не
+      // читался; War Phase 2 (2026-07-06) начал использовать его в боевой
+      // формуле, где нереалистичный дефолт ломал тесты решительной победы.
       equipment: {
-        rifles: 500_000,
-        trucks: 25_000,
-        tanks: 2_500,
-        fighters: 1_000,
-        bombers: 500,
-        ships: 250,
-        artillery: 1_500,
-        destroyers: 100,
-        submarines: 75,
+        rifles: 0,
+        trucks: 0,
+        tanks: 0,
+        fighters: 0,
+        bombers: 0,
+        artillery: 0,
+        destroyers: 0,
+        submarines: 0,
       } as Record<EquipmentType, number>,
     },
     diplomacy: {

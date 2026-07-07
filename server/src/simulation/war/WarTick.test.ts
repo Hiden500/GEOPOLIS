@@ -122,6 +122,36 @@ describe("warTick", () => {
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 1, toDefenders: 0 });
   });
 
+  it("экипировка (War Phase 2) может решить исход при равной activePersonnel (2026-07-06)", () => {
+    const equippedCountry = createTestCountry({
+      id: "USA",
+      military: {
+        ...createTestCountry().military,
+        equipment: { ...createTestCountry().military.equipment, tanks: 1000 },
+      },
+    });
+
+    const game = createTestGameState({
+      countries: [
+        equippedCountry,
+        createTestCountry({ id: "USSR" }), // экипировка по нулям (фикстура)
+      ],
+      regions: [
+        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+      ],
+      wars: [makeWar()],
+    });
+
+    warTick(game);
+
+    // 1000 танков × EQUIPMENT_STRENGTH_WEIGHT=500 = 500 000 доп. силы — при
+    // равном activePersonnel (500 000 у обеих сторон, фикстура) это удваивает
+    // силу США, превышая FLIP_THRESHOLD_RATIO=1.5.
+    expect(game.regions[1]!.ownerCountryId).toBe("USA");
+    expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 1, toDefenders: 0 });
+  });
+
   it("игнорирует неактивные войны", () => {
     const game = createTestGameState({
       countries: [

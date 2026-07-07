@@ -192,6 +192,24 @@ describe("LLMResponseValidator", () => {
       expect(result.valid).toBe(false);
     });
 
+    it("production_shift: разрешает реальную категорию EquipmentType (War Phase 2, 2026-07-06)", () => {
+      const result = validator.validateActionApplicability({
+        type: "production_shift",
+        sourceCountryId: "USA",
+        data: { equipmentType: "tanks", share: 0.5 },
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("production_shift: отклоняет неизвестную категорию", () => {
+      const result = validator.validateActionApplicability({
+        type: "production_shift",
+        sourceCountryId: "USA",
+        data: { equipmentType: "drones", share: 0.5 },
+      });
+      expect(result.valid).toBe(false);
+    });
+
     it("research_shift: отклоняет отсутствующий domain в data", () => {
       const result = validator.validateActionApplicability({
         type: "research_shift",
@@ -323,6 +341,21 @@ describe("LLMResponseValidator", () => {
 
       const over = validator.validateActionMagnitude({
         type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.71 },
+      });
+      expect(over.valid).toBe(false);
+      expect(over.error).toContain("share out of range");
+    });
+
+    it("production_shift: принимает share на границе 0.7 и отклоняет за ней, БЕЗ снижения от войны (2026-07-06)", () => {
+      new WarService(game).declareWar("USA", "USSR"); // в отличие от research_shift, война НЕ снижает потолок
+
+      const at = validator.validateActionMagnitude({
+        type: "production_shift", sourceCountryId: "USA", data: { equipmentType: "tanks", share: 0.7 },
+      });
+      expect(at.valid).toBe(true);
+
+      const over = validator.validateActionMagnitude({
+        type: "production_shift", sourceCountryId: "USA", data: { equipmentType: "tanks", share: 0.71 },
       });
       expect(over.valid).toBe(false);
       expect(over.error).toContain("share out of range");

@@ -195,7 +195,14 @@ describe("LLMService", () => {
     it("Instructions: упоминает research_shift и его пределы (2026-07-06)", () => {
       const prompt = service.generatePrompt();
       expect(prompt).toContain("research_shift");
-      expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift");
+      expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift|production_shift");
+    });
+
+    it("Instructions: упоминает production_shift и категории техники (War Phase 2, 2026-07-06)", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("production_shift");
+      expect(prompt).toContain("rifles/trucks/tanks");
+      expect(prompt).toContain("submarines");
     });
 
     it("Player Country: показывает ВВП/чел, индекс благосостояния и тиры технологий (2026-07-06)", () => {
