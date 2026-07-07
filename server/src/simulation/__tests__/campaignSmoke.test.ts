@@ -202,17 +202,22 @@ describe("campaign smoke test — многолетний прогон сцена
       }
 
       // ---- Население: не более X% падения в год мирного времени ----
-      // ИЗВЕСТНЫЙ БАГ (docs/TODO.md, "БАГ", найден 2026-07-06): PopulationTick.ts
-      // использует `gdpPerCapita / 10000` вместо реальной калибровки игры
-      // (GDP_PER_CAPITA_REFERENCE = 850, см. shared/src/utils/countryMetrics.ts) и
-      // ищет домен `Biotechnology` вместо реального `biology` — рождаемость
-      // давится почти в ноль, бонус медицины к смертности никогда не применяется.
-      // На живом 5-летнем прогоне это уже уронило население США со 140.7M до
-      // 125.6M (-10.7%) БЕЗ войны. Ожидаем, что эта проверка ниже УПАДЁТ, пока
-      // баг не починен — это ПРАВИЛЬНОЕ и ОЖИДАЕМОЕ поведение теста. Не занижай
-      // MAX_PEACETIME_ANNUAL_POPULATION_DECLINE и не убирай эту проверку, чтобы
-      // получить зелёный прогон — почини сам баг (отдельная задача, требует
-      // подтверждения пользователя) или явно зафиксируй регресс как ADR.
+      // Изначальный БАГ (docs/TODO.md, найден 2026-07-06 — gdpPerCapita/10000
+      // вместо GDP_PER_CAPITA_REFERENCE=850, домен "Biotechnology" вместо
+      // реального "biology") — ПОЧИНЕН 2026-07-06 (PopulationTick.ts). После
+      // фикса большинство держав (USA/SUN/GBR/FRA/JPN/CAN) растут нормально.
+      //
+      // НОВАЯ, ОТДЕЛЬНАЯ находка, вскрытая тем же прогоном после фикса: страны
+      // с очень низким стартовым ВВП/чел в датасете 1946 (CHN ~$83/чел, также
+      // ARG/BRA/ITA) всё ещё стабильно теряют население — не из-за бага (три
+      // диагностированных причины исправлены), а потому что formula
+      // standardOfLiving = min(gdpPerCapita/850, 2) даёт им multiplier у пола
+      // 0.5 корректно, как и задумано формулой. Открытый вопрос — либо формула
+      // слишком резко давит рождаемость на нижнем конце шкалы ВВП/чел, либо
+      // региональные экономические данные для этих стран занижены относительно
+      // истории (см. docs/SCENARIOS.md — числа 128 стран не откалиброваны по
+      // надёжным источникам). Требует решения пользователя, не занижай пороги
+      // ниже втихую, чтобы скрыть это — см. отчёт в docs/TODO.md.
       const byCountry = new Map<string, YearSnapshot[]>();
       for (const s of history) {
         if (!byCountry.has(s.countryId)) byCountry.set(s.countryId, []);
@@ -238,9 +243,10 @@ describe("campaign smoke test — многолетний прогон сцена
                 `${prev.year}-${String(prev.month).padStart(2, "0")} (${(prev.population / 1e6).toFixed(2)}M) и ` +
                 `${curr.year}-${String(curr.month).padStart(2, "0")} (${(curr.population / 1e6).toFixed(2)}M) ` +
                 `без активной войны — превышает допустимые ${(MAX_PEACETIME_ANNUAL_POPULATION_DECLINE * 100).toFixed(0)}%/год. ` +
-                `Это ИЗВЕСТНЫЙ БАГ (docs/TODO.md, "БАГ" от 2026-07-06, PopulationTick.ts: gdpPerCapita/10000 ` +
-                `вместо GDP_PER_CAPITA_REFERENCE=850, и домен "Biotechnology" вместо реального "biology") — ` +
-                `если видишь этот fail, НЕ занижай порог, почини PopulationTick.ts.`
+                `Три изначальных бага в PopulationTick.ts починены 2026-07-06 — это ОТДЕЛЬНАЯ, НОВАЯ находка: ` +
+                `у стран с очень низким ВВП/чел (см. docs/TODO.md) formula standardOfLiving корректно даёт multiplier ` +
+                `у пола 0.5, но открыт вопрос — резкость формулы или занижены исходные данные ВВП/чел. ` +
+                `Не занижай порог, чтобы скрыть — реши вопрос по существу (см. docs/TODO.md).`
             ).toBeLessThanOrEqual(MAX_PEACETIME_ANNUAL_POPULATION_DECLINE);
           }
         }
@@ -263,8 +269,9 @@ describe("campaign smoke test — многолетний прогон сцена
               `${(last.population / 1e6).toFixed(2)}M, ${first.year}-${String(first.month).padStart(2, "0")} → ` +
               `${last.year}-${String(last.month).padStart(2, "0")}), без войны — превышает допустимые ` +
               `${(MAX_PEACETIME_TOTAL_POPULATION_DECLINE * 100).toFixed(0)}% за весь прогон. ` +
-              `Это ИЗВЕСТНЫЙ БАГ (docs/TODO.md, "БАГ" от 2026-07-06) — если видишь этот fail, ` +
-              `НЕ занижай порог, почини PopulationTick.ts.`
+              `Изначальные баги PopulationTick.ts починены 2026-07-06 — см. docs/TODO.md про новую, ` +
+              `отдельную находку (низкий ВВП/чел у части стран 1946-датасета). Не занижай порог, ` +
+              `чтобы скрыть — реши вопрос по существу.`
           ).toBeLessThanOrEqual(MAX_PEACETIME_TOTAL_POPULATION_DECLINE);
         }
       }

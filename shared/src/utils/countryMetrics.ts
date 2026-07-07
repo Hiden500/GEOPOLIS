@@ -15,7 +15,7 @@ export function getGdpPerCapita(country: Country): number {
  * 141M населения ≈ 850/чел) как ориентир "средней крупной державы", не
  * абсолютная истина — тюнингуемая константа, как THREAT_LEVEL и т.п.
  */
-const GDP_PER_CAPITA_REFERENCE = 850;
+export const GDP_PER_CAPITA_REFERENCE = 850;
 
 /**
  * Доля дохода на welfare, соответствующая полному баллу компонента —

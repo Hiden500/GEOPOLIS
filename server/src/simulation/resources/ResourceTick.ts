@@ -13,8 +13,9 @@ export function resourceTick(
   const ownedRegionIds = regionIndex.get(country.id) || [];
   const regionEconomyService = new RegionEconomyService();
 
-  // Бонус от технологий добычи (упрощённо)
-  const miningTechLevel = country.technology.domains["Industry"] || 0;
+  // Бонус от технологий добычи (упрощённо). "industry" — реальный ключ
+  // домена эры 1946 (см. shared/src/data/eras.ts), тот же ключ и в 1836.
+  const miningTechLevel = country.technology.domains["industry"] || 0;
   const techBonus = 1 + (miningTechLevel * 0.05);
 
   for (const regionId of ownedRegionIds) {

@@ -1,5 +1,6 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
+import { getGdpPerCapita, GDP_PER_CAPITA_REFERENCE } from "@shared/utils/countryMetrics";
 
 /**
  * Полная реализация PopulationTick.
@@ -20,8 +21,11 @@ export function populationTick(
   const baseDeathRate = 0.005; // 0.5% в месяц базовая смертность
 
   // Факторы страны
-  const gdpPerCapita = country.economy.gdp / country.population;
-  const standardOfLiving = Math.min(gdpPerCapita / 10000, 2); // Нормализуем
+  const gdpPerCapita = getGdpPerCapita(country);
+  // Нормализуем к GDP_PER_CAPITA_REFERENCE (~850, калибровка "средней крупной
+  // державы" 1946 года, см. countryMetrics.ts) — страна на уровне ориентира
+  // получает standardOfLiving=1, вдвое богаче — потолок 2.
+  const standardOfLiving = Math.min(gdpPerCapita / GDP_PER_CAPITA_REFERENCE, 2);
   // Страна без территории (gdp=0) не получает бонус/штраф, не NaN; см.
   // EconomyTick.ts, та же защита.
   const hasGdp = country.economy.gdp > 0;
@@ -29,8 +33,11 @@ export function populationTick(
   const welfareFactor = hasGdp ? country.economy.welfareSpending / country.economy.gdp : 0;
   const stabilityFactor = country.politics.stability / 100;
 
-  // Технологический бонус медицины (упрощённо)
-  const medicineTechLevel = country.technology.domains["Biotechnology"] || 0;
+  // Технологический бонус медицины (упрощённо). "biology" — реальный ключ
+  // домена медицины эры 1946 (см. shared/src/data/eras.ts); другие эры
+  // используют другой ключ ("medicine" в 1836, "biotechnology" в 2000) —
+  // не обобщаем на них сейчас, единственный играбельный сценарий — 1946.
+  const medicineTechLevel = country.technology.domains["biology"] || 0;
   const medicineBonus = 1 + (medicineTechLevel * 0.1);
 
   for (const region of countryRegions) {
