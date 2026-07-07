@@ -147,6 +147,7 @@ describe('MapFeatureService', () => {
       mapFeatures: [],
       wars: [],
       pendingWorldFacts: [],
+      hingePointShowCount: {},
       llmRespondedThisTurn: true,
     };
 

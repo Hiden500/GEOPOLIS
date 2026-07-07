@@ -100,6 +100,46 @@ describe("LLMService", () => {
       expect(game.pendingWorldFacts).toEqual([]);
     });
 
+    it("Historical Context: 'No historical hinge points active this period' с реальными id вне срабатывающих предусловий (2026-07-06)", () => {
+      // Каталог развилок ключуется на реальные id (SUN/USA/CHN/TWN/GRC/...), не на
+      // условный "USSR" из gameWithUsaUssr() — отдельная игра с этими id.
+      const usa = createTestCountry({ id: "USA", name: "USA" });
+      usa.diplomacy.guarantees.push("TWN"); // ломает предусловие chinese_civil_war
+      const hpGame = createTestGameState({
+        playerCountryId: "USA",
+        currentDate: "1946-06-01", // внутри окна chinese_civil_war/greek_civil_war, до cold_war_hardening
+        countries: [usa, createTestCountry({ id: "SUN", name: "Soviet Union" })],
+      });
+      const hpService = new LLMService(hpGame);
+
+      const prompt = hpService.generatePrompt();
+      const section = prompt.slice(
+        prompt.indexOf("## Historical Context"),
+        prompt.indexOf("## Recent Events")
+      );
+      expect(section).toContain("No historical hinge points active this period");
+    });
+
+    it("Historical Context: показывает развилку при выполненных предусловиях и инкрементирует showCount (2026-07-06)", () => {
+      const usa = createTestCountry({ id: "USA", name: "USA" });
+      const sun = createTestCountry({ id: "SUN", name: "Soviet Union" });
+      sun.diplomacy.relations = { USA: 10 }; // < 40 — предусловие cold_war_hardening выполнено
+      const hpGame = createTestGameState({
+        playerCountryId: "USA",
+        currentDate: "1947-06-01", // внутри окна cold_war_hardening
+        countries: [usa, sun],
+      });
+      const hpService = new LLMService(hpGame);
+
+      const prompt = hpService.generatePrompt();
+      const section = prompt.slice(
+        prompt.indexOf("## Historical Context"),
+        prompt.indexOf("## Recent Events")
+      );
+      expect(section).toContain("доктрина Трумэна");
+      expect(hpGame.hingePointShowCount["cold_war_hardening"]).toBe(1);
+    });
+
     it("Spotlight Countries: секция требует минимум 2 конкретных страны, не просто упоминание", () => {
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));

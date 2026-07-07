@@ -7,6 +7,8 @@ import { WarService } from "./WarService";
 import { ResearchService } from "./ResearchService";
 import { getDomainTier } from "@shared/utils/technology";
 import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMetrics";
+import { getEligibleHingePoints } from "@shared/utils/hingePoints";
+import { HISTORICAL_HINGE_POINTS_1946 } from "@shared/data/historicalHingePoints1946";
 import {
   LLMResponseValidator,
   MAX_ACTIONS_PER_RESPONSE,
@@ -173,6 +175,13 @@ ${this.getActiveWarsInfo()}
 
 ## Notable Developments This Month
 ${this.getNotableDevelopmentsInfo()}
+
+## Historical Context
+Background continuity for this period, not mandatory scripted events —
+reflect a hint in the narrative only if the world hasn't already diverged
+from what would make it implausible. You may narrate the hinted development,
+a plausible variation, or ignore it if the story has moved elsewhere.
+${this.getHingePointHintsInfo()}
 
 ## Recent Events
 ${this.getRecentEventsInfo()}
@@ -619,6 +628,28 @@ Hard limits (actions violating them are rejected):
 
     if (visibleFacts.length === 0) return 'No notable developments this month';
     return visibleFacts.map(f => `- ${f.text}`).join('\n');
+  }
+
+  /**
+   * Рендерит доступные исторические развилки (независимый гейм-дизайн
+   * разбор, 2026-07-06; docs/tasks/HISTORICAL_HINGE_POINTS_1946.md) —
+   * подсказки, не гарантированные факты (в отличие от
+   * getNotableDevelopmentsInfo): предусловия выполнены и окно даты открыто,
+   * но LLM решает сама, отразить это в нарративе или нет. Инкрементирует
+   * счётчик показов каждой попавшей в промт развилки — только 1946
+   * (единственный играбельный сценарий сейчас, docs/TODO.md).
+   */
+  private getHingePointHintsInfo(): string {
+    const eligible = getEligibleHingePoints(this.game, HISTORICAL_HINGE_POINTS_1946);
+    if (eligible.length === 0) return 'No historical hinge points active this period';
+
+    for (const hp of eligible) {
+      this.game.hingePointShowCount[hp.id] = (this.game.hingePointShowCount[hp.id] ?? 0) + 1;
+    }
+
+    return eligible
+      .map(hp => `- ${hp.title}: ${hp.historicalOutcome} (if diverged: ${hp.divergenceHint})`)
+      .join('\n');
   }
 
   /**

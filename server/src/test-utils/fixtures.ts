@@ -155,6 +155,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     mapFeatures: [],
     wars: [],
     pendingWorldFacts: [],
+    hingePointShowCount: {},
     llmRespondedThisTurn: true,
     ...overrides,
   };

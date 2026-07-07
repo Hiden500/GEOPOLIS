@@ -92,6 +92,7 @@ export function createGame(
     mapFeatures: [],
     wars: [],
     pendingWorldFacts: [],
+    hingePointShowCount: {},
     llmRespondedThisTurn: false
   };
 

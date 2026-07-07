@@ -47,6 +47,13 @@ export interface GameState {
   // в eventHistory, который сама LLM пишет по итогам хода).
   pendingWorldFacts: { countryId: string; text: string }[];
 
+  // Сколько раз каждая историческая развилка (docs/tasks/HISTORICAL_HINGE_POINTS_1946.md,
+  // реализовано 2026-07-06) уже попадала в промт как подсказка — ключ id
+  // развилки. Не мягкий гейт/рельсы: только счётчик показов, чтобы подсказка
+  // не повторялась вечно (см. shared/src/utils/hingePoints.ts,
+  // MAX_HINGE_POINT_SHOWS). Инкрементируется в LLMService.generatePrompt().
+  hingePointShowCount: Record<string, number>;
+
   // LLM Simulation fields
   llmContext?: string; // контекст для LLM (промт)
   llmResponse?: string; // последний ответ LLM
