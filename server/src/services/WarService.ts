@@ -26,6 +26,25 @@ const STALEMATE_WEARINESS_THRESHOLD_MONTHS = 24;
 const STALEMATE_WEARINESS_PER_EXTRA_YEAR = -3;
 const STALEMATE_WEARINESS_CAP = -15;
 
+/**
+ * Градуированный мир (независимый гейм-дизайн разбор, 2026-07-06) —
+ * денежное измерение исхода войны поверх легитимности. Не путать с
+ * FLIP_THRESHOLD_RATIO=1.5 в WarTick.ts (тот — про флип региона на фронте,
+ * этот — про решительность исхода всей войны при заключении мира).
+ * Обычная (не решительная) победа — только легитимность, как раньше, без
+ * репараций; ничья — тоже без репараций (только усталость, если применимо).
+ */
+const DECISIVE_FLIP_RATIO = 2;
+
+/** Доля treasury проигравшего, переходящая победителю при решительной победе. */
+const REPARATIONS_SHARE = 0.1;
+
+function isDecisiveVictory(winnerFlips: number, loserFlips: number): boolean {
+  if (winnerFlips <= 0) return false;
+  if (loserFlips === 0) return true;
+  return winnerFlips >= loserFlips * DECISIVE_FLIP_RATIO;
+}
+
 function clampPercent(value: number): number {
   return Math.max(0, Math.min(100, value));
 }
@@ -131,9 +150,15 @@ export class WarService {
     if (toAttackers > toDefenders) {
       // Атакующие продвинулись — обороняющиеся проиграли.
       this.applyLegitimacyPenalty(defenderPrimaryId, WAR_LOSER_PENALTY);
+      if (isDecisiveVictory(toAttackers, toDefenders)) {
+        this.applyReparations(attackerPrimaryId, defenderPrimaryId);
+      }
     } else if (toDefenders > toAttackers) {
       // Обороняющиеся отбились и продвинулись — агрессор проиграл (жёстче).
       this.applyLegitimacyPenalty(attackerPrimaryId, WAR_AGGRESSOR_LOSER_PENALTY);
+      if (isDecisiveVictory(toDefenders, toAttackers)) {
+        this.applyReparations(defenderPrimaryId, attackerPrimaryId);
+      }
     } else if (durationMonths > STALEMATE_WEARINESS_THRESHOLD_MONTHS) {
       // Ничья, но затянутая — военная усталость обеим сторонам.
       const extraYears = Math.floor((durationMonths - STALEMATE_WEARINESS_THRESHOLD_MONTHS) / 12);
@@ -159,5 +184,22 @@ export class WarService {
 
     country.politics.legitimacy = clampPercent(country.politics.legitimacy + delta);
     country.politics.governmentSupport = clampPercent(country.politics.governmentSupport + delta);
+  }
+
+  /**
+   * Репарации из казны проигравшего победителю (только решительная победа,
+   * см. isDecisiveVictory). Не переводит, если казна проигравшего уже в
+   * минусе — не тянем победителя в чужой долг.
+   */
+  private applyReparations(winnerId: string, loserId: string): void {
+    const winner = this.game.countries.find(c => c.id === winnerId);
+    const loser = this.game.countries.find(c => c.id === loserId);
+    if (!winner || !loser) return;
+
+    const amount = loser.economy.treasury * REPARATIONS_SHARE;
+    if (amount <= 0) return;
+
+    loser.economy.treasury -= amount;
+    winner.economy.treasury += amount;
   }
 }

@@ -146,6 +146,7 @@ describe('MapFeatureService', () => {
       eventHistory: [],
       mapFeatures: [],
       wars: [],
+      pendingWorldFacts: [],
       llmRespondedThisTurn: true,
     };
 

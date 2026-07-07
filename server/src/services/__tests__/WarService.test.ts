@@ -143,6 +143,61 @@ describe("WarService", () => {
       expect(defender.politics.legitimacy).toBe(60); // не тронут
     });
 
+    it("решительная победа атакующих (loserFlips=0) — репарации из казны обороняющихся (2026-07-06)", () => {
+      const war = service.declareWar("USA", "USSR");
+      war.territoryFlips = { toAttackers: 3, toDefenders: 0 };
+      const attackerTreasuryBefore = game.countries.find(c => c.id === "USA")!.economy.treasury;
+      const defenderTreasuryBefore = game.countries.find(c => c.id === "USSR")!.economy.treasury;
+
+      service.makePeace(war.id);
+
+      const expectedTransfer = defenderTreasuryBefore * 0.1;
+      expect(game.countries.find(c => c.id === "USA")!.economy.treasury)
+        .toBeCloseTo(attackerTreasuryBefore + expectedTransfer);
+      expect(game.countries.find(c => c.id === "USSR")!.economy.treasury)
+        .toBeCloseTo(defenderTreasuryBefore - expectedTransfer);
+    });
+
+    it("решительная победа обороняющихся (winnerFlips>=2x) — репарации из казны агрессора (2026-07-06)", () => {
+      const war = service.declareWar("USA", "USSR");
+      war.territoryFlips = { toAttackers: 1, toDefenders: 4 }; // 4 >= 1*2
+      const attackerTreasuryBefore = game.countries.find(c => c.id === "USA")!.economy.treasury;
+      const defenderTreasuryBefore = game.countries.find(c => c.id === "USSR")!.economy.treasury;
+
+      service.makePeace(war.id);
+
+      const expectedTransfer = attackerTreasuryBefore * 0.1;
+      expect(game.countries.find(c => c.id === "USSR")!.economy.treasury)
+        .toBeCloseTo(defenderTreasuryBefore + expectedTransfer);
+      expect(game.countries.find(c => c.id === "USA")!.economy.treasury)
+        .toBeCloseTo(attackerTreasuryBefore - expectedTransfer);
+    });
+
+    it("обычная (не решительная) победа — легитимность как раньше, репараций нет (2026-07-06)", () => {
+      const war = service.declareWar("USA", "USSR");
+      war.territoryFlips = { toAttackers: 3, toDefenders: 2 }; // ratio 1.5 < DECISIVE_FLIP_RATIO=2
+      const attackerTreasuryBefore = game.countries.find(c => c.id === "USA")!.economy.treasury;
+      const defenderTreasuryBefore = game.countries.find(c => c.id === "USSR")!.economy.treasury;
+
+      service.makePeace(war.id);
+
+      expect(game.countries.find(c => c.id === "USA")!.economy.treasury).toBe(attackerTreasuryBefore);
+      expect(game.countries.find(c => c.id === "USSR")!.economy.treasury).toBe(defenderTreasuryBefore);
+      expect(game.countries.find(c => c.id === "USSR")!.politics.legitimacy).toBeLessThan(60);
+    });
+
+    it("репарации не переводятся, если казна проигравшего уже отрицательна (2026-07-06)", () => {
+      const war = service.declareWar("USA", "USSR");
+      war.territoryFlips = { toAttackers: 3, toDefenders: 0 };
+      game.countries.find(c => c.id === "USSR")!.economy.treasury = -50_000_000_000;
+      const attackerTreasuryBefore = game.countries.find(c => c.id === "USA")!.economy.treasury;
+
+      service.makePeace(war.id);
+
+      expect(game.countries.find(c => c.id === "USA")!.economy.treasury).toBe(attackerTreasuryBefore);
+      expect(game.countries.find(c => c.id === "USSR")!.economy.treasury).toBe(-50_000_000_000);
+    });
+
     it("короткая ничья — легитимность не трогается", () => {
       const war = service.declareWar("USA", "USSR");
       war.territoryFlips = { toAttackers: 0, toDefenders: 0 };

@@ -91,6 +91,7 @@ export function createGame(
     eventHistory: [],
     mapFeatures: [],
     wars: [],
+    pendingWorldFacts: [],
     llmRespondedThisTurn: false
   };
 

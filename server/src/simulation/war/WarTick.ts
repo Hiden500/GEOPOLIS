@@ -2,6 +2,7 @@ import { type GameState } from "@shared/types/GameState";
 import { type Region } from "@shared/types/map/Region";
 import { type War } from "@shared/types/War";
 import { MapFeatureService } from "../../services/MapFeatureService";
+import { getCombinedArmsMultiplier } from "@shared/utils/technology";
 
 /**
  * Перевес силы над обороной, нужный для флипа контактного региона (AI_RULES.md,
@@ -13,13 +14,16 @@ const FLIP_THRESHOLD_RATIO = 1.5;
  * Эффективная сила стороны в точке контакта — Phase 1 плейсхолдер:
  * `activePersonnel` (единственное реально растущее военное число сейчас,
  * см. MilitaryTick.ts — `armyStrength`/`navyStrength`/`airStrength` остаются
- * статичными нулями во всех сгенерированных странах, негодны как прокси).
- * Phase 2 заменит на честную tier-бакетную технику, сигнатура не изменится.
+ * статичными нулями во всех сгенерированных странах, негодны как прокси),
+ * умноженный на combined-arms бонус страны (2026-07-06, широта вложений в
+ * военные домены — shared/src/utils/technology.ts). Phase 2 заменит
+ * activePersonnel на честную tier-бакетную технику, сигнатура не изменится.
  */
 function sideStrength(game: GameState, countryIds: string[]): number {
   return countryIds.reduce((sum, id) => {
     const country = game.countries.find(c => c.id === id);
-    return sum + (country?.military.activePersonnel ?? 0);
+    if (!country) return sum;
+    return sum + country.military.activePersonnel * getCombinedArmsMultiplier(country);
   }, 0);
 }
 

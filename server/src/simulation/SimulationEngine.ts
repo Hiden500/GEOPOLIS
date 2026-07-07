@@ -1,6 +1,7 @@
 import { type GameState } from "@shared/types/GameState";
 import { resourceTick } from "./resources/ResourceTick";
 import { researchTick } from "./research/ResearchTick";
+import { getDomainTier } from "@shared/utils/technology";
 import { economyTick } from "./economy/EconomyTick";
 import { populationTick } from "./population/PopulationTick";
 import { militaryTick } from "./military/MilitaryTick";
@@ -21,7 +22,28 @@ export function simulateMonth(
 
         resourceTick(country, game.regions, game.regionIndex);
 
+        // Снимок тиров до исследовательского тика — обнаружение пересечения
+        // порога (независимый гейм-дизайн разбор, 2026-07-06) для
+        // pendingWorldFacts. Реализует принцип из docs/DECISIONS.md
+        // ("движок детектирует... даёт LLM факт"), который до этого был
+        // только текстовым правилом в промте, не кодом.
+        const tiersBeforeResearch = Object.fromEntries(
+            Object.entries(country.technology.domains).map(
+                ([domain, progress]) => [domain, getDomainTier(progress)]
+            )
+        );
+
         researchTick(country, game.regions);
+
+        for (const [domain, tierBefore] of Object.entries(tiersBeforeResearch)) {
+            const tierAfter = getDomainTier(country.technology.domains[domain] ?? 0);
+            if (tierAfter > tierBefore) {
+                game.pendingWorldFacts.push({
+                    countryId: country.id,
+                    text: `${country.name} technology reached tier ${tierAfter} in ${domain}`,
+                });
+            }
+        }
 
         populationTick(country, game.regions);
 

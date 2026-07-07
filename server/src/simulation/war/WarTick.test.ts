@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { warTick } from "./WarTick";
 import { createTestGameState, createTestCountry, createTestRegion } from "../../test-utils/fixtures";
 import { type War } from "@shared/types/War";
+import { TIER_PROGRESS_THRESHOLD } from "@shared/utils/technology";
 
 function makeWar(overrides: Partial<War> = {}): War {
   return {
@@ -91,6 +92,34 @@ describe("warTick", () => {
     expect(game.regions[0]!.ownerCountryId).toBe("USSR");
     expect(game.regions[1]!.ownerCountryId).toBe("USSR");
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 0, toDefenders: 1 });
+  });
+
+  it("combined-arms бонус может решить исход при равной численности (2026-07-06)", () => {
+    const strongArms = {
+      armor: TIER_PROGRESS_THRESHOLD * 11,
+      infantry: TIER_PROGRESS_THRESHOLD * 11,
+      aviation: TIER_PROGRESS_THRESHOLD * 11,
+      naval: TIER_PROGRESS_THRESHOLD * 11,
+    }; // тир 11 в каждом военном домене → мультипликатор 1.55 (1 + 11*0.05)
+
+    const game = createTestGameState({
+      countries: [
+        createTestCountry({ id: "USA", technology: { domains: strongArms } }),
+        createTestCountry({ id: "USSR" }), // домены пустые — мультипликатор 1
+      ],
+      regions: [
+        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+      ],
+      wars: [makeWar()],
+    });
+
+    warTick(game);
+
+    // При равном activePersonnel (фикстура) один combined-arms бонус (1.55x
+    // vs 1x) превышает FLIP_THRESHOLD_RATIO=1.5 — регион обороны флипается.
+    expect(game.regions[1]!.ownerCountryId).toBe("USA");
+    expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 1, toDefenders: 0 });
   });
 
   it("игнорирует неактивные войны", () => {

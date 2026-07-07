@@ -171,6 +171,9 @@ ${this.getSpotlightInfo()}
 ## Active Wars
 ${this.getActiveWarsInfo()}
 
+## Notable Developments This Month
+${this.getNotableDevelopmentsInfo()}
+
 ## Recent Events
 ${this.getRecentEventsInfo()}
 
@@ -209,6 +212,12 @@ Narrative requirements (strict):
   Deviations from real history caused by earlier player/LLM actions take
   priority over this — follow the world's own logic, don't force events back
   to the historical outcome.
+- If the player's stated intent is fundamentally incompatible with
+  real-world history (a deliberately speculative/fantastical claim), you
+  MUST accept it as canon and build the world consistently around it from
+  this point forward — do not silently ignore, downplay, or normalize it
+  back to plausible history. Historical grounding remains the default; an
+  explicit player intent overrides it for everything that follows.
 - Avoid a direct "war" action between two nuclear-armed Major Powers unless
   strongly, explicitly grounded in real historical events — prefer narrating
   proxy support (a patron backing a client state's own conflict) over direct
@@ -592,6 +601,24 @@ Hard limits (actions violating them are rejected):
       const goal = w.warGoal ? `, goal: ${w.warGoal}` : '';
       return `- ${attackerNames} vs ${defenderNames}: ${front}${goal}`;
     }).join('\n');
+  }
+
+  /**
+   * Рендерит и потребляет `pendingWorldFacts` (независимый гейм-дизайн
+   * разбор, 2026-07-06) — детерминированные факты, обнаруженные движком
+   * этот месяц (сейчас: пересечение тира домена технологий,
+   * SimulationEngine.ts), отфильтрованные до стран, уже видимых в этом
+   * промте (те же id, что в "## Country IDs" — getReferencedCountries()).
+   * Очищает game.pendingWorldFacts сразу после рендера — факт одноразовый,
+   * не история (для истории — Event, который сама LLM пишет по итогам хода).
+   */
+  private getNotableDevelopmentsInfo(): string {
+    const visibleIds = this.getReferencedCountries();
+    const visibleFacts = this.game.pendingWorldFacts.filter(f => visibleIds.has(f.countryId));
+    this.game.pendingWorldFacts = [];
+
+    if (visibleFacts.length === 0) return 'No notable developments this month';
+    return visibleFacts.map(f => `- ${f.text}`).join('\n');
   }
 
   /**

@@ -328,6 +328,61 @@ describe("LLMResponseValidator", () => {
       expect(over.error).toContain("share out of range");
     });
 
+    it("research_shift: admin capacity — активная война снижает потолок share на 0.1 (2026-07-06)", () => {
+      new WarService(game).declareWar("USA", "USSR");
+
+      const atOldCeiling = validator.validateActionMagnitude({
+        type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.7 },
+      });
+      expect(atOldCeiling.valid).toBe(false); // потолок теперь 0.6, не 0.7
+
+      const atNewCeiling = validator.validateActionMagnitude({
+        type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.6 },
+      });
+      expect(atNewCeiling.valid).toBe(true);
+
+      // Страна вне войны (USSR тут — на другой стороне, но не воюет сама с собой) не задета.
+      const other = createTestGameState({
+        countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
+      });
+      const otherValidator = new LLMResponseValidator(other);
+      const unaffected = otherValidator.validateActionMagnitude({
+        type: "research_shift", sourceCountryId: "USSR", data: { domain: "armor", share: 0.7 },
+      });
+      expect(unaffected.valid).toBe(true);
+    });
+
+    it("research_shift: admin capacity — потолок не падает ниже 0.3 при много войнах (2026-07-06)", () => {
+      const many = createTestGameState({
+        countries: [
+          createTestCountry({ id: "USA" }),
+          createTestCountry({ id: "R1" }),
+          createTestCountry({ id: "R2" }),
+          createTestCountry({ id: "R3" }),
+          createTestCountry({ id: "R4" }),
+          createTestCountry({ id: "R5" }),
+        ],
+      });
+      const warService = new WarService(many);
+      // 5 отдельных войн против USA — потолок 0.7 - 5*0.1 = 0.2, но пол 0.3.
+      warService.declareWar("USA", "R1");
+      warService.declareWar("USA", "R2");
+      warService.declareWar("USA", "R3");
+      warService.declareWar("USA", "R4");
+      warService.declareWar("USA", "R5");
+
+      const manyValidator = new LLMResponseValidator(many);
+      const atFloor = manyValidator.validateActionMagnitude({
+        type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.3 },
+      });
+      expect(atFloor.valid).toBe(true);
+
+      const belowFloor = manyValidator.validateActionMagnitude({
+        type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.31 },
+      });
+      expect(belowFloor.valid).toBe(false);
+    });
+
     it("отклоняет нечисловые и NaN значения числовых полей", () => {
       const nan = validator.validateActionMagnitude({
         type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: NaN },

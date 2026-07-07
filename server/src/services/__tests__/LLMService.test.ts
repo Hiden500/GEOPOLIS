@@ -73,6 +73,33 @@ describe("LLMService", () => {
       expect(prompt).toContain("Deviations from real history");
     });
 
+    it("Instructions: требует принять фантастическое намерение игрока как канон (2026-07-06)", () => {
+      const prompt = service.generatePrompt();
+      expect(prompt).toContain("fundamentally incompatible with");
+      expect(prompt).toContain("MUST accept it as canon");
+    });
+
+    it("Notable Developments: 'No notable developments this month' без фактов (2026-07-06)", () => {
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(
+        prompt.indexOf("## Notable Developments"),
+        prompt.indexOf("## Recent Events")
+      );
+      expect(section).toContain("No notable developments this month");
+    });
+
+    it("Notable Developments: рендерит факт по видимой стране и очищает pendingWorldFacts (2026-07-06)", () => {
+      game.pendingWorldFacts.push({ countryId: "USA", text: "USA technology reached tier 1 in armor" });
+
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(
+        prompt.indexOf("## Notable Developments"),
+        prompt.indexOf("## Recent Events")
+      );
+      expect(section).toContain("USA technology reached tier 1 in armor");
+      expect(game.pendingWorldFacts).toEqual([]);
+    });
+
     it("Spotlight Countries: секция требует минимум 2 конкретных страны, не просто упоминание", () => {
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));

@@ -154,6 +154,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     eventHistory: [],
     mapFeatures: [],
     wars: [],
+    pendingWorldFacts: [],
     llmRespondedThisTurn: true,
     ...overrides,
   };

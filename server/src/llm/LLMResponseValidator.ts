@@ -16,9 +16,22 @@ export const MAX_INFLUENCE_CHANGE = 20;
  * Потолок доли researchSpending на один домен за один сдвиг фокуса
  * (docs/DECISIONS.md, 2026-07-06) — остаток делят поровну домены без явной
  * доли (ResearchTick.ts). Не 1.0 — сфокусированность не бесплатна, остальные
- * направления всё равно получают что-то.
+ * направления всё равно получают что-то. Это потолок мирного времени —
+ * см. WAR_RESEARCH_SHARE_PENALTY ниже про снижение на активную войну.
  */
 export const MAX_RESEARCH_SHARE = 0.7;
+
+/**
+ * Admin capacity (независимый гейм-дизайн разбор, 2026-07-06): правительство,
+ * воюющее на нескольких фронтах, отвлечено — потолок доли research_shift
+ * снижается на эту величину за каждую активную войну страны (не только
+ * инициированную ею — оборона тоже отвлекает). Применяется одинаково ко
+ * всем странам, включая игрока — не спец-правило для ИИ.
+ */
+export const WAR_RESEARCH_SHARE_PENALTY = 0.1;
+
+/** Пол потолка research_shift — даже страна на нескольких фронтах не теряет фокус целиком. */
+export const MIN_RESEARCH_SHARE_CAP = 0.3;
 
 /**
  * Валидатор ответов от LLM.
@@ -128,6 +141,21 @@ export class LLMResponseValidator {
   }
 
   /**
+   * Потолок доли research_shift для страны сейчас (admin capacity,
+   * 2026-07-06) — MAX_RESEARCH_SHARE минус штраф за каждую активную войну
+   * страны (атакующей или обороняющейся), не ниже MIN_RESEARCH_SHARE_CAP.
+   */
+  private getResearchShareCap(countryId: string): number {
+    const activeWarCount = this.game.wars.filter(
+      w => w.active && (w.attackers.includes(countryId) || w.defenders.includes(countryId))
+    ).length;
+    return Math.max(
+      MAX_RESEARCH_SHARE - activeWarCount * WAR_RESEARCH_SHARE_PENALTY,
+      MIN_RESEARCH_SHARE_CAP
+    );
+  }
+
+  /**
    * Валидирует магнитуду последствий действия — движок выставляет пределы,
    * выход за них означает ошибку данных LLM, действие отклоняется точечно.
    */
@@ -138,8 +166,11 @@ export class LLMResponseValidator {
     const numericLimits: Record<string, number> = {
       relationChange: MAX_RELATION_CHANGE,
       influenceChange: MAX_INFLUENCE_CHANGE,
-      share: MAX_RESEARCH_SHARE,
     };
+
+    if (action.type === 'research_shift' && 'share' in data) {
+      numericLimits.share = this.getResearchShareCap(action.sourceCountryId);
+    }
 
     for (const [field, limit] of Object.entries(numericLimits)) {
       if (!(field in data)) continue;
