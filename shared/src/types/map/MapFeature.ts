@@ -20,6 +20,7 @@ export type MapFeatureType =
   // Infrastructure
   | 'railway'
   | 'canal'
+  | 'pipeline'
   | 'airport'
   | 'highway'
   // Political

@@ -12,6 +12,7 @@ import { warTick } from "./war/WarTick";
 import { aiBehaviorTick } from "./ai/AiBehaviorTick";
 import { tierTick } from "./tier/TierTick";
 import { politicsTick } from "./politics/PoliticsTick";
+import { tradeTick } from "./trade/TradeTick";
 
 export function simulateMonth(
     game: GameState
@@ -21,6 +22,13 @@ export function simulateMonth(
         economyTick(country, game.regions);
 
         resourceTick(country, game.regions, game.regionIndex);
+
+        // Торговля v1 (независимый гейм-дизайн разбор, 2026-07-06) — после
+        // resourceTick, чтобы продавать излишек этого месяца. Перезаписывает
+        // economy.exportIncome; из-за порядка цикла эффект на бюджет виден
+        // начиная со следующего economyTick, не в этом же месяце — тот же
+        // лаг в один тик, что у годового пересчёта tier.
+        tradeTick(game, country);
 
         // Снимок тиров до исследовательского тика — обнаружение пересечения
         // порога (независимый гейм-дизайн разбор, 2026-07-06) для
