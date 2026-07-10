@@ -502,9 +502,9 @@ describe("LLMService", () => {
 
     it("sanction: использует sanctionType из data, если передан", () => {
       service.applyLlmActions([
-        { type: "sanction", sourceCountryId: "USA", targetCountryId: "USSR", data: { sanctionType: "arms_embargo" } },
+        { type: "sanction", sourceCountryId: "USA", targetCountryId: "USSR", data: { sanctionType: "military_sanctions" } },
       ]);
-      expect(usa().diplomacy.sanctions["USSR"]).toEqual(["arms_embargo"]);
+      expect(usa().diplomacy.sanctions["USSR"]).toEqual(["military_sanctions"]);
     });
 
     it("guarantee: добавляет гарантию и улучшает отношения на +15", () => {
@@ -528,10 +528,12 @@ describe("LLMService", () => {
       logSpy.mockRestore();
     });
 
-    it("действие без targetCountryId — no-op (не падает, не меняет отношения)", () => {
-      service.applyLlmActions([{ type: "diplomacy", sourceCountryId: "USA" }]);
-      expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
-    });
+    // "действие без targetCountryId/data — no-op" тесты удалены здесь (2026-07-10,
+    // план 02_LLM_CONTRACT.md, Шаг 0-1): applyXAction теперь принимает
+    // Extract<LLMAction, {type: '...'}> — targetCountryId/data гарантированы
+    // типом, defensive-guard внутри apply убран. Действие без обязательных
+    // полей отклоняется раньше, на границе (actionSchemas.ts, Шаг 2/3) —
+    // "валидация на границе, доверие внутри", не двойная защита на каждом слое.
 
     it("research_shift: задаёт долю домена в researchAllocation (2026-07-06)", () => {
       usa().technology.domains = { armor: 0, naval: 0 };
@@ -539,12 +541,6 @@ describe("LLMService", () => {
         { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.6 } },
       ]);
       expect(usa().technology.researchAllocation).toEqual({ armor: 0.6 });
-    });
-
-    it("research_shift: не падает и не применяет без domain/share в data", () => {
-      usa().technology.domains = { armor: 0 };
-      service.applyLlmActions([{ type: "research_shift", sourceCountryId: "USA" }]);
-      expect(usa().technology.researchAllocation).toBeUndefined();
     });
 
     it("применяет несколько действий подряд", () => {
@@ -580,7 +576,9 @@ describe("LLMService", () => {
     });
 
     it("save/get/clear pending actions", () => {
-      const actions = [{ type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR" } as const];
+      const actions = [
+        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 0 } } as const,
+      ];
       service.savePendingActions(actions);
       expect(service.getPendingActions()).toEqual(actions);
       service.clearPendingActions();

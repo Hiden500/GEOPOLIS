@@ -5,6 +5,8 @@ import { type EraDefinition } from "../types/research/EraDefinition";
 import { type MapFeature } from "./map/MapFeature";
 import { type Locale } from "./i18n/LocalizedText";
 import { type War } from "./War";
+import { type SanctionType } from "./DiplomacyState";
+import { type EquipmentType } from "./military/EquipmentType";
 
 export interface GameState {
   currentDate: string;
@@ -82,9 +84,24 @@ export interface GameState {
   llmRespondedThisTurn: boolean;
 }
 
-export interface LLMAction {
-  type: 'diplomacy' | 'war' | 'peace' | 'annex' | 'puppet' | 'sanction' | 'guarantee' | 'influence' | 'research_shift' | 'production_shift';
-  sourceCountryId: string;
-  targetCountryId?: string;
-  data?: Record<string, any>;
-}
+/**
+ * Действие, применяемое LLM к игровому состоянию (docs/plans/02_LLM_CONTRACT.md).
+ * Дискриминированный union по `type` — `data: any` не существует, каждый
+ * вариант несёт ровно те поля, которые реально читает соответствующий
+ * applyXAction в server/src/services/LLMService.ts. Структурная и
+ * магнитудная валидация ответа LLM — server/src/llm/actionSchemas.ts (Zod,
+ * должен структурно совпадать с этим типом — компайл-тайм проверка там же);
+ * семантическая применимость (страна существует, война идёт и т.п.) —
+ * server/src/llm/LLMResponseValidator.ts.
+ */
+export type LLMAction =
+  | { type: "diplomacy"; sourceCountryId: string; targetCountryId: string; data: { relationChange: number } }
+  | { type: "war"; sourceCountryId: string; targetCountryId: string; data?: { warGoal?: string } }
+  | { type: "peace"; sourceCountryId: string; targetCountryId: string }
+  | { type: "annex"; sourceCountryId: string; targetCountryId: string }
+  | { type: "puppet"; sourceCountryId: string; targetCountryId: string }
+  | { type: "sanction"; sourceCountryId: string; targetCountryId: string; data?: { sanctionType?: SanctionType } }
+  | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
+  | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number } }
+  | { type: "research_shift"; sourceCountryId: string; data: { domain: string; share: number } }
+  | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } };

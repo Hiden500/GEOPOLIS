@@ -150,7 +150,9 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
               {result.rejectedActions.map((r, i) => (
                 <li key={i}>
                   {r.action.type} {r.action.sourceCountryId}
-                  {r.action.targetCountryId ? ` → ${r.action.targetCountryId}` : ""}: {r.reason}
+                  {"targetCountryId" in r.action && r.action.targetCountryId
+                    ? ` → ${r.action.targetCountryId}`
+                    : ""}: {r.reason}
                 </li>
               ))}
             </ul>

@@ -2,47 +2,15 @@ import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { type EquipmentType } from "@shared/types/military/EquipmentType";
 import { WarService } from "../services/WarService";
-
-/**
- * Пределы магнитуды последствий (тюнингуемые константы — балансировать на
- * симуляции, как THREAT-пороги в AiBehaviorTick). Движок выставляет пределы,
- * LLM работает внутри них (docs/LLM_RULES.md): ответ с выходом за предел —
- * ошибка данных LLM, а не «сильное событие».
- */
-export const MAX_ACTIONS_PER_RESPONSE = 20;
-export const MAX_RELATION_CHANGE = 40;
-export const MAX_INFLUENCE_CHANGE = 20;
-
-/**
- * Потолок доли researchSpending на один домен за один сдвиг фокуса
- * (docs/DECISIONS.md, 2026-07-06) — остаток делят поровну домены без явной
- * доли (ResearchTick.ts). Не 1.0 — сфокусированность не бесплатна, остальные
- * направления всё равно получают что-то. Это потолок мирного времени —
- * см. WAR_RESEARCH_SHARE_PENALTY ниже про снижение на активную войну.
- */
-export const MAX_RESEARCH_SHARE = 0.7;
-
-/**
- * Admin capacity (независимый гейм-дизайн разбор, 2026-07-06): правительство,
- * воюющее на нескольких фронтах, отвлечено — потолок доли research_shift
- * снижается на эту величину за каждую активную войну страны (не только
- * инициированную ею — оборона тоже отвлекает). Применяется одинаково ко
- * всем странам, включая игрока — не спец-правило для ИИ.
- */
-export const WAR_RESEARCH_SHARE_PENALTY = 0.1;
-
-/** Пол потолка research_shift — даже страна на нескольких фронтах не теряет фокус целиком. */
-export const MIN_RESEARCH_SHARE_CAP = 0.3;
-
-/**
- * Потолок доли militarySpending на одну категорию техники за один сдвиг
- * фокуса (War Phase 2, независимый гейм-дизайн разбор, 2026-07-06) — тот же
- * принцип, что MAX_RESEARCH_SHARE. Плоский, БЕЗ снижения за активную войну
- * (в отличие от research_shift) — война логически повышает фокус на
- * производстве, а не распыляет его, поэтому admin-capacity штраф сюда не
- * переносится.
- */
-export const MAX_PRODUCTION_SHARE = 0.7;
+import {
+  MAX_ACTIONS_PER_RESPONSE,
+  MAX_RELATION_CHANGE,
+  MAX_INFLUENCE_CHANGE,
+  MAX_RESEARCH_SHARE,
+  WAR_RESEARCH_SHARE_PENALTY,
+  MIN_RESEARCH_SHARE_CAP,
+  MAX_PRODUCTION_SHARE,
+} from "@shared/defines/llmActionCaps";
 
 /**
  * Валидатор ответов от LLM.
@@ -171,7 +139,7 @@ export class LLMResponseValidator {
    * выход за них означает ошибку данных LLM, действие отклоняется точечно.
    */
   validateActionMagnitude(action: LLMAction): { valid: boolean; error?: string } {
-    const data = action.data;
+    const data = ('data' in action ? action.data : undefined) as Record<string, unknown> | undefined;
     if (!data) return { valid: true };
 
     const numericLimits: Record<string, number> = {
@@ -224,7 +192,7 @@ export class LLMResponseValidator {
       }
     }
 
-    if (action.targetCountryId) {
+    if ('targetCountryId' in action && action.targetCountryId) {
       const target = this.game.countries.find(c => c.id === action.targetCountryId);
       if (!target) {
         return { valid: false, error: 'Target country not found' };

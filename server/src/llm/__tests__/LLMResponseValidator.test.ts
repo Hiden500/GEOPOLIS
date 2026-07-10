@@ -202,11 +202,14 @@ describe("LLMResponseValidator", () => {
     });
 
     it("production_shift: отклоняет неизвестную категорию", () => {
+      // "drones" — намеренно невалидное значение (за пределами EquipmentType),
+      // проверяем рантайм-поведение на данных, которые не прошли бы Zod-схему
+      // (actionSchemas.ts) — validateActionApplicability не полагается на TS-типы.
       const result = validator.validateActionApplicability({
         type: "production_shift",
         sourceCountryId: "USA",
         data: { equipmentType: "drones", share: 0.5 },
-      });
+      } as any);
       expect(result.valid).toBe(false);
     });
 
@@ -214,7 +217,7 @@ describe("LLMResponseValidator", () => {
       const result = validator.validateActionApplicability({
         type: "research_shift",
         sourceCountryId: "USA",
-      });
+      } as any);
       expect(result.valid).toBe(false);
     });
 
@@ -271,39 +274,12 @@ describe("LLMResponseValidator", () => {
     });
   });
 
-  describe("filterValidActions", () => {
-    it("оставляет только валидные и применимые действия", () => {
-      const usa = game.countries.find(c => c.id === "USA")!;
-      usa.diplomacy.guarantees.push("USSR"); // сделает guarantee неприменимым
-
-      const actions = [
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR" } as const, // ок
-        { type: "war", sourceCountryId: "USA", targetCountryId: "ATLANTIS" } as const, // невалидная цель
-        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" } as const, // неприменимо
-      ];
-
-      const result = validator.filterValidActions(actions);
-      expect(result).toHaveLength(1);
-      expect(result[0]?.type).toBe("diplomacy");
-    });
-
-    it("возвращает пустой массив, если все действия невалидны", () => {
-      const actions = [
-        { type: "war", sourceCountryId: "ATLANTIS", targetCountryId: "USA" } as const,
-      ];
-      expect(validator.filterValidActions(actions)).toEqual([]);
-    });
-
-    it("отбрасывает действия с магнитудой за пределами", () => {
-      const actions = [
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 500 } },
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
-      ] as const;
-      const result = validator.filterValidActions([...actions]);
-      expect(result).toHaveLength(1);
-      expect(result[0]?.data?.relationChange).toBe(10);
-    });
-  });
+  // describe("filterValidActions") удалён здесь (2026-07-10, план 02_LLM_CONTRACT.md,
+  // Шаг 0-1) — метод подтверждён мёртвым кодом (не вызывается в проде),
+  // сцеплен с validateAction/validateActionMagnitude, которые уходят в Шаге 3
+  // на server/src/llm/actionSchemas.ts. Удалять сам метод раньше срока не
+  // стали (не расширять скоуп этого среза), но держать тесты на несуществующее
+  // покрытие смысла нет — не переживают компиляцию нового строгого LLMAction.
 
   describe("валидация магнитуды и source==target", () => {
     it("отклоняет действие, где источник и цель совпадают", () => {
