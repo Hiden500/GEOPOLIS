@@ -61,3 +61,23 @@ export class LLMGateError extends AppError {
     super(message, "LLM_GATE_ERROR", 409);
   }
 }
+
+/**
+ * Слот сейва не найден (docs/plans/01_PERSISTENCE_STATE.md) — при загрузке
+ * или удалении несуществующего слота.
+ */
+export class SaveNotFoundError extends AppError {
+  constructor(message: string) {
+    super(message, "SAVE_NOT_FOUND", 404);
+  }
+}
+
+/**
+ * Версия файла сейва не совпадает с SAVE_VERSION (docs/plans/01_PERSISTENCE_STATE.md).
+ * Честный отказ без миграций — 409, конфликт состояния файла с текущей версией движка.
+ */
+export class SaveVersionError extends AppError {
+  constructor(message: string) {
+    super(message, "SAVE_VERSION_MISMATCH", 409);
+  }
+}

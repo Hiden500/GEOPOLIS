@@ -140,7 +140,8 @@ describe('MapFeatureService', () => {
       },
       countries,
       regions,
-      regionIndex: new Map(),
+      rngState: 1,
+      nextFeatureId: 0,
       locale: "ru",
       playerIntent: "",
       eventHistory: [],
@@ -196,8 +197,7 @@ describe('MapFeatureService', () => {
       expect(feature1.id).not.toBe(feature2.id);
     });
 
-    it('should set createdAt to current time if not provided', () => {
-      const beforeCreate = new Date();
+    it('should set createdAt to the current game date if not provided (docs/plans/01_PERSISTENCE_STATE.md: игровое время, не wall-clock)', () => {
       const feature = service.createMapFeature({
         type: 'city',
         regionId: 1,
@@ -205,12 +205,8 @@ describe('MapFeatureService', () => {
         name: 'Test City',
         tags: ['settlement'],
       });
-      const afterCreate = new Date();
 
-      expect(feature.createdAt).toBeDefined();
-      const createdAt = new Date(feature.createdAt!);
-      expect(createdAt.getTime()).toBeGreaterThanOrEqual(beforeCreate.getTime());
-      expect(createdAt.getTime()).toBeLessThanOrEqual(afterCreate.getTime());
+      expect(feature.createdAt).toBe(game.currentDate);
     });
   });
 

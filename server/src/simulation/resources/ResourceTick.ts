@@ -7,10 +7,9 @@ import { RegionEconomyService } from "../../services/RegionEconomyService";
  */
 export function resourceTick(
   country: Country,
-  regions: Region[],
-  regionIndex: Map<string, number[]>
+  regions: Region[]
 ): void {
-  const ownedRegionIds = regionIndex.get(country.id) || [];
+  const countryRegions = regions.filter(r => r.ownerCountryId === country.id);
   const regionEconomyService = new RegionEconomyService();
 
   // Бонус от технологий добычи (упрощённо). "industry" — реальный ключ
@@ -18,10 +17,7 @@ export function resourceTick(
   const miningTechLevel = country.technology.domains["industry"] || 0;
   const techBonus = 1 + (miningTechLevel * 0.05);
 
-  for (const regionId of ownedRegionIds) {
-    const region = regions.find(r => r.id === regionId);
-    if (!region) continue;
-
+  for (const region of countryRegions) {
     // Инициализируем экономику региона если нужно
     if (!region.economy) {
       regionEconomyService.initializeRegionEconomy(region);

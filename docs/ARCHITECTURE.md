@@ -1,6 +1,6 @@
 # Архитектура проекта
 
-Last updated: 2026-07-06
+Last updated: 2026-07-10
 
 ## Структура
 
@@ -99,6 +99,31 @@ docs/
 Сервер выполняет симуляцию мира.
 
 Тики выполняются последовательно.
+
+### Сохранения (`server/src/game/SaveService.ts`)
+
+Реализовано по `docs/plans/01_PERSISTENCE_STATE.md` (2026-07-10). `GameStore.ts`
+остаётся синглтоном одной активной игры в памяти процесса — слоты сейвов
+относятся к персистентности на диске, не к параллельным живым играм.
+
+* Формат файла — `shared/src/types/SaveFile.ts`:
+  `{ version: number, savedAt: string, game: GameState }`, `SAVE_VERSION`.
+  Несовпадение версии при загрузке — явный отказ (`SaveVersionError`, 409),
+  без миграций.
+* Каталог — `server/data/saves/<slot>.json` (гитигнорен). Имя слота
+  ограничено алфавитом `[a-zA-Z0-9_-]{1,64}` (`SAVE_SLOT_PATTERN`) — защита
+  от path traversal, слот идёт прямиком в имя файла.
+* API: `POST /game/save {slot}`, `POST /game/load {slot}`, `GET /game/saves`
+  (метаданные слотов), `DELETE /game/saves/:slot`.
+* Автосейв — слот `autosave`, перезаписывается в конце каждого успешного
+  `GameService.advanceMonth()`.
+* Транзиентные поля `llmContext`/`pendingLlmActions` не сохраняются;
+  `llmResponse` (кэш последнего ответа LLM) сохраняется как есть.
+* `GameState.rngState: number` (`shared/src/utils/rng.ts`, mulberry32) —
+  сериализуемое состояние seeded RNG, инфраструктура на будущее (текущей
+  игровой логике не нужна). `GameState.nextFeatureId: number` — счётчик для
+  детерминированных id Map Features (`mf-000123`, `MapFeatureService.generateId()`),
+  заменил `Math.random()`/`Date.now()`.
 
 ---
 

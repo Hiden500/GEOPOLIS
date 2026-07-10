@@ -3,7 +3,15 @@ import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { createGame } from "../game/CreateGame";
 import { simulateMonth } from "../simulation/SimulationEngine";
 import { getGame, setGame } from "../game/GameStore";
+import * as SaveService from "../game/SaveService";
+import { type SaveSlotMeta } from "../game/SaveService";
 import { LLMGateError } from "../errors/AppError";
+
+/**
+ * Слот автосейва (docs/plans/01_PERSISTENCE_STATE.md) — перезаписывается
+ * после каждого успешного хода.
+ */
+const AUTOSAVE_SLOT = "autosave";
 
 /**
  * Сервис для управления игрой.
@@ -45,6 +53,11 @@ export class GameService {
     }
     game.llmRespondedThisTurn = false;
     setGame(game);
+
+    // Автосейв (docs/plans/01_PERSISTENCE_STATE.md): перезаписываемый слот
+    // после каждого успешного хода — рестарт сервера не теряет кампанию.
+    SaveService.saveGame(game, AUTOSAVE_SLOT);
+
     return game;
   }
 
@@ -60,5 +73,39 @@ export class GameService {
    */
   deleteGame(): void {
     setGame(null as any);
+  }
+
+  /**
+   * Сохраняет текущую игру в именованный слот.
+   */
+  saveGame(slot: string): void {
+    const game = getGame();
+    if (!game) {
+      throw new Error("No active game");
+    }
+    SaveService.saveGame(game, slot);
+  }
+
+  /**
+   * Загружает игру из слота и делает её текущей.
+   */
+  loadGame(slot: string): GameState {
+    const game = SaveService.loadGame(slot);
+    setGame(game);
+    return game;
+  }
+
+  /**
+   * Список слотов сейвов с метаданными.
+   */
+  listSaves(): SaveSlotMeta[] {
+    return SaveService.listSaves();
+  }
+
+  /**
+   * Удаляет слот сейва.
+   */
+  deleteSave(slot: string): void {
+    SaveService.deleteSave(slot);
   }
 }

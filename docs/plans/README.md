@@ -17,7 +17,7 @@
 
 | # | Файл | Приоритет | Статус |
 |---|------|-----------|--------|
-| 01 | [01_PERSISTENCE_STATE.md](01_PERSISTENCE_STATE.md) — сохранения, гигиена GameState, баг regionIndex | **P0** | не начато |
+| 01 | [01_PERSISTENCE_STATE.md](01_PERSISTENCE_STATE.md) — сохранения, гигиена GameState, баг regionIndex | **P0** | реализовано, см. `docs/ARCHITECTURE.md` §"Сохранения" |
 | 02 | [02_LLM_CONTRACT.md](02_LLM_CONTRACT.md) — типизация действий, structured output, летопись | **P0** | не начато |
 | 03 | [03_MODIFIERS_COMMANDS.md](03_MODIFIERS_COMMANDS.md) — команды, модификаторы, defines | P1 | не начато |
 | 04 | [04_RESOURCES.md](04_RESOURCES.md) — deposit / extraction / output | P1 | не начато |

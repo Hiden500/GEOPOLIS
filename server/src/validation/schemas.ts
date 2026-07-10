@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
 import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
+import { SAVE_SLOT_PATTERN } from "../game/SaveService";
 
 /**
  * Схема для создания игры. locale — язык генерируемого LLM-текста на весь
@@ -41,6 +42,14 @@ export const updateBudgetSchema = z.object({
  */
 export const playerIntentSchema = z.object({
   intent: z.string().max(2000, "Intent is too long (max 2000 chars)")
+});
+
+/**
+ * Схема для имени слота сейва (docs/plans/01_PERSISTENCE_STATE.md) — слот
+ * идёт прямиком в имя файла, паттерн исключает path traversal.
+ */
+export const saveSlotSchema = z.object({
+  slot: z.string().regex(SAVE_SLOT_PATTERN, "Invalid slot name")
 });
 
 /**

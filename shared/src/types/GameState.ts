@@ -17,7 +17,16 @@ export interface GameState {
 
   regions: Region[];
 
-  regionIndex: Map<string, number[]>;
+  // Seeded RNG (docs/plans/01_PERSISTENCE_STATE.md, shared/src/utils/rng.ts) —
+  // сериализуемое состояние генератора. Один seed → бит-в-бит одинаковая
+  // кампания. Правило на будущее: вся случайность симуляции — только через
+  // это поле, не Math.random.
+  rngState: number;
+
+  // Счётчик для детерминированных id Map Features (docs/plans/01_PERSISTENCE_STATE.md,
+  // MapFeatureService.generateId()) — заменяет Math.random/Date.now, которые
+  // ломали детерминизм и JSON-round-trip не мог быть источником истины для id.
+  nextFeatureId: number;
 
   // Язык генерируемого LLM текста (title/descriptions), зафиксирован при
   // создании игры (docs/DECISIONS.md, 2026-07-05) — не переключается на

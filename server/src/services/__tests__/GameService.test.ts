@@ -1,13 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-// createGame (загрузка сценария) и движок тестируются отдельно — здесь мокаем их,
-// чтобы проверять только логику GameService: работу с синглтоном GameStore и делегирование.
+// createGame (загрузка сценария), движок и SaveService (файловый I/O) тестируются
+// отдельно — здесь мокаем их, чтобы проверять только логику GameService: работу
+// с синглтоном GameStore и делегирование.
 vi.mock("../../game/CreateGame", () => ({ createGame: vi.fn() }));
 vi.mock("../../simulation/SimulationEngine", () => ({ simulateMonth: vi.fn() }));
+vi.mock("../../game/SaveService", () => ({
+  saveGame: vi.fn(),
+  loadGame: vi.fn(),
+  listSaves: vi.fn(),
+  deleteSave: vi.fn(),
+}));
 
 import { GameService } from "../GameService";
 import { createGame } from "../../game/CreateGame";
 import { simulateMonth } from "../../simulation/SimulationEngine";
+import * as SaveService from "../../game/SaveService";
 import { createTestGameState } from "../../test-utils/fixtures";
 
 describe("GameService", () => {
@@ -94,6 +102,56 @@ describe("GameService", () => {
       expect(simulateMonth).toHaveBeenCalledTimes(3);
       expect(result).toBe(fakeGame);
       expect(fakeGame.llmRespondedThisTurn).toBe(false);
+    });
+
+    it("автосейв (docs/plans/01_PERSISTENCE_STATE.md): каждый успешный ход перезаписывает слот 'autosave'", () => {
+      const fakeGame = createTestGameState({ llmRespondedThisTurn: true });
+      vi.mocked(createGame).mockReturnValue(fakeGame);
+      service.createGame("1946", "USA");
+
+      service.advanceMonth();
+
+      expect(SaveService.saveGame).toHaveBeenCalledWith(fakeGame, "autosave");
+    });
+  });
+
+  describe("saveGame/loadGame/listSaves/deleteSave (docs/plans/01_PERSISTENCE_STATE.md)", () => {
+    it("saveGame делегирует в SaveService с текущей игрой", () => {
+      const fakeGame = createTestGameState();
+      vi.mocked(createGame).mockReturnValue(fakeGame);
+      service.createGame("1946", "USA");
+
+      service.saveGame("slot1");
+
+      expect(SaveService.saveGame).toHaveBeenCalledWith(fakeGame, "slot1");
+    });
+
+    it("saveGame бросает 'No active game', если игра не создана", () => {
+      expect(() => service.saveGame("slot1")).toThrow("No active game");
+      expect(SaveService.saveGame).not.toHaveBeenCalled();
+    });
+
+    it("loadGame делегирует в SaveService и делает загруженную игру текущей", () => {
+      const loadedGame = createTestGameState({ playerCountryId: "LOADED" });
+      vi.mocked(SaveService.loadGame).mockReturnValue(loadedGame);
+
+      const result = service.loadGame("slot1");
+
+      expect(SaveService.loadGame).toHaveBeenCalledWith("slot1");
+      expect(result).toBe(loadedGame);
+      expect(service.getCurrentGame()).toBe(loadedGame);
+    });
+
+    it("listSaves делегирует в SaveService", () => {
+      const saves = [{ slot: "slot1", savedAt: "x", playerCountryId: "USA", currentDate: "1946-01-01" }];
+      vi.mocked(SaveService.listSaves).mockReturnValue(saves);
+
+      expect(service.listSaves()).toBe(saves);
+    });
+
+    it("deleteSave делегирует в SaveService", () => {
+      service.deleteSave("slot1");
+      expect(SaveService.deleteSave).toHaveBeenCalledWith("slot1");
     });
   });
 

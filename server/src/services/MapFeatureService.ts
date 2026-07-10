@@ -22,7 +22,10 @@ export class MapFeatureService {
       id,
       type: feature.type,
       tags: feature.tags,
-      createdAt: feature.createdAt || new Date().toISOString(),
+      // Игровое время, не wall-clock (docs/plans/01_PERSISTENCE_STATE.md,
+      // правило детерминизма 5: время — только game.currentDate) — иначе два
+      // прогона createGame() с одним seed давали бы разные createdAt.
+      createdAt: feature.createdAt || this.game.currentDate,
     };
 
     const optionalProps: Partial<MapFeature> = {};
@@ -132,10 +135,14 @@ export class MapFeatureService {
   }
 
   /**
-   * Генерирует уникальный ID для Map Feature.
+   * Генерирует уникальный ID для Map Feature — детерминированный счётчик
+   * (docs/plans/01_PERSISTENCE_STATE.md), не Math.random/Date.now: id обязан
+   * быть воспроизводим при одном seed (правило детерминизма 5).
    */
   private generateId(): string {
-    return `mf-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const id = `mf-${String(this.game.nextFeatureId).padStart(6, "0")}`;
+    this.game.nextFeatureId += 1;
+    return id;
   }
 
   /**

@@ -2,7 +2,6 @@ import { ScenarioRegistry } from "../scenarios/ScenarioRegistry";
 import { type Country } from "@shared/types/Country";
 import { type GameState } from "@shared/types/GameState";
 import { type Locale, DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
-import { buildRegionIndex } from "@shared/utils/buildRegionIndex";
 import { updateAllRegionsAndAggregate } from "@shared/utils/aggregateCountryData";
 import { generateInitialMapFeatures } from "../scenarios/generateMapFeatures";
 import { RegionEconomyService } from "../services/RegionEconomyService";
@@ -56,7 +55,12 @@ function deriveCountryEconomy(country: Country): void {
 export function createGame(
   scenarioId: keyof typeof ScenarioRegistry,
   playerCountryId: string,
-  locale: Locale = DEFAULT_LOCALE
+  locale: Locale = DEFAULT_LOCALE,
+  // Сид детерминированного RNG (docs/plans/01_PERSISTENCE_STATE.md). Дефолт
+  // Date.now() — разовая инициализация новой партии, не тик симуляции, вне
+  // зоны действия правила детерминизма (то запрещает Math.random/время
+  // только внутри simulation/**, services/**, не при создании игры).
+  seed: number = Date.now()
 ): GameState {
   const scenario = ScenarioRegistry[scenarioId];
   const regions = structuredClone(scenario.regions);
@@ -85,7 +89,8 @@ export function createGame(
     era: structuredClone(scenario.technologyEra),
     countries,
     regions,
-    regionIndex: buildRegionIndex(regions),
+    rngState: seed,
+    nextFeatureId: 0,
     locale,
     playerIntent: "",
     eventHistory: [],
