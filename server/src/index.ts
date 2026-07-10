@@ -27,6 +27,7 @@ app.use("/budget", budgetRoutes);
 app.use("/research", researchRoutes);
 app.use("/llm", llmRoutes);
 
-app.listen(3000, () => {
-  console.log("Server started");
+const PORT = Number(process.env.PORT) || 3000;
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 });

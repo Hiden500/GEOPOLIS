@@ -30,6 +30,7 @@ touches, not read wholesale:
 | diplomacy, alliances, Threat/Rivalry | `docs/DIPLOMACY.md` |
 | LLM prompt/response/validation | `docs/LLM_RULES.md` |
 | map features (factories, mines, ports, battalions) | `docs/MAP_FEATURES.md` |
+| UI visual design, layout, styling, design tokens (`client/src/components/`, `App.css`) | `docs/UI_DESIGN.md` (agent: `.claude/agents/ui-designer.md`) |
 | starting scenarios (1836/1946/2000) | `docs/SCENARIOS.md` |
 | tech tree | `docs/TECH_TREE.md` (draft, unresolved) |
 | world events | `docs/EVENTS.md` (draft, unresolved) |
