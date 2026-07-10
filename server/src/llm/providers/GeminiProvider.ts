@@ -1,48 +1,134 @@
+import { z } from "zod";
 import { LLMProviderError } from "../../errors/AppError";
 import { type LLMProvider } from "./LLMProvider";
+import { GeminiResponseSchema } from "../actionSchemas";
 
 const DEFAULT_MODEL = "gemini-3.1-flash-lite";
 
 /**
- * Схема ответа под нашу структуру {title, descriptions, actions[]} —
- * проверена живым тестом 2026-07-05 (docs/DECISIONS.md): без неё AI Studio
- * заворачивает ответ в generic {response: string} и ломает экранирование
- * переносов строк при двойном JSON.parse. `data` — явные поля, а не
- * открытый объект (те же, что реально читает LLMResponseValidator).
+ * Gemini structured output (generateContent, модели ниже "Interactions API" —
+ * см. docs/DECISIONS.md 2026-07-06 про две версии Gemini API-документации)
+ * принимает не полный JSON Schema, а OpenAPI 3.0-подобное подмножество.
+ * Живой вызов (docs/plans/02_LLM_CONTRACT.md, Шаг 4) подтвердил конкретные
+ * расхождения с тем, что производит `z.toJSONSchema()` — WebSearch про
+ * поддержку `anyOf`/`$ref` относился к другому, более новому диалекту API,
+ * не к этому REST-эндпоинту:
+ *   - `const` (литерал Zod для discriminant `type`) — не поддерживается,
+ *     Gemini вернул 400 "Unknown name const"; конвертируем в `enum: [value]`
+ *     (единственное значение — тот же эффект).
+ *   - `additionalProperties` — не поддерживается, 400 "Unknown name
+ *     additionalProperties"; просто убираем (не ослабляет нашу собственную
+ *     Zod-валидацию входящего ответа — этот ключ только направляет модель).
+ *   - `oneOf`→`anyOf` и `propertyOrdering` (проприетарный, вне стандартного
+ *     JSON Schema) — Gemini использует anyOf/propertyOrdering, не
+ *     стандартные oneOf без ordering-подсказки; `z.toJSONSchema()` не
+ *     производит ни то, ни другое сама.
+ *   - Полный 10-ветвевой anyOf (после исправлений выше) всё ещё возвращал
+ *     400 "Request contains an invalid argument" без детализации поля;
+ *     бисекция живыми вызовами локализовала причину до веток с ИДЕНТИЧНОЙ
+ *     формой, различающихся только значением discriminant `type`
+ *     (peace/annex/puppet/guarantee — все `{sourceCountryId,
+ *     targetCountryId}`, без `data`) — 2 структурно РАЗНЫЕ ветки (diplomacy+
+ *     war) проходили, добавление ещё 3 структурно ОДИНАКОВЫХ веток
+ *     ломало запрос. Похоже на ограничение grammar-компилятора
+ *     constrained-decoding: неразличимые по форме anyOf-ветки не строятся.
+ *     Фикс — mergeIdenticalShapeBranches ниже: ветки с одинаковой формой
+ *     схлопываются в одну с `type: {enum: [...все их discriminant-значения]}`.
+ *     Это ослабляет только СХЕМУ ДЛЯ ГЕНЕРАЦИИ (направляет модель) — реальная
+ *     валидация входящего ответа (actionSchemas.ts::LLMActionSchema,
+ *     processResponse) остаётся точной per-type и не меняется.
+ * Единый источник схемы (actionSchemas.ts) остаётся тем не менее верным
+ * решением — было безальтернативно хуже: до 2026-07-10 ручная схема вообще
+ * не содержала research_shift/production_shift.
  */
-const RESPONSE_SCHEMA = {
-  type: "object",
-  properties: {
-    title: { type: "string" },
-    descriptions: { type: "string" },
-    actions: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          type: {
-            type: "string",
-            enum: ["diplomacy", "war", "peace", "annex", "puppet", "sanction", "guarantee", "influence"],
-          },
-          sourceCountryId: { type: "string" },
-          targetCountryId: { type: "string" },
-          data: {
-            type: "object",
-            properties: {
-              relationChange: { type: "number" },
-              influenceChange: { type: "number" },
-              sanctionType: { type: "string" },
-            },
-          },
-        },
-        required: ["type", "sourceCountryId"],
-        propertyOrdering: ["type", "sourceCountryId", "targetCountryId", "data"],
-      },
+
+/**
+ * Схлопывает anyOf-ветки с идентичной формой (свойства/required, кроме
+ * discriminant-поля `type`) в одну ветку с объединённым `type.enum`. Порядок
+ * входных веток определяет порядок результата (первое вхождение формы).
+ */
+function mergeIdenticalShapeBranches(branches: Record<string, unknown>[]): Record<string, unknown>[] {
+  const groups: { shapeKey: string; branch: Record<string, unknown>; values: unknown[] }[] = [];
+
+  for (const branch of branches) {
+    const properties = { ...(branch.properties as Record<string, unknown>) };
+    const typeSchema = properties.type as Record<string, unknown>;
+    delete properties.type;
+
+    const shapeKey = JSON.stringify({
+      properties,
+      required: ((branch.required as string[]) || []).filter(f => f !== "type"),
+    });
+    const discriminantValue = (typeSchema.enum as unknown[])[0];
+
+    const existing = groups.find(g => g.shapeKey === shapeKey);
+    if (existing) {
+      existing.values.push(discriminantValue);
+    } else {
+      groups.push({ shapeKey, branch, values: [discriminantValue] });
+    }
+  }
+
+  return groups.map(({ branch, values }) => ({
+    ...branch,
+    properties: {
+      ...(branch.properties as Record<string, unknown>),
+      type: { type: "string", enum: values },
     },
-  },
-  required: ["title", "descriptions", "actions"],
-  propertyOrdering: ["title", "descriptions", "actions"],
-};
+  }));
+}
+
+function enrichForGemini(node: unknown): unknown {
+  if (node === null || typeof node !== "object") return node;
+  const obj = node as Record<string, unknown>;
+
+  delete obj.additionalProperties;
+
+  if (obj.type === "string" && "const" in obj) {
+    obj.enum = [obj.const];
+    delete obj.const;
+  }
+
+  if (Array.isArray(obj.oneOf)) {
+    const enriched = obj.oneOf.map(enrichForGemini) as Record<string, unknown>[];
+    obj.anyOf = mergeIdenticalShapeBranches(enriched);
+    delete obj.oneOf;
+  } else if (Array.isArray(obj.anyOf)) {
+    const enriched = obj.anyOf.map(enrichForGemini) as Record<string, unknown>[];
+    obj.anyOf = mergeIdenticalShapeBranches(enriched);
+  }
+
+  if (obj.properties && typeof obj.properties === "object") {
+    const properties = obj.properties as Record<string, unknown>;
+    obj.propertyOrdering = Object.keys(properties);
+    for (const key of Object.keys(properties)) {
+      properties[key] = enrichForGemini(properties[key]);
+    }
+  }
+
+  if (obj.items) {
+    obj.items = enrichForGemini(obj.items);
+  }
+
+  return obj;
+}
+
+/**
+ * Схема ответа под нашу структуру {title, descriptions, actions[]} —
+ * проверена живым тестом 2026-07-05 (docs/DECISIONS.md): без нужной формы
+ * AI Studio заворачивает ответ в generic {response: string} и ломает
+ * экранирование переносов строк при двойном JSON.parse. Генерируется из
+ * GeminiResponseSchema (actionSchemas.ts) — единый источник истины с
+ * серверной валидацией входящего ответа, не второй ручной литерал
+ * (docs/plans/02_LLM_CONTRACT.md, Шаг 4).
+ */
+function buildResponseSchema(): Record<string, unknown> {
+  const jsonSchema = z.toJSONSchema(GeminiResponseSchema) as Record<string, unknown>;
+  delete jsonSchema.$schema; // Gemini не ожидает этот ключ — исходная ручная схема его не содержала.
+  return enrichForGemini(jsonSchema) as Record<string, unknown>;
+}
+
+const RESPONSE_SCHEMA = buildResponseSchema();
 
 /**
  * Автоматизированный провайдер через Gemini API (generateContent).

@@ -94,4 +94,123 @@ describe("GeminiProvider", () => {
 
     await expect(provider.generateResponse("prompt")).rejects.toThrow(LLMProviderError);
   });
+
+  /**
+   * Структура responseSchema — сгенерирована из GeminiResponseSchema
+   * (actionSchemas.ts, docs/plans/02_LLM_CONTRACT.md, Шаг 4), не второй
+   * ручной литерал. Проверяет ровно то, что раньше рассинхронизировалось
+   * молча: полный список из 10 типов действия и их реальные data-поля.
+   */
+  describe("сгенерированная responseSchema (Zod → JSON Schema)", () => {
+    async function captureResponseSchema(): Promise<any> {
+      process.env.GEMINI_API_KEY = "test-key";
+      vi.mocked(fetch).mockResolvedValue({
+        ok: true,
+        json: async () => ({ candidates: [{ content: { parts: [{ text: "{}" }] } }] }),
+      } as Response);
+
+      await provider.generateResponse("prompt");
+      const [, options] = vi.mocked(fetch).mock.calls[0]!;
+      const body = JSON.parse((options as RequestInit).body as string);
+      return body.generationConfig.responseSchema;
+    }
+
+    it("не содержит служебный $schema (Gemini его не ожидает)", async () => {
+      const schema = await captureResponseSchema();
+      expect(schema.$schema).toBeUndefined();
+    });
+
+    it("propertyOrdering расставлен на корне и на каждой ветке actions", async () => {
+      const schema = await captureResponseSchema();
+      expect(schema.propertyOrdering).toEqual(["title", "descriptions", "actions"]);
+
+      const branches = schema.properties.actions.items.anyOf;
+      for (const branch of branches) {
+        expect(branch.propertyOrdering).toEqual(Object.keys(branch.properties));
+      }
+    });
+
+    it("actions.items — anyOf (не oneOf, документированный ключ Gemini для union), все 10 типов присутствуют", async () => {
+      const schema = await captureResponseSchema();
+      const items = schema.properties.actions.items;
+
+      expect(items.oneOf).toBeUndefined();
+      expect(Array.isArray(items.anyOf)).toBe(true);
+
+      // discriminant "type" литералы приходят как enum: [...] (не const, не
+      // поддерживается этим REST-эндпоинтом Gemini — см. enrichForGemini).
+      // Ветки с идентичной формой (peace/annex/puppet/guarantee) схлопнуты
+      // mergeIdenticalShapeBranches в одну — enum там содержит несколько
+      // значений, не одно; flatMap разворачивает все 10 обратно.
+      const types = items.anyOf.flatMap((branch: any) => branch.properties.type.enum);
+      expect(types.sort()).toEqual(
+        [
+          "annex", "diplomacy", "guarantee", "influence", "peace",
+          "production_shift", "puppet", "research_shift", "sanction", "war",
+        ].sort()
+      );
+    });
+
+    it("ветки с идентичной формой (peace/annex/puppet/guarantee) схлопнуты в одну — anyOf короче 10 (подтверждённое живым вызовом ограничение Gemini)", async () => {
+      const schema = await captureResponseSchema();
+      const items = schema.properties.actions.items;
+      expect(items.anyOf.length).toBeLessThan(10);
+
+      const mergedBranch = items.anyOf.find((b: any) => b.properties.type.enum.length > 1);
+      expect(mergedBranch.properties.type.enum.sort()).toEqual(
+        ["annex", "guarantee", "peace", "puppet"].sort()
+      );
+    });
+
+    it("нет const/additionalProperties — Gemini их не поддерживает (подтверждено живым вызовом 2026-07-10)", async () => {
+      const schema = await captureResponseSchema();
+      const serialized = JSON.stringify(schema);
+      expect(serialized).not.toContain('"const"');
+      expect(serialized).not.toContain('"additionalProperties"');
+    });
+
+    it("research_shift/production_shift присутствуют с реальными data-полями (подтверждённый рассинхрон до 2026-07-10)", async () => {
+      const schema = await captureResponseSchema();
+      const branches = schema.properties.actions.items.anyOf;
+
+      const researchShift = branches.find((b: any) => b.properties.type.enum[0] === "research_shift");
+      expect(Object.keys(researchShift.properties.data.properties)).toEqual(["domain", "share"]);
+
+      const productionShift = branches.find((b: any) => b.properties.type.enum[0] === "production_shift");
+      expect(Object.keys(productionShift.properties.data.properties)).toEqual(["equipmentType", "share"]);
+    });
+  });
+
+  /**
+   * Живой вызов реального Gemini API — не часть обязательной верификации
+   * (не гонять на каждый npm test, free-tier лимит дефицитен,
+   * docs/DECISIONS.md 2026-07-05). Гейтится ДВУМЯ переменными: наличием
+   * ключа И явным согласием прогнать live-тест. Прогнать вручную минимум
+   * один раз перед тем, как считать Шаг 2/4 плана 02 закрытым:
+   *   RUN_LIVE_LLM_TESTS=1 npx vitest run src/llm/providers
+   */
+  describe.skipIf(!process.env.RUN_LIVE_LLM_TESTS || !process.env.GEMINI_API_KEY)(
+    "живой вызов Gemini API (RUN_LIVE_LLM_TESTS=1)",
+    () => {
+      it("реальный ответ проходит через LLMResponseEnvelopeSchema + LLMActionSchema", async () => {
+        vi.unstubAllGlobals(); // здесь нужен настоящий fetch, не мок из beforeEach
+
+        const { LLMResponseEnvelopeSchema, LLMActionSchema } = await import("../../actionSchemas");
+        const realProvider = new GeminiProvider();
+
+        const raw = await realProvider.generateResponse(
+          "Return a minimal valid response: title, one-sentence descriptions, and an empty actions array."
+        );
+        const parsed = JSON.parse(raw);
+
+        const envelope = LLMResponseEnvelopeSchema.safeParse(parsed);
+        expect(envelope.success).toBe(true);
+        if (envelope.success) {
+          for (const action of envelope.data.actions) {
+            expect(LLMActionSchema.safeParse(action).success).toBe(true);
+          }
+        }
+      }, 30_000);
+    }
+  );
 });
