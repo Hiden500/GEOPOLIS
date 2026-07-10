@@ -1,0 +1,19 @@
+{
+  "windowTitles": {
+    "budget": "Бюджет",
+    "research": "Исследования",
+    "intent": "Намерение",
+    "ranking": "Мировой рейтинг",
+    "territories": "Территории",
+    "llm": "LLM-симуляция",
+    "timeline": "Хроника"
+  },
+  "errors": {
+    "turnFailed": "Ошибка хода",
+    "budgetUpdateFailed": "Ошибка обновления бюджета",
+    "intentSaveFailed": "Ошибка сохранения намерения",
+    "stateUpdateFailed": "Ошибка обновления состояния"
+  },
+  "playerCountryNotFound": "Страна игрока не найдена",
+  "back": "Назад"
+}

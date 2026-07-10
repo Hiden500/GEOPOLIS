@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   children: ReactNode;
@@ -7,6 +8,22 @@ interface Props {
 
 interface State {
   error: Error | null;
+}
+
+// ErrorBoundary — классовый компонент, хуки (useTranslation) в нём напрямую
+// недоступны, поэтому рендер сообщения об ошибке вынесен в функциональный
+// дочерний компонент.
+function ErrorFallback({ message, onReset }: { message: string; onReset: () => void }) {
+  const { t } = useTranslation("errorBoundary");
+
+  return (
+    <div className="loading">
+      {t("crashMessage", { message })}
+      <button className="back-button" onClick={onReset}>
+        {t("backToMenu")}
+      </button>
+    </div>
+  );
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -28,12 +45,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       return (
-        <div className="loading">
-          Что-то пошло не так в интерфейсе: {this.state.error.message}
-          <button className="back-button" onClick={this.handleReset}>
-            Назад в меню
-          </button>
-        </div>
+        <ErrorFallback message={this.state.error.message} onReset={this.handleReset} />
       );
     }
 

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { type Region } from "@shared/types/map/Region";
 import { getText } from "@shared/types/i18n/LocalizedText";
 
@@ -33,6 +34,7 @@ function findMentionQuery(text: string, cursor: number): { start: number; query:
  * игрок (а через него и LLM) не путал регион по одному лишь имени.
  */
 export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
+  const { t } = useTranslation("playerIntentPanel");
   const [text, setText] = useState(intent);
   const [mention, setMention] = useState<{ start: number; query: string } | null>(null);
   const [saved, setSaved] = useState(false);
@@ -86,18 +88,15 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
 
   return (
     <div className="player-intent-panel">
-      <h2>Намерение</h2>
+      <h2>{t("title")}</h2>
 
       <section className="panel-section">
-        <p>
-          Опишите своими словами, что хочет сделать страна в этом ходу. Наберите
-          "@" и начните вводить название региона для подсказки.
-        </p>
+        <p>{t("description")}</p>
         <div className="player-intent-autocomplete-wrap">
           <textarea
             ref={textareaRef}
-            aria-label="Намерение игрока"
-            placeholder="Например: наращиваем добычу угля в @Донбасс и укрепляем границу..."
+            aria-label={t("ariaLabel")}
+            placeholder={t("placeholder")}
             value={text}
             onChange={handleChange}
             onBlur={() => setMention(null)}
@@ -120,9 +119,9 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
           )}
         </div>
         <button className="primary" onClick={handleSave}>
-          Сохранить намерение
+          {t("saveButton")}
         </button>
-        {saved && <p className="player-intent-saved">Сохранено ✓</p>}
+        {saved && <p className="player-intent-saved">{t("saved")}</p>}
       </section>
     </div>
   );

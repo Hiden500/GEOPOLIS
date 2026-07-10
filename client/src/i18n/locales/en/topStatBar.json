@@ -1,0 +1,25 @@
+{
+  "backToMenu": "← Menu",
+  "gameTitle": "Geopolis",
+  "stats": {
+    "gdp": "GDP",
+    "population": "Population",
+    "army": "Army",
+    "stability": "Stability",
+    "technology": "Technology",
+    "legitimacy": "Legitimacy"
+  },
+  "status": {
+    "peace": "Peace",
+    "rivals": "Rivals: {{count}}"
+  },
+  "nav": {
+    "territories": "Territories",
+    "world": "World",
+    "intent": "Intent",
+    "llm": "LLM",
+    "timeline": "Timeline"
+  },
+  "simulating": "Simulating...",
+  "nextTurn": "Next month →"
+}

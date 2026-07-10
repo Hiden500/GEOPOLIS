@@ -1,0 +1,18 @@
+{
+  "title": "Geopolis",
+  "selectScenario": "Select a scenario",
+  "selectCountry": "Select a country",
+  "language": "Language",
+  "majorPowerBadge": "★ Great Power",
+  "startGame": "Start Game",
+  "loadingScenarios": "Loading scenarios…",
+  "loadError": "Error: {{message}}",
+  "loadErrorHint": "Make sure the server is running (npm run dev in server/)",
+  "retry": "Retry",
+  "failedToLoadScenarios": "Failed to load scenarios",
+  "tiers": {
+    "major": "Great Powers",
+    "regional": "Regional Powers",
+    "minor": "Minor States"
+  }
+}

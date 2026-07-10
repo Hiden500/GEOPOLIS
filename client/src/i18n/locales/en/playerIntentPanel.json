@@ -1,0 +1,8 @@
+{
+  "title": "Intent",
+  "description": "Describe in your own words what the country wants to do this turn. Type \"@\" and start typing a region name for suggestions.",
+  "ariaLabel": "Player intent",
+  "placeholder": "For example: increasing coal production in @Donbass and reinforcing the border...",
+  "saveButton": "Save intent",
+  "saved": "Saved ✓"
+}

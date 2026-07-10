@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
 import { type WindowKind } from "../hooks/useWindows";
 import { getDomainTier } from "@shared/utils/technology";
@@ -45,6 +46,7 @@ export function TopStatBar({
   onToggle,
   onOpenCountry,
 }: Props) {
+  const { t } = useTranslation("topStatBar");
   const govLabel = [country.politics.ideology, country.politics.governmentType]
     .filter(Boolean)
     .join(" · ");
@@ -54,9 +56,9 @@ export function TopStatBar({
       <div className="header-row">
         <div className="header-left">
           <button className="back-button" onClick={onBack}>
-            ← Меню
+            {t("backToMenu")}
           </button>
-          <span className="game-title">Geopolis</span>
+          <span className="game-title">{t("gameTitle")}</span>
         </div>
 
         <button className="header-country" onClick={onOpenCountry}>
@@ -68,39 +70,39 @@ export function TopStatBar({
         </button>
 
         <div className="header-stats">
-          <StatPill label="ВВП" value={`${(country.economy.gdp / 1e12).toFixed(2)}T`} onClick={() => onToggle({ type: "budget" })} />
-          <StatPill label="Население" value={`${(country.population / 1e6).toFixed(1)}M`} />
-          <StatPill label="Армия" value={`${(country.military.manpower / 1e6).toFixed(2)}M`} />
-          <StatPill label="Стабильность" value={`${Math.round(country.politics.stability)}`} />
+          <StatPill label={t("stats.gdp")} value={`${(country.economy.gdp / 1e12).toFixed(2)}T`} onClick={() => onToggle({ type: "budget" })} />
+          <StatPill label={t("stats.population")} value={`${(country.population / 1e6).toFixed(1)}M`} />
+          <StatPill label={t("stats.army")} value={`${(country.military.manpower / 1e6).toFixed(2)}M`} />
+          <StatPill label={t("stats.stability")} value={`${Math.round(country.politics.stability)}`} />
           <StatPill
-            label="Технологии"
+            label={t("stats.technology")}
             value={`${Object.values(country.technology.domains).filter(p => getDomainTier(p) > 0).length}`}
             onClick={() => onToggle({ type: "research" })}
           />
-          <StatPill label="Легитимность" value={`${Math.round(country.politics.legitimacy)}%`} />
+          <StatPill label={t("stats.legitimacy")} value={`${Math.round(country.politics.legitimacy)}%`} />
         </div>
 
         <span className={`status-stamp ${country.diplomacy.rivals.length > 0 ? "alert" : ""}`}>
-          {country.diplomacy.rivals.length > 0 ? `Соперники: ${country.diplomacy.rivals.length}` : "Мир"}
+          {country.diplomacy.rivals.length > 0 ? t("status.rivals", { count: country.diplomacy.rivals.length }) : t("status.peace")}
         </span>
       </div>
 
       <div className="header-row">
         <nav className="header-nav">
           <button className={isOpen({ type: "territories" }) ? "active" : ""} onClick={() => onToggle({ type: "territories" })}>
-            Территории
+            {t("nav.territories")}
           </button>
           <button className={isOpen({ type: "ranking" }) ? "active" : ""} onClick={() => onToggle({ type: "ranking" })}>
-            Мир
+            {t("nav.world")}
           </button>
           <button className={isOpen({ type: "intent" }) ? "active" : ""} onClick={() => onToggle({ type: "intent" })}>
-            Намерение
+            {t("nav.intent")}
           </button>
           <button className={isOpen({ type: "llm" }) ? "active" : ""} onClick={() => onToggle({ type: "llm" })}>
-            LLM
+            {t("nav.llm")}
           </button>
           <button className={isOpen({ type: "timeline" }) ? "active" : ""} onClick={() => onToggle({ type: "timeline" })}>
-            Хроника
+            {t("nav.timeline")}
           </button>
         </nav>
 
@@ -109,7 +111,7 @@ export function TopStatBar({
           <span className="game-date">{currentDate}</span>
           <span className="game-era">{eraName}</span>
           <button className="next-turn-button" onClick={onNextTurn} disabled={loading}>
-            {loading ? "Симуляция..." : "Следующий месяц →"}
+            {loading ? t("simulating") : t("nextTurn")}
           </button>
         </div>
       </div>

@@ -1,0 +1,19 @@
+{
+  "windowTitles": {
+    "budget": "Budget",
+    "research": "Research",
+    "intent": "Intent",
+    "ranking": "World Ranking",
+    "territories": "Territories",
+    "llm": "LLM Simulation",
+    "timeline": "Timeline"
+  },
+  "errors": {
+    "turnFailed": "Turn failed",
+    "budgetUpdateFailed": "Failed to update budget",
+    "intentSaveFailed": "Failed to save intent",
+    "stateUpdateFailed": "Failed to update state"
+  },
+  "playerCountryNotFound": "Player country not found",
+  "back": "Back"
+}

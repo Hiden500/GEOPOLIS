@@ -1,0 +1,30 @@
+{
+  "title": "LLM Simulation",
+  "turnLabel": "LLM turn: {{turn}}",
+  "autoSection": {
+    "title": "Automatic (Gemini)",
+    "button": "Generate and apply automatically"
+  },
+  "promptSection": {
+    "title": "1. Prompt (manual method)",
+    "getButton": "Get and copy prompt",
+    "copiedButton": "Prompt copied ✓",
+    "ariaLabel": "Prompt for LLM"
+  },
+  "responseSection": {
+    "title": "2. LLM response",
+    "ariaLabel": "LLM response (JSON)",
+    "placeholder": "Paste the LLM's JSON response: { \"descriptions\": \"...\", \"actions\": [...] }",
+    "applyButton": "Apply response"
+  },
+  "errors": {
+    "getPrompt": "Failed to get prompt",
+    "applyResponse": "Failed to apply response",
+    "autoCycle": "Automatic cycle failed"
+  },
+  "result": {
+    "defaultTitle": "Result",
+    "appliedActionsCount": "Actions applied: {{count}}",
+    "rejectedActionsSuffix": ", rejected: {{count}}"
+  }
+}

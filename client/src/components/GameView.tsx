@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { TopStatBar } from "./TopStatBar";
 import { ResourceTicker } from "./ResourceTicker";
@@ -28,17 +29,8 @@ interface GameViewProps {
   onBack: () => void;
 }
 
-const WINDOW_TITLES: Record<string, string> = {
-  budget: "Бюджет",
-  research: "Исследования",
-  intent: "Намерение",
-  ranking: "Мировой рейтинг",
-  territories: "Территории",
-  llm: "LLM-симуляция",
-  timeline: "Хроника",
-};
-
 export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
+  const { t } = useTranslation("gameView");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
@@ -92,7 +84,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await nextTurn();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка хода");
+      setError(err instanceof Error ? err.message : t("errors.turnFailed"));
     } finally {
       setLoading(false);
     }
@@ -105,7 +97,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка обновления бюджета");
+      setError(err instanceof Error ? err.message : t("errors.budgetUpdateFailed"));
     }
   };
 
@@ -115,7 +107,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка сохранения намерения");
+      setError(err instanceof Error ? err.message : t("errors.intentSaveFailed"));
       throw err;
     }
   };
@@ -125,7 +117,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка обновления состояния");
+      setError(err instanceof Error ? err.message : t("errors.stateUpdateFailed"));
     }
   };
 
@@ -140,9 +132,9 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   if (!playerCountry) {
     return (
       <div className="loading">
-        Страна игрока не найдена
+        {t("playerCountryNotFound")}
         <button className="back-button" onClick={onBack}>
-          Назад
+          {t("back")}
         </button>
       </div>
     );
@@ -180,7 +172,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           const title =
             w.kind.type === "country" || w.kind.type === "region"
               ? getInspectorTitle(w.kind, game)
-              : WINDOW_TITLES[w.kind.type];
+              : t(`windowTitles.${w.kind.type}`);
 
           return (
             <Window

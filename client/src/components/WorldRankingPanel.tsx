@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 
 interface Props {
@@ -6,16 +7,17 @@ interface Props {
 }
 
 export function WorldRankingPanel({ game, onSelectCountry }: Props) {
+  const { t } = useTranslation("worldRankingPanel");
   return (
     <section className="panel-section">
-      <h3>Мировой рейтинг</h3>
+      <h3>{t("title")}</h3>
       <table className="world-table">
         <thead>
           <tr>
-            <th>Страна</th>
-            <th>Нас.</th>
-            <th>ВВП</th>
-            <th>Казна</th>
+            <th>{t("columns.country")}</th>
+            <th>{t("columns.population")}</th>
+            <th>{t("columns.gdp")}</th>
+            <th>{t("columns.treasury")}</th>
           </tr>
         </thead>
         <tbody>

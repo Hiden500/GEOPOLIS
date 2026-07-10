@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { type ScenarioInfo, type FeaturedCountry } from "@shared/types/ScenarioInfo";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { getScenarios } from "../api/gameApi";
@@ -8,15 +9,12 @@ interface ScenarioSelectorProps {
   error?: string | null;
 }
 
+// Автонимы — язык всегда подписан на самом себе ("English" не переводится
+// на русский, "Русский" не переводится на английский), общепринятая практика
+// для переключателя языка. Не через t() намеренно.
 const LOCALE_LABELS: Record<Locale, string> = {
   ru: "Русский",
   en: "English",
-};
-
-const TIER_LABELS: Record<string, string> = {
-  major: "Великие державы",
-  regional: "Региональные державы",
-  minor: "Малые государства",
 };
 
 function CountryGroup({
@@ -32,6 +30,7 @@ function CountryGroup({
   onSelect: (id: string) => void;
   defaultExpanded?: boolean;
 }) {
+  const { t } = useTranslation("scenarioSelector");
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   if (countries.length === 0) return null;
@@ -58,7 +57,7 @@ function CountryGroup({
             >
               <span className="country-name">{c.name}</span>
               <span className="country-id">{c.id}</span>
-              {c.tier === "major" && <span className="country-major-badge">★ Великая держава</span>}
+              {c.tier === "major" && <span className="country-major-badge">{t("majorPowerBadge")}</span>}
             </button>
           ))}
         </div>
@@ -71,6 +70,7 @@ export function ScenarioSelector({
   onScenarioSelect,
   error,
 }: ScenarioSelectorProps) {
+  const { t, i18n } = useTranslation("scenarioSelector");
   const [scenarios, setScenarios] = useState<ScenarioInfo[]>([]);
   const [selectedScenario, setSelectedScenario] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
@@ -86,7 +86,7 @@ export function ScenarioSelector({
       })
       .catch(err => {
         setLoadError(
-          err instanceof Error ? err.message : "Не удалось загрузить сценарии"
+          err instanceof Error ? err.message : t("failedToLoadScenarios")
         );
         setLoading(false);
       });
@@ -94,6 +94,7 @@ export function ScenarioSelector({
 
   useEffect(() => {
     fetchScenarios();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRetry = () => {
@@ -108,16 +109,24 @@ export function ScenarioSelector({
     }
   };
 
+  // Живое переключение языка экрана выбора по мере выбора — та же локаль
+  // уходит и в интерфейс, и в GameState.locale (нарратив LLM), не два
+  // независимых концепта (docs/LOCALIZATION.md).
+  const handleLocaleSelect = (l: Locale) => {
+    setLocale(l);
+    void i18n.changeLanguage(l);
+  };
+
   if (loading) {
-    return <div className="loading">Загрузка сценариев...</div>;
+    return <div className="loading">{t("loadingScenarios")}</div>;
   }
 
   if (loadError) {
     return (
       <div className="loading">
-        Ошибка: {loadError}
-        <p className="hint">Убедитесь, что сервер запущен (npm run dev в server/)</p>
-        <button onClick={handleRetry}>Повторить попытку</button>
+        {t("loadError", { message: loadError })}
+        <p className="hint">{t("loadErrorHint")}</p>
+        <button onClick={handleRetry}>{t("retry")}</button>
       </div>
     );
   }
@@ -130,8 +139,8 @@ export function ScenarioSelector({
 
   return (
     <div className="scenario-selector">
-      <h1>Geopolis</h1>
-      <h2>Выберите сценарий</h2>
+      <h1>{t("title")}</h1>
+      <h2>{t("selectScenario")}</h2>
 
       {error && <p className="selector-error">{error}</p>}
 
@@ -159,24 +168,24 @@ export function ScenarioSelector({
 
       {currentScenario && (
         <div className="country-selection">
-          <h2>Выберите страну</h2>
+          <h2>{t("selectCountry")}</h2>
           <div className="country-list">
             <CountryGroup
-              label={TIER_LABELS.major}
+              label={t("tiers.major")}
               countries={majorCountries}
               selectedCountry={selectedCountry}
               onSelect={setSelectedCountry}
               defaultExpanded
             />
             <CountryGroup
-              label={TIER_LABELS.regional}
+              label={t("tiers.regional")}
               countries={regionalCountries}
               selectedCountry={selectedCountry}
               onSelect={setSelectedCountry}
               defaultExpanded
             />
             <CountryGroup
-              label={TIER_LABELS.minor}
+              label={t("tiers.minor")}
               countries={minorCountries}
               selectedCountry={selectedCountry}
               onSelect={setSelectedCountry}
@@ -188,7 +197,7 @@ export function ScenarioSelector({
 
       {selectedScenario && selectedCountry && (
         <div className="locale-selection">
-          <h2>Язык повествования LLM</h2>
+          <h2>{t("language")}</h2>
           <div className="locale-options">
             {(Object.keys(LOCALE_LABELS) as Locale[]).map(l => (
               <button
@@ -196,14 +205,14 @@ export function ScenarioSelector({
                 type="button"
                 className={`locale-button ${locale === l ? "selected" : ""}`}
                 aria-pressed={locale === l}
-                onClick={() => setLocale(l)}
+                onClick={() => handleLocaleSelect(l)}
               >
                 {LOCALE_LABELS[l]}
               </button>
             ))}
           </div>
           <button className="start-game-button" onClick={handleStartGame}>
-            Начать игру
+            {t("startGame")}
           </button>
         </div>
       )}

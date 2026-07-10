@@ -1,32 +1,10 @@
+import { useTranslation } from "react-i18next";
 import { type ResourceStockpile } from "@shared/types/resources/ResourceStockpile";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 
 interface Props {
   stockpile: ResourceStockpile;
 }
-
-const RESOURCE_LABELS: Partial<Record<ResourceType, string>> = {
-  [ResourceType.Bauxite]: "Бокситы",
-  [ResourceType.Coal]: "Уголь",
-  [ResourceType.Copper]: "Медь",
-  [ResourceType.Food]: "Пища",
-  [ResourceType.Gas]: "Газ",
-  [ResourceType.Iron]: "Железо",
-  [ResourceType.Gold]: "Золото",
-  [ResourceType.Oil]: "Нефть",
-  [ResourceType.Lithium]: "Литий",
-  [ResourceType.RareEarths]: "Редкие металлы",
-  [ResourceType.Timber]: "Древесина",
-  [ResourceType.Uranium]: "Уран",
-  [ResourceType.Tin]: "Олово",
-  [ResourceType.Nickel]: "Никель",
-  [ResourceType.Tungsten]: "Вольфрам",
-  [ResourceType.Manganese]: "Марганец",
-  [ResourceType.Chromium]: "Хром",
-  [ResourceType.Cotton]: "Хлопок",
-  [ResourceType.Rubber]: "Каучук",
-  [ResourceType.Nitrates]: "Селитра",
-};
 
 const RESOURCE_CODES: Partial<Record<ResourceType, string>> = {
   [ResourceType.Bauxite]: "BAU",
@@ -81,6 +59,7 @@ function formatAmount(amount: number): string {
 }
 
 export function ResourceTicker({ stockpile }: Props) {
+  const { t } = useTranslation("resourceTicker");
   const entries = Object.entries(stockpile).filter(([, amount]) => amount > 0);
 
   if (entries.length === 0) return null;
@@ -91,7 +70,7 @@ export function ResourceTicker({ stockpile }: Props) {
         <div
           key={resource}
           className="resource-chip"
-          title={`${RESOURCE_LABELS[resource as ResourceType] ?? resource}: ${Math.round(amount).toLocaleString("ru-RU")}`}
+          title={`${t(`resources.${resource}`, { defaultValue: resource })}: ${Math.round(amount).toLocaleString("ru-RU")}`}
         >
           <span className="resource-chip-icon">{RESOURCE_ICONS[resource as ResourceType] ?? "•"}</span>
           <span className="resource-chip-code">{RESOURCE_CODES[resource as ResourceType] ?? resource.slice(0, 3).toUpperCase()}</span>

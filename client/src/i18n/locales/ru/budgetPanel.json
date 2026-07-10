@@ -1,0 +1,21 @@
+{
+  "title": "Бюджет",
+  "income": "Доходы:",
+  "expenses": "Расходы:",
+  "balance": "Баланс:",
+  "categories": {
+    "military": "Военные расходы",
+    "research": "Исследования",
+    "education": "Образование",
+    "infrastructure": "Инфраструктура",
+    "welfare": "Социальные программы"
+  },
+  "presets": {
+    "militaryEconomy": "Военная экономика",
+    "welfareState": "Социальное государство",
+    "industrialization": "Индустриализация",
+    "austerity": "Аустерити"
+  },
+  "deficitWarning": "Дефицит бюджета: {{value}}",
+  "reset": "Сбросить"
+}

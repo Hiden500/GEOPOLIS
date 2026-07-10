@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
 import { BUDGET_PRESETS } from "./budgetPresets";
@@ -40,15 +41,26 @@ function sharesFromCountry(country: Country): BudgetFormState {
   };
 }
 
-const CATEGORY_LABELS: Record<keyof BudgetFormState, string> = {
-  military: "Военные расходы",
-  research: "Исследования",
-  education: "Образование",
-  infrastructure: "Инфраструктура",
-  welfare: "Социальные программы",
+const CATEGORY_FIELDS: (keyof BudgetFormState)[] = [
+  "military",
+  "research",
+  "education",
+  "infrastructure",
+  "welfare",
+];
+
+// Курируемые названия пресетов (budgetPresets.ts) заданы по-русски и
+// используются как React key — сопоставляем их с ключами перевода, не трогая
+// сам budgetPresets.ts (вне скоупа этого файла).
+const PRESET_TRANSLATION_KEYS: Record<string, string> = {
+  "Военная экономика": "presets.militaryEconomy",
+  "Социальное государство": "presets.welfareState",
+  "Индустриализация": "presets.industrialization",
+  "Аустерити": "presets.austerity",
 };
 
 export function BudgetPanel({ country, onUpdateBudget }: Props) {
+  const { t } = useTranslation(["budgetPanel", "common"]);
   const [shares, setShares] = useState<BudgetFormState>(() => sharesFromCountry(country));
 
   const setField = (field: keyof BudgetFormState) => (value: number) => {
@@ -76,23 +88,23 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
 
   return (
     <div className="budget-panel">
-      <h2>Бюджет</h2>
+      <h2>{t("title")}</h2>
 
       <div className="budget-summary">
         <div className="budget-item">
-          <span className="label">Доходы:</span>
+          <span className="label">{t("income")}</span>
           <span className="value positive">
             {Math.round(income).toLocaleString("ru-RU")}
           </span>
         </div>
         <div className="budget-item">
-          <span className="label">Расходы:</span>
+          <span className="label">{t("expenses")}</span>
           <span className="value negative">
             {Math.round(totalExpenses).toLocaleString("ru-RU")}
           </span>
         </div>
         <div className="budget-item">
-          <span className="label">Баланс:</span>
+          <span className="label">{t("balance")}</span>
           <span className={`value ${balance >= 0 ? "positive" : "negative"}`}>
             {Math.round(balance).toLocaleString("ru-RU")}
           </span>
@@ -107,16 +119,16 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
             className="budget-preset-button"
             onClick={() => setShares(preset.shares)}
           >
-            {preset.name}
+            {PRESET_TRANSLATION_KEYS[preset.name] ? t(PRESET_TRANSLATION_KEYS[preset.name]) : preset.name}
           </button>
         ))}
       </div>
 
       <div className="budget-sliders">
-        {(Object.keys(CATEGORY_LABELS) as (keyof BudgetFormState)[]).map(field => (
+        {CATEGORY_FIELDS.map(field => (
           <div className="slider-group" key={field}>
             <label htmlFor={`budget-${field}`}>
-              {CATEGORY_LABELS[field]}: {(shares[field] * 100).toFixed(1)}%
+              {t(`categories.${field}`)}: {(shares[field] * 100).toFixed(1)}%
               {" "}({Math.round(shares[field] * income).toLocaleString("ru-RU")})
             </label>
             <input
@@ -134,14 +146,14 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
 
       {balance < 0 && (
         <div className="budget-warning" role="alert">
-          ⚠️ Дефицит бюджета: {Math.round(Math.abs(balance)).toLocaleString("ru-RU")}
+          ⚠️ {t("deficitWarning", { value: Math.round(Math.abs(balance)).toLocaleString("ru-RU") })}
         </div>
       )}
 
       <div className="budget-actions">
-        <button onClick={handleReset}>Сбросить</button>
+        <button onClick={handleReset}>{t("reset")}</button>
         <button onClick={handleSave} className="primary">
-          Сохранить
+          {t("common:save")}
         </button>
       </div>
     </div>

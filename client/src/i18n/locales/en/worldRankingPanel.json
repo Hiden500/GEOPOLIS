@@ -1,0 +1,9 @@
+{
+  "title": "World Ranking",
+  "columns": {
+    "country": "Country",
+    "population": "Pop.",
+    "gdp": "GDP",
+    "treasury": "Treasury"
+  }
+}

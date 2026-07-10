@@ -1,0 +1,9 @@
+{
+  "title": "Мировой рейтинг",
+  "columns": {
+    "country": "Страна",
+    "population": "Нас.",
+    "gdp": "ВВП",
+    "treasury": "Казна"
+  }
+}

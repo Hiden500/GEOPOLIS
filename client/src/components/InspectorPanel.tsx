@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { getDomainTier } from "@shared/utils/technology";
 
@@ -8,8 +9,9 @@ interface Props {
 }
 
 function CountryInspector({ countryId, game, onSelectCountry }: { countryId: string; game: GameState; onSelectCountry: (id: string) => void }) {
+  const { t } = useTranslation("inspectorPanel");
   const country = game.countries.find(c => c.id === countryId);
-  if (!country) return <p>Страна не найдена</p>;
+  if (!country) return <p>{t("country.notFound")}</p>;
 
   const domainsWithProgress = Object.entries(country.technology.domains).filter(
     ([, progress]) => getDomainTier(progress) > 0
@@ -24,48 +26,48 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
       <p className="inspector-subtitle">
         <span className="country-color-dot" style={{ backgroundColor: country.color }} />
         {[country.politics.ideology, country.politics.governmentType].filter(Boolean).join(" · ")}
-        {country.id === game.playerCountryId && <span className="inspector-tag">вы</span>}
+        {country.id === game.playerCountryId && <span className="inspector-tag">{t("country.youTag")}</span>}
       </p>
 
       <dl className="stat-list">
         <div>
-          <dt>ВВП</dt>
+          <dt>{t("country.stats.gdp")}</dt>
           <dd>{(country.economy.gdp / 1e12).toFixed(2)}T</dd>
         </div>
         <div>
-          <dt>Население</dt>
+          <dt>{t("country.stats.population")}</dt>
           <dd>{(country.population / 1e6).toFixed(1)}M</dd>
         </div>
         <div>
-          <dt>Казна</dt>
+          <dt>{t("country.stats.treasury")}</dt>
           <dd>{Math.round(country.economy.treasury).toLocaleString("ru-RU")}</dd>
         </div>
         <div>
-          <dt>Бюджет</dt>
+          <dt>{t("country.stats.budget")}</dt>
           <dd className={country.economy.budgetBalance >= 0 ? "positive" : "negative"}>
             {Math.round(country.economy.budgetBalance).toLocaleString("ru-RU")}
           </dd>
         </div>
         <div>
-          <dt>Стабильность</dt>
+          <dt>{t("country.stats.stability")}</dt>
           <dd>{Math.round(country.politics.stability)}</dd>
         </div>
         <div>
-          <dt>Легитимность</dt>
+          <dt>{t("country.stats.legitimacy")}</dt>
           <dd>{Math.round(country.politics.legitimacy)}%</dd>
         </div>
       </dl>
 
       {domainsWithProgress.length > 0 && (
         <section className="panel-section">
-          <h4>Освоенные направления</h4>
+          <h4>{t("country.domainsMastered")}</h4>
           <p>{domainsWithProgress.length}</p>
         </section>
       )}
 
       {relationEntries.length > 0 && (
         <section className="panel-section">
-          <h4>Дипломатические отношения</h4>
+          <h4>{t("country.diplomaticRelations")}</h4>
           <ul className="relation-list">
             {relationEntries.map(({ id, value, other }) => (
               <li key={id} className="relation-list-item">
@@ -84,8 +86,9 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
 }
 
 function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number; game: GameState; onSelectCountry: (id: string) => void }) {
+  const { t } = useTranslation("inspectorPanel");
   const region = game.regions.find(r => r.id === regionId);
-  if (!region) return <p>Регион не найден</p>;
+  if (!region) return <p>{t("region.notFound")}</p>;
 
   const owner = game.countries.find(c => c.id === region.ownerCountryId);
   const resourceEntries = Object.entries(region.resourceProduction);
@@ -103,34 +106,34 @@ function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number
 
       <dl className="stat-list">
         <div>
-          <dt>Население</dt>
+          <dt>{t("region.stats.population")}</dt>
           <dd>{(region.population ?? 0).toLocaleString("ru-RU")}</dd>
         </div>
         <div>
-          <dt>Площадь</dt>
-          <dd>{region.area} км²</dd>
+          <dt>{t("region.stats.area")}</dt>
+          <dd>{t("region.areaValue", { area: region.area })}</dd>
         </div>
         <div>
-          <dt>Урбанизация</dt>
+          <dt>{t("region.stats.urbanization")}</dt>
           <dd>{region.urbanization}%</dd>
         </div>
         <div>
-          <dt>Инфраструктура</dt>
+          <dt>{t("region.stats.infrastructure")}</dt>
           <dd>{region.infrastructure}/100</dd>
         </div>
         <div>
-          <dt>Стабильность</dt>
+          <dt>{t("region.stats.stability")}</dt>
           <dd>{region.stability}/100</dd>
         </div>
         <div>
-          <dt>Развитие</dt>
+          <dt>{t("region.stats.development")}</dt>
           <dd>{region.development}/100</dd>
         </div>
       </dl>
 
       {resourceEntries.length > 0 && (
         <section className="panel-section">
-          <h4>Добыча ресурсов (в месяц)</h4>
+          <h4>{t("region.resourceProduction")}</h4>
           <ul className="resource-list">
             {resourceEntries.map(([resource, amount]) => (
               <li key={resource}>

@@ -1,0 +1,24 @@
+{
+  "resources": {
+    "oil": "Oil",
+    "coal": "Coal",
+    "gas": "Gas",
+    "iron": "Iron",
+    "copper": "Copper",
+    "gold": "Gold",
+    "tin": "Tin",
+    "nickel": "Nickel",
+    "bauxite": "Bauxite",
+    "tungsten": "Tungsten",
+    "manganese": "Manganese",
+    "chromium": "Chromium",
+    "uranium": "Uranium",
+    "rareEarths": "Rare Earths",
+    "lithium": "Lithium",
+    "food": "Food",
+    "timber": "Timber",
+    "cotton": "Cotton",
+    "rubber": "Rubber",
+    "nitrates": "Nitrates"
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   getLlmPrompt,
   submitLlmResponse,
@@ -18,6 +19,7 @@ interface Props {
  * Оба используют одну и ту же валидацию/применение на сервере.
  */
 export function LLMPanel({ llmTurn, onApplied }: Props) {
+  const { t } = useTranslation("llmPanel");
   const [prompt, setPrompt] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [responseText, setResponseText] = useState("");
@@ -41,7 +43,7 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
         setCopied(false);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка получения промта");
+      setError(err instanceof Error ? err.message : t("errors.getPrompt"));
     } finally {
       setBusy(false);
     }
@@ -59,7 +61,7 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
         onApplied();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка применения ответа");
+      setError(err instanceof Error ? err.message : t("errors.applyResponse"));
     } finally {
       setBusy(false);
     }
@@ -76,7 +78,7 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
         onApplied();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ошибка автоматического цикла");
+      setError(err instanceof Error ? err.message : t("errors.autoCycle"));
     } finally {
       setBusy(false);
     }
@@ -84,25 +86,25 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
 
   return (
     <div className="llm-panel">
-      <h2>LLM-симуляция</h2>
-      <p className="llm-turn">Ход LLM: {llmTurn}</p>
+      <h2>{t("title")}</h2>
+      <p className="llm-turn">{t("turnLabel", { turn: llmTurn })}</p>
 
       <section className="panel-section">
-        <h3>Автоматически (Gemini)</h3>
+        <h3>{t("autoSection.title")}</h3>
         <button className="primary" onClick={handleAuto} disabled={busy}>
-          Сгенерировать и применить автоматически
+          {t("autoSection.button")}
         </button>
       </section>
 
       <section className="panel-section">
-        <h3>1. Промт (ручной способ)</h3>
+        <h3>{t("promptSection.title")}</h3>
         <button className="primary" onClick={handleGetPrompt} disabled={busy}>
-          {copied ? "Промт скопирован ✓" : "Получить и скопировать промт"}
+          {copied ? t("promptSection.copiedButton") : t("promptSection.getButton")}
         </button>
         {prompt && (
           <textarea
             className="llm-prompt-output"
-            aria-label="Промт для LLM"
+            aria-label={t("promptSection.ariaLabel")}
             readOnly
             value={prompt}
             rows={6}
@@ -112,11 +114,11 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
       </section>
 
       <section className="panel-section">
-        <h3>2. Ответ LLM</h3>
+        <h3>{t("responseSection.title")}</h3>
         <textarea
           className="llm-response-input"
-          aria-label="Ответ LLM (JSON)"
-          placeholder='Вставьте JSON-ответ LLM: { "descriptions": "...", "actions": [...] }'
+          aria-label={t("responseSection.ariaLabel")}
+          placeholder={t("responseSection.placeholder")}
           value={responseText}
           onChange={e => setResponseText(e.target.value)}
           rows={6}
@@ -126,7 +128,7 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
           onClick={handleApply}
           disabled={busy || responseText.trim().length === 0}
         >
-          Применить ответ
+          {t("responseSection.applyButton")}
         </button>
       </section>
 
@@ -134,14 +136,14 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
 
       {result && result.success && (
         <section className="panel-section llm-result">
-          <h3>{result.title || "Результат"}</h3>
+          <h3>{result.title || t("result.defaultTitle")}</h3>
           {result.descriptions && (
             <p className="llm-descriptions">{result.descriptions}</p>
           )}
           <p>
-            Применено действий: {result.appliedActions.length}
+            {t("result.appliedActionsCount", { count: result.appliedActions.length })}
             {result.rejectedActions.length > 0 &&
-              `, отклонено: ${result.rejectedActions.length}`}
+              t("result.rejectedActionsSuffix", { count: result.rejectedActions.length })}
           </p>
           {result.rejectedActions.length > 0 && (
             <ul className="llm-rejected">

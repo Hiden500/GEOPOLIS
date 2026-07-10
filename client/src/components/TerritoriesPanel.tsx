@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { type Region } from "@shared/types/map/Region";
 import { getText } from "@shared/types/i18n/LocalizedText";
 
@@ -8,13 +9,15 @@ interface Props {
 }
 
 export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: Props) {
+  const { t } = useTranslation("territoriesPanel");
+
   if (regions.length === 0) {
-    return <p>Нет территорий</p>;
+    return <p>{t("noTerritories")}</p>;
   }
 
   return (
     <section className="panel-section">
-      <h3>Территории игрока</h3>
+      <h3>{t("title")}</h3>
       <ul className="region-list">
         {regions.map(region => (
           <li
@@ -23,11 +26,13 @@ export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: 
             onClick={() => onSelectRegion(region.id)}
           >
             <strong>{getText(region.names)}</strong>
-            <span className="region-population">{(region.population ?? 0).toLocaleString("ru-RU")} чел.</span>
+            <span className="region-population">
+              {t("population", { value: (region.population ?? 0).toLocaleString("ru-RU") })}
+            </span>
             <div className="region-resources">
               {Object.entries(region.resourceProduction).map(([resource, amount]) => (
                 <span key={resource} className="resource-tag">
-                  {resource}: {amount}/мес
+                  {t("resourcePerMonth", { resource, amount })}
                 </span>
               ))}
             </div>

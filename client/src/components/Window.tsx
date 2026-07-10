@@ -1,4 +1,5 @@
 import { useRef, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   title: string;
@@ -18,6 +19,7 @@ const KEEP_VISIBLE = 48;
 const TITLEBAR_REACH = 36;
 
 export function Window({ title, position, size, zIndex, onMove, onResize, onFocus, onClose, children }: Props) {
+  const { t } = useTranslation(["window", "common"]);
   const dragState = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const resizeState = useRef<{ startX: number; startY: number; startWidth: number; startHeight: number } | null>(null);
   const windowRef = useRef<HTMLDivElement | null>(null);
@@ -114,7 +116,7 @@ export function Window({ title, position, size, zIndex, onMove, onResize, onFocu
     >
       <div className="window-titlebar" onMouseDown={handleDragStart}>
         <span className="window-title">{title}</span>
-        <button className="window-close" onClick={onClose} aria-label="Закрыть">
+        <button className="window-close" onClick={onClose} aria-label={t("common:close")}>
           ×
         </button>
       </div>

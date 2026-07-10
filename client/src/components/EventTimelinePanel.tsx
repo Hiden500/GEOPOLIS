@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { type Event } from "@shared/types/Event";
 import { type Country } from "@shared/types/Country";
 
@@ -14,15 +15,16 @@ function formatDate(isoDate: string): string {
 }
 
 export function EventTimelinePanel({ events, countries, onSelectCountry }: Props) {
+  const { t } = useTranslation("eventTimelinePanel");
   const countryById = new Map(countries.map(c => [c.id, c]));
   const reversedEvents = [...events].reverse();
 
   return (
     <div className="timeline-panel">
-      <h2>Хроника</h2>
+      <h2>{t("title")}</h2>
 
       {reversedEvents.length === 0 ? (
-        <p>Событий пока нет</p>
+        <p>{t("noEvents")}</p>
       ) : (
         <ul className="timeline-list">
           {reversedEvents.map(event => (

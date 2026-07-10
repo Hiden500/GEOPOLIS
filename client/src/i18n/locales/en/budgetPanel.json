@@ -1,0 +1,21 @@
+{
+  "title": "Budget",
+  "income": "Income:",
+  "expenses": "Expenses:",
+  "balance": "Balance:",
+  "categories": {
+    "military": "Military spending",
+    "research": "Research",
+    "education": "Education",
+    "infrastructure": "Infrastructure",
+    "welfare": "Welfare programs"
+  },
+  "presets": {
+    "militaryEconomy": "War economy",
+    "welfareState": "Welfare state",
+    "industrialization": "Industrialization",
+    "austerity": "Austerity"
+  },
+  "deficitWarning": "Budget deficit: {{value}}",
+  "reset": "Reset"
+}

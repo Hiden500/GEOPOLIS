@@ -1,0 +1,18 @@
+{
+  "title": "Geopolis",
+  "selectScenario": "Выберите сценарий",
+  "selectCountry": "Выберите страну",
+  "language": "Язык",
+  "majorPowerBadge": "★ Великая держава",
+  "startGame": "Начать игру",
+  "loadingScenarios": "Загрузка сценариев…",
+  "loadError": "Ошибка: {{message}}",
+  "loadErrorHint": "Убедитесь, что сервер запущен (npm run dev в server/)",
+  "retry": "Повторить попытку",
+  "failedToLoadScenarios": "Не удалось загрузить сценарии",
+  "tiers": {
+    "major": "Великие державы",
+    "regional": "Региональные державы",
+    "minor": "Малые государства"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "title": "LLM-симуляция",
+  "turnLabel": "Ход LLM: {{turn}}",
+  "autoSection": {
+    "title": "Автоматически (Gemini)",
+    "button": "Сгенерировать и применить автоматически"
+  },
+  "promptSection": {
+    "title": "1. Промт (ручной способ)",
+    "getButton": "Получить и скопировать промт",
+    "copiedButton": "Промт скопирован ✓",
+    "ariaLabel": "Промт для LLM"
+  },
+  "responseSection": {
+    "title": "2. Ответ LLM",
+    "ariaLabel": "Ответ LLM (JSON)",
+    "placeholder": "Вставьте JSON-ответ LLM: { \"descriptions\": \"...\", \"actions\": [...] }",
+    "applyButton": "Применить ответ"
+  },
+  "errors": {
+    "getPrompt": "Ошибка получения промта",
+    "applyResponse": "Ошибка применения ответа",
+    "autoCycle": "Ошибка автоматического цикла"
+  },
+  "result": {
+    "defaultTitle": "Результат",
+    "appliedActionsCount": "Применено действий: {{count}}",
+    "rejectedActionsSuffix": ", отклонено: {{count}}"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "country": {
+    "notFound": "Country not found",
+    "youTag": "you",
+    "stats": {
+      "gdp": "GDP",
+      "population": "Population",
+      "treasury": "Treasury",
+      "budget": "Budget",
+      "stability": "Stability",
+      "legitimacy": "Legitimacy"
+    },
+    "domainsMastered": "Mastered domains",
+    "diplomaticRelations": "Diplomatic relations"
+  },
+  "region": {
+    "notFound": "Region not found",
+    "stats": {
+      "population": "Population",
+      "area": "Area",
+      "urbanization": "Urbanization",
+      "infrastructure": "Infrastructure",
+      "stability": "Stability",
+      "development": "Development"
+    },
+    "areaValue": "{{area}} km²",
+    "resourceProduction": "Resource production (per month)"
+  }
+}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
 import { getDomainTier } from "@shared/utils/technology";
 
@@ -13,6 +14,7 @@ interface Props {
  * отображение текущего состояния.
  */
 export function ResearchPanel({ country }: Props) {
+  const { t } = useTranslation("researchPanel");
   const domains = Object.entries(country.technology.domains).sort(
     ([, a], [, b]) => b - a
   );
@@ -20,16 +22,13 @@ export function ResearchPanel({ country }: Props) {
 
   return (
     <div className="research-panel">
-      <h2>Технологии</h2>
-      <p className="panel-hint">
-        Фокус исследований меняется через "Намерение" — опишите, на что
-        направить усилия, и это применится в следующем цикле LLM.
-      </p>
+      <h2>{t("title")}</h2>
+      <p className="panel-hint">{t("panelHint")}</p>
 
       <section className="panel-section">
-        <h3>Домены</h3>
+        <h3>{t("domainsHeading")}</h3>
         {domains.length === 0 ? (
-          <p>Нет доменов технологий для этой эры</p>
+          <p>{t("noDomains")}</p>
         ) : (
           <ul className="project-list">
             {domains.map(([domain, progress]) => {
@@ -38,12 +37,12 @@ export function ResearchPanel({ country }: Props) {
               return (
                 <li key={domain} className="project-item">
                   <div className="project-header">
-                    <span className="project-name">{domain}</span>
-                    <span>Тир {tier}</span>
+                    <span className="project-name">{t(`domains.${domain}`)}</span>
+                    <span>{t("tier", { tier })}</span>
                   </div>
                   {share !== undefined && (
                     <div className="project-details">
-                      <span>Фокус: {Math.round(share * 100)}%</span>
+                      <span>{t("focus", { percent: Math.round(share * 100) })}</span>
                     </div>
                   )}
                 </li>

@@ -1,0 +1,6 @@
+{
+  "title": "Player Territories",
+  "noTerritories": "No territories",
+  "population": "{{value}} pop.",
+  "resourcePerMonth": "{{resource}}: {{amount}}/mo"
+}

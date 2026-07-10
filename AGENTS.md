@@ -152,20 +152,33 @@ explicitly and propose alternatives.
 
 # Design for Multi-Locale From the Start
 
-Any user-facing name/label/text introduced into a shared type (`Region`,
-`Country`, UI copy, generated content) must be designed for multiple
-languages from the first commit — `shared/src/types/i18n/LocalizedText.ts`
-(`type LocalizedText = Partial<Record<Locale, string>>` + `getText()`) is the
-established pattern (see `Region.names`). Do not add a new plain-`string`
-name field and plan to migrate it later — the migration cost compounds with
-every consumer added in between.
+Full picture, current status, and rationale: `docs/LOCALIZATION.md` — read it
+before touching either layer below, this section is only the standing rule.
 
-Known remaining gap (not yet migrated, fix when touched next, not
-proactively): `Country.name`/`shortName` are still plain `string` — the 12
-legacy hand-authored country files (`server/src/data/countries/*.ts`, used by
-the 1836/2000 scenarios) and the generated 1946 registry both rely on this.
-Migrating `Country` to `LocalizedText` requires updating those legacy files
-too — do it as one pass when next working on countries, not as a drive-by.
+**Two independent layers — a new feature almost always needs to think about
+both, not just one:**
+
+1. **Data** (`shared/src/types/i18n/LocalizedText.ts`,
+   `type LocalizedText = Partial<Record<Locale, string>>` + `getText()`) —
+   any user-facing name/label introduced into a shared type (`Region`,
+   `Country`, generated content, future tech/equipment names) must use this
+   from the first commit — established pattern, see `Region.names`. Do not
+   add a new plain-`string` name field and plan to migrate it later — the
+   migration cost compounds with every consumer added in between.
+2. **UI strings** (`react-i18next`, adopted 2026-07-06 — independent
+   gейм-дизайн разбор) — any new client component/string must call
+   `t('key')` against its own namespace (`client/src/i18n/locales/{ru,en}/<component>.json`)
+   from the first commit, not a hardcoded literal with a "translate later"
+   plan. Same reasoning as layer 1: retrofitting compounds. Exception:
+   `client/src/map/` — carries the standing map freeze (see below), do not
+   add i18n work there without an explicit request even though it's
+   otherwise in scope for this rule.
+
+Known remaining gaps (tracked in `docs/LOCALIZATION.md`, not proactive
+todos): `Country.name`/`shortName` still plain `string` (12 legacy
+hand-authored country files + generated 1946 registry depend on it — migrate
+as one pass when next working on countries, not a drive-by); a handful of
+client `getText()` call sites don't pass locale explicitly yet.
 
 ---
 
