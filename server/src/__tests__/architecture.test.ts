@@ -2,18 +2,22 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { z } from "zod";
 import { createGame } from "../game/CreateGame";
 import { simulateMonth } from "../simulation/SimulationEngine";
+import { LLMService } from "../services/LLMService";
+import { LLMActionSchema } from "../llm/actionSchemas";
+import { createTestCountry, createTestGameState } from "../test-utils/fixtures";
+import { type GameState } from "@shared/types/GameState";
 
 /**
  * Fitness-функции архитектурной конституции (docs/agent/MASTER_PROMPT.md,
  * реестр — docs/agent/ARCHITECTURE_GUARDRAILS.md). Один файл на весь набор
  * grep-тестов, как предписывает guardrails-документ.
  *
- * Первые три правила — единственные, для которых уже есть инфраструктура
- * (правило 1/9/5 закрывает план 01_PERSISTENCE_STATE.md; правило 10 не
- * зависит ни от одного плана, дешёвое, добавлено сразу). Остальные (2/3/4/
- * 6/7/8) требуют инфраструктуры, которой ещё нет (команды — план 03,
+ * Правила 1/9/5/10 заведены планом 01_PERSISTENCE_STATE.md; правило 6 —
+ * планом 02_LLM_CONTRACT.md (2026-07-10, actionSchemas.ts). Остальные
+ * (2/3/4/7/8) требуют инфраструктуры, которой ещё нет (команды — план 03,
  * реестры контента — планы 05/06) — заводятся вместе с ней, не заранее.
  */
 
@@ -151,5 +155,102 @@ describe("Fitness-функция: правило 10 — слои не текут
       ["server/src"]
     );
     expect(violations).toEqual([]);
+  });
+});
+
+describe("Fitness-функция: правило 6 — LLM-контракт через Zod (docs/plans/02_LLM_CONTRACT.md)", () => {
+  function gameWithUsaSun(): GameState {
+    return createTestGameState({
+      playerCountryId: "USA",
+      countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "SUN" })],
+    });
+  }
+
+  it("действие вне схемы отклоняется точечно с причиной; валидное соседнее действие в том же батче применяется", () => {
+    const game = gameWithUsaSun();
+    const service = new LLMService(game);
+
+    const result = service.processResponse(JSON.stringify({
+      descriptions: "x",
+      actions: [
+        { type: "nuke", sourceCountryId: "USA", targetCountryId: "SUN" },
+        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "SUN", data: { relationChange: 5 } },
+      ],
+    }));
+
+    expect(result.success).toBe(true);
+    expect(result.appliedActions).toHaveLength(1);
+    expect(result.rejectedActions).toHaveLength(1);
+    expect(result.rejectedActions[0]!.reason).toBeTruthy();
+  });
+
+  it("за-каповое значение отклоняется точечно, с непустой причиной — не обваливает весь ответ", () => {
+    const game = gameWithUsaSun();
+    const service = new LLMService(game);
+
+    const result = service.processResponse(JSON.stringify({
+      descriptions: "x",
+      actions: [{ type: "diplomacy", sourceCountryId: "USA", targetCountryId: "SUN", data: { relationChange: 500 } }],
+    }));
+
+    expect(result.success).toBe(true);
+    expect(result.appliedActions).toHaveLength(0);
+    expect(result.rejectedActions).toHaveLength(1);
+    expect(result.rejectedActions[0]!.reason).toBeTruthy();
+  });
+
+  // "Сырые координаты в действии — отклоняются" (формулировка правила 6 в
+  // ARCHITECTURE_GUARDRAILS.md) переформулирована под реальный контракт: ни
+  // один из 10 текущих action-типов не является map-placement действием —
+  // все strictly country-scoped (дипломатия/война/технологии/производство),
+  // ни одно легитимно не может нести координату сейчас. Буквальная проверка
+  // "regionId вместо lat/lng" станет осмысленной только с планом
+  // 06_MAP_FEATURES.md. Два теста ниже — честная замена на сегодня: форма
+  // контракта (регрессионный барьер против будущей ошибки "добавили
+  // координату вместо regionId") + инертность лишних полей (Zod молча
+  // отбрасывает нежданные ключи — «LLM не пишет произвольные числа в state
+  // мимо капов» для нынешнего контракта).
+  it("форма контракта: ни одна data-схема не содержит поле, похожее на координату (TODO: полноценная regionId-проверка — после плана 06)", () => {
+    function collectPropertyNames(schema: unknown, out: Set<string>): void {
+      if (schema === null || typeof schema !== "object") return;
+      const obj = schema as Record<string, unknown>;
+      if (obj.properties && typeof obj.properties === "object") {
+        for (const [key, value] of Object.entries(obj.properties as Record<string, unknown>)) {
+          out.add(key);
+          collectPropertyNames(value, out);
+        }
+      }
+      if (Array.isArray(obj.anyOf)) for (const branch of obj.anyOf) collectPropertyNames(branch, out);
+      if (Array.isArray(obj.oneOf)) for (const branch of obj.oneOf) collectPropertyNames(branch, out);
+      if (obj.items) collectPropertyNames(obj.items, out);
+    }
+
+    const propertyNames = new Set<string>();
+    collectPropertyNames(z.toJSONSchema(LLMActionSchema), propertyNames);
+
+    const coordinateLikeNames = ["lat", "lng", "latitude", "longitude", "coordinates", "x", "y"];
+    const found = coordinateLikeNames.filter(name => propertyNames.has(name));
+    expect(found).toEqual([]);
+  });
+
+  it("инертность лишних полей: посторонний lat/lng в data молча отбрасывается, не просачивается в применённое действие", () => {
+    const game = gameWithUsaSun();
+    const service = new LLMService(game);
+
+    const result = service.processResponse(JSON.stringify({
+      descriptions: "x",
+      actions: [{
+        type: "diplomacy",
+        sourceCountryId: "USA",
+        targetCountryId: "SUN",
+        data: { relationChange: 5, lat: 55.7, lng: 37.6 },
+      }],
+    }));
+
+    expect(result.appliedActions).toHaveLength(1);
+    const applied = result.appliedActions[0]!;
+    expect(applied.type === "diplomacy" && (applied.data as Record<string, unknown>)["lat"]).toBeUndefined();
+    expect(applied.type === "diplomacy" && (applied.data as Record<string, unknown>)["lng"]).toBeUndefined();
+    expect(game.countries.find(c => c.id === "USA")!.diplomacy.relations["SUN"]).toBe(5);
   });
 });
