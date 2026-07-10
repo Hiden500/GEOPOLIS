@@ -158,6 +158,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     locale: DEFAULT_LOCALE,
     playerIntent: "",
     eventHistory: [],
+    chronicle: [],
     mapFeatures: [],
     wars: [],
     pendingWorldFacts: [],

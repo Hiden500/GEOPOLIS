@@ -13,6 +13,7 @@ import { aiBehaviorTick } from "./ai/AiBehaviorTick";
 import { tierTick } from "./tier/TierTick";
 import { politicsTick } from "./politics/PoliticsTick";
 import { tradeTick } from "./trade/TradeTick";
+import { chronicleTick } from "./chronicle/ChronicleTick";
 
 export function simulateMonth(
     game: GameState
@@ -88,8 +89,11 @@ export function simulateMonth(
     const nextYear = month === 12 ? year + 1 : year;
     game.currentDate = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
 
-    // Раз в год (январь) пересчитываем тиры по актуальным данным
+    // Раз в год (январь) пересчитываем тиры по актуальным данным и
+    // склеиваем летопись завершившегося года (docs/plans/02_LLM_CONTRACT.md,
+    // Шаг 3) — порядок между ними не важен, независимые домены.
     if (nextMonth === 1) {
         tierTick(game.countries);
+        chronicleTick(game);
     }
 }

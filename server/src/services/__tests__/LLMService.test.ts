@@ -140,6 +140,43 @@ describe("LLMService", () => {
       expect(hpGame.hingePointShowCount["cold_war_hardening"]).toBe(1);
     });
 
+    it("Chronicle: fallback-строка при пустой летописи (docs/plans/02_LLM_CONTRACT.md, Шаг 3)", () => {
+      const prompt = service.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Chronicle"), prompt.indexOf("## Recent Events"));
+      expect(section).toContain("No chronicle yet (first year of the campaign)");
+    });
+
+    it("Chronicle: рендерит записи '- <year>: <summary>' по годам", () => {
+      const g = createTestGameState({
+        playerCountryId: "USA",
+        countries: [createTestCountry({ id: "USA" })],
+        chronicle: [
+          { year: 1946, summary: "Marshall Plan announced; Border skirmish" },
+          { year: 1947, summary: "Cold War hardens" },
+        ],
+      });
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+      const section = prompt.slice(prompt.indexOf("## Chronicle"), prompt.indexOf("## Recent Events"));
+      expect(section).toContain("- 1946: Marshall Plan announced; Border skirmish");
+      expect(section).toContain("- 1947: Cold War hardens");
+    });
+
+    it("Chronicle: generatePrompt НЕ мутирует game.chronicle (в отличие от pendingWorldFacts/hingePointShowCount)", () => {
+      const g = createTestGameState({
+        playerCountryId: "USA",
+        countries: [createTestCountry({ id: "USA" })],
+        chronicle: [{ year: 1946, summary: "X" }],
+      });
+      const svc = new LLMService(g);
+
+      const a = svc.generatePrompt();
+      const b = svc.generatePrompt();
+
+      expect(g.chronicle).toEqual([{ year: 1946, summary: "X" }]);
+      expect(a).toBe(b); // идемпотентность и с непустой летописью, не только с пустой
+    });
+
     it("Spotlight Countries: секция требует минимум 2 конкретных страны, не просто упоминание", () => {
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
@@ -352,6 +389,43 @@ describe("LLMService", () => {
       svc.generatePrompt();
       // generatePrompt сортирует копию, исходный порядок сохраняется
       expect(g.countries.map(c => c.id)).toEqual(["WEAK", "STRONG"]);
+    });
+  });
+
+  describe("Chronicle через реальный январский хук (критерий приёмки плана 02_LLM_CONTRACT.md)", () => {
+    it("после 3+ игровых лет промт содержит секцию Chronicle с погодовыми строками", async () => {
+      const { createGame } = await import("../../game/CreateGame");
+      const { simulateMonth } = await import("../../simulation/SimulationEngine");
+
+      const g = createGame("1946", "USA", "ru", 42);
+
+      for (let month = 0; month < 36; month++) {
+        // Эмулирует "LLM ответила в этом месяце" (без полного processResponse —
+        // тестируется накопление летописи через реальный январский хук
+        // SimulationEngine.ts, не парсинг ответа LLM) — раз в квартал, чтобы
+        // eventHistory не пустовал ни в одном из 3 лет.
+        if (month % 3 === 0) {
+          g.eventHistory.push({
+            id: `evt-${month}`,
+            date: g.currentDate,
+            title: `Event at month ${month}`,
+            description: "x",
+            countries: ["USA"],
+          });
+        }
+        simulateMonth(g);
+      }
+
+      expect(g.chronicle.length).toBeGreaterThanOrEqual(3);
+
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt();
+
+      expect(prompt).toContain("## Chronicle");
+      const section = prompt.slice(prompt.indexOf("## Chronicle"), prompt.indexOf("## Recent Events"));
+      expect(section).toContain("- 1946:");
+      expect(section).toContain("- 1947:");
+      expect(section).toContain("- 1948:");
     });
   });
 

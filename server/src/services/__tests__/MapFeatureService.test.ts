@@ -145,6 +145,7 @@ describe('MapFeatureService', () => {
       locale: "ru",
       playerIntent: "",
       eventHistory: [],
+      chronicle: [],
       mapFeatures: [],
       wars: [],
       pendingWorldFacts: [],

@@ -94,6 +94,7 @@ export function createGame(
     locale,
     playerIntent: "",
     eventHistory: [],
+    chronicle: [],
     mapFeatures: [],
     wars: [],
     pendingWorldFacts: [],

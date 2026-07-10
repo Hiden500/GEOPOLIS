@@ -215,6 +215,12 @@ from what would make it implausible. You may narrate the hinted development,
 a plausible variation, or ignore it if the story has moved elsewhere.
 ${this.getHingePointHintsInfo()}
 
+## Chronicle
+Year-by-year memory of this campaign so far, oldest first — use it to keep
+causality consistent across a long game (e.g. why a rivalry that started
+years ago still matters), not as a script to follow.
+${this.getChronicleInfo()}
+
 ## Recent Events
 ${this.getRecentEventsInfo()}
 
@@ -689,6 +695,19 @@ Hard limits (actions violating them are rejected):
     return eligible
       .map(hp => `- ${hp.title}: ${hp.historicalOutcome} (if diverged: ${hp.divergenceHint})`)
       .join('\n');
+  }
+
+  /**
+   * Рендерит летопись кампании (docs/plans/02_LLM_CONTRACT.md, Шаг 3,
+   * game.chronicle — заполняется ChronicleTick.ts раз в год). В отличие от
+   * getNotableDevelopmentsInfo/getHingePointHintsInfo — pure reader, НЕ
+   * мутирует game: летопись накопительная память кампании, не одноразовый
+   * факт/подсказка текущего цикла, потреблять её при каждом рендере промта
+   * было бы неверно.
+   */
+  private getChronicleInfo(): string {
+    if (this.game.chronicle.length === 0) return 'No chronicle yet (first year of the campaign)';
+    return this.game.chronicle.map(c => `- ${c.year}: ${c.summary}`).join('\n');
   }
 
   /**
