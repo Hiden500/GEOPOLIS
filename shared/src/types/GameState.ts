@@ -94,14 +94,19 @@ export interface GameState {
  * семантическая применимость (страна существует, война идёт и т.п.) —
  * server/src/llm/LLMResponseValidator.ts.
  */
+// Опциональные поля пишутся как `?: X | undefined`, не просто `?: X` — под
+// exactOptionalPropertyTypes (server/tsconfig.json) это разные типы, а
+// z.infer<...> (actionSchemas.ts) для .optional() всегда выводит `X | undefined`
+// явно. Без этого компайл-тайм проверка эквивалентности в actionSchemas.ts
+// не проходит на пустом месте — не убирать `| undefined` при правке.
 export type LLMAction =
   | { type: "diplomacy"; sourceCountryId: string; targetCountryId: string; data: { relationChange: number } }
-  | { type: "war"; sourceCountryId: string; targetCountryId: string; data?: { warGoal?: string } }
+  | { type: "war"; sourceCountryId: string; targetCountryId: string; data?: { warGoal?: string | undefined } | undefined }
   | { type: "peace"; sourceCountryId: string; targetCountryId: string }
   | { type: "annex"; sourceCountryId: string; targetCountryId: string }
   | { type: "puppet"; sourceCountryId: string; targetCountryId: string }
-  | { type: "sanction"; sourceCountryId: string; targetCountryId: string; data?: { sanctionType?: SanctionType } }
+  | { type: "sanction"; sourceCountryId: string; targetCountryId: string; data?: { sanctionType?: SanctionType | undefined } | undefined }
   | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
-  | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number } }
+  | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number | undefined } | undefined }
   | { type: "research_shift"; sourceCountryId: string; data: { domain: string; share: number } }
   | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } };
