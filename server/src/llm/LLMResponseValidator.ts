@@ -1,20 +1,18 @@
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
-import { type EquipmentType } from "@shared/types/military/EquipmentType";
 import { WarService } from "../services/WarService";
-import {
-  MAX_ACTIONS_PER_RESPONSE,
-  MAX_RELATION_CHANGE,
-  MAX_INFLUENCE_CHANGE,
-  MAX_RESEARCH_SHARE,
-  WAR_RESEARCH_SHARE_PENALTY,
-  MIN_RESEARCH_SHARE_CAP,
-  MAX_PRODUCTION_SHARE,
-} from "@shared/defines/llmActionCaps";
+import { MAX_RESEARCH_SHARE, WAR_RESEARCH_SHARE_PENALTY, MIN_RESEARCH_SHARE_CAP } from "@shared/defines/llmActionCaps";
 
 /**
- * Валидатор ответов от LLM.
- * Проверяет структуру и корректность данных в ответе LLM.
+ * Семантическая применимость LLM-действия к текущему состоянию партии —
+ * страна существует, война действительно идёт, нет дублей и т.п. Структурная
+ * и магнитудная валидация формы (типы полей, статические капы) — Zod-схемы
+ * в server/src/llm/actionSchemas.ts (docs/plans/02_LLM_CONTRACT.md), эта
+ * проверка идёт ПОСЛЕ них в LLMService.processResponse и знает о конкретной
+ * партии (game.countries/game.wars), которую схема знать не может. Также
+ * держит единственную магнитуду, которая физически не выражается в
+ * контекст-независимой схеме — военно-скорректированный потолок
+ * research_shift.share (getResearchShareCap).
  */
 export class LLMResponseValidator {
   private game: GameState;
@@ -23,100 +21,6 @@ export class LLMResponseValidator {
   constructor(game: GameState) {
     this.game = game;
     this.warService = new WarService(game);
-  }
-
-  /**
-   * Валидирует полный ответ от LLM.
-   */
-  validateResponse(response: string): {
-    valid: boolean;
-    error?: string;
-    parsedData?: {
-      title?: string;
-      descriptions: string;
-      actions: LLMAction[];
-    };
-  } {
-    try {
-      const parsed = JSON.parse(response);
-
-      // Проверяем наличие обязательных полей
-      if (!parsed.descriptions) {
-        return { valid: false, error: 'Missing descriptions field' };
-      }
-
-      if (!parsed.actions || !Array.isArray(parsed.actions)) {
-        return { valid: false, error: 'Missing or invalid actions field' };
-      }
-
-      if (parsed.actions.length > MAX_ACTIONS_PER_RESPONSE) {
-        return {
-          valid: false,
-          error: `Too many actions: ${parsed.actions.length} (max ${MAX_ACTIONS_PER_RESPONSE})`,
-        };
-      }
-
-      // Валидируем каждое действие
-      for (const action of parsed.actions) {
-        const actionValidation = this.validateAction(action);
-        if (!actionValidation.valid) {
-          return { valid: false, error: `Invalid action: ${actionValidation.error}` };
-        }
-      }
-
-      return {
-        valid: true,
-        parsedData: {
-          title: typeof parsed.title === 'string' ? parsed.title : undefined,
-          descriptions: parsed.descriptions,
-          actions: parsed.actions,
-        },
-      };
-    } catch (error) {
-      return { valid: false, error: 'Invalid JSON format' };
-    }
-  }
-
-  /**
-   * Валидирует отдельное действие.
-   */
-  validateAction(action: any): { valid: boolean; error?: string } {
-    if (!action.type) {
-      return { valid: false, error: 'Missing type field' };
-    }
-
-    const validTypes = ['diplomacy', 'war', 'peace', 'annex', 'puppet', 'sanction', 'guarantee', 'influence', 'research_shift', 'production_shift'];
-    if (!validTypes.includes(action.type)) {
-      return { valid: false, error: `Invalid type: ${action.type}` };
-    }
-
-    if (!action.sourceCountryId) {
-      return { valid: false, error: 'Missing sourceCountryId field' };
-    }
-
-    // Проверяем, что страна-источник существует
-    const sourceCountry = this.game.countries.find(c => c.id === action.sourceCountryId);
-    if (!sourceCountry) {
-      return { valid: false, error: `Source country not found: ${action.sourceCountryId}` };
-    }
-
-    // Для некоторых типов действий нужна целевая страна
-    if (['diplomacy', 'war', 'peace', 'sanction', 'guarantee', 'influence', 'annex', 'puppet'].includes(action.type)) {
-      if (!action.targetCountryId) {
-        return { valid: false, error: `Missing targetCountryId for action type: ${action.type}` };
-      }
-
-      const targetCountry = this.game.countries.find(c => c.id === action.targetCountryId);
-      if (!targetCountry) {
-        return { valid: false, error: `Target country not found: ${action.targetCountryId}` };
-      }
-
-      if (action.targetCountryId === action.sourceCountryId) {
-        return { valid: false, error: `Source and target country are the same: ${action.sourceCountryId}` };
-      }
-    }
-
-    return { valid: true };
   }
 
   /**
@@ -135,42 +39,9 @@ export class LLMResponseValidator {
   }
 
   /**
-   * Валидирует магнитуду последствий действия — движок выставляет пределы,
-   * выход за них означает ошибку данных LLM, действие отклоняется точечно.
-   */
-  validateActionMagnitude(action: LLMAction): { valid: boolean; error?: string } {
-    const data = ('data' in action ? action.data : undefined) as Record<string, unknown> | undefined;
-    if (!data) return { valid: true };
-
-    const numericLimits: Record<string, number> = {
-      relationChange: MAX_RELATION_CHANGE,
-      influenceChange: MAX_INFLUENCE_CHANGE,
-    };
-
-    if (action.type === 'research_shift' && 'share' in data) {
-      numericLimits.share = this.getResearchShareCap(action.sourceCountryId);
-    }
-
-    if (action.type === 'production_shift' && 'share' in data) {
-      numericLimits.share = MAX_PRODUCTION_SHARE;
-    }
-
-    for (const [field, limit] of Object.entries(numericLimits)) {
-      if (!(field in data)) continue;
-      const value = data[field];
-      if (typeof value !== 'number' || !Number.isFinite(value)) {
-        return { valid: false, error: `${field} must be a finite number, got: ${String(value)}` };
-      }
-      if (Math.abs(value) > limit) {
-        return { valid: false, error: `${field} out of range: ${value} (max ±${limit})` };
-      }
-    }
-
-    return { valid: true };
-  }
-
-  /**
-   * Валидирует, что действие применимо в текущем состоянии игры.
+   * Валидирует, что действие применимо в текущем состоянии игры. Вызывается
+   * на уже структурно/магнитудно провалидированном actionSchemas.ts действии
+   * (LLMService.processResponse) — не проверяет форму данных заново.
    */
   validateActionApplicability(action: LLMAction): { valid: boolean; error?: string } {
     const source = this.game.countries.find(c => c.id === action.sourceCountryId);
@@ -179,20 +50,26 @@ export class LLMResponseValidator {
     }
 
     if (action.type === 'research_shift') {
-      const domain = action.data?.domain;
-      if (typeof domain !== 'string' || !(domain in source.technology.domains)) {
-        return { valid: false, error: `Unknown technology domain: ${String(domain)}` };
+      if (!(action.data.domain in source.technology.domains)) {
+        return { valid: false, error: `Unknown technology domain: ${action.data.domain}` };
+      }
+
+      const cap = this.getResearchShareCap(action.sourceCountryId);
+      if (action.data.share > cap) {
+        return {
+          valid: false,
+          error: `research_shift share ${action.data.share} exceeds admin capacity cap ${cap}`,
+        };
       }
     }
 
     if (action.type === 'production_shift') {
-      const equipmentType = action.data?.equipmentType as EquipmentType | undefined;
-      if (typeof equipmentType !== 'string' || !(equipmentType in source.military.equipment)) {
-        return { valid: false, error: `Unknown equipment type: ${String(equipmentType)}` };
+      if (!(action.data.equipmentType in source.military.equipment)) {
+        return { valid: false, error: `Unknown equipment type: ${action.data.equipmentType}` };
       }
     }
 
-    if ('targetCountryId' in action && action.targetCountryId) {
+    if ('targetCountryId' in action) {
       const target = this.game.countries.find(c => c.id === action.targetCountryId);
       if (!target) {
         return { valid: false, error: 'Target country not found' };
@@ -234,36 +111,5 @@ export class LLMResponseValidator {
     }
 
     return { valid: true };
-  }
-
-  /**
-   * Фильтрует валидные действия из списка.
-   */
-  filterValidActions(actions: LLMAction[]): LLMAction[] {
-    const validActions: LLMAction[] = [];
-
-    for (const action of actions) {
-      const validation = this.validateAction(action);
-      if (!validation.valid) {
-        console.warn(`Invalid action: ${validation.error}`);
-        continue;
-      }
-
-      const applicability = this.validateActionApplicability(action);
-      if (!applicability.valid) {
-        console.warn(`Action not applicable: ${applicability.error}`);
-        continue;
-      }
-
-      const magnitude = this.validateActionMagnitude(action);
-      if (!magnitude.valid) {
-        console.warn(`Action magnitude out of bounds: ${magnitude.error}`);
-        continue;
-      }
-
-      validActions.push(action);
-    }
-
-    return validActions;
   }
 }

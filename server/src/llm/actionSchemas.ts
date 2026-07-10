@@ -157,7 +157,7 @@ export const LLMActionSchema = z.discriminatedUnion("type", [
  */
 export const LLMResponseEnvelopeSchema = z.object({
   title: z.string().optional(),
-  descriptions: z.string().min(1, "Missing descriptions field"),
+  descriptions: z.string({ error: "Missing descriptions field" }).min(1, "Missing descriptions field"),
   actions: z
     .array(z.unknown(), "Missing or invalid actions field")
     .max(MAX_ACTIONS_PER_RESPONSE, `Too many actions (max ${MAX_ACTIONS_PER_RESPONSE})`),

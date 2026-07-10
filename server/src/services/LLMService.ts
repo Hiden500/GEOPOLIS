@@ -1,8 +1,8 @@
+import { type z } from "zod";
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
-import { type EquipmentType } from "@shared/types/military/EquipmentType";
 import { DiplomacyService } from "./DiplomacyService";
 import { WarService } from "./WarService";
 import { ResearchService } from "./ResearchService";
@@ -12,6 +12,7 @@ import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMe
 import { getEligibleHingePoints } from "@shared/utils/hingePoints";
 import { HISTORICAL_HINGE_POINTS_1946 } from "@shared/data/historicalHingePoints1946";
 import { LLMResponseValidator } from "../llm/LLMResponseValidator";
+import { LLMActionSchema, LLMResponseEnvelopeSchema } from "../llm/actionSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
   MAX_RELATION_CHANGE,
@@ -19,6 +20,17 @@ import {
   MAX_RESEARCH_SHARE,
   MAX_PRODUCTION_SHARE,
 } from "@shared/defines/llmActionCaps";
+
+/**
+ * Форматирует ZodError в человекочитаемую строку одной причины — путь поля
+ * (если есть) + сообщение. Несколько issues склеиваются через "; " (обычно
+ * их одна на действие, но не гарантировано).
+ */
+function formatZodError(error: z.ZodError): string {
+  return error.issues
+    .map(issue => (issue.path.length > 0 ? `${issue.path.join(".")}: ${issue.message}` : issue.message))
+    .join("; ");
+}
 
 /**
  * Сколько не-major стран попадают в "## Spotlight Countries" за один цикл.
@@ -61,7 +73,9 @@ export interface LlmCycleResult {
   title?: string;
   descriptions?: string;
   appliedActions: LLMAction[];
-  rejectedActions: { action: LLMAction; reason: string }[];
+  // action: unknown, не LLMAction — точечно отклонённый элемент не
+  // гарантированно валиден (мог провалиться ровно на структурной проверке).
+  rejectedActions: { action: unknown; reason: string }[];
 }
 
 /**
@@ -84,41 +98,54 @@ export class LLMService {
   }
 
   /**
-   * Полный проход цикла по сырому ответу LLM: структурная валидация →
-   * фильтрация неприменимых действий → применение → журнал в eventHistory.
-   * Невалидная структура/JSON отклоняет ответ целиком (ничего не применяется);
-   * неприменимое отдельное действие отклоняется точечно с причиной.
+   * Полный проход цикла по сырому ответу LLM: envelope-схема (форма верхнего
+   * уровня) → per-action Zod-схема (структура/магнитуда) → семантическая
+   * применимость → применение → журнал в eventHistory. Невалидный JSON или
+   * envelope отклоняет ответ целиком (ничего не применяется); невалидное или
+   * неприменимое отдельное действие отклоняется точечно с причиной — не
+   * ронять весь батч из-за одного действия (docs/plans/02_LLM_CONTRACT.md,
+   * правило 6 конституции).
    */
   processResponse(rawResponse: string): LlmCycleResult {
-    const validator = new LLMResponseValidator(this.game);
-    const validation = validator.validateResponse(rawResponse);
-    if (!validation.valid || !validation.parsedData) {
+    let raw: unknown;
+    try {
+      raw = JSON.parse(rawResponse);
+    } catch {
+      return { success: false, error: "Invalid JSON format", appliedActions: [], rejectedActions: [] };
+    }
+
+    const envelope = LLMResponseEnvelopeSchema.safeParse(raw);
+    if (!envelope.success) {
+      // Envelope-схема несёт самоописательные сообщения ("Missing descriptions
+      // field" и т.п.) — без префикса пути поля, в отличие от per-action ошибок
+      // ниже (formatZodError), где путь действительно нужен для навигации.
       return {
         success: false,
-        error: validation.error ?? "Unknown validation error",
+        error: envelope.error.issues[0]?.message ?? "Invalid response format",
         appliedActions: [],
         rejectedActions: [],
       };
     }
 
-    const { title, descriptions, actions } = validation.parsedData;
+    const { title, descriptions, actions } = envelope.data;
+    const validator = new LLMResponseValidator(this.game);
     const appliedActions: LLMAction[] = [];
-    const rejectedActions: { action: LLMAction; reason: string }[] = [];
+    const rejectedActions: { action: unknown; reason: string }[] = [];
 
-    for (const action of actions) {
-      const applicability = validator.validateActionApplicability(action);
+    for (const rawAction of actions) {
+      const parsedAction = LLMActionSchema.safeParse(rawAction);
+      if (!parsedAction.success) {
+        rejectedActions.push({ action: rawAction, reason: formatZodError(parsedAction.error) });
+        continue;
+      }
+
+      const applicability = validator.validateActionApplicability(parsedAction.data);
       if (!applicability.valid) {
-        rejectedActions.push({ action, reason: applicability.error ?? "Not applicable" });
+        rejectedActions.push({ action: parsedAction.data, reason: applicability.error ?? "Not applicable" });
         continue;
       }
 
-      const magnitude = validator.validateActionMagnitude(action);
-      if (!magnitude.valid) {
-        rejectedActions.push({ action, reason: magnitude.error ?? "Magnitude out of bounds" });
-        continue;
-      }
-
-      appliedActions.push(action);
+      appliedActions.push(parsedAction.data);
     }
 
     this.applyLlmActions(appliedActions);

@@ -13,6 +13,17 @@ interface Props {
 }
 
 /**
+ * Читает строковое поле из rejectedActions[].action — тип `unknown`
+ * (docs/plans/02_LLM_CONTRACT.md, Шаг 3): точечно отклонённый элемент не
+ * гарантированно валиден, мог провалиться ровно на структурной проверке.
+ */
+function rejectedActionField(action: unknown, key: string): string | undefined {
+  if (typeof action !== "object" || action === null || !(key in action)) return undefined;
+  const value = (action as Record<string, unknown>)[key];
+  return typeof value === "string" ? value : undefined;
+}
+
+/**
  * LLM-цикл: автоматически через Gemini API (POST /llm/auto, требует
  * server/.env с GEMINI_API_KEY) или вручную (ManualClipboardProvider) —
  * скопировать промт → внешняя LLM → вставить ответ → валидация → применение.
@@ -149,9 +160,9 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
             <ul className="llm-rejected">
               {result.rejectedActions.map((r, i) => (
                 <li key={i}>
-                  {r.action.type} {r.action.sourceCountryId}
-                  {"targetCountryId" in r.action && r.action.targetCountryId
-                    ? ` → ${r.action.targetCountryId}`
+                  {rejectedActionField(r.action, "type") ?? "?"} {rejectedActionField(r.action, "sourceCountryId") ?? "?"}
+                  {rejectedActionField(r.action, "targetCountryId")
+                    ? ` → ${rejectedActionField(r.action, "targetCountryId")}`
                     : ""}: {r.reason}
                 </li>
               ))}

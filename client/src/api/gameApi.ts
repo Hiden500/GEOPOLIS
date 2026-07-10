@@ -87,7 +87,9 @@ export interface LlmCycleResult {
   title?: string;
   descriptions?: string;
   appliedActions: LLMAction[];
-  rejectedActions: { action: LLMAction; reason: string }[];
+  // action: unknown, не LLMAction — точечно отклонённый элемент не
+  // гарантированно валиден (docs/plans/02_LLM_CONTRACT.md, Шаг 3).
+  rejectedActions: { action: unknown; reason: string }[];
 }
 
 export async function getLlmPrompt(): Promise<LlmPromptResult> {

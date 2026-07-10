@@ -687,14 +687,26 @@ describe("LLMService", () => {
       expect(game.eventHistory).toHaveLength(0);
     });
 
-    it("действие с несуществующей страной: отказ целиком (структурная валидация)", () => {
+    it("действие с несуществующей страной: отклоняется точечно (не роняет остальные валидные, план 02_LLM_CONTRACT.md)", () => {
+      // Сознательное изменение поведения при переходе на Zod (2026-07-10):
+      // раньше "страна существует" была частью структурной валидации
+      // (all-or-nothing на весь ответ), теперь это семантическая
+      // применимость (validateActionApplicability) — точечная, как и
+      // магнитуда. Один галлюцинированный source/target не должен ронять
+      // остальные валидные действия того же батча.
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
-        actions: [{ type: "war", sourceCountryId: "MARS", targetCountryId: "USA" }],
+        actions: [
+          { type: "war", sourceCountryId: "MARS", targetCountryId: "USA" },
+          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
+        ],
       }));
 
-      expect(result.success).toBe(false);
-      expect(result.error).toContain("Source country not found");
+      expect(result.success).toBe(true);
+      expect(result.appliedActions).toHaveLength(1);
+      expect(result.rejectedActions).toHaveLength(1);
+      expect(result.rejectedActions[0]!.reason).toContain("Source country not found");
+      expect(usa().diplomacy.relations["USSR"]).toBe(10);
     });
 
     it("действие с магнитудой за пределами отклоняется точечно с причиной", () => {
@@ -709,7 +721,7 @@ describe("LLMService", () => {
       expect(result.success).toBe(true);
       expect(result.appliedActions).toHaveLength(1);
       expect(result.rejectedActions).toHaveLength(1);
-      expect(result.rejectedActions[0]!.reason).toContain("relationChange out of range");
+      expect(result.rejectedActions[0]!.reason).toContain("relationChange");
       expect(usa().diplomacy.relations["USSR"]).toBe(10);
     });
 
