@@ -1,5 +1,6 @@
 import { type Region } from "@shared/types/map/Region";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 
 export const testRegions: Region[] = [
   // === СССР ===
@@ -15,8 +16,11 @@ export const testRegions: Region[] = [
     infrastructure: 60,
     development: 50,
     neighboringRegionIds: [2, 4],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Oil]: 250
+    },
+    extraction: {
+      [ResourceType.Oil]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 2,
@@ -31,9 +35,13 @@ export const testRegions: Region[] = [
     infrastructure: 70,
     development: 45,
     neighboringRegionIds: [1, 4],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 300,
       [ResourceType.Iron]: 150
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 3,
@@ -48,9 +56,13 @@ export const testRegions: Region[] = [
     infrastructure: 50,
     development: 40,
     neighboringRegionIds: [5, 6],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 200,
       [ResourceType.Iron]: 100
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 4,
@@ -65,8 +77,11 @@ export const testRegions: Region[] = [
     infrastructure: 90,
     development: 80,
     neighboringRegionIds: [1, 2, 6],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Timber]: 100
+    },
+    extraction: {
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 5,
@@ -81,10 +96,15 @@ export const testRegions: Region[] = [
     infrastructure: 30,
     development: 25,
     neighboringRegionIds: [3, 6],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Gas]: 200,
       [ResourceType.Timber]: 300,
       [ResourceType.Gold]: 50
+    },
+    extraction: {
+      [ResourceType.Gas]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Gold]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 6,
@@ -99,10 +119,15 @@ export const testRegions: Region[] = [
     infrastructure: 65,
     development: 55,
     neighboringRegionIds: [3, 4, 5],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Iron]: 250,
       [ResourceType.Copper]: 100,
       [ResourceType.Bauxite]: 80
+    },
+    extraction: {
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Copper]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Bauxite]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -119,10 +144,15 @@ export const testRegions: Region[] = [
     infrastructure: 80,
     development: 75,
     neighboringRegionIds: [8, 10],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 200,
       [ResourceType.Iron]: 150,
       [ResourceType.Food]: 500
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 8,
@@ -137,8 +167,11 @@ export const testRegions: Region[] = [
     infrastructure: 95,
     development: 90,
     neighboringRegionIds: [7, 10],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 100
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 9,
@@ -153,10 +186,15 @@ export const testRegions: Region[] = [
     infrastructure: 85,
     development: 85,
     neighboringRegionIds: [7],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Oil]: 100,
       [ResourceType.Timber]: 200,
       [ResourceType.Gold]: 30
+    },
+    extraction: {
+      [ResourceType.Oil]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Gold]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 10,
@@ -171,10 +209,15 @@ export const testRegions: Region[] = [
     infrastructure: 75,
     development: 70,
     neighboringRegionIds: [7, 8],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Oil]: 400,
       [ResourceType.Gas]: 300,
       [ResourceType.Coal]: 100
+    },
+    extraction: {
+      [ResourceType.Oil]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Gas]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 11,
@@ -189,10 +232,15 @@ export const testRegions: Region[] = [
     infrastructure: 20,
     development: 20,
     neighboringRegionIds: [],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Oil]: 150,
       [ResourceType.Gas]: 100,
       [ResourceType.Gold]: 20
+    },
+    extraction: {
+      [ResourceType.Oil]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Gas]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Gold]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -209,9 +257,13 @@ export const testRegions: Region[] = [
     infrastructure: 95,
     development: 90,
     neighboringRegionIds: [13],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 100,
       [ResourceType.Iron]: 50
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 13,
@@ -226,9 +278,13 @@ export const testRegions: Region[] = [
     infrastructure: 70,
     development: 65,
     neighboringRegionIds: [12, 14],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Oil]: 200,
       [ResourceType.Timber]: 50
+    },
+    extraction: {
+      [ResourceType.Oil]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 14,
@@ -243,8 +299,11 @@ export const testRegions: Region[] = [
     infrastructure: 65,
     development: 55,
     neighboringRegionIds: [13],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 50
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -262,9 +321,13 @@ export const testRegions: Region[] = [
     infrastructure: 55,
     development: 45,
     neighboringRegionIds: [16, 17, 18],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 150,
       [ResourceType.Iron]: 80
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 16,
@@ -279,9 +342,13 @@ export const testRegions: Region[] = [
     infrastructure: 50,
     development: 40,
     neighboringRegionIds: [15, 17, 19],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 100,
       [ResourceType.Timber]: 50
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 17,
@@ -296,8 +363,11 @@ export const testRegions: Region[] = [
     infrastructure: 70,
     development: 50,
     neighboringRegionIds: [15, 16, 18, 19, 20, 21, 22],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 10
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 18,
@@ -312,9 +382,13 @@ export const testRegions: Region[] = [
     infrastructure: 50,
     development: 40,
     neighboringRegionIds: [15, 16, 19],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 80,
       [ResourceType.Iron]: 40
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 19,
@@ -329,9 +403,13 @@ export const testRegions: Region[] = [
     infrastructure: 40,
     development: 35,
     neighboringRegionIds: [16, 18],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 80,
       [ResourceType.Timber]: 60
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -348,9 +426,13 @@ export const testRegions: Region[] = [
     infrastructure: 60,
     development: 50,
     neighboringRegionIds: [17, 21, 22],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 200,
       [ResourceType.Timber]: 80
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 21,
@@ -365,9 +447,13 @@ export const testRegions: Region[] = [
     infrastructure: 70,
     development: 60,
     neighboringRegionIds: [17, 20, 22, 23],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 100,
       [ResourceType.Iron]: 50
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 22,
@@ -382,9 +468,13 @@ export const testRegions: Region[] = [
     infrastructure: 65,
     development: 55,
     neighboringRegionIds: [17, 20, 21, 24],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Timber]: 100,
       [ResourceType.Iron]: 60
+    },
+    extraction: {
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -401,9 +491,13 @@ export const testRegions: Region[] = [
     infrastructure: 55,
     development: 45,
     neighboringRegionIds: [21, 24, 25],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 150,
       [ResourceType.Coal]: 120
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 24,
@@ -418,10 +512,15 @@ export const testRegions: Region[] = [
     infrastructure: 60,
     development: 55,
     neighboringRegionIds: [22, 23, 25],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 300,
       [ResourceType.Iron]: 150,
       [ResourceType.Copper]: 200
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Copper]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 25,
@@ -436,8 +535,11 @@ export const testRegions: Region[] = [
     infrastructure: 55,
     development: 45,
     neighboringRegionIds: [23, 24],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 100
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -454,9 +556,13 @@ export const testRegions: Region[] = [
     infrastructure: 50,
     development: 45,
     neighboringRegionIds: [22, 27],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 80,
       [ResourceType.Timber]: 40
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 27,
@@ -471,8 +577,11 @@ export const testRegions: Region[] = [
     infrastructure: 60,
     development: 55,
     neighboringRegionIds: [26],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 200
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -490,10 +599,15 @@ export const testRegions: Region[] = [
     infrastructure: 35,
     development: 30,
     neighboringRegionIds: [29, 30],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Iron]: 100,
       [ResourceType.Coal]: 150,
       [ResourceType.Timber]: 200
+    },
+    extraction: {
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 29,
@@ -508,9 +622,13 @@ export const testRegions: Region[] = [
     infrastructure: 40,
     development: 35,
     neighboringRegionIds: [28, 30, 31],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Iron]: 120,
       [ResourceType.Coal]: 100
+    },
+    extraction: {
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 30,
@@ -525,10 +643,15 @@ export const testRegions: Region[] = [
     infrastructure: 55,
     development: 50,
     neighboringRegionIds: [28, 29, 31, 32],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Iron]: 200,
       [ResourceType.Coal]: 200,
       [ResourceType.Oil]: 50
+    },
+    extraction: {
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Oil]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 31,
@@ -543,9 +666,13 @@ export const testRegions: Region[] = [
     infrastructure: 40,
     development: 35,
     neighboringRegionIds: [29, 30, 32, 33],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 150,
       [ResourceType.Iron]: 80
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 32,
@@ -560,9 +687,13 @@ export const testRegions: Region[] = [
     infrastructure: 35,
     development: 30,
     neighboringRegionIds: [30, 31, 33, 34],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 300,
       [ResourceType.Iron]: 100
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 33,
@@ -577,9 +708,13 @@ export const testRegions: Region[] = [
     infrastructure: 30,
     development: 25,
     neighboringRegionIds: [31, 32, 34],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 100,
       [ResourceType.Oil]: 30
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Oil]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 34,
@@ -594,10 +729,15 @@ export const testRegions: Region[] = [
     infrastructure: 25,
     development: 20,
     neighboringRegionIds: [32, 33],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Coal]: 80,
       [ResourceType.Timber]: 100,
       [ResourceType.RareEarths]: 30
+    },
+    extraction: {
+      [ResourceType.Coal]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.RareEarths]: MAX_EXTRACTION_LEVEL
     }
   },
 
@@ -614,8 +754,11 @@ export const testRegions: Region[] = [
     infrastructure: 50,
     development: 45,
     neighboringRegionIds: [36, 37, 38],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 300
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 36,
@@ -630,9 +773,13 @@ export const testRegions: Region[] = [
     infrastructure: 45,
     development: 40,
     neighboringRegionIds: [35, 37],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 150,
       [ResourceType.Timber]: 80
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 37,
@@ -647,8 +794,11 @@ export const testRegions: Region[] = [
     infrastructure: 85,
     development: 80,
     neighboringRegionIds: [35, 36, 38],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 20
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 38,
@@ -663,9 +813,13 @@ export const testRegions: Region[] = [
     infrastructure: 40,
     development: 35,
     neighboringRegionIds: [35, 37, 39, 40],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 180,
       [ResourceType.Iron]: 60
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 39,
@@ -680,9 +834,13 @@ export const testRegions: Region[] = [
     infrastructure: 35,
     development: 30,
     neighboringRegionIds: [38, 40, 41],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 200,
       [ResourceType.Timber]: 100
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 40,
@@ -697,9 +855,13 @@ export const testRegions: Region[] = [
     infrastructure: 45,
     development: 40,
     neighboringRegionIds: [38, 39, 41, 42],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 250,
       [ResourceType.RareEarths]: 50
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.RareEarths]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 41,
@@ -714,10 +876,15 @@ export const testRegions: Region[] = [
     infrastructure: 30,
     development: 25,
     neighboringRegionIds: [39, 40],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 300,
       [ResourceType.Iron]: 80,
       [ResourceType.Gas]: 50
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Iron]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Gas]: MAX_EXTRACTION_LEVEL
     }
   },
   {    id: 42,
@@ -732,10 +899,15 @@ export const testRegions: Region[] = [
     infrastructure: 50,
     development: 45,
     neighboringRegionIds: [40],
-    resourceProduction: {
+    deposits: {
       [ResourceType.Food]: 100,
       [ResourceType.Timber]: 60,
       [ResourceType.RareEarths]: 40
+    },
+    extraction: {
+      [ResourceType.Food]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.Timber]: MAX_EXTRACTION_LEVEL,
+      [ResourceType.RareEarths]: MAX_EXTRACTION_LEVEL
     }
   }
 ];

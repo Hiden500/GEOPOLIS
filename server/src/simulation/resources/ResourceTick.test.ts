@@ -6,7 +6,7 @@ import { OCCUPATION_EXTRACTION_PENALTY } from "@shared/defines/occupation";
 describe("resourceTick", () => {
   it("adds extracted resources to the country stockpile", () => {
     const country = createTestCountry();
-    const region = createTestRegion({ ownerCountryId: country.id, infrastructure: 0, resourceProduction: { oil: 1000 } });
+    const region = createTestRegion({ ownerCountryId: country.id, infrastructure: 0, deposits: { oil: 1000 } });
     const oilBefore = country.stockpile.oil;
 
     resourceTick(country, [region]);
@@ -16,10 +16,10 @@ describe("resourceTick", () => {
 
   it("scales extraction with infrastructure", () => {
     const lowInfraCountry = createTestCountry({ id: "LOW" });
-    const lowInfraRegion = createTestRegion({ id: 1, ownerCountryId: "LOW", infrastructure: 0, resourceProduction: { oil: 1000 } });
+    const lowInfraRegion = createTestRegion({ id: 1, ownerCountryId: "LOW", infrastructure: 0, deposits: { oil: 1000 } });
 
     const highInfraCountry = createTestCountry({ id: "HIGH" });
-    const highInfraRegion = createTestRegion({ id: 2, ownerCountryId: "HIGH", infrastructure: 1, resourceProduction: { oil: 1000 } });
+    const highInfraRegion = createTestRegion({ id: 2, ownerCountryId: "HIGH", infrastructure: 1, deposits: { oil: 1000 } });
 
     resourceTick(lowInfraCountry, [lowInfraRegion]);
     resourceTick(highInfraCountry, [highInfraRegion]);
@@ -32,22 +32,22 @@ describe("resourceTick", () => {
 
   it("slightly depletes the region's resource production, with a 10% floor", () => {
     const country = createTestCountry();
-    const region = createTestRegion({ ownerCountryId: country.id, resourceProduction: { oil: 1000 } });
+    const region = createTestRegion({ ownerCountryId: country.id, deposits: { oil: 1000 } });
 
     resourceTick(country, [region]);
 
-    expect(region.resourceProduction.oil).toBeLessThan(1000);
-    expect(region.resourceProduction.oil).toBeGreaterThan(100);
+    expect(region.deposits.oil).toBeLessThan(1000);
+    expect(region.deposits.oil).toBeGreaterThan(100);
   });
 
   it("only processes regions actually owned by the country, not other owners' regions", () => {
     const country = createTestCountry();
-    const ownedRegion = createTestRegion({ id: 1, ownerCountryId: country.id, resourceProduction: { oil: 1000 } });
-    const foreignRegion = createTestRegion({ id: 2, ownerCountryId: "OTHER", resourceProduction: { oil: 1000 } });
+    const ownedRegion = createTestRegion({ id: 1, ownerCountryId: country.id, deposits: { oil: 1000 } });
+    const foreignRegion = createTestRegion({ id: 2, ownerCountryId: "OTHER", deposits: { oil: 1000 } });
 
     resourceTick(country, [ownedRegion, foreignRegion]);
 
-    expect(foreignRegion.resourceProduction.oil).toBe(1000);
+    expect(foreignRegion.deposits.oil).toBe(1000);
   });
 
   it("does nothing when the country owns no regions", () => {
@@ -62,7 +62,7 @@ describe("resourceTick", () => {
     const owner = createTestCountry({ id: "OLD" });
     const occupant = createTestCountry({ id: "NEW" });
     const region = createTestRegion({
-      id: 1, ownerCountryId: "OLD", occupiedBy: "NEW", infrastructure: 0, resourceProduction: { oil: 1000 },
+      id: 1, ownerCountryId: "OLD", occupiedBy: "NEW", infrastructure: 0, deposits: { oil: 1000 },
     });
 
     const ownerOilBefore = owner.stockpile.oil;
@@ -77,11 +77,11 @@ describe("resourceTick", () => {
 
   it("оккупированный регион добывает со штрафом OCCUPATION_EXTRACTION_PENALTY относительно неоккупированного", () => {
     const freeCountry = createTestCountry({ id: "FREE" });
-    const freeRegion = createTestRegion({ id: 1, ownerCountryId: "FREE", infrastructure: 0, resourceProduction: { oil: 1000 } });
+    const freeRegion = createTestRegion({ id: 1, ownerCountryId: "FREE", infrastructure: 0, deposits: { oil: 1000 } });
 
     const occupant = createTestCountry({ id: "OCC" });
     const occupiedRegion = createTestRegion({
-      id: 2, ownerCountryId: "OTHER", occupiedBy: "OCC", infrastructure: 0, resourceProduction: { oil: 1000 },
+      id: 2, ownerCountryId: "OTHER", occupiedBy: "OCC", infrastructure: 0, deposits: { oil: 1000 },
     });
 
     resourceTick(freeCountry, [freeRegion]);

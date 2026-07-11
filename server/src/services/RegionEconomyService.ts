@@ -49,7 +49,7 @@ export class RegionEconomyService {
     }
 
     // Корректировка на основе ресурсов
-    const hasResources = Object.keys(region.resourceProduction).length > 0;
+    const hasResources = Object.keys(region.deposits).length > 0;
     if (hasResources) {
       mining *= 2.0;
       industry *= 1.2;
@@ -107,7 +107,7 @@ export class RegionEconomyService {
     // Mining производит ресурсы
     const resourceExtraction: Partial<Record<ResourceType, number>> = {};
     if (economy.mining > 0) {
-      for (const [resourceType, baseAmount] of Object.entries(region.resourceProduction)) {
+      for (const [resourceType, baseAmount] of Object.entries(region.deposits)) {
         const extraction = baseAmount * economy.mining * region.infrastructure;
         resourceExtraction[resourceType as ResourceType] = extraction;
       }

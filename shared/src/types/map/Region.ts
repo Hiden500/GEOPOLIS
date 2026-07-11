@@ -32,7 +32,15 @@ export interface Region {
 
   gdp: number;
 
-  resourceProduction: Partial<Record<ResourceType, number>>;
+  // Ресурсы: deposit/extraction/output (docs/plans/04_RESOURCES.md).
+  // deposits — richness, геологический потенциал (истощается медленно,
+  // ResourceTick.ts). extraction — уровень добывающих мощностей 0..
+  // MAX_EXTRACTION_LEVEL (shared/src/defines/resources.ts), меняется только
+  // командами (server/src/commands/resources.ts) — не тиком. Output за тик
+  // не хранится, вычисляется из обоих полей.
+  deposits: Partial<Record<ResourceType, number>>;
+
+  extraction: Partial<Record<ResourceType, number>>;
 
   neighboringRegionIds: number[];
 

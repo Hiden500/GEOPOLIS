@@ -130,7 +130,8 @@ describe('GeometryEngine - Compact vs Elongated Baselines', () => {
     infrastructure: 1,
     development: 1,
     gdp: 1000,
-    resourceProduction: {}
+    deposits: {},
+    extraction: {}
   });
 
   const createMockFeature = (id: number, coords: [number, number][]): Feature<Polygon> => ({

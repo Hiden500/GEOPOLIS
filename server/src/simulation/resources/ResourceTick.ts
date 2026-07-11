@@ -45,10 +45,11 @@ export function resourceTick(
     // Штраф оккупанту — регион под оккупацией отдаёт только долю обычной добычи.
     const occupationPenalty = region.occupiedBy ? OCCUPATION_EXTRACTION_PENALTY : 1;
 
-    for (const [resource, amount] of Object.entries(region.resourceProduction)) {
+    for (const [resource, amount] of Object.entries(region.deposits)) {
       const amountValue = amount as number;
 
       // Итоговая добыча с учётом бонусов (инфраструктура + технологии + сектор mining + оккупация)
+      // TODO(docs/plans/04_RESOURCES.md, Срез 2): extractionFactor(level) + resourceOutput-модификатор.
       const actualProduction = amountValue * infrastructureBonus * techBonus * miningBonus * occupationPenalty;
 
       const key = resource as keyof typeof country.stockpile;
@@ -59,7 +60,7 @@ export function resourceTick(
 
       // Не истощать полностью, оставляем минимум долю RESOURCE_DEPLETION_FLOOR_SHARE
       if (newAmount > amountValue * RESOURCE_DEPLETION_FLOOR_SHARE) {
-        (region.resourceProduction as Record<string, number>)[resource] = newAmount;
+        (region.deposits as Record<string, number>)[resource] = newAmount;
       }
     }
   }

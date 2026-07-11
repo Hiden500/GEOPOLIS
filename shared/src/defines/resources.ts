@@ -19,3 +19,15 @@ export const RESOURCE_DEPLETION_RATE_PER_MONTH = 0.0001;
 
 /** Не истощать месторождение полностью — минимум доли от исходного объёма. */
 export const RESOURCE_DEPLETION_FLOOR_SHARE = 0.1;
+
+/**
+ * Верхний уровень добывающих мощностей региона на ресурс
+ * (docs/plans/04_RESOURCES.md) — extractionFactor(level) = level /
+ * MAX_EXTRACTION_LEVEL. Дублируется в scripts/map/fill_region_economy_1946.py
+ * (единого источника констант TS↔Python в проекте пока нет, план 05) —
+ * держать в синхроне вручную.
+ */
+export const MAX_EXTRACTION_LEVEL = 10;
+
+/** Казна за +1 уровень добывающих мощностей (server/src/commands/resources.ts::buildExtraction). */
+export const EXTRACTION_BUILD_COST = 2_000_000_000;

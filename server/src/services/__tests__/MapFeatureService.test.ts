@@ -108,7 +108,8 @@ describe('MapFeatureService', () => {
         infrastructure: 0.8,
         development: 0.9,
         gdp: 3000000000000,
-        resourceProduction: {},
+        deposits: {},
+        extraction: {},
         neighboringRegionIds: [2],
       },
       {
@@ -123,7 +124,8 @@ describe('MapFeatureService', () => {
         infrastructure: 0.7,
         development: 0.8,
         gdp: 2000000000000,
-        resourceProduction: {},
+        deposits: {},
+        extraction: {},
         neighboringRegionIds: [1],
       },
     ];

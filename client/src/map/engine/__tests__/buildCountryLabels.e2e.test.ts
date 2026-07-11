@@ -31,7 +31,8 @@ const createMockRegion = (
   infrastructure: 1.0,
   development: 1.0,
   gdp: 1000,
-  resourceProduction: {},
+  deposits: {},
+  extraction: {},
 });
 
 // Helper to create mock feature

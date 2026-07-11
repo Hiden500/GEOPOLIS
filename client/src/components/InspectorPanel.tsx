@@ -91,7 +91,7 @@ function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number
   if (!region) return <p>{t("region.notFound")}</p>;
 
   const owner = game.countries.find(c => c.id === region.ownerCountryId);
-  const resourceEntries = Object.entries(region.resourceProduction);
+  const resourceEntries = Object.entries(region.deposits);
 
   return (
     <>

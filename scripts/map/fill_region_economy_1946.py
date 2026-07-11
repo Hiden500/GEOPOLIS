@@ -56,6 +56,10 @@ ACTIVE_RESOURCES_1946 = {
     "rubber", "nitrates",
 }
 
+# docs/plans/04_RESOURCES.md — держать в синхроне со
+# shared/src/defines/resources.ts::MAX_EXTRACTION_LEVEL.
+MAX_EXTRACTION_LEVEL = 10
+
 DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT}
 COLONIAL_BLOCS = set(COLONIAL_BLOC_GROUPS.keys())
 
@@ -273,7 +277,13 @@ def compute_region_economics(r: dict, owner_id: str, population: int, all_areas:
     if r["area"] > 50_000 and r["population"] > 0:
         resources["timber"] = resources.get("timber", 0) + round(r["area"] / 5000)
 
-    r["resourceProduction"] = resources
+    # deposit/extraction/output (docs/plans/04_RESOURCES.md): richness =
+    # текущий output, extraction level = MAX (сразу развёрнуто) — так
+    # extractionFactor=1.0 и стартовый output не сдвигается ни на процент.
+    # MAX_EXTRACTION_LEVEL держать в синхроне со
+    # shared/src/defines/resources.ts (нет единого TS↔Python источника, план 05).
+    r["deposits"] = resources
+    r["extraction"] = {res: MAX_EXTRACTION_LEVEL for res in resources}
 
 
 def main() -> None:

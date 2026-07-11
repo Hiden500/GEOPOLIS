@@ -25,10 +25,11 @@ describe('RegionEconomyService', () => {
       infrastructure: 0.6,
       development: 0.5,
       gdp: 50000000000,
-      resourceProduction: {
+      deposits: {
         oil: 100000,
         coal: 200000,
       } as Partial<Record<ResourceType, number>>,
+      extraction: {} as Partial<Record<ResourceType, number>>,
       neighboringRegionIds: [2],
     };
 
@@ -170,7 +171,7 @@ describe('RegionEconomyService', () => {
     });
 
     it('should give higher mining for regions with resources', () => {
-      region.resourceProduction = {
+      region.deposits = {
         oil: 1000000,
         coal: 2000000,
         iron: 500000,

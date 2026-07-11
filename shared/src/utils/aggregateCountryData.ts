@@ -74,13 +74,13 @@ export function aggregateCountryFromRegions(
     services: totalServices / totalPopulation,
   };
 
-  // Resource Production: сумма добычи ресурсов всех регионов
-  const resourceProduction: Partial<Record<ResourceType, number>> = {};
+  // Deposits: сумма richness ресурсов всех регионов (docs/plans/04_RESOURCES.md)
+  const deposits: Partial<Record<ResourceType, number>> = {};
   for (const region of countryRegions) {
-    for (const [resource, amount] of Object.entries(region.resourceProduction)) {
+    for (const [resource, amount] of Object.entries(region.deposits)) {
       const resourceType = resource as ResourceType;
       const amountValue = amount as number;
-      resourceProduction[resourceType] = (resourceProduction[resourceType] || 0) + amountValue;
+      deposits[resourceType] = (deposits[resourceType] || 0) + amountValue;
     }
   }
 

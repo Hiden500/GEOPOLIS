@@ -4,6 +4,7 @@ import { type GameState } from "@shared/types/GameState";
 import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 
 export function createTestCountry(overrides: Partial<Country> = {}): Country {
   return {
@@ -131,9 +132,13 @@ export function createTestRegion(overrides: Partial<Region> = {}): Region {
     infrastructure: 0.6,
     development: 0.5,
     gdp: 50_000_000_000,
-    resourceProduction: {
+    deposits: {
       oil: 100_000,
       coal: 200_000,
+    },
+    extraction: {
+      oil: MAX_EXTRACTION_LEVEL,
+      coal: MAX_EXTRACTION_LEVEL,
     },
     neighboringRegionIds: [],
     ...overrides,

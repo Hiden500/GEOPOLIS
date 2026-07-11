@@ -30,7 +30,7 @@ export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: 
               {t("population", { value: (region.population ?? 0).toLocaleString("ru-RU") })}
             </span>
             <div className="region-resources">
-              {Object.entries(region.resourceProduction).map(([resource, amount]) => (
+              {Object.entries(region.deposits).map(([resource, amount]) => (
                 <span key={resource} className="resource-tag">
                   {t("resourcePerMonth", { resource, amount })}
                 </span>
