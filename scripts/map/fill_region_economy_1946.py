@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Заполняет population/urbanization/stability/infrastructure/development/gdp/
-resourceProduction в server/data/scenarios/1946/regions.json.
+deposits/extraction в server/data/scenarios/1946/regions.state.json (читает
+объединённый вид core+state+names через economy_1946.region_files — см.
+docs/plans/05_DATA_LAYOUT.md, Срез 1).
 
 Методология и обоснование каждого решения — docs/tasks/REGION_ECONOMY_FILL.md,
 docs/DECISIONS.md (2026-07-04, "Аудит..." + запись о перезаполнении). Ключевые
@@ -31,7 +33,6 @@ density×area в каждой стране):
 Запуск: python scripts/map/fill_region_economy_1946.py
 """
 import hashlib
-import json
 import sys
 from pathlib import Path
 
@@ -46,9 +47,7 @@ from economy_1946.density_tiers import (
 )
 from economy_1946.resource_geography import RESOURCE_HOTSPOTS
 from economy_1946.usa_states import STATE_WEIGHT_1940, usa_state_key
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-REGIONS_PATH = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "regions.json"
+from economy_1946.region_files import load_regions_combined, write_regions_state
 
 ACTIVE_RESOURCES_1946 = {
     "coal", "oil", "gas", "iron", "copper", "gold", "tin", "nickel", "bauxite",
@@ -287,8 +286,7 @@ def compute_region_economics(r: dict, owner_id: str, population: int, all_areas:
 
 
 def main() -> None:
-    with open(REGIONS_PATH, encoding="utf-8") as f:
-        regions = json.load(f)
+    regions = load_regions_combined()
 
     by_owner: dict[str, list[dict]] = {}
     for r in regions:
@@ -305,12 +303,10 @@ def main() -> None:
         for r in owner_regions:
             compute_region_economics(r, owner_id, populations[r["id"]], all_areas)
 
-    with open(REGIONS_PATH, "w", encoding="utf-8") as f:
-        json.dump(regions, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    write_regions_state(regions)
 
     print(f"Заполнено {len(regions)} регионов, {len(by_owner)} стран/владельцев.")
-    print(f"Записано в {REGIONS_PATH}")
+    print("Записано в server/data/scenarios/1946/regions.state.json")
 
 
 if __name__ == "__main__":

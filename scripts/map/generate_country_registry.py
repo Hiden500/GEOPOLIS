@@ -3,8 +3,9 @@ generate_country_registry.py — генерирует реестр стран с
 
 Заменяет 12 рукописных стран (server/src/data/countries/*.ts, оставлены для
 сценариев 1836/2000) полным реестром, выведенным из scripts/map/out/countries_1946.json
-и фактических владельцев в server/data/scenarios/1946/regions.json (генерируется
-import_to_game.py — запускать первым).
+и фактических владельцев в server/data/scenarios/1946/regions.state.json (генерируется
+import_to_game.py — запускать первым; читается через economy_1946.region_files,
+см. docs/plans/05_DATA_LAYOUT.md).
 
 Конвенция кодов стран (см. план интеграции, "Конвенция кодов стран"):
   - Суверены — ISO 3166-1 alpha-3 как есть в MAP.
@@ -31,12 +32,15 @@ import_to_game.py — запускать первым).
 группировки ожидаема (см. открытые вопросы плана).
 """
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from economy_1946.region_files import load_regions_combined, write_regions_state
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
 CONFIG_DIR = REPO_ROOT / "scripts" / "map" / "config"
-REGIONS_PATH = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "regions.json"
 COUNTRIES_OUT = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "countries.json"
 MERGE_OUT = CONFIG_DIR / "country_merge.json"
 
@@ -82,7 +86,7 @@ SUBJECT_OVERRIDES = {"JOR": "GBR"}
 
 # Тот же составной код MAP, что нормализуется в import_to_game.py — здесь
 # нужен повторно, т.к. countries_1946.json (каталог) хранит исходный код
-# ключом словаря, независимо от того, что regions.json уже на QSO.
+# ключом словаря, независимо от того, что regions.state.json уже на QSO.
 CATALOG_CODE_ALIASES = {"SOM_GBR": "QSO"}
 
 # Военное/договорное присутствие держав на 1946, НЕ территориальное владение —
@@ -278,7 +282,7 @@ def make_country(country_id: str, name_en: str, economy_type: str, ideology: str
 def main():
     catalog = load_json(OUT_DIR / "countries_1946.json")
     catalog = {CATALOG_CODE_ALIASES.get(k, k): v for k, v in catalog.items()}
-    regions = load_json(REGIONS_PATH)
+    regions = load_regions_combined()
 
     # Подставляем subject_of там, где MAP отдаёт суверена, но политически
     # территория зависима (см. SUBJECT_OVERRIDES) — после этого код ниже
@@ -290,7 +294,7 @@ def main():
     merge_map = build_merge_map(catalog)
     MERGE_OUT.write_text(json.dumps(merge_map, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Применяем объединение к regions.json: владелец-колония -> код блока.
+    # Применяем объединение к regions.state.json: владелец-колония -> код блока.
     # Без этого регионы продолжали бы ссылаться на ISO-коды, исчезнувшие
     # из реестра стран после объединения.
     changed = 0
@@ -300,8 +304,8 @@ def main():
             r["ownerCountryId"] = merged
             changed += 1
     if changed:
-        REGIONS_PATH.write_text(json.dumps(regions, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"regions.json: {changed} регионов переключены на код блока-владельца")
+        write_regions_state(regions)
+        print(f"regions.state.json: {changed} регионов переключены на код блока-владельца")
 
     # Фактические владельцы по сгенерированным регионам — источник истины,
     # какие страны реально нужны (а не весь каталог MAP, часть которого

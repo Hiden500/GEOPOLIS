@@ -8,7 +8,6 @@
 Запуск: python scripts/map/validate_region_economy_1946.py
 Возвращает exit code 0 при отсутствии нарушений, 1 иначе.
 """
-import json
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -16,9 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
 from economy_1946.country_splits import CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT
-
-REPO_ROOT = Path(__file__).resolve().parents[2]
-REGIONS_PATH = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "regions.json"
+from economy_1946.region_files import load_regions_combined
 
 POST_1946_RESOURCES = {"rareEarths", "lithium"}
 WORLD_POP_MIN = 2_200_000_000
@@ -29,8 +26,7 @@ DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT}
 
 
 def main() -> int:
-    with open(REGIONS_PATH, encoding="utf-8") as f:
-        regions = json.load(f)
+    regions = load_regions_combined()
 
     violations: list[str] = []
     warnings: list[str] = []
@@ -80,9 +76,11 @@ def main() -> int:
             else:
                 seen[key] = r["id"]
 
-    # 5. resourceProduction только eraIntroduced <= 1946
+    # 5. deposits только eraIntroduced <= 1946 (план 04 заменил resourceProduction
+    # на deposits/extraction — эта проверка была мёртвой, читая уже не
+    # заполняемое поле, до этого фикса, план 05).
     for r in regions:
-        for res in r.get("resourceProduction", {}):
+        for res in r.get("deposits", {}):
             if res in POST_1946_RESOURCES:
                 violations.append(f"region {r['id']} ({r['ownerCountryId']}): ресурс '{res}' введён после 1946 (date-gate нарушен).")
 
