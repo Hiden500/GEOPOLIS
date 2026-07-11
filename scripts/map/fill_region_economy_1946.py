@@ -48,16 +48,15 @@ from economy_1946.density_tiers import (
 from economy_1946.resource_geography import RESOURCE_HOTSPOTS
 from economy_1946.usa_states import STATE_WEIGHT_1940, usa_state_key
 from economy_1946.region_files import load_regions_combined, write_regions_state
+from economy_1946.resource_catalog import load_resource_catalog, resources_active_by
 
-ACTIVE_RESOURCES_1946 = {
-    "coal", "oil", "gas", "iron", "copper", "gold", "tin", "nickel", "bauxite",
-    "tungsten", "manganese", "chromium", "uranium", "food", "timber", "cotton",
-    "rubber", "nitrates",
-}
-
-# docs/plans/04_RESOURCES.md — держать в синхроне со
-# shared/src/defines/resources.ts::MAX_EXTRACTION_LEVEL.
-MAX_EXTRACTION_LEVEL = 10
+# Единый источник истины (docs/plans/05_DATA_LAYOUT.md, Срез 3) — раньше
+# ACTIVE_RESOURCES_1946/MAX_EXTRACTION_LEVEL дублировались вручную с
+# комментарием-синхронизацией со shared/src/data/resources/resourceCatalog.ts
+# и shared/src/defines/resources.ts.
+_CATALOG = load_resource_catalog()
+ACTIVE_RESOURCES_1946 = resources_active_by(_CATALOG, 1946)
+MAX_EXTRACTION_LEVEL = _CATALOG["maxExtractionLevel"]
 
 DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT}
 COLONIAL_BLOCS = set(COLONIAL_BLOC_GROUPS.keys())
@@ -279,8 +278,7 @@ def compute_region_economics(r: dict, owner_id: str, population: int, all_areas:
     # deposit/extraction/output (docs/plans/04_RESOURCES.md): richness =
     # текущий output, extraction level = MAX (сразу развёрнуто) — так
     # extractionFactor=1.0 и стартовый output не сдвигается ни на процент.
-    # MAX_EXTRACTION_LEVEL держать в синхроне со
-    # shared/src/defines/resources.ts (нет единого TS↔Python источника, план 05).
+    # MAX_EXTRACTION_LEVEL — из resource_catalog.json (Срез 3), не дублируется вручную.
     r["deposits"] = resources
     r["extraction"] = {res: MAX_EXTRACTION_LEVEL for res in resources}
 

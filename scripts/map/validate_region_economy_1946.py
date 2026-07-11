@@ -16,8 +16,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
 from economy_1946.country_splits import CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT
 from economy_1946.region_files import load_regions_combined
+from economy_1946.resource_catalog import load_resource_catalog, resources_introduced_after
 
-POST_1946_RESOURCES = {"rareEarths", "lithium"}
+# Единый источник истины (docs/plans/05_DATA_LAYOUT.md, Срез 3) — раньше
+# POST_1946_RESOURCES дублировался вручную.
+POST_1946_RESOURCES = resources_introduced_after(load_resource_catalog(), 1946)
 WORLD_POP_MIN = 2_200_000_000
 WORLD_POP_MAX = 2_600_000_000
 COUNTRY_TOTAL_TOLERANCE = 0.03  # 3% — допуск на округление при распределении
