@@ -53,4 +53,91 @@ describe("simulateMonth — детерминированные вехи (pending
 
         expect(game.pendingWorldFacts).toEqual([]);
     });
+
+    it("экономический кризис: inflation впервые пересекает порог 20 кладёт факт", () => {
+        const base = createTestCountry();
+        const economy = { ...base.economy };
+        delete economy.taxRate; // иначе updateBudget() пересчитает taxRevenue из gdp×taxRate поверх оверрайда ниже
+
+        const game = createTestGameState({
+            currentDate: "1946-01-01",
+            countries: [createTestCountry({
+                id: "USA",
+                name: "United States",
+                economy: {
+                    ...economy,
+                    // Массивный дефицит относительно ВВП — inflation прыгает на
+                    // INFLATION_DEFICIT_COEFFICIENT(0.1) × (expenses-income)/gdp
+                    // = 0.1 × 100 = 10 за один тик. Стартуем в 15, чтобы пересечь 20.
+                    inflation: 15,
+                    gdp: 1_000_000,
+                    taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
+                    militarySpending: 100_000_000, researchSpending: 0, educationSpending: 0,
+                    infrastructureSpending: 0, welfareSpending: 0, debtInterest: 0, otherExpenses: 0,
+                    importSpending: 0,
+                },
+            })],
+        });
+
+        simulateMonth(game);
+
+        const fact = game.pendingWorldFacts.find(f => f.text.includes("inflation"));
+        expect(fact).toBeDefined();
+        expect(fact!.countryId).toBe("USA");
+    });
+
+    it("без пересечения порога инфляции — факта кризиса нет", () => {
+        const game = createTestGameState({
+            currentDate: "1946-01-01",
+            countries: [createTestCountry({ id: "USA" })], // дефолтная фикстура — сбалансированный бюджет
+        });
+
+        simulateMonth(game);
+
+        expect(game.pendingWorldFacts.find(f => f.text.includes("inflation"))).toBeUndefined();
+    });
+
+    it("политический кризис: stability впервые проваливается ниже 20 кладёт факт", () => {
+        const base = createTestCountry();
+        const economy = { ...base.economy };
+        delete economy.taxRate; // иначе updateBudget() пересчитает taxRevenue из gdp×taxRate поверх оверрайда ниже
+
+        const game = createTestGameState({
+            currentDate: "1946-01-01",
+            countries: [createTestCountry({
+                id: "USA",
+                name: "United States",
+                politics: { ...base.politics, stability: 21, corruption: 90 }, // > STABILITY_HIGH_CORRUPTION_THRESHOLD(60)
+                economy: {
+                    ...economy,
+                    unemployment: 50, // > STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD(15)
+                    inflation: 100, // > STABILITY_HIGH_INFLATION_THRESHOLD(20)
+                    gdp: 1_000_000_000,
+                    // Доход ~0, огромный расход -> budgetBalance после updateBudget()
+                    // глубоко отрицателен относительно gdp (> STABILITY_SEVERE_DEFICIT_GDP_SHARE=0.05).
+                    taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
+                    militarySpending: 1_000_000_000, researchSpending: 0, educationSpending: 0,
+                    infrastructureSpending: 0, welfareSpending: 0, debtInterest: 0, otherExpenses: 0,
+                    importSpending: 0,
+                },
+            })],
+        });
+
+        simulateMonth(game);
+
+        const fact = game.pendingWorldFacts.find(f => f.text.includes("stability"));
+        expect(fact).toBeDefined();
+        expect(fact!.countryId).toBe("USA");
+    });
+
+    it("без пересечения порога stability — факта переворота нет", () => {
+        const game = createTestGameState({
+            currentDate: "1946-01-01",
+            countries: [createTestCountry({ id: "USA" })], // дефолтная фикстура — stability=70
+        });
+
+        simulateMonth(game);
+
+        expect(game.pendingWorldFacts.find(f => f.text.includes("stability"))).toBeUndefined();
+    });
 });
