@@ -254,3 +254,36 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
     expect(game.countries.find(c => c.id === "USA")!.diplomacy.relations["SUN"]).toBe(5);
   });
 });
+
+describe("Fitness-функция: правило 2 — мутации через команды (docs/plans/03_MODIFIERS_COMMANDS.md)", () => {
+  // Три внешних инициатора мутации, которые критерий приёмки плана 03 прямо
+  // называет: AiBehaviorTick (ИИ), LLMService (LLM-действия), роут игрока
+  // budget.ts. Внутренние детерминированные тики (DiplomacyTick, WarTick и
+  // т.п.) вне периметра — они продолжают вызывать сервисы напрямую, это не
+  // "внешний инициатор" в терминах критерия.
+  const TARGET_FILES = [
+    "server/src/simulation/ai/AiBehaviorTick.ts",
+    "server/src/services/LLMService.ts",
+    "server/src/routes/budget.ts",
+  ];
+
+  // .economy./.diplomacy./.politics./.military. путь, за которым следует
+  // оператор присваивания (=, +=, -=, *=) — не ==/===/=>. Та же
+  // "грубая проверка grep'ом" философия, что и у правила 4/5 в этом файле.
+  const DIRECT_MUTATION_PATTERN = /\.(economy|diplomacy|politics|military)\.[\w[\]'".]*\s*(=[^=]|[-+*]=)/g;
+
+  it("AiBehaviorTick/LLMService/budget.ts не пишут в .economy./.diplomacy./.politics./.military. напрямую — только через server/src/commands/", () => {
+    const violations: string[] = [];
+
+    for (const relPath of TARGET_FILES) {
+      const absPath = path.join(REPO_ROOT, ...relPath.split("/"));
+      const content = fs.readFileSync(absPath, "utf-8");
+      const matches = content.match(DIRECT_MUTATION_PATTERN) ?? [];
+      for (const match of matches) {
+        violations.push(`${relPath}: "${match.trim()}"`);
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+});
