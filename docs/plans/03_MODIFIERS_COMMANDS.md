@@ -87,11 +87,99 @@ interface Modifier {
 
 ## Критерии приёмки
 
-- [ ] AiBehaviorTick, LLM-действия и роуты игрока не пишут в state напрямую — только команды.
-- [ ] Модификатор с expiresAt влияет на расчёт и исчезает после срока (тест).
-- [ ] В `server/src/simulation/**` нет числовых констант баланса (грубая проверка grep’ом в CI — допустимы только структурные литералы).
-- [ ] Промт LLM может включать значения defines (хотя бы капы действий) из того же источника, что использует движок.
+- [x] AiBehaviorTick, LLM-действия и роуты игрока не пишут в state напрямую — только команды.
+- [x] Модификатор с expiresAt влияет на расчёт и исчезает после срока (тест).
+- [x] В `server/src/simulation/**` нет числовых констант баланса (грубая проверка grep’ом в CI — допустимы только структурные литералы).
+- [x] Промт LLM может включать значения defines (хотя бы капы действий) из того же источника, что использует движок. — уже было выполнено планом 02 (`shared/src/defines/llmActionCaps.ts`, секция "Hard limits" в `LLMService.generatePrompt()`), этим планом не тронуто.
 
 ## Отклонения при реализации
 
-_(заполняется при реализации)_
+Реализован **осознанно суженный объём** одного захода — разведка (3
+параллельных агента + прямая проверка ключевых файлов) показала, что
+буквальный объём всех 4 шагов значительно больше, чем текст плана
+предполагает (~15 файлов с десятками безымянных числовых литералов, часть —
+`PoliticsTick.ts`/`PopulationTick.ts`/`MilitaryTick.ts`/`ResearchTick.ts` —
+план вообще не называл). Полный анализ и решения по сужению — согласованы с
+пользователем явно перед реализацией (`docs/DECISIONS.md`, 2026-07-11).
+
+### Расположение слоя команд
+
+**`server/src/commands/`, не `shared/src/sim/commands/`** (буква правила 2
+`MASTER_PROMPT.md`). Весь слой тиков физически живёт в `server/src/simulation/`,
+не в `shared/src/sim/` (директория не существует) — команды рядом с
+`simulation/`/`services/`, где реально живёт игровая логика. Решение
+пользователя, зафиксировано в `docs/DECISIONS.md`; текст `MASTER_PROMPT.md`
+не редактировался.
+
+### Шаг 1 — периметр команд
+
+Критерий приёмки буквально требует только: `AiBehaviorTick`, LLM-действия и
+роуты игрока не пишут в state напрямую. Внутренние детерминированные тики
+(`DiplomacyTick`, `WarTick`, `TierTick` и т.п.) остались вызывать
+`WarService`/`DiplomacyService` напрямую — это не «внешний инициатор» по
+смыслу критерия, не переводились на команды.
+
+Реализованный набор команд — подмножество списка из плана:
+`setRelation`/`setInfluence`/`applySanction`/`setGuarantee`/
+`nudgeRelationOneSided`/`nudgeInfluenceTowardTarget` (`commands/diplomacy.ts`),
+`declareWar`/`makePeaceBetween` (`commands/war.ts`),
+`setResearchAllocation`/`setProductionAllocation`/`setBudgetShares`/
+`applyDeficitAusterityCut`/`shiftMilitaryToWelfare`/`setMilitarySpending`
+(`commands/economy.ts`), `applyModifier`/`removeModifier`/
+`removeExpiredModifiers` (`commands/modifiers.ts`). **Не реализованы**
+(план называл, но нет обоснования делать в этом заходе):
+- `transferRegion` — единственная прод-мутация `ownerCountryId` (`WarTick.ts`)
+  уже дважды сознательно оставлена вне атомарной команды (план 01 → план 08)
+  с явным комментарием в коде «не должно зависеть от порядка обхода».
+- `setPuppet` — нет сервисного метода, который команда могла бы обернуть;
+  `annex`/`puppet` остаются no-op, как после плана 02.
+- `createFeature`/`removeFeature` — план 06.
+- Запись команд в `eventHistory`/журнал хода (`source: llm|player|engine`) —
+  ни один критерий приёмки этого не требует; `Event` не имеет поля `source`.
+
+`nudgeRelationOneSided`/`nudgeInfluenceTowardTarget`/`applyDeficitAusterityCut`/
+`shiftMilitaryToWelfare`/`setMilitarySpending` — точные обёртки формул
+`AiBehaviorTick` Правил A/B/C, **не переиспользуют** похожие методы
+`DiplomacyService` (у `changeRelation` есть побочный реципрокный сдвиг 50%,
+которого в AI-формуле нет) — переиспользование изменило бы откалиброванный
+баланс незаметно.
+
+### Шаг 2 — один атрибут вместо 3-4
+
+Критерий приёмки требует только «модификатор с `expiresAt` влияет на расчёт
+и исчезает после срока (тест)» — сквозная демонстрация одного атрибута
+(`stability`) полностью его закрывает. Белый список
+(`shared/src/defines/modifierAttributes.ts`) содержит один атрибут,
+расширяется по потребности следующих планов. Реальная интеграция —
+`AiBehaviorTick.applyStabilityWelfareNudge` (единственный переведённый
+читатель на `effectiveValue()` в этом заходе); остальные читатели
+`politics.stability` и других полей продолжают читать сырое значение.
+
+### Шаг 3 — периметр defines
+
+Критерий приёмки формально требует только `server/src/simulation/**` — вне
+периметра остались `server/src/services/**` (`RegionEconomyService.ts`/
+`DiplomacyService.ts`/`WarService.ts` сохраняют свои константы) и
+`shared/src/utils/**`. `LLMService.ts`'s `LLM_SPOTLIGHT_COUNT`/окна
+заголовков — план называл их явно, но файл в `services/`, не `simulation/` —
+тоже вне периметра, не тронуты.
+
+Формат — TypeScript-файлы по подсистеме (паттерн `llmActionCaps.ts`), не
+`defines.json`+`defines.notes.md` (план предлагает JSON — в кодовой базе нет
+такого прецедента, JSON теряет комментарии-обоснования).
+
+Миграция `shared/src/constants/` → `shared/src/defines/` (пользователь ранее
+в плане 02 отложил её «до отдельного захода по плану 03» — сделана в этом
+заходе): `budgetSpendingShareCaps.ts`/`createEmptyEconomyState.ts` перенесены,
+`resourceWeights.ts` (подтверждённый мёртвый код) удалён вместо переноса.
+
+Файлы `PoliticsTick.ts`/`PopulationTick.ts`/`MilitaryTick.ts`/`ResearchTick.ts`
+план вообще не упоминал, но они физически в периметре критерия — константы
+именованы и вынесены наравне с названными планом файлами.
+
+### Шаг 4 — не в этом заходе
+
+Фиксация порядка фаз `simulateMonth` — без критерия приёмки (тот же паттерн
+отсечения, что уже дважды применялся в 01/02); дополнительно конфликтует с
+`docs/AI_RULES.md:89-91` («состав/порядок тиков — только `SimulationEngine.ts`,
+не дублировать список в доках»).

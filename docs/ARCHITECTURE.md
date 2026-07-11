@@ -1,6 +1,6 @@
 # Архитектура проекта
 
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 
 ## Структура
 
@@ -124,6 +124,55 @@ docs/
   игровой логике не нужна). `GameState.nextFeatureId: number` — счётчик для
   детерминированных id Map Features (`mf-000123`, `MapFeatureService.generateId()`),
   заменил `Math.random()`/`Date.now()`.
+
+### Команды (`server/src/commands/`)
+
+Реализовано по `docs/plans/03_MODIFIERS_COMMANDS.md` (2026-07-11, суженный
+объём — детали и отклонения в файле плана). Единственный способ мутировать
+state для трёх «внешних инициаторов»: LLM-действия (`LLMService.ts`),
+роут `budget.ts`, детерминированный ИИ (`AiBehaviorTick.ts`). Внутренние
+детерминированные тики (`DiplomacyTick`/`WarTick`/`TierTick` и т.п.) вне
+периметра — продолжают вызывать `WarService`/`DiplomacyService` напрямую.
+
+* Команда — функция `(game, ...params) => CommandResult`,
+  `CommandResult = { success: boolean; error?: string }`. Один файл на
+  подсистему, без barrel/index.ts.
+* `commands/diplomacy.ts` — `setRelation`/`setInfluence`/`applySanction`/
+  `setGuarantee` (тонкие обёртки `DiplomacyService`) + `nudgeRelationOneSided`/
+  `nudgeInfluenceTowardTarget` (точные обёртки формул `AiBehaviorTick`
+  Правило B — не переиспользуют `DiplomacyService.changeRelation`, у того
+  есть побочный реципрокный сдвиг, которого нет в AI-формуле).
+* `commands/war.ts` — `declareWar`/`makePeaceBetween` (обёртки `WarService`).
+* `commands/economy.ts` — `setResearchAllocation`/`setProductionAllocation`/
+  `setBudgetShares` (обёртки `ResearchService`/`MilitaryService`/
+  `CountryService`) + `applyDeficitAusterityCut`/`shiftMilitaryToWelfare`/
+  `setMilitarySpending` (точные обёртки формул `AiBehaviorTick` Правил A/B/C).
+* `commands/modifiers.ts` — `applyModifier`/`removeModifier`/
+  `removeExpiredModifiers` (см. «Модификаторы» ниже).
+* Не реализовано (нет обоснования критерием приёмки, см. план):
+  `transferRegion` (единственная прод-мутация `ownerCountryId`, `WarTick.ts`,
+  оставлена вне атомарной команды до плана 08), `setPuppet` (нет сервисного
+  метода), `createFeature`/`removeFeature` (план 06), запись команд в
+  `eventHistory`/журнал хода.
+
+### Модификаторы (`shared/src/utils/modifiers.ts`, `server/src/commands/modifiers.ts`)
+
+Реализовано по `docs/plans/03_MODIFIERS_COMMANDS.md` — минимальный сквозной
+срез на одном атрибуте (`stability`), остальные добавляются по потребности.
+
+* `Modifier` (`shared/src/types/Modifier.ts`): `{ id, source, target: {kind,
+  id}, attribute, op: "add"|"mul", value, expiresAt? }`. `id` — тот же
+  счётчик, что Map Features (`game.nextFeatureId`), префикс `"mod-"`.
+  `expiresAt` — игровая дата (`game.currentDate`), НЕ wall-clock.
+* Белый список атрибутов — `shared/src/defines/modifierAttributes.ts`
+  (сейчас: `stability`).
+* `effectiveValue(base, attribute, target, modifiers)` — `(base + Σadd) ×
+  Πmul` среди модификаторов, совпадающих по `target`+`attribute`. Тики
+  читают через неё, не сырое поле — сейчас единственный реальный читатель:
+  `AiBehaviorTick.applyStabilityWelfareNudge`.
+* Очистка истёкших — `removeExpiredModifiers(game)`, вызывается в Cleanup-
+  фазе `SimulationEngine.ts` рядом с `MapFeatureService.removeExpiredFeatures()`
+  (та сравнивает с wall-clock — задокументированный баг, не повторён здесь).
 
 ---
 

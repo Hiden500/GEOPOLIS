@@ -19,7 +19,7 @@
 |---|------|-----------|--------|
 | 01 | [01_PERSISTENCE_STATE.md](01_PERSISTENCE_STATE.md) — сохранения, гигиена GameState, баг regionIndex | **P0** | реализовано, см. `docs/ARCHITECTURE.md` §"Сохранения" |
 | 02 | [02_LLM_CONTRACT.md](02_LLM_CONTRACT.md) — типизация действий, structured output, летопись | **P0** | реализовано (Шаг 4 требует повторной живой проверки), см. `docs/LLM_RULES.md` |
-| 03 | [03_MODIFIERS_COMMANDS.md](03_MODIFIERS_COMMANDS.md) — команды, модификаторы, defines | P1 | не начато |
+| 03 | [03_MODIFIERS_COMMANDS.md](03_MODIFIERS_COMMANDS.md) — команды, модификаторы, defines | P1 | реализовано в суженном объёме (см. «Отклонения при реализации»), см. `docs/ARCHITECTURE.md` §"Команды"/§"Модификаторы" |
 | 04 | [04_RESOURCES.md](04_RESOURCES.md) — deposit / extraction / output | P1 | не начато |
 | 05 | [05_DATA_LAYOUT.md](05_DATA_LAYOUT.md) — расслоение JSON, валидация данных, пайплайн | P1 | не начато |
 | 06 | [06_MAP_FEATURES.md](06_MAP_FEATURES.md) — реестр типов, якоря/координаты, рендер | P1 | не начато |
