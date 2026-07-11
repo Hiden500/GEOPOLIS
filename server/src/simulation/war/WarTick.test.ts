@@ -13,6 +13,7 @@ function makeWar(overrides: Partial<War> = {}): War {
     startDate: "1946-01-01",
     active: true,
     territoryFlips: { toAttackers: 0, toDefenders: 0 },
+    casualties: {},
     ...overrides,
   };
 }
@@ -229,5 +230,110 @@ describe("warTick", () => {
     warTick(game);
 
     expect(game.mapFeatures.filter(f => f.type === "battalion")).toHaveLength(2);
+  });
+
+  describe("потери → демография (план 08, Шаг 3)", () => {
+    it("равная сила, 2 фронтовых региона: каждая сторона теряет базу × 2 × 0.5 = 10 000 с activePersonnel", () => {
+      const game = createTestGameState({
+        countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
+        regions: [
+          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        ],
+        wars: [makeWar()],
+      });
+
+      warTick(game);
+
+      // totalFront=2, доля=0.5 → 10 000/сторона. activePersonnel 500 000 хватает
+      // покрыть целиком — гражданских потерь нет.
+      const usa = game.countries[0]!;
+      const ussr = game.countries[1]!;
+      expect(usa.military.activePersonnel).toBe(490_000);
+      expect(ussr.military.activePersonnel).toBe(490_000);
+      expect(usa.military.manpower).toBe(990_000);
+      expect(ussr.military.manpower).toBe(990_000);
+      expect(game.regions[0]!.population).toBe(1_000_000); // гражданские не тронуты
+      expect(game.regions[1]!.population).toBe(1_000_000);
+      expect(game.wars[0]!.casualties).toEqual({ USA: 10_000, USSR: 10_000 });
+    });
+
+    it("без контакта (регионы не соседи) потерь нет", () => {
+      const game = createTestGameState({
+        countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
+        regions: [
+          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [] }),
+        ],
+        wars: [makeWar()],
+      });
+
+      warTick(game);
+
+      expect(game.countries[0]!.military.activePersonnel).toBe(500_000);
+      expect(game.countries[1]!.military.activePersonnel).toBe(500_000);
+      expect(game.wars[0]!.casualties).toEqual({});
+    });
+
+    it("слабейшая сторона теряет больше (доля силы противника)", () => {
+      const game = createTestGameState({
+        countries: [
+          createTestCountry({ id: "USA", military: { ...createTestCountry().military, activePersonnel: 5_000_000 } }),
+          createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 500_000 } }),
+        ],
+        regions: [
+          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        ],
+        wars: [makeWar()],
+      });
+
+      warTick(game);
+
+      // Слабый USSR (сила ~1/11 суммы) несёт бо́льшую долю потерь, чем сильный USA.
+      const casualties = game.wars[0]!.casualties;
+      expect(casualties.USSR!).toBeGreaterThan(casualties.USA!);
+    });
+
+    it("переполнение сверх activePersonnel уходит в население фронтовых регионов и manpower", () => {
+      const game = createTestGameState({
+        countries: [
+          createTestCountry({ id: "USA", military: { ...createTestCountry().military, activePersonnel: 5_000 } }),
+          createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 5_000 } }),
+        ],
+        regions: [
+          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        ],
+        wars: [makeWar()],
+      });
+
+      warTick(game);
+
+      // Равная (крошечная) сила → фронт стоит, 10 000 потерь/сторона.
+      // activePersonnel 5 000 обнуляется, переполнение 5 000 → население.
+      const usa = game.countries[0]!;
+      expect(usa.military.activePersonnel).toBe(0);
+      expect(game.regions[0]!.population).toBe(995_000); // 1 000 000 − 5 000 переполнения
+      expect(game.regions[1]!.population).toBe(995_000);
+      expect(usa.military.manpower).toBe(990_000); // весь урон 10 000 из пула
+      expect(game.wars[0]!.casualties).toEqual({ USA: 10_000, USSR: 10_000 });
+    });
+
+    it("неактивная война потерь не наносит", () => {
+      const game = createTestGameState({
+        countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
+        regions: [
+          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        ],
+        wars: [makeWar({ active: false })],
+      });
+
+      warTick(game);
+
+      expect(game.countries[0]!.military.activePersonnel).toBe(500_000);
+      expect(game.wars[0]!.casualties).toEqual({});
+    });
   });
 });

@@ -110,6 +110,7 @@ export class WarService {
       startDate: this.game.currentDate,
       active: true,
       territoryFlips: { toAttackers: 0, toDefenders: 0 },
+      casualties: {},
       ...(warGoal !== undefined ? { warGoal } : {}),
     };
 

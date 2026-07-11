@@ -200,6 +200,7 @@ describe("LLMService", () => {
         warGoal: "Contain communism",
         active: true,
         territoryFlips: { toAttackers: 3, toDefenders: 0 },
+        casualties: {},
       });
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
@@ -217,6 +218,7 @@ describe("LLMService", () => {
         startDate: game.currentDate,
         active: false,
         territoryFlips: { toAttackers: 0, toDefenders: 0 },
+        casualties: {},
       });
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
