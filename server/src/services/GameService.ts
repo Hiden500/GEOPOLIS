@@ -5,7 +5,7 @@ import { simulateMonth } from "../simulation/SimulationEngine";
 import { getGame, setGame } from "../game/GameStore";
 import * as SaveService from "../game/SaveService";
 import { type SaveSlotMeta } from "../game/SaveService";
-import { LLMGateError } from "../errors/AppError";
+import { GameError, LLMGateError } from "../errors/AppError";
 
 /**
  * Слот автосейва (docs/plans/01_PERSISTENCE_STATE.md) — перезаписывается
@@ -39,7 +39,7 @@ export class GameService {
   advanceMonth(months: number = 1): GameState {
     const game = getGame();
     if (!game) {
-      throw new Error("No active game");
+      throw new GameError("No active game");
     }
 
     if (!game.llmRespondedThisTurn) {
@@ -81,7 +81,7 @@ export class GameService {
   saveGame(slot: string): void {
     const game = getGame();
     if (!game) {
-      throw new Error("No active game");
+      throw new GameError("No active game");
     }
     SaveService.saveGame(game, slot);
   }

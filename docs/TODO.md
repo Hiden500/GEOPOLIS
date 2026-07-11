@@ -1,4 +1,4 @@
-Last updated: 2026-07-11 (Данные: расслоение JSON/валидация/пайплайн реализованы, план 05_DATA_LAYOUT.md — server/shared/Python-часть)
+Last updated: 2026-07-11 (route-слой тесты — тест-трек закрыт целиком; ранее в этот день — план 05_DATA_LAYOUT.md, server/shared/Python-часть)
 
 # Geopolis — План работ
 
@@ -295,7 +295,11 @@ LLM-контекста, но интеграцию цикла можно начи
   `scripts/map/out/{ownership_1946,neighbor_graph,names_ru,countries_1946}.json`
   и `names_ru.json` список→словарь — формат промежуточных артефактов,
   ценность только в читаемости, не в поведении.
-- route-слой тесты (нужен `supertest`, integration-style) — единственный незакрытый кусок тест-трека.
+~~route-слой тесты~~ — **реализовано 2026-07-11**: `server/src/app.ts` (createApp(),
+  без listen()) + `server/src/routes/__tests__/routes.integration.test.ts`
+  (supertest, 21 тестов). Попутно найдены и починены 2 бага: `GameService.
+  advanceMonth()`/`saveGame()` без активной игры бросали голый `Error`
+  вместо `GameError` — роут отвечал 500 вместо 404, как остальные эндпоинты.
 - тесты `Window.tsx` (drag/resize через DOM-события — инфра уже есть, `happy-dom` даёт `innerWidth`).
 - `MapFeatureService.removeExpiredFeatures()` сравнивает `expiresAt` с
   `new Date().toISOString()` (wall-clock, не `game.currentDate`) — найдено при
