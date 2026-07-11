@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { WarService } from "../WarService";
-import { createTestGameState, createTestCountry } from "../../test-utils/fixtures";
+import { createTestGameState, createTestCountry, createTestRegion } from "../../test-utils/fixtures";
+import { setRegionOccupation } from "../../simulation/war/occupation";
 import { type GameState } from "@shared/types/GameState";
 
 describe("WarService", () => {
@@ -238,6 +239,33 @@ describe("WarService", () => {
 
       expect(game.mapFeatures.find(f => f.id === "mf-1")).toBeUndefined();
       expect(game.mapFeatures.find(f => f.id === "mf-2")).toBeDefined();
+    });
+
+    it("снимает оккупацию этой войны (docs/plans/08_WAR_WAVE1.md, Шаг 1) — без Шага 2 (аннексия) вся оккупация возвращается легальному владельцу", () => {
+      const war = service.declareWar("USA", "USSR");
+      const occupiedRegion = createTestRegion({ id: 1, ownerCountryId: "USSR" });
+      game.regions.push(occupiedRegion);
+      setRegionOccupation(game, occupiedRegion, "USA");
+      expect(game.modifiers).toHaveLength(1);
+
+      service.makePeace(war.id);
+
+      expect(occupiedRegion.ownerCountryId).toBe("USSR");
+      expect(occupiedRegion.occupiedBy).toBeUndefined();
+      expect(game.modifiers).toHaveLength(0);
+    });
+
+    it("не трогает оккупацию от параллельной войны между другими странами", () => {
+      const war = service.declareWar("USA", "USSR");
+      game.countries.push(createTestCountry({ id: "GBR" }), createTestCountry({ id: "FRA" }));
+      const foreignOccupiedRegion = createTestRegion({ id: 2, ownerCountryId: "GBR" });
+      game.regions.push(foreignOccupiedRegion);
+      setRegionOccupation(game, foreignOccupiedRegion, "FRA");
+
+      service.makePeace(war.id);
+
+      expect(foreignOccupiedRegion.occupiedBy).toBe("FRA");
+      expect(game.modifiers).toHaveLength(1);
     });
 
     it("не делает ничего для уже завершённой войны", () => {

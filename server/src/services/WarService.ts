@@ -1,5 +1,6 @@
 import { type GameState } from "@shared/types/GameState";
 import { type War } from "@shared/types/War";
+import { revertOccupationForWar } from "../simulation/war/occupation";
 
 /**
  * Штраф легитимности/governmentSupport проигравшей стороне при заключении
@@ -140,6 +141,11 @@ export class WarService {
     if (!war || !war.active) return;
 
     war.active = false;
+
+    // Без Шага 2 плана (аннексия по договору, отложен) вся оккупация этой
+    // войны снимается миром — не аннексированное по договору снимается
+    // (docs/plans/08_WAR_WAVE1.md, Шаг 1).
+    revertOccupationForWar(this.game, war);
 
     const durationMonths = monthsBetween(war.startDate, this.game.currentDate);
     const { toAttackers, toDefenders } = war.territoryFlips;
