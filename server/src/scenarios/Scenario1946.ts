@@ -5,10 +5,12 @@ import { ERAS } from "@shared/data/eras";
 import fs from 'fs';
 import path from 'path';
 import { type ZodType } from "zod";
+import { createCountry, type CountryInput } from "../data/countries/templates/CreateCountry";
 import {
   regionCoreFileSchema,
   regionStateFileSchema,
   namesFileSchema,
+  authoredCountryFileSchema,
   type RegionCoreEntry,
   type RegionStateEntry,
 } from "./scenario1946Schemas";
@@ -21,6 +23,8 @@ import {
  * Данные расслоены (docs/plans/05_DATA_LAYOUT.md, Срез 1): regions.core.json
  * (география) + names.en.json/names.ru.json (локализация) + regions.state.json
  * (владение/экономика) собираются в Region[] здесь, на загрузке — не на диске.
+ * countries.json (Срез 2) — только авторские поля, нулевые рантайм-блоки
+ * дефолтит createCountry (тот же путь, что для 12 рукописных TS-стран 1836/2000).
  */
 export class ScenarioDataError extends Error {
   constructor(message: string) {
@@ -51,18 +55,11 @@ function readJsonFile<T>(fullPath: string, schema: ZodType<T>, label: string): T
   return result.data;
 }
 
-function loadJsonData<T>(fullPath: string, label: string): T[] {
-  try {
-    if (fs.existsSync(fullPath)) {
-      const data = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
-      console.log(`Загружено ${data.length} ${label} из ${fullPath}`);
-      return data;
-    }
-    console.warn(`Файл ${fullPath} не найден, ${label} не загружены`);
-  } catch (error) {
-    console.error(`Ошибка загрузки ${label} из ${fullPath}:`, error);
-  }
-  return [];
+function buildCountries(baseDir: string): Country[] {
+  const authored = readJsonFile(
+    path.join(baseDir, 'countries.json'), authoredCountryFileSchema, 'countries.json'
+  );
+  return authored.map((entry) => createCountry(entry as CountryInput));
 }
 
 function buildRegions(baseDir: string): Region[] {
@@ -120,7 +117,7 @@ function buildRegions(baseDir: string): Region[] {
 
 export function buildScenario1946(baseDir: string): Scenario {
   const regions = buildRegions(baseDir);
-  const countries = loadJsonData<Country>(path.join(baseDir, 'countries.json'), 'стран');
+  const countries = buildCountries(baseDir);
 
   return {
     id: "1946",

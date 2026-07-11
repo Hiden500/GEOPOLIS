@@ -44,3 +44,85 @@ export const regionStateFileSchema = z.array(regionStateSchema);
 /** region_id (geoJsonId) → имя. Частичное покрытие допустимо (см. getText fallback). */
 export const namesFileSchema = z.record(z.string(), z.string());
 export type NamesFile = z.infer<typeof namesFileSchema>;
+
+/**
+ * Авторская страна countries.json (docs/plans/05_DATA_LAYOUT.md, Срез 2) — только
+ * реально ненулевые/содержательные поля, зеркалит CountryInput
+ * (server/src/data/countries/templates/CreateCountry.ts). Нулевые рантайм-блоки
+ * (technology/military/stockpile/researchedTechnologyIds/goals/population,
+ * пустая diplomacy) в файле отсутствуют — их дефолтит createCountry на загрузке.
+ */
+const economyProfileOverrideSchema = z.object({
+  taxRate: z.number().optional(),
+  spending: z.object({
+    military: z.number(),
+    research: z.number(),
+    education: z.number(),
+    infrastructure: z.number(),
+    welfare: z.number(),
+    other: z.number(),
+  }).partial().optional(),
+  treasuryShare: z.number().optional(),
+  exportShare: z.number().optional(),
+  stateEnterpriseShare: z.number().optional(),
+  otherIncomeShare: z.number().optional(),
+  inflation: z.number().optional(),
+  unemployment: z.number().optional(),
+  tradeBalance: z.number().optional(),
+  debtInterestShare: z.number().optional(),
+});
+
+const authoredDiplomacySchema = z.object({
+  allies: z.array(z.string()).optional(),
+  rivals: z.array(z.string()).optional(),
+  puppets: z.array(z.string()).optional(),
+  sphereOfInfluence: z.array(z.string()).optional(),
+  relations: z.record(z.string(), z.number()).optional(),
+  influence: z.record(z.string(), z.number()).optional(),
+  guarantees: z.array(z.string()).optional(),
+  sanctions: z.record(z.string(), z.array(z.string())).optional(),
+});
+
+const authoredTechnologySchema = z.object({
+  domains: z.record(z.string(), z.number()).optional(),
+  researchAllocation: z.record(z.string(), z.number()).optional(),
+});
+
+const authoredMilitarySchema = z.object({
+  manpower: z.number().optional(),
+  activePersonnel: z.number().optional(),
+  reservePersonnel: z.number().optional(),
+  militaryBudget: z.number().optional(),
+  armyStrength: z.number().optional(),
+  navyStrength: z.number().optional(),
+  airStrength: z.number().optional(),
+  nuclearWarheads: z.number().optional(),
+  equipment: z.record(z.string(), z.number()).optional(),
+});
+
+export const authoredCountrySchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  shortName: z.string().min(1),
+  color: z.string().min(1),
+  capitalRegionId: z.number().int().nonnegative(),
+  economyType: z.enum(["planned", "mixed", "market"]),
+  economyProfile: economyProfileOverrideSchema.optional(),
+  population: z.number().nonnegative().optional(),
+  technology: authoredTechnologySchema.optional(),
+  researchedTechnologyIds: z.array(z.string()).optional(),
+  military: authoredMilitarySchema.optional(),
+  diplomacy: authoredDiplomacySchema.optional(),
+  politics: z.object({
+    ideology: z.string().min(1),
+    governmentType: z.string().optional(),
+    stability: z.number().optional(),
+    legitimacy: z.number().optional(),
+    corruption: z.number().optional(),
+    governmentSupport: z.number().optional(),
+  }),
+  stockpile: z.record(z.string(), z.number()).optional(),
+  goals: z.array(z.unknown()).optional(),
+});
+export type AuthoredCountry = z.infer<typeof authoredCountrySchema>;
+export const authoredCountryFileSchema = z.array(authoredCountrySchema);

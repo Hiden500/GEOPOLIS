@@ -120,13 +120,6 @@ ZONE_TINT_SUZERAIN = {
     "QAZ": "SUN", "QMH": "SUN", "QSO": "GBR",
 }
 
-EQUIPMENT_TYPES = ["rifles", "trucks", "tanks", "fighters", "bombers", "artillery", "destroyers", "submarines"]
-TECH_DOMAINS_1946 = ["nuclear", "rocketry", "electronics", "computing", "microelectronics", "aviation",
-                     "radar", "biology", "armor", "naval", "infantry", "space", "materials", "industry"]
-RESOURCE_KEYS = ["oil", "coal", "gas", "iron", "copper", "gold", "tin", "nickel", "bauxite", "tungsten",
-                 "manganese", "chromium", "uranium", "rareEarths", "lithium", "food", "timber", "cotton",
-                 "rubber", "nitrates"]
-
 ARCHETYPES = {
     "planned": {
         "taxRate": 0.20,
@@ -174,19 +167,6 @@ def build_merge_map(catalog: dict) -> dict:
         for m in members:
             merge_map[m] = bloc_code
     return merge_map
-
-
-def empty_stockpile():
-    return {k: 0 for k in RESOURCE_KEYS}
-
-
-def empty_economy_state():
-    return {
-        "gdp": 0, "treasury": 0, "taxRevenue": 0, "exportIncome": 0, "stateEnterpriseIncome": 0,
-        "otherIncome": 0, "militarySpending": 0, "researchSpending": 0, "educationSpending": 0,
-        "infrastructureSpending": 0, "welfareSpending": 0, "debtInterest": 0, "otherExpenses": 0,
-        "inflation": 0, "unemployment": 0, "tradeBalance": 0, "budgetBalance": 0,
-    }
 
 
 def deterministic_color(country_id: str) -> str:
@@ -247,36 +227,27 @@ def tint_from_suzerain(suzerain_hex: str) -> str:
 
 def make_country(country_id: str, name_en: str, economy_type: str, ideology: str,
                   capital_region_id: int | None, puppets: list[str], color: str) -> dict:
+    """Только авторские поля (docs/plans/05_DATA_LAYOUT.md, Срез 2) — нулевые
+    рантайм-блоки (technology/military/stockpile/researchedTechnologyIds/goals/
+    population, пустая diplomacy) не пишутся: их дефолтит createCountry на
+    загрузке (server/src/data/countries/templates/CreateCountry.ts). politics —
+    только ideology (реально варьируется по стране), остальные поля политики —
+    единый дефолт для всех 128 стран, тоже не авторские данные."""
     profile = dict(ARCHETYPES[economy_type])
     profile["spending"] = dict(profile["spending"])
-    return {
+    country = {
         "id": country_id,
         "name": name_en,
         "shortName": name_en[:24],
         "color": color,
         "capitalRegionId": capital_region_id if capital_region_id is not None else 0,
-        "population": 0,
-        "economyProfile": profile,
-        "economy": empty_economy_state(),
         "economyType": economy_type,
-        "technology": {"domains": {d: 0 for d in TECH_DOMAINS_1946}, "projects": []},
-        "researchedTechnologyIds": [],
-        "military": {
-            "manpower": 0, "activePersonnel": 0, "reservePersonnel": 0, "militaryBudget": 0,
-            "armyStrength": 0, "navyStrength": 0, "airStrength": 0, "nuclearWarheads": 0,
-            "units": [], "equipment": {e: 0 for e in EQUIPMENT_TYPES},
-        },
-        "diplomacy": {
-            "allies": [], "rivals": [], "puppets": puppets, "sphereOfInfluence": list(puppets),
-            "relations": {}, "influence": {}, "guarantees": [], "sanctions": {},
-        },
-        "politics": {
-            "ideology": ideology, "governmentType": "Unknown", "stability": 50,
-            "legitimacy": 50, "corruption": 30, "governmentSupport": 50,
-        },
-        "stockpile": empty_stockpile(),
-        "goals": [],
+        "economyProfile": profile,
+        "politics": {"ideology": ideology},
     }
+    if puppets:
+        country["diplomacy"] = {"puppets": puppets, "sphereOfInfluence": list(puppets)}
+    return country
 
 
 def main():
@@ -400,7 +371,8 @@ def main():
     for country in countries:
         extra_sphere = SPHERE_OVERRIDES.get(country["id"])
         if extra_sphere:
-            country["diplomacy"]["sphereOfInfluence"].extend(extra_sphere)
+            diplomacy = country.setdefault("diplomacy", {"puppets": [], "sphereOfInfluence": []})
+            diplomacy["sphereOfInfluence"].extend(extra_sphere)
 
     COUNTRIES_OUT.parent.mkdir(parents=True, exist_ok=True)
     COUNTRIES_OUT.write_text(json.dumps(countries, ensure_ascii=False, indent=2), encoding="utf-8")

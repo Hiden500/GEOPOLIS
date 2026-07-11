@@ -75,6 +75,18 @@ export function createGame(
   // Инициализируем ВВП регионов и агрегируем данные к странам
   updateAllRegionsAndAggregate(countries, regions);
 
+  // Домены исследований текущей эры, отсутствующие у страны (авторские данные
+  // задают только реально ненулевой прогресс, см. CreateCountry.ts/план 05) —
+  // ResearchTick.ts берёт список доменов из ключей technology.domains, поэтому
+  // домен без явного 0 никогда не получил бы прогресса.
+  for (const country of countries) {
+    for (const domain of scenario.technologyEra.technologyDomains) {
+      if (!(domain in country.technology.domains)) {
+        country.technology.domains[domain] = 0;
+      }
+    }
+  }
+
   for (const country of countries) {
     deriveCountryEconomy(country);
   }

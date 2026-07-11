@@ -7,10 +7,12 @@ import { buildScenario1946, ScenarioDataError } from "./Scenario1946";
 /**
  * Расслоение regions.json (docs/plans/05_DATA_LAYOUT.md, Срез 1): core (география) +
  * names.en/names.ru (локализация) + state (владение/экономика) собираются в Region[]
- * на загрузке. Фикстуры пишутся во временную директорию — не зависят от реальных
- * 1366 регионов сценария (те покрыты сквозным createGame("1946", ...) в CreateGame.test.ts).
+ * на загрузке. countries.json (Срез 2) — авторский формат без нулевых блоков,
+ * собирается в Country[] через createCountry(). Фикстуры пишутся во временную
+ * директорию — не зависят от реальных 1366 регионов/128 стран сценария (те
+ * покрыты сквозным createGame("1946", ...) в CreateGame.test.ts).
  */
-describe("buildScenario1946 (план 05, Срез 1)", () => {
+describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
   let tmpDir: string;
 
   afterEach(() => {
@@ -124,5 +126,56 @@ describe("buildScenario1946 (план 05, Срез 1)", () => {
     const scenario = buildScenario1946(dir);
     const second = scenario.regions.find(r => r.id === 2)!;
     expect(second.names).toEqual({ en: "Some Region" });
+  });
+
+  describe("countries.json (Срез 2)", () => {
+    it("критерий: авторская запись без нулевых блоков собирается в полноценный Country через createCountry", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, {
+        countries: [{
+          id: "AND", name: "Andorra", shortName: "Andorra", color: "#123456",
+          capitalRegionId: 1, economyType: "mixed",
+          politics: { ideology: "Liberal Democracy" },
+        }],
+      });
+
+      const scenario = buildScenario1946(dir);
+
+      expect(scenario.countries).toHaveLength(1);
+      const country = scenario.countries[0]!;
+      expect(country.id).toBe("AND");
+      expect(country.technology).toEqual({ domains: {} });
+      expect(country.military.equipment.tanks).toBe(0);
+      expect(country.diplomacy.puppets).toEqual([]);
+      expect(country.stockpile.oil).toBe(0);
+      expect(country.politics.ideology).toBe("Liberal Democracy");
+    });
+
+    it("падает с внятной ошибкой, если у страны нет politics.ideology", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, {
+        countries: [{
+          id: "AND", name: "Andorra", shortName: "Andorra", color: "#123456",
+          capitalRegionId: 1, economyType: "mixed",
+          politics: {}, // нет ideology — обязательное поле
+        }],
+      });
+
+      expect(() => buildScenario1946(dir)).toThrow(ScenarioDataError);
+      expect(() => buildScenario1946(dir)).toThrow(/countries\.json/);
+    });
+
+    it("падает с внятной ошибкой на неизвестном economyType", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, {
+        countries: [{
+          id: "AND", name: "Andorra", shortName: "Andorra", color: "#123456",
+          capitalRegionId: 1, economyType: "communist", // не planned/mixed/market
+          politics: { ideology: "Communism" },
+        }],
+      });
+
+      expect(() => buildScenario1946(dir)).toThrow(ScenarioDataError);
+    });
   });
 });
