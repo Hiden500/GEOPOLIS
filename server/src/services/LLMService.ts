@@ -6,6 +6,7 @@ import { type Locale } from "@shared/types/i18n/LocalizedText";
 import * as diplomacyCommands from "../commands/diplomacy";
 import * as warCommands from "../commands/war";
 import * as economyCommands from "../commands/economy";
+import * as resourceCommands from "../commands/resources";
 import { getDomainTier } from "@shared/utils/technology";
 import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMetrics";
 import { getEligibleHingePoints } from "@shared/utils/hingePoints";
@@ -271,6 +272,11 @@ Narrative requirements (strict):
   categories (rifles/trucks/tanks/artillery/fighters/bombers/destroyers/
   submarines), no named unit models; quality is decorative, invent it the
   same way you invent research breakthroughs.
+- You may direct a country to build up or scale down resource extraction
+  capacity in a region it controls via a "build_extraction" action
+  (data.regionId, data.resource, data.delta: 1 or -1) — one level per turn,
+  the engine computes actual output from richness × capacity, you never
+  set a production number directly.
 
 Return your response in JSON format with the following structure:
 {
@@ -278,7 +284,7 @@ Return your response in JSON format with the following structure:
   "descriptions": "Narrative description of world events",
   "actions": [
     {
-      "type": "diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift|production_shift",
+      "type": "diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift|production_shift|build_extraction",
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
@@ -295,6 +301,9 @@ Hard limits (actions violating them are rejected):
 - production_shift: data.equipmentType must be one of rifles/trucks/tanks/
   artillery/fighters/bombers/destroyers/submarines; data.share within
   0-${MAX_PRODUCTION_SHARE}.
+- build_extraction: data.delta must be exactly 1 or -1; the source country
+  must control data.regionId and (for delta=1) the region must have a
+  deposit of data.resource.
 - sourceCountryId and targetCountryId MUST be ids copied verbatim from the
   ## Country IDs section. Never invent, abbreviate, or guess an id from a
   country's name (e.g. do not turn "Soviet Union" into "SOV" or "USSR",
@@ -333,6 +342,9 @@ Hard limits (actions violating them are rejected):
           break;
         case 'production_shift':
           this.applyProductionShiftAction(action);
+          break;
+        case 'build_extraction':
+          this.applyBuildExtractionAction(action);
           break;
         case 'annex':
         case 'puppet':
@@ -421,6 +433,22 @@ Hard limits (actions violating them are rejected):
       action.sourceCountryId,
       action.data.equipmentType,
       action.data.share
+    );
+  }
+
+  /**
+   * Применяет наращивание/сворачивание добывающих мощностей региона
+   * (docs/plans/04_RESOURCES.md) — ±1 уровень за ход, кап в Zod-схеме
+   * (actionSchemas.ts), контроль над регионом и наличие депозита —
+   * LLMResponseValidator перед вызовом, сама мутация — commands/resources.ts.
+   */
+  private applyBuildExtractionAction(action: Extract<LLMAction, { type: "build_extraction" }>): void {
+    resourceCommands.buildExtraction(
+      this.game,
+      action.sourceCountryId,
+      action.data.regionId,
+      action.data.resource,
+      action.data.delta
     );
   }
 

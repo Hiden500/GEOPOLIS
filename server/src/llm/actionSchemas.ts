@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
+import { ResourceType } from "@shared/types/resources/ResourcesType";
 import { type LLMAction as SharedLLMAction } from "@shared/types/GameState";
 import {
   MAX_ACTIONS_PER_RESPONSE,
@@ -29,6 +30,7 @@ const SANCTION_TYPES = [
 ] as const;
 
 const EQUIPMENT_TYPES = Object.values(EquipmentType) as [EquipmentType, ...EquipmentType[]];
+const RESOURCE_TYPES = Object.values(ResourceType) as [ResourceType, ...ResourceType[]];
 
 /**
  * source===target — это форма запроса, не игровое состояние: не требует
@@ -133,6 +135,23 @@ const ProductionShiftAction = z.object({
   }),
 });
 
+// build_extraction — самодействие, как research_shift/production_shift
+// (regionId вместо targetCountryId — сырая координата LLM не выдаёт,
+// только id региона из ростера, docs/plans/04_RESOURCES.md). delta — жёсткий
+// кап ±1 уровень/ход прямо в схеме (структурная проверка, контекст-
+// независимая); контроль над регионом/наличие депозита/казна —
+// LLMResponseValidator.ts::validateActionApplicability и
+// server/src/commands/resources.ts, знают о конкретной партии.
+const BuildExtractionAction = z.object({
+  type: z.literal("build_extraction"),
+  sourceCountryId: z.string().min(1),
+  data: z.object({
+    regionId: z.number().int(),
+    resource: z.enum(RESOURCE_TYPES),
+    delta: z.union([z.literal(1), z.literal(-1)]),
+  }),
+});
+
 export const LLMActionSchema = z.discriminatedUnion("type", [
   DiplomacyAction,
   WarAction,
@@ -144,6 +163,7 @@ export const LLMActionSchema = z.discriminatedUnion("type", [
   InfluenceAction,
   ResearchShiftAction,
   ProductionShiftAction,
+  BuildExtractionAction,
 ]);
 
 /**

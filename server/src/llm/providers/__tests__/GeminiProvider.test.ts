@@ -99,7 +99,7 @@ describe("GeminiProvider", () => {
    * Структура responseSchema — сгенерирована из GeminiResponseSchema
    * (actionSchemas.ts, docs/plans/02_LLM_CONTRACT.md, Шаг 4), не второй
    * ручной литерал. Проверяет ровно то, что раньше рассинхронизировалось
-   * молча: полный список из 10 типов действия и их реальные data-поля.
+   * молча: полный список из 11 типов действия и их реальные data-поля.
    */
   describe("сгенерированная responseSchema (Zod → JSON Schema)", () => {
     async function captureResponseSchema(): Promise<any> {
@@ -130,7 +130,7 @@ describe("GeminiProvider", () => {
       }
     });
 
-    it("actions.items — anyOf (не oneOf, документированный ключ Gemini для union), все 10 типов присутствуют", async () => {
+    it("actions.items — anyOf (не oneOf, документированный ключ Gemini для union), все 11 типов присутствуют", async () => {
       const schema = await captureResponseSchema();
       const items = schema.properties.actions.items;
 
@@ -141,11 +141,11 @@ describe("GeminiProvider", () => {
       // поддерживается этим REST-эндпоинтом Gemini — см. enrichForGemini).
       // Ветки с идентичной формой (peace/annex/puppet/guarantee) схлопнуты
       // mergeIdenticalShapeBranches в одну — enum там содержит несколько
-      // значений, не одно; flatMap разворачивает все 10 обратно.
+      // значений, не одно; flatMap разворачивает все 11 обратно.
       const types = items.anyOf.flatMap((branch: any) => branch.properties.type.enum);
       expect(types.sort()).toEqual(
         [
-          "annex", "diplomacy", "guarantee", "influence", "peace",
+          "annex", "build_extraction", "diplomacy", "guarantee", "influence", "peace",
           "production_shift", "puppet", "research_shift", "sanction", "war",
         ].sort()
       );

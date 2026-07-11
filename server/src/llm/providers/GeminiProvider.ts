@@ -78,24 +78,51 @@ function mergeIdenticalShapeBranches(branches: Record<string, unknown>[]): Recor
   }));
 }
 
+/**
+ * mergeIdenticalShapeBranches предполагает дискриминированный union объектов
+ * (ветка = `{type:"object", properties:{type:{...}, ...}}`) — паттерн
+ * LLMActionSchema. Не каждый anyOf/oneOf в схеме такой: `delta:
+ * z.union([z.literal(1), z.literal(-1)])` (build_extraction,
+ * docs/plans/04_RESOURCES.md) даёт ветки-литералы (`{const:1}`/`{const:-1}`,
+ * без `properties` вообще) — слепое применение схлопывания падает
+ * (`branch.properties.type` — undefined). Схлопывание применимо только если
+ * ВСЕ ветки — объекты с `type`-дискриминантом в properties.
+ */
+function isMergeableDiscriminatedBranch(branch: Record<string, unknown>): boolean {
+  return (
+    branch.type === "object" &&
+    typeof branch.properties === "object" &&
+    branch.properties !== null &&
+    "type" in (branch.properties as Record<string, unknown>)
+  );
+}
+
 function enrichForGemini(node: unknown): unknown {
   if (node === null || typeof node !== "object") return node;
   const obj = node as Record<string, unknown>;
 
   delete obj.additionalProperties;
 
-  if (obj.type === "string" && "const" in obj) {
+  // "const" не поддерживается Gemini независимо от типа значения (строка —
+  // подтверждено живым 400 "Unknown name const", docs/plans/02_LLM_CONTRACT.md;
+  // число — та же категория ограничения диалекта, не проверялось отдельно
+  // живьём, но нет оснований считать иначе).
+  if ("const" in obj) {
     obj.enum = [obj.const];
     delete obj.const;
   }
 
   if (Array.isArray(obj.oneOf)) {
     const enriched = obj.oneOf.map(enrichForGemini) as Record<string, unknown>[];
-    obj.anyOf = mergeIdenticalShapeBranches(enriched);
+    obj.anyOf = enriched.every(isMergeableDiscriminatedBranch)
+      ? mergeIdenticalShapeBranches(enriched)
+      : enriched;
     delete obj.oneOf;
   } else if (Array.isArray(obj.anyOf)) {
     const enriched = obj.anyOf.map(enrichForGemini) as Record<string, unknown>[];
-    obj.anyOf = mergeIdenticalShapeBranches(enriched);
+    obj.anyOf = enriched.every(isMergeableDiscriminatedBranch)
+      ? mergeIdenticalShapeBranches(enriched)
+      : enriched;
   }
 
   if (obj.properties && typeof obj.properties === "object") {

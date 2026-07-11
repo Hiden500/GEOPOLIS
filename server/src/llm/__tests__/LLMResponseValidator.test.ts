@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { LLMResponseValidator } from "../LLMResponseValidator";
 import { WarService } from "../../services/WarService";
-import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
+import { createTestCountry, createTestGameState, createTestRegion } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
 
 /**
@@ -254,6 +254,68 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
         data: { domain: "armor", share: 0.31 },
       });
       expect(belowFloor.valid).toBe(false);
+    });
+  });
+
+  describe("build_extraction (docs/plans/04_RESOURCES.md)", () => {
+    it("отклоняет неизвестный regionId", () => {
+      const game = makeGame();
+      const validator = new LLMResponseValidator(game);
+      const result = validator.validateActionApplicability({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 999, resource: "oil", delta: 1 },
+      });
+      expect(result.valid).toBe(false);
+      expect(result.error).toBe("Unknown region: 999");
+    });
+
+    it("delta=1: отклоняет, если страна не контролирует регион", () => {
+      const game = makeGame();
+      game.regions.push(createTestRegion({ id: 1, ownerCountryId: "USSR", deposits: { oil: 1000 } }));
+      const validator = new LLMResponseValidator(game);
+      const result = validator.validateActionApplicability({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta: 1 },
+      });
+      expect(result.valid).toBe(false);
+    });
+
+    it("delta=1: отклоняет, если в регионе нет депозита ресурса", () => {
+      const game = makeGame();
+      game.regions.push(createTestRegion({ id: 1, ownerCountryId: "USA", deposits: {} }));
+      const validator = new LLMResponseValidator(game);
+      const result = validator.validateActionApplicability({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta: 1 },
+      });
+      expect(result.valid).toBe(false);
+    });
+
+    it("delta=1: разрешает, если страна контролирует регион и депозит есть", () => {
+      const game = makeGame();
+      game.regions.push(createTestRegion({ id: 1, ownerCountryId: "USA", deposits: { oil: 1000 } }));
+      const validator = new LLMResponseValidator(game);
+      const result = validator.validateActionApplicability({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta: 1 },
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    it("delta=-1: разрешает даже без контроля региона (сворачивание чужой/потерянной добычи)", () => {
+      const game = makeGame();
+      game.regions.push(createTestRegion({ id: 1, ownerCountryId: "USSR", deposits: {} }));
+      const validator = new LLMResponseValidator(game);
+      const result = validator.validateActionApplicability({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta: -1 },
+      });
+      expect(result.valid).toBe(true);
     });
   });
 });

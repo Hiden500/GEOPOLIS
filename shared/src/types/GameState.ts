@@ -8,6 +8,7 @@ import { type War } from "./War";
 import { type Modifier } from "./Modifier";
 import { type SanctionType } from "./DiplomacyState";
 import { type EquipmentType } from "./military/EquipmentType";
+import { type ResourceType } from "./resources/ResourcesType";
 
 export interface GameState {
   currentDate: string;
@@ -130,4 +131,5 @@ export type LLMAction =
   | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
   | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number | undefined } | undefined }
   | { type: "research_shift"; sourceCountryId: string; data: { domain: string; share: number } }
-  | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } };
+  | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } }
+  | { type: "build_extraction"; sourceCountryId: string; data: { regionId: number; resource: ResourceType; delta: 1 | -1 } };

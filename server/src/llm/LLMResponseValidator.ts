@@ -1,6 +1,7 @@
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { WarService } from "../services/WarService";
+import { effectiveController } from "@shared/utils/regionControl";
 import { MAX_RESEARCH_SHARE, WAR_RESEARCH_SHARE_PENALTY, MIN_RESEARCH_SHARE_CAP } from "@shared/defines/llmActionCaps";
 
 /**
@@ -66,6 +67,25 @@ export class LLMResponseValidator {
     if (action.type === 'production_shift') {
       if (!(action.data.equipmentType in source.military.equipment)) {
         return { valid: false, error: `Unknown equipment type: ${action.data.equipmentType}` };
+      }
+    }
+
+    if (action.type === 'build_extraction') {
+      const region = this.game.regions.find(r => r.id === action.data.regionId);
+      if (!region) {
+        return { valid: false, error: `Unknown region: ${action.data.regionId}` };
+      }
+
+      // Наращивание требует контроля над регионом и наличия депозита
+      // (docs/plans/04_RESOURCES.md); сворачивание (delta<0) — нет, страна
+      // вправе свернуть свою же добычу на потерянной/оккупированной территории.
+      if (action.data.delta > 0) {
+        if (effectiveController(region) !== action.sourceCountryId) {
+          return { valid: false, error: `Country does not control region ${action.data.regionId}` };
+        }
+        if (!region.deposits[action.data.resource]) {
+          return { valid: false, error: `No ${action.data.resource} deposit in region ${action.data.regionId}` };
+        }
       }
     }
 

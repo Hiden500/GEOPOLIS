@@ -9,7 +9,7 @@ import {
 } from "@shared/defines/llmActionCaps";
 
 describe("LLMActionSchema", () => {
-  describe("общие правила (все 10 типов)", () => {
+  describe("общие правила (все 11 типов)", () => {
     it("отклоняет неизвестный type", () => {
       const result = LLMActionSchema.safeParse({ type: "nuke", sourceCountryId: "USA", targetCountryId: "SUN" });
       expect(result.success).toBe(false);
@@ -290,6 +290,56 @@ describe("LLMActionSchema", () => {
           sourceCountryId: "USA",
           data: { equipmentType: "tanks", share: MAX_PRODUCTION_SHARE + 0.01 },
         }).success
+      ).toBe(false);
+    });
+  });
+
+  describe("build_extraction", () => {
+    it("принимает валидное действие без targetCountryId", () => {
+      const result = LLMActionSchema.safeParse({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta: 1 },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("принимает delta: -1 (сворачивание)", () => {
+      const result = LLMActionSchema.safeParse({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta: -1 },
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it.each([0, 2, -2, 0.5])("отклоняет delta вне {1,-1}: %s", (delta) => {
+      const result = LLMActionSchema.safeParse({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta },
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("отклоняет несуществующий resource", () => {
+      const result = LLMActionSchema.safeParse({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "plutonium", delta: 1 },
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("regionId/resource/delta обязательны", () => {
+      expect(
+        LLMActionSchema.safeParse({ type: "build_extraction", sourceCountryId: "USA", data: { resource: "oil", delta: 1 } }).success
+      ).toBe(false);
+      expect(
+        LLMActionSchema.safeParse({ type: "build_extraction", sourceCountryId: "USA", data: { regionId: 1, delta: 1 } }).success
+      ).toBe(false);
+      expect(
+        LLMActionSchema.safeParse({ type: "build_extraction", sourceCountryId: "USA", data: { regionId: 1, resource: "oil" } }).success
       ).toBe(false);
     });
   });
