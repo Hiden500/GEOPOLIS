@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import { resourceTick } from "./ResourceTick";
 import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
 import { OCCUPATION_EXTRACTION_PENALTY } from "@shared/defines/occupation";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
+import { type Modifier } from "@shared/types/Modifier";
 
 describe("resourceTick", () => {
   it("adds extracted resources to the country stockpile", () => {
@@ -91,5 +93,69 @@ describe("resourceTick", () => {
     const occupiedGain = occupant.stockpile.oil - createTestCountry().stockpile.oil;
 
     expect(occupiedGain).toBeCloseTo(freeGain * OCCUPATION_EXTRACTION_PENALTY, 5);
+  });
+
+  it("output пропорционален уровню extraction (docs/plans/04_RESOURCES.md)", () => {
+    const fullCountry = createTestCountry({ id: "FULL" });
+    const fullRegion = createTestRegion({
+      id: 1, ownerCountryId: "FULL", infrastructure: 0,
+      deposits: { oil: 1000 }, extraction: { oil: MAX_EXTRACTION_LEVEL },
+    });
+
+    const halfCountry = createTestCountry({ id: "HALF" });
+    const halfRegion = createTestRegion({
+      id: 2, ownerCountryId: "HALF", infrastructure: 0,
+      deposits: { oil: 1000 }, extraction: { oil: MAX_EXTRACTION_LEVEL / 2 },
+    });
+
+    resourceTick(fullCountry, [fullRegion]);
+    resourceTick(halfCountry, [halfRegion]);
+
+    const fullGain = fullCountry.stockpile.oil - createTestCountry().stockpile.oil;
+    const halfGain = halfCountry.stockpile.oil - createTestCountry().stockpile.oil;
+
+    expect(halfGain).toBeCloseTo(fullGain / 2, 5);
+  });
+
+  it("нулевой extraction — нет добычи и месторождение не истощается", () => {
+    const country = createTestCountry();
+    const region = createTestRegion({
+      ownerCountryId: country.id, deposits: { oil: 1000 }, extraction: { oil: 0 },
+    });
+    const oilBefore = country.stockpile.oil;
+
+    resourceTick(country, [region]);
+
+    expect(country.stockpile.oil).toBe(oilBefore);
+    expect(region.deposits.oil).toBe(1000);
+  });
+
+  it("модификатор resourceOutput (-50% на регион) уменьшает добычу и исчезает после истечения", () => {
+    const country = createTestCountry();
+    const region = createTestRegion({
+      id: 1, ownerCountryId: country.id, infrastructure: 0, deposits: { oil: 1000 },
+    });
+    const strikeModifier: Modifier = {
+      id: "mod-000000",
+      source: "event:strike",
+      target: { kind: "region", id: 1 },
+      attribute: "resourceOutput",
+      op: "mul",
+      value: 0.5,
+      expiresAt: "1946-07-01",
+    };
+
+    const withStrikeCountry = createTestCountry({ id: "STRIKE" });
+    const withStrikeRegion = createTestRegion({
+      id: 1, ownerCountryId: "STRIKE", infrastructure: 0, deposits: { oil: 1000 },
+    });
+    resourceTick(withStrikeCountry, [withStrikeRegion], [strikeModifier]);
+
+    resourceTick(country, [region]); // без модификатора — как после истечения (removeExpiredModifiers, план 03)
+
+    const strikeGain = withStrikeCountry.stockpile.oil - createTestCountry().stockpile.oil;
+    const normalGain = country.stockpile.oil - createTestCountry().stockpile.oil;
+
+    expect(strikeGain).toBeCloseTo(normalGain * 0.5, 5);
   });
 });

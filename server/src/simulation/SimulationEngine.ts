@@ -23,7 +23,7 @@ export function simulateMonth(
 
         economyTick(country, game.regions);
 
-        resourceTick(country, game.regions);
+        resourceTick(country, game.regions, game.modifiers);
 
         // Торговля v1 (независимый гейм-дизайн разбор, 2026-07-06) — после
         // resourceTick, чтобы продавать излишек этого месяца. Перезаписывает

@@ -1,7 +1,11 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
+import { type ResourceType } from "@shared/types/resources/ResourcesType";
+import { type Modifier } from "@shared/types/Modifier";
 import { RegionEconomyService } from "../../services/RegionEconomyService";
 import { effectiveController } from "@shared/utils/regionControl";
+import { effectiveValue } from "@shared/utils/modifiers";
+import { ModifierAttribute } from "@shared/defines/modifierAttributes";
 import { OCCUPATION_EXTRACTION_PENALTY } from "@shared/defines/occupation";
 import {
   MINING_TECH_BONUS_RATE,
@@ -9,18 +13,22 @@ import {
   MINING_SECTOR_BONUS_RATE,
   RESOURCE_DEPLETION_RATE_PER_MONTH,
   RESOURCE_DEPLETION_FLOOR_SHARE,
+  MAX_EXTRACTION_LEVEL,
 } from "@shared/defines/resources";
 
 /**
- * Улучшенный ResourceTick с учётом инфраструктуры, технологий, истощения и
- * региональной экономики. Баланс-константы — shared/src/defines/resources.ts.
- * Оккупированные регионы (docs/plans/08_WAR_WAVE1.md, Шаг 1) добывают на
- * оккупанта — regions.filter идёт по effectiveController, не ownerCountryId
- * (легальный владелец из оккупированного региона ничего не получает).
+ * Deposit/extraction/output (docs/plans/04_RESOURCES.md): `deposits[resource]`
+ * — richness, геологический потенциал (истощается медленно, пропорционально
+ * фактической добыче); `extraction[resource]` — уровень мощностей
+ * 0..MAX_EXTRACTION_LEVEL, меняется только командами
+ * (server/src/commands/resources.ts), не этим тиком. Оккупированные регионы
+ * (docs/plans/08_WAR_WAVE1.md, Шаг 1) добывают на оккупанта —
+ * `regions.filter` идёт по `effectiveController`, не `ownerCountryId`.
  */
 export function resourceTick(
   country: Country,
-  regions: Region[]
+  regions: Region[],
+  modifiers: Modifier[] = []
 ): void {
   const countryRegions = regions.filter(r => effectiveController(r) === country.id);
   const regionEconomyService = new RegionEconomyService();
@@ -45,22 +53,37 @@ export function resourceTick(
     // Штраф оккупанту — регион под оккупацией отдаёт только долю обычной добычи.
     const occupationPenalty = region.occupiedBy ? OCCUPATION_EXTRACTION_PENALTY : 1;
 
-    for (const [resource, amount] of Object.entries(region.deposits)) {
-      const amountValue = amount as number;
+    for (const [resource, richness] of Object.entries(region.deposits)) {
+      const richnessValue = richness as number;
+      const level = region.extraction[resource as ResourceType] ?? 0;
+      const extractionFactor = level / MAX_EXTRACTION_LEVEL;
 
-      // Итоговая добыча с учётом бонусов (инфраструктура + технологии + сектор mining + оккупация)
-      // TODO(docs/plans/04_RESOURCES.md, Срез 2): extractionFactor(level) + resourceOutput-модификатор.
-      const actualProduction = amountValue * infrastructureBonus * techBonus * miningBonus * occupationPenalty;
+      // Нет развёрнутых мощностей — нет добычи, месторождение не истощается.
+      if (extractionFactor <= 0) continue;
+
+      const baseProduction =
+        richnessValue * extractionFactor * infrastructureBonus * techBonus * miningBonus * occupationPenalty;
+
+      // Временные эффекты вроде "забастовка −50% на 6 мес" — модификатор
+      // (docs/plans/03_MODIFIERS_COMMANDS.md), финальный множитель.
+      const actualProduction = effectiveValue(
+        baseProduction,
+        ModifierAttribute.ResourceOutput,
+        { kind: "region", id: region.id },
+        modifiers
+      );
 
       const key = resource as keyof typeof country.stockpile;
       country.stockpile[key] += actualProduction;
 
-      // Истощение месторождения (очень медленное)
-      const newAmount = amountValue * (1 - RESOURCE_DEPLETION_RATE_PER_MONTH);
+      // Истощение richness — пропорционально фактической добыче
+      // (extractionFactor=1 на полностью развёрнутых мощностях — тот же
+      // темп, что был у прежней конфлированной модели).
+      const newRichness = richnessValue * (1 - RESOURCE_DEPLETION_RATE_PER_MONTH * extractionFactor);
 
       // Не истощать полностью, оставляем минимум долю RESOURCE_DEPLETION_FLOOR_SHARE
-      if (newAmount > amountValue * RESOURCE_DEPLETION_FLOOR_SHARE) {
-        (region.deposits as Record<string, number>)[resource] = newAmount;
+      if (newRichness > richnessValue * RESOURCE_DEPLETION_FLOOR_SHARE) {
+        (region.deposits as Record<string, number>)[resource] = newRichness;
       }
     }
   }
