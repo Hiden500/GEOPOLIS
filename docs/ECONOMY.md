@@ -89,11 +89,38 @@ educationSpending/infrastructureSpending/welfareSpending = income × доля` �
 
 ### Добыча ресурсов
 
-Считает **только** `ResourceTick` (`server/src/simulation/resources/ResourceTick.ts`):
-`actualProduction = baseAmount × infrastructureBonus × techBonus × miningBonus`,
-пишет в `country.stockpile` (`Record<ResourceType, number>`), истощает
-месторождение на 0.01%/мес до минимума 10%. `stockpile` только **копится** —
-ничего не потребляет и не продаёт (см. "Открытые вопросы", Q-петля ресурсов).
+`deposits`/`extraction`/output — три слоя (`docs/plans/04_RESOURCES.md`,
+2026-07-11), заменившие прежнее одно число `resourceProduction`:
+
+- **`Region.deposits[resource]`** — richness, геологический потенциал.
+  Меняется только истощением (тиком), не командами.
+- **`Region.extraction[resource]`** — уровень добывающих мощностей
+  `0..MAX_EXTRACTION_LEVEL` (`shared/src/defines/resources.ts`). Меняется
+  только командой `buildExtraction`/`damageExtraction`
+  (`server/src/commands/resources.ts`) — стройка списывает
+  `EXTRACTION_BUILD_COST` из казны, кламп до `MAX_EXTRACTION_LEVEL`;
+  разрушение (`damageExtraction`) безусловное, для будущей интеграции с
+  войной/событиями (пока не подключено ни к чему автоматически).
+- **Output** — не хранится, считает **только** `ResourceTick`
+  (`server/src/simulation/resources/ResourceTick.ts`):
+  `actualProduction = richness × (level/MAX_EXTRACTION_LEVEL) ×
+  infrastructureBonus × techBonus × miningBonus × occupationPenalty ×
+  resourceOutput-модификатор`, пишет в `country.stockpile`
+  (`Record<ResourceType, number>`). `extractionFactor <= 0` — добычи и
+  истощения нет. Истощение richness — 0.01%/мес, пропорционально
+  фактической добыче (`extractionFactor`), до минимума 10% от исходного.
+  Оккупированные регионы (`docs/plans/08_WAR_WAVE1.md`) добывают на
+  оккупанта (`effectiveController`, не `ownerCountryId`) со штрафом
+  `OCCUPATION_EXTRACTION_PENALTY`.
+
+`stockpile` только **копится** сверх добычи — ничего не потребляет само по
+себе (см. "Открытые вопросы", Q-петля ресурсов); списание — только через
+`TradeTick` (экспорт излишка).
+
+LLM управляет уровнем мощностей действием `build_extraction`
+(`docs/LLM_RULES.md`) — плоское действие с жёстким капом `delta: ±1` за ход,
+как `research_shift`/`production_shift`; произвольное число добычи LLM
+писать не может.
 
 ---
 

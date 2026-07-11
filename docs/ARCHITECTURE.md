@@ -149,6 +149,13 @@ state для трёх «внешних инициаторов»: LLM-дейст�
   `setMilitarySpending` (точные обёртки формул `AiBehaviorTick` Правил A/B/C).
 * `commands/modifiers.ts` — `applyModifier`/`removeModifier`/
   `removeExpiredModifiers` (см. «Модификаторы» ниже).
+* `commands/resources.ts` — `buildExtraction`/`damageExtraction`
+  (docs/plans/04_RESOURCES.md, 2026-07-11): уровень добывающих мощностей
+  региона (`Region.extraction`), не сама добыча (та — производная,
+  `ResourceTick.ts`). `buildExtraction` проверяет `effectiveController`
+  и наличие deposit, списывает `EXTRACTION_BUILD_COST` при `delta>0`;
+  `damageExtraction` — безусловное снижение, для будущей интеграции с
+  войной/событиями (не подключена автоматически ни к чему в этом заходе).
 * Не реализовано (нет обоснования критерием приёмки, см. план):
   `transferRegion` (единственная прод-мутация `ownerCountryId`, `WarTick.ts`,
   оставлена вне атомарной команды до плана 08), `setPuppet` (нет сервисного
@@ -159,17 +166,21 @@ state для трёх «внешних инициаторов»: LLM-дейст�
 
 Реализовано по `docs/plans/03_MODIFIERS_COMMANDS.md` — минимальный сквозной
 срез на одном атрибуте (`stability`), остальные добавляются по потребности.
+План 04 добавил второй атрибут: `resourceOutput` (`ResourceTick.ts`,
+`target.kind: "region"` — финальный множитель добычи, тот же паттерн, что
+`stability` для `"country"`).
 
 * `Modifier` (`shared/src/types/Modifier.ts`): `{ id, source, target: {kind,
   id}, attribute, op: "add"|"mul", value, expiresAt? }`. `id` — тот же
   счётчик, что Map Features (`game.nextFeatureId`), префикс `"mod-"`.
   `expiresAt` — игровая дата (`game.currentDate`), НЕ wall-clock.
 * Белый список атрибутов — `shared/src/defines/modifierAttributes.ts`
-  (сейчас: `stability`).
+  (сейчас: `stability`, `resourceOutput`).
 * `effectiveValue(base, attribute, target, modifiers)` — `(base + Σadd) ×
   Πmul` среди модификаторов, совпадающих по `target`+`attribute`. Тики
-  читают через неё, не сырое поле — сейчас единственный реальный читатель:
-  `AiBehaviorTick.applyStabilityWelfareNudge`.
+  читают через неё, не сырое поле — читатели: `AiBehaviorTick.
+  applyStabilityWelfareNudge` (`stability`), `ResourceTick.ts`
+  (`resourceOutput`).
 * Очистка истёкших — `removeExpiredModifiers(game)`, вызывается в Cleanup-
   фазе `SimulationEngine.ts` рядом с `MapFeatureService.removeExpiredFeatures()`
   (та сравнивает с wall-clock — задокументированный баг, не повторён здесь).
