@@ -11,6 +11,9 @@ import {
   ALLY_BREAK_THRESHOLD,
   SPHERE_INFLUENCE_ENTER_THRESHOLD,
   SPHERE_INFLUENCE_EXIT_THRESHOLD,
+  MILITARY_RATIO_INFLUENCE_WEIGHT,
+  GDP_RATIO_INFLUENCE_WEIGHT,
+  GEOGRAPHIC_PROXIMITY_INFLUENCE_BONUS,
 } from "@shared/defines/diplomacy";
 
 /**
@@ -130,15 +133,15 @@ export function calculateBaseInfluence(
 
   // Влияние на основе военной силы
   const militaryRatio = source.military.manpower / (target.military.manpower + 1);
-  influence += militaryRatio * 10;
+  influence += militaryRatio * MILITARY_RATIO_INFLUENCE_WEIGHT;
 
   // Влияние на основе экономической мощи
   const gdpRatio = source.economy.gdp / (target.economy.gdp + 1);
-  influence += gdpRatio * 10;
+  influence += gdpRatio * GDP_RATIO_INFLUENCE_WEIGHT;
 
   // Влияние на основе географической близости (упрощённо)
   // В реальности нужно проверять соседние регионы
-  influence += 5;
+  influence += GEOGRAPHIC_PROXIMITY_INFLUENCE_BONUS;
 
   return Math.min(100, influence);
 }

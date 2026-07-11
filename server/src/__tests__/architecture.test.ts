@@ -287,3 +287,55 @@ describe("Fitness-функция: правило 2 — мутации через
     expect(violations).toEqual([]);
   });
 });
+
+describe("Fitness-функция: правило 4 — баланс в defines, не в коде (docs/plans/03_MODIFIERS_COMMANDS.md, Шаг 3)", () => {
+  // Структурные литералы, не требующие имени: 0/1 — нейтральные элементы
+  // (identity для +/*, флаги), 100 — сама 0-100 шкала (проценты/страховка),
+  // не тюнингуемое число баланса. Всё остальное в арифметике/сравнении вне
+  // `const NAME = ...` — подозрение на неименованную баланс-константу.
+  const STRUCTURAL_LITERALS = new Set(["0", "1", "100"]);
+
+  function stripComments(content: string): string {
+    return content
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/\/\/.*$/gm, "")
+      // Шаблонные строки (например, форматирование дат) часто содержат
+      // цифры, не имеющие отношения к балансу — не арифметика.
+      .replace(/`[^`]*`/g, "``");
+  }
+
+  function isConstDeclarationLine(line: string): boolean {
+    return /^\s*(export\s+)?const\s+[A-Za-z_][\w]*\s*[:=]/.test(line);
+  }
+
+  // Число сразу после оператора арифметики/сравнения/присваивания или перед
+  // ним — "грубая проверка grep'ом" (тот же принцип, что правило 5 в этом
+  // файле), не полноценный парсер.
+  const NUMBER_IN_EXPRESSION = /(?:[*/+<>-]=?|\breturn\s)\s*(-?\d+\.\d+|-?\d{2,})(?![\w.])/g;
+
+  it("в server/src/simulation/**/*.ts (кроме *.test.ts) нет числовых литералов баланса вне const NAME = ...", () => {
+    const violations: string[] = [];
+    const dir = path.join(REPO_ROOT, "server", "src", "simulation");
+
+    for (const file of collectFiles(dir, [".ts"])) {
+      if (file.endsWith(".test.ts")) continue;
+
+      const relPath = relRepo(file);
+      const rawContent = fs.readFileSync(file, "utf-8");
+      const content = stripComments(rawContent);
+      const lines = content.split("\n");
+
+      lines.forEach((line, i) => {
+        if (isConstDeclarationLine(line)) return;
+
+        for (const match of line.matchAll(NUMBER_IN_EXPRESSION)) {
+          const num = match[1]!;
+          if (STRUCTURAL_LITERALS.has(num)) continue;
+          violations.push(`${relPath}:${i + 1}: "${line.trim()}" (число ${num})`);
+        }
+      });
+    }
+
+    expect(violations).toEqual([]);
+  });
+});

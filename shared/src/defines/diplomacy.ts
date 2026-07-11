@@ -30,3 +30,11 @@ export const ALLY_BREAK_THRESHOLD = 30;
 export const SPHERE_INFLUENCE_ENTER_THRESHOLD = 50;
 /** Влияние ниже — цель покидает сферу влияния. */
 export const SPHERE_INFLUENCE_EXIT_THRESHOLD = 20;
+
+// --- calculateBaseInfluence ---
+/** Вес отношения manpower источника к цели в итоговом влиянии. */
+export const MILITARY_RATIO_INFLUENCE_WEIGHT = 10;
+/** Вес отношения ВВП источника к цели в итоговом влиянии. */
+export const GDP_RATIO_INFLUENCE_WEIGHT = 10;
+/** Плоский бонус влияния от географической близости (упрощённо — соседство регионов не проверяется). */
+export const GEOGRAPHIC_PROXIMITY_INFLUENCE_BONUS = 5;
