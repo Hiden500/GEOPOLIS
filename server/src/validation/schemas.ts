@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
+import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/defines/budgetSpendingShareCaps";
 import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { SAVE_SLOT_PATTERN } from "../game/SaveService";
 

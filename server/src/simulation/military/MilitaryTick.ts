@@ -1,20 +1,24 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
+import {
+  EQUIPMENT_SPENDING_SCALE,
+  BASE_MANPOWER_GAIN_RATE,
+  MANPOWER_SPENDING_BONUS_MULTIPLIER,
+  MANPOWER_LOW_STABILITY_THRESHOLD,
+  MANPOWER_LOW_STABILITY_PENALTY,
+  UNIT_MAX_STRENGTH,
+  UNIT_BASE_RECOVERY_RATE,
+  UNIT_RECOVERY_SPENDING_BONUS_MULTIPLIER,
+  UNIT_RECOVERY_DEFICIT_PENALTY,
+  ACTIVE_PERSONNEL_SHARE,
+  RESERVE_PERSONNEL_SHARE,
+} from "@shared/defines/military";
 
 /**
- * Сколько единиц эквивалентной стоимости даёт 1 единица militarySpending при
- * полной (share=1) отдаче на тир 0 — тюнингуемая константа, как
- * RESEARCH_SPENDING_SCALE в ResearchTick.ts. Подобрана так, чтобы полностью
- * сфокусированная держава (share=0.7) набирала тысячи единиц техники за
- * несколько лет, не за один месяц и не за десятилетия (War Phase 2,
- * независимый гейм-дизайн разбор, 2026-07-06).
- */
-const EQUIPMENT_SPENDING_SCALE = 200_000_000;
-
-/**
- * Полная реализация MilitaryTick.
- * Пополнение manpower, восстановление подразделений, производство техники.
+ * Полная реализация MilitaryTick. Пополнение manpower, восстановление
+ * подразделений, производство техники. Баланс-константы —
+ * shared/src/defines/military.ts.
  */
 export function militaryTick(
   country: Country,
@@ -27,42 +31,42 @@ export function militaryTick(
   const countryRegions = regions.filter(r => r.ownerCountryId === country.id);
   const totalPopulation = countryRegions.reduce((sum, r) => sum + r.population, 0);
 
-  // Базовый набор manpower: 0.1% населения в месяц
-  const baseManpowerGain = Math.floor(totalPopulation * 0.001);
+  const baseManpowerGain = Math.floor(totalPopulation * BASE_MANPOWER_GAIN_RATE);
 
   // Бонус от военных расходов (страна без территории — gdp=0 — не получает
   // бонус/штраф, не NaN; см. EconomyTick.ts, та же защита).
   const militarySpendingRatio = economy.gdp > 0 ? economy.militarySpending / economy.gdp : 0;
-  const spendingBonus = Math.floor(baseManpowerGain * militarySpendingRatio * 2);
+  const spendingBonus = Math.floor(baseManpowerGain * militarySpendingRatio * MANPOWER_SPENDING_BONUS_MULTIPLIER);
 
   // Штраф от низкой стабильности
-  const stabilityPenalty = country.politics.stability < 50 ? 0.5 : 1;
+  const stabilityPenalty = country.politics.stability < MANPOWER_LOW_STABILITY_THRESHOLD
+    ? MANPOWER_LOW_STABILITY_PENALTY
+    : 1;
 
   const manpowerGain = Math.floor((baseManpowerGain + spendingBonus) * stabilityPenalty);
   military.manpower += manpowerGain;
 
   // Восстановление подразделений
   for (const unit of military.units) {
-    if (unit.strength < 100) {
+    if (unit.strength < UNIT_MAX_STRENGTH) {
       // Базовое восстановление
-      let recoveryRate = 1;
+      let recoveryRate = UNIT_BASE_RECOVERY_RATE;
 
       // Бонус от военных расходов
-      recoveryRate += militarySpendingRatio * 2;
+      recoveryRate += militarySpendingRatio * UNIT_RECOVERY_SPENDING_BONUS_MULTIPLIER;
 
       // Штраф от дефицита бюджета
       if (economy.budgetBalance < 0) {
-        recoveryRate *= 0.5;
+        recoveryRate *= UNIT_RECOVERY_DEFICIT_PENALTY;
       }
 
-      unit.strength = Math.min(100, unit.strength + recoveryRate);
+      unit.strength = Math.min(UNIT_MAX_STRENGTH, unit.strength + recoveryRate);
     }
   }
 
-  // Обновление activePersonnel на основе manpower
-  // Упрощённая модель: 10% manpower = activePersonnel
-  military.activePersonnel = Math.floor(military.manpower * 0.1);
-  military.reservePersonnel = Math.floor(military.manpower * 0.9);
+  // Обновление activePersonnel на основе manpower (упрощённая модель)
+  military.activePersonnel = Math.floor(military.manpower * ACTIVE_PERSONNEL_SHARE);
+  military.reservePersonnel = Math.floor(military.manpower * RESERVE_PERSONNEL_SHARE);
 
   // Производство техники по категориям (War Phase 2, 2026-07-06) — доля
   // militarySpending на категорию даёт прирост equipment[type]; категории без

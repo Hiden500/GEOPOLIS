@@ -4,21 +4,7 @@ import { type War } from "@shared/types/War";
 import { MapFeatureService } from "../../services/MapFeatureService";
 import { getCombinedArmsMultiplier } from "@shared/utils/technology";
 import { getEquipmentPower } from "@shared/utils/equipment";
-
-/**
- * Переводит "боевую мощь" экипировки (shared/src/utils/equipment.ts,
- * единицы техники × эффективность по тиру домена) в масштаб, сопоставимый с
- * activePersonnel — War Phase 2, независимый гейм-дизайн разбор, 2026-07-06.
- * Тюнингуемая константа: при нулевой технике (дефолт всех стран сейчас)
- * вклад равен 0, не меняет поведение Phase 1.
- */
-const EQUIPMENT_STRENGTH_WEIGHT = 500;
-
-/**
- * Перевес силы над обороной, нужный для флипа контактного региона (AI_RULES.md,
- * "модель фронтов и операций", не 1:1 — оборона держится при небольшом перевесе).
- */
-const FLIP_THRESHOLD_RATIO = 1.5;
+import { EQUIPMENT_STRENGTH_WEIGHT, FLIP_THRESHOLD_RATIO } from "@shared/defines/war";
 
 /**
  * Эффективная сила стороны в точке контакта — Phase 1 плейсхолдер:

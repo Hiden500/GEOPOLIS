@@ -1,9 +1,22 @@
 import { type Country } from "@shared/types/Country";
 import { DiplomacyService } from "../../services/DiplomacyService";
+import {
+  RELATION_DECAY_RATE,
+  RELATION_DECAY_CAP,
+  INFLUENCE_DECAY_RATE,
+  INFLUENCE_DECAY_CAP,
+  RIVAL_RELATION_THRESHOLD,
+  ALLY_RELATION_THRESHOLD,
+  RIVAL_RECONCILE_THRESHOLD,
+  ALLY_BREAK_THRESHOLD,
+  SPHERE_INFLUENCE_ENTER_THRESHOLD,
+  SPHERE_INFLUENCE_EXIT_THRESHOLD,
+} from "@shared/defines/diplomacy";
 
 /**
  * DiplomacyTick - симуляция дипломатических изменений.
  * Отношения постепенно меняются на основе действий, идеологии и геополитики.
+ * Баланс-константы — shared/src/defines/diplomacy.ts.
  */
 export function diplomacyTick(
   countries: Country[]
@@ -14,10 +27,10 @@ export function diplomacyTick(
     // Естественное затухание отношений (медленное движение к нейтральности)
     for (const [targetId, relation] of Object.entries(country.diplomacy.relations)) {
       if (relation > 0) {
-        const decay = Math.min(0.1, relation * 0.01);
+        const decay = Math.min(RELATION_DECAY_CAP, relation * RELATION_DECAY_RATE);
         country.diplomacy.relations[targetId] = relation - decay;
       } else if (relation < 0) {
-        const decay = Math.min(0.1, Math.abs(relation) * 0.01);
+        const decay = Math.min(RELATION_DECAY_CAP, Math.abs(relation) * RELATION_DECAY_RATE);
         country.diplomacy.relations[targetId] = relation + decay;
       }
     }
@@ -25,7 +38,7 @@ export function diplomacyTick(
     // Естественное затухание влияния
     for (const [targetId, influence] of Object.entries(country.diplomacy.influence)) {
       if (influence > 0) {
-        const decay = Math.min(0.5, influence * 0.02);
+        const decay = Math.min(INFLUENCE_DECAY_CAP, influence * INFLUENCE_DECAY_RATE);
         country.diplomacy.influence[targetId] = Math.max(0, influence - decay);
       }
     }
@@ -36,7 +49,7 @@ export function diplomacyTick(
       if (!targetCountry) continue;
 
       // Если отношения очень плохие, добавляем в соперники
-      if (relation < -70 && !country.diplomacy.rivals.includes(targetId)) {
+      if (relation < RIVAL_RELATION_THRESHOLD && !country.diplomacy.rivals.includes(targetId)) {
         diplomacyService.addRival(countries, country.id, targetId);
       }
 
@@ -46,29 +59,29 @@ export function diplomacyTick(
       // ней безразличен (relation = 0 по умолчанию) — это создавало
       // одностороннюю запись, которую removeAlly немедленно отменял на шаге
       // обработки второй страны в том же тике (см. docs/DECISIONS.md).
-      if (relation > 70 && !country.diplomacy.allies.includes(targetId)) {
+      if (relation > ALLY_RELATION_THRESHOLD && !country.diplomacy.allies.includes(targetId)) {
         const reciprocalRelation = targetCountry.diplomacy.relations[country.id] || 0;
-        if (reciprocalRelation > 70 && areIdeologicallyCompatible(country, targetCountry)) {
+        if (reciprocalRelation > ALLY_RELATION_THRESHOLD && areIdeologicallyCompatible(country, targetCountry)) {
           diplomacyService.addAlly(countries, country.id, targetId);
         }
       }
 
       // Если отношения улучшились, удаляем из соперников
-      if (relation > -30 && country.diplomacy.rivals.includes(targetId)) {
+      if (relation > RIVAL_RECONCILE_THRESHOLD && country.diplomacy.rivals.includes(targetId)) {
         diplomacyService.removeRival(countries, country.id, targetId);
       }
 
       // Если отношения ухудшились, удаляем из союзников
-      if (relation < 30 && country.diplomacy.allies.includes(targetId)) {
+      if (relation < ALLY_BREAK_THRESHOLD && country.diplomacy.allies.includes(targetId)) {
         diplomacyService.removeAlly(countries, country.id, targetId);
       }
     }
 
     // Обновляем сферу влияния на основе текущего влияния
     for (const [targetId, influence] of Object.entries(country.diplomacy.influence)) {
-      if (influence > 50 && !country.diplomacy.sphereOfInfluence.includes(targetId)) {
+      if (influence > SPHERE_INFLUENCE_ENTER_THRESHOLD && !country.diplomacy.sphereOfInfluence.includes(targetId)) {
         diplomacyService.addToSphereOfInfluence(countries, country.id, targetId);
-      } else if (influence < 20 && country.diplomacy.sphereOfInfluence.includes(targetId)) {
+      } else if (influence < SPHERE_INFLUENCE_EXIT_THRESHOLD && country.diplomacy.sphereOfInfluence.includes(targetId)) {
         diplomacyService.removeFromSphereOfInfluence(countries, country.id, targetId);
       }
     }

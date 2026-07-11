@@ -7,6 +7,18 @@ import * as economyCommands from "../../commands/economy";
 import { type SpendKey } from "../../commands/economy";
 import { effectiveValue } from "@shared/utils/modifiers";
 import { ModifierAttribute } from "@shared/defines/modifierAttributes";
+import {
+  AUSTERITY_CUT,
+  THREAT_LEVEL,
+  MILITARY_RAMP,
+  MILITARY_CAP_SHARE,
+  COALITION_STEP,
+  INFLUENCE_GRAVITY,
+  STABILITY_LOW,
+  WELFARE_SHIFT_RATE,
+  WELFARE_CAP_SHARE,
+  WAR_RELATION_THRESHOLD,
+} from "@shared/defines/ai";
 
 /**
  * Детерминированное поведение ИИ-стран (без полноценного utility-AI).
@@ -19,19 +31,9 @@ import { ModifierAttribute } from "@shared/defines/modifierAttributes";
  *    non-major стран — топ-державы объявляют войну только через LLM
  *    (решение A), это правило их не трогает.
  *
- * Применяется только к ИИ-странам (id !== playerCountryId).
+ * Применяется только к ИИ-странам (id !== playerCountryId). Баланс-константы
+ * — shared/src/defines/ai.ts.
  */
-
-const AUSTERITY_CUT = 0.95;        // −5% дискреционных расходов за тик при дефиците
-const THREAT_LEVEL = 50;           // порог доминирования игрока (calculateBaseInfluence), ~×2.5
-const MILITARY_RAMP = 1.05;        // +5% military за тик у угрожаемых соперников
-const MILITARY_CAP_SHARE = 0.4;    // потолок military как доля дохода
-const COALITION_STEP = 5;          // +отношение/тик между со-угрожаемыми соперниками
-const INFLUENCE_GRAVITY = 0.1;     // скорость роста влияния игрока (бандвагонинг)
-const STABILITY_LOW = 40;          // порог "низкой" stability для Правила C
-const WELFARE_SHIFT_RATE = 0.02;   // доля дохода, переводимая military→welfare за тик
-const WELFARE_CAP_SHARE = 0.30;    // потолок welfare как доля дохода
-const WAR_RELATION_THRESHOLD = -80; // порог отношений для Правила D — почти дно шкалы, войны редки
 
 const DISCRETIONARY: SpendKey[] = [
   "militarySpending",

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { updateBudgetSchema, playerIntentSchema, createGameSchema } from "../schemas";
-import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/constants/budgetSpendingShareCaps";
+import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/defines/budgetSpendingShareCaps";
 
 const VALID_BUDGET = {
   military: 0.1,

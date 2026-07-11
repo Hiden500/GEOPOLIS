@@ -1,7 +1,11 @@
 import { type Country, type CountryTier } from "@shared/types/Country";
-
-const MAJOR_COUNT = 10;
-const REGIONAL_COUNT = 25;
+import {
+  MAJOR_COUNT,
+  REGIONAL_COUNT,
+  TIER_SCORE_GDP_WEIGHT,
+  TIER_SCORE_MILITARY_WEIGHT,
+  TIER_SCORE_INFLUENCE_WEIGHT,
+} from "@shared/defines/tier";
 
 /** Исторические стартовые тиры для сценария 1946.
  *  Используются при нулевых экономических данных (пайплайн-плейсхолдеры). */
@@ -27,7 +31,7 @@ function computeScore(country: Country): number {
         + country.military.navyStrength
         + country.military.airStrength;
     const influence = Object.values(country.diplomacy.influence).reduce((s, v) => s + v, 0);
-    return gdp * 0.5 + mil * 0.3 + influence * 0.2;
+    return gdp * TIER_SCORE_GDP_WEIGHT + mil * TIER_SCORE_MILITARY_WEIGHT + influence * TIER_SCORE_INFLUENCE_WEIGHT;
 }
 
 function hasRealData(country: Country): boolean {

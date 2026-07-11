@@ -1,10 +1,27 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { getGdpPerCapita, GDP_PER_CAPITA_REFERENCE } from "@shared/utils/countryMetrics";
+import {
+  BASE_BIRTH_RATE_PER_MONTH,
+  BASE_DEATH_RATE_PER_MONTH,
+  STANDARD_OF_LIVING_CAP,
+  MEDICINE_TECH_BONUS_RATE,
+  BIRTH_RATE_LIVING_STANDARD_BASE,
+  BIRTH_RATE_LIVING_STANDARD_COEFFICIENT,
+  BIRTH_RATE_EDUCATION_BASE,
+  BIRTH_RATE_EDUCATION_COEFFICIENT,
+  BIRTH_RATE_WELFARE_BASE,
+  BIRTH_RATE_WELFARE_COEFFICIENT,
+  BIRTH_RATE_STABILITY_BASE,
+  BIRTH_RATE_STABILITY_COEFFICIENT,
+  DEATH_RATE_STABILITY_BASE,
+  DEATH_RATE_STABILITY_COEFFICIENT,
+  MIN_REGION_POPULATION,
+} from "@shared/defines/population";
 
 /**
- * Полная реализация PopulationTick.
- * Рассчитывает рождаемость, смертность и миграцию на уровне регионов.
+ * Полная реализация PopulationTick. Рассчитывает рождаемость, смертность и
+ * миграцию на уровне регионов. Баланс-константы — shared/src/defines/population.ts.
  */
 export function populationTick(
   country: Country,
@@ -16,46 +33,41 @@ export function populationTick(
     return;
   }
 
-  // Базовые коэффициенты
-  const baseBirthRate = 0.01; // 1% в месяц базовая рождаемость
-  const baseDeathRate = 0.005; // 0.5% в месяц базовая смертность
-
   // Факторы страны
   const gdpPerCapita = getGdpPerCapita(country);
   // Нормализуем к GDP_PER_CAPITA_REFERENCE (~850, калибровка "средней крупной
   // державы" 1946 года, см. countryMetrics.ts) — страна на уровне ориентира
-  // получает standardOfLiving=1, вдвое богаче — потолок 2.
-  const standardOfLiving = Math.min(gdpPerCapita / GDP_PER_CAPITA_REFERENCE, 2);
+  // получает standardOfLiving=1, вдвое богаче — потолок STANDARD_OF_LIVING_CAP.
+  const standardOfLiving = Math.min(gdpPerCapita / GDP_PER_CAPITA_REFERENCE, STANDARD_OF_LIVING_CAP);
   // Страна без территории (gdp=0) не получает бонус/штраф, не NaN; см.
   // EconomyTick.ts, та же защита.
   const hasGdp = country.economy.gdp > 0;
   const educationFactor = hasGdp ? country.economy.educationSpending / country.economy.gdp : 0;
   const welfareFactor = hasGdp ? country.economy.welfareSpending / country.economy.gdp : 0;
-  const stabilityFactor = country.politics.stability / 100;
 
   // Технологический бонус медицины (упрощённо). "biology" — реальный ключ
   // домена медицины эры 1946 (см. shared/src/data/eras.ts); другие эры
   // используют другой ключ ("medicine" в 1836, "biotechnology" в 2000) —
   // не обобщаем на них сейчас, единственный играбельный сценарий — 1946.
   const medicineTechLevel = country.technology.domains["biology"] || 0;
-  const medicineBonus = 1 + (medicineTechLevel * 0.1);
+  const medicineBonus = 1 + (medicineTechLevel * MEDICINE_TECH_BONUS_RATE);
 
   for (const region of countryRegions) {
     // Рождаемость региона
     // Чем выше уровень жизни, медицина и образование - тем выше рождаемость (до определённого предела)
-    const regionBirthRate = baseBirthRate *
-      (0.5 + standardOfLiving * 0.3) *
-      (0.8 + educationFactor * 2) *
-      (0.9 + welfareFactor * 2) *
-      (0.8 + region.stability / 100 * 0.4);
+    const regionBirthRate = BASE_BIRTH_RATE_PER_MONTH *
+      (BIRTH_RATE_LIVING_STANDARD_BASE + standardOfLiving * BIRTH_RATE_LIVING_STANDARD_COEFFICIENT) *
+      (BIRTH_RATE_EDUCATION_BASE + educationFactor * BIRTH_RATE_EDUCATION_COEFFICIENT) *
+      (BIRTH_RATE_WELFARE_BASE + welfareFactor * BIRTH_RATE_WELFARE_COEFFICIENT) *
+      (BIRTH_RATE_STABILITY_BASE + region.stability / 100 * BIRTH_RATE_STABILITY_COEFFICIENT);
 
     const births = Math.floor(region.population * regionBirthRate);
 
     // Смертность региона
     // Чем выше медицина и стабильность - тем ниже смертность
-    const regionDeathRate = baseDeathRate /
+    const regionDeathRate = BASE_DEATH_RATE_PER_MONTH /
       medicineBonus /
-      (0.9 + region.stability / 100 * 0.3);
+      (DEATH_RATE_STABILITY_BASE + region.stability / 100 * DEATH_RATE_STABILITY_COEFFICIENT);
 
     const deaths = Math.floor(region.population * regionDeathRate);
 
@@ -63,8 +75,8 @@ export function populationTick(
     region.population += births - deaths;
 
     // Минимум населения
-    if (region.population < 1000) {
-      region.population = 1000;
+    if (region.population < MIN_REGION_POPULATION) {
+      region.population = MIN_REGION_POPULATION;
     }
   }
 

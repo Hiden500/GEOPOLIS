@@ -1,6 +1,6 @@
 import { type Country } from "@shared/types/Country";
 import { type EconomyProfile } from "@shared/types/EconomyProfile";
-import { createEmptyEconomyState } from "@shared/constants/createEmptyEconomyState";
+import { createEmptyEconomyState } from "@shared/defines/createEmptyEconomyState";
 import { ECONOMY_ARCHETYPES } from "./economyArchetypes";
 
 /**

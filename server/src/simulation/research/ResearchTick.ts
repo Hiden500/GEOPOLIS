@@ -1,20 +1,13 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { getDomainTier } from "@shared/utils/technology";
-
-/**
- * Сколько единиц researchSpending дают 1 единицу прогресса домена при полной
- * (share=1) отдаче на тире 0 — тюнингуемая константа, как THREAT_LEVEL и
- * т.п. Подобрана так, чтобы полностью сфокусированная крупная держава
- * проходила тир примерно за 8-10 месяцев на старте партии.
- */
-const RESEARCH_SPENDING_SCALE = 2_000_000_000;
-
-/**
- * Замедление на каждый следующий тир — поздние прорывы непропорционально
- * труднее ранних (docs/DECISIONS.md, 2026-07-06, "песочница = темп, не даты").
- */
-const TIER_SLOWDOWN_PER_TIER = 0.3;
+import {
+  RESEARCH_SPENDING_SCALE,
+  TIER_SLOWDOWN_PER_TIER,
+  RESEARCH_CENTER_DEVELOPMENT_THRESHOLD,
+  RESEARCH_CENTER_BONUS_RATE,
+  RESEARCH_EDUCATION_BONUS_MULTIPLIER,
+} from "@shared/defines/research";
 
 /**
  * Прогресс по доменам технологий (docs/DECISIONS.md, 2026-07-06) — без
@@ -22,7 +15,7 @@ const TIER_SLOWDOWN_PER_TIER = 0.3;
  * по доменам через `technology.researchAllocation`
  * (LLMService.applyResearchShiftAction); домены без явной доли делят
  * оставшуюся долю поровну — детерминированный дефолт для стран, которых
- * LLM не направляет каждый цикл.
+ * LLM не направляет каждый цикл. Баланс-константы — shared/src/defines/research.ts.
  */
 export function researchTick(country: Country, regions: Region[]): void {
   const economy = country.economy;
@@ -31,13 +24,13 @@ export function researchTick(country: Country, regions: Region[]): void {
   const countryRegions = regions.filter(r => r.ownerCountryId === country.id);
 
   // Подсчёт исследовательских центров (упрощённо: регионы с высоким development).
-  const researchCenters = countryRegions.filter(r => r.development > 0.7).length;
-  const researchCenterBonus = 1 + researchCenters * 0.1;
+  const researchCenters = countryRegions.filter(r => r.development > RESEARCH_CENTER_DEVELOPMENT_THRESHOLD).length;
+  const researchCenterBonus = 1 + researchCenters * RESEARCH_CENTER_BONUS_RATE;
 
   // Бонус от образования (страна без территории — gdp=0 — не получает
   // бонус, не NaN; см. EconomyTick.ts, та же защита).
   const educationRatio = economy.gdp > 0 ? economy.educationSpending / economy.gdp : 0;
-  const educationBonus = 1 + educationRatio * 2;
+  const educationBonus = 1 + educationRatio * RESEARCH_EDUCATION_BONUS_MULTIPLIER;
 
   const totalResearchBonus = researchCenterBonus * educationBonus;
 

@@ -2,29 +2,25 @@ import { type Country } from "@shared/types/Country";
 import { type EconomyState } from "@shared/types/EconomyState";
 import { type Region } from "@shared/types/map/Region";
 import { RegionEconomyService } from "../../services/RegionEconomyService";
+import {
+  BASE_GROWTH_INTERCEPT,
+  BASE_GROWTH_DEVELOPMENT_COEFFICIENT,
+  BASE_GROWTH_INFRASTRUCTURE_COEFFICIENT,
+  INFRASTRUCTURE_SPENDING_GROWTH_COEFFICIENT,
+  DEFICIT_PENALTY_COEFFICIENT,
+  SECTOR_INDUSTRY_GROWTH_COEFFICIENT,
+  SECTOR_SERVICES_GROWTH_COEFFICIENT,
+  MAX_MONTHLY_GROWTH_RATE,
+  INFLATION_DEFICIT_COEFFICIENT,
+  UNEMPLOYMENT_DEFICIT_COEFFICIENT,
+} from "@shared/defines/economy";
 
 /**
  * Обновлённый EconomyTick с использованием регионов и региональной экономики.
  * Рост ВВП на основе промышленности регионов, инфраструктуры и ресурсов.
- *
- * Константы ниже — тюнингуемый баланс, не историческая истина (см.
- * docs/ECONOMY.md, docs/DECISIONS.md 2026-06-26, Q9). Перекалиброваны при
- * переходе на модель "ВВП-якорь + доли": до неё infrastructureSpending/gdp
- * было ≈0 при любом коэффициенте (другой баг масштаба), теперь не ≈0, и
- * старый коэффициент 0.5 давал нереалистичный рост (~20-50%/год). Подбирать
- * на симуляции дальше, не считать текущие значения финальными.
+ * Баланс-константы — shared/src/defines/economy.ts (docs/ECONOMY.md,
+ * docs/DECISIONS.md 2026-06-26, Q9).
  */
-const BASE_GROWTH_INTERCEPT = 0.001;
-const BASE_GROWTH_DEVELOPMENT_COEFFICIENT = 0.002;
-const BASE_GROWTH_INFRASTRUCTURE_COEFFICIENT = 0.001;
-const INFRASTRUCTURE_SPENDING_GROWTH_COEFFICIENT = 0.15;
-const DEFICIT_PENALTY_COEFFICIENT = 0.3;
-const SECTOR_INDUSTRY_GROWTH_COEFFICIENT = 0.002;
-const SECTOR_SERVICES_GROWTH_COEFFICIENT = 0.001;
-/** Защитный потолок месячного роста — не даёт архетипу разогнаться неограниченно. */
-const MAX_MONTHLY_GROWTH_RATE = 0.05;
-const INFLATION_DEFICIT_COEFFICIENT = 0.1;
-const UNEMPLOYMENT_DEFICIT_COEFFICIENT = 0.05;
 
 /**
  * Налог/доход/расходы/баланс бюджета. taxRevenue следует за gdp (taxRate

@@ -1,9 +1,17 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { RegionEconomyService } from "../../services/RegionEconomyService";
+import {
+  MINING_TECH_BONUS_RATE,
+  INFRASTRUCTURE_PRODUCTION_BONUS_RATE,
+  MINING_SECTOR_BONUS_RATE,
+  RESOURCE_DEPLETION_RATE_PER_MONTH,
+  RESOURCE_DEPLETION_FLOOR_SHARE,
+} from "@shared/defines/resources";
 
 /**
- * Улучшенный ResourceTick с учётом инфраструктуры, технологий, истощения и региональной экономики.
+ * Улучшенный ResourceTick с учётом инфраструктуры, технологий, истощения и
+ * региональной экономики. Баланс-константы — shared/src/defines/resources.ts.
  */
 export function resourceTick(
   country: Country,
@@ -15,7 +23,7 @@ export function resourceTick(
   // Бонус от технологий добычи (упрощённо). "industry" — реальный ключ
   // домена эры 1946 (см. shared/src/data/eras.ts), тот же ключ и в 1836.
   const miningTechLevel = country.technology.domains["industry"] || 0;
-  const techBonus = 1 + (miningTechLevel * 0.05);
+  const techBonus = 1 + (miningTechLevel * MINING_TECH_BONUS_RATE);
 
   for (const region of countryRegions) {
     // Инициализируем экономику региона если нужно
@@ -24,10 +32,10 @@ export function resourceTick(
     }
 
     // Бонус от инфраструктуры региона
-    const infrastructureBonus = 1 + (region.infrastructure * 0.5);
+    const infrastructureBonus = 1 + (region.infrastructure * INFRASTRUCTURE_PRODUCTION_BONUS_RATE);
 
     // Бонус от сектора mining в региональной экономике
-    const miningBonus = region.economy ? (1 + region.economy.mining * 0.3) : 1;
+    const miningBonus = region.economy ? (1 + region.economy.mining * MINING_SECTOR_BONUS_RATE) : 1;
 
     for (const [resource, amount] of Object.entries(region.resourceProduction)) {
       const amountValue = amount as number;
@@ -39,12 +47,10 @@ export function resourceTick(
       country.stockpile[key] += actualProduction;
 
       // Истощение месторождения (очень медленное)
-      // Уменьшаем на 0.01% в месяц
-      const depletionRate = 0.0001;
-      const newAmount = amountValue * (1 - depletionRate);
+      const newAmount = amountValue * (1 - RESOURCE_DEPLETION_RATE_PER_MONTH);
 
-      // Не истощать полностью, оставляем минимум 10%
-      if (newAmount > amountValue * 0.1) {
+      // Не истощать полностью, оставляем минимум долю RESOURCE_DEPLETION_FLOOR_SHARE
+      if (newAmount > amountValue * RESOURCE_DEPLETION_FLOOR_SHARE) {
         (region.resourceProduction as Record<string, number>)[resource] = newAmount;
       }
     }
