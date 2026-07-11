@@ -38,11 +38,24 @@ export function setRegionOccupation(game: GameState, region: Region, newControll
 }
 
 /**
+ * Передаёт регион новому ЛЕГАЛЬНОМУ владельцу (аннексия по мирному договору,
+ * docs/plans/08_WAR_WAVE1.md, Шаг 2b). Меняет ownerCountryId и снимает
+ * оккупацию: после смены владельца occupiedBy теряет смысл, поэтому
+ * setRegionOccupation с новым владельцем очищает occupiedBy и стабильность-
+ * модификатор. Единственная точка мутации ownerCountryId миром (WarTick войной
+ * его не трогает — только occupiedBy).
+ */
+export function transferRegion(game: GameState, region: Region, newOwnerId: string): void {
+  region.ownerCountryId = newOwnerId;
+  setRegionOccupation(game, region, newOwnerId);
+}
+
+/**
  * Снимает оккупацию, возникшую именно в этой войне — регионы, где
  * occupiedBy и ownerCountryId лежат по разные стороны war.attackers/
  * war.defenders. Не трогает оккупацию от другой параллельной войны между
- * другими странами. Вызывается из WarService.makePeace: без Шага 2
- * (аннексия по договору, отложен) вся оккупация войны снимается миром.
+ * другими странами. Вызывается из WarService.makePeace для неаннексированной
+ * по договору оккупации (Шаг 2b): что не перешло победителю — возвращается.
  */
 export function revertOccupationForWar(
   game: GameState,

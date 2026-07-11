@@ -70,3 +70,15 @@ export const WARSCORE_CASUALTY_WEIGHT = 40;
  */
 export const WARSCORE_DECISIVE_THRESHOLD = 60;
 export const WARSCORE_WINNING_THRESHOLD = 20;
+
+/**
+ * Мирное разрешение по warScore (docs/plans/08_WAR_WAVE1.md, Шаг 2b) —
+ * тюнингуемые плейсхолдеры. Ниже порога аннексии |warScore| — белый мир: вся
+ * оккупация снимается, границы не меняются. Выше — победитель аннексирует
+ * оккупированные им регионы проигравшего, но не больше «бюджета очков»:
+ * maxAnnex = floor(|warScore| / COST_PER_ANNEXED_REGION). Остальная оккупация
+ * снимается. Так граница меняется только при решительном исходе и соразмерно
+ * ему; LLM/игрок решает, КОГДА заключить мир, движок — СКОЛЬКО переходит.
+ */
+export const WARSCORE_ANNEXATION_THRESHOLD = 30;
+export const WARSCORE_COST_PER_ANNEXED_REGION = 25;

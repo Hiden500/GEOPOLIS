@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import * as commands from "../war";
-import { createTestGameState, createTestCountry } from "../../test-utils/fixtures";
+import { createTestGameState, createTestCountry, createTestRegion } from "../../test-utils/fixtures";
+import { setRegionOccupation } from "../../simulation/war/occupation";
 import { type GameState } from "@shared/types/GameState";
 
 function gameWithUsaSun(): GameState {
@@ -57,6 +58,36 @@ describe("commands/war", () => {
       const result = commands.makePeaceBetween(game, "USA", "SUN");
       expect(result.success).toBe(false);
       expect(result.error).toBeTruthy();
+    });
+  });
+
+  describe("transferRegion", () => {
+    it("передаёт регион новому владельцу и снимает оккупацию", () => {
+      const game = gameWithUsaSun();
+      const region = createTestRegion({ id: 1, ownerCountryId: "SUN" });
+      game.regions.push(region);
+      setRegionOccupation(game, region, "USA");
+      expect(game.modifiers).toHaveLength(1);
+
+      const result = commands.transferRegion(game, 1, "USA");
+
+      expect(result).toEqual({ success: true });
+      expect(region.ownerCountryId).toBe("USA");
+      expect(region.occupiedBy).toBeUndefined();
+      expect(game.modifiers).toHaveLength(0); // модификатор оккупации снят
+    });
+
+    it("отклоняет неизвестный регион", () => {
+      const game = gameWithUsaSun();
+      const result = commands.transferRegion(game, 999, "USA");
+      expect(result.success).toBe(false);
+    });
+
+    it("отклоняет неизвестную страну-владельца", () => {
+      const game = gameWithUsaSun();
+      game.regions.push(createTestRegion({ id: 1, ownerCountryId: "SUN" }));
+      const result = commands.transferRegion(game, 1, "GHOST");
+      expect(result.success).toBe(false);
     });
   });
 });
