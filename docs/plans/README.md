@@ -21,7 +21,7 @@
 | 02 | [02_LLM_CONTRACT.md](02_LLM_CONTRACT.md) — типизация действий, structured output, летопись | **P0** | реализовано (Шаг 4 требует повторной живой проверки), см. `docs/LLM_RULES.md` |
 | 03 | [03_MODIFIERS_COMMANDS.md](03_MODIFIERS_COMMANDS.md) — команды, модификаторы, defines | P1 | реализовано в суженном объёме (см. «Отклонения при реализации»), см. `docs/ARCHITECTURE.md` §"Команды"/§"Модификаторы" |
 | 04 | [04_RESOURCES.md](04_RESOURCES.md) — deposit / extraction / output | P1 | реализовано, см. `docs/ECONOMY.md` §"Добыча ресурсов" |
-| 05 | [05_DATA_LAYOUT.md](05_DATA_LAYOUT.md) — расслоение JSON, валидация данных, пайплайн | P1 | не начато |
+| 05 | [05_DATA_LAYOUT.md](05_DATA_LAYOUT.md) — расслоение JSON, валидация данных, пайплайн | P1 | реализовано (server/shared/Python; клиентская часть — TopoJSON/dead-file — вне заходa, см. «Отклонения при реализации»), см. `docs/ARCHITECTURE.md` §"Данные сценария 1946" |
 | 06 | [06_MAP_FEATURES.md](06_MAP_FEATURES.md) — реестр типов, якоря/координаты, рендер | P1 | не начато |
 | 07 | [07_SCENARIO_1836.md](07_SCENARIO_1836.md) — карта на эпоху, ярусы акторов, композиты | P2 | не начато |
 | 08 | [08_WAR_WAVE1.md](08_WAR_WAVE1.md) — оккупация≠аннексия, мир, потери, долг | P1 | Шаг 1 (оккупация≠аннексия) реализован, Шаги 2-4 отложены (см. «Отклонения при реализации»), см. `docs/WAR.md` §"Оккупация" |
