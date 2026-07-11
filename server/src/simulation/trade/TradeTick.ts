@@ -5,6 +5,8 @@ import { type ResourceType } from "@shared/types/resources/ResourcesType";
 import {
   DOMESTIC_RESERVE_PER_CAPITA,
   EXPORT_RATE,
+  IMPORT_RATE,
+  IMPORT_PRICE_MARKUP,
   SANCTION_EXPORT_PENALTY_PER_EMBARGO,
   WORLD_PRICE_BY_CATEGORY,
   WORLD_PRICE_OVERRIDES,
@@ -17,6 +19,11 @@ import {
  * категорию ресурса (не двусторонние сделки — N² сложность не нужна для
  * "сотен стран"), не отдельная симуляция потока/коннекторов (см. план,
  * "не в этом заходе"). Баланс-константы — shared/src/defines/trade.ts.
+ *
+ * Импорт дефицита (docs/TRADE.md, "Явные пробелы v1") — симметрично экспорту:
+ * ресурс ниже резерва докупается по мировой цене с наценкой. Не гейтится
+ * trade_embargo (эмбарго в этой модели режет только доход от продажи,
+ * не способность покупать — сознательное упрощение, не пробел).
  */
 
 function getWorldPrice(resourceId: ResourceType): number {
@@ -42,19 +49,31 @@ export function tradeTick(game: GameState, country: Country): void {
   const embargoPenalty = getEmbargoPenalty(game, country.id);
 
   let totalExportIncome = 0;
+  let totalImportSpending = 0;
   const reserveTarget = country.population * DOMESTIC_RESERVE_PER_CAPITA;
 
   for (const resourceId of RESOURCE_IDS) {
     if (RESOURCE_CATALOG[resourceId].eraIntroduced > currentYear) continue;
 
     const stock = country.stockpile[resourceId] ?? 0;
-    const exportable = Math.max(0, stock - reserveTarget);
-    const sold = exportable * EXPORT_RATE;
-    if (sold <= 0) continue;
 
-    country.stockpile[resourceId] -= sold;
-    totalExportIncome += sold * getWorldPrice(resourceId) * (1 - embargoPenalty);
+    if (stock >= reserveTarget) {
+      const exportable = stock - reserveTarget;
+      const sold = exportable * EXPORT_RATE;
+      if (sold <= 0) continue;
+
+      country.stockpile[resourceId] -= sold;
+      totalExportIncome += sold * getWorldPrice(resourceId) * (1 - embargoPenalty);
+    } else {
+      const deficit = reserveTarget - stock;
+      const bought = deficit * IMPORT_RATE;
+      if (bought <= 0) continue;
+
+      country.stockpile[resourceId] += bought;
+      totalImportSpending += bought * getWorldPrice(resourceId) * IMPORT_PRICE_MARKUP;
+    }
   }
 
   country.economy.exportIncome = totalExportIncome;
+  country.economy.importSpending = totalImportSpending;
 }

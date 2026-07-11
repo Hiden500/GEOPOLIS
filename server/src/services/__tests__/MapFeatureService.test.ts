@@ -31,6 +31,7 @@ describe('MapFeatureService', () => {
           treasury: 1000000000000,
           taxRevenue: 3000000000000,
           exportIncome: 2000000000000,
+          importSpending: 0,
           stateEnterpriseIncome: 500000000000,
           otherIncome: 100000000000,
           militarySpending: 700000000000,

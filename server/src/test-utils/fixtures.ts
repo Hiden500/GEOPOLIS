@@ -42,6 +42,7 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       taxRate: 0.2, // = taxRevenue/gdp, чтобы пересчёт в EconomyTick давал ту же сумму
 
       exportIncome: 50_000_000_000,
+      importSpending: 0,
       stateEnterpriseIncome: 20_000_000_000,
       otherIncome: 10_000_000_000,
       militarySpending: 30_000_000_000,

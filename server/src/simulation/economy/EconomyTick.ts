@@ -57,7 +57,8 @@ function updateBudget(economy: EconomyState): { income: number; expenses: number
     economy.infrastructureSpending +
     economy.welfareSpending +
     economy.debtInterest +
-    economy.otherExpenses;
+    economy.otherExpenses +
+    economy.importSpending;
 
   economy.budgetBalance = income - expenses;
   economy.treasury += economy.budgetBalance;

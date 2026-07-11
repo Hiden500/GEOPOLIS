@@ -13,6 +13,12 @@ export interface EconomyState {
 
   exportIncome: number;
 
+  // Расход на импорт ресурсов, которых не хватает до внутреннего резерва
+  // (docs/TRADE.md, "Явные пробелы v1" → импорт дефицита) — симметрично
+  // exportIncome, перезаписывается каждый тик TradeTick.ts, учитывается как
+  // расход в EconomyTick.ts::updateBudget().
+  importSpending: number;
+
   stateEnterpriseIncome: number;
 
   otherIncome: number;

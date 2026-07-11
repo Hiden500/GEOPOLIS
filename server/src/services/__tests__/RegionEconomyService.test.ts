@@ -52,6 +52,7 @@ describe('RegionEconomyService', () => {
         treasury: 100000000000,
         taxRevenue: 100000000000,
         exportIncome: 50000000000,
+        importSpending: 0,
         stateEnterpriseIncome: 20000000000,
         otherIncome: 10000000000,
         militarySpending: 30000000000,

@@ -18,12 +18,39 @@ describe("economyTick", () => {
       country.economy.infrastructureSpending +
       country.economy.welfareSpending +
       country.economy.debtInterest +
-      country.economy.otherExpenses;
+      country.economy.otherExpenses +
+      country.economy.importSpending;
 
     economyTick(country, []);
 
     expect(country.economy.budgetBalance).toBe(income - expenses);
     expect(country.economy.treasury).toBe(treasuryBefore + (income - expenses));
+  });
+
+  it("importSpending (докупка дефицита ресурсов, TradeTick.ts) учитывается как расход бюджета", () => {
+    const country = createTestCountry({
+      economy: { ...createTestCountry().economy, importSpending: 1_000_000_000 },
+    });
+    const treasuryBefore = country.economy.treasury;
+    const expensesWithoutImport =
+      country.economy.militarySpending +
+      country.economy.researchSpending +
+      country.economy.educationSpending +
+      country.economy.infrastructureSpending +
+      country.economy.welfareSpending +
+      country.economy.debtInterest +
+      country.economy.otherExpenses;
+
+    economyTick(country, []);
+
+    const expectedBudgetBalance =
+      country.economy.taxRevenue +
+      country.economy.exportIncome +
+      country.economy.stateEnterpriseIncome +
+      country.economy.otherIncome -
+      (expensesWithoutImport + 1_000_000_000);
+    expect(country.economy.budgetBalance).toBe(expectedBudgetBalance);
+    expect(country.economy.treasury).toBe(treasuryBefore + expectedBudgetBalance);
   });
 
   it("recomputes taxRevenue from gdp × taxRate (доход следует за ВВП)", () => {

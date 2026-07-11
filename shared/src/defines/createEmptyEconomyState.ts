@@ -15,6 +15,7 @@ export function createEmptyEconomyState(): EconomyState {
     treasury: 0,
     taxRevenue: 0,
     exportIncome: 0,
+    importSpending: 0,
     stateEnterpriseIncome: 0,
     otherIncome: 0,
     militarySpending: 0,
