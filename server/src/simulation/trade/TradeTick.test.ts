@@ -170,3 +170,126 @@ describe("tradeTick — импорт дефицита (docs/TRADE.md, \"Явны
     expect(country.economy.importSpending).toBeGreaterThan(0);
   });
 });
+
+describe("tradeTick — валютные зоны (docs/plans/10_CURRENCY_ZONES.md)", () => {
+  it("член зоны получает бонус к экспортному доходу относительно независимой страны при равном излишке", () => {
+    const independent = createTestCountry({
+      id: "IND",
+      stockpile: { ...atReserveStockpile(), oil: 200_000 },
+    });
+    const member = createTestCountry({
+      id: "MEM",
+      stockpile: { ...atReserveStockpile(), oil: 200_000 },
+      currencyZoneAnchor: "ANCHOR",
+    });
+    const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independent] });
+    const gameMember = createTestGameState({ currentDate: "1946-01-01", countries: [member] });
+
+    tradeTick(gameIndependent, independent);
+    tradeTick(gameMember, member);
+
+    expect(member.economy.exportIncome).toBeGreaterThan(independent.economy.exportIncome);
+    // CURRENCY_ZONE_EXPORT_BONUS = 0.05 -> ровно +5%.
+    expect(member.economy.exportIncome).toBeCloseTo(independent.economy.exportIncome * 1.05);
+  });
+
+  it("член зоны платит меньше за импорт дефицита относительно независимой страны при равном дефиците", () => {
+    const independent = createTestCountry({
+      id: "IND",
+      stockpile: { ...atReserveStockpile(), tin: 50_000 },
+    });
+    const member = createTestCountry({
+      id: "MEM",
+      stockpile: { ...atReserveStockpile(), tin: 50_000 },
+      currencyZoneAnchor: "ANCHOR",
+    });
+    const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independent] });
+    const gameMember = createTestGameState({ currentDate: "1946-01-01", countries: [member] });
+
+    tradeTick(gameIndependent, independent);
+    tradeTick(gameMember, member);
+
+    expect(member.economy.importSpending).toBeLessThan(independent.economy.importSpending);
+    // CURRENCY_ZONE_IMPORT_DISCOUNT = 0.05 -> ровно -5%.
+    expect(member.economy.importSpending).toBeCloseTo(independent.economy.importSpending * 0.95);
+  });
+
+  it("сам якорь зоны (на него ссылаются, но у него самого currencyZoneAnchor не задан) бонуса не получает", () => {
+    const anchor = createTestCountry({
+      id: "ANCHOR",
+      stockpile: { ...atReserveStockpile(), oil: 200_000 },
+      // currencyZoneAnchor не задан — якорь не считается членом своей же зоны.
+    });
+    const independent = createTestCountry({
+      id: "IND",
+      stockpile: { ...atReserveStockpile(), oil: 200_000 },
+    });
+    const gameAnchor = createTestGameState({ currentDate: "1946-01-01", countries: [anchor] });
+    const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independent] });
+
+    tradeTick(gameAnchor, anchor);
+    tradeTick(gameIndependent, independent);
+
+    expect(anchor.economy.exportIncome).toBeCloseTo(independent.economy.exportIncome);
+  });
+
+  it("эмбарго от стороны ВНЕ зоны штрафует члена зоны слабее, чем независимую страну", () => {
+    const independentTarget = createTestCountry({ id: "IND", stockpile: { ...atReserveStockpile(), oil: 200_000 } });
+    const outsiderVsIndependent = createTestCountry({ id: "OUTSIDER" });
+    outsiderVsIndependent.diplomacy.sanctions["IND"] = ["trade_embargo"];
+
+    const memberTarget = createTestCountry({
+      id: "MEM", stockpile: { ...atReserveStockpile(), oil: 200_000 }, currencyZoneAnchor: "ANCHOR",
+    });
+    const outsiderVsMember = createTestCountry({ id: "OUTSIDER" }); // не якорь MEM и не член его зоны
+    outsiderVsMember.diplomacy.sanctions["MEM"] = ["trade_embargo"];
+
+    const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independentTarget, outsiderVsIndependent] });
+    const gameMember = createTestGameState({ currentDate: "1946-01-01", countries: [memberTarget, outsiderVsMember] });
+
+    tradeTick(gameIndependent, independentTarget);
+    tradeTick(gameMember, memberTarget);
+
+    // raw = доход без штрафа/бонуса, одинаковый в обоих случаях (тот же stockpile/резерв/цена).
+    // Независимая: raw × (1 − 0.2). Член зоны: raw × (1 − 0.2×(1−0.5)) × 1.05 (защита + бонус членства).
+    const raw = independentTarget.economy.exportIncome / (1 - 0.2);
+    const expectedMemberIncome = raw * (1 - 0.2 * (1 - 0.5)) * 1.05;
+
+    expect(memberTarget.economy.exportIncome).toBeCloseTo(expectedMemberIncome, 0);
+    expect(memberTarget.economy.exportIncome).toBeGreaterThan(independentTarget.economy.exportIncome);
+  });
+
+  it("эмбарго от собственного якоря штрафует члена зоны полностью — зона не защищает изнутри", () => {
+    const anchor = createTestCountry({ id: "ANCHOR" });
+    const member = createTestCountry({
+      id: "MEM", stockpile: { ...atReserveStockpile(), oil: 200_000 }, currencyZoneAnchor: "ANCHOR",
+    });
+    anchor.diplomacy.sanctions["MEM"] = ["trade_embargo"];
+
+    const independentTarget = createTestCountry({ id: "IND", stockpile: { ...atReserveStockpile(), oil: 200_000 } });
+    const outsider = createTestCountry({ id: "OUTSIDER" });
+    outsider.diplomacy.sanctions["IND"] = ["trade_embargo"];
+
+    const gameMember = createTestGameState({ currentDate: "1946-01-01", countries: [member, anchor] });
+    const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independentTarget, outsider] });
+
+    tradeTick(gameMember, member);
+    tradeTick(gameIndependent, independentTarget);
+
+    // Оба получают одинаковый ПОЛНЫЙ штраф SANCTION_EXPORT_PENALTY_PER_EMBARGO=0.2 на
+    // доход-до-бонуса (защита не сработала — эмбарго от собственного якоря); у члена
+    // зоны сверху всё равно накручивается +5% экспортный бонус членства (независимый эффект).
+    expect(member.economy.exportIncome).toBeCloseTo(independentTarget.economy.exportIncome * 1.05);
+  });
+
+  it("страна без currencyZoneAnchor ведёт себя как раньше — никаких сюрпризов для существующих тестов", () => {
+    const country = createTestCountry({ stockpile: { ...atReserveStockpile(), oil: 200_000, tin: 50_000 } });
+    const game = createTestGameState({ currentDate: "1946-01-01", countries: [country] });
+
+    tradeTick(game, country);
+
+    expect(country.currencyZoneAnchor).toBeUndefined();
+    expect(country.economy.exportIncome).toBeGreaterThan(0);
+    expect(country.economy.importSpending).toBeGreaterThan(0);
+  });
+});

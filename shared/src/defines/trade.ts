@@ -43,3 +43,20 @@ export const WORLD_PRICE_OVERRIDES: Partial<Record<ResourceType, number>> = {
   gold: 2000,
   uranium: 500,
 };
+
+/**
+ * Валютные зоны (docs/plans/10_CURRENCY_ZONES.md) — Country.currencyZoneAnchor.
+ * Тюнингуемые плейсхолдеры, не финальная калибровка.
+ */
+
+/** Прибавка к экспортному доходу члену зоны (не самому якорю). */
+export const CURRENCY_ZONE_EXPORT_BONUS = 0.05;
+
+/** Скидка на стоимость импорта члену зоны (не самому якорю). */
+export const CURRENCY_ZONE_IMPORT_DISCOUNT = 0.05;
+
+/**
+ * Снижение штрафа от санкций, наложенных СТОРОНОЙ ВНЕ зоны (якорь и другие
+ * члены той же зоны штрафуют полностью — зона не защищает "изнутри").
+ */
+export const CURRENCY_ZONE_SANCTION_PROTECTION = 0.5;

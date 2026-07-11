@@ -10,6 +10,9 @@ import {
   SANCTION_EXPORT_PENALTY_PER_EMBARGO,
   WORLD_PRICE_BY_CATEGORY,
   WORLD_PRICE_OVERRIDES,
+  CURRENCY_ZONE_EXPORT_BONUS,
+  CURRENCY_ZONE_IMPORT_DISCOUNT,
+  CURRENCY_ZONE_SANCTION_PROTECTION,
 } from "@shared/defines/trade";
 
 /**
@@ -24,17 +27,37 @@ import {
  * ресурс ниже резерва докупается по мировой цене с наценкой. Не гейтится
  * trade_embargo (эмбарго в этой модели режет только доход от продажи,
  * не способность покупать — сознательное упрощение, не пробел).
+ *
+ * Валютные зоны (docs/plans/10_CURRENCY_ZONES.md) — Country.currencyZoneAnchor:
+ * член зоны получает бонус к экспортному доходу/скидку на импорт и частичную
+ * защиту от санкций СО СТОРОНЫ ВНЕ зоны (эмбарго от якоря/другого члена той
+ * же зоны штрафует полностью — зона не защищает "изнутри"). Сам якорь
+ * (на него ссылаются, но у него самого currencyZoneAnchor не задан) — без бонусов.
  */
 
 function getWorldPrice(resourceId: ResourceType): number {
   return WORLD_PRICE_OVERRIDES[resourceId] ?? WORLD_PRICE_BY_CATEGORY[RESOURCE_CATALOG[resourceId].category];
 }
 
-function getEmbargoPenalty(game: GameState, countryId: string): number {
-  const embargoCount = game.countries.filter(c =>
-    c.diplomacy.sanctions[countryId]?.includes("trade_embargo")
-  ).length;
-  return Math.min(1, embargoCount * SANCTION_EXPORT_PENALTY_PER_EMBARGO);
+/** Тот же якорь или один из двух — член зоны другого. */
+function isZoneMate(a: Country, b: Country): boolean {
+  if (a.currencyZoneAnchor !== undefined && a.currencyZoneAnchor === b.currencyZoneAnchor) return true;
+  if (a.currencyZoneAnchor === b.id) return true;
+  if (b.currencyZoneAnchor === a.id) return true;
+  return false;
+}
+
+function getEmbargoPenalty(game: GameState, target: Country): number {
+  let penalty = 0;
+  for (const embargoer of game.countries) {
+    if (!embargoer.diplomacy.sanctions[target.id]?.includes("trade_embargo")) continue;
+
+    const protectedByZone = target.currencyZoneAnchor !== undefined && !isZoneMate(target, embargoer);
+    penalty += protectedByZone
+      ? SANCTION_EXPORT_PENALTY_PER_EMBARGO * (1 - CURRENCY_ZONE_SANCTION_PROTECTION)
+      : SANCTION_EXPORT_PENALTY_PER_EMBARGO;
+  }
+  return Math.min(1, penalty);
 }
 
 /**
@@ -46,7 +69,13 @@ function getEmbargoPenalty(game: GameState, countryId: string): number {
  */
 export function tradeTick(game: GameState, country: Country): void {
   const currentYear = Number(game.currentDate.split("-")[0]);
-  const embargoPenalty = getEmbargoPenalty(game, country.id);
+  const embargoPenalty = getEmbargoPenalty(game, country);
+
+  // Бонус/скидка члена валютной зоны — сам якорь (currencyZoneAnchor не
+  // задан) их не получает.
+  const isZoneMember = country.currencyZoneAnchor !== undefined;
+  const exportZoneMultiplier = isZoneMember ? 1 + CURRENCY_ZONE_EXPORT_BONUS : 1;
+  const importZoneMultiplier = isZoneMember ? 1 - CURRENCY_ZONE_IMPORT_DISCOUNT : 1;
 
   let totalExportIncome = 0;
   let totalImportSpending = 0;
@@ -63,14 +92,14 @@ export function tradeTick(game: GameState, country: Country): void {
       if (sold <= 0) continue;
 
       country.stockpile[resourceId] -= sold;
-      totalExportIncome += sold * getWorldPrice(resourceId) * (1 - embargoPenalty);
+      totalExportIncome += sold * getWorldPrice(resourceId) * (1 - embargoPenalty) * exportZoneMultiplier;
     } else {
       const deficit = reserveTarget - stock;
       const bought = deficit * IMPORT_RATE;
       if (bought <= 0) continue;
 
       country.stockpile[resourceId] += bought;
-      totalImportSpending += bought * getWorldPrice(resourceId) * IMPORT_PRICE_MARKUP;
+      totalImportSpending += bought * getWorldPrice(resourceId) * IMPORT_PRICE_MARKUP * importZoneMultiplier;
     }
   }
 
