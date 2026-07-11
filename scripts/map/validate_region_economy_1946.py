@@ -15,8 +15,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
 from economy_1946.country_splits import CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT
-from economy_1946.region_files import load_regions_combined
+from economy_1946.region_files import load_regions_layers, combine_regions, load_json, SCENARIO_DIR
 from economy_1946.resource_catalog import load_resource_catalog, resources_introduced_after
+
+COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 
 # Единый источник истины (docs/plans/05_DATA_LAYOUT.md, Срез 3) — раньше
 # POST_1946_RESOURCES дублировался вручную.
@@ -28,11 +30,78 @@ COUNTRY_TOTAL_TOLERANCE = 0.03  # 3% — допуск на округление 
 DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT}
 
 
+def validate_structural_invariants(
+    regions: list[dict], countries: list[dict], catalog: dict,
+    names_en: dict[str, str], names_ru: dict[str, str],
+) -> list[str]:
+    """Инварианты целостности данных (docs/plans/05_DATA_LAYOUT.md, Срез 4) —
+    не завязаны на исторические анкеры 1946, применимы к любому сценарию/
+    фикстуре. Отдельно от исторических/калибровочных проверок main() ниже,
+    чтобы быть тестируемыми на синтетических данных (см.
+    test_validate_region_economy_1946.py)."""
+    violations: list[str] = []
+    by_id = {r["id"]: r for r in regions}
+    country_ids = {c["id"] for c in countries}
+
+    # 9. Симметрия графа соседей: A -> B подразумевает B -> A.
+    for r in regions:
+        for n_id in r.get("neighboringRegionIds", []):
+            neighbor = by_id.get(n_id)
+            if neighbor is None:
+                violations.append(f"region {r['id']}: сосед {n_id} не существует.")
+                continue
+            if r["id"] not in neighbor.get("neighboringRegionIds", []):
+                violations.append(
+                    f"несимметричный сосед: region {r['id']} -> {n_id}, "
+                    f"но {n_id} не ссылается обратно на {r['id']}."
+                )
+
+    # 10. ownerCountryId существует в countries.json.
+    for r in regions:
+        if r["ownerCountryId"] not in country_ids:
+            violations.append(f"region {r['id']}: ownerCountryId '{r['ownerCountryId']}' не найден в countries.json.")
+
+    # 11. capitalRegionId страны принадлежит региону этой же страны.
+    for c in countries:
+        capital = by_id.get(c["capitalRegionId"])
+        if capital is None:
+            violations.append(f"{c['id']}: capitalRegionId {c['capitalRegionId']} не существует среди регионов.")
+        elif capital["ownerCountryId"] != c["id"]:
+            violations.append(
+                f"{c['id']}: capitalRegionId {c['capitalRegionId']} принадлежит "
+                f"'{capital['ownerCountryId']}', не '{c['id']}'."
+            )
+
+    # 12. deposits/extraction — только ресурсы из каталога.
+    catalog_ids = set(catalog["resources"].keys())
+    for r in regions:
+        for field in ("deposits", "extraction"):
+            unknown = set(r.get(field, {})) - catalog_ids
+            if unknown:
+                violations.append(f"region {r['id']}: {field} содержит ресурсы вне каталога: {sorted(unknown)}.")
+
+    # 13. Полнота локализации: у каждого региона есть имя И en, И ru (в файлах,
+    # не после фолбэка getText() — фолбэк на рантайме мягкий, но датасет
+    # должен быть полным).
+    for r in regions:
+        geo_id = r["geoJsonId"]
+        missing = [loc for loc, names in (("en", names_en), ("ru", names_ru)) if geo_id not in names]
+        if missing:
+            violations.append(f"region {r['id']} (geoJsonId={geo_id}): нет имени в локали(ях) {missing}.")
+
+    return violations
+
+
 def main() -> int:
-    regions = load_regions_combined()
+    core, state, names_en, names_ru = load_regions_layers()
+    regions = combine_regions(core, state, names_en, names_ru)
+    countries = load_json(COUNTRIES_PATH)
+    catalog = load_resource_catalog()
 
     violations: list[str] = []
     warnings: list[str] = []
+
+    violations.extend(validate_structural_invariants(regions, countries, catalog, names_en, names_ru))
 
     # 1. Население/ВВП > 0 всюду
     zero_pop = [r["id"] for r in regions if r["population"] <= 0]

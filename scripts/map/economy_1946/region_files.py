@@ -31,17 +31,27 @@ STATE_FIELDS = (
 )
 
 
-def _load(path: Path):
+def load_json(path: Path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
-def load_regions_combined() -> list[dict]:
-    core = _load(CORE_PATH)
-    state = _load(STATE_PATH)
-    names_en = _load(NAMES_EN_PATH)
-    names_ru = _load(NAMES_RU_PATH)
+# Обратная совместимость внутреннего имени (использовалось внутри модуля).
+_load = load_json
 
+
+def load_regions_layers() -> tuple[list[dict], list[dict], dict[str, str], dict[str, str]]:
+    """Сырые (нерасслитые) слои — для проверок, которым важно ЧТО именно
+    отсутствует в каком файле (например, полнота локализации по локали),
+    что combine_regions() уже замаскировал бы дефолтом на пустую строку."""
+    return _load(CORE_PATH), _load(STATE_PATH), _load(NAMES_EN_PATH), _load(NAMES_RU_PATH)
+
+
+def combine_regions(
+    core: list[dict], state: list[dict], names_en: dict[str, str], names_ru: dict[str, str]
+) -> list[dict]:
+    """Чистая функция слияния — вынесена отдельно от load_regions_combined(),
+    чтобы быть тестируемой на синтетических данных без чтения файлов."""
     state_by_id = {s["id"]: s for s in state}
     combined = []
     for c in core:
@@ -57,6 +67,10 @@ def load_regions_combined() -> list[dict]:
         }
         combined.append(merged)
     return combined
+
+
+def load_regions_combined() -> list[dict]:
+    return combine_regions(*load_regions_layers())
 
 
 def write_regions_state(regions: list[dict]) -> None:
