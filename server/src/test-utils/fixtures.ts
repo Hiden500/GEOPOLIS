@@ -116,6 +116,9 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
     },
     stockpile: { oil: 500_000, coal: 1_000_000, gas: 1_500_000, iron: 500_000, copper: 500_000, gold: 250_000, tin: 0, nickel: 0, bauxite: 500000, tungsten: 0, manganese: 0, chromium: 0, uranium: 10_000, rareEarths: 50_000, lithium: 100_000, food: 5_000_000, timber: 1_000_000, cotton: 0, rubber: 0, nitrates: 0 } as Record<ResourceType, number>,
     goals: [],
+    // Нейтральный темперамент по умолчанию (docs/AI_RULES.md) — тесты Правила D
+    // переопределяют явно, где вариативность характера важна.
+    aiTraits: { aggressiveness: 1, riskTolerance: 1 },
     ...overrides,
   };
 }

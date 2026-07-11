@@ -23,7 +23,7 @@ import { ECONOMY_ARCHETYPES } from "./economyArchetypes";
  */
 export type CountryInput = Omit<
   Country,
-  "economy" | "economyProfile" | "tier" | "population" |
+  "economy" | "economyProfile" | "tier" | "population" | "aiTraits" |
   "technology" | "researchedTechnologyIds" | "military" | "diplomacy" | "politics" | "stockpile" | "goals"
 > & {
   economyProfile?: Partial<Omit<EconomyProfile, "spending">> & {
@@ -64,6 +64,9 @@ export function createCountry(input: CountryInput): Country {
     ...input,
     tier: "minor", // переопределяется assignInitialTiers при createGame
     population: input.population ?? 0,
+    // Нейтральный placeholder — createGame() перезаписывает реальным
+    // seeded-посевом (docs/AI_RULES.md §"Искусственный интеллект стран").
+    aiTraits: { aggressiveness: 1, riskTolerance: 1 },
     economyProfile,
     economy: {
       ...createEmptyEconomyState(),

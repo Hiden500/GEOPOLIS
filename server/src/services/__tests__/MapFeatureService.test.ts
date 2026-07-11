@@ -93,6 +93,7 @@ describe('MapFeatureService', () => {
         },
         stockpile: { oil: 1000000, coal: 5000000, gas: 3000000, iron: 2000000, copper: 1000000, gold: 500000, tin: 0, nickel: 0, bauxite: 2500000, tungsten: 0, manganese: 0, chromium: 0, uranium: 50000, rareEarths: 100000, lithium: 200000, food: 10000000, timber: 2000000, cotton: 0, rubber: 0, nitrates: 0 } as Record<ResourceType, number>,
         goals: [],
+        aiTraits: { aggressiveness: 1, riskTolerance: 1 },
       },
     ];
 

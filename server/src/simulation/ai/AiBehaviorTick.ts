@@ -145,18 +145,26 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
  * ниже почти-дна шкалы И при манпауэр-перевесе инициатора ("нет другого
  * выхода", черновик docs/WAR.md) — объявляется война. `WarService.declareWar`
  * идемпотентен (не дублирует уже идущую войну), доп. проверка не нужна.
+ *
+ * Вариативность характера (`Country.aiTraits`, docs/AI_RULES.md) смещает оба
+ * порога независимо: `aggressiveness` — порог отношений (агрессивные страны
+ * решаются на войну при менее плохих отношениях, миролюбивые — только на
+ * настоящем дне шкалы); `riskTolerance` — требуемый манпауэр-перевес (более
+ * рисковые страны считают достаточным меньший перевес).
  */
 function applyWarThreshold(game: GameState, aiCountries: Country[]): void {
   const nonMajor = aiCountries.filter(c => c.tier !== "major");
 
   for (const c of nonMajor) {
+    const relationThreshold = WAR_RELATION_THRESHOLD / c.aiTraits.aggressiveness;
+
     for (const rivalId of c.diplomacy.rivals) {
       const rival = nonMajor.find(r => r.id === rivalId);
       if (!rival) continue; // major-тир соперник — войну решает только LLM
 
       const relation = c.diplomacy.relations[rivalId] ?? 0;
-      if (relation > WAR_RELATION_THRESHOLD) continue;
-      if (c.military.activePersonnel <= rival.military.activePersonnel) continue;
+      if (relation > relationThreshold) continue;
+      if (c.military.activePersonnel <= rival.military.activePersonnel / c.aiTraits.riskTolerance) continue;
 
       warCommands.declareWar(game, c.id, rivalId);
     }

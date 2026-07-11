@@ -38,6 +38,8 @@ describe("createCountry (план 05, Срез 2 — авторский ввод
     });
     expect(country.stockpile.oil).toBe(0);
     expect(country.stockpile.uranium).toBe(0);
+    // Нейтральный placeholder — createGame() перезаписывает реальным seeded-посевом.
+    expect(country.aiTraits).toEqual({ aggressiveness: 1, riskTolerance: 1 });
   });
 
   it("politics: ideology обязательна, остальное дефолтится (50/50/30/50/Unknown)", () => {

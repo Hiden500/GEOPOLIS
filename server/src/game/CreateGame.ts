@@ -6,6 +6,8 @@ import { updateAllRegionsAndAggregate } from "@shared/utils/aggregateCountryData
 import { generateInitialMapFeatures } from "../scenarios/generateMapFeatures";
 import { RegionEconomyService } from "../services/RegionEconomyService";
 import { assignInitialTiers } from "../simulation/tier/TierTick";
+import { nextRandom } from "@shared/utils/rng";
+import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
 
 /**
  * Выводит денежные поля economy из economyProfile (масштаб-свободные доли,
@@ -52,6 +54,34 @@ function deriveCountryEconomy(country: Country): void {
   };
 }
 
+/**
+ * Сеет Country.aiTraits (вариативность характера, docs/AI_RULES.md
+ * §"Искусственный интеллект стран") через seeded RNG — один раз при
+ * создании партии, не в тике (правило детерминизма конституции всё равно
+ * соблюдено: game.rngState — единственный источник случайности, не
+ * Math.random). Возвращает продвинутое состояние RNG для game.rngState —
+ * посев не должен "тратить" сид молча, следующий реальный потребитель
+ * game.rng продолжит с этого места, не с исходного seed.
+ */
+function seedAiTraits(countries: Country[], seed: number): number {
+  let state = seed;
+  const range = AI_TRAIT_MAX - AI_TRAIT_MIN;
+
+  for (const country of countries) {
+    const aggressiveness = nextRandom(state);
+    state = aggressiveness.nextState;
+    const riskTolerance = nextRandom(state);
+    state = riskTolerance.nextState;
+
+    country.aiTraits = {
+      aggressiveness: AI_TRAIT_MIN + aggressiveness.value * range,
+      riskTolerance: AI_TRAIT_MIN + riskTolerance.value * range,
+    };
+  }
+
+  return state;
+}
+
 export function createGame(
   scenarioId: keyof typeof ScenarioRegistry,
   playerCountryId: string,
@@ -94,6 +124,11 @@ export function createGame(
   // Выставляем начальные тиры (исторические для 1946, иначе minor)
   assignInitialTiers(countries, scenarioId);
 
+  // Вариативность характера ИИ — сеется один раз здесь, не молча тратит seed:
+  // rngState продвигается, следующий реальный потребитель game.rng продолжит
+  // с этого места (docs/AI_RULES.md §"Искусственный интеллект стран").
+  const rngState = seedAiTraits(countries, seed);
+
   // Создаём базовое состояние игры
   const game: GameState = {
     currentDate: scenario.startDate,
@@ -101,7 +136,7 @@ export function createGame(
     era: structuredClone(scenario.technologyEra),
     countries,
     regions,
-    rngState: seed,
+    rngState,
     nextFeatureId: 0,
     locale,
     playerIntent: "",

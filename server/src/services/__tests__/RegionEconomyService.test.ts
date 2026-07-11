@@ -114,6 +114,7 @@ describe('RegionEconomyService', () => {
       },
       stockpile: { oil: 500000, coal: 1000000, gas: 1500000, iron: 500000, copper: 500000, gold: 250000, tin: 0, nickel: 0, bauxite: 500000, tungsten: 0, manganese: 0, chromium: 0, uranium: 10000, rareEarths: 50000, lithium: 100000, food: 5000000, timber: 1000000, cotton: 0, rubber: 0, nitrates: 0 } as Record<ResourceType, number>,
       goals: [],
+      aiTraits: { aggressiveness: 1, riskTolerance: 1 },
     };
   });
 
