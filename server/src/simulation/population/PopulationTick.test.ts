@@ -46,6 +46,28 @@ describe("populationTick", () => {
     expect(foreignRegion.population).toBe(populationBefore);
   });
 
+  it("бедная аграрная страна не теряет население в мире (демографический переход, калибровка CHN)", () => {
+    // Очень низкий ВВП/чел (как CHN 1946, ~$83 против ориентира $850) при
+    // мизерных тратах на образование/welfare. До калибровки формула тройно
+    // подавляла рождаемость и страна убывала; теперь бедность не штрафует
+    // фертильность ниже аграрной нормы — население не падает.
+    const poor = createTestCountry({
+      population: 100_000_000,
+      economy: {
+        ...createTestCountry().economy,
+        gdp: 8_000_000_000, // ВВП/чел = 80, глубоко ниже ориентира 850
+        educationSpending: 0,
+        welfareSpending: 0,
+      },
+    });
+    const region = createTestRegion({ ownerCountryId: poor.id, population: 100_000_000, stability: 50 });
+    const populationBefore = region.population;
+
+    populationTick(poor, [region]);
+
+    expect(region.population).toBeGreaterThanOrEqual(populationBefore);
+  });
+
   it("does not throw when the country owns no regions", () => {
     const country = createTestCountry();
 
