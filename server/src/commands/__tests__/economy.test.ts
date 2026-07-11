@@ -110,6 +110,20 @@ describe("commands/economy", () => {
     });
   });
 
+  describe("setMilitarySpending", () => {
+    it("задаёт абсолютное значение militarySpending", () => {
+      const game = gameWithUsa();
+      commands.setMilitarySpending(game, "USA", 12_345);
+      expect(game.countries[0]!.economy.militarySpending).toBe(12_345);
+    });
+
+    it("отклоняет неизвестную страну", () => {
+      const game = gameWithUsa();
+      const result = commands.setMilitarySpending(game, "GHOST", 12_345);
+      expect(result.success).toBe(false);
+    });
+  });
+
   describe("shiftMilitaryToWelfare", () => {
     it("сдвигает ровно amount между статьями", () => {
       const game = gameWithUsa();

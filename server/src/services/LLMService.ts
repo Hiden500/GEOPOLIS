@@ -3,10 +3,9 @@ import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
-import { DiplomacyService } from "./DiplomacyService";
-import { WarService } from "./WarService";
-import { ResearchService } from "./ResearchService";
-import { MilitaryService } from "./MilitaryService";
+import * as diplomacyCommands from "../commands/diplomacy";
+import * as warCommands from "../commands/war";
+import * as economyCommands from "../commands/economy";
 import { getDomainTier } from "@shared/utils/technology";
 import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMetrics";
 import { getEligibleHingePoints } from "@shared/utils/hingePoints";
@@ -84,17 +83,9 @@ export interface LlmCycleResult {
  */
 export class LLMService {
   private game: GameState;
-  private diplomacyService: DiplomacyService;
-  private warService: WarService;
-  private researchService: ResearchService;
-  private militaryService: MilitaryService;
 
   constructor(game: GameState) {
     this.game = game;
-    this.diplomacyService = new DiplomacyService();
-    this.warService = new WarService(game);
-    this.researchService = new ResearchService();
-    this.militaryService = new MilitaryService();
   }
 
   /**
@@ -356,8 +347,8 @@ Hard limits (actions violating them are rejected):
    * Применяет дипломатическое действие.
    */
   private applyDiplomacyAction(action: Extract<LLMAction, { type: "diplomacy" }>): void {
-    this.diplomacyService.changeRelation(
-      this.game.countries,
+    diplomacyCommands.setRelation(
+      this.game,
       action.sourceCountryId,
       action.targetCountryId,
       action.data.relationChange
@@ -368,33 +359,20 @@ Hard limits (actions violating them are rejected):
    * Применяет действие войны.
    */
   private applyWarAction(action: Extract<LLMAction, { type: "war" }>): void {
-    this.warService.declareWar(action.sourceCountryId, action.targetCountryId, action.data?.warGoal);
+    warCommands.declareWar(this.game, action.sourceCountryId, action.targetCountryId, action.data?.warGoal);
 
     // Ухудшаем отношения
-    this.diplomacyService.changeRelation(
-      this.game.countries,
-      action.sourceCountryId,
-      action.targetCountryId,
-      -100
-    );
+    diplomacyCommands.setRelation(this.game, action.sourceCountryId, action.targetCountryId, -100);
   }
 
   /**
    * Применяет действие мира.
    */
   private applyPeaceAction(action: Extract<LLMAction, { type: "peace" }>): void {
-    const war = this.warService.getActiveWarBetween(action.sourceCountryId, action.targetCountryId);
-    if (war) {
-      this.warService.makePeace(war.id);
-    }
+    warCommands.makePeaceBetween(this.game, action.sourceCountryId, action.targetCountryId);
 
     // Улучшаем отношения
-    this.diplomacyService.changeRelation(
-      this.game.countries,
-      action.sourceCountryId,
-      action.targetCountryId,
-      50
-    );
+    diplomacyCommands.setRelation(this.game, action.sourceCountryId, action.targetCountryId, 50);
   }
 
   /**
@@ -402,23 +380,14 @@ Hard limits (actions violating them are rejected):
    */
   private applySanctionAction(action: Extract<LLMAction, { type: "sanction" }>): void {
     const sanctionType = action.data?.sanctionType || 'economic_sanctions';
-    this.diplomacyService.addSanction(
-      this.game.countries,
-      action.sourceCountryId,
-      action.targetCountryId,
-      sanctionType
-    );
+    diplomacyCommands.applySanction(this.game, action.sourceCountryId, action.targetCountryId, sanctionType);
   }
 
   /**
    * Применяет действие гарантии.
    */
   private applyGuaranteeAction(action: Extract<LLMAction, { type: "guarantee" }>): void {
-    this.diplomacyService.addGuarantee(
-      this.game.countries,
-      action.sourceCountryId,
-      action.targetCountryId
-    );
+    diplomacyCommands.setGuarantee(this.game, action.sourceCountryId, action.targetCountryId);
   }
 
   /**
@@ -426,12 +395,7 @@ Hard limits (actions violating them are rejected):
    */
   private applyInfluenceAction(action: Extract<LLMAction, { type: "influence" }>): void {
     const influenceChange = action.data?.influenceChange || 10;
-    this.diplomacyService.changeInfluence(
-      this.game.countries,
-      action.sourceCountryId,
-      action.targetCountryId,
-      influenceChange
-    );
+    diplomacyCommands.setInfluence(this.game, action.sourceCountryId, action.targetCountryId, influenceChange);
   }
 
   /**
@@ -441,10 +405,7 @@ Hard limits (actions violating them are rejected):
    * страна ростера, тот же паттерн, что объявление войны).
    */
   private applyResearchShiftAction(action: Extract<LLMAction, { type: "research_shift" }>): void {
-    const country = this.game.countries.find(c => c.id === action.sourceCountryId);
-    if (!country) return;
-
-    this.researchService.setAllocation(country, action.data.domain, action.data.share);
+    economyCommands.setResearchAllocation(this.game, action.sourceCountryId, action.data.domain, action.data.share);
   }
 
   /**
@@ -455,10 +416,12 @@ Hard limits (actions violating them are rejected):
    * паттерн, что research_shift/война).
    */
   private applyProductionShiftAction(action: Extract<LLMAction, { type: "production_shift" }>): void {
-    const country = this.game.countries.find(c => c.id === action.sourceCountryId);
-    if (!country) return;
-
-    this.militaryService.setProductionAllocation(country, action.data.equipmentType, action.data.share);
+    economyCommands.setProductionAllocation(
+      this.game,
+      action.sourceCountryId,
+      action.data.equipmentType,
+      action.data.share
+    );
   }
 
   /**

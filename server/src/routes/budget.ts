@@ -1,6 +1,7 @@
 import express from "express";
 import { GameService } from "../services/GameService";
 import { CountryService } from "../services/CountryService";
+import { setBudgetShares } from "../commands/economy";
 import { updateBudgetSchema } from "../validation/schemas";
 import { ValidationError, GameError, CountryError } from "../errors/AppError";
 import { getGame, setGame } from "../game/GameStore";
@@ -33,10 +34,10 @@ router.put("/", (req, res) => {
       throw new CountryError("Player country not found");
     }
 
-    const economy = countryService.updateBudget(playerCountry, budgetUpdate);
+    setBudgetShares(game, game.playerCountryId, budgetUpdate);
 
     setGame(game);
-    res.json({ success: true, budget: economy });
+    res.json({ success: true, budget: playerCountry.economy });
   } catch (error) {
     if (error instanceof ValidationError) {
       res.status(400).json({ error: error.message, details: error.details });

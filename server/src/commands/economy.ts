@@ -88,6 +88,19 @@ export function applyDeficitAusterityCut(
 }
 
 /**
+ * Точная обёртка формулы AiBehaviorTick Правило B (военный ramp угрожаемого
+ * соперника, капнутый долей дохода) — абсолютный сеттер, кап и скорость
+ * ramp'а по-прежнему считает вызывающий.
+ */
+export function setMilitarySpending(game: GameState, countryId: string, value: number): CommandResult {
+  const country = findCountry(game, countryId);
+  if (!country) return { success: false, error: `Unknown country: ${countryId}` };
+
+  country.economy.militarySpending = value;
+  return { success: true };
+}
+
+/**
  * Точная обёртка формулы AiBehaviorTick Правило C (низкая stability →
  * military→welfare): сдвигает ровно `amount` между двумя статьями. Расчёт
  * величины сдвига (капы, пол) остаётся у вызывающего.

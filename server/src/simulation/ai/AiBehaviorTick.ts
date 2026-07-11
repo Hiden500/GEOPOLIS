@@ -1,7 +1,10 @@
 import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
-import { WarService } from "../../services/WarService";
+import * as diplomacyCommands from "../../commands/diplomacy";
+import * as warCommands from "../../commands/war";
+import * as economyCommands from "../../commands/economy";
+import { type SpendKey } from "../../commands/economy";
 
 /**
  * Детерминированное поведение ИИ-стран (без полноценного utility-AI).
@@ -28,13 +31,6 @@ const WELFARE_SHIFT_RATE = 0.02;   // доля дохода, переводим�
 const WELFARE_CAP_SHARE = 0.30;    // потолок welfare как доля дохода
 const WAR_RELATION_THRESHOLD = -80; // порог отношений для Правила D — почти дно шкалы, войны редки
 
-type SpendKey =
-  | "militarySpending"
-  | "researchSpending"
-  | "educationSpending"
-  | "infrastructureSpending"
-  | "welfareSpending";
-
 const DISCRETIONARY: SpendKey[] = [
   "militarySpending",
   "researchSpending",
@@ -42,8 +38,6 @@ const DISCRETIONARY: SpendKey[] = [
   "infrastructureSpending",
   "welfareSpending",
 ];
-
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 function totalIncome(c: Country): number {
   const e = c.economy;
@@ -54,22 +48,22 @@ function totalIncome(c: Country): number {
  * Правило A — аустерити: при дефиците И отрицательной казне ИИ-страна урезает
  * дискреционные расходы на 5%/тик, но не ниже снимка пола (50% старта).
  * Само-останавливается, когда бюджет выходит из дефицита (следующий EconomyTick
- * пересчитает budgetBalance ≥ 0).
+ * пересчитает budgetBalance ≥ 0). Мутация — через commands/economy.ts
+ * (docs/plans/03_MODIFIERS_COMMANDS.md): AiBehaviorTick решает, нужно ли
+ * резать, команда выполняет саму мутацию.
  */
-function applyDeficitAusterity(c: Country): void {
+function applyDeficitAusterity(game: GameState, c: Country): void {
   const e = c.economy;
   if (e.budgetBalance >= 0 || e.treasury >= 0 || !e.spendingFloor) return;
 
-  for (const key of DISCRETIONARY) {
-    e[key] = Math.max(e[key] * AUSTERITY_CUT, e.spendingFloor[key]);
-  }
+  economyCommands.applyDeficitAusterityCut(game, c.id, AUSTERITY_CUT, DISCRETIONARY);
 }
 
 /**
  * Правило C — при низкой stability (< 40) переносит расходы с military → welfare.
  * Не опускает military ниже пола; не поднимает welfare выше 30% дохода.
  */
-function applyStabilityWelfareNudge(c: Country): void {
+function applyStabilityWelfareNudge(game: GameState, c: Country): void {
   if (c.politics.stability >= STABILITY_LOW || !c.economy.spendingFloor) return;
 
   const income = totalIncome(c);
@@ -86,14 +80,13 @@ function applyStabilityWelfareNudge(c: Country): void {
 
   if (shift <= 0) return;
 
-  c.economy.militarySpending -= shift;
-  c.economy.welfareSpending += shift;
+  economyCommands.shiftMilitaryToWelfare(game, c.id, shift);
 }
 
 /**
  * Правило B — ответ на угрозу с балансировкой/бандвагонингом.
  */
-function applyThreatResponse(player: Country, aiCountries: Country[]): void {
+function applyThreatResponse(game: GameState, player: Country, aiCountries: Country[]): void {
   // Доминирование игрока над каждой ИИ-страной.
   const dom = new Map<string, number>();
   for (const c of aiCountries) {
@@ -113,24 +106,22 @@ function applyThreatResponse(player: Country, aiCountries: Country[]): void {
       // угрожаемыми соперниками (контр-блок), сопротивляется влиянию игрока.
       const cap = totalIncome(c) * MILITARY_CAP_SHARE;
       if (c.economy.militarySpending < cap) {
-        c.economy.militarySpending = Math.min(c.economy.militarySpending * MILITARY_RAMP, cap);
+        economyCommands.setMilitarySpending(game, c.id, Math.min(c.economy.militarySpending * MILITARY_RAMP, cap));
       }
 
       for (const other of threatened) {
         if (other.id === c.id) continue;
         const otherRelToPlayer = other.diplomacy.relations[player.id] ?? 0;
         if (otherRelToPlayer < 0) {
-          const current = c.diplomacy.relations[other.id] ?? 0;
-          c.diplomacy.relations[other.id] = clamp(current + COALITION_STEP, -100, 100);
+          diplomacyCommands.nudgeRelationOneSided(game, c.id, other.id, COALITION_STEP);
         }
       }
       // Сопротивление влиянию: влияние игрока над c не растёт (no-op).
     } else {
       // Бандвагонинг — страна терпит игрока: его влияние над ней растёт к dom,
       // при влиянии > 50 она входит в сферу игрока (порог в DiplomacyTick).
-      const current = player.diplomacy.influence[c.id] ?? 0;
       const target = dom.get(c.id) ?? 0;
-      player.diplomacy.influence[c.id] = clamp(current + (target - current) * INFLUENCE_GRAVITY, 0, 100);
+      diplomacyCommands.nudgeInfluenceTowardTarget(game, player.id, c.id, target, INFLUENCE_GRAVITY);
     }
   }
 }
@@ -143,7 +134,6 @@ function applyThreatResponse(player: Country, aiCountries: Country[]): void {
  * идемпотентен (не дублирует уже идущую войну), доп. проверка не нужна.
  */
 function applyWarThreshold(game: GameState, aiCountries: Country[]): void {
-  const warService = new WarService(game);
   const nonMajor = aiCountries.filter(c => c.tier !== "major");
 
   for (const c of nonMajor) {
@@ -155,7 +145,7 @@ function applyWarThreshold(game: GameState, aiCountries: Country[]): void {
       if (relation > WAR_RELATION_THRESHOLD) continue;
       if (c.military.activePersonnel <= rival.military.activePersonnel) continue;
 
-      warService.declareWar(c.id, rivalId);
+      warCommands.declareWar(game, c.id, rivalId);
     }
   }
 }
@@ -165,12 +155,12 @@ export function aiBehaviorTick(game: GameState): void {
   const aiCountries = game.countries.filter(c => c.id !== game.playerCountryId);
 
   for (const c of aiCountries) {
-    applyDeficitAusterity(c);
-    applyStabilityWelfareNudge(c);
+    applyDeficitAusterity(game, c);
+    applyStabilityWelfareNudge(game, c);
   }
 
   if (player) {
-    applyThreatResponse(player, aiCountries);
+    applyThreatResponse(game, player, aiCountries);
   }
 
   applyWarThreshold(game, aiCountries);
