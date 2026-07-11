@@ -5,6 +5,8 @@ import { MapFeatureService } from "../../services/MapFeatureService";
 import { getCombinedArmsMultiplier } from "@shared/utils/technology";
 import { getEquipmentPower } from "@shared/utils/equipment";
 import { EQUIPMENT_STRENGTH_WEIGHT, FLIP_THRESHOLD_RATIO } from "@shared/defines/war";
+import { effectiveController } from "@shared/utils/regionControl";
+import { setRegionOccupation } from "./occupation";
 
 /**
  * Эффективная сила стороны в точке контакта — Phase 1 плейсхолдер:
@@ -40,7 +42,7 @@ function ensureBattalion(
   mapFeatureService.createMapFeature({
     type: "battalion",
     regionId: region.id,
-    ownerId: region.ownerCountryId,
+    ownerId: effectiveController(region),
     tags: ["military", "battalion", warTag],
     visibleAtZoom: 4,
   });
@@ -69,17 +71,21 @@ export function warTick(game: GameState): void {
     const defenderStrength = sideStrength(game, war.defenders);
     const warTag = `war:${war.id}`;
 
-    const flips: { region: Region; newOwnerId: string; toAttackers: boolean }[] = [];
+    const flips: { region: Region; newController: string; toAttackers: boolean }[] = [];
 
     for (const region of game.regions) {
-      const isAttackerRegion = attackerSet.has(region.ownerCountryId);
-      const isDefenderRegion = defenderSet.has(region.ownerCountryId);
+      // Фронт идёт по факту контроля (docs/plans/08_WAR_WAVE1.md, Шаг 1), не
+      // по легальному владению — иначе после первой же оккупации граница
+      // "застревает" на довоенной линии вместо боевой.
+      const controller = effectiveController(region);
+      const isAttackerRegion = attackerSet.has(controller);
+      const isDefenderRegion = defenderSet.has(controller);
       if (!isAttackerRegion && !isDefenderRegion) continue;
 
       const oppositeSet = isAttackerRegion ? defenderSet : attackerSet;
       const contactingNeighbor = region.neighboringRegionIds
         .map(nid => regionById.get(nid))
-        .find((n): n is Region => !!n && oppositeSet.has(n.ownerCountryId));
+        .find((n): n is Region => !!n && oppositeSet.has(effectiveController(n)));
 
       if (!contactingNeighbor) continue;
 
@@ -91,7 +97,7 @@ export function warTick(game: GameState): void {
       if (opposingSideStrength > ownerSideStrength * FLIP_THRESHOLD_RATIO) {
         flips.push({
           region,
-          newOwnerId: contactingNeighbor.ownerCountryId,
+          newController: effectiveController(contactingNeighbor),
           toAttackers: !isAttackerRegion,
         });
       }
@@ -102,7 +108,11 @@ export function warTick(game: GameState): void {
     // обхода (иначе только что отбитый регион мог бы каскадно засчитаться
     // "своим" для соседних решений в том же тике).
     for (const flip of flips) {
-      flip.region.ownerCountryId = flip.newOwnerId;
+      // Флип двигает только оккупацию (occupiedBy), не ownerCountryId —
+      // владение меняет только мирный договор (docs/plans/08_WAR_WAVE1.md,
+      // Шаг 1). setRegionOccupation сам решает: newController совпал с
+      // легальным владельцем → освобождение (occupiedBy снимается).
+      setRegionOccupation(game, flip.region, flip.newController);
       if (flip.toAttackers) war.territoryFlips.toAttackers += 1;
       else war.territoryFlips.toDefenders += 1;
     }

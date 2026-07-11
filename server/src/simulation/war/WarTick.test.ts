@@ -33,6 +33,8 @@ describe("warTick", () => {
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 0, toDefenders: 0 });
     expect(game.regions[0]!.ownerCountryId).toBe("USA");
     expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[0]!.occupiedBy).toBeUndefined();
+    expect(game.regions[1]!.occupiedBy).toBeUndefined();
     expect(game.mapFeatures).toHaveLength(0);
   });
 
@@ -51,6 +53,8 @@ describe("warTick", () => {
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 0, toDefenders: 0 });
     expect(game.regions[0]!.ownerCountryId).toBe("USA");
     expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[0]!.occupiedBy).toBeUndefined();
+    expect(game.regions[1]!.occupiedBy).toBeUndefined();
     expect(game.mapFeatures.filter(f => f.type === "battalion")).toHaveLength(2);
   });
 
@@ -69,8 +73,11 @@ describe("warTick", () => {
 
     warTick(game);
 
-    expect(game.regions[1]!.ownerCountryId).toBe("USA");
+    // Флип двигает только оккупацию — легальное владение (ownerCountryId) не меняется.
+    expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[1]!.occupiedBy).toBe("USA");
     expect(game.regions[0]!.ownerCountryId).toBe("USA"); // не откатился — сам не был под угрозой
+    expect(game.regions[0]!.occupiedBy).toBeUndefined();
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 1, toDefenders: 0 });
   });
 
@@ -89,8 +96,10 @@ describe("warTick", () => {
 
     warTick(game);
 
-    expect(game.regions[0]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[0]!.ownerCountryId).toBe("USA");
+    expect(game.regions[0]!.occupiedBy).toBe("USSR");
     expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[1]!.occupiedBy).toBeUndefined();
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 0, toDefenders: 1 });
   });
 
@@ -117,8 +126,9 @@ describe("warTick", () => {
     warTick(game);
 
     // При равном activePersonnel (фикстура) один combined-arms бонус (1.55x
-    // vs 1x) превышает FLIP_THRESHOLD_RATIO=1.5 — регион обороны флипается.
-    expect(game.regions[1]!.ownerCountryId).toBe("USA");
+    // vs 1x) превышает FLIP_THRESHOLD_RATIO=1.5 — регион обороны оккупируется.
+    expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[1]!.occupiedBy).toBe("USA");
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 1, toDefenders: 0 });
   });
 
@@ -148,7 +158,8 @@ describe("warTick", () => {
     // 1000 танков × EQUIPMENT_STRENGTH_WEIGHT=500 = 500 000 доп. силы — при
     // равном activePersonnel (500 000 у обеих сторон, фикстура) это удваивает
     // силу США, превышая FLIP_THRESHOLD_RATIO=1.5.
-    expect(game.regions[1]!.ownerCountryId).toBe("USA");
+    expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[1]!.occupiedBy).toBe("USA");
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 1, toDefenders: 0 });
   });
 
@@ -168,7 +179,40 @@ describe("warTick", () => {
     warTick(game);
 
     expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[1]!.occupiedBy).toBeUndefined();
     expect(game.mapFeatures).toHaveLength(0);
+  });
+
+  it("освобождение: легальный владелец отбивает оккупированный регион через цепочку фронта — occupiedBy и модификатор снимаются", () => {
+    // Цепочка USA(1)-USSR(2)-USSR(3): после первого флипа регион 2 оккупирован
+    // USA, новый фронт — между регионом 2 (под USA) и регионом 3 (свой для
+    // USSR) — оттуда USSR и отбивает регион 2 обратно.
+    const usa = createTestCountry({ id: "USA", military: { ...createTestCountry().military, activePersonnel: 5_000_000 } });
+    const ussr = createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 500_000 } });
+    const game = createTestGameState({
+      countries: [usa, ussr],
+      regions: [
+        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1, 3] }),
+        createTestRegion({ id: 3, ownerCountryId: "USSR", neighboringRegionIds: [2] }),
+      ],
+      wars: [makeWar()],
+    });
+
+    warTick(game); // USA оккупирует регион 2
+    expect(game.regions[1]!.occupiedBy).toBe("USA");
+    expect(game.modifiers).toHaveLength(1);
+
+    // USSR мобилизуется и отбивает регион — новый контроллёр региона 2
+    // (эффективный контроль региона 3) совпадает с легальным владельцем
+    // региона 2 (USSR), оккупация должна сняться, не смениться.
+    usa.military.activePersonnel = 100_000;
+    ussr.military.activePersonnel = 10_000_000;
+    warTick(game);
+
+    expect(game.regions[1]!.ownerCountryId).toBe("USSR");
+    expect(game.regions[1]!.occupiedBy).toBeUndefined();
+    expect(game.modifiers).toHaveLength(0);
   });
 
   it("не дублирует battalion на повторном вызове без изменения фронта", () => {
