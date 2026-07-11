@@ -2796,7 +2796,8 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
-    }
+    },
+    "currencyZoneAnchor": "USA"
   },
   {
     "id": "QGB",
@@ -2825,7 +2826,8 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
-    }
+    },
+    "currencyZoneAnchor": "GBR"
   },
   {
     "id": "QGF",
@@ -2854,7 +2856,8 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
-    }
+    },
+    "currencyZoneAnchor": "FRA"
   },
   {
     "id": "QGS",
@@ -2883,7 +2886,8 @@
     },
     "politics": {
       "ideology": "Communism"
-    }
+    },
+    "currencyZoneAnchor": "SUN"
   },
   {
     "id": "QKA",
@@ -2912,7 +2916,8 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
-    }
+    },
+    "currencyZoneAnchor": "USA"
   },
   {
     "id": "QKS",
@@ -2941,7 +2946,8 @@
     },
     "politics": {
       "ideology": "Communism"
-    }
+    },
+    "currencyZoneAnchor": "SUN"
   },
   {
     "id": "QMH",
@@ -2999,7 +3005,8 @@
     },
     "politics": {
       "ideology": "Communism"
-    }
+    },
+    "currencyZoneAnchor": "SUN"
   },
   {
     "id": "QSO",

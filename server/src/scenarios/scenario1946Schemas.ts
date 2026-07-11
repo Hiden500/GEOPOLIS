@@ -123,6 +123,8 @@ export const authoredCountrySchema = z.object({
   }),
   stockpile: z.record(z.string(), z.number()).optional(),
   goals: z.array(z.unknown()).optional(),
+  // Валютные зоны (docs/plans/10_CURRENCY_ZONES.md) — id страны-якоря.
+  currencyZoneAnchor: z.string().min(1).optional(),
 });
 export type AuthoredCountry = z.infer<typeof authoredCountrySchema>;
 export const authoredCountryFileSchema = z.array(authoredCountrySchema);

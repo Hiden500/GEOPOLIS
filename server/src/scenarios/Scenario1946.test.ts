@@ -151,6 +151,22 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
       expect(country.politics.ideology).toBe("Liberal Democracy");
     });
 
+    it("currencyZoneAnchor переживает загрузку (не срезается схемой — план 10)", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, {
+        countries: [{
+          id: "QGS", name: "Soviet Occupation Zone (Germany)", shortName: "QGS", color: "#123456",
+          capitalRegionId: 1, economyType: "planned",
+          politics: { ideology: "Communism" },
+          currencyZoneAnchor: "SUN",
+        }],
+      });
+
+      const scenario = buildScenario1946(dir);
+
+      expect(scenario.countries[0]!.currencyZoneAnchor).toBe("SUN");
+    });
+
     it("падает с внятной ошибкой, если у страны нет politics.ideology", () => {
       const dir = makeTmpDir();
       writeFixture(dir, {

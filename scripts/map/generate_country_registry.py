@@ -120,6 +120,21 @@ ZONE_TINT_SUZERAIN = {
     "QAZ": "SUN", "QMH": "SUN", "QSO": "GBR",
 }
 
+# Валютные зоны (docs/plans/10_CURRENCY_ZONES.md) — минимальный документированный
+# набор: только прямые зоны военной оккупации/администрации 1946 года (чёткий
+# исторический факт, не интерпретация) — обе стороны биполярного раздела
+# Германии/Кореи и советская администрация Маньчжурии. Осознанно НЕ включены
+# QAZ/QMH (просоветские квазигосударства, другая категория — политический
+# клиент, не оккупационная администрация) и QSO (колониальная администрация) —
+# "не тянуть спорные случаи" (docs/plans/10_CURRENCY_ZONES.md). Подмножество
+# ZONE_TINT_SUZERAIN выше, не весь словарь.
+CURRENCY_ZONE_ANCHOR = {
+    "QGS": "SUN", "QKS": "SUN", "QMS": "SUN",
+    "QGA": "USA", "QKA": "USA",
+    "QGB": "GBR",
+    "QGF": "FRA",
+}
+
 ARCHETYPES = {
     "planned": {
         "taxRate": 0.20,
@@ -226,7 +241,8 @@ def tint_from_suzerain(suzerain_hex: str) -> str:
 
 
 def make_country(country_id: str, name_en: str, economy_type: str, ideology: str,
-                  capital_region_id: int | None, puppets: list[str], color: str) -> dict:
+                  capital_region_id: int | None, puppets: list[str], color: str,
+                  currency_zone_anchor: str | None = None) -> dict:
     """Только авторские поля (docs/plans/05_DATA_LAYOUT.md, Срез 2) — нулевые
     рантайм-блоки (technology/military/stockpile/researchedTechnologyIds/goals/
     population, пустая diplomacy) не пишутся: их дефолтит createCountry на
@@ -247,6 +263,8 @@ def make_country(country_id: str, name_en: str, economy_type: str, ideology: str
     }
     if puppets:
         country["diplomacy"] = {"puppets": puppets, "sphereOfInfluence": list(puppets)}
+    if currency_zone_anchor:
+        country["currencyZoneAnchor"] = currency_zone_anchor
     return country
 
 
@@ -348,9 +366,11 @@ def main():
         puppets = puppets_by_suzerain.get(country_id, [])
         color = colors[country_id]
 
+        currency_zone_anchor = CURRENCY_ZONE_ANCHOR.get(country_id)
+
         if country_id in CUSTOM_COUNTRIES:
             meta = CUSTOM_COUNTRIES[country_id]
-            countries.append(make_country(country_id, meta["name_en"], meta["economy"], meta["ideology"], capital_region_id, puppets, color))
+            countries.append(make_country(country_id, meta["name_en"], meta["economy"], meta["ideology"], capital_region_id, puppets, color, currency_zone_anchor))
             continue
 
         if country_id in catalog:
@@ -363,7 +383,7 @@ def main():
 
         economy_type = "planned" if country_id in PLANNED_ECONOMY_SOVEREIGNS else "mixed"
         ideology = "Communism" if economy_type == "planned" else "Liberal Democracy"
-        countries.append(make_country(country_id, name_en, economy_type, ideology, capital_region_id, puppets, color))
+        countries.append(make_country(country_id, name_en, economy_type, ideology, capital_region_id, puppets, color, currency_zone_anchor))
 
     # Военное/договорное присутствие (см. SPHERE_OVERRIDES) — только сфера
     # влияния, без тонирования цвета и без puppets (страны остаются
