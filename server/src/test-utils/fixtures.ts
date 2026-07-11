@@ -50,6 +50,7 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       educationSpending: 20_000_000_000,
       infrastructureSpending: 10_000_000_000,
       welfareSpending: 15_000_000_000,
+      debt: 0,
       debtInterest: 5_000_000_000,
       otherExpenses: 5_000_000_000,
       inflation: 2.0,

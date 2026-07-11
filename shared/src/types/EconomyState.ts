@@ -33,6 +33,13 @@ export interface EconomyState {
 
   welfareSpending: number;
 
+  // Накопленный госдолг (docs/plans/08_WAR_WAVE1.md, Шаг 4). Дефицит бюджета,
+  // который не покрывает казна, конвертируется в долг (EconomyTick), казна не
+  // уходит в бесконечный минус. debtInterest = debt × ставка (ставка выше при
+  // низкой legitimacy/stability). Долг/ВВП выше порога штрафует рост ВВП и
+  // рождает мировой факт «на грани дефолта».
+  debt: number;
+
   debtInterest: number;
 
   otherExpenses: number;

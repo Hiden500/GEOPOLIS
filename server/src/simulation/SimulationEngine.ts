@@ -16,6 +16,7 @@ import { tradeTick } from "./trade/TradeTick";
 import { chronicleTick } from "./chronicle/ChronicleTick";
 import { removeExpiredModifiers } from "../commands/modifiers";
 import { STABILITY_HIGH_INFLATION_THRESHOLD, POLITICAL_CRISIS_STABILITY_THRESHOLD } from "@shared/defines/politics";
+import { DEBT_CRISIS_GDP_THRESHOLD } from "@shared/defines/economy";
 
 export function simulateMonth(
     game: GameState
@@ -29,6 +30,9 @@ export function simulateMonth(
         // в кризис, не выход) — как и тир, который тоже не понижается.
         const inflationBefore = country.economy.inflation;
         const stabilityBefore = country.politics.stability;
+        const debtBurdenBefore = country.economy.gdp > 0
+            ? country.economy.debt / country.economy.gdp
+            : 0;
 
         economyTick(country, game.regions);
 
@@ -95,6 +99,24 @@ export function simulateMonth(
             game.pendingWorldFacts.push({
                 countryId: country.id,
                 text: `${country.name} stability collapsed to crisis levels (${country.politics.stability.toFixed(1)}) — unrest, possible upheaval`,
+            });
+        }
+
+        // Долговой кризис: долг/ВВП впервые пересекает порог "на грани дефолта"
+        // (тот же паттерн pendingWorldFacts, что инфляция/стабильность выше).
+        // Сам дефолт — нарратив/действие LLM (план 02, шаг 4), движок только
+        // даёт факт. ВВП в этом тике ещё довоенный (агрегация ниже), сравнение
+        // до/после по одному ВВП — ловит скачок долга, не шум роста.
+        const debtBurdenAfter = country.economy.gdp > 0
+            ? country.economy.debt / country.economy.gdp
+            : 0;
+        if (
+            debtBurdenBefore <= DEBT_CRISIS_GDP_THRESHOLD &&
+            debtBurdenAfter > DEBT_CRISIS_GDP_THRESHOLD
+        ) {
+            game.pendingWorldFacts.push({
+                countryId: country.id,
+                text: `${country.name} is on the brink of default (debt ${(debtBurdenAfter * 100).toFixed(0)}% of GDP)`,
             });
         }
     }

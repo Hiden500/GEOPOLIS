@@ -13,6 +13,10 @@ import {
   MAX_MONTHLY_GROWTH_RATE,
   INFLATION_DEFICIT_COEFFICIENT,
   UNEMPLOYMENT_DEFICIT_COEFFICIENT,
+  DEBT_BASE_MONTHLY_INTEREST_RATE,
+  DEBT_RISK_PREMIUM_COEFFICIENT,
+  DEBT_GDP_PENALTY_THRESHOLD,
+  DEBT_GDP_GROWTH_PENALTY_COEFFICIENT,
 } from "@shared/defines/economy";
 
 /**
@@ -31,10 +35,19 @@ import {
  * taxRate → taxRevenue выше. ИИ-страны spendingShares не имеют — их
  * *Spending остаются абсолютными числами, которые двигает AiBehaviorTick.
  */
-function updateBudget(economy: EconomyState): { income: number; expenses: number } {
+function updateBudget(country: Country): { income: number; expenses: number } {
+  const economy = country.economy;
   if (economy.taxRate !== undefined) {
     economy.taxRevenue = economy.gdp * economy.taxRate;
   }
+
+  // Проценты по долгу пересчитываются каждый тик из текущего долга и здоровья
+  // государства (docs/plans/08_WAR_WAVE1.md, Шаг 4) — до суммирования расходов,
+  // чтобы обслуживание долга входило в дефицит этого месяца. Ставка выше при
+  // низкой legitimacy/stability (слабое государство занимает дороже).
+  economy.debtInterest = economy.debt > 0
+    ? economy.debt * debtMonthlyInterestRate(country)
+    : 0;
 
   const income =
     economy.taxRevenue +
@@ -63,7 +76,30 @@ function updateBudget(economy: EconomyState): { income: number; expenses: number
   economy.budgetBalance = income - expenses;
   economy.treasury += economy.budgetBalance;
 
+  // Дефицит финансируется долгом: казна не уходит в бесконечный минус — часть
+  // ниже нуля конвертируется в рост долга (docs/plans/08_WAR_WAVE1.md, Шаг 4).
+  // Профицит гасит долг в первую очередь, остаток идёт в казну.
+  if (economy.treasury < 0) {
+    economy.debt += -economy.treasury;
+    economy.treasury = 0;
+  } else if (economy.debt > 0 && economy.treasury > 0) {
+    const repaid = Math.min(economy.debt, economy.treasury);
+    economy.debt -= repaid;
+    economy.treasury -= repaid;
+  }
+
   return { income, expenses };
+}
+
+/**
+ * Месячная ставка по госдолгу: база + риск-премия за плохое здоровье
+ * государства (avgHealth = (legitimacy + stability)/2, оба 0..100).
+ * docs/plans/08_WAR_WAVE1.md, Шаг 4.
+ */
+function debtMonthlyInterestRate(country: Country): number {
+  const avgHealth = (country.politics.legitimacy + country.politics.stability) / 2;
+  const healthShortfall = Math.max(0, Math.min(1, (100 - avgHealth) / 100));
+  return DEBT_BASE_MONTHLY_INTEREST_RATE + DEBT_RISK_PREMIUM_COEFFICIENT * healthShortfall;
 }
 
 /**
@@ -95,9 +131,18 @@ function computeGrowthRate(economy: EconomyState, countryRegions: Region[], hasG
     ? Math.abs(economy.budgetBalance) / economy.gdp * DEFICIT_PENALTY_COEFFICIENT
     : 0;
 
+  // Штраф росту от долговой нагрузки (docs/plans/08_WAR_WAVE1.md, Шаг 4) —
+  // считается напрямую как функция состояния (долг/ВВП), не timed-модификатором:
+  // это непрерывная зависимость от текущего долга, а не временный эффект, поэтому
+  // не требует протаскивать game.modifiers через сигнатуру economyTick.
+  const debtBurden = hasGdp ? economy.debt / economy.gdp : 0;
+  const debtPenalty = debtBurden > DEBT_GDP_PENALTY_THRESHOLD
+    ? (debtBurden - DEBT_GDP_PENALTY_THRESHOLD) * DEBT_GDP_GROWTH_PENALTY_COEFFICIENT
+    : 0;
+
   return Math.min(
     MAX_MONTHLY_GROWTH_RATE,
-    Math.max(0, baseGrowthRate + infrastructureBonus - deficitPenalty)
+    Math.max(0, baseGrowthRate + infrastructureBonus - deficitPenalty - debtPenalty)
   );
 }
 
@@ -136,7 +181,7 @@ export function economyTick(
   const economy = country.economy;
   const countryRegions = regions.filter(r => r.ownerCountryId === country.id);
 
-  const { income, expenses } = updateBudget(economy);
+  const { income, expenses } = updateBudget(country);
 
   // Инициализируем региональную экономику если нужно
   const regionEconomyService = new RegionEconomyService();

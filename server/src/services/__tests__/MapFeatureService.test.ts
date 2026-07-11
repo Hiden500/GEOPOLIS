@@ -39,6 +39,7 @@ describe('MapFeatureService', () => {
           educationSpending: 400000000000,
           infrastructureSpending: 300000000000,
           welfareSpending: 600000000000,
+          debt: 0,
           debtInterest: 200000000000,
           otherExpenses: 100000000000,
           inflation: 2.0,

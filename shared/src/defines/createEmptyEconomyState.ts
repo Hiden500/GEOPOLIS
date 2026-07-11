@@ -23,6 +23,7 @@ export function createEmptyEconomyState(): EconomyState {
     educationSpending: 0,
     infrastructureSpending: 0,
     welfareSpending: 0,
+    debt: 0,
     debtInterest: 0,
     otherExpenses: 0,
     inflation: 0,

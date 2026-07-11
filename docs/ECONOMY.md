@@ -1,6 +1,6 @@
 # Экономика
 
-Last updated: 2026-07-06
+Last updated: 2026-07-11 (Госдолг: план 08 Шаг 4)
 
 > ⚠️ Заготовка. Часть решений не принята — см. разделы "Открытые вопросы" ниже.
 > Непомеченные числа — не источник истины, пока раздел не финализирован.
@@ -56,11 +56,14 @@ region.gdp *= (1 + growthRate + sectorBonus)   // sectorBonus от industry/serv
 
 ```
 if (taxRate !== undefined) taxRevenue = gdp × taxRate      // см. "Решено" ниже
+debtInterest = debt > 0 ? debt × monthlyRate : 0           // см. "Госдолг" ниже
 income   = taxRevenue + exportIncome + stateEnterpriseIncome + otherIncome
 expenses = militarySpending + researchSpending + educationSpending
-         + infrastructureSpending + welfareSpending + debtInterest + otherExpenses
+         + infrastructureSpending + welfareSpending + debtInterest + otherExpenses + importSpending
 budgetBalance = income - expenses
 treasury += budgetBalance
+if (treasury < 0) { debt += -treasury; treasury = 0 }      // дефицит → долг
+else if (debt > 0) { repay = min(debt, treasury); debt -= repay; treasury -= repay }  // профицит гасит долг
 inflation    += 0.1 × (expenses - income) / gdp
 unemployment += 0.05 × (expenses - income) / gdp   // floored at 0
 ```
@@ -76,6 +79,35 @@ educationSpending/infrastructureSpending/welfareSpending = income × доля` �
 абсолютными числами, которые двигает `AiBehaviorTick`. В интерфейсе — 4
 пресета (`client/src/components/budgetPresets.ts`), роут `PUT /budget`;
 смена бюджета **не** продвигает игровой ход.
+
+### Госдолг (реализовано 2026-07-11, `docs/plans/08_WAR_WAVE1.md` Шаг 4)
+
+`EconomyState.debt` — накопленный госдолг. Раньше `debtInterest` было висящим
+статичным полем без самого долга; теперь:
+
+- **Дефицит → долг.** Казна не уходит в бесконечный минус: часть `treasury`
+  ниже нуля конвертируется в `debt` (пол казны — 0). Профицит **сначала гасит
+  долг**, остаток идёт в казну.
+- **Проценты.** `debtInterest = debt × monthlyRate`, пересчитывается каждый тик
+  до суммирования расходов. `monthlyRate = DEBT_BASE_MONTHLY_INTEREST_RATE(0.003)
+  + DEBT_RISK_PREMIUM_COEFFICIENT(0.013) × (1 − avgHealth/100)`, где `avgHealth =
+  (legitimacy + stability)/2`. Слабое государство занимает дороже (~19%/год при
+  здоровье 0 против ~3.7%/год при 100).
+- **Штраф росту.** Долг/ВВП выше `DEBT_GDP_PENALTY_THRESHOLD(0.6)` вычитает из
+  месячного роста ВВП `(долг/ВВП − 0.6) × DEBT_GDP_GROWTH_PENALTY_COEFFICIENT`.
+  Считается напрямую как функция состояния (не timed-модификатор — непрерывная
+  зависимость, не временный эффект; сигнатуру `economyTick` менять не пришлось).
+- **Аустерити ИИ.** Правило A (`AiBehaviorTick`) теперь триггерится дефицитом +
+  долг/ВВП выше того же порога 0.6 (прежний триггер `treasury < 0` стал мёртвым
+  с конвертацией дефицита в долг). ИИ затягивает пояс ровно тогда, когда долг
+  начинает вредить росту.
+- **Мировой факт.** Долг/ВВП, пересекающий `DEBT_CRISIS_GDP_THRESHOLD(1.0)`,
+  кладёт в промт LLM факт «X на грани дефолта» (`SimulationEngine`, тот же
+  паттерн, что инфляционный/политический кризис). Сам дефолт — нарратив/действие
+  LLM (план 02, шаг 4); команда `default(countryId)` и LLM-действие ещё не
+  сделаны (кандидат на следующий заход).
+
+Все числа — тюнингуемые плейсхолдеры (`shared/src/defines/economy.ts`).
 
 `RegionEconomyService.calculateRegionalProduction`/`aggregateRegionEconomy`
 существуют и протестированы, но **не подключены** к общему циклу — зарезервированы

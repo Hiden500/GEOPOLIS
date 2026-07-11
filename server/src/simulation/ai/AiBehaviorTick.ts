@@ -19,6 +19,7 @@ import {
   WELFARE_CAP_SHARE,
   WAR_RELATION_THRESHOLD,
 } from "@shared/defines/ai";
+import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 
 /**
  * Детерминированное поведение ИИ-стран (без полноценного utility-AI).
@@ -49,16 +50,23 @@ function totalIncome(c: Country): number {
 }
 
 /**
- * Правило A — аустерити: при дефиците И отрицательной казне ИИ-страна урезает
- * дискреционные расходы на 5%/тик, но не ниже снимка пола (50% старта).
- * Само-останавливается, когда бюджет выходит из дефицита (следующий EconomyTick
- * пересчитает budgetBalance ≥ 0). Мутация — через commands/economy.ts
- * (docs/plans/03_MODIFIERS_COMMANDS.md): AiBehaviorTick решает, нужно ли
- * резать, команда выполняет саму мутацию.
+ * Правило A — аустерити: при дефиците И высокой долговой нагрузке (долг/ВВП
+ * выше DEBT_GDP_PENALTY_THRESHOLD) ИИ-страна урезает дискреционные расходы на
+ * 5%/тик, но не ниже снимка пола (50% старта). Само-останавливается, когда
+ * бюджет выходит из дефицита (следующий EconomyTick пересчитает budgetBalance
+ * ≥ 0) или долг гасится ниже порога.
+ *
+ * Долг вместо казны как триггер (docs/plans/08_WAR_WAVE1.md, Шаг 4): с
+ * конвертацией дефицита в долг казна больше не уходит в минус (пол 0), поэтому
+ * прежний триггер `treasury < 0` стал бы мёртвым. Порог совпадает с началом
+ * штрафа росту ВВП: ИИ затягивает пояс ровно тогда, когда долг начинает вредить.
+ * Мутация — через commands/economy.ts.
  */
 function applyDeficitAusterity(game: GameState, c: Country): void {
   const e = c.economy;
-  if (e.budgetBalance >= 0 || e.treasury >= 0 || !e.spendingFloor) return;
+  if (e.budgetBalance >= 0 || !e.spendingFloor) return;
+  const debtBurden = e.gdp > 0 ? e.debt / e.gdp : 0;
+  if (debtBurden <= DEBT_GDP_PENALTY_THRESHOLD) return;
 
   economyCommands.applyDeficitAusterityCut(game, c.id, AUSTERITY_CUT, DISCRETIONARY);
 }

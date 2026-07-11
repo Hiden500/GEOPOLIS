@@ -73,7 +73,7 @@ describe("simulateMonth — детерминированные вехи (pending
                     gdp: 1_000_000,
                     taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
                     militarySpending: 100_000_000, researchSpending: 0, educationSpending: 0,
-                    infrastructureSpending: 0, welfareSpending: 0, debtInterest: 0, otherExpenses: 0,
+                    infrastructureSpending: 0, welfareSpending: 0, debt: 0, debtInterest: 0, otherExpenses: 0,
                     importSpending: 0,
                 },
             })],
@@ -117,7 +117,7 @@ describe("simulateMonth — детерминированные вехи (pending
                     // глубоко отрицателен относительно gdp (> STABILITY_SEVERE_DEFICIT_GDP_SHARE=0.05).
                     taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
                     militarySpending: 1_000_000_000, researchSpending: 0, educationSpending: 0,
-                    infrastructureSpending: 0, welfareSpending: 0, debtInterest: 0, otherExpenses: 0,
+                    infrastructureSpending: 0, welfareSpending: 0, debt: 0, debtInterest: 0, otherExpenses: 0,
                     importSpending: 0,
                 },
             })],
@@ -139,5 +139,47 @@ describe("simulateMonth — детерминированные вехи (pending
         simulateMonth(game);
 
         expect(game.pendingWorldFacts.find(f => f.text.includes("stability"))).toBeUndefined();
+    });
+
+    it("долговой кризис: долг/ВВП впервые пересекает 1.0 кладёт факт «на грани дефолта»", () => {
+        const base = createTestCountry();
+        const economy = { ...base.economy };
+        delete economy.taxRate; // иначе updateBudget пересчитает taxRevenue из gdp×taxRate
+
+        const game = createTestGameState({
+            currentDate: "1946-01-01",
+            countries: [createTestCountry({
+                id: "USA",
+                name: "United States",
+                economy: {
+                    ...economy,
+                    gdp: 1_000_000_000,
+                    debt: 999_000_000, // долг/ВВП = 0.999, чуть ниже порога 1.0
+                    treasury: 0,
+                    // Доход 0, расход > 0 → дефицит финансируется долгом, долг/ВВП > 1.0.
+                    taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
+                    militarySpending: 50_000_000, researchSpending: 0, educationSpending: 0,
+                    infrastructureSpending: 0, welfareSpending: 0, debtInterest: 0, otherExpenses: 0,
+                    importSpending: 0,
+                },
+            })],
+        });
+
+        simulateMonth(game);
+
+        const fact = game.pendingWorldFacts.find(f => f.text.includes("brink of default"));
+        expect(fact).toBeDefined();
+        expect(fact!.countryId).toBe("USA");
+    });
+
+    it("без пересечения долгового порога — факта дефолта нет", () => {
+        const game = createTestGameState({
+            currentDate: "1946-01-01",
+            countries: [createTestCountry({ id: "USA" })], // debt=0 по фикстуре
+        });
+
+        simulateMonth(game);
+
+        expect(game.pendingWorldFacts.find(f => f.text.includes("brink of default"))).toBeUndefined();
     });
 });

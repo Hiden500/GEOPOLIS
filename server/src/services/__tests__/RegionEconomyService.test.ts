@@ -60,6 +60,7 @@ describe('RegionEconomyService', () => {
         educationSpending: 20000000000,
         infrastructureSpending: 10000000000,
         welfareSpending: 15000000000,
+        debt: 0,
         debtInterest: 5000000000,
         otherExpenses: 5000000000,
         inflation: 2.0,
