@@ -148,6 +148,7 @@ describe('MapFeatureService', () => {
       chronicle: [],
       mapFeatures: [],
       wars: [],
+      modifiers: [],
       pendingWorldFacts: [],
       hingePointShowCount: {},
       llmRespondedThisTurn: true,

@@ -97,6 +97,7 @@ export function createGame(
     chronicle: [],
     mapFeatures: [],
     wars: [],
+    modifiers: [],
     pendingWorldFacts: [],
     hingePointShowCount: {},
     llmRespondedThisTurn: false

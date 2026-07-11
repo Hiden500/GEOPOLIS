@@ -235,6 +235,27 @@ describe("aiBehaviorTick — Правило C (низкая stability → welfar
 
     expect(player.economy.militarySpending).toBe(milBefore);
   });
+
+  it("модификатор stability учитывается в effectiveValue: раw stability >= порога, но модификатор опускает эффективное значение ниже — нудж срабатывает (docs/plans/03_MODIFIERS_COMMANDS.md, Шаг 2)", () => {
+    const ai = unstableAI(45); // raw >= STABILITY_LOW(40) — без модификатора нудж не сработал бы
+    const milBefore = ai.economy.militarySpending;
+    const game = createTestGameState({
+      playerCountryId: "PLAYER",
+      countries: [country("PLAYER"), ai],
+      modifiers: [{
+        id: "mod-000000",
+        source: "event:coup",
+        target: { kind: "country", id: "AI" },
+        attribute: "stability",
+        op: "add",
+        value: -10, // effective = 45 - 10 = 35 < 40
+      }],
+    });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.militarySpending).toBeLessThan(milBefore);
+  });
 });
 
 describe("aiBehaviorTick — Правило D (порог войны для non-major)", () => {

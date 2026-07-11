@@ -5,6 +5,7 @@ import { type EraDefinition } from "../types/research/EraDefinition";
 import { type MapFeature } from "./map/MapFeature";
 import { type Locale } from "./i18n/LocalizedText";
 import { type War } from "./War";
+import { type Modifier } from "./Modifier";
 import { type SanctionType } from "./DiplomacyState";
 import { type EquipmentType } from "./military/EquipmentType";
 
@@ -60,6 +61,14 @@ export interface GameState {
   // Активные и завершённые войны (docs/WAR.md, Phase 1) — состояние живёт
   // здесь, не в отдельной подсистеме (AI_RULES.md принцип: числа у движка).
   wars: War[];
+
+  // Временные и постоянные эффекты (docs/plans/03_MODIFIERS_COMMANDS.md,
+  // Шаг 2; MASTER_PROMPT.md правило 3) — тики читают не сырое поле, а
+  // effectiveValue() (shared/src/utils/modifiers.ts). id — тот же счётчик,
+  // что Map Features (nextFeatureId), другой префикс, без нового поля
+  // счётчика. Очистка истёкших — server/src/commands/modifiers.ts,
+  // вызывается из Cleanup-фазы SimulationEngine.ts.
+  modifiers: Modifier[];
 
   // Детерминированные факты для следующего промта (независимый гейм-дизайн
   // разбор, 2026-07-06) — движок обнаруживает значимое событие (сейчас:

@@ -14,6 +14,7 @@ import { tierTick } from "./tier/TierTick";
 import { politicsTick } from "./politics/PoliticsTick";
 import { tradeTick } from "./trade/TradeTick";
 import { chronicleTick } from "./chronicle/ChronicleTick";
+import { removeExpiredModifiers } from "../commands/modifiers";
 
 export function simulateMonth(
     game: GameState
@@ -80,6 +81,10 @@ export function simulateMonth(
     // Очищаем истёкшие Map Features
     const mapFeatureService = new MapFeatureService(game);
     mapFeatureService.removeExpiredFeatures();
+
+    // Очищаем истёкшие модификаторы (docs/plans/03_MODIFIERS_COMMANDS.md,
+    // Шаг 2) — сравнение с game.currentDate, не wall-clock.
+    removeExpiredModifiers(game);
 
     // Продвигаем дату на один месяц
     const parts = game.currentDate.split("-");

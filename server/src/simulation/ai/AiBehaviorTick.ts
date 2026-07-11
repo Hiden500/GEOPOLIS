@@ -5,6 +5,8 @@ import * as diplomacyCommands from "../../commands/diplomacy";
 import * as warCommands from "../../commands/war";
 import * as economyCommands from "../../commands/economy";
 import { type SpendKey } from "../../commands/economy";
+import { effectiveValue } from "@shared/utils/modifiers";
+import { ModifierAttribute } from "@shared/defines/modifierAttributes";
 
 /**
  * Детерминированное поведение ИИ-стран (без полноценного utility-AI).
@@ -62,9 +64,18 @@ function applyDeficitAusterity(game: GameState, c: Country): void {
 /**
  * Правило C — при низкой stability (< 40) переносит расходы с military → welfare.
  * Не опускает military ниже пола; не поднимает welfare выше 30% дохода.
+ * Stability читается через effectiveValue() (docs/plans/03_MODIFIERS_COMMANDS.md,
+ * Шаг 2), не сырое поле — единственный переведённый читатель в этом заходе,
+ * демонстрирует реальную интеграцию модификаторов.
  */
 function applyStabilityWelfareNudge(game: GameState, c: Country): void {
-  if (c.politics.stability >= STABILITY_LOW || !c.economy.spendingFloor) return;
+  const stability = effectiveValue(
+    c.politics.stability,
+    ModifierAttribute.Stability,
+    { kind: "country", id: c.id },
+    game.modifiers
+  );
+  if (stability >= STABILITY_LOW || !c.economy.spendingFloor) return;
 
   const income = totalIncome(c);
   if (income <= 0) return;
