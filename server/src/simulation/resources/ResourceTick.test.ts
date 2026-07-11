@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { resourceTick } from "./ResourceTick";
 import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
+import { OCCUPATION_EXTRACTION_PENALTY } from "@shared/defines/occupation";
 
 describe("resourceTick", () => {
   it("adds extracted resources to the country stockpile", () => {
@@ -57,23 +58,38 @@ describe("resourceTick", () => {
     expect(country.stockpile.oil).toBe(oilBefore);
   });
 
-  it("после флипа владения регионом (докс. план 01, баг протухающего regionIndex) начисляет ресурсы новому владельцу, а не старому", () => {
-    const oldOwner = createTestCountry({ id: "OLD" });
-    const newOwner = createTestCountry({ id: "NEW" });
-    const region = createTestRegion({ id: 1, ownerCountryId: "OLD", infrastructure: 0, resourceProduction: { oil: 1000 } });
+  it("после оккупации региона (docs/plans/08_WAR_WAVE1.md, Шаг 1 — WarTick.ts выставляет occupiedBy, не ownerCountryId) начисляет добычу оккупанту, не легальному владельцу", () => {
+    const owner = createTestCountry({ id: "OLD" });
+    const occupant = createTestCountry({ id: "NEW" });
+    const region = createTestRegion({
+      id: 1, ownerCountryId: "OLD", occupiedBy: "NEW", infrastructure: 0, resourceProduction: { oil: 1000 },
+    });
 
-    // Эмулирует прямую мутацию владения, которую делает WarTick.ts (flip.region.ownerCountryId = ...),
-    // без пересборки какого-либо индекса — regionIndex больше не существует, поэтому его протухание
-    // физически невозможно.
-    region.ownerCountryId = "NEW";
+    const ownerOilBefore = owner.stockpile.oil;
+    const occupantOilBefore = occupant.stockpile.oil;
 
-    const oldOwnerOilBefore = oldOwner.stockpile.oil;
-    const newOwnerOilBefore = newOwner.stockpile.oil;
+    resourceTick(owner, [region]);
+    resourceTick(occupant, [region]);
 
-    resourceTick(oldOwner, [region]);
-    resourceTick(newOwner, [region]);
+    expect(owner.stockpile.oil).toBe(ownerOilBefore);
+    expect(occupant.stockpile.oil).toBeGreaterThan(occupantOilBefore);
+  });
 
-    expect(oldOwner.stockpile.oil).toBe(oldOwnerOilBefore);
-    expect(newOwner.stockpile.oil).toBeGreaterThan(newOwnerOilBefore);
+  it("оккупированный регион добывает со штрафом OCCUPATION_EXTRACTION_PENALTY относительно неоккупированного", () => {
+    const freeCountry = createTestCountry({ id: "FREE" });
+    const freeRegion = createTestRegion({ id: 1, ownerCountryId: "FREE", infrastructure: 0, resourceProduction: { oil: 1000 } });
+
+    const occupant = createTestCountry({ id: "OCC" });
+    const occupiedRegion = createTestRegion({
+      id: 2, ownerCountryId: "OTHER", occupiedBy: "OCC", infrastructure: 0, resourceProduction: { oil: 1000 },
+    });
+
+    resourceTick(freeCountry, [freeRegion]);
+    resourceTick(occupant, [occupiedRegion]);
+
+    const freeGain = freeCountry.stockpile.oil - createTestCountry().stockpile.oil;
+    const occupiedGain = occupant.stockpile.oil - createTestCountry().stockpile.oil;
+
+    expect(occupiedGain).toBeCloseTo(freeGain * OCCUPATION_EXTRACTION_PENALTY, 5);
   });
 });
