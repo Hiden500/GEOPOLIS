@@ -104,6 +104,21 @@ export interface GameState {
   // false — ход не продвигается без ответа LLM ("LLM — главный двигатель",
   // docs/LLM_RULES.md).
   llmRespondedThisTurn: boolean;
+
+  // Позиция игрока в мире (docs/OBJECTIVES.md, план 11 категория B) —
+  // пересчитывается каждый ход движком (SimulationEngine после агрегации) по
+  // индексу национальной силы (shared/src/utils/nationalPower.ts). Обратная
+  // связь «насколько я силён / расту ли»: сила, ранг (1 — сильнейший), всего
+  // стран. Производное состояние, но хранится ради дешёвого доступа UI/промта
+  // без пересчёта рейтинга 128 стран на каждый рендер.
+  playerStanding: PlayerStanding;
+}
+
+/** Позиция страны игрока в мировом рейтинге силы (docs/OBJECTIVES.md). */
+export interface PlayerStanding {
+  power: number;
+  rank: number;
+  total: number;
 }
 
 /**

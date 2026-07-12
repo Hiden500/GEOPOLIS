@@ -1,6 +1,11 @@
 import { type GameState } from "@shared/types/GameState";
 import { type War } from "@shared/types/War";
-import { revertOccupationForWar } from "../simulation/war/occupation";
+import { revertOccupationForWar, transferRegion } from "../simulation/war/occupation";
+import { computeWarScore } from "../simulation/war/warScore";
+import {
+  WARSCORE_ANNEXATION_THRESHOLD,
+  WARSCORE_COST_PER_ANNEXED_REGION,
+} from "@shared/defines/war";
 
 /**
  * Штраф легитимности/governmentSupport проигравшей стороне при заключении
@@ -110,6 +115,7 @@ export class WarService {
       startDate: this.game.currentDate,
       active: true,
       territoryFlips: { toAttackers: 0, toDefenders: 0 },
+      casualties: {},
       ...(warGoal !== undefined ? { warGoal } : {}),
     };
 
@@ -142,10 +148,10 @@ export class WarService {
 
     war.active = false;
 
-    // Без Шага 2 плана (аннексия по договору, отложен) вся оккупация этой
-    // войны снимается миром — не аннексированное по договору снимается
-    // (docs/plans/08_WAR_WAVE1.md, Шаг 1).
-    revertOccupationForWar(this.game, war);
+    // Детерминированные условия мира по warScore (docs/plans/08_WAR_WAVE1.md,
+    // Шаг 2b): победитель аннексирует оккупированное по бюджету очков, остальная
+    // оккупация снимается. Ниже порога — белый мир (вся оккупация снята).
+    this.applyPeaceTerms(war);
 
     const durationMonths = monthsBetween(war.startDate, this.game.currentDate);
     const { toAttackers, toDefenders } = war.territoryFlips;
@@ -182,6 +188,47 @@ export class WarService {
     this.game.mapFeatures = this.game.mapFeatures.filter(
       f => !(f.type === "battalion" && f.tags.includes(warTag))
     );
+  }
+
+  /**
+   * Детерминированные условия мира по warScore (docs/plans/08_WAR_WAVE1.md,
+   * Шаг 2b). |warScore| ниже порога аннексии → белый мир (вся оккупация войны
+   * снята). Иначе победитель аннексирует оккупированные им регионы проигравшего
+   * (по возрастанию id, для детерминизма) в пределах бюджета очков; остальная
+   * оккупация снимается. Границу двигает только договор — не сама война.
+   */
+  private applyPeaceTerms(war: War): void {
+    const score = computeWarScore(war);
+
+    const winnerSide =
+      score >= WARSCORE_ANNEXATION_THRESHOLD ? war.attackers :
+      score <= -WARSCORE_ANNEXATION_THRESHOLD ? war.defenders :
+      null;
+
+    if (winnerSide === null) {
+      // Белый мир — граница не меняется, вся оккупация войны снимается.
+      revertOccupationForWar(this.game, war);
+      return;
+    }
+
+    const loserSide = winnerSide === war.attackers ? war.defenders : war.attackers;
+    const winnerSet = new Set(winnerSide);
+    const loserSet = new Set(loserSide);
+    const maxAnnexations = Math.floor(Math.abs(score) / WARSCORE_COST_PER_ANNEXED_REGION);
+
+    // Кандидаты на аннексию: регионы, которые победитель оккупирует и которые
+    // легально принадлежат проигравшему. По возрастанию id — детерминированный
+    // выбор, не зависящий от порядка обхода.
+    const annexable = this.game.regions
+      .filter(r => r.occupiedBy !== undefined && winnerSet.has(r.occupiedBy) && loserSet.has(r.ownerCountryId))
+      .sort((a, b) => a.id - b.id);
+
+    for (const region of annexable.slice(0, maxAnnexations)) {
+      transferRegion(this.game, region, region.occupiedBy!);
+    }
+
+    // Что не аннексировано (сверх бюджета или другой стороны) — оккупация снята.
+    revertOccupationForWar(this.game, war);
   }
 
   private applyLegitimacyPenalty(countryId: string, delta: number): void {

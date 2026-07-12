@@ -19,6 +19,7 @@ import {
   WELFARE_CAP_SHARE,
   WAR_RELATION_THRESHOLD,
 } from "@shared/defines/ai";
+import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 
 /**
  * Детерминированное поведение ИИ-стран (без полноценного utility-AI).
@@ -49,16 +50,23 @@ function totalIncome(c: Country): number {
 }
 
 /**
- * Правило A — аустерити: при дефиците И отрицательной казне ИИ-страна урезает
- * дискреционные расходы на 5%/тик, но не ниже снимка пола (50% старта).
- * Само-останавливается, когда бюджет выходит из дефицита (следующий EconomyTick
- * пересчитает budgetBalance ≥ 0). Мутация — через commands/economy.ts
- * (docs/plans/03_MODIFIERS_COMMANDS.md): AiBehaviorTick решает, нужно ли
- * резать, команда выполняет саму мутацию.
+ * Правило A — аустерити: при дефиците И высокой долговой нагрузке (долг/ВВП
+ * выше DEBT_GDP_PENALTY_THRESHOLD) ИИ-страна урезает дискреционные расходы на
+ * 5%/тик, но не ниже снимка пола (50% старта). Само-останавливается, когда
+ * бюджет выходит из дефицита (следующий EconomyTick пересчитает budgetBalance
+ * ≥ 0) или долг гасится ниже порога.
+ *
+ * Долг вместо казны как триггер (docs/plans/08_WAR_WAVE1.md, Шаг 4): с
+ * конвертацией дефицита в долг казна больше не уходит в минус (пол 0), поэтому
+ * прежний триггер `treasury < 0` стал бы мёртвым. Порог совпадает с началом
+ * штрафа росту ВВП: ИИ затягивает пояс ровно тогда, когда долг начинает вредить.
+ * Мутация — через commands/economy.ts.
  */
 function applyDeficitAusterity(game: GameState, c: Country): void {
   const e = c.economy;
-  if (e.budgetBalance >= 0 || e.treasury >= 0 || !e.spendingFloor) return;
+  if (e.budgetBalance >= 0 || !e.spendingFloor) return;
+  const debtBurden = e.gdp > 0 ? e.debt / e.gdp : 0;
+  if (debtBurden <= DEBT_GDP_PENALTY_THRESHOLD) return;
 
   economyCommands.applyDeficitAusterityCut(game, c.id, AUSTERITY_CUT, DISCRETIONARY);
 }
@@ -145,18 +153,26 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
  * ниже почти-дна шкалы И при манпауэр-перевесе инициатора ("нет другого
  * выхода", черновик docs/WAR.md) — объявляется война. `WarService.declareWar`
  * идемпотентен (не дублирует уже идущую войну), доп. проверка не нужна.
+ *
+ * Вариативность характера (`Country.aiTraits`, docs/AI_RULES.md) смещает оба
+ * порога независимо: `aggressiveness` — порог отношений (агрессивные страны
+ * решаются на войну при менее плохих отношениях, миролюбивые — только на
+ * настоящем дне шкалы); `riskTolerance` — требуемый манпауэр-перевес (более
+ * рисковые страны считают достаточным меньший перевес).
  */
 function applyWarThreshold(game: GameState, aiCountries: Country[]): void {
   const nonMajor = aiCountries.filter(c => c.tier !== "major");
 
   for (const c of nonMajor) {
+    const relationThreshold = WAR_RELATION_THRESHOLD / c.aiTraits.aggressiveness;
+
     for (const rivalId of c.diplomacy.rivals) {
       const rival = nonMajor.find(r => r.id === rivalId);
       if (!rival) continue; // major-тир соперник — войну решает только LLM
 
       const relation = c.diplomacy.relations[rivalId] ?? 0;
-      if (relation > WAR_RELATION_THRESHOLD) continue;
-      if (c.military.activePersonnel <= rival.military.activePersonnel) continue;
+      if (relation > relationThreshold) continue;
+      if (c.military.activePersonnel <= rival.military.activePersonnel / c.aiTraits.riskTolerance) continue;
 
       warCommands.declareWar(game, c.id, rivalId);
     }

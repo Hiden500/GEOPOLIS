@@ -9,9 +9,12 @@ function country(id: string, over: Partial<Country> = {}): Country {
 }
 
 describe("aiBehaviorTick — Правило A (аустерити)", () => {
-  it("урезает дискреционные расходы на 5% при дефиците и отрицательной казне", () => {
+  // gdp фикстуры = 500B; порог долг/ВВП = 0.6 → долг > 300B триггерит аустерити.
+  const HIGH_DEBT = 400_000_000_000;
+
+  it("урезает дискреционные расходы на 5% при дефиците И высоком долге/ВВП", () => {
     const ai = country("AI", {
-      economy: { ...createTestCountry().economy, budgetBalance: -1, treasury: -1 },
+      economy: { ...createTestCountry().economy, budgetBalance: -1, debt: HIGH_DEBT },
     });
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [ai] });
 
@@ -23,7 +26,7 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
 
   it("не урезает, если бюджет не в дефиците", () => {
     const ai = country("AI", {
-      economy: { ...createTestCountry().economy, budgetBalance: 100, treasury: -1 },
+      economy: { ...createTestCountry().economy, budgetBalance: 100, debt: HIGH_DEBT },
     });
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [ai] });
 
@@ -32,9 +35,9 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
     expect(ai.economy.militarySpending).toBe(30_000_000_000);
   });
 
-  it("не урезает, если казна неотрицательна (есть резервы)", () => {
+  it("не урезает, если долг/ВВП ниже порога (дефицит ещё финансируется без боли)", () => {
     const ai = country("AI", {
-      economy: { ...createTestCountry().economy, budgetBalance: -1, treasury: 100 },
+      economy: { ...createTestCountry().economy, budgetBalance: -1, debt: 0 },
     });
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [ai] });
 
@@ -45,7 +48,7 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
 
   it("не урезает ниже пола (50% старта)", () => {
     const ai = country("AI", {
-      economy: { ...createTestCountry().economy, budgetBalance: -1, treasury: -1, militarySpending: 15_000_000_000 },
+      economy: { ...createTestCountry().economy, budgetBalance: -1, debt: HIGH_DEBT, militarySpending: 15_000_000_000 },
     });
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [ai] });
 
@@ -57,7 +60,7 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
 
   it("не трогает страну игрока", () => {
     const player = country("PLAYER", {
-      economy: { ...createTestCountry().economy, budgetBalance: -1, treasury: -1 },
+      economy: { ...createTestCountry().economy, budgetBalance: -1, debt: HIGH_DEBT },
     });
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [player] });
 
@@ -343,5 +346,81 @@ describe("aiBehaviorTick — Правило D (порог войны для non-
     aiBehaviorTick(game);
 
     expect(game.wars).toHaveLength(1);
+  });
+
+  it("агрессивная страна (aiTraits.aggressiveness=1.4) объявляет войну при отношениях, недостаточно плохих для нейтрального темперамента", () => {
+    // relation=-65: выше (лучше) нейтрального порога -80 (aggressiveness=1 — под
+    // нейтральным правилом войны бы не было), но ниже эффективного порога
+    // агрессивной страны -80/1.4≈-57.1.
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -65 } },
+      aiTraits: { aggressiveness: 1.4, riskTolerance: 1 },
+    });
+    const b = country("B", { tier: "minor" });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    const war = game.wars.find(w => w.attackers.includes("A") && w.defenders.includes("B"));
+    expect(war).toBeDefined();
+  });
+
+  it("миролюбивая страна (aiTraits.aggressiveness=0.6) НЕ объявляет войну при отношениях, где нейтральная уже объявила бы", () => {
+    // relation=-90: ниже нейтрального порога -80 (см. первый тест этого блока — там
+    // при -90 и дефолтном темпераменте война объявляется), но выше (лучше) эффективного
+    // порога миролюбивой страны -80/0.6≈-133.3.
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+      aiTraits: { aggressiveness: 0.6, riskTolerance: 1 },
+    });
+    const b = country("B", { tier: "minor" });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    expect(game.wars).toHaveLength(0);
+  });
+
+  it("рисковая страна (aiTraits.riskTolerance=1.4) объявляет войну без манпауэр-перевеса, которого требовал бы нейтральный темперамент", () => {
+    // 900k > 1_000_000 (сырой перевес) — false, но 900k > 1_000_000/1.4≈714k — true.
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 900_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+      aiTraits: { aggressiveness: 1, riskTolerance: 1.4 },
+    });
+    const b = country("B", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+    });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    const war = game.wars.find(w => w.attackers.includes("A") && w.defenders.includes("B"));
+    expect(war).toBeDefined();
+  });
+
+  it("осторожная страна (aiTraits.riskTolerance=0.6) НЕ объявляет войну даже при манпауэр-перевесе, которого хватило бы нейтральной", () => {
+    // 1_050_000 > 1_000_000 (сырой перевес) — true, но 1_050_000 > 1_000_000/0.6≈1_666_667 — false.
+    const a = country("A", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_050_000 },
+      diplomacy: { ...createTestCountry().diplomacy, rivals: ["B"], relations: { B: -90 } },
+      aiTraits: { aggressiveness: 1, riskTolerance: 0.6 },
+    });
+    const b = country("B", {
+      tier: "minor",
+      military: { ...createTestCountry().military, activePersonnel: 1_000_000 },
+    });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), a, b] });
+
+    aiBehaviorTick(game);
+
+    expect(game.wars).toHaveLength(0);
   });
 });

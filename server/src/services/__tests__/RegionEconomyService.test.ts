@@ -52,6 +52,7 @@ describe('RegionEconomyService', () => {
         treasury: 100000000000,
         taxRevenue: 100000000000,
         exportIncome: 50000000000,
+        importSpending: 0,
         stateEnterpriseIncome: 20000000000,
         otherIncome: 10000000000,
         militarySpending: 30000000000,
@@ -59,6 +60,7 @@ describe('RegionEconomyService', () => {
         educationSpending: 20000000000,
         infrastructureSpending: 10000000000,
         welfareSpending: 15000000000,
+        debt: 0,
         debtInterest: 5000000000,
         otherExpenses: 5000000000,
         inflation: 2.0,
@@ -113,6 +115,7 @@ describe('RegionEconomyService', () => {
       },
       stockpile: { oil: 500000, coal: 1000000, gas: 1500000, iron: 500000, copper: 500000, gold: 250000, tin: 0, nickel: 0, bauxite: 500000, tungsten: 0, manganese: 0, chromium: 0, uranium: 10000, rareEarths: 50000, lithium: 100000, food: 5000000, timber: 1000000, cotton: 0, rubber: 0, nitrates: 0 } as Record<ResourceType, number>,
       goals: [],
+      aiTraits: { aggressiveness: 1, riskTolerance: 1 },
     };
   });
 

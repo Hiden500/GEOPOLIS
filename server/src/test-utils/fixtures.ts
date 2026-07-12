@@ -42,6 +42,7 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       taxRate: 0.2, // = taxRevenue/gdp, чтобы пересчёт в EconomyTick давал ту же сумму
 
       exportIncome: 50_000_000_000,
+      importSpending: 0,
       stateEnterpriseIncome: 20_000_000_000,
       otherIncome: 10_000_000_000,
       militarySpending: 30_000_000_000,
@@ -49,6 +50,7 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       educationSpending: 20_000_000_000,
       infrastructureSpending: 10_000_000_000,
       welfareSpending: 15_000_000_000,
+      debt: 0,
       debtInterest: 5_000_000_000,
       otherExpenses: 5_000_000_000,
       inflation: 2.0,
@@ -115,6 +117,9 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
     },
     stockpile: { oil: 500_000, coal: 1_000_000, gas: 1_500_000, iron: 500_000, copper: 500_000, gold: 250_000, tin: 0, nickel: 0, bauxite: 500000, tungsten: 0, manganese: 0, chromium: 0, uranium: 10_000, rareEarths: 50_000, lithium: 100_000, food: 5_000_000, timber: 1_000_000, cotton: 0, rubber: 0, nitrates: 0 } as Record<ResourceType, number>,
     goals: [],
+    // Нейтральный темперамент по умолчанию (docs/AI_RULES.md) — тесты Правила D
+    // переопределяют явно, где вариативность характера важна.
+    aiTraits: { aggressiveness: 1, riskTolerance: 1 },
     ...overrides,
   };
 }
@@ -170,6 +175,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     pendingWorldFacts: [],
     hingePointShowCount: {},
     llmRespondedThisTurn: true,
+    playerStanding: { power: 0, rank: 0, total: 0 },
     ...overrides,
   };
 }

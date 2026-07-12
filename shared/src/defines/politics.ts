@@ -82,3 +82,13 @@ export const CORRUPTION_DRIFT_RATE = 0.003;
 export const STABILITY_DRIFT_RATE = 0.05;
 export const GOV_SUPPORT_DRIFT_RATE = 0.08;
 export const LEGITIMACY_DRIFT_RATE = 0.005;
+
+/**
+ * Порог кризисного (не просто "низкого") stability — детекция
+ * политического кризиса/переворота (SimulationEngine.ts::pendingWorldFacts,
+ * "того же паттерна", что пересечение тира технологий, 2026-07-06). Ниже
+ * уже существующего "низкого" порога (STABILITY_LOW=40, shared/defines/ai.ts,
+ * управляет рутинным AI-нуджем Правила C) — кризис-факт реже рутинной
+ * подстройки бюджета, не дублирует её частоту.
+ */
+export const POLITICAL_CRISIS_STABILITY_THRESHOLD = 20;

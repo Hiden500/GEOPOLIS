@@ -11,7 +11,36 @@ describe("economyTick", () => {
       country.economy.exportIncome +
       country.economy.stateEnterpriseIncome +
       country.economy.otherIncome;
+
+    economyTick(country, []);
+
+    // debtInterest пересчитывается из долга (debt=0 → 0), не берётся статичным
+    // фикстурным значением (план 08 Шаг 4) — читаем после тика.
+    expect(country.economy.debtInterest).toBe(0);
     const expenses =
+      country.economy.militarySpending +
+      country.economy.researchSpending +
+      country.economy.educationSpending +
+      country.economy.infrastructureSpending +
+      country.economy.welfareSpending +
+      country.economy.debtInterest +
+      country.economy.otherExpenses +
+      country.economy.importSpending;
+
+    expect(country.economy.budgetBalance).toBe(income - expenses);
+    expect(country.economy.treasury).toBe(treasuryBefore + (income - expenses));
+  });
+
+  it("importSpending (докупка дефицита ресурсов, TradeTick.ts) учитывается как расход бюджета", () => {
+    const country = createTestCountry({
+      economy: { ...createTestCountry().economy, importSpending: 1_000_000_000 },
+    });
+    const treasuryBefore = country.economy.treasury;
+
+    economyTick(country, []);
+
+    // debtInterest пересчитан из долга (debt=0 → 0) — не фикстурный (план 08 Шаг 4).
+    const expensesWithoutImport =
       country.economy.militarySpending +
       country.economy.researchSpending +
       country.economy.educationSpending +
@@ -20,10 +49,14 @@ describe("economyTick", () => {
       country.economy.debtInterest +
       country.economy.otherExpenses;
 
-    economyTick(country, []);
-
-    expect(country.economy.budgetBalance).toBe(income - expenses);
-    expect(country.economy.treasury).toBe(treasuryBefore + (income - expenses));
+    const expectedBudgetBalance =
+      country.economy.taxRevenue +
+      country.economy.exportIncome +
+      country.economy.stateEnterpriseIncome +
+      country.economy.otherIncome -
+      (expensesWithoutImport + 1_000_000_000);
+    expect(country.economy.budgetBalance).toBe(expectedBudgetBalance);
+    expect(country.economy.treasury).toBe(treasuryBefore + expectedBudgetBalance);
   });
 
   it("recomputes taxRevenue from gdp × taxRate (доход следует за ВВП)", () => {
@@ -132,5 +165,85 @@ describe("economyTick", () => {
     const country = createTestCountry();
 
     expect(() => economyTick(country, [])).not.toThrow();
+  });
+
+  describe("госдолг (план 08, Шаг 4)", () => {
+    /** Страна с глубоким дефицитом: расходы кратно больше дохода. */
+    function deficitCountry(overrides = {}) {
+      return createTestCountry({
+        economy: {
+          ...createTestCountry().economy,
+          gdp: 1_000_000_000_000,
+          taxRate: 0.001, taxRevenue: 1_000_000_000, // мизерный доход
+          exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0, importSpending: 0,
+          militarySpending: 50_000_000_000, researchSpending: 0, educationSpending: 0,
+          infrastructureSpending: 0, welfareSpending: 0, otherExpenses: 0,
+          treasury: 0, debt: 0,
+          ...overrides,
+        },
+      });
+    }
+
+    it("дефицит при нулевой казне конвертируется в долг, казна не уходит в минус", () => {
+      const country = deficitCountry();
+      economyTick(country, []);
+
+      expect(country.economy.treasury).toBe(0);
+      expect(country.economy.debt).toBeGreaterThan(0);
+      // Дефицит ≈ 49B (доход 1B − расход 50B) → долг ≈ 49B.
+      expect(country.economy.debt).toBeCloseTo(49_000_000_000, -6);
+    });
+
+    it("debtInterest = долг × ставка, ставка выше при низком здоровье государства", () => {
+      const healthy = createTestCountry({
+        economy: { ...createTestCountry().economy, debt: 100_000_000_000, treasury: 0,
+          taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
+          militarySpending: 0, researchSpending: 0, educationSpending: 0,
+          infrastructureSpending: 0, welfareSpending: 0, otherExpenses: 0, importSpending: 0 },
+        politics: { ...createTestCountry().politics, legitimacy: 100, stability: 100 },
+      });
+      const weak = createTestCountry({
+        economy: { ...createTestCountry().economy, debt: 100_000_000_000, treasury: 0,
+          taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
+          militarySpending: 0, researchSpending: 0, educationSpending: 0,
+          infrastructureSpending: 0, welfareSpending: 0, otherExpenses: 0, importSpending: 0 },
+        politics: { ...createTestCountry().politics, legitimacy: 0, stability: 0 },
+      });
+
+      economyTick(healthy, []);
+      economyTick(weak, []);
+
+      // Ставка здорового = base (0.003); слабого = base + premium (0.016).
+      expect(healthy.economy.debtInterest).toBeCloseTo(100_000_000_000 * 0.003, -3);
+      expect(weak.economy.debtInterest).toBeGreaterThan(healthy.economy.debtInterest);
+    });
+
+    it("профицит гасит долг прежде, чем пополнять казну", () => {
+      const country = createTestCountry({
+        economy: {
+          ...createTestCountry().economy,
+          debt: 10_000_000_000, treasury: 0,
+          // Профицит ≈ 80B (доход 180B − расход 100B), долг 10B < профицита.
+        },
+      });
+      economyTick(country, []);
+
+      expect(country.economy.debt).toBe(0); // долг погашен целиком
+      expect(country.economy.treasury).toBeGreaterThan(0); // остаток профицита в казну
+    });
+
+    it("высокий долг/ВВП штрафует рост ВВП", () => {
+      const region = () => createTestRegion({ ownerCountryId: "TEST", infrastructure: 0.8, development: 0.8 });
+      const lowDebt = createTestCountry({ economy: { ...createTestCountry().economy, gdp: 1_000_000_000_000, debt: 0 } });
+      const highDebt = createTestCountry({ economy: { ...createTestCountry().economy, gdp: 1_000_000_000_000, debt: 2_000_000_000_000 } }); // долг/ВВП = 2.0
+
+      const rLow = region();
+      const rHigh = region();
+      economyTick(lowDebt, [rLow]);
+      economyTick(highDebt, [rHigh]);
+
+      // Оба растут, но обременённый долгом — медленнее.
+      expect(rHigh.gdp).toBeLessThan(rLow.gdp);
+    });
   });
 });

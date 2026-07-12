@@ -185,6 +185,55 @@ state для трёх «внешних инициаторов»: LLM-дейст�
   фазе `SimulationEngine.ts` рядом с `MapFeatureService.removeExpiredFeatures()`
   (та сравнивает с wall-clock — задокументированный баг, не повторён здесь).
 
+### Данные сценария 1946 (`server/data/scenarios/1946/`, `scripts/map/`)
+
+Реализовано по `docs/plans/05_DATA_LAYOUT.md` (2026-07-11, суженный объём —
+только server/shared/Python; клиентская часть плана вне заходa, см. файл
+плана). `Scenario1946.ts::buildScenario1946()` собирает `Region[]`/`Country[]`
+на загрузке, не хранит их в едином файле.
+
+* **Регионы расслоены на 4 файла**: `regions.core.json` (id/geoJsonId/area/
+  neighboringRegionIds/sourceAdm1Codes — география, не меняется рестартом
+  сценария), `names.en.json`/`names.ru.json` (`geoJsonId → имя`, локализация),
+  `regions.state.json` (ownerCountryId/population/urbanization/stability/
+  infrastructure/development/gdp/deposits/extraction — состояние сценария).
+  `scenario1946Schemas.ts` — Zod-схема на каждый слой; сборка бросает
+  `ScenarioDataError` с внятным сообщением на битом JSON, рассинхроне
+  core↔state (регион без записи в state) или отсутствующем имени региона
+  сразу в обеих локалях.
+* **Страны — только авторские поля**: `countries.json` не содержит нулевых
+  рантайм-блоков (economy/technology/military/пустая diplomacy/stockpile/
+  goals) — их дефолтит `createCountry()`
+  (`server/src/data/countries/templates/CreateCountry.ts`), тот же путь
+  сборки, что у 12 рукописных TS-стран сценариев 1836/2000. `technology.domains`
+  для домена без явного оверрайда дефолтится в `createGame()` из
+  `scenario.technologyEra.technologyDomains` (`shared/src/data/eras.ts`), не
+  дублируется в данных сценария.
+* **Единый источник каталога ресурсов**: `server/scripts/exportResourceCatalog.ts`
+  (`npm run export:resource-catalog` в `server/`) экспортирует
+  `RESOURCE_CATALOG`+`MAX_EXTRACTION_LEVEL` в `scripts/map/out/resource_catalog.json`
+  — Python-пайплайн читает его (`economy_1946/resource_catalog.py`) вместо
+  дублирования списков/констант вручную.
+* **Пайплайн**: `scripts/map/make_1946.py` — оркестратор от готовых
+  `out/*.geojson`/`*.json` (или, с флагом `--full-rebuild`, от полной
+  пересборки геометрии) до валидного сценария: экспорт каталога ресурсов →
+  `import_to_game.py` → `generate_country_registry.py` →
+  `fill_region_economy_1946.py` → `validate_region_economy_1946.py` → тест
+  структурных инвариантов. Падает на первом ненулевом коде возврата.
+* **Валидация**: `validate_region_economy_1946.py::validate_structural_invariants()`
+  — симметрия графа соседей, `ownerCountryId` существует в `countries.json`,
+  `capitalRegionId` страны принадлежит ей самой, `deposits`/`extraction` ⊆
+  каталог ресурсов, полнота локализации (имя есть и в `names.en.json`, и в
+  `names.ru.json`) — независимы от исторических анкеров 1946, покрыты
+  `test_validate_region_economy_1946.py` (synthetic-фикстура, stdlib
+  `unittest`). CI-job `data` (`.github/workflows/ci.yml`) гоняет оба на
+  каждый PR, затрагивающий `scripts/map/**`.
+* **Не в этом заходе** (см. `docs/plans/05_DATA_LAYOUT.md` «Отклонения при
+  реализации»): удаление мёртвого `client/src/assets/game_map.json`,
+  TopoJSON-конвертация `world_1946.geojson`, миграция 12 рукописных TS-стран
+  1836/2000 в авторский JSON-формат, штампы `_meta` в промежуточных
+  `scripts/map/out/*.json`.
+
 ---
 
 ## Client
@@ -254,8 +303,7 @@ LLM не является источником истины.
 Источник истины:
 
 * savegame;
-* countries.json;
-* regions.json;
+* countries.json / regions.core.json+names.*.json+regions.state.json (см. «Данные сценария 1946» выше);
 * map features;
 * игровые данные движка.
 

@@ -31,6 +31,7 @@ describe('MapFeatureService', () => {
           treasury: 1000000000000,
           taxRevenue: 3000000000000,
           exportIncome: 2000000000000,
+          importSpending: 0,
           stateEnterpriseIncome: 500000000000,
           otherIncome: 100000000000,
           militarySpending: 700000000000,
@@ -38,6 +39,7 @@ describe('MapFeatureService', () => {
           educationSpending: 400000000000,
           infrastructureSpending: 300000000000,
           welfareSpending: 600000000000,
+          debt: 0,
           debtInterest: 200000000000,
           otherExpenses: 100000000000,
           inflation: 2.0,
@@ -92,6 +94,7 @@ describe('MapFeatureService', () => {
         },
         stockpile: { oil: 1000000, coal: 5000000, gas: 3000000, iron: 2000000, copper: 1000000, gold: 500000, tin: 0, nickel: 0, bauxite: 2500000, tungsten: 0, manganese: 0, chromium: 0, uranium: 50000, rareEarths: 100000, lithium: 200000, food: 10000000, timber: 2000000, cotton: 0, rubber: 0, nitrates: 0 } as Record<ResourceType, number>,
         goals: [],
+        aiTraits: { aggressiveness: 1, riskTolerance: 1 },
       },
     ];
 
@@ -154,6 +157,7 @@ describe('MapFeatureService', () => {
       pendingWorldFacts: [],
       hingePointShowCount: {},
       llmRespondedThisTurn: true,
+      playerStanding: { power: 0, rank: 0, total: 0 },
     };
 
     service = new MapFeatureService(game);

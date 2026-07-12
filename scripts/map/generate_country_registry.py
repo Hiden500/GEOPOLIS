@@ -3,8 +3,9 @@ generate_country_registry.py — генерирует реестр стран с
 
 Заменяет 12 рукописных стран (server/src/data/countries/*.ts, оставлены для
 сценариев 1836/2000) полным реестром, выведенным из scripts/map/out/countries_1946.json
-и фактических владельцев в server/data/scenarios/1946/regions.json (генерируется
-import_to_game.py — запускать первым).
+и фактических владельцев в server/data/scenarios/1946/regions.state.json (генерируется
+import_to_game.py — запускать первым; читается через economy_1946.region_files,
+см. docs/plans/05_DATA_LAYOUT.md).
 
 Конвенция кодов стран (см. план интеграции, "Конвенция кодов стран"):
   - Суверены — ISO 3166-1 alpha-3 как есть в MAP.
@@ -31,12 +32,15 @@ import_to_game.py — запускать первым).
 группировки ожидаема (см. открытые вопросы плана).
 """
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from economy_1946.region_files import load_regions_combined, write_regions_state
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
 CONFIG_DIR = REPO_ROOT / "scripts" / "map" / "config"
-REGIONS_PATH = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "regions.json"
 COUNTRIES_OUT = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "countries.json"
 MERGE_OUT = CONFIG_DIR / "country_merge.json"
 
@@ -82,7 +86,7 @@ SUBJECT_OVERRIDES = {"JOR": "GBR"}
 
 # Тот же составной код MAP, что нормализуется в import_to_game.py — здесь
 # нужен повторно, т.к. countries_1946.json (каталог) хранит исходный код
-# ключом словаря, независимо от того, что regions.json уже на QSO.
+# ключом словаря, независимо от того, что regions.state.json уже на QSO.
 CATALOG_CODE_ALIASES = {"SOM_GBR": "QSO"}
 
 # Военное/договорное присутствие держав на 1946, НЕ территориальное владение —
@@ -116,12 +120,20 @@ ZONE_TINT_SUZERAIN = {
     "QAZ": "SUN", "QMH": "SUN", "QSO": "GBR",
 }
 
-EQUIPMENT_TYPES = ["rifles", "trucks", "tanks", "fighters", "bombers", "artillery", "destroyers", "submarines"]
-TECH_DOMAINS_1946 = ["nuclear", "rocketry", "electronics", "computing", "microelectronics", "aviation",
-                     "radar", "biology", "armor", "naval", "infantry", "space", "materials", "industry"]
-RESOURCE_KEYS = ["oil", "coal", "gas", "iron", "copper", "gold", "tin", "nickel", "bauxite", "tungsten",
-                 "manganese", "chromium", "uranium", "rareEarths", "lithium", "food", "timber", "cotton",
-                 "rubber", "nitrates"]
+# Валютные зоны (docs/plans/10_CURRENCY_ZONES.md) — минимальный документированный
+# набор: только прямые зоны военной оккупации/администрации 1946 года (чёткий
+# исторический факт, не интерпретация) — обе стороны биполярного раздела
+# Германии/Кореи и советская администрация Маньчжурии. Осознанно НЕ включены
+# QAZ/QMH (просоветские квазигосударства, другая категория — политический
+# клиент, не оккупационная администрация) и QSO (колониальная администрация) —
+# "не тянуть спорные случаи" (docs/plans/10_CURRENCY_ZONES.md). Подмножество
+# ZONE_TINT_SUZERAIN выше, не весь словарь.
+CURRENCY_ZONE_ANCHOR = {
+    "QGS": "SUN", "QKS": "SUN", "QMS": "SUN",
+    "QGA": "USA", "QKA": "USA",
+    "QGB": "GBR",
+    "QGF": "FRA",
+}
 
 ARCHETYPES = {
     "planned": {
@@ -170,19 +182,6 @@ def build_merge_map(catalog: dict) -> dict:
         for m in members:
             merge_map[m] = bloc_code
     return merge_map
-
-
-def empty_stockpile():
-    return {k: 0 for k in RESOURCE_KEYS}
-
-
-def empty_economy_state():
-    return {
-        "gdp": 0, "treasury": 0, "taxRevenue": 0, "exportIncome": 0, "stateEnterpriseIncome": 0,
-        "otherIncome": 0, "militarySpending": 0, "researchSpending": 0, "educationSpending": 0,
-        "infrastructureSpending": 0, "welfareSpending": 0, "debtInterest": 0, "otherExpenses": 0,
-        "inflation": 0, "unemployment": 0, "tradeBalance": 0, "budgetBalance": 0,
-    }
 
 
 def deterministic_color(country_id: str) -> str:
@@ -242,43 +241,37 @@ def tint_from_suzerain(suzerain_hex: str) -> str:
 
 
 def make_country(country_id: str, name_en: str, economy_type: str, ideology: str,
-                  capital_region_id: int | None, puppets: list[str], color: str) -> dict:
+                  capital_region_id: int | None, puppets: list[str], color: str,
+                  currency_zone_anchor: str | None = None) -> dict:
+    """Только авторские поля (docs/plans/05_DATA_LAYOUT.md, Срез 2) — нулевые
+    рантайм-блоки (technology/military/stockpile/researchedTechnologyIds/goals/
+    population, пустая diplomacy) не пишутся: их дефолтит createCountry на
+    загрузке (server/src/data/countries/templates/CreateCountry.ts). politics —
+    только ideology (реально варьируется по стране), остальные поля политики —
+    единый дефолт для всех 128 стран, тоже не авторские данные."""
     profile = dict(ARCHETYPES[economy_type])
     profile["spending"] = dict(profile["spending"])
-    return {
+    country = {
         "id": country_id,
         "name": name_en,
         "shortName": name_en[:24],
         "color": color,
         "capitalRegionId": capital_region_id if capital_region_id is not None else 0,
-        "population": 0,
-        "economyProfile": profile,
-        "economy": empty_economy_state(),
         "economyType": economy_type,
-        "technology": {"domains": {d: 0 for d in TECH_DOMAINS_1946}, "projects": []},
-        "researchedTechnologyIds": [],
-        "military": {
-            "manpower": 0, "activePersonnel": 0, "reservePersonnel": 0, "militaryBudget": 0,
-            "armyStrength": 0, "navyStrength": 0, "airStrength": 0, "nuclearWarheads": 0,
-            "units": [], "equipment": {e: 0 for e in EQUIPMENT_TYPES},
-        },
-        "diplomacy": {
-            "allies": [], "rivals": [], "puppets": puppets, "sphereOfInfluence": list(puppets),
-            "relations": {}, "influence": {}, "guarantees": [], "sanctions": {},
-        },
-        "politics": {
-            "ideology": ideology, "governmentType": "Unknown", "stability": 50,
-            "legitimacy": 50, "corruption": 30, "governmentSupport": 50,
-        },
-        "stockpile": empty_stockpile(),
-        "goals": [],
+        "economyProfile": profile,
+        "politics": {"ideology": ideology},
     }
+    if puppets:
+        country["diplomacy"] = {"puppets": puppets, "sphereOfInfluence": list(puppets)}
+    if currency_zone_anchor:
+        country["currencyZoneAnchor"] = currency_zone_anchor
+    return country
 
 
 def main():
     catalog = load_json(OUT_DIR / "countries_1946.json")
     catalog = {CATALOG_CODE_ALIASES.get(k, k): v for k, v in catalog.items()}
-    regions = load_json(REGIONS_PATH)
+    regions = load_regions_combined()
 
     # Подставляем subject_of там, где MAP отдаёт суверена, но политически
     # территория зависима (см. SUBJECT_OVERRIDES) — после этого код ниже
@@ -290,7 +283,7 @@ def main():
     merge_map = build_merge_map(catalog)
     MERGE_OUT.write_text(json.dumps(merge_map, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    # Применяем объединение к regions.json: владелец-колония -> код блока.
+    # Применяем объединение к regions.state.json: владелец-колония -> код блока.
     # Без этого регионы продолжали бы ссылаться на ISO-коды, исчезнувшие
     # из реестра стран после объединения.
     changed = 0
@@ -300,8 +293,8 @@ def main():
             r["ownerCountryId"] = merged
             changed += 1
     if changed:
-        REGIONS_PATH.write_text(json.dumps(regions, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"regions.json: {changed} регионов переключены на код блока-владельца")
+        write_regions_state(regions)
+        print(f"regions.state.json: {changed} регионов переключены на код блока-владельца")
 
     # Фактические владельцы по сгенерированным регионам — источник истины,
     # какие страны реально нужны (а не весь каталог MAP, часть которого
@@ -373,9 +366,11 @@ def main():
         puppets = puppets_by_suzerain.get(country_id, [])
         color = colors[country_id]
 
+        currency_zone_anchor = CURRENCY_ZONE_ANCHOR.get(country_id)
+
         if country_id in CUSTOM_COUNTRIES:
             meta = CUSTOM_COUNTRIES[country_id]
-            countries.append(make_country(country_id, meta["name_en"], meta["economy"], meta["ideology"], capital_region_id, puppets, color))
+            countries.append(make_country(country_id, meta["name_en"], meta["economy"], meta["ideology"], capital_region_id, puppets, color, currency_zone_anchor))
             continue
 
         if country_id in catalog:
@@ -388,7 +383,7 @@ def main():
 
         economy_type = "planned" if country_id in PLANNED_ECONOMY_SOVEREIGNS else "mixed"
         ideology = "Communism" if economy_type == "planned" else "Liberal Democracy"
-        countries.append(make_country(country_id, name_en, economy_type, ideology, capital_region_id, puppets, color))
+        countries.append(make_country(country_id, name_en, economy_type, ideology, capital_region_id, puppets, color, currency_zone_anchor))
 
     # Военное/договорное присутствие (см. SPHERE_OVERRIDES) — только сфера
     # влияния, без тонирования цвета и без puppets (страны остаются
@@ -396,7 +391,8 @@ def main():
     for country in countries:
         extra_sphere = SPHERE_OVERRIDES.get(country["id"])
         if extra_sphere:
-            country["diplomacy"]["sphereOfInfluence"].extend(extra_sphere)
+            diplomacy = country.setdefault("diplomacy", {"puppets": [], "sphereOfInfluence": []})
+            diplomacy["sphereOfInfluence"].extend(extra_sphere)
 
     COUNTRIES_OUT.parent.mkdir(parents=True, exist_ok=True)
     COUNTRIES_OUT.write_text(json.dumps(countries, ensure_ascii=False, indent=2), encoding="utf-8")

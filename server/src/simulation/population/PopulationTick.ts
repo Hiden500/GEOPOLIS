@@ -5,6 +5,7 @@ import {
   BASE_BIRTH_RATE_PER_MONTH,
   BASE_DEATH_RATE_PER_MONTH,
   STANDARD_OF_LIVING_CAP,
+  STANDARD_OF_LIVING_BIRTH_FLOOR,
   MEDICINE_TECH_BONUS_RATE,
   BIRTH_RATE_LIVING_STANDARD_BASE,
   BIRTH_RATE_LIVING_STANDARD_COEFFICIENT,
@@ -39,6 +40,11 @@ export function populationTick(
   // державы" 1946 года, см. countryMetrics.ts) — страна на уровне ориентира
   // получает standardOfLiving=1, вдвое богаче — потолок STANDARD_OF_LIVING_CAP.
   const standardOfLiving = Math.min(gdpPerCapita / GDP_PER_CAPITA_REFERENCE, STANDARD_OF_LIVING_CAP);
+  // Пол уровня жизни ТОЛЬКО для рождаемости (демографический переход, см.
+  // STANDARD_OF_LIVING_BIRTH_FLOOR): бедность не подавляет фертильность ниже
+  // аграрной нормы. Смертность ниже использует сырой standardOfLiving-независимый
+  // путь (медицина/стабильность), пол её не касается.
+  const birthStandardOfLiving = Math.max(STANDARD_OF_LIVING_BIRTH_FLOOR, standardOfLiving);
   // Страна без территории (gdp=0) не получает бонус/штраф, не NaN; см.
   // EconomyTick.ts, та же защита.
   const hasGdp = country.economy.gdp > 0;
@@ -56,7 +62,7 @@ export function populationTick(
     // Рождаемость региона
     // Чем выше уровень жизни, медицина и образование - тем выше рождаемость (до определённого предела)
     const regionBirthRate = BASE_BIRTH_RATE_PER_MONTH *
-      (BIRTH_RATE_LIVING_STANDARD_BASE + standardOfLiving * BIRTH_RATE_LIVING_STANDARD_COEFFICIENT) *
+      (BIRTH_RATE_LIVING_STANDARD_BASE + birthStandardOfLiving * BIRTH_RATE_LIVING_STANDARD_COEFFICIENT) *
       (BIRTH_RATE_EDUCATION_BASE + educationFactor * BIRTH_RATE_EDUCATION_COEFFICIENT) *
       (BIRTH_RATE_WELFARE_BASE + welfareFactor * BIRTH_RATE_WELFARE_COEFFICIENT) *
       (BIRTH_RATE_STABILITY_BASE + region.stability / 100 * BIRTH_RATE_STABILITY_COEFFICIENT);

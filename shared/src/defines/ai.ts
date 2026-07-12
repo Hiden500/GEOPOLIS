@@ -31,5 +31,16 @@ export const WELFARE_SHIFT_RATE = 0.02;
 /** Потолок welfare как доля дохода (Правило C). */
 export const WELFARE_CAP_SHARE = 0.3;
 
-/** Порог отношений для Правила D — почти дно шкалы, войны редки. */
+/** Порог отношений для Правила D — почти дно шкалы, войны редки. Делится на
+ *  aiTraits.aggressiveness страны — агрессивные страны объявляют войну при
+ *  менее плохих отношениях, миролюбивые — только на настоящем дне. */
 export const WAR_RELATION_THRESHOLD = -80;
+
+/**
+ * Вариативность характера (docs/AI_RULES.md §"Искусственный интеллект
+ * стран") — Country.aiTraits сеется один раз в createGame() через seeded RNG
+ * (shared/src/utils/rng.ts), диапазон ниже. Не читать напрямую как "истину" —
+ * это дешёвая иллюзия индивидуальности, не реальная характеристика страны.
+ */
+export const AI_TRAIT_MIN = 0.6;
+export const AI_TRAIT_MAX = 1.4;
