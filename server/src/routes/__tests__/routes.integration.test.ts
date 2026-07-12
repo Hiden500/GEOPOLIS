@@ -91,6 +91,37 @@ describe("POST /game/next-turn", () => {
   });
 });
 
+describe("PUT /objective/goals", () => {
+  it("устанавливает цели игрока и возвращает их с completed=false", async () => {
+    await startGame();
+    const res = await request(app)
+      .put("/objective/goals")
+      .send({ goals: [{ id: "g1", kind: "reach_gdp", target: 500000000000 }] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.goals).toHaveLength(1);
+    expect(res.body.goals[0].completed).toBe(false);
+  });
+
+  it("400 на неизвестном kind цели (Zod-отказ)", async () => {
+    await startGame();
+    const res = await request(app)
+      .put("/objective/goals")
+      .send({ goals: [{ id: "g1", kind: "conquer_world" }] });
+
+    expect(res.status).toBe(400);
+  });
+
+  it("404, если нет активной игры", async () => {
+    const res = await request(app)
+      .put("/objective/goals")
+      .send({ goals: [] });
+
+    expect(res.status).toBe(404);
+  });
+});
+
 describe("GET /scenarios/list", () => {
   it("200, массив сценариев с featuredCountries/tier", async () => {
     const res = await request(app).get("/scenarios/list");

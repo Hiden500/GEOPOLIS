@@ -175,6 +175,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     pendingWorldFacts: [],
     hingePointShowCount: {},
     llmRespondedThisTurn: true,
+    playerStanding: { power: 0, rank: 0, total: 0 },
     ...overrides,
   };
 }

@@ -8,6 +8,7 @@ import { RegionEconomyService } from "../services/RegionEconomyService";
 import { assignInitialTiers } from "../simulation/tier/TierTick";
 import { nextRandom } from "@shared/utils/rng";
 import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
+import { computePlayerStanding } from "@shared/utils/nationalPower";
 
 /**
  * Выводит денежные поля economy из economyProfile (масштаб-свободные доли,
@@ -147,7 +148,10 @@ export function createGame(
     modifiers: [],
     pendingWorldFacts: [],
     hingePointShowCount: {},
-    llmRespondedThisTurn: false
+    llmRespondedThisTurn: false,
+    // Стартовая позиция игрока в рейтинге силы (docs/OBJECTIVES.md) —
+    // пересчитывается каждый ход в SimulationEngine, здесь задаём начальную.
+    playerStanding: computePlayerStanding(countries, playerCountryId, regions),
   };
 
   // Генерируем начальные Map Features

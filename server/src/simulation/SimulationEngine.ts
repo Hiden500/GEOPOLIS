@@ -15,6 +15,7 @@ import { politicsTick } from "./politics/PoliticsTick";
 import { tradeTick } from "./trade/TradeTick";
 import { chronicleTick } from "./chronicle/ChronicleTick";
 import { removeExpiredModifiers } from "../commands/modifiers";
+import { objectiveTick } from "./ObjectiveTick";
 import { STABILITY_HIGH_INFLATION_THRESHOLD, POLITICAL_CRISIS_STABILITY_THRESHOLD } from "@shared/defines/politics";
 import { DEBT_CRISIS_GDP_THRESHOLD } from "@shared/defines/economy";
 
@@ -144,6 +145,10 @@ export function simulateMonth(
     // Очищаем истёкшие модификаторы (docs/plans/03_MODIFIERS_COMMANDS.md,
     // Шаг 2) — сравнение с game.currentDate, не wall-clock.
     removeExpiredModifiers(game);
+
+    // Целевой слой (docs/OBJECTIVES.md): позиция игрока в рейтинге силы + оценка
+    // самопоставленных целей — после боевых тиков, по состоянию на конец месяца.
+    objectiveTick(game);
 
     // Продвигаем дату на один месяц
     const parts = game.currentDate.split("-");

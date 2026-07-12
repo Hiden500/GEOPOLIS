@@ -157,6 +157,7 @@ describe('MapFeatureService', () => {
       pendingWorldFacts: [],
       hingePointShowCount: {},
       llmRespondedThisTurn: true,
+      playerStanding: { power: 0, rank: 0, total: 0 },
     };
 
     service = new MapFeatureService(game);

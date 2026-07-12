@@ -45,6 +45,24 @@ export const playerIntentSchema = z.object({
 });
 
 /**
+ * Схема самопоставленных целей игрока (docs/OBJECTIVES.md). Дискриминированный
+ * union по kind — структурно совпадает с shared/src/types/GrandStrategy.ts
+ * (StrategicGoal). `completed` не принимается от клиента (движок владеет им),
+ * поэтому в схеме входа его нет. `id`/`title` от клиента (для UI-стабильности).
+ */
+const strategicGoalInputSchema = z.discriminatedUnion("kind", [
+  z.object({ id: z.string().min(1), title: z.string().optional(), kind: z.literal("reach_gdp"), target: z.number().nonnegative() }),
+  z.object({ id: z.string().min(1), title: z.string().optional(), kind: z.literal("reach_power_rank"), targetRank: z.number().int().min(1) }),
+  z.object({ id: z.string().min(1), title: z.string().optional(), kind: z.literal("control_regions"), targetCount: z.number().int().min(1) }),
+  z.object({ id: z.string().min(1), title: z.string().optional(), kind: z.literal("reach_tech_tier"), domain: z.string().min(1), targetTier: z.number().int().min(1) }),
+]);
+
+export const setGoalsSchema = z.object({
+  goals: z.array(strategicGoalInputSchema).max(10, "Too many goals (max 10)"),
+});
+export type SetGoalsInput = z.infer<typeof setGoalsSchema>;
+
+/**
  * Схема для имени слота сейва (docs/plans/01_PERSISTENCE_STATE.md) — слот
  * идёт прямиком в имя файла, паттерн исключает path traversal.
  */
