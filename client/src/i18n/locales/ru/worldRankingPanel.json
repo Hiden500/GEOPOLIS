@@ -1,4 +1,7 @@
 {
+  "units": {
+    "million": "М"
+  },
   "title": "Мировой рейтинг",
   "columns": {
     "country": "Страна",

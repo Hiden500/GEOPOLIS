@@ -1,0 +1,25 @@
+.meter {
+  height: 0.5rem;
+  border-radius: var(--radius, 2px);
+  background: var(--ink-2);
+  border: 1px solid var(--hairline);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 200ms ease;
+}
+
+.ok {
+  background: var(--ok);
+}
+
+.warn {
+  background: var(--warn);
+}
+
+.crit {
+  background: var(--crit);
+}

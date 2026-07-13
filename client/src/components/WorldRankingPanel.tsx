@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function WorldRankingPanel({ game, onSelectCountry }: Props) {
-  const { t } = useTranslation("worldRankingPanel");
+  const { t, i18n } = useTranslation("worldRankingPanel");
   return (
     <section className="panel-section">
       <h3>{t("title")}</h3>
@@ -31,10 +31,10 @@ export function WorldRankingPanel({ game, onSelectCountry }: Props) {
                 <span className="country-color" style={{ backgroundColor: country.color }} />
                 {country.shortName}
               </td>
-              <td>{(country.population / 1_000_000).toFixed(1)}M</td>
-              <td>{Math.round(country.economy.gdp / 1000).toLocaleString("ru-RU")}K</td>
+              <td>{(country.population / 1_000_000).toFixed(1)}{t("units.million")}</td>
+              <td>{Math.round(country.economy.gdp / 1000).toLocaleString(i18n.language)}K</td>
               <td className={country.economy.treasury >= 0 ? "positive" : "negative"}>
-                {Math.round(country.economy.treasury).toLocaleString("ru-RU")}
+                {Math.round(country.economy.treasury).toLocaleString(i18n.language)}
               </td>
             </tr>
           ))}

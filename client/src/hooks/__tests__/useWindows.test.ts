@@ -17,8 +17,8 @@ describe("useWindows", () => {
       const { result } = renderHook(() => useWindows());
       act(() => result.current.openOrFocus({ type: "country", countryId: "USA" }));
       act(() => result.current.openOrFocus({ type: "region", regionId: 7 }));
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      expect(result.current.windows.map(w => w.id)).toEqual(["country:USA", "region:7", "budget"]);
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      expect(result.current.windows.map(w => w.id)).toEqual(["country:USA", "region:7", "llm"]);
     });
 
     it("openOrFocus той же сущности не плодит дубль, а поднимает zIndex существующего", () => {
@@ -41,35 +41,35 @@ describe("useWindows", () => {
   describe("zIndex", () => {
     it("каждое новое окно получает zIndex выше предыдущего", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      act(() => result.current.openOrFocus({ type: "research" }));
-      const [budget, research] = result.current.windows;
-      expect(research!.zIndex).toBeGreaterThan(budget!.zIndex);
+      act(() => result.current.openOrFocus({ type: "country", countryId: "USA" }));
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      const [country, llm] = result.current.windows;
+      expect(llm!.zIndex).toBeGreaterThan(country!.zIndex);
     });
 
     it("focus поднимает указанное окно поверх остальных", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      act(() => result.current.openOrFocus({ type: "research" }));
-      act(() => result.current.focus("budget"));
-      const budget = result.current.windows.find(w => w.id === "budget")!;
-      const research = result.current.windows.find(w => w.id === "research")!;
-      expect(budget.zIndex).toBeGreaterThan(research.zIndex);
+      act(() => result.current.openOrFocus({ type: "country", countryId: "USA" }));
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      act(() => result.current.focus("country:USA"));
+      const country = result.current.windows.find(w => w.id === "country:USA")!;
+      const llm = result.current.windows.find(w => w.id === "llm")!;
+      expect(country.zIndex).toBeGreaterThan(llm.zIndex);
     });
   });
 
   describe("toggle", () => {
     it("открывает закрытое окно", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.toggle({ type: "intent" }));
-      expect(result.current.isOpen({ type: "intent" })).toBe(true);
+      act(() => result.current.toggle({ type: "llm" }));
+      expect(result.current.isOpen({ type: "llm" })).toBe(true);
     });
 
     it("закрывает уже открытое окно", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.toggle({ type: "intent" }));
-      act(() => result.current.toggle({ type: "intent" }));
-      expect(result.current.isOpen({ type: "intent" })).toBe(false);
+      act(() => result.current.toggle({ type: "llm" }));
+      act(() => result.current.toggle({ type: "llm" }));
+      expect(result.current.isOpen({ type: "llm" })).toBe(false);
       expect(result.current.windows).toHaveLength(0);
     });
   });
@@ -77,30 +77,30 @@ describe("useWindows", () => {
   describe("close", () => {
     it("удаляет окно по id, остальные не трогает", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      act(() => result.current.openOrFocus({ type: "research" }));
-      act(() => result.current.close("budget"));
-      expect(result.current.windows.map(w => w.id)).toEqual(["research"]);
+      act(() => result.current.openOrFocus({ type: "country", countryId: "USA" }));
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      act(() => result.current.close("country:USA"));
+      expect(result.current.windows.map(w => w.id)).toEqual(["llm"]);
     });
   });
 
   describe("move / resize", () => {
     it("move меняет позицию только указанного окна", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      act(() => result.current.openOrFocus({ type: "research" }));
-      act(() => result.current.move("budget", { x: 500, y: 250 }));
-      expect(result.current.windows.find(w => w.id === "budget")!.position).toEqual({ x: 500, y: 250 });
-      // research не трогаем
-      const research = result.current.windows.find(w => w.id === "research")!;
-      expect(research.position).not.toEqual({ x: 500, y: 250 });
+      act(() => result.current.openOrFocus({ type: "country", countryId: "USA" }));
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      act(() => result.current.move("country:USA", { x: 500, y: 250 }));
+      expect(result.current.windows.find(w => w.id === "country:USA")!.position).toEqual({ x: 500, y: 250 });
+      // llm не трогаем
+      const llm = result.current.windows.find(w => w.id === "llm")!;
+      expect(llm.position).not.toEqual({ x: 500, y: 250 });
     });
 
     it("resize задаёт размер только указанного окна", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      act(() => result.current.resize("budget", { width: 640, height: 480 }));
-      expect(result.current.windows.find(w => w.id === "budget")!.size).toEqual({ width: 640, height: 480 });
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      act(() => result.current.resize("llm", { width: 640, height: 480 }));
+      expect(result.current.windows.find(w => w.id === "llm")!.size).toEqual({ width: 640, height: 480 });
     });
   });
 
@@ -117,19 +117,42 @@ describe("useWindows", () => {
 
     it("правосторонние панели позиционируются от правого края окна", () => {
       const { result } = renderHook(() => useWindows());
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      const budget = result.current.windows[0]!;
-      expect(budget.position.x).toBe(window.innerWidth - 360);
-      expect(budget.position.y).toBe(100);
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      const llm = result.current.windows[0]!;
+      expect(llm.position.x).toBe(window.innerWidth - 360);
+      expect(llm.position.y).toBe(100);
     });
   });
 
   describe("isOpen", () => {
     it("отражает текущее состояние", () => {
       const { result } = renderHook(() => useWindows());
-      expect(result.current.isOpen({ type: "budget" })).toBe(false);
-      act(() => result.current.openOrFocus({ type: "budget" }));
-      expect(result.current.isOpen({ type: "budget" })).toBe(true);
+      expect(result.current.isOpen({ type: "llm" })).toBe(false);
+      act(() => result.current.openOrFocus({ type: "llm" }));
+      expect(result.current.isOpen({ type: "llm" })).toBe(true);
+    });
+  });
+
+  describe("настройки по экземпляру (не по категории)", () => {
+    it("две страны не схлопывают позицию/размер друг друга (список «не возвращать» §2, находка №3)", () => {
+      const { result } = renderHook(() => useWindows());
+      act(() => result.current.openOrFocus({ type: "country", countryId: "USA" }));
+      act(() => result.current.openOrFocus({ type: "country", countryId: "USSR" }));
+      act(() => result.current.move("country:USA", { x: 111, y: 222 }));
+      act(() => result.current.resize("country:USA", { width: 500, height: 400 }));
+      act(() => result.current.move("country:USSR", { x: 333, y: 444 }));
+
+      // Пересоздаём хук — читает сохранённые в localStorage настройки заново.
+      const { result: reloaded } = renderHook(() => useWindows());
+      act(() => reloaded.current.openOrFocus({ type: "country", countryId: "USA" }));
+      act(() => reloaded.current.openOrFocus({ type: "country", countryId: "USSR" }));
+
+      const usa = reloaded.current.windows.find(w => w.id === "country:USA")!;
+      const ussr = reloaded.current.windows.find(w => w.id === "country:USSR")!;
+      expect(usa.position).toEqual({ x: 111, y: 222 });
+      expect(usa.size).toEqual({ width: 500, height: 400 });
+      expect(ussr.position).toEqual({ x: 333, y: 444 });
+      expect(ussr.size).toBeUndefined();
     });
   });
 });

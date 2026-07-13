@@ -22,7 +22,6 @@ export function ResearchPanel({ country }: Props) {
 
   return (
     <div className="research-panel">
-      <h2>{t("title")}</h2>
       <p className="panel-hint">{t("panelHint")}</p>
 
       <section className="panel-section">

@@ -1,0 +1,372 @@
+/*
+ * Шапка HUD (docs/plans/assets/geopolis-1946-hud.html — эталон, переведён
+ * в CSS Modules 1:1 по структуре/классам). Залитые "острова" (.cluster) +
+ * прозрачные промежутки — см. docs/plans/12_UI_REDESIGN.md §1.
+ */
+
+.top {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px 0;
+  background: transparent;
+  min-width: 0;
+}
+
+.cluster {
+  background: linear-gradient(180deg, #1a231c, var(--steel));
+  border: 1px solid var(--hairline-2);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.hleft {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cluStats {
+  display: grid;
+  grid-template-columns: auto minmax(0, auto);
+  min-width: 0;
+}
+
+.flag {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: stretch;
+  border-right: 1px solid var(--hairline-2);
+}
+
+.flag button {
+  display: block;
+  width: 104px;
+  height: 100%;
+  min-height: 54px;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.flag button:hover {
+  filter: brightness(1.12);
+}
+
+.stats {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.statrow {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px 6px;
+  scrollbar-width: none;
+}
+
+.statrow::-webkit-scrollbar {
+  display: none;
+}
+
+.r1 {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.st {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  background: transparent;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  flex: none;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+
+.st:hover {
+  border-color: var(--hairline-2);
+  background: var(--ink-2);
+}
+
+.st:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+}
+
+.ico {
+  width: 16px;
+  height: 16px;
+  color: var(--paper-dim);
+  flex: none;
+}
+
+.v {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
+
+.crit .v,
+.crit .ico {
+  color: var(--crit);
+}
+
+.warn .v {
+  color: var(--warn);
+}
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: linear-gradient(180deg, var(--steel), var(--ink-2));
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.navbtn {
+  width: 44px;
+  height: 32px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--paper-dim);
+  display: grid;
+  place-items: center;
+  position: relative;
+  flex: none;
+  cursor: pointer;
+}
+
+.navIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.navbtn:hover {
+  background: var(--steel-2);
+  color: var(--paper);
+}
+
+.navbtn:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: -2px;
+}
+
+.navbtn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: linear-gradient(0deg, var(--accent-tint), transparent);
+}
+
+.navbtn::after {
+  content: attr(data-t);
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink-2);
+  border: 1px solid var(--hairline-2);
+  color: var(--paper);
+  font-size: 10px;
+  white-space: nowrap;
+  padding: 3px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-display);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+  z-index: 6;
+}
+
+.navbtn:hover::after {
+  opacity: 1;
+}
+
+.kb {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--paper-faint);
+}
+
+.spacer {
+  flex: 1 1 8px;
+  min-width: 8px;
+}
+
+.statuspill {
+  flex: none;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background: linear-gradient(180deg, var(--steel-2), var(--steel));
+  border: 1px solid var(--hairline-2);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-size: 11px;
+  color: var(--ok);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.statuspill:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+}
+
+@keyframes sim {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+  animation: sim 2.2s ease-in-out infinite;
+}
+
+.pulseReady {
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+}
+
+.pulseWaiting {
+  background: var(--warn);
+  box-shadow: 0 0 6px var(--warn);
+}
+
+.turnNo {
+  font-style: normal;
+  color: var(--paper-dim);
+}
+
+.hright {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex: none;
+}
+
+.cluTurn {
+  display: flex;
+  align-items: stretch;
+}
+
+.date {
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--hairline);
+}
+
+.date b {
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 0.06em;
+}
+
+.endturn {
+  padding: 8px 15px;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  color: var(--ink);
+  border: 0;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.endturn:hover:not(:disabled) {
+  filter: brightness(1.07);
+}
+
+.endturn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.endturn:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 2px;
+}
+
+.tbtn {
+  position: relative;
+  width: 30px;
+  height: 28px;
+  background: transparent;
+  border: 0;
+  color: var(--paper-dim);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.tbtn:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.tbtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.tbtn:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+}
+
+.tbtn svg {
+  width: 17px;
+  height: 17px;
+}
+
+@media (max-width: 900px) {
+  .flag button {
+    width: 64px;
+  }
+}

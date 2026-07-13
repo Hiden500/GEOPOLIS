@@ -88,8 +88,6 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
 
   return (
     <div className="player-intent-panel">
-      <h2>{t("title")}</h2>
-
       <section className="panel-section">
         <p>{t("description")}</p>
         <div className="player-intent-autocomplete-wrap">

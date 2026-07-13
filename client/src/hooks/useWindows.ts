@@ -1,15 +1,17 @@
 import { useCallback, useState } from "react";
 
+/**
+ * Сужено до сценария "сравнить два объекта рядом" (docs/plans/12_UI_REDESIGN.md
+ * §1/§4, Срез 2). budget/research/ranking/territories/timeline переехали в
+ * SidePanel (2б), intent — в OrdersBox (2г). llm остаётся здесь: единственный
+ * доступ к LLM-циклу — клик по statuspill в шапке, открывает плавающим
+ * окном (не выводить на первый план, §2, но и не терять функциональность
+ * продвижения хода).
+ */
 export type WindowKind =
   | { type: "country"; countryId: string }
   | { type: "region"; regionId: number }
-  | { type: "budget" }
-  | { type: "research" }
-  | { type: "intent" }
-  | { type: "ranking" }
-  | { type: "territories" }
-  | { type: "llm" }
-  | { type: "timeline" };
+  | { type: "llm" };
 
 export interface WindowInstance {
   id: string;
@@ -38,12 +40,9 @@ interface WindowSetting {
   size?: { width: number; height: number };
 }
 
-function getSettingsKey(id: string): string {
-  if (id.startsWith("country:")) return "country";
-  if (id.startsWith("region:")) return "region";
-  return id;
-}
-
+// Ключ по экземпляру (id уже уникален через windowId()), не по категории —
+// иначе несколько окон одного типа (две разные страны) схлопывают позицию/
+// размер друг друга (список "не возвращать" §2, находка №3).
 function loadSavedSettings(): Record<string, WindowSetting> {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
@@ -56,10 +55,9 @@ function loadSavedSettings(): Record<string, WindowSetting> {
 function saveWindowSetting(id: string, setting: WindowSetting) {
   try {
     const settings = loadSavedSettings();
-    const key = getSettingsKey(id);
-    settings[key] = {
+    settings[id] = {
       position: setting.position,
-      size: setting.size || settings[key]?.size
+      size: setting.size || settings[id]?.size
     };
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
   } catch (e) {
@@ -85,7 +83,7 @@ export function useWindows() {
       }
 
       // Загружаем сохраненные настройки
-      const saved = loadSavedSettings()[getSettingsKey(id)];
+      const saved = loadSavedSettings()[id];
       const sameSideCount = prev.filter(w => LEFT_SIDE.includes(kind.type) === LEFT_SIDE.includes(w.kind.type)).length;
 
       let position = saved?.position;
@@ -108,7 +106,7 @@ export function useWindows() {
       }
 
       // Загружаем сохраненные настройки
-      const saved = loadSavedSettings()[getSettingsKey(id)];
+      const saved = loadSavedSettings()[id];
       const sameSideCount = prev.filter(w => LEFT_SIDE.includes(kind.type) === LEFT_SIDE.includes(w.kind.type)).length;
 
       let position = saved?.position;

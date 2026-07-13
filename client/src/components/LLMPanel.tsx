@@ -54,7 +54,8 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
         setCopied(false);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.getPrompt"));
+      console.error(err);
+      setError(t("errors.getPrompt"));
     } finally {
       setBusy(false);
     }
@@ -72,7 +73,8 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
         onApplied();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.applyResponse"));
+      console.error(err);
+      setError(t("errors.applyResponse"));
     } finally {
       setBusy(false);
     }
@@ -89,7 +91,8 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
         onApplied();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.autoCycle"));
+      console.error(err);
+      setError(t("errors.autoCycle"));
     } finally {
       setBusy(false);
     }

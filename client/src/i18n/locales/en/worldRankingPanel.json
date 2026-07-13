@@ -1,4 +1,7 @@
 {
+  "units": {
+    "million": "M"
+  },
   "title": "World Ranking",
   "columns": {
     "country": "Country",

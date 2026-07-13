@@ -81,6 +81,15 @@ interface MapViewProps {
   selectedRegionId?: number | null;
   onPopupStateChange?: (isOpen: boolean) => void;
   closePopupTrigger?: number;
+  /**
+   * Оверлей цвета заливки по режиму карты (docs/plans/12_UI_REDESIGN.md,
+   * Срез 2 — MapControls). null/отсутствует → политический цвет по
+   * умолчанию (ownerColor из GeoJSON). Не трогает геометрию/топологию —
+   * только paint-выражение поверх уже существующего слоя regions-fill.
+   */
+  regionModeColors?: Record<number, string> | null;
+  /** Даёт вызывающему доступ к инстансу карты (кастомные кнопки зума в MapControls). */
+  onMapReady?: (map: maplibregl.Map) => void;
 }
 
 export function MapView({
@@ -90,7 +99,9 @@ export function MapView({
   onRegionClick,
   selectedRegionId,
   onPopupStateChange,
-  closePopupTrigger
+  closePopupTrigger,
+  regionModeColors,
+  onMapReady
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -164,18 +175,21 @@ export function MapView({
       setLoaded(true);
     });
 
-    m.addControl(new maplibregl.NavigationControl(), 'top-right');
-
+    // Без встроенного NavigationControl — зум управляется кастомными кнопками
+    // MapControls (docs/plans/12_UI_REDESIGN.md §1, "mapmodes + зум — правый
+    // нижний угол"), не дефолтным светлым виджетом MapLibre.
     m.on('zoom', () => {
       setCurrentZoom(m.getZoom());
     });
 
     mapRef.current = m;
+    onMapReady?.(m);
 
     return () => {
       m.remove();
       mapRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- инициализация карты один раз при монтировании; onMapReady читаем как актуальный колбэк, не как триггер пересоздания.
   }, []);
 
   // Закрытие попапа по триггеру извне
@@ -342,7 +356,9 @@ export function MapView({
             source: 'regions',
             filter: ['==', ['get', 'type'], 'region'],
             paint: {
-              'fill-color': ['get', 'ownerColor'],
+              // coalesce: приоритет у оверлея mapmode (feature-state), иначе
+              // политический цвет владельца (GeoJSON-свойство) — см. regionModeColors.
+              'fill-color': ['coalesce', ['feature-state', 'modeColor'], ['get', 'ownerColor']],
               'fill-opacity': 0.36,
               'fill-antialias': false
             }
@@ -588,6 +604,21 @@ export function MapView({
       try { m.setFeatureState({ source: 'regions', id: selectedRegionId }, { selected: true }); } catch {} // eslint-disable-line no-empty
     }
   }, [selectedRegionId]);
+
+  // Оверлей цвета режима карты (docs/plans/12_UI_REDESIGN.md, MapControls) —
+  // сбрасывает modeColor у регионов, ушедших из карты, и выставляет заново
+  // при смене режима/данных. null/отсутствие = политический режим (fallback
+  // на ownerColor в paint-выражении regions-fill).
+  useEffect(() => {
+    if (!mapRef.current || !loaded) return;
+    const m = mapRef.current;
+    for (const r of regions) {
+      const color = regionModeColors?.[r.id];
+      try {
+        m.setFeatureState({ source: 'regions', id: r.id }, { modeColor: color ?? null });
+      } catch {} // eslint-disable-line no-empty
+    }
+  }, [regionModeColors, regions, loaded]);
 
   // Управление Map Features (инициализация и обновление)
   useEffect(() => {

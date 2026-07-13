@@ -1,4 +1,8 @@
 {
+  "units": {
+    "trillion": "Т",
+    "million": "М"
+  },
   "country": {
     "notFound": "Страна не найдена",
     "youTag": "вы",

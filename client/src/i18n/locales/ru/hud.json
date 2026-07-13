@@ -1,0 +1,175 @@
+{
+  "flag": {
+    "overview": "Обзор страны"
+  },
+  "stats": {
+    "gdp": "ВВП — открыть экономику",
+    "treasury": "Казна — открыть бюджет",
+    "population": "Население",
+    "military": "Военная мощь",
+    "stability": "Стабильность — открыть политику",
+    "legitimacy": "Легитимность"
+  },
+  "resourceRow": {
+    "ariaLabel": "Ресурсы"
+  },
+  "units": {
+    "trillion": "Т",
+    "million": "М"
+  },
+  "tabs": {
+    "economy": "Экономика",
+    "industry": "Промышленность",
+    "technology": "Технологии",
+    "population": "Население",
+    "politics": "Политика",
+    "diplomacy": "Дипломатия",
+    "intelligence": "Разведка",
+    "rankings": "Рейтинги",
+    "chronicle": "Летопись"
+  },
+  "tabsAriaLabel": "Разделы",
+  "statusPill": {
+    "ready": "ход готов",
+    "waiting": "ждём ответ LLM",
+    "turnLabel": "· ход {{turn}}"
+  },
+  "turn": {
+    "next": "Следующий ход",
+    "simulating": "Симуляция…"
+  },
+  "tools": {
+    "search": "Поиск",
+    "ledgers": "Леджеры и статистика",
+    "notifications": "Уведомления — скоро",
+    "settings": "Настройки — скоро",
+    "menu": "Меню — назад к выбору сценария"
+  },
+  "bookPlaceholder": {
+    "title": "Раздел готовится",
+    "body": "Наполнение реальными данными — Срез 3 (docs/plans/12_UI_REDESIGN.md)."
+  },
+  "books": {
+    "politics": {
+      "stabilityCaption": "стабильность",
+      "stability": "Стабильность",
+      "legitimacy": "Легитимность",
+      "governmentSupport": "Поддержка",
+      "corruption": "Коррупция",
+      "ideology": "Идеология",
+      "overview": "Показатели"
+    },
+    "diplomacy": {
+      "activeRelations": "активных отношений",
+      "allies": "Союзники",
+      "rivals": "Соперники",
+      "relations": "Отношения",
+      "noRelations": "Нет установленных отношений",
+      "sphereOfInfluence": "Сфера влияния",
+      "puppets": "Марионетки",
+      "sanctions": "Санкции"
+    },
+    "industry": {
+      "regionsCaption": "регионов",
+      "composition": "Состав экономики",
+      "sectors": {
+        "agriculture": "Сельское хозяйство",
+        "industry": "Промышленность",
+        "mining": "Добыча",
+        "services": "Услуги"
+      },
+      "deposits": "Запасы ресурсов"
+    }
+  },
+  "panel": {
+    "stateLabel": "Гос-во",
+    "close": "Закрыть (Esc)"
+  },
+  "context": {
+    "regionEyebrow": "Регион · выделено",
+    "countryEyebrow": "Страна · выделено",
+    "close": "Снять выделение (Esc)",
+    "compare": "Сравнить",
+    "region": {
+      "population": "Население",
+      "stability": "Стабильность",
+      "development": "Развитие",
+      "resources": "Ресурсы региона",
+      "features": "Объекты на карте"
+    },
+    "country": {
+      "gdp": "ВВП",
+      "population": "Население",
+      "treasury": "Казна",
+      "stability": "Стабильность",
+      "legitimacy": "Легитимность",
+      "budgetBalance": "Баланс бюджета",
+      "relations": "Ключевые отношения"
+    },
+    "featureTypes": {
+      "capital": "столица",
+      "megacity": "мегаполис",
+      "city": "город",
+      "town": "посёлок",
+      "port": "порт",
+      "factory": "завод",
+      "steel_mill": "металлкомбинат",
+      "refinery": "НПЗ",
+      "shipyard": "верфь",
+      "mine": "шахта",
+      "power_plant": "электростанция",
+      "battalion": "батальон",
+      "fleet": "флот",
+      "airbase": "авиабаза",
+      "naval_base": "военно-морская база",
+      "railway": "ж/д",
+      "canal": "канал",
+      "pipeline": "трубопровод",
+      "airport": "аэропорт",
+      "highway": "шоссе",
+      "protest": "протест",
+      "uprising": "восстание",
+      "government": "правительство",
+      "border_dispute": "спорная граница"
+    }
+  },
+  "mapControls": {
+    "ariaLabel": "Режимы карты",
+    "zoomIn": "Приблизить",
+    "zoomOut": "Отдалить",
+    "modes": {
+      "pol": "Политический",
+      "eco": "Экономика",
+      "res": "Ресурсы",
+      "pop": "Население",
+      "sta": "Стабильность",
+      "dip": "Дипломатия",
+      "mil": "Военный",
+      "inf": "Инфраструктура"
+    },
+    "legend": {
+      "high": "высокая",
+      "medium": "средняя",
+      "low": "низкая",
+      "calm": "спокойно",
+      "tense": "напряжённо",
+      "unrest": "волнения",
+      "dense": "плотное",
+      "sparse": "редкое",
+      "rich": "богатые",
+      "poor": "бедные",
+      "own": "мои регионы",
+      "ally": "союзник",
+      "neutral": "нейтрал",
+      "hostile": "противник",
+      "front": "фронт",
+      "rear": "тыл"
+    }
+  },
+  "orders": {
+    "title": "Приказы на ход",
+    "collapse": "Свернуть",
+    "expand": "Развернуть",
+    "send": "Внести в ход"
+  }
+}

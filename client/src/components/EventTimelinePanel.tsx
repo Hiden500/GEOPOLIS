@@ -8,28 +8,26 @@ interface Props {
   onSelectCountry: (countryId: string) => void;
 }
 
-function formatDate(isoDate: string): string {
+function formatDate(isoDate: string, locale: string): string {
   const date = new Date(isoDate);
   if (Number.isNaN(date.getTime())) return isoDate;
-  return date.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  return date.toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
 }
 
 export function EventTimelinePanel({ events, countries, onSelectCountry }: Props) {
-  const { t } = useTranslation("eventTimelinePanel");
+  const { t, i18n } = useTranslation("eventTimelinePanel");
   const countryById = new Map(countries.map(c => [c.id, c]));
   const reversedEvents = [...events].reverse();
 
   return (
     <div className="timeline-panel">
-      <h2>{t("title")}</h2>
-
       {reversedEvents.length === 0 ? (
         <p>{t("noEvents")}</p>
       ) : (
         <ul className="timeline-list">
           {reversedEvents.map(event => (
             <li key={event.id} className="timeline-card">
-              <div className="timeline-date">{formatDate(event.date)}</div>
+              <div className="timeline-date">{formatDate(event.date, i18n.language)}</div>
 
               {event.countries.length > 0 && (
                 <div className="timeline-tags">
