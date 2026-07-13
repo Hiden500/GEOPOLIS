@@ -20,3 +20,29 @@ export const MAX_MONTHLY_GROWTH_RATE = 0.05;
 
 export const INFLATION_DEFICIT_COEFFICIENT = 0.1;
 export const UNEMPLOYMENT_DEFICIT_COEFFICIENT = 0.05;
+
+/**
+ * Госдолг (docs/plans/08_WAR_WAVE1.md, Шаг 4) — тюнингуемые плейсхолдеры.
+ *
+ * Базовая месячная ставка по долгу (~3.7%/год) + риск-премия за плохое
+ * здоровье государства: monthlyRate = BASE + PREMIUM × (1 − avgHealth/100),
+ * где avgHealth = (legitimacy + stability)/2. При здоровье 0 ставка ≈ base +
+ * premium (~19%/год) — слабое государство занимает дороже.
+ */
+export const DEBT_BASE_MONTHLY_INTEREST_RATE = 0.003;
+export const DEBT_RISK_PREMIUM_COEFFICIENT = 0.013;
+
+/**
+ * Долг/ВВП, с которого начинается штраф месячному росту ВВП:
+ * penalty = (debt/gdp − THRESHOLD) × COEFFICIENT (только выше порога). Тот же
+ * порог — триггер аустерити ИИ (AiBehaviorTick, Правило A): когда долг начинает
+ * давить рост, ИИ начинает резать дискреционные расходы.
+ */
+export const DEBT_GDP_PENALTY_THRESHOLD = 0.6;
+export const DEBT_GDP_GROWTH_PENALTY_COEFFICIENT = 0.02;
+
+/**
+ * Долг/ВВП, при пересечении которого движок кладёт мировой факт «X на грани
+ * дефолта» в промт LLM (сам дефолт — нарратив/действие LLM, план 02, шаг 4).
+ */
+export const DEBT_CRISIS_GDP_THRESHOLD = 1.0;

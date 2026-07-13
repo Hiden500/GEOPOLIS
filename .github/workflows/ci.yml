@@ -7,11 +7,13 @@ on:
       - "client/**"
       - "server/**"
       - "shared/**"
+      - "scripts/map/**"
   pull_request:
     paths:
       - "client/**"
       - "server/**"
       - "shared/**"
+      - "scripts/map/**"
 
 jobs:
   client:
@@ -46,6 +48,18 @@ jobs:
       - run: npm ci
       - run: npx tsc --noEmit -p tsconfig.json
       - run: npm test
+
+  data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Валидация данных сценария 1946 (инварианты + калибровка)
+        run: python scripts/map/validate_region_economy_1946.py
+      - name: Structural-инварианты (unit-тест на синтетической фикстуре)
+        run: python scripts/map/test_validate_region_economy_1946.py
 
   security:
     runs-on: ubuntu-latest

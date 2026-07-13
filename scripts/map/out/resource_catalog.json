@@ -1,0 +1,92 @@
+{
+  "_meta": {
+    "generator": "server/scripts/exportResourceCatalog.ts",
+    "source": "shared/src/data/resources/resourceCatalog.ts + shared/src/defines/resources.ts"
+  },
+  "maxExtractionLevel": 10,
+  "resources": {
+    "coal": {
+      "category": "energy",
+      "eraIntroduced": 1836
+    },
+    "oil": {
+      "category": "energy",
+      "eraIntroduced": 1860
+    },
+    "gas": {
+      "category": "energy",
+      "eraIntroduced": 1900
+    },
+    "iron": {
+      "category": "metal",
+      "eraIntroduced": 1836
+    },
+    "copper": {
+      "category": "metal",
+      "eraIntroduced": 1836
+    },
+    "gold": {
+      "category": "metal",
+      "eraIntroduced": 1836
+    },
+    "tin": {
+      "category": "metal",
+      "eraIntroduced": 1836
+    },
+    "nickel": {
+      "category": "metal",
+      "eraIntroduced": 1860
+    },
+    "bauxite": {
+      "category": "metal",
+      "eraIntroduced": 1900
+    },
+    "tungsten": {
+      "category": "metal",
+      "eraIntroduced": 1900
+    },
+    "manganese": {
+      "category": "metal",
+      "eraIntroduced": 1900
+    },
+    "chromium": {
+      "category": "metal",
+      "eraIntroduced": 1900
+    },
+    "uranium": {
+      "category": "metal",
+      "eraIntroduced": 1945,
+      "techGate": "nuclear_fission"
+    },
+    "rareEarths": {
+      "category": "metal",
+      "eraIntroduced": 1980,
+      "techGate": "electronics"
+    },
+    "lithium": {
+      "category": "metal",
+      "eraIntroduced": 1980,
+      "techGate": "electronics"
+    },
+    "food": {
+      "category": "agricultural",
+      "eraIntroduced": 1836
+    },
+    "timber": {
+      "category": "agricultural",
+      "eraIntroduced": 1836
+    },
+    "cotton": {
+      "category": "agricultural",
+      "eraIntroduced": 1836
+    },
+    "rubber": {
+      "category": "agricultural",
+      "eraIntroduced": 1900
+    },
+    "nitrates": {
+      "category": "strategic",
+      "eraIntroduced": 1836
+    }
+  }
+}

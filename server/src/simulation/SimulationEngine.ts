@@ -15,11 +15,25 @@ import { politicsTick } from "./politics/PoliticsTick";
 import { tradeTick } from "./trade/TradeTick";
 import { chronicleTick } from "./chronicle/ChronicleTick";
 import { removeExpiredModifiers } from "../commands/modifiers";
+import { objectiveTick } from "./ObjectiveTick";
+import { STABILITY_HIGH_INFLATION_THRESHOLD, POLITICAL_CRISIS_STABILITY_THRESHOLD } from "@shared/defines/politics";
+import { DEBT_CRISIS_GDP_THRESHOLD } from "@shared/defines/economy";
 
 export function simulateMonth(
     game: GameState
 ): void {
     for (const country of game.countries) {
+
+        // Снимок до economyTick/politicsTick — обнаружение пересечения порога
+        // в кризисную зону (экономический кризис/переворот, независимый
+        // гейм-дизайн разбор, 2026-07-06) — тот же паттерн pendingWorldFacts,
+        // что пересечение тира технологий ниже. Однонаправленно (только вход
+        // в кризис, не выход) — как и тир, который тоже не понижается.
+        const inflationBefore = country.economy.inflation;
+        const stabilityBefore = country.politics.stability;
+        const debtBurdenBefore = country.economy.gdp > 0
+            ? country.economy.debt / country.economy.gdp
+            : 0;
 
         economyTick(country, game.regions);
 
@@ -60,6 +74,52 @@ export function simulateMonth(
         militaryTick(country, game.regions);
 
         politicsTick(country);
+
+        // Экономический кризис: inflation впервые пересекает уже
+        // существующий порог "высокой инфляции" (STABILITY_HIGH_INFLATION_THRESHOLD,
+        // тот же, что использует stabilityEquilibrium для штрафа — не дублирует
+        // новым числом уже установленный смысл "плохо").
+        if (
+            inflationBefore <= STABILITY_HIGH_INFLATION_THRESHOLD &&
+            country.economy.inflation > STABILITY_HIGH_INFLATION_THRESHOLD
+        ) {
+            game.pendingWorldFacts.push({
+                countryId: country.id,
+                text: `${country.name} inflation surged past crisis levels (${country.economy.inflation.toFixed(1)})`,
+            });
+        }
+
+        // Политический кризис/переворот: stability впервые проваливается ниже
+        // кризисного порога (строже рутинного "низкого" STABILITY_LOW=40 из
+        // ai.ts, который уже управляет routine welfare-нуджем — кризис-факт
+        // не должен спамить с той же частотой).
+        if (
+            stabilityBefore >= POLITICAL_CRISIS_STABILITY_THRESHOLD &&
+            country.politics.stability < POLITICAL_CRISIS_STABILITY_THRESHOLD
+        ) {
+            game.pendingWorldFacts.push({
+                countryId: country.id,
+                text: `${country.name} stability collapsed to crisis levels (${country.politics.stability.toFixed(1)}) — unrest, possible upheaval`,
+            });
+        }
+
+        // Долговой кризис: долг/ВВП впервые пересекает порог "на грани дефолта"
+        // (тот же паттерн pendingWorldFacts, что инфляция/стабильность выше).
+        // Сам дефолт — нарратив/действие LLM (план 02, шаг 4), движок только
+        // даёт факт. ВВП в этом тике ещё довоенный (агрегация ниже), сравнение
+        // до/после по одному ВВП — ловит скачок долга, не шум роста.
+        const debtBurdenAfter = country.economy.gdp > 0
+            ? country.economy.debt / country.economy.gdp
+            : 0;
+        if (
+            debtBurdenBefore <= DEBT_CRISIS_GDP_THRESHOLD &&
+            debtBurdenAfter > DEBT_CRISIS_GDP_THRESHOLD
+        ) {
+            game.pendingWorldFacts.push({
+                countryId: country.id,
+                text: `${country.name} is on the brink of default (debt ${(debtBurdenAfter * 100).toFixed(0)}% of GDP)`,
+            });
+        }
     }
 
     // Агрегируем данные от регионов к странам после всех тиков. НЕ пересчитывает
@@ -85,6 +145,10 @@ export function simulateMonth(
     // Очищаем истёкшие модификаторы (docs/plans/03_MODIFIERS_COMMANDS.md,
     // Шаг 2) — сравнение с game.currentDate, не wall-clock.
     removeExpiredModifiers(game);
+
+    // Целевой слой (docs/OBJECTIVES.md): позиция игрока в рейтинге силы + оценка
+    // самопоставленных целей — после боевых тиков, по состоянию на конец месяца.
+    objectiveTick(game);
 
     // Продвигаем дату на один месяц
     const parts = game.currentDate.split("-");

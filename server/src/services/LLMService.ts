@@ -11,6 +11,7 @@ import { getDomainTier } from "@shared/utils/technology";
 import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMetrics";
 import { getEligibleHingePoints } from "@shared/utils/hingePoints";
 import { HISTORICAL_HINGE_POINTS_1946 } from "@shared/data/historicalHingePoints1946";
+import { computeWarScore, warScoreLabel, sumSideCasualties } from "../simulation/war/warScore";
 import { LLMResponseValidator } from "../llm/LLMResponseValidator";
 import { LLMActionSchema, LLMResponseEnvelopeSchema } from "../llm/actionSchemas";
 import {
@@ -643,8 +644,13 @@ Hard limits (actions violating them are rejected):
         toAttackers > toDefenders ? 'attackers advancing' :
         toDefenders > toAttackers ? 'defenders advancing' :
         'front stable';
+      const score = computeWarScore(w);
+      const scoreStr = `${score >= 0 ? '+' : ''}${score} (${warScoreLabel(score)})`;
+      const attackerCas = sumSideCasualties(w, w.attackers);
+      const defenderCas = sumSideCasualties(w, w.defenders);
+      const casStr = `casualties ${attackerCas.toLocaleString()} vs ${defenderCas.toLocaleString()}`;
       const goal = w.warGoal ? `, goal: ${w.warGoal}` : '';
-      return `- ${attackerNames} vs ${defenderNames}: ${front}${goal}`;
+      return `- ${attackerNames} vs ${defenderNames}: ${front}, war score ${scoreStr}, ${casStr}${goal}`;
     }).join('\n');
   }
 

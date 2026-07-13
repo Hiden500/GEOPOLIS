@@ -13,6 +13,12 @@ export interface EconomyState {
 
   exportIncome: number;
 
+  // Расход на импорт ресурсов, которых не хватает до внутреннего резерва
+  // (docs/TRADE.md, "Явные пробелы v1" → импорт дефицита) — симметрично
+  // exportIncome, перезаписывается каждый тик TradeTick.ts, учитывается как
+  // расход в EconomyTick.ts::updateBudget().
+  importSpending: number;
+
   stateEnterpriseIncome: number;
 
   otherIncome: number;
@@ -26,6 +32,13 @@ export interface EconomyState {
   infrastructureSpending: number;
 
   welfareSpending: number;
+
+  // Накопленный госдолг (docs/plans/08_WAR_WAVE1.md, Шаг 4). Дефицит бюджета,
+  // который не покрывает казна, конвертируется в долг (EconomyTick), казна не
+  // уходит в бесконечный минус. debtInterest = debt × ставка (ставка выше при
+  // низкой legitimacy/stability). Долг/ВВП выше порога штрафует рост ВВП и
+  // рождает мировой факт «на грани дефолта».
+  debt: number;
 
   debtInterest: number;
 

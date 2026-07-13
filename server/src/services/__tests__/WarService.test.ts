@@ -241,8 +241,9 @@ describe("WarService", () => {
       expect(game.mapFeatures.find(f => f.id === "mf-2")).toBeDefined();
     });
 
-    it("снимает оккупацию этой войны (docs/plans/08_WAR_WAVE1.md, Шаг 1) — без Шага 2 (аннексия) вся оккупация возвращается легальному владельцу", () => {
+    it("белый мир (warScore ниже порога) снимает всю оккупацию, граница не меняется (Шаг 2b)", () => {
       const war = service.declareWar("USA", "USSR");
+      // territoryFlips/casualties по нулям → warScore 0 < порога аннексии 30.
       const occupiedRegion = createTestRegion({ id: 1, ownerCountryId: "USSR" });
       game.regions.push(occupiedRegion);
       setRegionOccupation(game, occupiedRegion, "USA");
@@ -250,9 +251,55 @@ describe("WarService", () => {
 
       service.makePeace(war.id);
 
-      expect(occupiedRegion.ownerCountryId).toBe("USSR");
+      expect(occupiedRegion.ownerCountryId).toBe("USSR"); // не аннексирован
       expect(occupiedRegion.occupiedBy).toBeUndefined();
       expect(game.modifiers).toHaveLength(0);
+    });
+
+    it("решительная победа (warScore ≥ порога) аннексирует оккупированное победителю (Шаг 2b)", () => {
+      const war = service.declareWar("USA", "USSR");
+      war.territoryFlips = { toAttackers: 3, toDefenders: 0 }; // warScore = 45 ≥ 30
+      const occupiedRegion = createTestRegion({ id: 1, ownerCountryId: "USSR" });
+      game.regions.push(occupiedRegion);
+      setRegionOccupation(game, occupiedRegion, "USA");
+
+      service.makePeace(war.id);
+
+      // maxAnnex = floor(45/25) = 1 → регион переходит США легально.
+      expect(occupiedRegion.ownerCountryId).toBe("USA");
+      expect(occupiedRegion.occupiedBy).toBeUndefined();
+      expect(game.modifiers).toHaveLength(0); // модификатор оккупации снят при передаче
+    });
+
+    it("аннексия ограничена бюджетом очков — лишние оккупированные регионы возвращаются", () => {
+      const war = service.declareWar("USA", "USSR");
+      war.territoryFlips = { toAttackers: 2, toDefenders: 0 }; // warScore = 30 → maxAnnex = floor(30/25) = 1
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "USSR" });
+      const r2 = createTestRegion({ id: 2, ownerCountryId: "USSR" });
+      game.regions.push(r1, r2);
+      setRegionOccupation(game, r1, "USA");
+      setRegionOccupation(game, r2, "USA");
+
+      service.makePeace(war.id);
+
+      // Бюджет = 1 регион; по возрастанию id аннексируется r1, r2 возвращается.
+      expect(r1.ownerCountryId).toBe("USA");
+      expect(r2.ownerCountryId).toBe("USSR");
+      expect(r2.occupiedBy).toBeUndefined();
+    });
+
+    it("проигравший-оккупант не аннексирует чужое (аннексирует только победитель по warScore)", () => {
+      const war = service.declareWar("USA", "USSR");
+      war.territoryFlips = { toAttackers: 3, toDefenders: 0 }; // атакующие (USA) побеждают
+      // Регион USA, оккупированный USSR (проигравшим) — не должен перейти USSR.
+      const usaRegion = createTestRegion({ id: 1, ownerCountryId: "USA" });
+      game.regions.push(usaRegion);
+      setRegionOccupation(game, usaRegion, "USSR");
+
+      service.makePeace(war.id);
+
+      expect(usaRegion.ownerCountryId).toBe("USA"); // USSR проиграл — не аннексирует
+      expect(usaRegion.occupiedBy).toBeUndefined();
     });
 
     it("не трогает оккупацию от параллельной войны между другими странами", () => {

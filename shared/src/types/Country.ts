@@ -7,6 +7,7 @@ import { type StrategicGoal } from "./GrandStrategy";
 import { type PoliticsState } from "./PoliticsState";
 import { type ResourceStockpile } from "./resources/ResourceStockpile";
 import { type EconomyType } from "./EconomyType";
+import { type AiTraits } from "./AiTraits";
 
 export type CountryTier = "major" | "regional" | "minor";
 
@@ -56,4 +57,22 @@ export interface Country {
   stockpile: ResourceStockpile;
 
   goals: StrategicGoal[];
+
+  /**
+   * Посеяно один раз при createGame (seeded RNG, docs/AI_RULES.md) — не
+   * авторское поле, createCountry() ставит нейтральный placeholder
+   * {aggressiveness: 1, riskTolerance: 1}, createGame() перезаписывает его
+   * реальным посевом (тот же паттерн, что tier/technology.domains).
+   */
+  aiTraits: AiTraits;
+
+  /**
+   * Id страны-"якоря" валютной зоны (docs/plans/10_CURRENCY_ZONES.md) —
+   * отсутствие поля = страна финансово независима (типичный случай для
+   * большинства стран). Раздельно от diplomacy.sphereOfInfluence/puppets —
+   * не каждая сфера влияния означает общий финансовый блок. Сама
+   * страна-якорь это поле на себе не выставляет — "является ли X якорем"
+   * определяется по факту, что другие страны на неё ссылаются.
+   */
+  currencyZoneAnchor?: string;
 }

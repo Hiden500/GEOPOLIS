@@ -4,7 +4,7 @@ import { type War } from "@shared/types/War";
 import { MapFeatureService } from "../../services/MapFeatureService";
 import { getCombinedArmsMultiplier } from "@shared/utils/technology";
 import { getEquipmentPower } from "@shared/utils/equipment";
-import { EQUIPMENT_STRENGTH_WEIGHT, FLIP_THRESHOLD_RATIO } from "@shared/defines/war";
+import { EQUIPMENT_STRENGTH_WEIGHT, FLIP_THRESHOLD_RATIO, WAR_CASUALTY_BASE_PER_FRONT_REGION } from "@shared/defines/war";
 import { effectiveController } from "@shared/utils/regionControl";
 import { setRegionOccupation } from "./occupation";
 
@@ -73,6 +73,11 @@ export function warTick(game: GameState): void {
 
     const flips: { region: Region; newController: string; toAttackers: boolean }[] = [];
 
+    // Число контактных (фронтовых) регионов по сторонам — вход для помесячных
+    // потерь (docs/plans/08_WAR_WAVE1.md, Шаг 3).
+    let attackerFrontCount = 0;
+    let defenderFrontCount = 0;
+
     for (const region of game.regions) {
       // Фронт идёт по факту контроля (docs/plans/08_WAR_WAVE1.md, Шаг 1), не
       // по легальному владению — иначе после первой же оккупации граница
@@ -88,6 +93,9 @@ export function warTick(game: GameState): void {
         .find((n): n is Region => !!n && oppositeSet.has(effectiveController(n)));
 
       if (!contactingNeighbor) continue;
+
+      if (isAttackerRegion) attackerFrontCount += 1;
+      else defenderFrontCount += 1;
 
       ensureBattalion(mapFeatureService, game, warTag, region);
 
@@ -116,5 +124,103 @@ export function warTick(game: GameState): void {
       if (flip.toAttackers) war.territoryFlips.toAttackers += 1;
       else war.territoryFlips.toDefenders += 1;
     }
+
+    // Потери за месяц считаются ПОСЛЕ флипов, но по силе/фронту, снятым до них
+    // (attackerStrength/*FrontCount зафиксированы выше) — исход и цена месяца
+    // не зависят от порядка внутри тика.
+    applyWarCasualties(game, war, attackerStrength, defenderStrength, attackerFrontCount, defenderFrontCount);
+  }
+}
+
+/**
+ * Помесячные людские потери сторон (docs/plans/08_WAR_WAVE1.md, Шаг 3).
+ * Общий урон = база × число фронтовых регионов обеих сторон; делится между
+ * сторонами по доле силы ПРОТИВНИКА (слабейший теряет больше). Без контакта
+ * (нет фронта) потерь нет — война без соприкосновения никого не убивает.
+ */
+function applyWarCasualties(
+  game: GameState,
+  war: War,
+  attackerStrength: number,
+  defenderStrength: number,
+  attackerFrontCount: number,
+  defenderFrontCount: number
+): void {
+  const totalFront = attackerFrontCount + defenderFrontCount;
+  if (totalFront === 0) return;
+
+  const totalStrength = attackerStrength + defenderStrength;
+  // Своя доля потерь = доля силы противника: сильнее враг → больше своих
+  // потерь. При нулевой суммарной силе (вырожденный случай) — поровну.
+  const attackerShare = totalStrength > 0 ? defenderStrength / totalStrength : 0.5;
+  const defenderShare = totalStrength > 0 ? attackerStrength / totalStrength : 0.5;
+
+  const attackerCasualties = Math.round(WAR_CASUALTY_BASE_PER_FRONT_REGION * totalFront * attackerShare);
+  const defenderCasualties = Math.round(WAR_CASUALTY_BASE_PER_FRONT_REGION * totalFront * defenderShare);
+
+  distributeSideCasualties(game, war, war.attackers, attackerCasualties);
+  distributeSideCasualties(game, war, war.defenders, defenderCasualties);
+}
+
+/**
+ * Распределяет потери стороны по её странам (пропорционально activePersonnel;
+ * при нулевой активной армии — поровну) и списывает по каждой стране в порядке
+ * activePersonnel → население фронтовых регионов → manpower:
+ *  - military.activePersonnel в первую очередь (кадровые потери);
+ *  - переполнение сверх activePersonnel уходит в Region.population регионов,
+ *    которые страна контролирует (гражданские/мобилизационные жертвы);
+ *  - military.manpower уменьшается на весь урон страны (мобилизационный пул
+ *    ужимается и от павших солдат, и от погибших гражданских).
+ */
+function distributeSideCasualties(
+  game: GameState,
+  war: War,
+  sideIds: string[],
+  sideCasualties: number
+): void {
+  if (sideCasualties <= 0 || sideIds.length === 0) return;
+
+  const sideCountries = sideIds
+    .map(id => game.countries.find(c => c.id === id))
+    .filter((c): c is NonNullable<typeof c> => !!c);
+  if (sideCountries.length === 0) return;
+
+  const sideActive = sideCountries.reduce((sum, c) => sum + c.military.activePersonnel, 0);
+
+  for (const country of sideCountries) {
+    const share = sideActive > 0
+      ? country.military.activePersonnel / sideActive
+      : 1 / sideCountries.length;
+    const countryCasualties = Math.round(sideCasualties * share);
+    if (countryCasualties <= 0) continue;
+
+    const militaryLosses = Math.min(countryCasualties, country.military.activePersonnel);
+    country.military.activePersonnel -= militaryLosses;
+
+    const civilianOverflow = countryCasualties - militaryLosses;
+    if (civilianOverflow > 0) {
+      deductCivilianCasualties(game, country.id, civilianOverflow);
+    }
+
+    country.military.manpower = Math.max(0, country.military.manpower - countryCasualties);
+
+    war.casualties[country.id] = (war.casualties[country.id] ?? 0) + countryCasualties;
+  }
+}
+
+/**
+ * Списывает гражданские потери с населения регионов, которые страна фактически
+ * контролирует (effectiveController), пропорционально их населению. Пол — 0 по
+ * каждому региону (население не уходит в минус).
+ */
+function deductCivilianCasualties(game: GameState, countryId: string, overflow: number): void {
+  const held = game.regions.filter(r => effectiveController(r) === countryId && r.population > 0);
+  const totalPop = held.reduce((sum, r) => sum + r.population, 0);
+  if (totalPop <= 0) return;
+
+  for (const region of held) {
+    const regionShare = region.population / totalPop;
+    const loss = Math.min(region.population, Math.round(overflow * regionShare));
+    region.population -= loss;
   }
 }

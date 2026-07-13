@@ -13,6 +13,20 @@ export const DOMESTIC_RESERVE_PER_CAPITA = 0.01;
 /** Доля излишка сверх резерва, реально продаваемая за месяц (сглаживание, не единомоментная распродажа). */
 export const EXPORT_RATE = 0.1;
 
+/**
+ * Доля дефицита (нехватки до резерва), реально закупаемая за месяц —
+ * симметрично EXPORT_RATE, то же сглаживание в обратную сторону
+ * (docs/TRADE.md, "Явные пробелы v1" → импорт дефицита).
+ */
+export const IMPORT_RATE = 0.1;
+
+/**
+ * Наценка на импорт сверх мировой цены категории — торговая надбавка
+ * (логистика/посредники), не даёт бессмысленного арбитража и обеспечивает,
+ * что деньги при импорте реально покидают систему, а не циркулируют 1:1.
+ */
+export const IMPORT_PRICE_MARKUP = 1.2;
+
 /** Штраф к exportIncome за каждую страну, держащую trade_embargo против этой — капается на 100%. */
 export const SANCTION_EXPORT_PENALTY_PER_EMBARGO = 0.2;
 
@@ -29,3 +43,20 @@ export const WORLD_PRICE_OVERRIDES: Partial<Record<ResourceType, number>> = {
   gold: 2000,
   uranium: 500,
 };
+
+/**
+ * Валютные зоны (docs/plans/10_CURRENCY_ZONES.md) — Country.currencyZoneAnchor.
+ * Тюнингуемые плейсхолдеры, не финальная калибровка.
+ */
+
+/** Прибавка к экспортному доходу члену зоны (не самому якорю). */
+export const CURRENCY_ZONE_EXPORT_BONUS = 0.05;
+
+/** Скидка на стоимость импорта члену зоны (не самому якорю). */
+export const CURRENCY_ZONE_IMPORT_DISCOUNT = 0.05;
+
+/**
+ * Снижение штрафа от санкций, наложенных СТОРОНОЙ ВНЕ зоны (якорь и другие
+ * члены той же зоны штрафуют полностью — зона не защищает "изнутри").
+ */
+export const CURRENCY_ZONE_SANCTION_PROTECTION = 0.5;

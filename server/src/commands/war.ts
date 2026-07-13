@@ -1,5 +1,6 @@
 import { type GameState } from "@shared/types/GameState";
 import { WarService } from "../services/WarService";
+import { transferRegion as transferRegionCore } from "../simulation/war/occupation";
 import { type CommandResult } from "./types";
 
 /**
@@ -28,5 +29,22 @@ export function makePeaceBetween(game: GameState, countryAId: string, countryBId
   }
 
   warService.makePeace(war.id);
+  return { success: true };
+}
+
+/**
+ * Атомарная передача региона новому легальному владельцу (аннексия). Единственная
+ * прод-мутация ownerCountryId вне сценарной загрузки (docs/plans/08_WAR_WAVE1.md,
+ * Шаг 2b) — WarService.makePeace вызывает ядро напрямую; эта обёртка для внешних
+ * инициаторов (будущее LLM-действие "annex"/"peace" с условиями).
+ */
+export function transferRegion(game: GameState, regionId: number, newOwnerId: string): CommandResult {
+  const region = game.regions.find(r => r.id === regionId);
+  if (!region) return { success: false, error: `Unknown region: ${regionId}` };
+  if (!game.countries.some(c => c.id === newOwnerId)) {
+    return { success: false, error: `Unknown country: ${newOwnerId}` };
+  }
+
+  transferRegionCore(game, region, newOwnerId);
   return { success: true };
 }

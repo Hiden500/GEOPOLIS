@@ -19,15 +19,22 @@ ownership_1946.json[region_id].controller (MAP уже знает про 4 зон
 Германии и раздел по 38-й параллели в Корее, с исторической пометкой
 note) — см. resolve_owner().
 
-Выход:
-  client/public/world_1946.geojson         — геометрия с числовым id + region_id,
-                                              type нормализован (land->region, sea/lake->ocean)
-  server/data/scenarios/1946/regions.json  — Region[] скелеты (без экономики —
-                                              её заполняет отдельная модель, см.
-                                              docs/tasks/REGION_ECONOMY_FILL.md)
+Выход (docs/plans/05_DATA_LAYOUT.md, Срез 1 — расслоение вместо единого regions.json):
+  client/public/world_1946.geojson              — геометрия с числовым id + region_id,
+                                                    type нормализован (land->region, sea/lake->ocean)
+  server/data/scenarios/1946/regions.core.json   — география: id, geoJsonId, area,
+                                                    neighboringRegionIds, sourceAdm1Codes
+  server/data/scenarios/1946/names.en.json       — geoJsonId -> имя (английское)
+  server/data/scenarios/1946/names.ru.json       — geoJsonId -> имя (русское)
+  server/data/scenarios/1946/regions.state.json  — владение/экономика: id, ownerCountryId,
+                                                    population, urbanization, stability,
+                                                    infrastructure, development, gdp,
+                                                    deposits, extraction — скелет
+                                                    (экономику заполняет отдельная модель,
+                                                    см. docs/tasks/REGION_ECONOMY_FILL.md)
 
 Экономические поля (population, urbanization, stability, infrastructure,
-development, gdp, resourceProduction) заполняются нулевыми плейсхолдерами —
+development, gdp, deposits, extraction) заполняются нулевыми плейсхолдерами —
 это намеренно, не баг: их назначение out of scope для этого импортера.
 """
 import json
@@ -39,7 +46,11 @@ OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
 CONFIG_DIR = REPO_ROOT / "scripts" / "map" / "config"
 
 CLIENT_GEOJSON_OUT = REPO_ROOT / "client" / "public" / "world_1946.geojson"
-REGIONS_OUT = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "regions.json"
+SCENARIO_DIR = REPO_ROOT / "server" / "data" / "scenarios" / "1946"
+REGIONS_CORE_OUT = SCENARIO_DIR / "regions.core.json"
+REGIONS_STATE_OUT = SCENARIO_DIR / "regions.state.json"
+NAMES_EN_OUT = SCENARIO_DIR / "names.en.json"
+NAMES_RU_OUT = SCENARIO_DIR / "names.ru.json"
 
 # MAP's region_type -> формат, который потребляет GeoJsonLoader/MapView
 TYPE_MAP = {"land": "region", "sea": "ocean", "lake": "ocean"}
@@ -138,7 +149,12 @@ def main():
         json.dump({"type": "FeatureCollection", "features": out_features}, f, ensure_ascii=False)
 
     # --- 2. Регионы для сервера (только land — sea/lake не становятся Region) ---
-    regions = []
+    # Расслоено на core (география) / names.* (локализация) / state (владение +
+    # нулевой экономический скелет) — docs/plans/05_DATA_LAYOUT.md, Срез 1.
+    regions_core = []
+    regions_state = []
+    names_en_out: dict[str, str] = {}
+    names_ru_out: dict[str, str] = {}
     skipped_no_owner = []
     for ft in features:
         props = ft["properties"]
@@ -158,33 +174,47 @@ def main():
             # сосед должен сам быть land-регионом (только такие становятся Region)
             if n in region_id_to_numeric and names.get(n, {}).get("region_type", "land") == "land"
         ]
+        numeric_id = region_id_to_numeric[region_id]
 
-        regions.append({
-            "id": region_id_to_numeric[region_id],
+        names_en_out[region_id] = strip_trailing_index(name_entry.get("name_en", props.get("name", region_id)))
+        names_ru_out[region_id] = strip_trailing_index(name_entry.get("name_ru", name_entry.get("name_en", region_id)))
+
+        regions_core.append({
+            "id": numeric_id,
             "geoJsonId": region_id,
-            "names": {
-                "en": strip_trailing_index(name_entry.get("name_en", props.get("name", region_id))),
-                "ru": strip_trailing_index(name_entry.get("name_ru", name_entry.get("name_en", region_id))),
-            },
+            "area": props.get("area_km2", 0),
+            "neighboringRegionIds": neighbor_ids,
+            "sourceAdm1Codes": [region_id],
+        })
+        regions_state.append({
+            "id": numeric_id,
             "ownerCountryId": owner,
             "population": 0,
-            "area": props.get("area_km2", 0),
             "urbanization": 0,
             "stability": 0,
             "infrastructure": 0,
             "development": 0,
             "gdp": 0,
-            "resourceProduction": {},
-            "neighboringRegionIds": neighbor_ids,
-            "sourceAdm1Codes": [region_id],
+            "deposits": {},
+            "extraction": {},
         })
 
-    REGIONS_OUT.parent.mkdir(parents=True, exist_ok=True)
-    with open(REGIONS_OUT, "w", encoding="utf-8") as f:
-        json.dump(regions, f, ensure_ascii=False, indent=2)
+    SCENARIO_DIR.mkdir(parents=True, exist_ok=True)
+    with open(REGIONS_CORE_OUT, "w", encoding="utf-8") as f:
+        json.dump(regions_core, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    with open(REGIONS_STATE_OUT, "w", encoding="utf-8") as f:
+        json.dump(regions_state, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    with open(NAMES_EN_OUT, "w", encoding="utf-8") as f:
+        json.dump(names_en_out, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    with open(NAMES_RU_OUT, "w", encoding="utf-8") as f:
+        json.dump(names_ru_out, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
     print(f"Геометрия: {len(out_features)} фич -> {CLIENT_GEOJSON_OUT}")
-    print(f"Регионы: {len(regions)} -> {REGIONS_OUT}")
+    print(f"Регионы: {len(regions_core)} -> {REGIONS_CORE_OUT} / {REGIONS_STATE_OUT} / {NAMES_EN_OUT} / {NAMES_RU_OUT}")
     if skipped_no_owner:
         print(f"ВНИМАНИЕ: {len(skipped_no_owner)} land-регионов без владельца пропущены: {skipped_no_owner[:10]}")
 
