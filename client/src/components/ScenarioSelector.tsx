@@ -85,9 +85,8 @@ export function ScenarioSelector({
         setLoading(false);
       })
       .catch(err => {
-        setLoadError(
-          err instanceof Error ? err.message : t("failedToLoadScenarios")
-        );
+        console.error(err);
+        setLoadError(t("failedToLoadScenarios"));
         setLoading(false);
       });
   };

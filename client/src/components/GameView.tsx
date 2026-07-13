@@ -71,7 +71,10 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await nextTurn();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.turnFailed"));
+      // Понятное сообщение игроку, техдетали — в консоль для отладки
+      // (список "не возвращать" §2, находка №13: не сырой err.message).
+      console.error(err);
+      setError(t("errors.turnFailed"));
     } finally {
       setLoading(false);
     }
@@ -84,7 +87,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.budgetUpdateFailed"));
+      console.error(err);
+      setError(t("errors.budgetUpdateFailed"));
     }
   };
 
@@ -94,7 +98,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.intentSaveFailed"));
+      console.error(err);
+      setError(t("errors.intentSaveFailed"));
       throw err;
     }
   };
@@ -104,7 +109,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       const updated = await getGameState();
       onGameUpdate(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.stateUpdateFailed"));
+      console.error(err);
+      setError(t("errors.stateUpdateFailed"));
     }
   };
 

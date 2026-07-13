@@ -32,7 +32,8 @@ export default function App() {
       const state = await startGame(scenarioId, countryId, locale);
       setGame(state);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("startGameFailed"));
+      console.error(err);
+      setError(t("startGameFailed"));
     } finally {
       setStarting(false);
     }
