@@ -1,0 +1,64 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pill {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--steel);
+  border: 1px solid var(--hairline);
+  color: var(--paper-dim);
+}
+
+.stamp {
+  padding: 0.2rem 0.6rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  transform: rotate(-2deg);
+  color: var(--paper-dim);
+  background: transparent;
+}
+
+.neutral {
+  color: var(--paper-dim);
+}
+
+.ok {
+  color: var(--ok);
+}
+
+.warn {
+  color: var(--warn);
+}
+
+.crit {
+  color: var(--crit);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.pill.ok {
+  background: color-mix(in srgb, var(--ok) 14%, var(--steel));
+}
+
+.pill.warn {
+  background: color-mix(in srgb, var(--warn) 14%, var(--steel));
+}
+
+.pill.crit {
+  background: color-mix(in srgb, var(--crit) 14%, var(--steel));
+}
+
+.pill.accent {
+  background: var(--accent-tint);
+  border-color: var(--accent-dim);
+}

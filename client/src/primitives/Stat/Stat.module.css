@@ -1,0 +1,34 @@
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius, 2px);
+  background: var(--steel);
+  border: 1px solid var(--hairline);
+}
+
+.icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--paper);
+}
+
+.ok .value {
+  color: var(--ok);
+}
+
+.warn .value {
+  color: var(--warn);
+}
+
+.crit .value {
+  color: var(--crit);
+}
