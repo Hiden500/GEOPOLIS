@@ -1,0 +1,40 @@
+/*
+ * Дизайн-токены темы «1946 — радарная ситуационная комната»
+ * (docs/plans/12_UI_REDESIGN.md §3).
+ *
+ * Токены живут под [data-era="1946"], а не в голом :root, чтобы 1836/2000
+ * могли подключиться как альтернативные наборы токенов + ассеты без
+ * переписывания компонентов (архитектура тем плана, §3). data-era ставится
+ * на <html> в index.html — сейчас единственная реализованная эпоха.
+ */
+
+:root[data-era="1946"] {
+  --ink: #0e1311;
+  --ink-2: #121815;
+
+  --steel: #182019;
+  --steel-2: #1f2a22;
+  --steel-3: #263329;
+
+  --hairline: #2c3a30;
+  --hairline-2: #3a4b3d;
+
+  --paper: #e8e4d4;
+  --paper-dim: #9ba08c;
+  --paper-faint: #6b7161;
+
+  --accent: #e6a338;
+  --accent-2: #f6bf5e;
+  --accent-dim: #8a6a2a;
+  --accent-tint: rgba(230, 163, 56, 0.13);
+
+  --ok: #7aa653;
+  --warn: #c9762a;
+  --crit: #cf4436;
+
+  --font-display: "Oswald", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+
+  --radius: 2px;
+}

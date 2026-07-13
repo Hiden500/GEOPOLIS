@@ -171,9 +171,10 @@ both, not just one:**
    `t('key')` against its own namespace (`client/src/i18n/locales/{ru,en}/<component>.json`)
    from the first commit, not a hardcoded literal with a "translate later"
    plan. Same reasoning as layer 1: retrofitting compounds. Exception:
-   `client/src/map/` — carries the standing map freeze (see below), do not
-   add i18n work there without an explicit request even though it's
-   otherwise in scope for this rule.
+   `client/src/map/` — a working system under incremental-only change (not a
+   Gemini freeze anymore, see «Координация моделей»); do not add i18n work
+   there without an explicit request even though it's otherwise in scope for
+   this rule.
 
 Known remaining gaps (tracked in `docs/LOCALIZATION.md`, not proactive
 todos): `Country.name`/`shortName` still plain `string` (12 legacy
@@ -296,23 +297,27 @@ estimates from verified data.
 | Домен | Владелец |
 |---|---|
 | `server/` — симуляция, сервисы, маршруты | Claude |
-| `client/` — UI, компоненты (без карты) | Gemini |
-| `client/src/map/**` — карта (геометрия, топология, рендер) | **Claude** (с 2026-07-11, было Gemini — см. `docs/DECISIONS.md`) |
+| `client/` — UI, компоненты, карта (`client/src/map/**`) | **Claude** (весь `client/` с 2026-07-12, было Gemini кроме карты; карта перешла раньше, 2026-07-11 — см. `docs/DECISIONS.md`) |
 | `shared/types/` — общие типы | **только через `main`, не параллельно** |
 | `docs/`, `scripts/` | любой, не одновременно |
 
 Эти границы — дефолт, не жёсткий закон. Менять через запись в `docs/DECISIONS.md`.
 
-Карта по-прежнему заморожена (решение пользователя 2026-07-03, см.
-`docs/TODO.md` «Постоянные рамки») — таблица выше фиксирует, кто возьмётся за
-неё, когда заморозка снимется, не открывает работу сейчас.
+Карта и интерфейс больше не заморожены: полный редизайн UI утверждён
+пользователем 2026-07-12 (`docs/plans/12_UI_REDESIGN.md`), реализация идёт по
+срезам плана. Правило «инкремент вместо спекулятивного переписывания»
+(AGENTS.md, «Understand Before Changing») по-прежнему действует для геометрии/
+топологии/рендера полигонов/размещения подписей карты — их не переписывать без
+причины; UI-слой поверх карты (mapmodes, попапы MapLibre, легенда, контролы
+зума) — в скоупе редизайна.
 
 Дополнительно Gemini закреплён за **исторической калибровкой/фактчекингом**
 данных сценариев (проверка страновых/региональных чисел против источников,
 docs/HISTORICAL_ACCURACY.md) — не домен файлов, а тип задачи, назначается
 явно по конкретной находке (пример кандидата — калибровка ВВП/чел Китая,
-`docs/TODO.md`). Генерация изображений (Nano Banana) — тоже за Gemini,
-конкретная первая задача не выбрана, см. `docs/TODO.md`.
+`docs/TODO.md`). Генерация изображений (Nano Banana) и тексты/контент — тоже за
+Gemini; это теперь его основная роль рядом с `client/` (не код UI), конкретная
+первая задача не выбрана, см. `docs/TODO.md`.
 
 ## Разделение процессов разработки карты (MAS Pipeline) — устарело, см. выше
 
