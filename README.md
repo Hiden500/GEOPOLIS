@@ -18,6 +18,16 @@ scripts/  — Python-пайплайн генерации карты/регион
 
 ## Запуск
 
+Быстрый способ (Windows, PowerShell) — один файл, поднимает сервер и клиент
+и открывает игру в браузере:
+
+```
+.\start.ps1 -Install   # первый раз — ставит зависимости
+.\start.ps1            # дальше — обычный запуск
+```
+
+Вручную (любая ОС):
+
 ```
 cd server && npm install && npm run dev
 cd client && npm install && npm run dev
