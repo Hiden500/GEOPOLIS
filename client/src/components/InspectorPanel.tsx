@@ -9,7 +9,7 @@ interface Props {
 }
 
 function CountryInspector({ countryId, game, onSelectCountry }: { countryId: string; game: GameState; onSelectCountry: (id: string) => void }) {
-  const { t } = useTranslation("inspectorPanel");
+  const { t, i18n } = useTranslation("inspectorPanel");
   const country = game.countries.find(c => c.id === countryId);
   if (!country) return <p>{t("country.notFound")}</p>;
 
@@ -32,20 +32,20 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
       <dl className="stat-list">
         <div>
           <dt>{t("country.stats.gdp")}</dt>
-          <dd>{(country.economy.gdp / 1e12).toFixed(2)}T</dd>
+          <dd>{(country.economy.gdp / 1e12).toFixed(2)}{t("units.trillion")}</dd>
         </div>
         <div>
           <dt>{t("country.stats.population")}</dt>
-          <dd>{(country.population / 1e6).toFixed(1)}M</dd>
+          <dd>{(country.population / 1e6).toFixed(1)}{t("units.million")}</dd>
         </div>
         <div>
           <dt>{t("country.stats.treasury")}</dt>
-          <dd>{Math.round(country.economy.treasury).toLocaleString("ru-RU")}</dd>
+          <dd>{Math.round(country.economy.treasury).toLocaleString(i18n.language)}</dd>
         </div>
         <div>
           <dt>{t("country.stats.budget")}</dt>
           <dd className={country.economy.budgetBalance >= 0 ? "positive" : "negative"}>
-            {Math.round(country.economy.budgetBalance).toLocaleString("ru-RU")}
+            {Math.round(country.economy.budgetBalance).toLocaleString(i18n.language)}
           </dd>
         </div>
         <div>
@@ -86,7 +86,7 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
 }
 
 function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number; game: GameState; onSelectCountry: (id: string) => void }) {
-  const { t } = useTranslation("inspectorPanel");
+  const { t, i18n } = useTranslation(["inspectorPanel", "resourceTicker"]);
   const region = game.regions.find(r => r.id === regionId);
   if (!region) return <p>{t("region.notFound")}</p>;
 
@@ -107,27 +107,30 @@ function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number
       <dl className="stat-list">
         <div>
           <dt>{t("region.stats.population")}</dt>
-          <dd>{(region.population ?? 0).toLocaleString("ru-RU")}</dd>
+          <dd>{(region.population ?? 0).toLocaleString(i18n.language)}</dd>
         </div>
         <div>
           <dt>{t("region.stats.area")}</dt>
           <dd>{t("region.areaValue", { area: region.area })}</dd>
         </div>
+        {/* region.urbanization/infrastructure/stability/development —
+            дробная шкала 0..1 в рантайме (проверено на живом GameState,
+            docs/plans/12_UI_REDESIGN.md Срез 2в/3а), не 0..100. */}
         <div>
           <dt>{t("region.stats.urbanization")}</dt>
-          <dd>{region.urbanization}%</dd>
+          <dd>{Math.round(region.urbanization * 100)}%</dd>
         </div>
         <div>
           <dt>{t("region.stats.infrastructure")}</dt>
-          <dd>{region.infrastructure}/100</dd>
+          <dd>{Math.round(region.infrastructure * 100)}/100</dd>
         </div>
         <div>
           <dt>{t("region.stats.stability")}</dt>
-          <dd>{region.stability}/100</dd>
+          <dd>{Math.round(region.stability * 100)}/100</dd>
         </div>
         <div>
           <dt>{t("region.stats.development")}</dt>
-          <dd>{region.development}/100</dd>
+          <dd>{Math.round(region.development * 100)}/100</dd>
         </div>
       </dl>
 
@@ -137,7 +140,7 @@ function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number
           <ul className="resource-list">
             {resourceEntries.map(([resource, amount]) => (
               <li key={resource}>
-                <span>{resource}</span>
+                <span>{t(`resourceTicker:resources.${resource}`, { defaultValue: resource })}</span>
                 <span>{amount}</span>
               </li>
             ))}

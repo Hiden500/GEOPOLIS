@@ -60,7 +60,7 @@ const PRESET_TRANSLATION_KEYS: Record<string, string> = {
 };
 
 export function BudgetPanel({ country, onUpdateBudget }: Props) {
-  const { t } = useTranslation(["budgetPanel", "common"]);
+  const { t, i18n } = useTranslation(["budgetPanel", "common"]);
   const [shares, setShares] = useState<BudgetFormState>(() => sharesFromCountry(country));
 
   const setField = (field: keyof BudgetFormState) => (value: number) => {
@@ -92,19 +92,19 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
         <div className="budget-item">
           <span className="label">{t("income")}</span>
           <span className="value positive">
-            {Math.round(income).toLocaleString("ru-RU")}
+            {Math.round(income).toLocaleString(i18n.language)}
           </span>
         </div>
         <div className="budget-item">
           <span className="label">{t("expenses")}</span>
           <span className="value negative">
-            {Math.round(totalExpenses).toLocaleString("ru-RU")}
+            {Math.round(totalExpenses).toLocaleString(i18n.language)}
           </span>
         </div>
         <div className="budget-item">
           <span className="label">{t("balance")}</span>
           <span className={`value ${balance >= 0 ? "positive" : "negative"}`}>
-            {Math.round(balance).toLocaleString("ru-RU")}
+            {Math.round(balance).toLocaleString(i18n.language)}
           </span>
         </div>
       </div>
@@ -127,7 +127,7 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
           <div className="slider-group" key={field}>
             <label htmlFor={`budget-${field}`}>
               {t(`categories.${field}`)}: {(shares[field] * 100).toFixed(1)}%
-              {" "}({Math.round(shares[field] * income).toLocaleString("ru-RU")})
+              {" "}({Math.round(shares[field] * income).toLocaleString(i18n.language)})
             </label>
             <input
               id={`budget-${field}`}
@@ -144,7 +144,7 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
 
       {balance < 0 && (
         <div className="budget-warning" role="alert">
-          ⚠️ {t("deficitWarning", { value: Math.round(Math.abs(balance)).toLocaleString("ru-RU") })}
+          ⚠️ {t("deficitWarning", { value: Math.round(Math.abs(balance)).toLocaleString(i18n.language) })}
         </div>
       )}
 

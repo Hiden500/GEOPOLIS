@@ -8,7 +8,7 @@ interface Props {
 }
 
 export function ResourceTicker({ stockpile }: Props) {
-  const { t } = useTranslation("resourceTicker");
+  const { t, i18n } = useTranslation("resourceTicker");
   const entries = Object.entries(stockpile).filter(([, amount]) => amount > 0);
 
   if (entries.length === 0) return null;
@@ -19,7 +19,7 @@ export function ResourceTicker({ stockpile }: Props) {
         <div
           key={resource}
           className="resource-chip"
-          title={`${t(`resources.${resource}`, { defaultValue: resource })}: ${Math.round(amount).toLocaleString("ru-RU")}`}
+          title={`${t(`resources.${resource}`, { defaultValue: resource })}: ${Math.round(amount).toLocaleString(i18n.language)}`}
         >
           <span className="resource-chip-icon">{RESOURCE_ICONS[resource as ResourceType] ?? "•"}</span>
           <span className="resource-chip-code">{RESOURCE_CODES[resource as ResourceType] ?? resource.slice(0, 3).toUpperCase()}</span>

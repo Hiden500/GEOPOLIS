@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: Props) {
-  const { t } = useTranslation("territoriesPanel");
+  const { t, i18n } = useTranslation(["territoriesPanel", "resourceTicker"]);
 
   if (regions.length === 0) {
     return <p>{t("noTerritories")}</p>;
@@ -27,12 +27,15 @@ export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: 
           >
             <strong>{getText(region.names)}</strong>
             <span className="region-population">
-              {t("population", { value: (region.population ?? 0).toLocaleString("ru-RU") })}
+              {t("population", { value: (region.population ?? 0).toLocaleString(i18n.language) })}
             </span>
             <div className="region-resources">
               {Object.entries(region.deposits).map(([resource, amount]) => (
                 <span key={resource} className="resource-tag">
-                  {t("resourcePerMonth", { resource, amount })}
+                  {t("resourcePerMonth", {
+                    resource: t(`resourceTicker:resources.${resource}`, { defaultValue: resource }),
+                    amount,
+                  })}
                 </span>
               ))}
             </div>
