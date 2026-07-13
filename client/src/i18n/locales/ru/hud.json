@@ -49,6 +49,38 @@
     "title": "Раздел готовится",
     "body": "Наполнение реальными данными — Срез 3 (docs/plans/12_UI_REDESIGN.md)."
   },
+  "books": {
+    "politics": {
+      "stabilityCaption": "стабильность",
+      "stability": "Стабильность",
+      "legitimacy": "Легитимность",
+      "governmentSupport": "Поддержка",
+      "corruption": "Коррупция",
+      "ideology": "Идеология",
+      "overview": "Показатели"
+    },
+    "diplomacy": {
+      "activeRelations": "активных отношений",
+      "allies": "Союзники",
+      "rivals": "Соперники",
+      "relations": "Отношения",
+      "noRelations": "Нет установленных отношений",
+      "sphereOfInfluence": "Сфера влияния",
+      "puppets": "Марионетки",
+      "sanctions": "Санкции"
+    },
+    "industry": {
+      "regionsCaption": "регионов",
+      "composition": "Состав экономики",
+      "sectors": {
+        "agriculture": "Сельское хозяйство",
+        "industry": "Промышленность",
+        "mining": "Добыча",
+        "services": "Услуги"
+      },
+      "deposits": "Запасы ресурсов"
+    }
+  },
   "panel": {
     "stateLabel": "Гос-во",
     "close": "Закрыть (Esc)"

@@ -1,0 +1,166 @@
+/*
+ * Общая раскладка контента "книг" SidePanel (docs/plans/12_UI_REDESIGN.md
+ * Срез 3в) — переиспользуется Politics/Diplomacy/Industry, тот же язык, что
+ * ContextPanel.module.css (Срез 2в), не дублирует его 1:1 умышленно (разный
+ * компонент, но общие визуальные примитивы через client/src/primitives).
+ */
+
+.headline {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.headlineBig {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+}
+
+.headlineCap {
+  font-size: 11px;
+  color: var(--paper-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding-bottom: 4px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--hairline);
+  border: 1px solid var(--hairline);
+}
+
+.kpi {
+  background: var(--ink-2);
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.kpiLabel {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--paper-dim);
+  font-size: 10px;
+}
+
+.kpiValue {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--paper-dim);
+  font-size: 11px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 4px;
+}
+
+.stat2 {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat2Top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.stat2Label {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--paper-dim);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.stat2Value {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-bottom: 1px solid rgba(44, 58, 48, 0.5);
+}
+
+.row:hover {
+  background: var(--steel-2);
+}
+
+.rowButton {
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.rowName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.swatch {
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  flex: none;
+  display: inline-block;
+}
+
+.positive {
+  color: var(--ok);
+}
+
+.negative {
+  color: var(--crit);
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.empty {
+  color: var(--paper-faint);
+  font-size: 13px;
+  font-style: italic;
+}

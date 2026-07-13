@@ -27,18 +27,13 @@ export const BOOK_ORDER: BookId[] = [
 ];
 
 /**
- * Книги без реального контента в Срезе 2 (см. docs/plans/12_UI_REDESIGN.md,
- * Срез 2 — честная заглушка вместо выдуманных данных; наполнение — Срез 3).
- * "population" сюда НЕ входит: отдана TerritoriesPanel (список регионов
- * игрока) — старая шапка теряла единственный вход в этот экран при замене
- * TopStatBar, регион-данные реальны и тематически подходят разделу.
+ * Книги без реального контента (честная заглушка вместо выдуманных данных,
+ * docs/plans/12_UI_REDESIGN.md §2). Срез 3в наполнил industry/politics/
+ * diplomacy реальными данными — "intelligence" остаётся: в игре нет
+ * механики разведки (подтверждено, не просто "руки не дошли" — тот же
+ * статус, что в самом эталонном мокапе: "Система разведки — в разработке").
  */
-export const BOOKS_WITHOUT_CONTENT: ReadonlySet<BookId> = new Set([
-  "industry",
-  "politics",
-  "diplomacy",
-  "intelligence",
-]);
+export const BOOKS_WITHOUT_CONTENT: ReadonlySet<BookId> = new Set(["intelligence"]);
 
 /** Выделение на карте — источник контент-панели справа (docs/plans/12_UI_REDESIGN.md §1). */
 export type Selection = { type: "region"; regionId: number } | { type: "country"; countryId: string };

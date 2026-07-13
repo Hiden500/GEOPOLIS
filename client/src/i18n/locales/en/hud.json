@@ -49,6 +49,38 @@
     "title": "Section in progress",
     "body": "Real data content lands in Slice 3 (docs/plans/12_UI_REDESIGN.md)."
   },
+  "books": {
+    "politics": {
+      "stabilityCaption": "stability",
+      "stability": "Stability",
+      "legitimacy": "Legitimacy",
+      "governmentSupport": "Support",
+      "corruption": "Corruption",
+      "ideology": "Ideology",
+      "overview": "Overview"
+    },
+    "diplomacy": {
+      "activeRelations": "active relations",
+      "allies": "Allies",
+      "rivals": "Rivals",
+      "relations": "Relations",
+      "noRelations": "No established relations",
+      "sphereOfInfluence": "Sphere of influence",
+      "puppets": "Puppets",
+      "sanctions": "Sanctions"
+    },
+    "industry": {
+      "regionsCaption": "regions",
+      "composition": "Economy composition",
+      "sectors": {
+        "agriculture": "Agriculture",
+        "industry": "Industry",
+        "mining": "Mining",
+        "services": "Services"
+      },
+      "deposits": "Resource deposits"
+    }
+  },
   "panel": {
     "stateLabel": "State",
     "close": "Close (Esc)"

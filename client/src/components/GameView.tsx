@@ -5,6 +5,9 @@ import { type GameState } from "@shared/types/GameState";
 import { Header } from "../hud/Header/Header";
 import { SidePanel } from "../hud/SidePanel/SidePanel";
 import { BookPlaceholder } from "../hud/SidePanel/BookPlaceholder";
+import { PoliticsBook } from "../hud/SidePanel/books/PoliticsBook";
+import { DiplomacyBook } from "../hud/SidePanel/books/DiplomacyBook";
+import { IndustryBook } from "../hud/SidePanel/books/IndustryBook";
 import { ContextPanel } from "../hud/ContextPanel/ContextPanel";
 import { OrdersBox } from "../hud/OrdersBox/OrdersBox";
 import { MapControls } from "../hud/MapControls/MapControls";
@@ -209,6 +212,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     switch (book) {
       case "economy":
         return <BudgetPanel country={playerCountry!} onUpdateBudget={handleUpdateBudget} />;
+      case "industry":
+        return <IndustryBook regions={playerRegions} />;
       case "technology":
         return <ResearchPanel country={playerCountry!} />;
       case "population":
@@ -219,6 +224,10 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             onSelectRegion={handleRegionClick}
           />
         );
+      case "politics":
+        return <PoliticsBook country={playerCountry!} />;
+      case "diplomacy":
+        return <DiplomacyBook country={playerCountry!} game={game} onSelectCountry={handleSelectCountry} />;
       case "rankings":
         return <WorldRankingPanel game={game} onSelectCountry={handleSelectCountry} />;
       case "chronicle":
