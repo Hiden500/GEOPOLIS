@@ -13,6 +13,10 @@
   "resourceRow": {
     "ariaLabel": "Ресурсы"
   },
+  "units": {
+    "trillion": "Т",
+    "million": "М"
+  },
   "tabs": {
     "economy": "Экономика",
     "industry": "Промышленность",

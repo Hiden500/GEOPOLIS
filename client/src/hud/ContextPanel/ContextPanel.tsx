@@ -190,8 +190,8 @@ function CountryContext({
         {govLabel && <div className={styles.owner}>{govLabel}</div>}
 
         <div className={styles.kpis}>
-          <Kpi label={t("context.country.gdp")} value={`${(country.economy.gdp / 1e12).toFixed(2)}Т`} />
-          <Kpi label={t("context.country.population")} value={`${(country.population / 1e6).toFixed(1)}М`} />
+          <Kpi label={t("context.country.gdp")} value={`${(country.economy.gdp / 1e12).toFixed(2)}${t("units.trillion")}`} />
+          <Kpi label={t("context.country.population")} value={`${(country.population / 1e6).toFixed(1)}${t("units.million")}`} />
           <Kpi label={t("context.country.treasury")} value={Math.round(country.economy.treasury).toLocaleString(i18n.language)} />
           <Kpi
             label={t("context.country.budgetBalance")}

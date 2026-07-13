@@ -58,10 +58,10 @@ export function Header({
           </div>
           <div className={styles.stats}>
             <div className={`${styles.statrow} ${styles.r1}`} aria-label={t("panel.stateLabel")}>
-              <StatButton icon={<IconGdp />} value={`${(country.economy.gdp / 1e12).toFixed(2)}Т`} title={t("stats.gdp")} onClick={() => onTabClick("economy")} />
+              <StatButton icon={<IconGdp />} value={`${(country.economy.gdp / 1e12).toFixed(2)}${t("units.trillion")}`} title={t("stats.gdp")} onClick={() => onTabClick("economy")} />
               <StatButton icon={<IconTreasury />} value={Math.round(country.economy.treasury).toLocaleString(i18n.language)} title={t("stats.treasury")} onClick={() => onTabClick("economy")} />
-              <StatButton icon={<IconPopulation />} value={`${(country.population / 1e6).toFixed(1)}М`} title={t("stats.population")} onClick={() => onTabClick("population")} />
-              <StatButton icon={<IconMilitary />} value={`${(country.military.manpower / 1e6).toFixed(2)}М`} title={t("stats.military")} onClick={() => onTabClick("industry")} />
+              <StatButton icon={<IconPopulation />} value={`${(country.population / 1e6).toFixed(1)}${t("units.million")}`} title={t("stats.population")} onClick={() => onTabClick("population")} />
+              <StatButton icon={<IconMilitary />} value={`${(country.military.manpower / 1e6).toFixed(2)}${t("units.million")}`} title={t("stats.military")} onClick={() => onTabClick("industry")} />
               <StatButton
                 icon={<IconStability />}
                 value={`${Math.round(country.politics.stability)}`}
