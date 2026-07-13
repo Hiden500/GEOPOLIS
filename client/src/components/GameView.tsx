@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
-import { TopStatBar } from "./TopStatBar";
+import { Header } from "../hud/Header/Header";
+import { BOOK_ORDER, type BookId } from "../hud/types";
 import { ResourceTicker } from "./ResourceTicker";
 import { InspectorPanel } from "./InspectorPanel";
 import { getInspectorTitle } from "./inspectorTitle";
@@ -35,36 +36,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
   const [closePopupTrigger, setClosePopupTrigger] = useState(0);
-  const { windows, openOrFocus, toggle, close, focus, move, resize, isOpen } = useWindows();
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        const target = e.target as HTMLElement;
-        if (
-          target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.isContentEditable
-        ) {
-          return;
-        }
-
-        if (isMapPopupOpen) {
-          setClosePopupTrigger(prev => prev + 1);
-        } else if (windows.length > 0) {
-          const activeWindow = windows.reduce(
-            (max, w) => (w.zIndex > max.zIndex ? w : max),
-            windows[0]
-          );
-          if (activeWindow) {
-            close(activeWindow.id);
-          }
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMapPopupOpen, windows, close]);
+  const { windows, openOrFocus, toggle, close, focus, move, resize } = useWindows();
 
   const playerCountry = game.countries.find(
     c => c.id === game.playerCountryId
@@ -76,6 +48,15 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
 
   const regionWindow = windows.find(w => w.kind.type === "region");
   const selectedRegionId = regionWindow?.kind.type === "region" ? regionWindow.kind.regionId : null;
+
+  // Временно, пока книги не переехали в SidePanel (см. handleTabClick ниже).
+  const WINDOW_TO_BOOK: Partial<Record<string, BookId>> = {
+    budget: "economy",
+    research: "technology",
+    ranking: "rankings",
+    timeline: "chronicle",
+  };
+  const activeBook = windows.map(w => WINDOW_TO_BOOK[w.kind.type]).find((b): b is BookId => b != null) ?? null;
 
   const handleNextTurn = async () => {
     setLoading(true);
@@ -129,6 +110,63 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     openOrFocus({ type: "country", countryId });
   }, [openOrFocus]);
 
+  // Временная привязка вкладок шапки к старой оконной системе — до Среза 2
+  // (SidePanel), когда книги переедут в выдвижную панель (docs/plans/12_UI_REDESIGN.md).
+  const handleTabClick = useCallback((book: BookId) => {
+    switch (book) {
+      case "economy":
+        toggle({ type: "budget" });
+        break;
+      case "technology":
+        toggle({ type: "research" });
+        break;
+      case "rankings":
+        toggle({ type: "ranking" });
+        break;
+      case "chronicle":
+        toggle({ type: "timeline" });
+        break;
+      default:
+        break;
+    }
+  }, [toggle]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      const isTyping =
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable;
+
+      if (e.key === "Escape") {
+        if (isTyping) return;
+        if (isMapPopupOpen) {
+          setClosePopupTrigger(prev => prev + 1);
+        } else if (windows.length > 0) {
+          const activeWindow = windows.reduce(
+            (max, w) => (w.zIndex > max.zIndex ? w : max),
+            windows[0]
+          );
+          if (activeWindow) {
+            close(activeWindow.id);
+          }
+        }
+        return;
+      }
+
+      // Хоткеи 1-9 переключают вкладки шапки (docs/plans/12_UI_REDESIGN.md,
+      // Срез 2, эталон geopolis-1946-hud.html).
+      if (isTyping || e.ctrlKey || e.metaKey || e.altKey) return;
+      const digit = Number(e.key);
+      if (Number.isInteger(digit) && digit >= 1 && digit <= BOOK_ORDER.length) {
+        handleTabClick(BOOK_ORDER[digit - 1]);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMapPopupOpen, windows, close, handleTabClick]);
+
   if (!playerCountry) {
     return (
       <div className="loading">
@@ -142,18 +180,20 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
 
   return (
     <div className="game-view">
-      <TopStatBar
+      <Header
         country={playerCountry}
         currentDate={game.currentDate}
-        eraName={game.era.name}
+        llmTurn={game.llmTurn ?? 0}
+        llmRespondedThisTurn={game.llmRespondedThisTurn}
         loading={loading}
-        error={error}
-        isOpen={isOpen}
-        onBack={onBack}
+        activeBook={activeBook}
+        onTabClick={handleTabClick}
         onNextTurn={handleNextTurn}
-        onToggle={toggle}
-        onOpenCountry={() => handleSelectCountry(playerCountry.id)}
+        onOpenLlmCycle={() => toggle({ type: "llm" })}
+        onOpenCountryOverview={() => handleSelectCountry(playerCountry.id)}
+        onBackToMenu={onBack}
       />
+      {error && <p className="game-error">{error}</p>}
 
       <div className="game-content">
         <div className="map-container">

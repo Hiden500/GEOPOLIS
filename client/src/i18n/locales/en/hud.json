@@ -1,0 +1,51 @@
+{
+  "flag": {
+    "overview": "Country overview"
+  },
+  "stats": {
+    "gdp": "GDP — open economy",
+    "treasury": "Treasury — open budget",
+    "population": "Population",
+    "military": "Military power",
+    "stability": "Stability — open politics",
+    "legitimacy": "Legitimacy"
+  },
+  "resourceRow": {
+    "ariaLabel": "Resources"
+  },
+  "tabs": {
+    "economy": "Economy",
+    "industry": "Industry",
+    "technology": "Technology",
+    "population": "Population",
+    "politics": "Politics",
+    "diplomacy": "Diplomacy",
+    "intelligence": "Intelligence",
+    "rankings": "Rankings",
+    "chronicle": "Chronicle"
+  },
+  "tabsAriaLabel": "Sections",
+  "statusPill": {
+    "ready": "turn ready",
+    "waiting": "awaiting LLM response",
+    "turnLabel": "· turn {{turn}}"
+  },
+  "turn": {
+    "next": "Next turn",
+    "simulating": "Simulating…"
+  },
+  "tools": {
+    "search": "Search",
+    "ledgers": "Ledgers & stats",
+    "notifications": "Notifications — coming soon",
+    "settings": "Settings — coming soon",
+    "menu": "Menu — back to scenario selection"
+  },
+  "bookPlaceholder": {
+    "title": "Section in progress",
+    "body": "Real data content lands in Slice 3 (docs/plans/12_UI_REDESIGN.md)."
+  },
+  "panel": {
+    "stateLabel": "State"
+  }
+}

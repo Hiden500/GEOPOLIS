@@ -1,0 +1,503 @@
+<title>Geopolis — 1946 (мокап HUD)</title>
+<style>
+  :root {
+    --ink:#0e1311; --ink-2:#121815; --steel:#182019; --steel-2:#1f2a22; --steel-3:#263329;
+    --hairline:#2c3a30; --hairline-2:#3a4b3d; --paper:#e8e4d4; --paper-dim:#9ba08c; --paper-faint:#6b7161;
+    --accent:#e6a338; --accent-2:#f6bf5e; --accent-dim:#8a6a2a; --accent-tint:rgba(230,163,56,.13);
+    --ok:#7aa653; --warn:#c9762a; --crit:#cf4436; --crit-tint:rgba(207,68,54,.15);
+    --font-display:'Bahnschrift','Franklin Gothic Condensed','Franklin Gothic','Arial Narrow','Oswald',sans-serif;
+    --font-body:'Franklin Gothic','Helvetica Neue','Segoe UI',sans-serif;
+    --font-mono:ui-monospace,'Consolas','SF Mono','Menlo',monospace;
+  }
+  * { box-sizing: border-box; }
+  #app { position: relative; height: 100svh; background: var(--ink); color: var(--paper);
+    font-family: var(--font-body); font-size: 14px; line-height: 1.35; overflow: hidden;
+    display: grid; grid-template-rows: auto minmax(0,1fr); -webkit-font-smoothing: antialiased; }
+  .lbl { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .1em; color: var(--paper-dim); font-size: 11px; font-weight: 600; }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .pos { color: var(--ok); } .neg { color: var(--crit); }
+  button { font-family: inherit; color: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent-2); outline-offset: 1px; }
+
+  /* ─────────── ШАПКА: залитые блоки с содержанием + прозрачные промежутки ─────────── */
+  .top { position: relative; z-index: 50; display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px 0; background: transparent; min-width: 0; }
+  .cluster { background: linear-gradient(180deg, #1a231c, var(--steel)); border: 1px solid var(--hairline-2); box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+
+  /* левый блок: флаг + статы вплотную; под ним отдельная панель вкладок */
+  .hleft { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+  .clu-stats { display: grid; grid-template-columns: auto minmax(0,auto); min-width: 0; }
+  .flag { grid-column: 1; grid-row: 1; align-self: stretch; border-right: 1px solid var(--hairline-2); }
+  .flag button { display: block; width: 104px; height: 100%; min-height: 54px; padding: 0; border: 0; background: #7a1f1a; overflow: hidden; }
+  .flag button:hover { filter: brightness(1.12); }
+  .flag svg { width: 100%; height: 100%; display: block; }
+  .stats { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; min-width: 0; }
+  .statrow { min-width: 0; overflow-x: auto; overflow-y: hidden; display: flex; align-items: center; gap: 2px; padding: 3px 6px; scrollbar-width: none; }
+  .statrow::-webkit-scrollbar, .tabs::-webkit-scrollbar { display: none; }
+  .statrow.r1 { border-bottom: 1px solid var(--hairline); }
+  .st { display: flex; align-items: center; gap: 6px; padding: 3px 9px; background: transparent; border: 1px solid transparent; white-space: nowrap; flex: none; }
+  button.st { cursor: pointer; } button.st:hover { border-color: var(--hairline-2); background: var(--ink-2); }
+  .st .ico { width: 16px; height: 16px; color: var(--paper-dim); flex: none; }
+  .st .v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 14px; }
+  .st .v small { font-size: 9px; color: var(--paper-faint); }
+  .st .dl { font-family: var(--font-mono); font-size: 10px; }
+  .st.alarm .v { color: var(--crit); } .st.alarm .ico { color: var(--crit); }
+  .st.warns .v { color: var(--warn); }
+
+  /* вкладки — отдельная панель под левым блоком, по ширине контента */
+  .tabs { display: flex; align-items: stretch; width: max-content; max-width: 100%; overflow-x: auto; scrollbar-width: none;
+    background: linear-gradient(180deg, var(--steel), var(--ink-2)); border: 1px solid var(--hairline-2); box-shadow: 0 6px 18px rgba(0,0,0,.4); }
+  .navbtn { width: 44px; height: 32px; background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--paper-dim); display: grid; place-items: center; position: relative; flex: none; }
+  .navbtn svg { width: 18px; height: 18px; }
+  .navbtn:hover { background: var(--steel-2); color: var(--paper); }
+  .navbtn.active { color: var(--accent); border-bottom-color: var(--accent); background: linear-gradient(0deg, var(--accent-tint), transparent); }
+  .navbtn::after { content: attr(data-t); position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); background: var(--ink-2); border: 1px solid var(--hairline-2); color: var(--paper); font-size: 10px; white-space: nowrap; padding: 3px 6px; text-transform: uppercase; letter-spacing: .05em; font-family: var(--font-display); opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 6; }
+  .navbtn:hover::after { opacity: 1; }
+  .navbtn .kb { position: absolute; top: 1px; right: 3px; font-family: var(--font-mono); font-size: 8px; color: var(--paper-faint); }
+  .navsep { width: 1px; background: var(--hairline); margin: 6px 4px; flex: none; }
+
+  .spacer { flex: 1 1 8px; min-width: 8px; }
+
+  /* мостик = компактный залитый бейдж с содержанием */
+  .statuspill { flex: none; align-self: flex-start; display: flex; align-items: center; gap: 7px; padding: 6px 12px;
+    background: linear-gradient(180deg, var(--steel-2), var(--steel)); border: 1px solid var(--hairline-2); box-shadow: 0 6px 18px rgba(0,0,0,.4);
+    font-family: var(--font-display); text-transform: uppercase; letter-spacing: .09em; font-size: 11px; color: var(--ok); white-space: nowrap; }
+  @keyframes sim { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
+  .statuspill .pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; animation: sim 2.2s ease-in-out infinite; box-shadow: 0 0 6px var(--ok); }
+  .statuspill em { font-style: normal; color: var(--paper-dim); }
+
+  /* правый блок: дата+ход (залито) + прозрачные техкнопки под ними */
+  .hright { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
+  .clu-turn { display: flex; align-items: stretch; }
+  .date { padding: 0 12px; display: flex; align-items: center; border-right: 1px solid var(--hairline); }
+  .date b { font-family: var(--font-display); font-size: 16px; letter-spacing: .06em; }
+  .endturn { padding: 8px 15px 8px 13px; background: linear-gradient(180deg, var(--accent-2), var(--accent));
+    color: #201404; border: 0; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .08em;
+    font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .endturn:hover { filter: brightness(1.07); }
+  .endturn .kbd { font-family: var(--font-mono); font-size: 10px; background: rgba(0,0,0,.22); padding: 1px 5px; }
+  .tools { display: flex; align-items: center; gap: 4px; padding-right: 2px; }
+  .tbtn { position: relative; width: 30px; height: 28px; background: transparent; border: 0; color: var(--paper-dim); display: grid; place-items: center; }
+  .tbtn:hover { color: var(--accent); }
+  .tbtn svg { width: 17px; height: 17px; }
+  .badge { position: absolute; top: -4px; right: -4px; min-width: 15px; height: 15px; padding: 0 3px; background: var(--crit); color: #fff; font-family: var(--font-mono); font-size: 9px; display: grid; place-items: center; border: 1px solid var(--ink); }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(207,68,54,.45); } 50% { box-shadow: 0 0 0 4px rgba(207,68,54,0); } }
+  .tbtn.alert { color: var(--crit); border-radius: 50%; animation: pulse 1.8s infinite; }
+
+  /* ─────────── ГЛАВНОЕ (карта + оверлеи) ─────────── */
+  .main { position: relative; overflow: hidden; min-height: 0; }
+  .mapwrap { position: absolute; inset: 0; }
+  .map { width: 100%; height: 100%; display: block; }
+  .atmos { position: absolute; inset: 0; pointer-events: none;
+    background-image: repeating-linear-gradient(0deg, rgba(230,163,56,.04) 0 1px, transparent 1px 64px), repeating-linear-gradient(90deg, rgba(230,163,56,.04) 0 1px, transparent 1px 64px);
+    mask-image: radial-gradient(120% 100% at 58% 42%, #000 25%, transparent 82%); }
+  .sweep { position: absolute; inset: 0; pointer-events: none; opacity: .5; background: conic-gradient(from 210deg at 60% 45%, transparent 0deg, rgba(230,163,56,.05) 30deg, transparent 60deg); }
+  .region { stroke: #0a0d0b; stroke-width: 1; cursor: pointer; transition: fill .35s, filter .18s; }
+  .region:hover { filter: brightness(1.28); }
+  .region.sel { stroke: var(--accent-2); stroke-width: 2.2; filter: drop-shadow(0 0 6px rgba(246,191,94,.7)); }
+  .mlabel { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .1em; fill: var(--paper); font-size: 15px; opacity: .8; pointer-events: none; }
+  .feat text { font-family: var(--font-mono); font-size: 9px; fill: var(--paper-dim); }
+
+  .panel { position: absolute; top: 0; left: 0; bottom: 0; width: min(376px, 42vw); z-index: 25;
+    background: linear-gradient(180deg, #172019, var(--steel)); border-right: 1px solid var(--hairline-2);
+    box-shadow: 16px 0 34px -14px rgba(0,0,0,.7); display: flex; flex-direction: column;
+    transform: translateX(0); transition: transform .28s cubic-bezier(.2,.7,.2,1); }
+  #app:not(.panel-open) .panel { transform: translateX(-102%); }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--hairline-2); background: linear-gradient(180deg, var(--steel-2), transparent); }
+  .panel-head h2 { margin: 0; font-family: var(--font-display); font-size: 19px; letter-spacing: .04em; text-transform: uppercase; }
+  .panel-head .sub { font-size: 10px; color: var(--accent); letter-spacing: .13em; text-transform: uppercase; }
+  .panel-close { width: 26px; height: 26px; background: var(--ink-2); border: 1px solid var(--hairline); color: var(--paper-dim); }
+  .panel-close:hover { color: var(--crit); border-color: var(--crit); }
+  .panel-body { overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 15px; }
+  @keyframes swap { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  .panel-body.swap { animation: swap .22s ease both; }
+  .headline { display: flex; align-items: flex-end; gap: 10px; }
+  .headline .big { font-family: var(--font-mono); font-size: 32px; line-height: .95; font-variant-numeric: tabular-nums; }
+  .headline .cap { font-size: 11px; color: var(--paper-dim); text-transform: uppercase; letter-spacing: .09em; padding-bottom: 4px; }
+  .kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
+  .kpi { background: var(--ink-2); padding: 9px 11px; display: flex; flex-direction: column; gap: 3px; }
+  .kpi .v { font-family: var(--font-mono); font-size: 16px; font-variant-numeric: tabular-nums; }
+  .sec-h { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--hairline); padding-bottom: 4px; }
+  .sec-h h3 { margin: 0; }
+  .ledger { display: flex; flex-direction: column; }
+  .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; padding: 7px 4px; border-bottom: 1px solid rgba(44,58,48,.5); }
+  .row:hover { background: var(--steel-2); }
+  .row .name { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .row .bar { width: 54px; height: 6px; background: var(--ink); border: 1px solid var(--hairline); position: relative; }
+  .row .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-dim); }
+  .row.total { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .05em; border-top: 1px solid var(--hairline-2); border-bottom: 0; padding-top: 9px; }
+  .swatch { width: 9px; height: 9px; border: 1px solid rgba(255,255,255,.18); flex: none; }
+
+  .orders { position: absolute; left: 10px; bottom: 10px; z-index: 22; width: min(360px, 40vw);
+    background: linear-gradient(180deg, var(--steel-2), var(--steel)); border: 1px solid var(--hairline-2); box-shadow: 0 8px 26px rgba(0,0,0,.5); }
+  .orders-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 11px; cursor: pointer; border-bottom: 1px solid var(--hairline); }
+  .orders-head:hover { background: var(--steel-3); }
+  .orders-head .t { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .08em; font-size: 13px; }
+  .orders-head .t svg { width: 16px; height: 16px; color: var(--accent); }
+  .orders-head .chev { color: var(--paper-dim); font-family: var(--font-mono); transition: transform .2s; }
+  #app.orders-collapsed .orders-head .chev { transform: rotate(180deg); }
+  .orders-body { padding: 11px; display: flex; flex-direction: column; gap: 9px; overflow: hidden; }
+  #app.orders-collapsed .orders-body { display: none; }
+  .orders-body .field { min-height: 62px; background: var(--ink); border: 1px solid var(--hairline); padding: 9px 11px; color: var(--paper-dim); font-size: 13px; font-style: italic; }
+  .orders-body .hint2 { font-size: 10px; color: var(--paper-faint); }
+  .orders-send { align-self: flex-end; height: 30px; padding: 0 14px; background: var(--accent-tint); border: 1px solid var(--accent-dim); color: var(--accent); font-family: var(--font-display); text-transform: uppercase; letter-spacing: .07em; font-size: 12px; }
+  .orders-send:hover { background: var(--accent); color: var(--ink); }
+
+  .context { position: absolute; top: 10px; right: 10px; bottom: 10px; width: 288px; z-index: 24;
+    background: linear-gradient(180deg, var(--steel), var(--ink-2)); border: 1px solid var(--hairline-2);
+    box-shadow: 0 10px 34px rgba(0,0,0,.6); display: flex; flex-direction: column;
+    transform: translateX(calc(100% + 14px)); opacity: 0; transition: transform .26s cubic-bezier(.2,.7,.2,1), opacity .2s; }
+  #app.has-selection .context { transform: translateX(0); opacity: 1; }
+  .ctx-head { padding: 12px 14px; border-bottom: 1px solid var(--hairline-2); background: linear-gradient(180deg, var(--steel-2), transparent); position: relative; }
+  .ctx-head .eyebrow { font-size: 10px; color: var(--accent); letter-spacing: .15em; text-transform: uppercase; }
+  .ctx-head h2 { margin: 3px 0 0; font-family: var(--font-display); font-size: 21px; letter-spacing: .03em; text-transform: uppercase; }
+  .ctx-head .owner { display: flex; align-items: center; gap: 7px; margin-top: 6px; font-size: 12px; color: var(--paper-dim); }
+  .ctx-close { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; background: var(--ink-2); border: 1px solid var(--hairline); color: var(--paper-dim); }
+  .ctx-close:hover { color: var(--crit); border-color: var(--crit); }
+  .ctx-body { overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 14px; }
+  .stat2 { display: flex; flex-direction: column; gap: 5px; }
+  .stat2 .top2 { display: flex; align-items: baseline; justify-content: space-between; }
+  .stat2 .top2 .v { font-family: var(--font-mono); font-size: 15px; font-variant-numeric: tabular-nums; }
+  .meter { height: 7px; background: var(--ink); border: 1px solid var(--hairline); position: relative; }
+  .meter i { position: absolute; inset: 0 auto 0 0; }
+  .chips { display: flex; flex-direction: column; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
+  .chip { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 9px; background: var(--ink-2); padding: 7px 10px; }
+  .chip .ico { width: 16px; height: 16px; color: var(--paper-dim); }
+  .chip .nm { font-size: 12px; }
+  .chip .q { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .chip .q small { color: var(--paper-faint); font-size: 9px; }
+  .feats { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ftag { display: flex; align-items: center; gap: 6px; padding: 4px 8px; background: var(--ink-2); border: 1px solid var(--hairline); font-size: 11px; color: var(--paper-dim); }
+  .ftag svg { width: 13px; height: 13px; }
+  .ctx-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
+  .ctx-actions button { background: var(--ink-2); border: 0; color: var(--paper-dim); padding: 9px; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-size: 11px; }
+  .ctx-actions button:hover { background: var(--accent-tint); color: var(--accent); }
+
+  .ledgerN { position: absolute; top: 10px; right: 10px; bottom: 10px; width: 320px; z-index: 40;
+    background: linear-gradient(180deg, var(--steel), var(--ink-2)); border: 1px solid var(--hairline-2);
+    box-shadow: -8px 0 34px rgba(0,0,0,.6); display: flex; flex-direction: column;
+    transform: translateX(calc(100% + 14px)); transition: transform .26s cubic-bezier(.2,.7,.2,1); }
+  #app.notif-open .ledgerN { transform: translateX(0); }
+  .ledgerN-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--hairline-2); }
+  .ledgerN-head b { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .06em; font-size: 16px; }
+  .ledgerN-body { overflow-y: auto; }
+  .nrow { display: flex; gap: 10px; padding: 11px 14px; border-bottom: 1px solid rgba(44,58,48,.5); cursor: pointer; }
+  .nrow:hover { background: var(--steel-2); }
+  .nrow .dot { width: 8px; height: 8px; margin-top: 4px; flex: none; }
+  .nrow.crit .dot { background: var(--crit); } .nrow.warn .dot { background: var(--warn); } .nrow.info .dot { background: var(--accent); }
+  .nrow .tx { font-size: 13px; } .nrow .tx b { font-family: var(--font-display); letter-spacing: .03em; }
+  .nrow .tx small { display: block; color: var(--paper-faint); font-size: 10px; margin-top: 2px; font-family: var(--font-mono); }
+
+  .mapctl { position: absolute; right: 10px; bottom: 10px; z-index: 15; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .legend { background: rgba(14,19,17,.9); border: 1px solid var(--hairline-2); backdrop-filter: blur(3px); padding: 9px 11px; min-width: 158px; }
+  .legend .lh b { font-family: var(--font-display); text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+  .legend .li { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--paper-dim); padding: 2px 0; }
+  .legend .li .sw { width: 12px; height: 12px; border: 1px solid rgba(255,255,255,.15); }
+  .modesrow { display: flex; align-items: flex-end; gap: 8px; }
+  .modes { display: grid; grid-template-columns: repeat(4, 36px); gap: 1px; background: var(--hairline-2); border: 1px solid var(--hairline-2); }
+  .mode { width: 36px; height: 36px; background: var(--steel); border: 0; color: var(--paper-dim); display: grid; place-items: center; position: relative; }
+  .mode svg { width: 18px; height: 18px; }
+  .mode:hover { background: var(--steel-2); color: var(--paper); }
+  .mode.active { background: var(--accent); color: var(--ink); }
+  .mode::after { content: attr(data-t); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--ink-2); border: 1px solid var(--hairline-2); color: var(--paper); font-size: 10px; white-space: nowrap; padding: 3px 6px; text-transform: uppercase; letter-spacing: .05em; font-family: var(--font-display); opacity: 0; pointer-events: none; transition: opacity .12s; }
+  .mode:hover::after { opacity: 1; }
+  .zoom { display: flex; flex-direction: column; gap: 1px; }
+  .zoom button { width: 36px; height: 36px; background: var(--steel); border: 1px solid var(--hairline-2); color: var(--paper-dim); font-size: 18px; font-family: var(--font-mono); }
+  .zoom button:hover { color: var(--accent); }
+
+  .hint { position: absolute; left: 50%; transform: translateX(-50%); top: 14px; z-index: 12; display: flex; align-items: center; gap: 8px; color: var(--paper-dim); font-size: 12px; opacity: .85; background: rgba(14,19,17,.7); padding: 4px 10px; border: 1px solid var(--hairline); }
+  #app.has-selection .hint { display: none; }
+  .anno { position: absolute; z-index: 60; font-family: var(--font-mono); font-size: 10px; color: var(--accent-2); background: rgba(32,20,4,.9); border: 1px dashed var(--accent-dim); padding: 2px 6px; letter-spacing: .03em; pointer-events: none; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .top { animation: rise .5s both; }
+  .orders { animation: rise .5s .2s both; }
+  .mapwrap { animation: fade .9s .3s both; }
+  .mapctl, .hint { animation: rise .5s .46s both; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+  @media (max-width: 900px) { .context, .ledgerN { width: 84vw; } .panel { width: 82vw; } }
+</style>
+
+<div id="app" class="orders-open">
+  <!-- ШАПКА -->
+  <header class="top">
+    <!-- левый блок: флаг + статы, под ними вкладки -->
+    <div class="hleft">
+      <div class="cluster clu-stats">
+        <div class="flag">
+          <button title="Обзор страны — СССР" aria-label="Обзор страны">
+            <svg viewBox="0 0 104 54" preserveAspectRatio="xMidYMid slice"><rect width="104" height="54" fill="#7a1f1a"/><g fill="#e6c34a" transform="translate(20 9)"><path d="M6 4C2 8 2 15 6 19c2-4 6-6 10-6-4-2-8-4-10-9z"/><path d="M4 18h6v18H4zM10 14l15 9-2 4-13-8z"/><circle cx="17" cy="6" r="4"/></g></svg>
+          </button>
+        </div>
+        <div class="stats">
+          <div class="statrow r1" aria-label="Показатели державы">
+            <button class="st" data-book="Экономика" title="ВВП — открыть экономику"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V5m0 14h16M8 15l3-4 3 2 5-7"/></svg><span class="v">2,34<small>Т</small></span><span class="dl pos">+0,9%</span></button>
+            <button class="st" data-book="Экономика" title="Казна — открыть бюджет"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M9 12h6M12 9v6"/></svg><span class="v">128,4</span><span class="dl pos">+2,1</span></button>
+            <button class="st" data-book="Население" title="Население"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 6a3 3 0 010 6"/></svg><span class="v">184<small>М</small></span><span class="dl pos">+0,1</span></button>
+            <button class="st" data-book="Промышленность" title="Военная мощь"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21l9-9m0 0l3-3 3 3-3 3zM6 6l4 4M4 8l3-3"/></svg><span class="v">4,12<small>М</small></span><span class="dl">0,0</span></button>
+            <button class="st warns" data-book="Политика" title="Стабильность — открыть политику"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg><span class="v">54</span><span class="dl neg">−1</span></button>
+            <button class="st" data-book="Политика" title="Легитимность"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l3 6 6 .5-4.5 4 1.5 6-6-3.5"/><path d="M12 2l-3 6-6 .5 4.5 4-1.5 6 6-3.5"/></svg><span class="v">61<small>%</small></span><span class="dl pos">+0</span></button>
+          </div>
+          <div class="statrow r2" aria-label="Ресурсы">
+            <button class="st" data-mode="res" title="Уголь"><span class="swatch" style="background:#5f6b6f"></span><span class="v">340</span></button>
+            <button class="st" data-mode="res" title="Железо"><span class="swatch" style="background:#8a7d6a"></span><span class="v">96</span></button>
+            <button class="st alarm" data-mode="res" title="Нефть — дефицит"><span class="swatch" style="background:#2a2a24"></span><span class="v">−4,1</span></button>
+            <button class="st" data-mode="res" title="Уран"><span class="swatch" style="background:#7aa653"></span><span class="v">1,8</span></button>
+            <button class="st" data-mode="res" title="Медь"><span class="swatch" style="background:#b08a4a"></span><span class="v">12,4</span></button>
+            <button class="st" data-mode="res" title="Алюминий"><span class="swatch" style="background:#9aa4ac"></span><span class="v">3,2</span></button>
+          </div>
+        </div>
+      </div>
+
+      <nav class="tabs cluster" aria-label="Разделы">
+        <button class="navbtn active" data-book="Экономика" data-t="Экономика"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V5m0 14h16M8 16l3-4 3 2 4-6"/></svg><span class="kb">1</span></button>
+        <button class="navbtn" data-book="Промышленность" data-t="Промышленность"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 20h18M5 20v-8l4 3v-3l4 3V7l6 4v9"/></svg><span class="kb">2</span></button>
+        <button class="navbtn" data-book="Технологии" data-t="Технологии"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span class="kb">3</span></button>
+        <button class="navbtn" data-book="Население" data-t="Население"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 6a3 3 0 010 6M21 20c0-2.5-1.3-4.2-3-5"/></svg><span class="kb">4</span></button>
+        <button class="navbtn" data-book="Политика" data-t="Политика"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg><span class="kb">5</span></button>
+        <div class="navsep"></div>
+        <button class="navbtn" data-book="Дипломатия" data-t="Дипломатия"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M5 7l7-4 7 4M5 7v8c0 2 3 3 7 3s7-1 7-3V7"/></svg><span class="kb">6</span></button>
+        <button class="navbtn" data-book="Разведка" data-t="Разведка"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg><span class="kb">7</span></button>
+        <div class="navsep"></div>
+        <button class="navbtn" data-book="Рейтинги" data-t="Рейтинги"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 20V10M12 20V4M18 20v-7"/></svg><span class="kb">8</span></button>
+        <button class="navbtn" data-book="Летопись" data-t="Летопись/Хроника"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4h11l3 3v13H6zM9 4v16M13 9h4M13 13h4"/></svg><span class="kb">9</span></button>
+      </nav>
+    </div>
+
+    <div class="spacer"></div>
+
+    <!-- мостик = бейдж состояния хода -->
+    <div class="statuspill"><span class="pulse"></span> ход готов <em>· ход 34</em></div>
+
+    <!-- правый блок: дата + ход, под ними прозрачные техкнопки -->
+    <div class="hright">
+      <div class="cluster clu-turn">
+        <div class="date"><b>АПРЕЛЬ 1953</b></div>
+        <button class="endturn">Следующий ход <span class="kbd">↵</span></button>
+      </div>
+      <div class="tools" aria-label="Инструменты">
+        <button class="tbtn" title="Поиск (/)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+        <button class="tbtn" title="Леджеры и статистика"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 20V10M12 20V4M18 20v-7"/></svg></button>
+        <button class="tbtn alert" id="bell" title="Уведомления"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg><span class="badge">3</span></button>
+        <button class="tbtn" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></button>
+        <button class="tbtn" title="Меню — сохранить / загрузить / выход"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ГЛАВНОЕ -->
+  <main class="main">
+    <div class="mapwrap">
+      <svg class="map" viewBox="0 0 1000 680" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Стратегическая карта">
+        <defs><radialGradient id="sea" cx="55%" cy="40%" r="80%"><stop offset="0%" stop-color="#101b17"/><stop offset="100%" stop-color="#0a110e"/></radialGradient></defs>
+        <rect x="0" y="0" width="1000" height="680" fill="url(#sea)"/>
+        <g stroke="#1c2c24" stroke-width="1" opacity=".4"><path d="M170 0V680M340 0V680M510 0V680M680 0V680M850 0V680"/><path d="M0 150H1000M0 300H1000M0 450H1000M0 600H1000"/></g>
+        <g stroke="#243a2c" stroke-width="1" fill="none" opacity=".35"><circle cx="600" cy="306" r="140"/><circle cx="600" cy="306" r="260"/><circle cx="600" cy="306" r="380"/></g>
+        <g id="regions">
+          <polygon class="region" data-r="ural" data-pol="#8a3d34" data-eco="#5c7a3f" data-res="#b0862e" points="470,150 610,140 640,250 560,320 460,290 440,200"/>
+          <polygon class="region" data-r="msk" data-pol="#a24a40" data-eco="#77953f" data-res="#7d6a2c" points="330,180 470,150 440,200 460,290 360,300 300,240"/>
+          <polygon class="region" data-r="sib" data-pol="#7c352d" data-eco="#4d6733" data-res="#c98f2f" points="610,140 820,120 880,240 760,300 640,250"/>
+          <polygon class="region" data-r="ukr" data-pol="#b5544a" data-eco="#8d9a3f" data-res="#94782f" points="300,240 360,300 340,380 230,370 220,290"/>
+          <polygon class="region" data-r="cauc" data-pol="#8a3d34" data-eco="#44553a" data-res="#a97a2c" points="360,300 460,290 490,360 400,420 340,380"/>
+          <polygon class="region" data-r="pol" data-pol="#6f7f43" data-eco="#71804a" data-res="#5f5f42" points="180,210 300,240 220,290 230,370 150,340 140,250"/>
+          <polygon class="region" data-r="ger" data-pol="#4d6f86" data-eco="#6f8f4a" data-res="#5c5c40" points="60,240 180,210 140,250 150,340 70,330 40,280"/>
+          <polygon class="region" data-r="cas" data-pol="#7c352d" data-eco="#40533a" data-res="#b8912d" points="490,360 560,320 640,360 620,470 500,470 400,420"/>
+        </g>
+        <g class="feat">
+          <g transform="translate(392,236)"><path d="M0,-9 2.6,-2.6 9,-2.6 3.6,1.6 5.6,8.4 0,4 -5.6,8.4 -3.6,1.6 -9,-2.6 -2.6,-2.6Z" fill="var(--accent-2)" stroke="#201404" stroke-width="1"/><text x="12" y="4">МОСКВА</text></g>
+          <g transform="translate(540,215)"><rect x="-6" y="-6" width="12" height="12" fill="#1b2a20" stroke="var(--paper-dim)" stroke-width="1.2"/><path d="M-3 3V-2l3 2 0-2 3 2" fill="none" stroke="var(--paper-dim)" stroke-width="1.2"/><text x="11" y="4">ЗАВОД · УРАЛМАШ</text></g>
+          <g transform="translate(300,340)"><rect x="-11" y="-7" width="22" height="14" fill="#2a1f1f" stroke="var(--crit)" stroke-width="1.3"/><path d="M-11 -7L11 7M11 -7L-11 7" stroke="var(--crit)" stroke-width="1"/><text x="15" y="4">3-я ГВ. АРМИЯ</text></g>
+        </g>
+        <text class="mlabel" x="300" y="120">СССР</text>
+        <text class="mlabel" x="70" y="200" style="fill:var(--paper-dim);font-size:12px">ГДР</text>
+        <text class="mlabel" x="150" y="200" style="fill:#aebb6a;font-size:12px">ПНР</text>
+      </svg>
+      <div class="atmos"></div>
+      <div class="sweep"></div>
+    </div>
+
+    <section class="panel" aria-label="Раздел">
+      <div class="panel-head"><div><div class="sub">Гос-во · СССР</div><h2 id="p-title">Экономика</h2></div><button class="panel-close" aria-label="Закрыть (Esc)">✕</button></div>
+      <div class="panel-body" id="p-body"></div>
+    </section>
+
+    <section class="orders" aria-label="Приказы на ход">
+      <div class="orders-head" id="orders-toggle"><span class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h11M4 12h16M4 18h8"/><path d="M17 5l3 3-6 6-3 .5.5-3z"/></svg> Приказы на ход</span><span class="chev">▾</span></div>
+      <div class="orders-body">
+        <div class="field">Например: «Форсировать ядерную программу и укрепить границу с Польшей…»</div>
+        <div class="hint2">Свободный текст → LLM интерпретирует в действия хода: дипломатия, война, санкции, сдвиг науки/производства, добыча.</div>
+        <button class="orders-send">Внести в ход ▸</button>
+      </div>
+    </section>
+
+    <aside class="context" aria-label="Выделенный объект">
+      <div class="ctx-head">
+        <button class="ctx-close" aria-label="Снять выделение">✕</button>
+        <div class="eyebrow">Регион · выделено</div>
+        <h2 id="ctx-name">—</h2>
+        <div class="owner"><span class="swatch"></span> <span class="owner-t"></span></div>
+      </div>
+      <div class="ctx-body">
+        <div class="stat2"><div class="top2"><span class="lbl">Население</span><span class="v" data-s="pop">—</span></div><div class="meter"><i data-m="pop" style="background:var(--accent-dim)"></i></div></div>
+        <div class="stat2"><div class="top2"><span class="lbl">Стабильность</span><span class="v" data-s="sta">—</span></div><div class="meter"><i data-m="sta"></i></div></div>
+        <div class="stat2"><div class="top2"><span class="lbl">Развитие</span><span class="v" data-s="dev">—</span></div><div class="meter"><i data-m="dev" style="background:var(--accent-dim)"></i></div></div>
+        <div>
+          <div class="sec-h" style="margin-bottom:8px"><h3 class="lbl">Ресурсы региона</h3></div>
+          <div class="chips">
+            <div class="chip"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 6-3 10H7L4 9z"/></svg></span><span class="nm">Железная руда</span><span class="q">9,4 <small>млн т/год</small></span></div>
+            <div class="chip"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="8" width="16" height="10"/><path d="M8 8V6h8v2"/></svg></span><span class="nm">Уголь</span><span class="q">6,1 <small>млн т/год</small></span></div>
+            <div class="chip"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg></span><span class="nm">Медь</span><span class="q">1,2 <small>млн т/год</small></span></div>
+          </div>
+        </div>
+        <div>
+          <div class="sec-h" style="margin-bottom:8px"><h3 class="lbl">Объекты на карте</h3></div>
+          <div class="feats">
+            <span class="ftag"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper-dim)" stroke-width="1.6"><rect x="4" y="9" width="16" height="11"/><path d="M8 9V5h8v4"/></svg> 2 завода</span>
+            <span class="ftag"><svg viewBox="0 0 24 24" fill="none" stroke="var(--paper-dim)" stroke-width="1.6"><path d="M12 3l8 5v8l-8 5-8-5V8z"/></svg> 1 шахта</span>
+            <span class="ftag"><svg viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.6"><rect x="4" y="8" width="16" height="9"/></svg> 1 гарнизон</span>
+          </div>
+        </div>
+        <div class="ctx-actions"><button>Открыть регион</button><button>Сравнить</button><button>Дать приказ</button><button>Закрепить</button></div>
+      </div>
+    </aside>
+
+    <aside class="ledgerN" aria-label="Уведомления">
+      <div class="ledgerN-head"><b>Уведомления</b><button class="ctx-close" id="notif-close" style="position:static" aria-label="Закрыть">✕</button></div>
+      <div class="ledgerN-body">
+        <div class="nrow crit"><span class="dot"></span><div class="tx"><b>ТРЕВОГА</b> Волнения в Польше — стабильность 41%<small>требует решения · регион PNR</small></div></div>
+        <div class="nrow warn"><span class="dot"></span><div class="tx">Нефтяной дефицит: −4,1 млн т в этом месяце<small>экономика</small></div></div>
+        <div class="nrow info"><span class="dot"></span><div class="tx">Исследование завершено: <b>Реактивная авиация</b><small>наука</small></div></div>
+        <div class="nrow info"><span class="dot"></span><div class="tx">Британия предложила пакт о ненападении<small>дипломатия</small></div></div>
+      </div>
+    </aside>
+
+    <div class="hint"><svg width="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 5l7 7-4 1 3 5-2 1-3-5-3 3z"/></svg> выберите территорию — появится сводка справа</div>
+
+    <div class="mapctl">
+      <div class="legend" id="legend"><div class="lh"><b id="lg-title">Политический</b></div></div>
+      <div class="modesrow">
+        <div class="modes" role="group" aria-label="Режимы карты">
+          <button class="mode active" data-mode="pol" data-t="Политический"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5h16v14H4zM4 10h16M10 5v14"/></svg></button>
+          <button class="mode" data-mode="eco" data-t="Экономика"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19L9 12l4 3 7-9"/></svg></button>
+          <button class="mode" data-mode="res" data-t="Ресурсы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 5v8l-8 5-8-5V8z"/></svg></button>
+          <button class="mode" data-mode="pop" data-t="Население"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="3"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7"/></svg></button>
+          <button class="mode" data-mode="sta" data-t="Стабильность"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/></svg></button>
+          <button class="mode" data-mode="dip" data-t="Дипломатия"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M5 7l7-4 7 4M5 7v8c0 2 3 3 7 3s7-1 7-3V7"/></svg></button>
+          <button class="mode" data-mode="mil" data-t="Военный"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="7" width="16" height="10"/><path d="M4 7l16 10M20 7L4 17"/></svg></button>
+          <button class="mode" data-mode="inf" data-t="Инфраструктура"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12h18M6 12V7h12v5M9 12v5M15 12v5"/></svg></button>
+        </div>
+        <div class="zoom"><button aria-label="Приблизить">+</button><button aria-label="Отдалить">−</button></div>
+      </div>
+    </div>
+    <div class="anno" style="right:10px; top:10px;">мокап карты · реальная = MapLibre + regions.json</div>
+  </main>
+</div>
+
+<script>
+(function () {
+  const app = document.getElementById('app');
+  const BOOKS = {
+    'Экономика': `<div class="headline"><span class="big">2,34</span><span class="cap">трлн ₽ · ВВП</span></div>
+      <div class="kpis"><div class="kpi"><span class="lbl">Доход/мес</span><span class="v pos">+14,2 млрд</span></div><div class="kpi"><span class="lbl">Расход/мес</span><span class="v">12,1 млрд</span></div><div class="kpi"><span class="lbl">Баланс</span><span class="v pos">+2,1 млрд</span></div><div class="kpi"><span class="lbl">Инфляция</span><span class="v" style="color:var(--warn)">4,8%</span></div></div>
+      <div><div class="sec-h"><h3 class="lbl">Бюджет по статьям</h3><span class="lbl">доля</span></div><div class="ledger">${row('#4d6f86','Армия и флот','5,4 млрд',44)}${row('#77953f','Промышленность','3,1 млрд',26)}${row('#8a959c','Наука','1,8 млрд',15)}${row('#c7b46a','Соц. сфера','1,8 млрд',15)}<div class="row total"><span class="name">Расходы всего</span><span class="num">12,1 млрд ₽</span></div></div></div>`,
+    'Промышленность': `<div class="headline"><span class="big">18</span><span class="cap">строек в очереди</span></div>
+      <div class="kpis"><div class="kpi"><span class="lbl">Воен. заводы</span><span class="v">142</span></div><div class="kpi"><span class="lbl">Гражд. заводы</span><span class="v">210</span></div><div class="kpi"><span class="lbl">Загрузка</span><span class="v pos">96%</span></div><div class="kpi"><span class="lbl">Нефть</span><span class="v" style="color:var(--crit)">дефицит</span></div></div>
+      <div><div class="sec-h"><h3 class="lbl">Очередь строительства</h3><span class="lbl">готово</span></div><div class="ledger">${row('#77953f','Металлург. комбинат · Урал','2 мес',70)}${row('#4d6f86','Авиазавод · Куйбышев','4 мес',35)}${row('#8a959c','НПЗ · Баку','6 мес',12)}</div></div>`,
+    'Технологии': `<div class="headline"><span class="big">3</span><span class="cap">освоенных домена · в работе 1</span></div>
+      <div><div class="sec-h"><h3 class="lbl">Текущее исследование</h3></div><div class="ledger">${row('var(--accent-dim)','Ядерная программа','3 мес',62)}</div></div>
+      <div><div class="sec-h"><h3 class="lbl">Освоено</h3></div><div class="ledger">${row('#77953f','Реактивная авиация','',100)}${row('#77953f','Радиолокация','',100)}${row('#77953f','Тяжёлая индустрия','',100)}</div></div>
+      <p style="font-size:12px;color:var(--paper-dim);margin:0">Полное дерево — во весь экран.</p>`,
+    'Население': `<div class="headline"><span class="big">184</span><span class="cap">млн человек</span></div>
+      <div class="kpis"><div class="kpi"><span class="lbl">Прирост/год</span><span class="v pos">+1,3%</span></div><div class="kpi"><span class="lbl">Урбанизация</span><span class="v">48%</span></div><div class="kpi"><span class="lbl">Грамотность</span><span class="v pos">89%</span></div><div class="kpi"><span class="lbl">Настроения</span><span class="v" style="color:var(--warn)">напряж.</span></div></div>`,
+    'Политика': `<div class="headline"><span class="big">54</span><span class="cap">стабильность · напряжённо</span></div>
+      <div class="kpis"><div class="kpi"><span class="lbl">Легитимность</span><span class="v pos">61%</span></div><div class="kpi"><span class="lbl">Поддержка</span><span class="v">58%</span></div><div class="kpi"><span class="lbl">Коррупция</span><span class="v" style="color:var(--warn)">57</span></div><div class="kpi"><span class="lbl">Режим</span><span class="v" style="font-size:13px">Коммунизм</span></div></div>
+      <p style="font-size:12px;color:var(--paper-dim);margin:0">Дрейф к равновесию каждый месяц (PoliticsTick).</p>`,
+    'Дипломатия': `<div class="headline"><span class="big">7</span><span class="cap">активных отношений</span></div>
+      <div><div class="sec-h"><h3 class="lbl">Ключевые державы</h3><span class="lbl">отношение</span></div><div class="ledger">${dip('США','−62','var(--crit)')}${dip('Британия','−18','var(--warn)')}${dip('ГДР','+80','var(--ok)')}${dip('Польша','+44','var(--ok)')}${dip('Китай','+35','var(--ok)')}</div></div>`,
+    'Разведка': `<div class="headline"><span class="big">4</span><span class="cap">агента в поле</span></div><p style="font-size:12px;color:var(--paper-dim);margin:0">Система разведки — в разработке.</p>`,
+    'Рейтинги': `<div class="headline"><span class="big">2</span><span class="cap">место в мире · воен. мощь № 1</span></div>
+      <div class="ledger">${row('#8a959c','Военная мощь','№ 1',100)}${row('#77953f','Промышленность','№ 2',82)}${row('#4d6f86','ВВП','№ 2',74)}${row('#c7b46a','Технологии','№ 4',55)}</div>`,
+    'Летопись': `<div class="headline"><span class="big">1953</span><span class="cap">хроника кампании</span></div>
+      <div class="ledger">${chron('МАР 1953','Волнения в Польше')}${chron('ФЕВ 1953','Испытание РДС-6с')}${chron('ЯНВ 1953','Пакт с КНР продлён')}${chron('1952','Индустриализация Урала завершена')}</div>`
+  };
+  function row(color, name, val, pct) { return `<div class="row"><span class="name"><span class="swatch" style="background:${color}"></span>${name}</span><span style="display:flex;align-items:center;gap:9px">${val?`<span class="num" style="color:var(--paper-dim);font-size:12px">${val}</span>`:''}<span class="bar"><i style="width:${pct}%;background:${color}"></i></span></span></div>`; }
+  function dip(name, val, color) { return `<div class="row"><span class="name">${name}</span><span class="num" style="color:${color}">${val}</span></div>`; }
+  function chron(date, txt) { return `<div class="row"><span class="name">${txt}</span><span class="num" style="color:var(--paper-dim);font-size:11px">${date}</span></div>`; }
+
+  const navbtns = [...app.querySelectorAll('.navbtn')];
+  const pTitle = document.getElementById('p-title');
+  const pBody = document.getElementById('p-body');
+  function fillBook(name) { pTitle.textContent = name; pBody.innerHTML = BOOKS[name] || ''; pBody.classList.remove('swap'); void pBody.offsetWidth; pBody.classList.add('swap'); }
+  function setActive(name) { navbtns.forEach(x => x.classList.toggle('active', x.dataset.book === name)); }
+  navbtns.forEach(b => b.addEventListener('click', () => {
+    const isActive = b.classList.contains('active') && app.classList.contains('panel-open');
+    if (isActive) { app.classList.remove('panel-open'); navbtns.forEach(x => x.classList.remove('active')); }
+    else { setActive(b.dataset.book); fillBook(b.dataset.book); app.classList.add('panel-open'); }
+  }));
+  app.querySelectorAll('.st[data-book]').forEach(p => p.addEventListener('click', () => { setActive(p.dataset.book); fillBook(p.dataset.book); app.classList.add('panel-open'); }));
+  fillBook('Экономика');
+  app.querySelector('.panel-close').addEventListener('click', () => { app.classList.remove('panel-open'); navbtns.forEach(x => x.classList.remove('active')); });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { app.classList.remove('panel-open','has-selection','notif-open'); navbtns.forEach(x => x.classList.remove('active')); return; }
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= navbtns.length && !e.ctrlKey && !e.metaKey) navbtns[n - 1].click();
+  });
+
+  document.getElementById('orders-toggle').addEventListener('click', () => app.classList.toggle('orders-collapsed'));
+  document.getElementById('bell').addEventListener('click', () => app.classList.toggle('notif-open'));
+  document.getElementById('notif-close').addEventListener('click', () => app.classList.remove('notif-open'));
+
+  const LG = {
+    pol:['Политический',[['#a24a40','СССР'],['#4d6f86','ГДР — союзник'],['#6f7f43','ПНР — сфера влияния']]],
+    eco:['Экономика',[['#8d9a3f','высокая'],['#5c7a3f','средняя'],['#44553a','низкая']]],
+    res:['Ресурсы',[['#c98f2f','богатые'],['#b0862e','средние'],['#7d6a2c','бедные']]],
+    pop:['Население',[['#8d9a3f','плотное'],['#5c7a3f','среднее'],['#40533a','редкое']]],
+    sta:['Стабильность',[['#7aa653','спокойно'],['#c9762a','напряжённо'],['#cf4436','волнения']]],
+    dip:['Дипломатия',[['#7aa653','союзник'],['#9ba08c','нейтрал'],['#cf4436','противник']]],
+    mil:['Военный',[['#cf4436','фронт'],['#8a959c','гарнизон'],['#4d6f86','тыл']]],
+    inf:['Инфраструктура',[['#e6a338','развитая'],['#8a6a2a','базовая'],['#44553a','слабая']]]
+  };
+  const regions = app.querySelectorAll('.region');
+  const modes = app.querySelectorAll('.mode');
+  const legend = document.getElementById('legend');
+  const staMap = { ural:'#7aa653', msk:'#7aa653', sib:'#7aa653', ukr:'#c9762a', cauc:'#c9762a', pol:'#cf4436', ger:'#7aa653', cas:'#c9762a' };
+  function applyMode(m) {
+    regions.forEach(r => { let f; if (m==='pol'||m==='dip'||m==='mil') f=r.dataset.pol; else if (m==='eco'||m==='pop'||m==='inf') f=r.dataset.eco; else if (m==='res') f=r.dataset.res; else if (m==='sta') f=staMap[r.dataset.r]||r.dataset.eco; r.setAttribute('fill', f); });
+    const [title, items] = LG[m];
+    legend.innerHTML = `<div class="lh"><b>${title}</b></div>` + items.map(([c,t])=>`<div class="li"><span class="sw" style="background:${c}"></span> ${t}</div>`).join('');
+  }
+  modes.forEach(btn => btn.addEventListener('click', () => { modes.forEach(x=>x.classList.remove('active')); btn.classList.add('active'); applyMode(btn.dataset.mode); }));
+  app.querySelectorAll('.st[data-mode]').forEach(p => p.addEventListener('click', () => { modes.forEach(x=>x.classList.remove('active')); app.querySelector('.mode[data-mode="res"]').classList.add('active'); applyMode('res'); }));
+  applyMode('pol');
+
+  const RG = {
+    ural:['Уральский регион','СССР · индустриальное ядро','#a24a40',4.21,72,58,'var(--ok)'],
+    msk:['Московский регион','СССР · столица','#a24a40',11.2,84,71,'var(--ok)'],
+    sib:['Сибирь','СССР · ресурсный тыл','#a24a40',6.4,76,34,'var(--ok)'],
+    ukr:['Украина','СССР · зерно и уголь','#a24a40',28.1,61,55,'var(--warn)'],
+    cauc:['Кавказ','СССР · нефть','#a24a40',9.3,63,44,'var(--warn)'],
+    pol:['Польша','Сфера влияния','#6f7f43',24.0,41,49,'var(--crit)'],
+    ger:['ГДР','Союзник','#4d6f86',17.5,66,62,'var(--ok)'],
+    cas:['Казахстан','СССР · целина и уран','#a24a40',6.7,70,30,'var(--ok)']
+  };
+  const ctxName = document.getElementById('ctx-name');
+  const ctx = app.querySelector('.context');
+  regions.forEach(r => r.addEventListener('click', () => {
+    regions.forEach(x => x.classList.remove('sel')); r.classList.add('sel');
+    const d = RG[r.dataset.r]; if (!d) return;
+    app.classList.add('has-selection');
+    ctxName.textContent = d[0];
+    ctx.querySelector('.owner').innerHTML = `<span class="swatch" style="background:${d[2]}"></span> ${d[1]}`;
+    ctx.querySelector('[data-s="pop"]').innerHTML = `${d[3].toLocaleString('ru-RU')} <small style="color:var(--paper-faint)">млн</small>`;
+    ctx.querySelector('[data-m="pop"]').style.width = Math.min(100, d[3]*4) + '%';
+    ctx.querySelector('[data-s="sta"]').textContent = d[4] + '%';
+    ctx.querySelector('[data-s="sta"]').style.color = d[6];
+    ctx.querySelector('[data-m="sta"]').style.width = d[4] + '%';
+    ctx.querySelector('[data-m="sta"]').style.background = d[6];
+    ctx.querySelector('[data-s="dev"]').innerHTML = `${d[5]} <small style="color:var(--paper-faint)">/100</small>`;
+    ctx.querySelector('[data-m="dev"]').style.width = d[5] + '%';
+  }));
+  app.querySelector('.ctx-close').addEventListener('click', () => { app.classList.remove('has-selection'); regions.forEach(x => x.classList.remove('sel')); });
+})();
+</script>

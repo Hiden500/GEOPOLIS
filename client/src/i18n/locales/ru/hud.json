@@ -1,0 +1,51 @@
+{
+  "flag": {
+    "overview": "Обзор страны"
+  },
+  "stats": {
+    "gdp": "ВВП — открыть экономику",
+    "treasury": "Казна — открыть бюджет",
+    "population": "Население",
+    "military": "Военная мощь",
+    "stability": "Стабильность — открыть политику",
+    "legitimacy": "Легитимность"
+  },
+  "resourceRow": {
+    "ariaLabel": "Ресурсы"
+  },
+  "tabs": {
+    "economy": "Экономика",
+    "industry": "Промышленность",
+    "technology": "Технологии",
+    "population": "Население",
+    "politics": "Политика",
+    "diplomacy": "Дипломатия",
+    "intelligence": "Разведка",
+    "rankings": "Рейтинги",
+    "chronicle": "Летопись"
+  },
+  "tabsAriaLabel": "Разделы",
+  "statusPill": {
+    "ready": "ход готов",
+    "waiting": "ждём ответ LLM",
+    "turnLabel": "· ход {{turn}}"
+  },
+  "turn": {
+    "next": "Следующий ход",
+    "simulating": "Симуляция…"
+  },
+  "tools": {
+    "search": "Поиск",
+    "ledgers": "Леджеры и статистика",
+    "notifications": "Уведомления — скоро",
+    "settings": "Настройки — скоро",
+    "menu": "Меню — назад к выбору сценария"
+  },
+  "bookPlaceholder": {
+    "title": "Раздел готовится",
+    "body": "Наполнение реальными данными — Срез 3 (docs/plans/12_UI_REDESIGN.md)."
+  },
+  "panel": {
+    "stateLabel": "Гос-во"
+  }
+}

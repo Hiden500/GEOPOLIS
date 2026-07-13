@@ -13,6 +13,7 @@ import ruBudgetPanel from "./locales/ru/budgetPanel.json";
 import ruErrorBoundary from "./locales/ru/errorBoundary.json";
 import ruEventTimelinePanel from "./locales/ru/eventTimelinePanel.json";
 import ruGameView from "./locales/ru/gameView.json";
+import ruHud from "./locales/ru/hud.json";
 import ruInspectorPanel from "./locales/ru/inspectorPanel.json";
 import ruLlmPanel from "./locales/ru/llmPanel.json";
 import ruPlayerIntentPanel from "./locales/ru/playerIntentPanel.json";
@@ -30,6 +31,7 @@ import enBudgetPanel from "./locales/en/budgetPanel.json";
 import enErrorBoundary from "./locales/en/errorBoundary.json";
 import enEventTimelinePanel from "./locales/en/eventTimelinePanel.json";
 import enGameView from "./locales/en/gameView.json";
+import enHud from "./locales/en/hud.json";
 import enInspectorPanel from "./locales/en/inspectorPanel.json";
 import enLlmPanel from "./locales/en/llmPanel.json";
 import enPlayerIntentPanel from "./locales/en/playerIntentPanel.json";
@@ -57,6 +59,7 @@ void i18n.use(initReactI18next).init({
       errorBoundary: ruErrorBoundary,
       eventTimelinePanel: ruEventTimelinePanel,
       gameView: ruGameView,
+      hud: ruHud,
       inspectorPanel: ruInspectorPanel,
       llmPanel: ruLlmPanel,
       playerIntentPanel: ruPlayerIntentPanel,
@@ -75,6 +78,7 @@ void i18n.use(initReactI18next).init({
       errorBoundary: enErrorBoundary,
       eventTimelinePanel: enEventTimelinePanel,
       gameView: enGameView,
+      hud: enHud,
       inspectorPanel: enInspectorPanel,
       llmPanel: enLlmPanel,
       playerIntentPanel: enPlayerIntentPanel,

@@ -31,6 +31,7 @@
   --ok: #7aa653;
   --warn: #c9762a;
   --crit: #cf4436;
+  --crit-tint: rgba(207, 68, 54, 0.15);
 
   --font-display: "Oswald", "Arial Narrow", sans-serif;
   --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
