@@ -88,8 +88,6 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
 
   return (
     <div className="budget-panel">
-      <h2>{t("title")}</h2>
-
       <div className="budget-summary">
         <div className="budget-item">
           <span className="label">{t("income")}</span>

@@ -46,6 +46,7 @@
     "body": "Real data content lands in Slice 3 (docs/plans/12_UI_REDESIGN.md)."
   },
   "panel": {
-    "stateLabel": "State"
+    "stateLabel": "State",
+    "close": "Close (Esc)"
   }
 }

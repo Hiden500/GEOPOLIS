@@ -2,7 +2,9 @@ import { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { Header } from "../hud/Header/Header";
-import { BOOK_ORDER, type BookId } from "../hud/types";
+import { SidePanel } from "../hud/SidePanel/SidePanel";
+import { BookPlaceholder } from "../hud/SidePanel/BookPlaceholder";
+import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId } from "../hud/types";
 import { ResourceTicker } from "./ResourceTicker";
 import { InspectorPanel } from "./InspectorPanel";
 import { getInspectorTitle } from "./inspectorTitle";
@@ -36,6 +38,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
   const [closePopupTrigger, setClosePopupTrigger] = useState(0);
+  const [activeBook, setActiveBook] = useState<BookId | null>(null);
   const { windows, openOrFocus, toggle, close, focus, move, resize } = useWindows();
 
   const playerCountry = game.countries.find(
@@ -48,15 +51,6 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
 
   const regionWindow = windows.find(w => w.kind.type === "region");
   const selectedRegionId = regionWindow?.kind.type === "region" ? regionWindow.kind.regionId : null;
-
-  // Временно, пока книги не переехали в SidePanel (см. handleTabClick ниже).
-  const WINDOW_TO_BOOK: Partial<Record<string, BookId>> = {
-    budget: "economy",
-    research: "technology",
-    ranking: "rankings",
-    timeline: "chronicle",
-  };
-  const activeBook = windows.map(w => WINDOW_TO_BOOK[w.kind.type]).find((b): b is BookId => b != null) ?? null;
 
   const handleNextTurn = async () => {
     setLoading(true);
@@ -110,26 +104,14 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     openOrFocus({ type: "country", countryId });
   }, [openOrFocus]);
 
-  // Временная привязка вкладок шапки к старой оконной системе — до Среза 2
-  // (SidePanel), когда книги переедут в выдвижную панель (docs/plans/12_UI_REDESIGN.md).
+  // Клик по уже открытой вкладке закрывает панель, по другой — переключает
+  // без закрытия (эталон geopolis-1946-hud.html, docs/plans/12_UI_REDESIGN.md
+  // Срез 2, приёмка "вкладки переключаются без закрытия панели").
   const handleTabClick = useCallback((book: BookId) => {
-    switch (book) {
-      case "economy":
-        toggle({ type: "budget" });
-        break;
-      case "technology":
-        toggle({ type: "research" });
-        break;
-      case "rankings":
-        toggle({ type: "ranking" });
-        break;
-      case "chronicle":
-        toggle({ type: "timeline" });
-        break;
-      default:
-        break;
-    }
-  }, [toggle]);
+    setActiveBook(prev => (prev === book ? null : book));
+  }, []);
+
+  const handleClosePanel = useCallback(() => setActiveBook(null), []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -151,6 +133,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           if (activeWindow) {
             close(activeWindow.id);
           }
+        } else if (activeBook !== null) {
+          setActiveBook(null);
         }
         return;
       }
@@ -165,7 +149,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMapPopupOpen, windows, close, handleTabClick]);
+  }, [isMapPopupOpen, windows, close, activeBook, handleTabClick]);
 
   if (!playerCountry) {
     return (
@@ -176,6 +160,36 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
         </button>
       </div>
     );
+  }
+
+  function renderBookContent(book: BookId) {
+    if (BOOKS_WITHOUT_CONTENT.has(book)) return <BookPlaceholder />;
+    switch (book) {
+      case "economy":
+        return <BudgetPanel country={playerCountry!} onUpdateBudget={handleUpdateBudget} />;
+      case "technology":
+        return <ResearchPanel country={playerCountry!} />;
+      case "population":
+        return (
+          <TerritoriesPanel
+            regions={playerRegions}
+            selectedRegionId={selectedRegionId}
+            onSelectRegion={handleRegionClick}
+          />
+        );
+      case "rankings":
+        return <WorldRankingPanel game={game} onSelectCountry={handleSelectCountry} />;
+      case "chronicle":
+        return (
+          <EventTimelinePanel
+            events={game.eventHistory}
+            countries={game.countries}
+            onSelectCountry={handleSelectCountry}
+          />
+        );
+      default:
+        return <BookPlaceholder />;
+    }
   }
 
   return (
@@ -206,63 +220,46 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             onPopupStateChange={setIsMapPopupOpen}
             closePopupTrigger={closePopupTrigger}
           />
+
+          <SidePanel book={activeBook} countryName={playerCountry.name} onClose={handleClosePanel}>
+            {activeBook && renderBookContent(activeBook)}
+          </SidePanel>
+
+          {windows.map(w => {
+            const title =
+              w.kind.type === "country" || w.kind.type === "region"
+                ? getInspectorTitle(w.kind, game)
+                : t(`windowTitles.${w.kind.type}`);
+
+            return (
+              <Window
+                key={w.id}
+                title={title}
+                position={w.position}
+                size={w.size}
+                zIndex={w.zIndex}
+                onMove={pos => move(w.id, pos)}
+                onResize={size => resize(w.id, size)}
+                onFocus={() => focus(w.id)}
+                onClose={() => close(w.id)}
+              >
+                {(w.kind.type === "country" || w.kind.type === "region") && (
+                  <InspectorPanel target={w.kind} game={game} onSelectCountry={handleSelectCountry} />
+                )}
+                {w.kind.type === "intent" && (
+                  <PlayerIntentPanel
+                    regions={playerRegions}
+                    intent={game.playerIntent}
+                    onSave={handleSavePlayerIntent}
+                  />
+                )}
+                {w.kind.type === "llm" && (
+                  <LLMPanel llmTurn={game.llmTurn ?? 0} onApplied={handleLlmApplied} />
+                )}
+              </Window>
+            );
+          })}
         </div>
-
-        {windows.map(w => {
-          const title =
-            w.kind.type === "country" || w.kind.type === "region"
-              ? getInspectorTitle(w.kind, game)
-              : t(`windowTitles.${w.kind.type}`);
-
-          return (
-            <Window
-              key={w.id}
-              title={title}
-              position={w.position}
-              size={w.size}
-              zIndex={w.zIndex}
-              onMove={pos => move(w.id, pos)}
-              onResize={size => resize(w.id, size)}
-              onFocus={() => focus(w.id)}
-              onClose={() => close(w.id)}
-            >
-              {(w.kind.type === "country" || w.kind.type === "region") && (
-                <InspectorPanel target={w.kind} game={game} onSelectCountry={handleSelectCountry} />
-              )}
-              {w.kind.type === "budget" && (
-                <BudgetPanel country={playerCountry} onUpdateBudget={handleUpdateBudget} />
-              )}
-              {w.kind.type === "research" && <ResearchPanel country={playerCountry} />}
-              {w.kind.type === "intent" && (
-                <PlayerIntentPanel
-                  regions={playerRegions}
-                  intent={game.playerIntent}
-                  onSave={handleSavePlayerIntent}
-                />
-              )}
-              {w.kind.type === "ranking" && (
-                <WorldRankingPanel game={game} onSelectCountry={handleSelectCountry} />
-              )}
-              {w.kind.type === "territories" && (
-                <TerritoriesPanel
-                  regions={playerRegions}
-                  selectedRegionId={selectedRegionId}
-                  onSelectRegion={handleRegionClick}
-                />
-              )}
-              {w.kind.type === "llm" && (
-                <LLMPanel llmTurn={game.llmTurn ?? 0} onApplied={handleLlmApplied} />
-              )}
-              {w.kind.type === "timeline" && (
-                <EventTimelinePanel
-                  events={game.eventHistory}
-                  countries={game.countries}
-                  onSelectCountry={handleSelectCountry}
-                />
-              )}
-            </Window>
-          );
-        })}
       </div>
 
       <ResourceTicker stockpile={playerCountry.stockpile} />

@@ -26,10 +26,15 @@ export const BOOK_ORDER: BookId[] = [
   "chronicle",
 ];
 
-/** Книги без реального контента в Срезе 2 (см. docs/plans/12_UI_REDESIGN.md, Срез 2 — честная заглушка вместо выдуманных данных; наполнение — Срез 3). */
+/**
+ * Книги без реального контента в Срезе 2 (см. docs/plans/12_UI_REDESIGN.md,
+ * Срез 2 — честная заглушка вместо выдуманных данных; наполнение — Срез 3).
+ * "population" сюда НЕ входит: отдана TerritoriesPanel (список регионов
+ * игрока) — старая шапка теряла единственный вход в этот экран при замене
+ * TopStatBar, регион-данные реальны и тематически подходят разделу.
+ */
 export const BOOKS_WITHOUT_CONTENT: ReadonlySet<BookId> = new Set([
   "industry",
-  "population",
   "politics",
   "diplomacy",
   "intelligence",
