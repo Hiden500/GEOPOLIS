@@ -1,0 +1,106 @@
+.mapctl {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.modesrow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.modes {
+  display: grid;
+  grid-template-columns: repeat(4, 36px);
+  gap: 1px;
+  background: var(--hairline-2);
+  border: 1px solid var(--hairline-2);
+}
+
+.mode {
+  width: 36px;
+  height: 36px;
+  background: var(--steel);
+  border: 0;
+  color: var(--paper-dim);
+  display: grid;
+  place-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.modeIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.mode:hover {
+  background: var(--steel-2);
+  color: var(--paper);
+}
+
+.mode:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: -2px;
+}
+
+.mode.active {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.mode::after {
+  content: attr(data-t);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink-2);
+  border: 1px solid var(--hairline-2);
+  color: var(--paper);
+  font-size: 10px;
+  white-space: nowrap;
+  padding: 3px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-display);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+
+.mode:hover::after {
+  opacity: 1;
+}
+
+.zoom {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.zoom button {
+  width: 36px;
+  height: 36px;
+  background: var(--steel);
+  border: 1px solid var(--hairline-2);
+  color: var(--paper-dim);
+  font-size: 18px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.zoom button:hover {
+  color: var(--accent);
+}
+
+.zoom button:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: -2px;
+}

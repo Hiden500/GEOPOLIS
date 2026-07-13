@@ -104,14 +104,29 @@ function RegionContext({
           </button>
         )}
 
+        {/* region.stability/development/infrastructure — дробная шкала 0..1 в
+            рантайме (в отличие от Country.politics.*, которая уже 0..100,
+            см. server/src/simulation/politics/PoliticsTick.ts clamp(0,100)
+            против server/src/game/CreateGame.ts авторских долей) — приводим
+            к 0..100 здесь, не выше по цепочке. */}
         <Stat2
           label={t("context.region.population")}
           value={region.population.toLocaleString(i18n.language)}
-          pct={Math.min(100, region.population / 200000)}
+          pct={Math.min(100, (region.population / 3_000_000) * 100)}
           tone="neutral"
         />
-        <Stat2 label={t("context.region.stability")} value={`${Math.round(region.stability)}/100`} pct={region.stability} tone={region.stability < 40 ? "crit" : region.stability < 60 ? "warn" : "ok"} />
-        <Stat2 label={t("context.region.development")} value={`${Math.round(region.development)}/100`} pct={region.development} tone="neutral" />
+        <Stat2
+          label={t("context.region.stability")}
+          value={`${Math.round(region.stability * 100)}/100`}
+          pct={region.stability * 100}
+          tone={region.stability < 0.4 ? "crit" : region.stability < 0.6 ? "warn" : "ok"}
+        />
+        <Stat2
+          label={t("context.region.development")}
+          value={`${Math.round(region.development * 100)}/100`}
+          pct={region.development * 100}
+          tone="neutral"
+        />
 
         {resourceEntries.length > 0 && (
           <Section title={t("context.region.resources")}>

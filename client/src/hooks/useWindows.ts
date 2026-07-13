@@ -3,14 +3,14 @@ import { useCallback, useState } from "react";
 /**
  * Сужено до сценария "сравнить два объекта рядом" (docs/plans/12_UI_REDESIGN.md
  * §1/§4, Срез 2). budget/research/ranking/territories/timeline переехали в
- * SidePanel (Срез 2б) — свой стейт в GameView, не окна. intent/llm остаются
- * здесь до Среза 2в (OrdersBox) и переноса LLM-цикла — не окончательный
- * список, а текущий шаг сужения.
+ * SidePanel (2б), intent — в OrdersBox (2г). llm остаётся здесь: единственный
+ * доступ к LLM-циклу — клик по statuspill в шапке, открывает плавающим
+ * окном (не выводить на первый план, §2, но и не терять функциональность
+ * продвижения хода).
  */
 export type WindowKind =
   | { type: "country"; countryId: string }
   | { type: "region"; regionId: number }
-  | { type: "intent" }
   | { type: "llm" };
 
 export interface WindowInstance {

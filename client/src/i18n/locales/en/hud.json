@@ -96,5 +96,44 @@
       "government": "government",
       "border_dispute": "border dispute"
     }
+  },
+  "mapControls": {
+    "ariaLabel": "Map modes",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "modes": {
+      "pol": "Political",
+      "eco": "Economy",
+      "res": "Resources",
+      "pop": "Population",
+      "sta": "Stability",
+      "dip": "Diplomacy",
+      "mil": "Military",
+      "inf": "Infrastructure"
+    },
+    "legend": {
+      "high": "high",
+      "medium": "medium",
+      "low": "low",
+      "calm": "calm",
+      "tense": "tense",
+      "unrest": "unrest",
+      "dense": "dense",
+      "sparse": "sparse",
+      "rich": "rich",
+      "poor": "poor",
+      "own": "my regions",
+      "ally": "ally",
+      "neutral": "neutral",
+      "hostile": "hostile",
+      "front": "front",
+      "rear": "rear"
+    }
+  },
+  "orders": {
+    "title": "Turn orders",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "send": "Add to turn"
   }
 }

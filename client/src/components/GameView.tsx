@@ -1,11 +1,15 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import type maplibregl from "maplibre-gl";
 import { type GameState } from "@shared/types/GameState";
 import { Header } from "../hud/Header/Header";
 import { SidePanel } from "../hud/SidePanel/SidePanel";
 import { BookPlaceholder } from "../hud/SidePanel/BookPlaceholder";
 import { ContextPanel } from "../hud/ContextPanel/ContextPanel";
+import { OrdersBox } from "../hud/OrdersBox/OrdersBox";
+import { MapControls } from "../hud/MapControls/MapControls";
 import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId, type Selection } from "../hud/types";
+import { computeMapModeColors, type MapMode } from "../hud/mapModeColors";
 import { ResourceTicker } from "./ResourceTicker";
 import { InspectorPanel } from "./InspectorPanel";
 import { getInspectorTitle } from "./inspectorTitle";
@@ -41,6 +45,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [closePopupTrigger, setClosePopupTrigger] = useState(0);
   const [activeBook, setActiveBook] = useState<BookId | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
+  const [mapMode, setMapMode] = useState<MapMode>("pol");
+  const mapInstanceRef = useRef<maplibregl.Map | null>(null);
   const { windows, openOrFocus, toggle, close, focus, move, resize } = useWindows();
 
   const playerCountry = game.countries.find(
@@ -52,6 +58,11 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   );
 
   const selectedRegionId = selection?.type === "region" ? selection.regionId : null;
+
+  const regionModeColors = useMemo(
+    () => (playerCountry ? computeMapModeColors(mapMode, game.regions, game.countries, playerCountry.id) : null),
+    [mapMode, game.regions, game.countries, playerCountry]
+  );
 
   const handleNextTurn = async () => {
     setLoading(true);
@@ -128,6 +139,13 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   }, []);
 
   const handleClosePanel = useCallback(() => setActiveBook(null), []);
+
+  const handleMapReady = useCallback((map: maplibregl.Map) => {
+    mapInstanceRef.current = map;
+  }, []);
+
+  const handleZoomIn = useCallback(() => mapInstanceRef.current?.zoomIn(), []);
+  const handleZoomOut = useCallback(() => mapInstanceRef.current?.zoomOut(), []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -237,6 +255,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             selectedRegionId={selectedRegionId}
             onPopupStateChange={setIsMapPopupOpen}
             closePopupTrigger={closePopupTrigger}
+            regionModeColors={regionModeColors}
+            onMapReady={handleMapReady}
           />
 
           <SidePanel book={activeBook} countryName={playerCountry.name} onClose={handleClosePanel}>
@@ -250,6 +270,16 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             onSelectCountry={handleSelectCountry}
             onCompare={handleCompare}
           />
+
+          <OrdersBox>
+            <PlayerIntentPanel
+              regions={playerRegions}
+              intent={game.playerIntent}
+              onSave={handleSavePlayerIntent}
+            />
+          </OrdersBox>
+
+          <MapControls mode={mapMode} onModeChange={setMapMode} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
 
           {windows.map(w => {
             const title =
@@ -271,13 +301,6 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
               >
                 {(w.kind.type === "country" || w.kind.type === "region") && (
                   <InspectorPanel target={w.kind} game={game} onSelectCountry={handleOpenCountryWindow} />
-                )}
-                {w.kind.type === "intent" && (
-                  <PlayerIntentPanel
-                    regions={playerRegions}
-                    intent={game.playerIntent}
-                    onSave={handleSavePlayerIntent}
-                  />
                 )}
                 {w.kind.type === "llm" && (
                   <LLMPanel llmTurn={game.llmTurn ?? 0} onApplied={handleLlmApplied} />

@@ -43,3 +43,13 @@ export const IconBell = (p: IconProps) =>
 export const IconSettings = IconTechnology;
 export const IconMenu = (p: IconProps) => base(p, <path d="M4 6h16M4 12h16M4 18h16" />);
 export const IconClose = (p: IconProps) => base(p, <path d="M6 6l12 12M18 6L6 18" />);
+
+export const IconModePol = (p: IconProps) => base(p, <path d="M4 5h16v14H4zM4 10h16M10 5v14" />);
+export const IconModeEco = (p: IconProps) => base(p, <path d="M4 19L9 12l4 3 7-9" />);
+export const IconModeRes = (p: IconProps) => base(p, <path d="M12 3l8 5v8l-8 5-8-5V8z" />);
+export const IconModePop = (p: IconProps) => base(p, <><circle cx="12" cy="8" r="3" /><path d="M5 20c0-4 3-7 7-7s7 3 7 7" /></>);
+export const IconModeSta = IconStability;
+export const IconModeDip = IconDiplomacy;
+export const IconModeMil = (p: IconProps) => base(p, <><rect x="4" y="7" width="16" height="10" /><path d="M4 7l16 10M20 7L4 17" /></>);
+export const IconModeInf = (p: IconProps) => base(p, <path d="M3 12h18M6 12V7h12v5M9 12v5M15 12v5" />);
+export const IconOrders = (p: IconProps) => base(p, <><path d="M4 6h11M4 12h16M4 18h8" /><path d="M17 5l3 3-6 6-3 .5.5-3z" /></>);
