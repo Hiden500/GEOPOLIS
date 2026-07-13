@@ -1,4 +1,4 @@
-# Быстрый запуск Geopolis: поднимает server (Express, :3000) и client (Vite,
+﻿# Быстрый запуск Geopolis: поднимает server (Express, :3000) и client (Vite,
 # :5173) каждый в своём окне PowerShell и открывает игру в браузере.
 #
 # Использование:
@@ -36,10 +36,10 @@ if (-not (Test-Path (Join-Path $root "client\node_modules"))) {
 }
 
 Write-Host "Запускаю сервер (порт 3000)..." -ForegroundColor Cyan
-Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd '$root\server'; npm run dev"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root\server'; npm run dev"
 
 Write-Host "Запускаю клиент (порт 5173)..." -ForegroundColor Cyan
-Start-Process pwsh -ArgumentList "-NoExit", "-Command", "cd '$root\client'; npm run dev"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$root\client'; npm run dev"
 
 Write-Host "Жду, пока клиент поднимется..." -ForegroundColor Cyan
 Start-Sleep -Seconds 4
