@@ -39,3 +39,6 @@ export const BOOKS_WITHOUT_CONTENT: ReadonlySet<BookId> = new Set([
   "diplomacy",
   "intelligence",
 ]);
+
+/** Выделение на карте — источник контент-панели справа (docs/plans/12_UI_REDESIGN.md §1). */
+export type Selection = { type: "region"; regionId: number } | { type: "country"; countryId: string };

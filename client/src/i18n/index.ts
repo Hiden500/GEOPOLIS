@@ -21,7 +21,6 @@ import ruResearchPanel from "./locales/ru/researchPanel.json";
 import ruResourceTicker from "./locales/ru/resourceTicker.json";
 import ruScenarioSelector from "./locales/ru/scenarioSelector.json";
 import ruTerritoriesPanel from "./locales/ru/territoriesPanel.json";
-import ruTopStatBar from "./locales/ru/topStatBar.json";
 import ruWindow from "./locales/ru/window.json";
 import ruWorldRankingPanel from "./locales/ru/worldRankingPanel.json";
 
@@ -39,7 +38,6 @@ import enResearchPanel from "./locales/en/researchPanel.json";
 import enResourceTicker from "./locales/en/resourceTicker.json";
 import enScenarioSelector from "./locales/en/scenarioSelector.json";
 import enTerritoriesPanel from "./locales/en/territoriesPanel.json";
-import enTopStatBar from "./locales/en/topStatBar.json";
 import enWindow from "./locales/en/window.json";
 import enWorldRankingPanel from "./locales/en/worldRankingPanel.json";
 
@@ -67,7 +65,6 @@ void i18n.use(initReactI18next).init({
       resourceTicker: ruResourceTicker,
       scenarioSelector: ruScenarioSelector,
       territoriesPanel: ruTerritoriesPanel,
-      topStatBar: ruTopStatBar,
       window: ruWindow,
       worldRankingPanel: ruWorldRankingPanel,
     },
@@ -86,7 +83,6 @@ void i18n.use(initReactI18next).init({
       resourceTicker: enResourceTicker,
       scenarioSelector: enScenarioSelector,
       territoriesPanel: enTerritoriesPanel,
-      topStatBar: enTopStatBar,
       window: enWindow,
       worldRankingPanel: enWorldRankingPanel,
     },

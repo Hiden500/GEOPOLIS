@@ -4,7 +4,8 @@ import { type GameState } from "@shared/types/GameState";
 import { Header } from "../hud/Header/Header";
 import { SidePanel } from "../hud/SidePanel/SidePanel";
 import { BookPlaceholder } from "../hud/SidePanel/BookPlaceholder";
-import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId } from "../hud/types";
+import { ContextPanel } from "../hud/ContextPanel/ContextPanel";
+import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId, type Selection } from "../hud/types";
 import { ResourceTicker } from "./ResourceTicker";
 import { InspectorPanel } from "./InspectorPanel";
 import { getInspectorTitle } from "./inspectorTitle";
@@ -39,6 +40,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
   const [closePopupTrigger, setClosePopupTrigger] = useState(0);
   const [activeBook, setActiveBook] = useState<BookId | null>(null);
+  const [selection, setSelection] = useState<Selection | null>(null);
   const { windows, openOrFocus, toggle, close, focus, move, resize } = useWindows();
 
   const playerCountry = game.countries.find(
@@ -49,8 +51,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     r => r.ownerCountryId === game.playerCountryId
   );
 
-  const regionWindow = windows.find(w => w.kind.type === "region");
-  const selectedRegionId = regionWindow?.kind.type === "region" ? regionWindow.kind.regionId : null;
+  const selectedRegionId = selection?.type === "region" ? selection.regionId : null;
 
   const handleNextTurn = async () => {
     setLoading(true);
@@ -96,11 +97,26 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     }
   };
 
+  // Основное выделение — контекст-панель справа (docs/plans/12_UI_REDESIGN.md
+  // §1). Плавающее окно (useWindows) — только сценарий "сравнить" (handleCompare).
   const handleRegionClick = useCallback((regionId: number) => {
-    openOrFocus({ type: "region", regionId });
-  }, [openOrFocus]);
+    setSelection({ type: "region", regionId });
+  }, []);
 
   const handleSelectCountry = useCallback((countryId: string) => {
+    setSelection({ type: "country", countryId });
+  }, []);
+
+  const handleCloseSelection = useCallback(() => setSelection(null), []);
+
+  const handleCompare = useCallback(() => {
+    if (selection) openOrFocus(selection);
+  }, [selection, openOrFocus]);
+
+  // Навигация ВНУТРИ уже открытого плавающего окна сравнения — остаётся
+  // окном, не подменяет основное выделение (иначе клик по связи страны в
+  // окне сравнения неожиданно перекрывал бы контекст-панель).
+  const handleOpenCountryWindow = useCallback((countryId: string) => {
     openOrFocus({ type: "country", countryId });
   }, [openOrFocus]);
 
@@ -135,6 +151,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           }
         } else if (activeBook !== null) {
           setActiveBook(null);
+        } else if (selection !== null) {
+          setSelection(null);
         }
         return;
       }
@@ -149,7 +167,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMapPopupOpen, windows, close, activeBook, handleTabClick]);
+  }, [isMapPopupOpen, windows, close, activeBook, selection, handleTabClick]);
 
   if (!playerCountry) {
     return (
@@ -225,6 +243,14 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             {activeBook && renderBookContent(activeBook)}
           </SidePanel>
 
+          <ContextPanel
+            selection={selection}
+            game={game}
+            onClose={handleCloseSelection}
+            onSelectCountry={handleSelectCountry}
+            onCompare={handleCompare}
+          />
+
           {windows.map(w => {
             const title =
               w.kind.type === "country" || w.kind.type === "region"
@@ -244,7 +270,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
                 onClose={() => close(w.id)}
               >
                 {(w.kind.type === "country" || w.kind.type === "region") && (
-                  <InspectorPanel target={w.kind} game={game} onSelectCountry={handleSelectCountry} />
+                  <InspectorPanel target={w.kind} game={game} onSelectCountry={handleOpenCountryWindow} />
                 )}
                 {w.kind.type === "intent" && (
                   <PlayerIntentPanel

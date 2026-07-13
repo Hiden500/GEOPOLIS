@@ -48,5 +48,53 @@
   "panel": {
     "stateLabel": "Гос-во",
     "close": "Закрыть (Esc)"
+  },
+  "context": {
+    "regionEyebrow": "Регион · выделено",
+    "countryEyebrow": "Страна · выделено",
+    "close": "Снять выделение (Esc)",
+    "compare": "Сравнить",
+    "region": {
+      "population": "Население",
+      "stability": "Стабильность",
+      "development": "Развитие",
+      "resources": "Ресурсы региона",
+      "features": "Объекты на карте"
+    },
+    "country": {
+      "gdp": "ВВП",
+      "population": "Население",
+      "treasury": "Казна",
+      "stability": "Стабильность",
+      "legitimacy": "Легитимность",
+      "budgetBalance": "Баланс бюджета",
+      "relations": "Ключевые отношения"
+    },
+    "featureTypes": {
+      "capital": "столица",
+      "megacity": "мегаполис",
+      "city": "город",
+      "town": "посёлок",
+      "port": "порт",
+      "factory": "завод",
+      "steel_mill": "металлкомбинат",
+      "refinery": "НПЗ",
+      "shipyard": "верфь",
+      "mine": "шахта",
+      "power_plant": "электростанция",
+      "battalion": "батальон",
+      "fleet": "флот",
+      "airbase": "авиабаза",
+      "naval_base": "военно-морская база",
+      "railway": "ж/д",
+      "canal": "канал",
+      "pipeline": "трубопровод",
+      "airport": "аэропорт",
+      "highway": "шоссе",
+      "protest": "протест",
+      "uprising": "восстание",
+      "government": "правительство",
+      "border_dispute": "спорная граница"
+    }
   }
 }

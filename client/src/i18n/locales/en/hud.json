@@ -48,5 +48,53 @@
   "panel": {
     "stateLabel": "State",
     "close": "Close (Esc)"
+  },
+  "context": {
+    "regionEyebrow": "Region · selected",
+    "countryEyebrow": "Country · selected",
+    "close": "Deselect (Esc)",
+    "compare": "Compare",
+    "region": {
+      "population": "Population",
+      "stability": "Stability",
+      "development": "Development",
+      "resources": "Region resources",
+      "features": "Map objects"
+    },
+    "country": {
+      "gdp": "GDP",
+      "population": "Population",
+      "treasury": "Treasury",
+      "stability": "Stability",
+      "legitimacy": "Legitimacy",
+      "budgetBalance": "Budget balance",
+      "relations": "Key relations"
+    },
+    "featureTypes": {
+      "capital": "capital",
+      "megacity": "megacity",
+      "city": "city",
+      "town": "town",
+      "port": "port",
+      "factory": "factory",
+      "steel_mill": "steel mill",
+      "refinery": "refinery",
+      "shipyard": "shipyard",
+      "mine": "mine",
+      "power_plant": "power plant",
+      "battalion": "battalion",
+      "fleet": "fleet",
+      "airbase": "airbase",
+      "naval_base": "naval base",
+      "railway": "railway",
+      "canal": "canal",
+      "pipeline": "pipeline",
+      "airport": "airport",
+      "highway": "highway",
+      "protest": "protest",
+      "uprising": "uprising",
+      "government": "government",
+      "border_dispute": "border dispute"
+    }
   }
 }
