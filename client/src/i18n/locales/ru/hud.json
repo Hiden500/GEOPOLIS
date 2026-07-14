@@ -15,6 +15,7 @@
   },
   "units": {
     "trillion": "Т",
+    "billion": "Млрд",
     "million": "М"
   },
   "tabs": {
@@ -165,6 +166,9 @@
       "front": "фронт",
       "rear": "тыл"
     }
+  },
+  "errorToast": {
+    "dismiss": "Закрыть уведомление"
   },
   "orders": {
     "title": "Приказы на ход",

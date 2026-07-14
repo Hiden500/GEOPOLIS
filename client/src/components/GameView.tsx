@@ -11,6 +11,7 @@ import { IndustryBook } from "../hud/SidePanel/books/IndustryBook";
 import { ContextPanel } from "../hud/ContextPanel/ContextPanel";
 import { OrdersBox } from "../hud/OrdersBox/OrdersBox";
 import { MapControls } from "../hud/MapControls/MapControls";
+import { ErrorToast } from "../hud/ErrorToast/ErrorToast";
 import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId, type Selection } from "../hud/types";
 import { computeMapModeColors, type MapMode } from "../hud/mapModeColors";
 import { ResourceTicker } from "./ResourceTicker";
@@ -258,10 +259,11 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
         onOpenCountryOverview={() => handleSelectCountry(playerCountry.id)}
         onBackToMenu={onBack}
       />
-      {error && <p className="game-error">{error}</p>}
 
       <div className="game-content">
         <div className="map-container">
+          <ErrorToast message={error} onDismiss={() => setError(null)} />
+
           <MapView
             regions={game.regions}
             countries={game.countries}

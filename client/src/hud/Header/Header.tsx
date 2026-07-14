@@ -1,7 +1,7 @@
 import { type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
-import { RESOURCE_CODES, RESOURCE_ICONS, formatResourceAmount } from "../../utils/resourceDisplay";
+import { RESOURCE_CODES, RESOURCE_ICONS, formatCompactCurrency, formatResourceAmount } from "../../utils/resourceDisplay";
 import { BOOK_ORDER, type BookId } from "../types";
 import { IconBell, IconGdp, IconLegitimacy, IconLedgers, IconMenu, IconMilitary, IconPopulation, IconSearch, IconSettings, IconStability, IconTreasury } from "../icons";
 import { BOOK_ICONS } from "../bookIcons";
@@ -42,6 +42,7 @@ export function Header({
   ).toUpperCase();
 
   const stockpileEntries = Object.entries(country.stockpile).filter(([, amount]) => amount > 0);
+  const currencyUnits = { trillion: t("units.trillion"), billion: t("units.billion"), million: t("units.million") };
 
   return (
     <header className={styles.top}>
@@ -58,8 +59,8 @@ export function Header({
           </div>
           <div className={styles.stats}>
             <div className={`${styles.statrow} ${styles.r1}`} aria-label={t("panel.stateLabel")}>
-              <StatButton icon={<IconGdp />} value={`${(country.economy.gdp / 1e12).toFixed(2)}${t("units.trillion")}`} title={t("stats.gdp")} onClick={() => onTabClick("economy")} />
-              <StatButton icon={<IconTreasury />} value={Math.round(country.economy.treasury).toLocaleString(i18n.language)} title={t("stats.treasury")} onClick={() => onTabClick("economy")} />
+              <StatButton icon={<IconGdp />} value={formatCompactCurrency(country.economy.gdp, currencyUnits, i18n.language)} title={t("stats.gdp")} onClick={() => onTabClick("economy")} />
+              <StatButton icon={<IconTreasury />} value={formatCompactCurrency(country.economy.treasury, currencyUnits, i18n.language)} title={t("stats.treasury")} onClick={() => onTabClick("economy")} />
               <StatButton icon={<IconPopulation />} value={`${(country.population / 1e6).toFixed(1)}${t("units.million")}`} title={t("stats.population")} onClick={() => onTabClick("population")} />
               <StatButton icon={<IconMilitary />} value={`${(country.military.manpower / 1e6).toFixed(2)}${t("units.million")}`} title={t("stats.military")} onClick={() => onTabClick("industry")} />
               <StatButton
@@ -71,22 +72,24 @@ export function Header({
               />
               <StatButton icon={<IconLegitimacy />} value={`${Math.round(country.politics.legitimacy)}%`} title={t("stats.legitimacy")} onClick={() => onTabClick("politics")} />
             </div>
-            <div className={`${styles.statrow} ${styles.r2}`} aria-label={t("resourceRow.ariaLabel")}>
-              {stockpileEntries.map(([resource, amount]) => {
-                const code = RESOURCE_CODES[resource as keyof typeof RESOURCE_CODES] ?? resource.slice(0, 3).toUpperCase();
-                const icon = RESOURCE_ICONS[resource as keyof typeof RESOURCE_ICONS] ?? "•";
-                return (
-                  <button key={resource} type="button" className={styles.st} title={code}>
-                    <span aria-hidden="true">{icon}</span>
-                    <span className={styles.v}>{formatResourceAmount(amount)}</span>
-                  </button>
-                );
-              })}
-            </div>
+            {stockpileEntries.length > 0 && (
+              <div className={`${styles.statrow} ${styles.r2}`} aria-label={t("resourceRow.ariaLabel")}>
+                {stockpileEntries.map(([resource, amount]) => {
+                  const code = RESOURCE_CODES[resource as keyof typeof RESOURCE_CODES] ?? resource.slice(0, 3).toUpperCase();
+                  const icon = RESOURCE_ICONS[resource as keyof typeof RESOURCE_ICONS] ?? "•";
+                  return (
+                    <button key={resource} type="button" className={styles.st} title={code}>
+                      <span aria-hidden="true">{icon}</span>
+                      <span className={styles.v}>{formatResourceAmount(amount)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
-        <nav className={`${styles.tabs} ${styles.cluster}`} aria-label={t("tabsAriaLabel")}>
+        <nav className={styles.tabs} aria-label={t("tabsAriaLabel")}>
           {BOOK_ORDER.map((book, i) => {
             const Icon = BOOK_ICONS[book];
             return (

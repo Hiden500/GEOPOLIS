@@ -15,6 +15,7 @@
   },
   "units": {
     "trillion": "T",
+    "billion": "B",
     "million": "M"
   },
   "tabs": {
@@ -165,6 +166,9 @@
       "front": "front",
       "rear": "rear"
     }
+  },
+  "errorToast": {
+    "dismiss": "Dismiss notification"
   },
   "orders": {
     "title": "Turn orders",

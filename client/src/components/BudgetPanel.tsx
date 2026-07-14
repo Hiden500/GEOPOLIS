@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/defines/budgetSpendingShareCaps";
 import { BUDGET_PRESETS } from "./budgetPresets";
+import { formatCompactCurrency } from "../utils/resourceDisplay";
 
 interface BudgetFormState {
   military: number;
@@ -86,9 +87,21 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
     setShares(sharesFromCountry(country));
   };
 
+  const currencyUnits = {
+    trillion: t("hud:units.trillion"),
+    billion: t("hud:units.billion"),
+    million: t("hud:units.million"),
+  };
+
   return (
     <div className="budget-panel">
       <div className="budget-summary">
+        <div className="budget-item">
+          <span className="label">{t("treasury")}</span>
+          <span className="value">
+            {formatCompactCurrency(country.economy.treasury, currencyUnits, i18n.language)}
+          </span>
+        </div>
         <div className="budget-item">
           <span className="label">{t("income")}</span>
           <span className="value positive">
