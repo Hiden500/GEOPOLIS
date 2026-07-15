@@ -1,0 +1,18 @@
+[shell_environment_policy]
+inherit = "core"
+model_verbosity = "low"
+
+[shell_environment_policy.set]
+ENABLE_TOOL_SEARCH = "auto:5"
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+
+[mcp_servers.repowise]
+command = "repowise"
+args = [
+    "mcp",
+    "D:/Pax Historia LOCAL",
+    "--transport",
+    "stdio",
+]
