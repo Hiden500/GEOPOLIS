@@ -104,8 +104,6 @@ QCG_GROUPS = {
             "rio claro", "saint vincent", "virgin islands",
         ],
     },
-    "falklands": {"population": 2_500, "match_any": ["south georgia", "falkland"]},
-    "guyana": {"population": 375_000, "match_any": ["pomeroon", "demerara"]},
     "st_helena": {"population": 5_000, "match_any": ["saint helena", "indian ocean territory"]},
     "gambia": {"population": 260_000, "match_any": ["gambia"]},
     "nigeria_north": {"population": 7_500_000, "match_any": ["zamfara", "benue", "bauchi"]},
@@ -151,7 +149,6 @@ QCF_GROUPS = {
     "algeria_south": {"population": 400_000, "match_any": ["territoires du sud", "est", "sud-ouest", "nord", "centre"]},
     "djibouti": {"population": 60_000, "match_any": ["tadjourah"]},
     "comoros": {"population": 160_000, "match_any": ["comoros"]},
-    "guyane": {"population": 30_000, "match_any": ["guyane"]},
     "pacific_france": {"population": 90_000, "match_any": ["new caledonia", "french polynesia", "wallis"]},
     "st_pierre": {"population": 4_500, "match_any": ["saint pierre"]},
 }
@@ -175,7 +172,6 @@ QCN_GROUPS = {
         ],
     },
     "dutch_caribbean": {"population": 220_000, "match_any": ["aruba", "curaçao", "sint maarten"]},
-    "suriname": {"population": 200_000, "match_any": ["para", "sipaliwini"]},
 }
 
 QCU_GROUPS = {

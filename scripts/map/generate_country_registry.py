@@ -43,6 +43,7 @@ OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
 CONFIG_DIR = REPO_ROOT / "scripts" / "map" / "config"
 COUNTRIES_OUT = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "countries.json"
 MERGE_OUT = CONFIG_DIR / "country_merge.json"
+ENTITY_CONFIG = CONFIG_DIR / "country_entities_1946.json"
 
 # Private-use коды для колониальных блоков (suzerain ISO3 -> блок-код).
 COLONY_BLOC_CODES = {
@@ -162,8 +163,68 @@ def load_json(path: Path):
         return json.load(f)
 
 
-def build_merge_map(catalog: dict) -> dict:
-    """subject ISO3 -> блок-код, для колоний с count>1 на суверена."""
+def load_entity_config(catalog: dict) -> tuple[set[str], dict[str, str]]:
+    """Читает курированные сущности 1946 и проверяет их против MAP-каталога.
+
+    `preserve` исключает реальную зависимую территорию из искусственного
+    мирового блока. `ownerOverrides` сводит современный ISO-код к реально
+    существовавшей на дату снимка администрации.
+    """
+    config = load_json(ENTITY_CONFIG)
+    if config.get("_meta", {}).get("snapshotDate") != "1946-01-01":
+        raise ValueError(f"{ENTITY_CONFIG}: snapshotDate должен быть 1946-01-01")
+
+    preserve: set[str] = set()
+    owner_overrides: dict[str, str] = {}
+    for continent, section in config.get("continents", {}).items():
+        if section.get("status") != "complete":
+            raise ValueError(f"{ENTITY_CONFIG}: континент {continent} не помечен complete")
+        if not section.get("sources"):
+            raise ValueError(f"{ENTITY_CONFIG}: у континента {continent} нет provenance sources")
+
+        for entity in section.get("preserve", []):
+            code = entity["code"]
+            if code in preserve:
+                raise ValueError(f"{ENTITY_CONFIG}: дубликат preserve-кода {code}")
+            if code not in catalog:
+                raise ValueError(f"{ENTITY_CONFIG}: preserve-код {code} отсутствует в MAP-каталоге")
+            catalog_entry = catalog[code]
+            expected = {
+                "name_en": entity["historicalName"],
+                "subject_of": entity["subjectOf"],
+                "subject_type": entity["subjectType"],
+            }
+            actual = {key: catalog_entry.get(key) for key in expected}
+            if actual != expected:
+                raise ValueError(
+                    f"{ENTITY_CONFIG}: metadata drift для {code}: ожидалось {expected}, получено {actual}"
+                )
+            preserve.add(code)
+
+        for override in section.get("ownerOverrides", []):
+            source = override["from"]
+            target = override["to"]
+            if source in owner_overrides:
+                raise ValueError(f"{ENTITY_CONFIG}: дубликат owner override для {source}")
+            if source not in catalog or target not in catalog:
+                raise ValueError(
+                    f"{ENTITY_CONFIG}: override {source}->{target} ссылается на отсутствующий MAP-код"
+                )
+            owner_overrides[source] = target
+
+    overlap = preserve & owner_overrides.keys()
+    if overlap:
+        raise ValueError(f"{ENTITY_CONFIG}: коды одновременно preserve и override source: {sorted(overlap)}")
+    return preserve, owner_overrides
+
+
+def build_merge_map(catalog: dict, preserve: set[str], owner_overrides: dict[str, str]) -> dict:
+    """source ISO3 -> исторический owner или временный legacy block.
+
+    Обработанные континенты задаются в country_entities_1946.json. Для ещё не
+    обработанных колоний временно сохраняется прежнее объединение по сюзерену,
+    чтобы каждый континент был самостоятельным валидным commit.
+    """
     by_suzerain_colony = {}
     for code, info in catalog.items():
         subject_of = info.get("subject_of")
@@ -172,7 +233,7 @@ def build_merge_map(catalog: dict) -> dict:
         suzerain = subject_of[0] if isinstance(subject_of, list) else subject_of
         by_suzerain_colony.setdefault(suzerain, []).append(code)
 
-    merge_map = {}
+    merge_map = dict(owner_overrides)
     for suzerain, members in by_suzerain_colony.items():
         if len(members) <= 1:
             continue
@@ -180,6 +241,8 @@ def build_merge_map(catalog: dict) -> dict:
         if not bloc_code:
             continue  # суверен без назначенного блок-кода — колонии остаются отдельными
         for m in members:
+            if m in preserve or m in owner_overrides:
+                continue
             merge_map[m] = bloc_code
     return merge_map
 
@@ -248,7 +311,7 @@ def make_country(country_id: str, name_en: str, economy_type: str, ideology: str
     population, пустая diplomacy) не пишутся: их дефолтит createCountry на
     загрузке (server/src/data/countries/templates/CreateCountry.ts). politics —
     только ideology (реально варьируется по стране), остальные поля политики —
-    единый дефолт для всех 128 стран, тоже не авторские данные."""
+    единый дефолт для всего реестра стран, тоже не авторские данные."""
     profile = dict(ARCHETYPES[economy_type])
     profile["spending"] = dict(profile["spending"])
     country = {
@@ -280,7 +343,8 @@ def main():
         if code in catalog and not catalog[code].get("subject_of"):
             catalog[code]["subject_of"] = suzerain
 
-    merge_map = build_merge_map(catalog)
+    preserve, owner_overrides = load_entity_config(catalog)
+    merge_map = build_merge_map(catalog, preserve, owner_overrides)
     MERGE_OUT.write_text(json.dumps(merge_map, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Применяем объединение к regions.state.json: владелец-колония -> код блока.
@@ -356,6 +420,10 @@ def main():
         "TWN": 382,   # Цзянсу (Нанкин)
         "AFG": 433,   # Баглан (Кабул)
         "EGY": 1134,  # Каир
+        "GUY": 1114,  # регион, содержащий Джорджтаун (point-in-polygon)
+        "SUR": 1116,  # регион, содержащий Парамарибо (point-in-polygon)
+        "GUF": 1070,  # единственный регион, содержит Кайенну
+        "FLK": 1072,  # Falkland Islands, содержит Стэнли; не South Georgia
     }
 
     countries = []
@@ -398,7 +466,11 @@ def main():
     COUNTRIES_OUT.write_text(json.dumps(countries, ensure_ascii=False, indent=2), encoding="utf-8")
 
     print(f"Стран: {len(countries)} -> {COUNTRIES_OUT}")
-    print(f"Колониальных блоков: {len(set(merge_map.values()))}, объединено записей: {len(merge_map)}")
+    bloc_codes = set(COLONY_BLOC_CODES.values())
+    legacy_merged = {source: target for source, target in merge_map.items() if target in bloc_codes}
+    historical_overrides = {source: target for source, target in merge_map.items() if target not in bloc_codes}
+    print(f"Колониальных блоков: {len(set(legacy_merged.values()))}, объединено записей: {len(legacy_merged)}")
+    print(f"Отдельных курированных сущностей: {len(preserve)}, historical owner overrides: {len(historical_overrides)}")
     print(f"Merge-карта -> {MERGE_OUT}")
 
 

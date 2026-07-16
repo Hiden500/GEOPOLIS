@@ -166,6 +166,27 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "CHL": Anchor(5_300_000, "estimated", "Общепринятая оценка Чили midcentury."),
     "PRY": Anchor(1_300_000, "estimated", "Общепринятая оценка Парагвая midcentury."),
     "URY": Anchor(2_300_000, "estimated", "Общепринятая оценка Уругвая midcentury."),
+    "GUY": Anchor(
+        377_000, "verified",
+        "UN A/4192, table of approximate populations of Non-Self-Governing "
+        "Territories in 1946: British Guiana 377,000."
+    ),
+    "SUR": Anchor(
+        168_000, "verified",
+        "UN A/4192, table of approximate populations of Non-Self-Governing "
+        "Territories in 1946: Surinam 168,000."
+    ),
+    "GUF": Anchor(
+        27_000, "verified",
+        "UN A/4192, table of approximate populations of Non-Self-Governing "
+        "Territories in 1946: French Guiana 27,000."
+    ),
+    "FLK": Anchor(
+        2_629, "verified",
+        "Falkland Islands Gazette 1947: census 31.03.1946 = 2,239; estimated "
+        "Dependencies population at end-1946 = South Georgia 360 + other 30. "
+        "Combined anchor follows the scenario owner FLK, which includes SGS."
+    ),
 
     # === Прочие мелкие/микро (низкая цена ошибки, широкие оценки) ===
     "ALB": Anchor(1_100_000, "estimated", "Общепринятая оценка Албании midcentury."),

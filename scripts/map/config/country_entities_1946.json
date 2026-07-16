@@ -1,0 +1,84 @@
+{
+  "_meta": {
+    "snapshotDate": "1946-01-01",
+    "purpose": "Historical country and dependent-territory ownership overrides applied before legacy colonial-bloc grouping.",
+    "confidenceScale": ["high", "medium", "low"]
+  },
+  "continents": {
+    "south_america": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — approximate population of Non-Self-Governing Territories in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Yearbook of the United Nations 1946-47, Non-Self-Governing Territories",
+          "url": "https://cdn.un.org/unyearbook/yun/chapter_pdf/1946-47YUN/1946-47_P1_SEC2.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Falkland Islands (Malvinas) — listing as a Non-Self-Governing Territory since 1946",
+          "url": "https://www.un.org/dppa/decolonization/en/content/falkland-islands-malvinas",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Construction de l'organisation territoriale de la France — loi du 19 mars 1946",
+          "url": "https://www.vie-publique.fr/eclairage/126857-construction-de-lorganisation-territoriale-de-la-france-chronologie",
+          "authority": "French Government, Vie publique"
+        },
+        {
+          "title": "Onafhankelijkheid Suriname (1975)",
+          "url": "https://www.nationaalarchief.nl/beleven/onderwijs/bronnenbox/onafhankelijkheid-suriname-1975",
+          "authority": "Nationaal Archief, Netherlands"
+        },
+        {
+          "title": "Falkland Islands Letters Patent, 1908",
+          "url": "https://laws.gov.gs/wp-content/uploads/2022/06/1908-09-01-Letters-Patent.pdf",
+          "authority": "Government of South Georgia and the South Sandwich Islands"
+        }
+      ],
+      "preserve": [
+        {
+          "code": "GUY",
+          "historicalName": "British Guiana",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "SUR",
+          "historicalName": "Suriname",
+          "subjectOf": "NLD",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "GUF",
+          "historicalName": "French Guiana",
+          "subjectOf": "FRA",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Colony on 1946-01-01; became an overseas department under the law of 1946-03-19."
+        },
+        {
+          "code": "FLK",
+          "historicalName": "Falkland Islands",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Administered by the United Kingdom; sovereignty disputed by Argentina."
+        }
+      ],
+      "ownerOverrides": [
+        {
+          "from": "SGS",
+          "to": "FLK",
+          "confidence": "high",
+          "reason": "South Georgia and the South Sandwich Islands were Falkland Islands Dependencies in 1946; the separate modern territory dates from 1985."
+        }
+      ]
+    }
+  }
+}

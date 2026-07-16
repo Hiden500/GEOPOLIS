@@ -49,6 +49,7 @@ FULL_REBUILD_STEPS = [
 ]
 
 STANDARD_STEPS = [
+    "test_country_entities_1946.py",
     "import_to_game.py",
     "generate_country_registry.py",
     "fill_region_economy_1946.py",

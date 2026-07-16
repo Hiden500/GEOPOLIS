@@ -1022,6 +1022,35 @@
     }
   },
   {
+    "id": "FLK",
+    "name": "Falkland Islands",
+    "shortName": "Falkland Islands",
+    "color": "#c9adb5",
+    "capitalRegionId": 1072,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "FRA",
     "name": "France",
     "shortName": "France",
@@ -1052,6 +1081,7 @@
     "diplomacy": {
       "puppets": [
         "CMR",
+        "GUF",
         "KHM",
         "LAO",
         "TGO",
@@ -1060,6 +1090,7 @@
       ],
       "sphereOfInfluence": [
         "CMR",
+        "GUF",
         "KHM",
         "LAO",
         "TGO",
@@ -1137,6 +1168,8 @@
         "BTN",
         "BWA",
         "CAN",
+        "FLK",
+        "GUY",
         "KWT",
         "LSO",
         "MWI",
@@ -1163,6 +1196,8 @@
         "BTN",
         "BWA",
         "CAN",
+        "FLK",
+        "GUY",
         "KWT",
         "LSO",
         "MWI",
@@ -1247,6 +1282,64 @@
     "shortName": "Guatemala",
     "color": "#624087",
     "capitalRegionId": 847,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "GUF",
+    "name": "French Guiana",
+    "shortName": "French Guiana",
+    "color": "#80aaa5",
+    "capitalRegionId": 1070,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "GUY",
+    "name": "British Guiana",
+    "shortName": "British Guiana",
+    "color": "#c9adb5",
+    "capitalRegionId": 1114,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2092,6 +2185,14 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
+    },
+    "diplomacy": {
+      "puppets": [
+        "SUR"
+      ],
+      "sphereOfInfluence": [
+        "SUR"
+      ]
     }
   },
   {
@@ -3277,6 +3378,35 @@
         "QAZ",
         "QMH"
       ]
+    }
+  },
+  {
+    "id": "SUR",
+    "name": "Suriname",
+    "shortName": "Suriname",
+    "color": "#b59f8c",
+    "capitalRegionId": 1116,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
     }
   },
   {

@@ -21,7 +21,7 @@ import { getDomainTier } from "@shared/utils/technology";
  * свой тик изолированно с моковыми данными на один шаг, а не сквозной
  * многолетний прогон с реалистичными числами реального сценария 1946.
  * Этот тест — намеренно другого рода: гоняет simulateMonth много раз
- * подряд на полной партии 128 стран и проверяет вменяемость траектории,
+ * подряд на полной партии сценария 1946 и проверяет вменяемость траектории,
  * а не только отсутствие исключений.
  *
  * ВАЖНО: этот тест ОБЯЗАН падать на известном баге популяции (см. ниже).
@@ -33,6 +33,7 @@ import { getDomainTier } from "@shared/utils/technology";
 
 const MONTHS_TO_SIMULATE = 60; // 5 лет — тот же горизонт, что живой прогон, нашедший баг популяции.
 const SNAPSHOT_INTERVAL_MONTHS = 12;
+const EXPECTED_COUNTRY_COUNT = 132; // Южная Америка разделена на срезе country-entities 2026-07-17.
 
 // Десять держав tier "major" сценария 1946 (server/src/simulation/tier/TierTick.ts,
 // HISTORICAL_TIERS_1946) — реальные id из датасета, не выдуманные.
@@ -120,11 +121,11 @@ function formatSnapshot(s: YearSnapshot): string {
 
 describe("campaign smoke test — многолетний прогон сценария 1946", () => {
   it(
-    `прогоняет ${MONTHS_TO_SIMULATE} месяцев (реальный сценарий 1946, 128 стран) и проверяет вменяемость траектории major-держав`,
+    `прогоняет ${MONTHS_TO_SIMULATE} месяцев (реальный сценарий 1946, ${EXPECTED_COUNTRY_COUNT} стран) и проверяет вменяемость траектории major-держав`,
     () => {
       const game = createGame("1946", "USA");
 
-      expect(game.countries.length).toBe(128);
+      expect(game.countries.length).toBe(EXPECTED_COUNTRY_COUNT);
       for (const id of MAJOR_POWER_IDS) {
         expect(game.countries.some((c) => c.id === id)).toBe(true);
       }
@@ -277,8 +278,8 @@ describe("campaign smoke test — многолетний прогон сцена
       }
 
       // Время выполнения — печатаем явно для видимости в CI-логах.
-      console.log(`\nВремя выполнения: ${elapsedMs}ms для ${MONTHS_TO_SIMULATE} месяцев × 128 стран.`);
+      console.log(`\nВремя выполнения: ${elapsedMs}ms для ${MONTHS_TO_SIMULATE} месяцев × ${EXPECTED_COUNTRY_COUNT} стран.`);
     },
-    120_000 // 5-летний прогон 128 стран — даём тесту до 2 минут, чтобы не флапал на медленных машинах.
+    120_000 // 5-летний прогон полного сценария — даём тесту до 2 минут, чтобы не флапал на медленных машинах.
   );
 });
