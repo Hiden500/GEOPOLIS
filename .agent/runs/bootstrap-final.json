@@ -1,0 +1,139 @@
+{
+  "$schema": "../run-record.schema.json",
+  "schema_version": 1,
+  "run_id": "bootstrap-global-audit-2026-07-15-final",
+  "task_identifier": "docs/tasks/GLOBAL_AUDIT.md",
+  "agent": {
+    "client": "Codex Desktop",
+    "name": "Codex /root",
+    "model": null,
+    "reasoning_setting": null
+  },
+  "started_at": null,
+  "finished_at": "2026-07-16",
+  "starting_commit": "470a719748c3aab3a73d82f213706f0fd3e60abf",
+  "ending_commit": "bea1b7dbb25782c72064ac2d13f0ab8d9da7e0a5",
+  "branch": "codex/global-working-agreements",
+  "sandbox_mode": "workspace-write",
+  "approval_mode": "auto_review",
+  "network_mode": "restricted",
+  "tools_used": [
+    "shell_command",
+    "apply_patch",
+    "official OpenAI documentation browsing",
+    "subagents"
+  ],
+  "commands": [
+    {
+      "cwd": "server",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exit_code": 0,
+      "duration_ms": 3200,
+      "summary": "Server typecheck passed"
+    },
+    {
+      "cwd": "server",
+      "command": "npm test",
+      "exit_code": 0,
+      "duration_ms": 3800,
+      "summary": "679 passed, 1 skipped"
+    },
+    {
+      "cwd": "client",
+      "command": "npx tsc --noEmit -p tsconfig.app.json",
+      "exit_code": 0,
+      "duration_ms": 3000,
+      "summary": "Client typecheck passed"
+    },
+    {
+      "cwd": "client",
+      "command": "npm test",
+      "exit_code": 0,
+      "duration_ms": 2600,
+      "summary": "92 passed"
+    },
+    {
+      "cwd": "client",
+      "command": "npm run lint",
+      "exit_code": 1,
+      "duration_ms": 0,
+      "summary": "Same 20 pre-existing errors in the same four files"
+    },
+    {
+      "cwd": "client",
+      "command": "npm run build",
+      "exit_code": 0,
+      "duration_ms": 5400,
+      "summary": "Build passed with the pre-existing bundle-size warning"
+    },
+    {
+      "cwd": ".",
+      "command": "python scripts/map/validate_region_economy_1946.py",
+      "exit_code": 0,
+      "duration_ms": 400,
+      "summary": "1366 regions and 128 countries validated"
+    },
+    {
+      "cwd": ".",
+      "command": "python scripts/map/test_validate_region_economy_1946.py",
+      "exit_code": 0,
+      "duration_ms": 300,
+      "summary": "9 passed"
+    },
+    {
+      "cwd": ".",
+      "command": "python scripts/map/make_1946.py --help",
+      "exit_code": 0,
+      "duration_ms": 300,
+      "summary": "Windows console help smoke passed"
+    }
+  ],
+  "tests_executed": [
+    "server typecheck and Vitest suite",
+    "client typecheck, Vitest suite, lint and production build",
+    "region economy validator and its unit tests",
+    "public agent configuration eval",
+    "TOML and JSON parsing",
+    "Markdown local-link validation",
+    "npm audit in root, client and server",
+    "independent adversarial review"
+  ],
+  "baseline_failures": [
+    "Client lint has 20 errors in PlayerIntentPanel.tsx, MapView.ts, GeometryEngine.ts and TopologyBuilder.ts",
+    "Client production build warns that the main JavaScript chunk exceeds 500 kB",
+    "Root npm audit reports one LOW esbuild advisory",
+    "Data validator console output contains pre-existing mojibake"
+  ],
+  "introduced_failures": [],
+  "human_interventions": 0,
+  "files_changed": [
+    "AGENTS.md and four nested AGENTS.md files",
+    ".agent experiment, audit, plan, eval, schema and run-record artifacts",
+    ".agents/skills and provider-specific adapters",
+    ".codex, .claude, .gemini and MCP configuration",
+    "canonical and historical documentation",
+    "README.md and client/README.md",
+    "scripts/map/make_1946.py and scripts/map/README.md",
+    ".github/workflows/doc-guardrails.yml"
+  ],
+  "agent_configuration_mutations": [
+    "Reduced always-loaded root policy and added path-scoped module instructions",
+    "Rewrote six skills with explicit trigger, workflow, verification and failure contracts",
+    "Replaced mixed UI writer/reviewer agents with read-only ui-reviewer agents",
+    "Corrected Codex TOML scope and made MCP configuration repository-relative",
+    "Added dependency-free public eval and CI guardrail",
+    "Added proposed charter, ExecPlan lifecycle, evolution policy and run schema"
+  ],
+  "elapsed_seconds": null,
+  "token_usage": null,
+  "cost": null,
+  "final_status": "completed_with_known_baseline_failures_and_fresh_session_validation_pending",
+  "unresolved_risks": [
+    "Repo-local Codex skill, MCP and custom-agent loading was not tested in a fresh trusted session",
+    "Local validation used Node 24 while CI declares Node 22",
+    "Browser/dev-server flows were not run",
+    "Full map rebuild remains unreproduced because Python dependencies and source provenance are incomplete",
+    "The proposed charter needs external human enforcement and review",
+    "Exact model identifier, reasoning setting, token usage, elapsed time and cost were unavailable"
+  ]
+}

@@ -69,7 +69,12 @@ Verification method: compare context bytes, parse TOML/JSON, run public eval,
 project regression matrix, Markdown link check, diff review и independent
 adversarial review. Fresh-session status: pending.
 
-Result: pending final validation; заполняется итоговым run record.
+Result: static/config validation, project regression matrix и независимый
+adversarial review завершены без новых failures. Итоговая запись:
+`.agent/runs/bootstrap-final.json`.
 
-Decision: `REVISE` until final checks pass; then update to `KEEP`. Human review
-of charter remains separate even after technical validation.
+Fresh-session status: pending — repo-local Codex loading и MCP/custom-agent
+spawn нельзя подтвердить в текущей сессии из-за недоступного `codex.exe`.
+
+Decision: `KEEP`. Human review of charter remains separate from this technical
+decision.

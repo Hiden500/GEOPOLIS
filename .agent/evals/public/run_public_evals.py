@@ -182,6 +182,21 @@ def validate_experiment_layer() -> None:
         missing = sorted(required_keys - set(record)) if isinstance(record, dict) else ["object"]
         check(not missing, f"Run record matches required fields: {path.name}", str(missing))
 
+    final_record_path = ROOT / ".agent/runs/bootstrap-final.json"
+    check(final_record_path.is_file(), "Final bootstrap run record exists")
+    if final_record_path.is_file():
+        final_record = load_json(final_record_path)
+        ending_commit = final_record.get("ending_commit", "") if isinstance(final_record, dict) else ""
+        check(
+            bool(re.fullmatch(r"[0-9a-f]{40}", ending_commit)),
+            "Final run record pins a full implementation commit SHA",
+        )
+
+    plan = read(".agent/plans/bootstrap-global-audit.md")
+    evolution = read(".agent/EVOLUTION.md")
+    check("Status: complete" in plan, "Global audit ExecPlan is closed")
+    check("Decision: `KEEP`" in evolution, "Evolution entry records final decision")
+
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 

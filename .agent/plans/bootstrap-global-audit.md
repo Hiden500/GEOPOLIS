@@ -1,6 +1,6 @@
 # Global audit и минимальная agent OS
 
-Status: active
+Status: complete
 Owner: Codex `/root`
 Starting commit: `470a719748c3aab3a73d82f213706f0fd3e60abf`
 
@@ -37,9 +37,9 @@ controls нет либо runtime effect нельзя валидировать в
 - [x] Независимый audit agent-конфигурации.
 - [x] Независимый audit документации.
 - [x] Проектирование target architecture.
-- [ ] Реализация config/docs/evals.
-- [ ] Targeted и regression validation.
-- [ ] Independent final review, docs footprint, commits и итоговый run record.
+- [x] Реализация config/docs/evals.
+- [x] Targeted и regression validation.
+- [x] Independent final review, docs footprint, commits и итоговый run record.
 
 ## Discoveries
 
@@ -72,4 +72,9 @@ final diff review. Fresh-session loading остаётся отдельным req
 
 ## Final outcome
 
-Заполняется после verification и independent review.
+Минимальная repository-local agent OS реализована и зафиксирована коммитом
+`bea1b7dbb25782c72064ac2d13f0ab8d9da7e0a5`. Public eval, regression matrix,
+data validators, config parsing и independent adversarial review пройдены без
+новых failures. Предсуществующие client lint errors, bundle warning и LOW
+root npm advisory сохранены как baseline. Fresh-session loading, Node 22 CI,
+browser flow и полный map rebuild остаются явно непроверенными.
