@@ -16,7 +16,6 @@ import { Onboarding } from "../hud/Onboarding/Onboarding";
 import { shouldStartOnboarding } from "../hud/Onboarding/onboardingState";
 import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId, type Selection } from "../hud/types";
 import { computeMapModeColors, type MapMode } from "../hud/mapModeColors";
-import { ResourceTicker } from "./ResourceTicker";
 import { InspectorPanel } from "./InspectorPanel";
 import { getInspectorTitle } from "./inspectorTitle";
 import { Window } from "./Window";
@@ -341,7 +340,6 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
         </div>
       </div>
 
-      <ResourceTicker stockpile={playerCountry.stockpile} />
       <Onboarding open={onboardingOpen} onClose={() => setOnboardingOpen(false)} />
     </div>
   );

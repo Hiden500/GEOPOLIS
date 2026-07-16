@@ -14,10 +14,10 @@ const country = {
   stockpile: {},
 } as Country;
 
-function renderHeader(llmRespondedThisTurn: boolean, reset = vi.fn()) {
+function renderHeader(llmRespondedThisTurn: boolean, reset = vi.fn(), headerCountry = country) {
   return render(
     <Header
-      country={country}
+      country={headerCountry}
       currentDate="1946-01-01"
       llmTurn={1}
       llmRespondedThisTurn={llmRespondedThisTurn}
@@ -50,5 +50,22 @@ describe("Header turn gate", () => {
     expect((screen.getByRole("button", { name: "Следующий ход" }) as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(screen.getByRole("button", { name: "Сбросить расположение окон" }));
     expect(reset).toHaveBeenCalledOnce();
+  });
+
+  it("показывает стабильные четыре стратегических ресурса, включая нулевые", () => {
+    renderHeader(true, vi.fn(), {
+      ...country,
+      stockpile: { oil: 100, coal: 200, iron: 0, food: 400, gas: 500, gold: 600 },
+    } as Country);
+
+    expect(screen.getByRole("button", { name: "Нефть: 100" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Уголь: 200" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Железо: 0" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Пища: 400" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Газ: 500" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Золото: 600" })).toBeNull();
+    expect(screen.getByLabelText("Ещё ресурсов: 2")).toBeTruthy();
+    expect(screen.getByText("GAS")).toBeTruthy();
+    expect(screen.getByText("AU")).toBeTruthy();
   });
 });

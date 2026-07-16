@@ -978,49 +978,6 @@ button.stat-pill:hover .stat-pill-value {
 }
 
 /* ==========================================
-   RESOURCE TICKER
-   ========================================== */
-
-.resource-ticker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0.3rem 0.75rem;
-  background: var(--color-steel);
-  border-top: 1px solid var(--color-hairline);
-  flex-shrink: 0;
-}
-
-.resource-chip {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  padding: 0.1rem 0.4rem;
-  border: 1px solid var(--color-hairline);
-  border-radius: 2px;
-  cursor: default;
-}
-
-.resource-chip-icon {
-  font-size: 0.75rem;
-  line-height: 1;
-}
-
-.resource-chip-code {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--color-brass);
-  letter-spacing: 0.5px;
-}
-
-.resource-chip-value {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--color-paper-dim);
-}
-
-/* ==========================================
    WORLD TABLE
    ========================================== */
 
