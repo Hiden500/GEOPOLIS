@@ -2,6 +2,8 @@
 import unittest
 
 from generate_country_registry import (
+    CONFIG_DIR,
+    CUSTOM_COUNTRIES,
     OUT_DIR,
     build_merge_map,
     load_entity_config,
@@ -26,16 +28,36 @@ class CountryEntities1946Test(unittest.TestCase):
         self.assertEqual(self.owner_overrides["SGS"], "FLK")
         self.assertEqual(self.merge_map["SGS"], "FLK")
 
+    def test_north_american_entities_use_1946_administrations(self):
+        separate = {"BHS", "BLZ", "BMU", "BRB", "JAM", "NFD", "PRI", "SPM", "TTO", "VIR"}
+        self.assertTrue(separate.issubset(self.preserve))
+        for code in separate:
+            self.assertNotIn(code, self.merge_map)
+
+        expected_overrides = {
+            "ATG": "QWL", "AIA": "QWL", "KNA": "QWL", "MSR": "QWL", "VGB": "QWL",
+            "DMA": "QWW", "GRD": "QWW", "LCA": "QWW", "VCT": "QWW",
+            "CYM": "JAM", "TCA": "JAM",
+            "ABW": "QND", "CUW": "QND", "SXM": "QND",
+        }
+        for source, target in expected_overrides.items():
+            self.assertEqual(self.owner_overrides[source], target)
+            self.assertEqual(self.merge_map[source], target)
+
     def test_all_curated_codes_exist_in_catalog(self):
         for code in self.preserve:
             self.assertIn(code, self.catalog)
         for source, target in self.owner_overrides.items():
             self.assertIn(source, self.catalog)
-            self.assertIn(target, self.catalog)
+            self.assertTrue(target in self.catalog or target in CUSTOM_COUNTRIES)
 
-    def test_every_preserved_entity_has_population_anchor(self):
-        for code in self.preserve:
+    def test_every_curated_owner_has_population_anchor(self):
+        for code in self.preserve | set(self.owner_overrides.values()):
             self.assertIn(code, COUNTRY_POPULATION_1946)
+
+    def test_norfolk_island_does_not_share_newfoundland_code(self):
+        overlay = load_json(CONFIG_DIR / "occupation_overlay.json")
+        self.assertEqual(overlay["OCE-0008"], "AUS")
 
 
 if __name__ == "__main__":

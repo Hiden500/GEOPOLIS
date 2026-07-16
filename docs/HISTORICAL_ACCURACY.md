@@ -175,14 +175,17 @@ League of Nations, Maddison Project, CIA, академические публи�
   для оккупационных зон, национальные военные архивы.
 
 Статус страновых границ/владения по континентам хранится в исполняемой
-конфигурации `scripts/map/config/country_entities_1946.json`. Южная Америка
-проверена для снимка `1946-01-01`: British Guiana, Suriname, French Guiana и
-Falkland Islands являются отдельными зависимыми Country-сущностями; South
-Georgia/South Sandwich остаются Falkland Islands Dependencies. Источники —
-UN A/4192 и Yearbook 1946-47, французская государственная хронология,
-Nationaal Archief и Falkland/SGSSI legal archive — записаны рядом с данными.
-Остальные континенты ещё `UNKNOWN` и временно могут использовать legacy
-colonial blocs.
+конфигурации `scripts/map/config/country_entities_1946.json`. Южная Америка и
+Северная Америка/Карибы проверены для снимка `1946-01-01`. В Южной Америке
+British Guiana, Suriname, French Guiana и Falkland Islands являются отдельными
+зависимыми Country-сущностями; South Georgia/South Sandwich остаются Falkland
+Islands Dependencies. В Северной Америке отдельные администрации сохранены,
+а островные полигоны сведены к существовавшим Leeward Islands, Windward
+Islands, Jamaica with dependencies и Curaçao and Dependencies. Norfolk Island
+исправлен с конфликтующего кода Newfoundland на территорию Австралии.
+Источники ООН, государственные законодательства и национальные архивы записаны
+рядом с данными. Остальные континенты ещё `UNKNOWN` и временно могут
+использовать legacy colonial blocs.
 
 Наличие источника в этом списке не означает, что текущие значения уже были
 сверены с ним; фактический статус датасета фиксируется в `docs/SCENARIOS.md`.

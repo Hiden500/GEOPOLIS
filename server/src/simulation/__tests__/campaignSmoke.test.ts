@@ -33,7 +33,7 @@ import { getDomainTier } from "@shared/utils/technology";
 
 const MONTHS_TO_SIMULATE = 60; // 5 лет — тот же горизонт, что живой прогон, нашедший баг популяции.
 const SNAPSHOT_INTERVAL_MONTHS = 12;
-const EXPECTED_COUNTRY_COUNT = 132; // Южная Америка разделена на срезе country-entities 2026-07-17.
+const EXPECTED_COUNTRY_COUNT = 145; // Южная и Северная Америка разделены на срезе country-entities 2026-07-17.
 
 // Десять держав tier "major" сценария 1946 (server/src/simulation/tier/TierTick.ts,
 // HISTORICAL_TIERS_1946) — реальные id из датасета, не выдуманные.

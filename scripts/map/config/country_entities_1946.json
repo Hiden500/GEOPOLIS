@@ -79,6 +79,201 @@
           "reason": "South Georgia and the South Sandwich Islands were Falkland Islands Dependencies in 1946; the separate modern territory dates from 1985."
         }
       ]
+    },
+    "north_america_caribbean": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — approximate population of Non-Self-Governing Territories in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Air Navigation (Colonies, Protectorates and Mandated Territories) Order, 1948 — official territory schedule",
+          "url": "https://www.legislation.gov.uk/uksi/1948/2255/pdfs/uksi_19482255_en.pdf",
+          "authority": "United Kingdom legislation"
+        },
+        {
+          "title": "Leeward Islands colonial records and composition",
+          "url": "https://www.nationalarchives.gov.uk/help-with-your-research/research-guides/caribbean-social-and-cultural-history/",
+          "authority": "The National Archives, United Kingdom"
+        },
+        {
+          "title": "Windward Islands — common Governor with separate island institutions",
+          "url": "https://www.nationalarchives.gov.uk/the-caribbean/windward-islands/",
+          "authority": "The National Archives, United Kingdom"
+        },
+        {
+          "title": "Autonomie voor Suriname en de Nederlandse Antillen — Curaçao en onderhorigen",
+          "url": "https://www.nationaalarchief.nl/beleven/onderwijs/bronnenbox/autonomie-voor-suriname-en-de-nederlandse-antillen-1954",
+          "authority": "Nationaal Archief, Netherlands"
+        },
+        {
+          "title": "Census of Newfoundland, 1945 — final tabulated results",
+          "url": "https://publications.gc.ca/site/eng/9.833448/publication.html",
+          "authority": "Government of Canada Publications"
+        }
+      ],
+      "preserve": [
+        {
+          "code": "BHS",
+          "historicalName": "Bahamas",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "BLZ",
+          "historicalName": "British Honduras",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "BMU",
+          "historicalName": "Bermuda",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "BRB",
+          "historicalName": "Barbados",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "JAM",
+          "historicalName": "Jamaica",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Owner also includes Cayman Islands and Turks and Caicos, both dependencies administered with Jamaica in this snapshot."
+        },
+        {
+          "code": "NFD",
+          "historicalName": "Newfoundland",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Separate Dominion under Commission of Government; joined Canada only in 1949."
+        },
+        {
+          "code": "PRI",
+          "historicalName": "Puerto Rico",
+          "subjectOf": "USA",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "SPM",
+          "historicalName": "Saint Pierre and Miquelon",
+          "subjectOf": "FRA",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "TTO",
+          "historicalName": "Trinidad and Tobago",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "VIR",
+          "historicalName": "United States Virgin Islands",
+          "subjectOf": "USA",
+          "subjectType": "colony",
+          "confidence": "high"
+        }
+      ],
+      "ownerOverrides": [
+        {
+          "from": "ATG",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "Antigua and Barbuda was a presidency of the federal Colony of the Leeward Islands."
+        },
+        {
+          "from": "AIA",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "Anguilla was administered within the St Kitts-Nevis-Anguilla presidency of the Leeward Islands."
+        },
+        {
+          "from": "KNA",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "St Kitts and Nevis formed a presidency of the federal Colony of the Leeward Islands."
+        },
+        {
+          "from": "MSR",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "Montserrat was a presidency of the federal Colony of the Leeward Islands."
+        },
+        {
+          "from": "VGB",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "The British Virgin Islands formed the Virgin Islands presidency of the Leeward Islands."
+        },
+        {
+          "from": "DMA",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Dominica had been transferred to the Windward Islands administration in 1940."
+        },
+        {
+          "from": "GRD",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Grenada belonged to the Windward Islands administration."
+        },
+        {
+          "from": "LCA",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Saint Lucia belonged to the Windward Islands administration."
+        },
+        {
+          "from": "VCT",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Saint Vincent belonged to the Windward Islands administration."
+        },
+        {
+          "from": "CYM",
+          "to": "JAM",
+          "confidence": "high",
+          "reason": "The Cayman Islands were a dependency administered with Jamaica."
+        },
+        {
+          "from": "TCA",
+          "to": "JAM",
+          "confidence": "high",
+          "reason": "The Turks and Caicos Islands were a dependency of Jamaica in the 1946 snapshot."
+        },
+        {
+          "from": "ABW",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Aruba was part of the Dutch territory Curaçao and Dependencies."
+        },
+        {
+          "from": "CUW",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Curaçao was the seat and namesake of Curaçao and Dependencies."
+        },
+        {
+          "from": "SXM",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Sint Maarten was part of Curaçao and Dependencies; source geometry has no separate BES polygons."
+        }
+      ]
     }
   }
 }

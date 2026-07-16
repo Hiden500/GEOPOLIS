@@ -64,6 +64,11 @@ python scripts/map/test_validate_region_economy_1946.py
 Targeted-инварианты проверяет `test_country_entities_1946.py`, который входит
 в стандартный pipeline.
 
+На текущем срезе завершены Южная Америка и Северная Америка/Карибы. Для
+последних современные островные ISO-коды объединяются по администрациям 1946
+(Leeward, Windward, Jamaica dependencies, Curaçao and Dependencies), а не
+механически превращаются в отдельные страны.
+
 ## Полная пересборка геометрии
 
 Интерфейс существует:

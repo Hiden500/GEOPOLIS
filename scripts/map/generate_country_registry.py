@@ -51,7 +51,8 @@ COLONY_BLOC_CODES = {
     "USA": "QCU", "NZL": "QCZ", "ESP": "QCS",
 }
 
-# Кастомные записи, отсутствующие в каталоге MAP (зоны оккупации + Тайвань).
+# Кастомные записи, отсутствующие в каталоге MAP: зоны оккупации, Тайвань и
+# исторические администрации, собранные из нескольких современных ISO-кодов.
 CUSTOM_COUNTRIES = {
     "QGS": {"name_en": "Soviet Occupation Zone (Germany)", "ideology": "Communism", "economy": "planned"},
     "QGA": {"name_en": "American Occupation Zone (Germany)", "ideology": "Liberal Democracy", "economy": "market"},
@@ -69,15 +70,23 @@ CUSTOM_COUNTRIES = {
     # на 3-буквенный private-use (см. import_to_game.py::OWNER_CODE_ALIASES);
     # из-за смены кода каталог MAP по нему не матчится напрямую, поэтому здесь.
     "QSO": {"name_en": "British Somaliland", "ideology": "Liberal Democracy", "economy": "mixed"},
+    # Исторические карибские администрации на дату снимка. Современные ISO3
+    # островов сводятся к ним через country_entities_1946.json.
+    "QWL": {"name_en": "Leeward Islands", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QWW": {"name_en": "Windward Islands", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QND": {"name_en": "Curaçao and Dependencies", "ideology": "Liberal Democracy", "economy": "mixed"},
 }
 
 # Суверены, исторически идущие с плановой экономикой/коммунистической идеологией.
 PLANNED_ECONOMY_SOVEREIGNS = {"SUN", "YUG", "CHN", "MNG"}
 
-# Марионетки без записи в каталоге MAP (QAZ/QMH — кастомные коды, см. выше) —
-# добавляются в puppets/sphereOfInfluence сюзерена напрямую, минуя обычный
-# catalog-driven путь (subject_of), который их не видит.
-PUPPET_OVERRIDES = {"SUN": ["QAZ", "QMH"]}
+# Зависимые сущности без записи в каталоге MAP — добавляются в puppets/
+# sphereOfInfluence сюзерена напрямую, минуя catalog-driven путь subject_of.
+PUPPET_OVERRIDES = {
+    "SUN": ["QAZ", "QMH"],
+    "GBR": ["QWL", "QWW"],
+    "NLD": ["QND"],
+}
 
 # Мандат/протекторат без subject_of в каталоге MAP, но политически зависимый —
 # подставляется в catalog ПЕРЕД вычислением puppets/suzerain_of, чтобы пройти
@@ -206,9 +215,9 @@ def load_entity_config(catalog: dict) -> tuple[set[str], dict[str, str]]:
             target = override["to"]
             if source in owner_overrides:
                 raise ValueError(f"{ENTITY_CONFIG}: дубликат owner override для {source}")
-            if source not in catalog or target not in catalog:
+            if source not in catalog or (target not in catalog and target not in CUSTOM_COUNTRIES):
                 raise ValueError(
-                    f"{ENTITY_CONFIG}: override {source}->{target} ссылается на отсутствующий MAP-код"
+                    f"{ENTITY_CONFIG}: override {source}->{target} ссылается на отсутствующий owner-код"
                 )
             owner_overrides[source] = target
 
@@ -424,6 +433,19 @@ def main():
         "SUR": 1116,  # регион, содержащий Парамарибо (point-in-polygon)
         "GUF": 1070,  # единственный регион, содержит Кайенну
         "FLK": 1072,  # Falkland Islands, содержит Стэнли; не South Georgia
+        "BHS": 829,   # Bahamas, содержит Нассау
+        "BLZ": 835,   # Belize District, содержит Belize City (столица в 1946)
+        "BMU": 828,   # Bermuda, содержит Гамильтон
+        "BRB": 827,   # Barbados, содержит Бриджтаун
+        "JAM": 862,   # Jamaica, содержит Кингстон; не Cayman/Turks dependencies
+        "NFD": 781,   # Newfoundland, содержит St. John's
+        "PRI": 915,   # Puerto Rico, содержит San Juan
+        "SPM": 914,   # Saint Pierre and Miquelon, содержит Saint-Pierre
+        "TTO": 925,   # Trinidad, содержит Port of Spain; не Tobago
+        "VIR": 928,   # US Virgin Islands, содержит Charlotte Amalie
+        "QWL": 824,   # Antigua, содержит St. John's — резиденцию Governor
+        "QWW": 845,   # Grenada, содержит St. George's — резиденцию Governor
+        "QND": 843,   # Curaçao, содержит Willemstad
     }
 
     countries = []

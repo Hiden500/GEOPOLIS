@@ -93,17 +93,6 @@ QCG_GROUPS = {
     "malta": {"population": 305_000, "match_any": ["malta", "gozo"]},
     "gibraltar": {"population": 24_000, "match_any": ["gibraltar"]},
     "aden_protectorate": {"population": 650_000, "match_any": ["hadramawt", "al mahrah", "shabwah", "lahij"]},
-    "newfoundland": {"population": 320_000, "match_any": ["newfoundland"]},
-    "caribbean": {
-        "population": 2_900_000,
-        "match_any": [
-            "antigua", "anguilla", "barbados", "bermuda", "bahamas", "cayo",
-            "orange walk", "corozal", "toledo", "stann creek", "belize",
-            "dominica", "grenada", "jamaica", "nevis", "saint kitts", "cayman",
-            "saint lucia", "montserrat", "turks and caicos", "tobago",
-            "rio claro", "saint vincent", "virgin islands",
-        ],
-    },
     "st_helena": {"population": 5_000, "match_any": ["saint helena", "indian ocean territory"]},
     "gambia": {"population": 260_000, "match_any": ["gambia"]},
     "nigeria_north": {"population": 7_500_000, "match_any": ["zamfara", "benue", "bauchi"]},
@@ -150,7 +139,6 @@ QCF_GROUPS = {
     "djibouti": {"population": 60_000, "match_any": ["tadjourah"]},
     "comoros": {"population": 160_000, "match_any": ["comoros"]},
     "pacific_france": {"population": 90_000, "match_any": ["new caledonia", "french polynesia", "wallis"]},
-    "st_pierre": {"population": 4_500, "match_any": ["saint pierre"]},
 }
 
 QCP_GROUPS = {
@@ -171,12 +159,9 @@ QCN_GROUPS = {
             "sumatera", "aceh", "bali", "bangka", "sulawesi", "jambi", "jawa",
         ],
     },
-    "dutch_caribbean": {"population": 220_000, "match_any": ["aruba", "curaçao", "sint maarten"]},
 }
 
 QCU_GROUPS = {
-    "puerto_rico": {"population": 2_100_000, "match_any": ["puerto rico"]},
-    "us_virgin_islands": {"population": 26_000, "match_any": ["virgin islands"]},
     "us_pacific": {"population": 60_000, "match_any": ["american samoa", "guam", "outlying"]},
 }
 

@@ -187,6 +187,27 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
         "Dependencies population at end-1946 = South Georgia 360 + other 30. "
         "Combined anchor follows the scenario owner FLK, which includes SGS."
     ),
+    "BHS": Anchor(73_000, "verified", "UN A/4192: Bahamas, approximate 1946 population 73,000."),
+    "BLZ": Anchor(60_000, "verified", "UN A/4192: British Honduras, approximate 1946 population 60,000."),
+    "BMU": Anchor(35_000, "verified", "UN A/4192: Bermuda, approximate 1946 population 35,000."),
+    "BRB": Anchor(193_000, "verified", "UN A/4192: Barbados, approximate 1946 population 193,000."),
+    "JAM": Anchor(
+        1_298_000, "verified",
+        "UN A/4192: Jamaica, approximate 1946 population 1,298,000. Scenario "
+        "owner includes Cayman Islands and Turks and Caicos, administered as "
+        "dependencies of Jamaica in the 1946 snapshot."
+    ),
+    "NFD": Anchor(
+        321_819, "verified",
+        "Official 1945 Census of Newfoundland and Labrador total: 321,819."
+    ),
+    "SPM": Anchor(4_000, "verified", "UN A/4192: St. Pierre and Miquelon, approximate 1946 population 4,000."),
+    "TTO": Anchor(561_000, "verified", "UN A/4192: Trinidad and Tobago, approximate 1946 population 561,000."),
+    "QWL": Anchor(108_000, "verified", "UN A/4192: Leeward Islands, approximate 1946 population 108,000."),
+    "QWW": Anchor(252_000, "verified", "UN A/4192: Windward Islands, approximate 1946 population 252,000."),
+    "QND": Anchor(139_000, "verified", "UN A/4192: Curaçao, approximate 1946 population 139,000."),
+    "PRI": Anchor(2_141_000, "verified", "UN A/4192: Puerto Rico, approximate 1946 population 2,141,000."),
+    "VIR": Anchor(27_000, "verified", "UN A/4192: United States Virgin Islands, approximate 1946 population 27,000."),
 
     # === Прочие мелкие/микро (низкая цена ошибки, широкие оценки) ===
     "ALB": Anchor(1_100_000, "estimated", "Общепринятая оценка Албании midcentury."),

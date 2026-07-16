@@ -368,6 +368,93 @@
     }
   },
   {
+    "id": "BHS",
+    "name": "Bahamas",
+    "shortName": "Bahamas",
+    "color": "#c9adb5",
+    "capitalRegionId": 829,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "BLZ",
+    "name": "British Honduras",
+    "shortName": "British Honduras",
+    "color": "#c9adb5",
+    "capitalRegionId": 835,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "BMU",
+    "name": "Bermuda",
+    "shortName": "Bermuda",
+    "color": "#c9adb5",
+    "capitalRegionId": 828,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "BOL",
     "name": "Bolivia",
     "shortName": "Bolivia",
@@ -402,6 +489,35 @@
     "shortName": "Brazil",
     "color": "#42a0b3",
     "capitalRegionId": 1055,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "BRB",
+    "name": "Barbados",
+    "shortName": "Barbados",
+    "color": "#c9adb5",
+    "capitalRegionId": 827,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1084,6 +1200,7 @@
         "GUF",
         "KHM",
         "LAO",
+        "SPM",
         "TGO",
         "TUN",
         "MAR"
@@ -1093,6 +1210,7 @@
         "GUF",
         "KHM",
         "LAO",
+        "SPM",
         "TGO",
         "TUN",
         "MAR",
@@ -1163,16 +1281,22 @@
         "JOR",
         "ARE",
         "AUS",
+        "BRB",
         "BHR",
+        "BMU",
         "BRN",
+        "BHS",
         "BTN",
         "BWA",
+        "BLZ",
         "CAN",
         "FLK",
         "GUY",
+        "JAM",
         "KWT",
         "LSO",
         "MWI",
+        "NFD",
         "NRU",
         "NZL",
         "PSE",
@@ -1181,39 +1305,51 @@
         "QSO",
         "SWZ",
         "TON",
-        "TZA",
-        "UGA",
-        "ZAF",
-        "SDN",
-        "VUT"
-      ],
-      "sphereOfInfluence": [
-        "JOR",
-        "ARE",
-        "AUS",
-        "BHR",
-        "BRN",
-        "BTN",
-        "BWA",
-        "CAN",
-        "FLK",
-        "GUY",
-        "KWT",
-        "LSO",
-        "MWI",
-        "NRU",
-        "NZL",
-        "PSE",
-        "QAT",
-        "SLB",
-        "QSO",
-        "SWZ",
-        "TON",
+        "TTO",
         "TZA",
         "UGA",
         "ZAF",
         "SDN",
         "VUT",
+        "QWL",
+        "QWW"
+      ],
+      "sphereOfInfluence": [
+        "JOR",
+        "ARE",
+        "AUS",
+        "BRB",
+        "BHR",
+        "BMU",
+        "BRN",
+        "BHS",
+        "BTN",
+        "BWA",
+        "BLZ",
+        "CAN",
+        "FLK",
+        "GUY",
+        "JAM",
+        "KWT",
+        "LSO",
+        "MWI",
+        "NFD",
+        "NRU",
+        "NZL",
+        "PSE",
+        "QAT",
+        "SLB",
+        "QSO",
+        "SWZ",
+        "TON",
+        "TTO",
+        "TZA",
+        "UGA",
+        "ZAF",
+        "SDN",
+        "VUT",
+        "QWL",
+        "QWW",
         "EGY"
       ]
     }
@@ -1605,6 +1741,35 @@
         "ERI",
         "LBY"
       ]
+    }
+  },
+  {
+    "id": "JAM",
+    "name": "Jamaica",
+    "shortName": "Jamaica",
+    "color": "#c9adb5",
+    "capitalRegionId": 862,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
     }
   },
   {
@@ -2130,6 +2295,35 @@
     }
   },
   {
+    "id": "NFD",
+    "name": "Newfoundland",
+    "shortName": "Newfoundland",
+    "color": "#c9adb5",
+    "capitalRegionId": 781,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "NIC",
     "name": "Nicaragua",
     "shortName": "Nicaragua",
@@ -2188,10 +2382,12 @@
     },
     "diplomacy": {
       "puppets": [
-        "SUR"
+        "SUR",
+        "QND"
       ],
       "sphereOfInfluence": [
-        "SUR"
+        "SUR",
+        "QND"
       ]
     }
   },
@@ -2523,6 +2719,35 @@
     }
   },
   {
+    "id": "PRI",
+    "name": "Puerto Rico",
+    "shortName": "Puerto Rico",
+    "color": "#7c98aa",
+    "capitalRegionId": 915,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "PRT",
     "name": "Portugal",
     "shortName": "Portugal",
@@ -2701,7 +2926,7 @@
     "name": "United Kingdom Colonies",
     "shortName": "United Kingdom Colonies",
     "color": "#826235",
-    "capitalRegionId": 781,
+    "capitalRegionId": 1193,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2817,7 +3042,7 @@
     "name": "United States Colonies",
     "shortName": "United States Colonies",
     "color": "#b25760",
-    "capitalRegionId": 915,
+    "capitalRegionId": 1328,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3110,11 +3335,98 @@
     "currencyZoneAnchor": "SUN"
   },
   {
+    "id": "QND",
+    "name": "Curaçao and Dependencies",
+    "shortName": "Curaçao and Dependencies",
+    "color": "#b59f8c",
+    "capitalRegionId": 843,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "QSO",
     "name": "British Somaliland",
     "shortName": "British Somaliland",
     "color": "#c9adb5",
     "capitalRegionId": 1122,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QWL",
+    "name": "Leeward Islands",
+    "shortName": "Leeward Islands",
+    "color": "#c9adb5",
+    "capitalRegionId": 824,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QWW",
+    "name": "Windward Islands",
+    "shortName": "Windward Islands",
+    "color": "#c9adb5",
+    "capitalRegionId": 845,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3318,6 +3630,35 @@
     "shortName": "San Marino",
     "color": "#956441",
     "capitalRegionId": 338,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "SPM",
+    "name": "Saint Pierre and Miquelon",
+    "shortName": "Saint Pierre and Miquelo",
+    "color": "#80aaa5",
+    "capitalRegionId": 914,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3584,6 +3925,35 @@
     }
   },
   {
+    "id": "TTO",
+    "name": "Trinidad and Tobago",
+    "shortName": "Trinidad and Tobago",
+    "color": "#c9adb5",
+    "capitalRegionId": 925,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "TUN",
     "name": "French Tunisia",
     "shortName": "French Tunisia",
@@ -3790,13 +4160,17 @@
         "FSM",
         "MHL",
         "MNP",
-        "PLW"
+        "PRI",
+        "PLW",
+        "VIR"
       ],
       "sphereOfInfluence": [
         "FSM",
         "MHL",
         "MNP",
-        "PLW"
+        "PRI",
+        "PLW",
+        "VIR"
       ]
     }
   },
@@ -3835,6 +4209,35 @@
     "shortName": "Venezuela",
     "color": "#7a348d",
     "capitalRegionId": 1099,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "VIR",
+    "name": "United States Virgin Islands",
+    "shortName": "United States Virgin Isl",
+    "color": "#7c98aa",
+    "capitalRegionId": 928,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,

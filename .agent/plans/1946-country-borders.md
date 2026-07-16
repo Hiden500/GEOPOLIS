@@ -58,7 +58,7 @@ commit.
 
 - [x] Зафиксировать baseline, dirty state и механизм семи колониальных блоков.
 - [x] Южная Америка: GUY/SUR/GUF/FLK и Falkland Islands Dependencies.
-- [ ] Северная Америка и Карибы.
+- [x] Северная Америка и Карибы.
 - [ ] Европа и европейские островные территории.
 - [ ] Африка.
 - [ ] Азия.
@@ -80,6 +80,13 @@ commit.
   390. Это заменило прежние приблизительные доли внутри мировых блоков.
 - Point-in-polygon столичных координат выявил неверную эвристику largest-area
   для GUY/SUR; Georgetown и Paramaribo закреплены за регионами 1114/1116.
+- В Карибах современные островные ISO-коды не равны администрациям 1946:
+  Leeward Islands, Windward Islands и Curaçao and Dependencies моделируются
+  отдельными историческими owner, а Cayman/Turks входят в Jamaica.
+- Исходный MAP-код `NFD` коллидировал между Newfoundland и Norfolk Island.
+  Точечный region override возвращает Norfolk Island Австралии; без него
+  граница и население Newfoundland были бы неверны уже в североамериканском
+  срезе.
 
 ## Decision log
 
@@ -91,6 +98,12 @@ commit.
   в provenance.
 - 2026-07-17: Южная Америка завершена как 4 отдельные зависимые сущности;
   `SGS` ремапится в `FLK`, а не становится пятой современной страной.
+- 2026-07-17: Северная Америка/Карибы завершены как 13 новых owner поверх
+  предыдущего среза: самостоятельные владения плюс исторические федеративные
+  администрации. Современные Cayman/Turks не выделяются из Jamaica.
+- 2026-07-17: Norfolk Island исправлен на `AUS` немедленно, а не отложен до
+  Океании, потому что коллизия `NFD` нарушала уже проверяемую границу
+  Newfoundland.
 
 ## Validation
 
@@ -118,6 +131,24 @@ inputs и dependency manifest.
 - `npx tsc --noEmit -p tsconfig.json` (`server/`): exit 0.
 - `npm test` (`server/`): 680 passed, 1 skipped, exit 0.
 - `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
+- Full geometry rebuild: не запускался; provenance/dependency gap остаётся.
+
+### Северная Америка и Карибы — 2026-07-17
+
+- `python scripts/map/test_country_entities_1946.py`: 6/6 passed.
+- `python scripts/map/make_1946.py`: финальный end-to-end rerun exit 0; 1366
+  регионов, 145 владельцев, мировой тотал 2,251,652,453 в допуске.
+- Read-only generated assertions: 145 Country, ожидаемые capitals/owners,
+  отсутствие современных island owners, `OCE-0008 -> AUS`, `NFD` владеет
+  только Newfoundland — passed.
+- `npx vitest run src/simulation/__tests__/campaignSmoke.test.ts` (`server/`):
+  1/1 passed.
+- `npx tsc --noEmit -p tsconfig.json` (`server/`): exit 0.
+- `npm test` (`server/`): 680 passed, 1 skipped, exit 0.
+- `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
+- Один промежуточный запуск pipeline получил транзиентный Windows
+  `OSError 22` при записи `regions.state.json`; отдельный fill восстановил
+  файл, а следующий полный end-to-end запуск прошёл чисто.
 - Full geometry rebuild: не запускался; provenance/dependency gap остаётся.
 
 ## Rollback / containment

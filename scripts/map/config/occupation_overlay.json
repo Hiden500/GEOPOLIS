@@ -1,5 +1,8 @@
 {
-  "_comment": "Оверлей спец-кейсов 1946, применяется к ownerCountryId при импорте поверх ownership_1946.json. Ключ — region_id из world_1946.geojson, значение — игровой код владельца. Зоны оккупации Германии и Кореи теперь читаются из НАТИВНОГО поля ownership_1946.json[region_id].controller (import_to_game.py) — здесь остаются только случаи, для которых MAP не предоставляет controller: одна пропущенная в MAP точка Германии, советская оккупация Маньчжурии (отдельно от остального коммунистического Китая) и раздел Китая на КПК/Гоминьдан.",
+  "_comment": "Оверлей спец-кейсов 1946, применяется к ownerCountryId при импорте поверх ownership_1946.json. Ключ — region_id из world_1946.geojson, значение — игровой код владельца. Здесь хранятся случаи, для которых MAP не предоставляет корректный owner/controller или переиспользует неоднозначный код.",
+
+  "_norfolk_island": "OCE-0008 ошибочно использует NFD, тот же код, что Newfoundland. Norfolk Island с 01.07.1914 был территорией Commonwealth of Australia. Источник: Norfolk Island Act 1913 и National Archives of Australia, https://www.naa.gov.au/explore-collection/australias-prime-ministers/joseph-cook/timeline",
+  "OCE-0008": "AUS",
 
   "_germany_gap": "EUR-0366 (Kiel Canal Zone) — owner='DEU' в MAP, но controller отсутствует (единственный пробел в иначе полном native-покрытии немецких зон). Британская зона географически.",
   "EUR-0366": "QGB",
