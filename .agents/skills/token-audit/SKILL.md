@@ -1,37 +1,44 @@
 ---
 name: token-audit
-description: Audit persistent AI-agent context for duplication, unnecessary always-loaded instructions, oversized skills, and avoidable token cost. Use when reviewing AGENTS.md, CLAUDE.md, Codex or Claude configuration, skills, hooks, or agent prompts for context efficiency. Produces recommendations only unless edits are explicitly requested.
+description: Read-only audit of persistent agent context for duplication, stale instructions, unnecessary always-loaded content, and avoidable token cost.
 ---
 
 # Token Audit
 
-Find context that can be removed, narrowed, or loaded only when needed without losing stable guardrails.
+## Trigger
 
-## Scope
+Use when reviewing AGENTS, provider adapters, Codex config, skills, agents, or
+hooks for context efficiency and instruction clarity.
 
-Inspect only files that influence agent context, including applicable `AGENTS.md`, `.claude/CLAUDE.md`, `.agents/skills`, `.claude/skills`, agent definitions, hooks, and Codex configuration. Do not scan application source unless needed to verify that an instruction is derivable from code or configuration.
+## Do not trigger
 
-## Workflow
+Do not use as a general source audit or to shorten a prompt without checking
+authority, safety, and references. Do not edit unless explicitly requested.
 
-1. Inventory persistent, conditional, and task-local context separately.
-2. Record file size, line count, and a rough token estimate. Use `characters / 4` only as an explicitly labeled approximation; do not present it as tokenizer output.
-3. Identify exact or semantic duplication across global, repository, nested, skill, and documentation layers.
-4. Classify every finding:
-   - keep always loaded: stable high-impact guardrail;
-   - move to a skill: conditional repeatable workflow;
-   - move to canonical docs: domain knowledge or explanation;
-   - derive at runtime: facts reliably available from code or executable config;
-   - delete: stale, contradictory, or redundant instruction.
-5. Check references before recommending deletion. A shorter prompt is not better if it hides required authority or safety rules.
-6. Rank findings by estimated recurring cost, ambiguity reduction, and migration risk.
+## Required inputs
 
-## Safety
+Repository root, instruction/config scope, relevant clients, and any known
+context limit. Unknown tokenizer/model details must remain unknown.
 
-- Remain read-only unless the user asks for edits.
-- Do not print environment values, credentials, tokens, or complete private configuration.
-- Do not recommend a second repository-intelligence or external-docs provider when Repowise or Context7 already covers the need.
-- Preserve the narrowest authoritative source instead of creating a new summary layer.
+## Workflow and tools
+
+1. Inventory always-loaded, path-scoped, conditional, and task-local context.
+2. Record size/line count; `characters / 4` may be used only as a labeled rough
+   estimate, never as tokenizer output.
+3. Find exact/semantic duplication and stale contradictions.
+4. Classify each item: keep always loaded, move to skill, move to canonical
+   docs, derive at runtime, or delete.
+5. Check references and provider loading behavior before deletion. Use `rg` and
+   targeted reads; use Repowise only when exposed.
+6. Rank by recurring cost, ambiguity reduction, and migration risk.
+
+## Verification and failure conditions
+
+Claims about actual loading require client/CLI evidence; file presence alone is
+`UNVERIFIED`. Do not enumerate secrets or private config. If loading/tokenizer
+behavior cannot be observed, provide estimates with explicit uncertainty.
 
 ## Output
 
-Provide a table with location, issue, evidence, recommended layer, rough recurring savings, and risk. End with a minimal migration sequence and call out estimates and unverified assumptions.
+Table: location, issue, evidence, target layer, rough recurring savings, risk.
+End with a minimal migration sequence, preserved guardrails, and unknowns.

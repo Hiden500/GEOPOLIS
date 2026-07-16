@@ -58,16 +58,17 @@ tags: string[], visibleAtZoom?, createdAt?, expiresAt?
   ("Карта/регионы", ведёт пользователь отдельно).
 - `factory` — регионы с `development > 0.5` и `infrastructure > 0.5`.
 
-`generateMineFeatures()` — отдельная функция (не вызывается из
-`generateInitialMapFeatures`), создаёт `mine` в регионах с
-`resourceProduction`.
+Шахты на старте сейчас не генерируются: в `Region` нет прежнего поля
+`resourceProduction`, а данные ресурсов представлены `deposits` и
+`extraction`. Связь этих данных с визуальными `mine` остаётся будущей работой
+плана 06; отдельной `generateMineFeatures()` в текущем коде нет.
 
 `WarTick.ts::ensureBattalion()` (вызывается из `warTick()`) — отдельный путь
 генерации, работающий не при старте партии, а динамически во время
 симуляции войны: создаёт `battalion` MapFeature на контактных регионах
 фронта, с тегом `war:<id>` для привязки к конкретной войне, и убирает его
-при заключении мира (`makePeace`). Это отдельно от `generateInitialMapFeatures()`/
-`generateMineFeatures()`, которые работают только при старте партии.
+при заключении мира (`makePeace`). Это отдельный динамический путь, не
+относящийся к стартовой `generateInitialMapFeatures()`.
 
 Все сгенерированные фичи — чисто визуальные записи (тип + координаты/regionId
 + владелец + теги), без собственного состояния или поведения. Это

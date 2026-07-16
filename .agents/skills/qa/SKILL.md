@@ -1,36 +1,47 @@
 ---
 name: qa
-description: Verify product behavior, acceptance criteria, regressions, UI states, APIs, and workflows as a read-only QA pass. Use when the user asks to test, smoke-test, validate a feature, reproduce a defect, or assess release readiness without implementing fixes. Records evidence and reports defects; does not auto-fix.
+description: Read-only verification of acceptance criteria, product behavior, regressions, APIs, UI states, and release readiness without implementing fixes.
 ---
 
 # QA
 
-Test the requested behavior against explicit acceptance criteria and preserve the system under test.
+## Trigger
 
-## Workflow
+Use for test, smoke-test, reproduction, acceptance validation, regression
+assessment, or release-readiness requests.
 
-1. Extract acceptance criteria from the request, canonical docs, existing tests, and current behavior. Flag conflicts instead of choosing silently.
-2. Identify the smallest representative test matrix: happy path, boundaries, invalid input, loading, empty, error, success, persistence, permissions, and regression-sensitive flows.
-3. Check the baseline and relevant Git state before attributing failures to the current change.
-4. Use the narrowest available verification surface:
-   - targeted automated tests and type checks;
-   - API or service smoke tests;
-   - browser flow and viewport checks when UI tooling is available;
-   - static inspection only when execution is unavailable, clearly labeled.
-5. Capture command, environment, input, expected result, actual result, and reproducibility for each failure.
-6. Do not edit source, snapshots, fixtures, config, or tests; do not install dependencies or dismiss failing checks. If execution would mutate shared or production state, stop and report the required authorization.
+## Do not trigger
 
-## Defect quality
+Do not use to implement fixes, alter fixtures/snapshots, or replace a root-cause
+investigation whose primary question is “why”.
 
-A defect report must contain:
+## Required inputs
 
-- concise title and severity;
-- preconditions and exact reproduction steps;
-- expected and actual behavior;
-- evidence such as error text, response status, or screenshot path;
-- affected scope and reproducibility;
-- whether it is baseline, regression, or unknown.
+Feature/flow scope, expected behavior or acceptance criteria, target environment,
+and current Git state. Derive missing criteria from canonical docs/tests where
+possible; report conflicts.
+
+## Workflow and tools
+
+1. Build the smallest matrix covering happy path, boundaries, invalid input,
+   loading/empty/error/success, persistence, permissions, and regressions.
+2. Capture baseline and relevant diff before attributing failures.
+3. Use targeted tests/typechecks, API/service smoke tests, and browser/viewport
+   checks only when those capabilities are available.
+4. Disposable local outputs are allowed only when the command is a documented
+   verification step and cleanup is safe; never mutate shared/production state.
+5. Record command/environment/input, expected, actual, exit/status, and
+   reproducibility for every failure.
+
+## Verification and failure conditions
+
+Mark a criterion passed only after its observable flow executed. Static review
+is `PARTIAL`, not E2E. Return `BLOCKED` when required services, browser, data,
+credentials, or permissions are unavailable; do not weaken checks.
 
 ## Output
 
-Lead with pass/fail/blocked status per acceptance criterion. Separate confirmed defects, baseline failures, observations, and untested areas. Do not claim end-to-end coverage when only static or partial checks ran. Recommend the next highest-value check or fix, but do not implement it unless asked separately.
+Per criterion: `PASS`, `FAIL`, `PARTIAL`, or `BLOCKED`. Separate confirmed
+defects, baseline failures, observations, and untested areas. Defects include
+severity, prerequisites, exact steps, expected/actual, evidence, scope, and
+reproducibility.

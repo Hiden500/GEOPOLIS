@@ -30,6 +30,8 @@ docs/
 * politics: PoliticsState
 * stockpile: ResourceStockpile
 * goals: StrategicGoal[]
+* aiTraits: AiTraits — детерминированно сеются при `createGame()`
+* currencyZoneAnchor?: string — опциональная ссылка на страну-якорь валютной зоны
 * tier: CountryTier — "major"/"regional"/"minor", определяет участие в LLM-промте (постоянно/по ротации/только пороговые правила)
 * economyProfile: EconomyProfile — масштаб-свободные доли экономики страны, источник истины для дизайна страны (детали — `docs/ECONOMY.md`)
 
@@ -40,11 +42,11 @@ docs/
 Поля:
 
 * id, geoJsonId, names: LocalizedText
-* ownerCountryId
+* ownerCountryId, occupiedBy? — юридический владелец и опциональный военный контролёр
 * population, area
 * urbanization, stability, infrastructure, development
 * gdp
-* resourceProduction
+* deposits, extraction — геологический потенциал и уровень добывающих мощностей; выпуск за тик вычисляется, а не хранится
 * neighboringRegionIds
 * sourceAdm1Codes? (опционально)
 * economy? — { agriculture, industry, mining, services } (опционально, инициализируется тиками при первом обращении)
@@ -54,10 +56,11 @@ docs/
 Поля:
 
 * gdp, treasury
-* taxRevenue, exportIncome, stateEnterpriseIncome, otherIncome
-* militarySpending, researchSpending, educationSpending, infrastructureSpending, welfareSpending, debtInterest, otherExpenses
+* taxRevenue, taxRate?, exportIncome, importSpending, stateEnterpriseIncome, otherIncome
+* militarySpending, researchSpending, educationSpending, infrastructureSpending, welfareSpending, debt, debtInterest, otherExpenses
 * inflation, unemployment
 * tradeBalance, budgetBalance
+* spendingFloor?, spendingShares? — рантайм-пол и пользовательские доли дискреционных расходов
 
 ### TechnologyState (`shared/src/types/TechnologyState.ts`)
 
@@ -142,7 +145,9 @@ state для трёх «внешних инициаторов»: LLM-дейст�
   `nudgeInfluenceTowardTarget` (точные обёртки формул `AiBehaviorTick`
   Правило B — не переиспользуют `DiplomacyService.changeRelation`, у того
   есть побочный реципрокный сдвиг, которого нет в AI-формуле).
-* `commands/war.ts` — `declareWar`/`makePeaceBetween` (обёртки `WarService`).
+* `commands/war.ts` — `declareWar`/`makePeaceBetween` (обёртки `WarService`) и
+  `transferRegion` (атомарная смена `ownerCountryId`; оккупация во время войны
+  остаётся отдельным слоем в `simulation/war/occupation.ts`).
 * `commands/economy.ts` — `setResearchAllocation`/`setProductionAllocation`/
   `setBudgetShares` (обёртки `ResearchService`/`MilitaryService`/
   `CountryService`) + `applyDeficitAusterityCut`/`shiftMilitaryToWelfare`/
@@ -156,11 +161,9 @@ state для трёх «внешних инициаторов»: LLM-дейст�
   и наличие deposit, списывает `EXTRACTION_BUILD_COST` при `delta>0`;
   `damageExtraction` — безусловное снижение, для будущей интеграции с
   войной/событиями (не подключена автоматически ни к чему в этом заходе).
-* Не реализовано (нет обоснования критерием приёмки, см. план):
-  `transferRegion` (единственная прод-мутация `ownerCountryId`, `WarTick.ts`,
-  оставлена вне атомарной команды до плана 08), `setPuppet` (нет сервисного
-  метода), `createFeature`/`removeFeature` (план 06), запись команд в
-  `eventHistory`/журнал хода.
+* Не реализовано (нет обоснования критерием приёмки, см. план): `setPuppet`
+  (нет сервисного метода), `createFeature`/`removeFeature` (план 06), запись
+  команд в `eventHistory`/журнал хода.
 
 ### Модификаторы (`shared/src/utils/modifiers.ts`, `server/src/commands/modifiers.ts`)
 
@@ -240,7 +243,12 @@ state для трёх «внешних инициаторов»: LLM-дейст�
 
 Отвечает за интерфейс, карту и отображение состояния мира.
 
-Все информационные панели (бюджет, исследования, действия, мировой рейтинг, территории, инспектор страны/региона) рендерятся как независимые перетаскиваемые окна (`client/src/components/Window.tsx` + `client/src/hooks/useWindows.ts`), а не как постоянные колонки макета — карта всегда занимает весь `game-content`, окна открываются по клику и закрываются явно. Размер окна по умолчанию подстраивается под содержимое; ручной ресайз через угловую ручку. См. `docs/DECISIONS.md` ("Редизайн интерфейса") за обоснованием.
+Карта остаётся полноэкранной основой HUD. Постоянная оболочка строится из
+`Header`, левой `SidePanel`, правой `ContextPanel`, нижней `OrdersBox` и
+`MapControls` (`client/src/hud/`, сборка в `GameView.tsx`). Перетаскиваемый
+`Window` используется только для отдельных поверхностей сравнения и LLM, а
+не как универсальный контейнер всех панелей. Актуальная композиция и правила
+адаптивности описаны в `docs/UI_DESIGN.md`.
 
 # LLM Simulation Architecture
 

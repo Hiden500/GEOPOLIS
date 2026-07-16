@@ -6,43 +6,67 @@
 
 ## Структура репозитория
 
-```
+```text
 client/   — React + TypeScript + Vite, карта на MapLibre GL JS
 server/   — Node.js + TypeScript, игровой движок и симуляция
-shared/   — общие типы и утилиты для client/server
-docs/     — правила, архитектура, дизайн-документы
+shared/   — общие TypeScript-типы и утилиты для client/server
+docs/     — правила, архитектура и дизайн-документы
 scripts/  — Python-пайплайн генерации карты/регионов (см. docs/WORLD.md)
 ```
 
-Монорепо без общего workspace-конфига — `client/`, `server/`, `shared/` — три независимых `package.json`, зависимости ставятся в каждой папке отдельно.
+Это монорепо без workspace-конфига. Собственные `package.json` есть в корне, `server/` и `client/`; `shared/` подключается к обоим приложениям как исходный код и отдельного пакета не имеет.
+
+## Требования и установка
+
+CI использует Node.js 22 и Python 3.12. Для воспроизводимой установки используйте lock-файлы:
+
+```powershell
+npm ci
+cd server; npm ci
+cd ../client; npm ci
+```
+
+Настройки серверных интеграций описаны в [`server/.env.example`](server/.env.example). Секреты из локального `.env` не коммитятся.
 
 ## Запуск
 
-Быстрый способ (Windows, PowerShell) — один файл, поднимает сервер и клиент
-и открывает игру в браузере:
+Быстрый способ для Windows поднимает Express на `http://localhost:3000`, Vite на `http://localhost:5173` и открывает клиент:
 
-```
-.\start.ps1 -Install   # первый раз — ставит зависимости
-.\start.ps1            # дальше — обычный запуск
-```
-
-Вручную (любая ОС):
-
-```
-cd server && npm install && npm run dev
-cd client && npm install && npm run dev
+```powershell
+.\start.ps1 -Install   # первый запуск
+.\start.ps1            # последующие запуски
 ```
 
-Сервер поднимается на порту, заданном в `server/src/index.ts` (Express). Клиент — Vite dev server, проксирует `/game`, `/player`, `/scenarios` на сервер (см. `client/vite.config.ts`).
+Вручную запустите процессы в двух терминалах:
 
-## Тесты
-
+```powershell
+cd server; npm run dev
+cd client; npm run dev
 ```
-cd server && npm run test
+
+Vite проксирует на Express маршруты `/game`, `/scenarios`, `/budget`, `/research`, `/player-intent` и `/llm`; актуальный список находится в [`client/vite.config.ts`](client/vite.config.ts).
+
+> Сервер разработки не имеет аутентификации и разрешает CORS. Он предназначен только для локальной разработки: не публикуйте порт 3000 в локальную сеть или интернет.
+
+## Проверки
+
+```powershell
+# server
+cd server
+npx tsc --noEmit -p tsconfig.json
+npm test
+
+# client
+cd ../client
+npx tsc --noEmit -p tsconfig.app.json
+npm test
+npm run lint
+npm run build
+
+# данные сценария 1946
+cd ..
+python scripts/map/validate_region_economy_1946.py
+python scripts/map/test_validate_region_economy_1946.py
 ```
 
-У клиента тестовой инфраструктуры пока нет (известный пробел, см. `docs/DECISIONS.md`).
-
-## Перед началом работы
-
-Прочитать `AGENTS.md` — он описывает обязательные правила работы над проектом (язык ответов, приоритет документации, запрет на изменения без явного решения и т.д.).
+`npm run build` клиента включает TypeScript-проверку. Перед изменениями сверяйтесь с обязательными командами и известными baseline-проблемами в [`AGENTS.md`](AGENTS.md) и [`docs/TODO.md`](docs/TODO.md); успешность проверки определяется фактическим кодом выхода, а не этим README.

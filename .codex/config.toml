@@ -1,9 +1,7 @@
-[shell_environment_policy]
-inherit = "core"
 model_verbosity = "low"
 
-[shell_environment_policy.set]
-ENABLE_TOOL_SEARCH = "auto:5"
+[shell_environment_policy]
+inherit = "core"
 
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
@@ -12,7 +10,10 @@ url = "https://mcp.context7.com/mcp"
 command = "repowise"
 args = [
     "mcp",
-    "D:/Pax Historia LOCAL",
     "--transport",
     "stdio",
 ]
+
+[agents]
+max_threads = 4
+max_depth = 1

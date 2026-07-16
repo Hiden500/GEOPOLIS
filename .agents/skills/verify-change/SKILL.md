@@ -1,8 +1,51 @@
 ---
 name: verify-change
-description: Typecheck + test the workspace(s) touched by the current change before commit.
+description: Select and run the repository's real typecheck, test, lint, build, data, documentation, and agent-config checks for the files changed.
 ---
-1. Determine touched workspace(s): client/ and/or server/.
-2. client: `cd client && npx tsc --noEmit -p tsconfig.app.json && npm test`
-3. server: `cd server && npx tsc --noEmit -p tsconfig.json && npm test`
-4. Report failures errors-first (use `repowise distill` on the output). Never commit on red.
+
+# Verify Change
+
+## Trigger
+
+Use after repository changes, before a local commit, or when the user asks for
+verification/readiness evidence.
+
+## Do not trigger
+
+Do not run the full matrix for a read-only explanation with no changed files,
+or substitute unrelated broad checks for a known targeted test.
+
+## Required inputs
+
+`git status`/diff, starting baseline failures, affected modules, and any explicit
+acceptance criteria. Preserve unrelated user changes.
+
+## Workflow and expected tools
+
+1. Inspect changed paths and select the smallest complete matrix.
+2. `client/` or shared client consumers:
+   `npx tsc --noEmit -p tsconfig.app.json`, `npm test`, `npm run lint`; add
+   `npm run build` for production/UI/build-config changes.
+3. `server/` or shared server consumers:
+   `npx tsc --noEmit -p tsconfig.json`, `npm test`.
+4. scenario/map data:
+   `python scripts/map/validate_region_economy_1946.py` and
+   `python scripts/map/test_validate_region_economy_1946.py`.
+5. instructions, skills, `.agent/`, `.codex/`, provider adapters, or docs:
+   `python .agent/evals/public/run_public_evals.py`.
+6. Run targeted tests before full workspace checks. Capture exit codes and
+   inspect output; distill noisy output only if the original remains available.
+7. Review final diff and `git status` for generated/unrelated files.
+
+## Verification and failure conditions
+
+Success requires every selected check to exit 0 or an identical pre-recorded
+baseline failure with no new diagnostics. Never call a failed gate green. Stop
+and report when dependencies, runtime, services, browser, or permissions are
+missing; do not install or weaken checks implicitly.
+
+## Output
+
+List selected scope, command/cwd, exit code, observed result, and duration when
+available. Separate passed checks, baseline failures, introduced failures, and
+not-run/blocked checks. Finish with commit readiness, not a generic “all good”.

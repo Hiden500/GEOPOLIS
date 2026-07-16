@@ -1,6 +1,10 @@
 # TEMPLATES — шаблоны рабочих артефактов
 
-Копируются как есть и заполняются. Ссылки: [MASTER_PROMPT.md](MASTER_PROMPT.md),
+> **HISTORICAL / SUPERSEDED (2026-07-15).** Не копировать как активный
+> protocol. Текущий формат планов — `.agent/PLANS.md`, workflows —
+> `.agents/skills/`.
+
+Исторические ссылки: [MASTER_PROMPT.md](MASTER_PROMPT.md),
 [PROTOCOLS.md](PROTOCOLS.md).
 
 ---
