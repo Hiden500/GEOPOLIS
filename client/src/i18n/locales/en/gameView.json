@@ -14,6 +14,35 @@
     "intentSaveFailed": "Failed to save intent",
     "stateUpdateFailed": "Failed to update state"
   },
+  "briefing": {
+    "title": "National briefing",
+    "rank": "#{{rank}} / {{total}}",
+    "power": "Power {{power}}",
+    "goals": "Goals: {{completed}} / {{total}}",
+    "noGoals": "No goals have been set",
+    "allGoalsComplete": "All goals completed",
+    "lastTurn": "Turn report {{from}} → {{to}}",
+    "noTurnReport": "A report will appear after the next turn",
+    "noSignificantChanges": "No key metrics changed",
+    "moreChanges": "More changes: {{count}}",
+    "completedGoals": "Goals completed this turn: {{count}}",
+    "goal": {
+      "reachGdp": "Reach GDP {{target}}",
+      "reachPowerRank": "Reach power rank #{{target}}",
+      "controlRegions": "Control {{target}} regions",
+      "reachTechTier": "Reach tier {{target}} in {{domain}}"
+    },
+    "metric": {
+      "power": "National power",
+      "rank": "World rank",
+      "gdp": "GDP",
+      "treasury": "Treasury",
+      "population": "Population",
+      "stability": "Stability",
+      "legitimacy": "Legitimacy",
+      "regions": "Regions"
+    }
+  },
   "playerCountryNotFound": "Player country not found",
   "back": "Back"
 }

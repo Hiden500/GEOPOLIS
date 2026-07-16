@@ -119,8 +119,38 @@ describe("useWindows", () => {
       const { result } = renderHook(() => useWindows());
       act(() => result.current.openOrFocus({ type: "llm" }));
       const llm = result.current.windows[0]!;
-      expect(llm.position.x).toBe(window.innerWidth - 360);
+      expect(llm.position.x).toBe(window.innerWidth - 440 - 16);
       expect(llm.position.y).toBe(100);
+    });
+  });
+
+  describe("viewport safety", () => {
+    it("нормализует сохранённые offscreen position/size при открытии", () => {
+      localStorage.setItem("geopolis_window_settings", JSON.stringify({
+        llm: { position: { x: 50_000, y: 50_000 }, size: { width: 50_000, height: 50_000 } },
+      }));
+      const { result } = renderHook(() => useWindows());
+
+      act(() => result.current.openOrFocus({ type: "llm" }));
+
+      const llm = result.current.windows[0]!;
+      expect(llm.position.x).toBeLessThanOrEqual(window.innerWidth - 48);
+      expect(llm.position.y).toBeLessThanOrEqual(window.innerHeight - 36);
+      expect(llm.size!.width).toBe(window.innerWidth - 32);
+      expect(llm.size!.height).toBe(window.innerHeight - 32);
+    });
+
+    it("resetLayout очищает сохранение и возвращает открытые окна к defaults", () => {
+      const { result } = renderHook(() => useWindows());
+      act(() => result.current.openOrFocus({ type: "country", countryId: "USA" }));
+      act(() => result.current.move("country:USA", { x: 777, y: 555 }));
+      act(() => result.current.resize("country:USA", { width: 600, height: 500 }));
+
+      act(() => result.current.resetLayout());
+
+      expect(localStorage.getItem("geopolis_window_settings")).toBeNull();
+      expect(result.current.windows[0]!.position).toEqual({ x: 16, y: 100 });
+      expect(result.current.windows[0]!.size).toBeUndefined();
     });
   });
 

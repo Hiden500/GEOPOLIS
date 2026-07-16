@@ -47,7 +47,7 @@ function syncEdgesState(
   topo: { edges: FeatureCollection<LineString, SharedEdgeProperties> } | null,
   countries: Country[]
 ) {
-  if (!map || !topo) return;
+  if (!map || !topo || !map.getSource('shared-edges')) return;
   const regionOwnerMap = new Map<number, string>();
   const countryColorMap = new Map<string, string>();
   
@@ -138,14 +138,6 @@ export function MapView({
         version: 8,
         sources: {},
         layers: [],
-        glyphs: 'https://tiles.basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf',
-        'font-faces': {
-          'EB Garamond': [
-            {
-              url: '/fonts/EBGaramond-Bold.ttf'
-            }
-          ]
-        }
       } as any,
       center: [37.6173, 55.7558],
       zoom: 2,
@@ -190,6 +182,28 @@ export function MapView({
       mapRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- инициализация карты один раз при монтировании; onMapReady читаем как актуальный колбэк, не как триггер пересоздания.
+  }, []);
+
+  // MapLibre хранит размер canvas отдельно от DOM. Синхронизируем его при
+  // изменении контейнера/viewport, иначе остаются тёмные зазоры и смещается
+  // hit-testing после перестройки HUD.
+  useEffect(() => {
+    const container = mapContainer.current;
+    if (!container) return;
+
+    let frame = 0;
+    const resizeMap = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => mapRef.current?.resize());
+    };
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resizeMap);
+    observer?.observe(container);
+    window.addEventListener('resize', resizeMap);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      window.removeEventListener('resize', resizeMap);
+    };
   }, []);
 
   // Закрытие попапа по триггеру извне
@@ -460,7 +474,7 @@ export function MapView({
 
   // Обновление владельцев
   useEffect(() => {
-    if (!mapRef.current || !mapData) return;
+    if (!mapRef.current || !mapData || !loaded) return;
 
     const updatedData = updateMapData(mapData.featureCollection, regions, countries);
     setMapData({ featureCollection: updatedData });
@@ -482,7 +496,6 @@ export function MapView({
 
     // 1. Обновление подписей стран
     const countryLabels = buildCountryLabels(mapData.featureCollection, regions);
-    console.log("COUNTRY LABELS DATA:", countryLabels);
     const countrySource = m.getSource('country-labels') as maplibregl.GeoJSONSource | undefined;
     if (countrySource) {
       countrySource.setData(countryLabels);
@@ -501,11 +514,17 @@ export function MapView({
           'text-rotate': ['get', 'rotateDeg'],
           'text-keep-upright': false,
           'text-size': [
-            'min',
-            ['get', 'sizeZ7'],
-            ['*', ['get', 'sizeZ2'], ['^', 2, ['-', ['zoom'], 2]]]
+            'interpolate',
+            ['exponential', 2],
+            ['zoom'],
+            2,
+            ['/', ['get', 'sizeZ2'], 4],
+            7,
+            ['/', ['get', 'sizeZ7'], 4]
           ],
-          'text-font': ['EB Garamond'],
+          // Без glyphs URL MapLibre рисует glyphs локально через TinySDF;
+          // self-hosted IBM Plex Sans покрывает latin/cyrillic локали игры.
+          'text-font': ['IBM Plex Sans'],
           'symbol-sort-key': ['get', 'sortKey'],
           'text-allow-overlap': true,
           'text-ignore-placement': true,
@@ -573,7 +592,7 @@ export function MapView({
         source: 'region-labels',
         layout: {
           'text-field': ['get', 'name'],
-          'text-font': ['Open Sans Regular'],
+          'text-font': ['IBM Plex Sans'],
           'text-size': 10,
           'text-max-width': 8,
           'text-allow-overlap': false,
@@ -593,17 +612,18 @@ export function MapView({
         }
       });
     }
-  }, [mapData, regions]);
+  }, [mapData, regions, loaded]);
 
   // Выделение региона
   useEffect(() => {
     if (!mapRef.current) return;
     const m = mapRef.current;
+    if (!m.getSource('regions')) return;
 
     if (selectedRegionId != null) {
       try { m.setFeatureState({ source: 'regions', id: selectedRegionId }, { selected: true }); } catch {} // eslint-disable-line no-empty
     }
-  }, [selectedRegionId]);
+  }, [selectedRegionId, mapData, loaded]);
 
   // Оверлей цвета режима карты (docs/plans/12_UI_REDESIGN.md, MapControls) —
   // сбрасывает modeColor у регионов, ушедших из карты, и выставляет заново
@@ -612,13 +632,14 @@ export function MapView({
   useEffect(() => {
     if (!mapRef.current || !loaded) return;
     const m = mapRef.current;
+    if (!m.getSource('regions')) return;
     for (const r of regions) {
       const color = regionModeColors?.[r.id];
       try {
         m.setFeatureState({ source: 'regions', id: r.id }, { modeColor: color ?? null });
       } catch {} // eslint-disable-line no-empty
     }
-  }, [regionModeColors, regions, loaded]);
+  }, [regionModeColors, regions, loaded, mapData]);
 
   // Управление Map Features (инициализация и обновление)
   useEffect(() => {
@@ -666,7 +687,7 @@ export function MapView({
         source: 'map-features',
         layout: {
           'text-field': ['get', 'name'],
-          'text-font': ['Open Sans Regular'],
+          'text-font': ['IBM Plex Sans'],
           'text-size': [
             'interpolate',
             ['linear'],

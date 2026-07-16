@@ -1,6 +1,12 @@
 # Map Features
 
-Last updated: 2026-07-06
+> Runtime-корректность базовой карты не зависит от плана Map Features:
+> country/region labels используют локальные glyphs MapLibre, label layers
+> создаются только после загрузки style, canvas синхронизируется через
+> `ResizeObserver`, а GeometryEngine не разворачивает массивы координат в
+> `Math.max/min`. Это не изменение polygon geometry или topology.
+
+Last updated: 2026-07-16
 
 > ⚠️ Заготовка. Экономическая роль Map Features (input/output по типу) —
 > черновик, не финализировано. Непомеченные числа — не источник истины.

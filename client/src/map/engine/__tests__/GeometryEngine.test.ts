@@ -53,6 +53,40 @@ describe('GeometryEngine - Proportional Character Kerning', () => {
   });
 });
 
+describe('GeometryEngine - Large ownership geometry', () => {
+  it('does not spread a large coordinate set into Math.max/min arguments', () => {
+    const pointCount = 150_000;
+    const ring: [number, number][] = Array.from({ length: pointCount }, (_, index) => {
+      const angle = (index / (pointCount - 1)) * Math.PI * 2;
+      return [20 + Math.cos(angle), 50 + Math.sin(angle)];
+    });
+    ring[pointCount - 1] = ring[0];
+    const feature: Feature<Polygon> = {
+      type: 'Feature',
+      geometry: { type: 'Polygon', coordinates: [ring] },
+      properties: { type: 'region', regionId: 1, ownerName: 'Large Country' },
+    };
+    const region: Region = {
+      id: 1,
+      geoJsonId: 'LARGE-1',
+      names: { ru: 'Большой регион', en: 'Large Region' },
+      ownerCountryId: 'large-country',
+      neighboringRegionIds: [],
+      area: 1,
+      population: 1,
+      urbanization: 0,
+      stability: 50,
+      infrastructure: 0,
+      development: 0,
+      gdp: 1,
+      deposits: {},
+      extraction: {},
+    };
+
+    expect(() => computeCountryAxis([feature], [{ region, feature }])).not.toThrow();
+  });
+});
+
 describe('GeometryEngine - Linear Tangent Extrapolation', () => {
   const line: [number, number][] = [
     [0, 0],

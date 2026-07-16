@@ -112,6 +112,11 @@ export interface GameState {
   // стран. Производное состояние, но хранится ради дешёвого доступа UI/промта
   // без пересчёта рейтинга 128 стран на каждый рендер.
   playerStanding: PlayerStanding;
+
+  // Компактный детерминированный итог последнего успешно завершённого хода.
+  // Поле опционально для совместимости со старыми save-файлами; это не
+  // event log и не накапливаемая история (docs/OBJECTIVES.md).
+  lastTurnReport?: LastTurnReport;
 }
 
 /** Позиция страны игрока в мировом рейтинге силы (docs/OBJECTIVES.md). */
@@ -119,6 +124,30 @@ export interface PlayerStanding {
   power: number;
   rank: number;
   total: number;
+}
+
+export type TurnReportMetric =
+  | "power"
+  | "rank"
+  | "gdp"
+  | "treasury"
+  | "population"
+  | "stability"
+  | "legitimacy"
+  | "regions";
+
+export interface TurnMetricChange {
+  metric: TurnReportMetric;
+  before: number;
+  after: number;
+}
+
+export interface LastTurnReport {
+  fromDate: string;
+  toDate: string;
+  months: number;
+  changes: TurnMetricChange[];
+  completedGoalIds: string[];
 }
 
 /**

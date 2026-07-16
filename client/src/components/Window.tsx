@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 interface Props {
@@ -15,8 +15,9 @@ interface Props {
 
 // Сколько окна гарантированно остаётся в пределах вьюпорта при перетаскивании,
 // чтобы его нельзя было утащить за край и потерять (титулбар всегда доступен).
-const KEEP_VISIBLE = 48;
 const TITLEBAR_REACH = 36;
+const MIN_WIDTH = 340;
+const MIN_HEIGHT = 180;
 
 export function Window({ title, position, size, zIndex, onMove, onResize, onFocus, onClose, children }: Props) {
   const { t } = useTranslation(["window", "common"]);
@@ -34,10 +35,41 @@ export function Window({ title, position, size, zIndex, onMove, onResize, onFocu
     const parentHeight = parent?.clientHeight ?? window.innerHeight;
     const w = windowRef.current?.offsetWidth ?? 320;
     return {
-      x: Math.min(Math.max(x, KEEP_VISIBLE - w), parentWidth - KEEP_VISIBLE),
+      x: Math.min(Math.max(x, 0), Math.max(0, parentWidth - w)),
       y: Math.min(Math.max(y, 0), parentHeight - TITLEBAR_REACH),
     };
   };
+
+  // Сохранённые координаты из hook нормализованы относительно viewport, но
+  // окно позиционируется относительно map-container под Header. После mount
+  // используем фактические размеры родителя и самого окна, чтобы titlebar и
+  // resize handle нельзя было потерять даже после смены viewport.
+  useLayoutEffect(() => {
+    const element = windowRef.current;
+    const parent = element?.parentElement;
+    if (!element || !parent) return;
+
+    if (size) {
+      const normalizedSize = {
+        width: Math.min(Math.max(size.width, MIN_WIDTH), Math.max(MIN_WIDTH, parent.clientWidth - 32)),
+        height: Math.min(Math.max(size.height, MIN_HEIGHT), Math.max(MIN_HEIGHT, parent.clientHeight - 32)),
+      };
+      if (normalizedSize.width !== size.width || normalizedSize.height !== size.height) {
+        onResize(normalizedSize);
+        return;
+      }
+    }
+
+    const width = element.offsetWidth;
+    const height = element.offsetHeight;
+    const normalizedPosition = {
+      x: Math.min(Math.max(position.x, 0), Math.max(0, parent.clientWidth - width)),
+      y: Math.min(Math.max(position.y, 0), Math.max(0, parent.clientHeight - height)),
+    };
+    if (normalizedPosition.x !== position.x || normalizedPosition.y !== position.y) {
+      onMove(normalizedPosition);
+    }
+  }, [onMove, onResize, position.x, position.y, size]);
 
   const handleDragStart = (e: React.MouseEvent) => {
     onFocus();
@@ -81,12 +113,12 @@ export function Window({ title, position, size, zIndex, onMove, onResize, onFocu
 
     // Ограничиваем максимальную ширину и высоту так, чтобы правый нижний угол окна
     // не уходил за пределы родительского элемента, сохраняя ручку ресайза доступной.
-    const maxWidth = Math.max(220, parentWidth - position.x);
-    const maxHeight = Math.max(120, parentHeight - position.y);
+    const maxWidth = Math.max(MIN_WIDTH, parentWidth - Math.max(0, position.x));
+    const maxHeight = Math.max(MIN_HEIGHT, parentHeight - Math.max(0, position.y));
 
     onResize({
-      width: Math.min(maxWidth, Math.max(220, resize.startWidth + (e.clientX - resize.startX))),
-      height: Math.min(maxHeight, Math.max(120, resize.startHeight + (e.clientY - resize.startY))),
+      width: Math.min(maxWidth, Math.max(MIN_WIDTH, resize.startWidth + (e.clientX - resize.startX))),
+      height: Math.min(maxHeight, Math.max(MIN_HEIGHT, resize.startHeight + (e.clientY - resize.startY))),
     });
   };
 

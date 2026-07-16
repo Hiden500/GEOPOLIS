@@ -41,6 +41,8 @@ export const IconLedgers = IconRankings;
 export const IconBell = (p: IconProps) =>
   base(p, <><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 01-3.4 0" /></>);
 export const IconSettings = IconTechnology;
+export const IconHelp = (p: IconProps) =>
+  base(p, <><circle cx="12" cy="12" r="9" /><path d="M9.7 9a2.5 2.5 0 014.8.9c0 2.1-2.5 2.2-2.5 4.1M12 18h.01" /></>);
 export const IconMenu = (p: IconProps) => base(p, <path d="M4 6h16M4 12h16M4 18h16" />);
 export const IconClose = (p: IconProps) => base(p, <path d="M6 6l12 12M18 6L6 18" />);
 

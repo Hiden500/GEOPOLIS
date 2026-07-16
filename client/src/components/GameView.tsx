@@ -12,6 +12,8 @@ import { ContextPanel } from "../hud/ContextPanel/ContextPanel";
 import { OrdersBox } from "../hud/OrdersBox/OrdersBox";
 import { MapControls } from "../hud/MapControls/MapControls";
 import { ErrorToast } from "../hud/ErrorToast/ErrorToast";
+import { Onboarding } from "../hud/Onboarding/Onboarding";
+import { shouldStartOnboarding } from "../hud/Onboarding/onboardingState";
 import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId, type Selection } from "../hud/types";
 import { computeMapModeColors, type MapMode } from "../hud/mapModeColors";
 import { ResourceTicker } from "./ResourceTicker";
@@ -27,6 +29,7 @@ import { TerritoriesPanel } from "./TerritoriesPanel";
 import { LLMPanel } from "./LLMPanel";
 import { EventTimelinePanel } from "./EventTimelinePanel";
 import { MapView } from "../map/MapView";
+import { NationalBriefing } from "../hud/NationalBriefing/NationalBriefing";
 import {
   nextTurn,
   updateBudget,
@@ -50,8 +53,9 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [activeBook, setActiveBook] = useState<BookId | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [mapMode, setMapMode] = useState<MapMode>("pol");
+  const [onboardingOpen, setOnboardingOpen] = useState(shouldStartOnboarding);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
-  const { windows, openOrFocus, toggle, close, focus, move, resize } = useWindows();
+  const { windows, openOrFocus, toggle, close, focus, move, resize, resetLayout } = useWindows();
 
   const playerCountry = game.countries.find(
     c => c.id === game.playerCountryId
@@ -159,6 +163,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (onboardingOpen) return;
       const target = e.target as HTMLElement;
       const isTyping =
         target.tagName === "INPUT" ||
@@ -195,7 +200,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMapPopupOpen, windows, close, activeBook, selection, handleTabClick]);
+  }, [isMapPopupOpen, windows, close, activeBook, selection, handleTabClick, onboardingOpen]);
 
   if (!playerCountry) {
     return (
@@ -257,6 +262,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
         onNextTurn={handleNextTurn}
         onOpenLlmCycle={() => toggle({ type: "llm" })}
         onOpenCountryOverview={() => handleSelectCountry(playerCountry.id)}
+        onOpenOnboarding={() => setOnboardingOpen(true)}
+        onResetWindowLayout={resetLayout}
         onBackToMenu={onBack}
       />
 
@@ -274,6 +281,12 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             closePopupTrigger={closePopupTrigger}
             regionModeColors={regionModeColors}
             onMapReady={handleMapReady}
+          />
+
+          <NationalBriefing
+            country={playerCountry}
+            standing={game.playerStanding}
+            report={game.lastTurnReport}
           />
 
           <SidePanel book={activeBook} countryName={playerCountry.name} onClose={handleClosePanel}>
@@ -329,6 +342,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       </div>
 
       <ResourceTicker stockpile={playerCountry.stockpile} />
+      <Onboarding open={onboardingOpen} onClose={() => setOnboardingOpen(false)} />
     </div>
   );
 }

@@ -16,6 +16,7 @@ import ruGameView from "./locales/ru/gameView.json";
 import ruHud from "./locales/ru/hud.json";
 import ruInspectorPanel from "./locales/ru/inspectorPanel.json";
 import ruLlmPanel from "./locales/ru/llmPanel.json";
+import ruOnboarding from "./locales/ru/onboarding.json";
 import ruPlayerIntentPanel from "./locales/ru/playerIntentPanel.json";
 import ruResearchPanel from "./locales/ru/researchPanel.json";
 import ruResourceTicker from "./locales/ru/resourceTicker.json";
@@ -33,6 +34,7 @@ import enGameView from "./locales/en/gameView.json";
 import enHud from "./locales/en/hud.json";
 import enInspectorPanel from "./locales/en/inspectorPanel.json";
 import enLlmPanel from "./locales/en/llmPanel.json";
+import enOnboarding from "./locales/en/onboarding.json";
 import enPlayerIntentPanel from "./locales/en/playerIntentPanel.json";
 import enResearchPanel from "./locales/en/researchPanel.json";
 import enResourceTicker from "./locales/en/resourceTicker.json";
@@ -60,6 +62,7 @@ void i18n.use(initReactI18next).init({
       hud: ruHud,
       inspectorPanel: ruInspectorPanel,
       llmPanel: ruLlmPanel,
+      onboarding: ruOnboarding,
       playerIntentPanel: ruPlayerIntentPanel,
       researchPanel: ruResearchPanel,
       resourceTicker: ruResourceTicker,
@@ -78,6 +81,7 @@ void i18n.use(initReactI18next).init({
       hud: enHud,
       inspectorPanel: enInspectorPanel,
       llmPanel: enLlmPanel,
+      onboarding: enOnboarding,
       playerIntentPanel: enPlayerIntentPanel,
       researchPanel: enResearchPanel,
       resourceTicker: enResourceTicker,
