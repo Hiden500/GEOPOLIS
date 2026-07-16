@@ -1,19 +1,11 @@
 import { type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
-import { ResourceType } from "@shared/types/resources/ResourcesType";
 import { RESOURCE_CODES, RESOURCE_ICONS, formatCompactCurrency, formatResourceAmount } from "../../utils/resourceDisplay";
 import { BOOK_ORDER, type BookId } from "../types";
 import { IconBell, IconGdp, IconHelp, IconLegitimacy, IconLedgers, IconMenu, IconMilitary, IconPopulation, IconSearch, IconSettings, IconStability, IconTreasury } from "../icons";
 import { BOOK_ICONS } from "../bookIcons";
 import styles from "./Header.module.css";
-
-const HEADER_RESOURCE_TYPES = [
-  ResourceType.Oil,
-  ResourceType.Coal,
-  ResourceType.Iron,
-  ResourceType.Food,
-] as const;
 
 export interface HeaderProps {
   country: Country;
@@ -47,15 +39,13 @@ export function Header({
   onResetWindowLayout,
   onBackToMenu,
 }: HeaderProps) {
-  const { t, i18n } = useTranslation(["hud", "resourceTicker"]);
+  const { t, i18n } = useTranslation("hud");
 
   const dateLabel = new Intl.DateTimeFormat(i18n.language, { month: "long", year: "numeric" }).format(
     new Date(currentDate),
   ).toUpperCase();
 
-  const secondaryResources = Object.entries(country.stockpile).filter(
-    ([resource, amount]) => !HEADER_RESOURCE_TYPES.includes(resource as (typeof HEADER_RESOURCE_TYPES)[number]) && amount > 0,
-  );
+  const stockpileEntries = Object.entries(country.stockpile).filter(([, amount]) => amount > 0);
   const currencyUnits = { trillion: t("units.trillion"), billion: t("units.billion"), million: t("units.million") };
 
   return (
@@ -92,42 +82,20 @@ export function Header({
                 onClick={() => onTabClick("politics")}
               />
             </div>
-            <div className={`${styles.statrow} ${styles.r2}`} aria-label={t("resourceRow.ariaLabel")}>
-              {HEADER_RESOURCE_TYPES.map(resource => {
-                  const amount = country.stockpile[resource] ?? 0;
-                  const code = RESOURCE_CODES[resource] ?? resource.slice(0, 3).toUpperCase();
-                  const icon = RESOURCE_ICONS[resource] ?? "•";
-                  const title = `${t(`resources.${resource}`, { ns: "resourceTicker" })}: ${Math.round(amount).toLocaleString(i18n.language)}`;
+            {stockpileEntries.length > 0 && (
+              <div className={`${styles.statrow} ${styles.r2}`} aria-label={t("resourceRow.ariaLabel")}>
+                {stockpileEntries.map(([resource, amount]) => {
+                  const code = RESOURCE_CODES[resource as keyof typeof RESOURCE_CODES] ?? resource.slice(0, 3).toUpperCase();
+                  const icon = RESOURCE_ICONS[resource as keyof typeof RESOURCE_ICONS] ?? "•";
                   return (
-                    <button key={resource} type="button" className={styles.st} title={title} aria-label={title}>
+                    <button key={resource} type="button" className={styles.st} title={code}>
                       <span aria-hidden="true">{icon}</span>
-                      <span className={styles.resourceCode}>{code}</span>
                       <span className={styles.v}>{formatResourceAmount(amount)}</span>
                     </button>
                   );
                 })}
-              {secondaryResources.length > 0 && (
-                <details className={styles.resourceMore}>
-                  <summary aria-label={t("resourceRow.more", { count: secondaryResources.length })}>
-                    +{secondaryResources.length}
-                  </summary>
-                  <div className={styles.resourceMenu}>
-                    {secondaryResources.map(([resource, amount]) => {
-                      const code = RESOURCE_CODES[resource as keyof typeof RESOURCE_CODES] ?? resource.slice(0, 3).toUpperCase();
-                      const icon = RESOURCE_ICONS[resource as keyof typeof RESOURCE_ICONS] ?? "•";
-                      const title = t(`resources.${resource}`, { ns: "resourceTicker", defaultValue: resource });
-                      return (
-                        <div key={resource} className={styles.resourceMenuRow} title={`${title}: ${Math.round(amount).toLocaleString(i18n.language)}`}>
-                          <span aria-hidden="true">{icon}</span>
-                          <span className={styles.resourceCode}>{code}</span>
-                          <span className={styles.v}>{formatResourceAmount(amount)}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </details>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

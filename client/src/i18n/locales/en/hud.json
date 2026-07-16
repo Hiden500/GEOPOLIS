@@ -19,8 +19,7 @@
     "legitimacy": "Legitimacy, 0–100%. 60+ is normal, 40–59 is a warning, below 40 is a crisis."
   },
   "resourceRow": {
-    "ariaLabel": "Resources",
-    "more": "More resources: {{count}}"
+    "ariaLabel": "Resources"
   },
   "units": {
     "trillion": "T",

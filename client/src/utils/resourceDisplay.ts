@@ -1,8 +1,9 @@
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 
 /**
- * Общие коды/иконки ресурсов для шапки HUD и профильных ресурсных экранов.
- * Локализованные полные названия находятся в namespace `resourceTicker`.
+ * Общие подписи/иконки ресурсов — используются ResourceTicker и статами
+ * ресурсов в шапке HUD (docs/plans/12_UI_REDESIGN.md §6: "переиспользовать
+ * локализованные подписи", не дублировать по компонентам).
  */
 export const RESOURCE_CODES: Partial<Record<ResourceType, string>> = {
   [ResourceType.Bauxite]: "BAU",
