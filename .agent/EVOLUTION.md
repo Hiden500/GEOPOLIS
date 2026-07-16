@@ -101,3 +101,35 @@ Risks and containment: обязательное согласование зам�
 Validation: public agent eval и diff review после изменения инструкции.
 Fresh-session status: pending — загрузка правила подтвердится следующей сессией.
 Decision: keep по прямому требованию пользователя.
+
+## 2026-07-16 — `strategy-game-ui-codex-adaptation`
+
+Problem evidence: существующие repo-local workflows не покрывали scenario-first
+UI/UX discovery, strategy-game information architecture, design-plan review и
+rendered visual QA единым Codex-compatible skill. Запрошенные upstream packs
+содержат Claude slash commands, fixed agent hierarchies, hooks, telemetry,
+home-directory artifacts и фиксированные GDD paths, несовместимые с текущими
+repository boundaries.
+
+Layer changed: добавлен только `.agents/skills/strategy-game-ui/**`; root/nested
+`AGENTS.md`, product docs, игровой UI и код не изменялись. Skill использует
+progressive disclosure, read-only audit default и repository-first discovery.
+
+Expected benefit: интерфейсные сценарии выводятся из механик и кода, а не из
+предзаданного списка экранов; UX review, visual QA и plan review используют общий
+evidence/state/accessibility contract без установки внешних packs.
+
+Risks and containment: адаптация может потерять часть узких upstream эвристик;
+сохранены exact revisions, MIT notices и mapping принятых/отклонённых механизмов.
+Scores запрещены без полного evidence coverage; runtime claims остаются
+`PARTIAL/UNKNOWN` без скриншотов или живого flow.
+
+Validation: official `quick_validate.py` — `Skill is valid!`; public agent eval —
+132 passed, 0 failed; локальные Markdown links разрешились; executable
+Claude/Bun/provider-only directive scan не нашёл совпадений. Fresh-context Codex
+обнаружил `$strategy-game-ui`, загрузил references/templates и выполнил узкий
+read-only mini-audit без изменений файлов.
+
+Fresh-session status: verified for skill discovery and explicit invocation;
+runtime/visual-QA capability проверяется отдельно на реальном проекте.
+Decision: keep.
