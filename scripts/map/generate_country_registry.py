@@ -446,6 +446,9 @@ def main():
         "QWL": 824,   # Antigua, содержит St. John's — резиденцию Governor
         "QWW": 845,   # Grenada, содержит St. George's — резиденцию Governor
         "QND": 843,   # Curaçao, содержит Willemstad
+        "CYP": 41,    # Nicosia
+        "GIB": 125,   # Gibraltar
+        "MLT": 194,   # Malta Xlokk, содержит Valletta (point-in-polygon)
     }
 
     countries = []

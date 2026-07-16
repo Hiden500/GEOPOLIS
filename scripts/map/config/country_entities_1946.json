@@ -274,6 +274,47 @@
           "reason": "Sint Maarten was part of Curaçao and Dependencies; source geometry has no separate BES polygons."
         }
       ]
+    },
+    "europe": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — Non-Self-Governing Territories and approximate population in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Yearbook of the United Nations 1946-47 — territories reported under Article 73 e",
+          "url": "https://cdn.un.org/unyearbook/yun/chapter_pdf/1946-47YUN/1946-47_P1_SEC2.pdf",
+          "authority": "United Nations"
+        }
+      ],
+      "preserve": [
+        {
+          "code": "CYP",
+          "historicalName": "Cyprus",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Undivided British Crown Colony in the 1946 snapshot."
+        },
+        {
+          "code": "GIB",
+          "historicalName": "Gibraltar",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "MLT",
+          "historicalName": "Malta",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "British territory on 1946-01-01; internal self-government was restored in 1947."
+        }
+      ],
+      "ownerOverrides": []
     }
   }
 }

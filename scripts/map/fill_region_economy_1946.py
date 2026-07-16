@@ -104,6 +104,7 @@ _DEV_TIERS: list[tuple[float, float, float, list[str]]] = [
     (0.16, 0.13, 0.20, ["PSE", "QMH", "QAZ", "AFG"]),
     (0.22, 0.18, 0.32, ["QCG", "QCN", "QCF", "GUY", "SUR", "GUF", "FLK",
                           "BHS", "BLZ", "BMU", "BRB", "JAM", "NFD", "SPM", "TTO",
+                          "CYP", "GIB", "MLT",
                           "QWL", "QWW", "QND", "LAO", "KHM", "NPL", "BTN", "MNG"]),
     (0.12, 0.10, 0.30, ["QCP", "QCU", "QCZ", "QCS", "PRI", "VIR", "ETH", "LBR", "SDN",
                           "TZA", "COD", "RWA", "BDI", "MWI", "UGA", "NAM",

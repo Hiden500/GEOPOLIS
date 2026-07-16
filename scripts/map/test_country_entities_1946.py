@@ -59,6 +59,11 @@ class CountryEntities1946Test(unittest.TestCase):
         overlay = load_json(CONFIG_DIR / "occupation_overlay.json")
         self.assertEqual(overlay["OCE-0008"], "AUS")
 
+    def test_european_territories_are_not_legacy_merged(self):
+        for code in ("CYP", "GIB", "MLT"):
+            self.assertIn(code, self.preserve)
+            self.assertNotIn(code, self.merge_map)
+
 
 if __name__ == "__main__":
     unittest.main()
