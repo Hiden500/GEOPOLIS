@@ -77,6 +77,10 @@ CUSTOM_COUNTRIES = {
     "QND": {"name_en": "Curaçao and Dependencies", "ideology": "Liberal Democracy", "economy": "mixed"},
     "MTQ": {"name_en": "Martinique", "ideology": "Liberal Democracy", "economy": "mixed"},
     "GLP": {"name_en": "Guadeloupe", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QFW": {"name_en": "French West Africa", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QFE": {"name_en": "French Equatorial Africa", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QRU": {"name_en": "Ruanda-Urundi", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "REU": {"name_en": "Réunion", "ideology": "Liberal Democracy", "economy": "mixed"},
 }
 
 # Суверены, исторически идущие с плановой экономикой/коммунистической идеологией.
@@ -88,7 +92,8 @@ PUPPET_OVERRIDES = {
     "SUN": ["QAZ", "QMH"],
     "GBR": ["QWL", "QWW"],
     "NLD": ["QND"],
-    "FRA": ["MTQ", "GLP"],
+    "FRA": ["MTQ", "GLP", "QFW", "QFE", "REU"],
+    "BEL": ["QRU"],
 }
 
 # Мандат/протекторат без subject_of в каталоге MAP, но политически зависимый —
@@ -454,6 +459,30 @@ def main():
         "CYP": 41,    # Nicosia
         "GIB": 125,   # Gibraltar
         "MLT": 194,   # Malta Xlokk, содержит Valletta (point-in-polygon)
+        "QFW": 1275,  # Louga, содержит Dakar — столицу AOF
+        "QFE": 1320,  # Pool, содержит Brazzaville — столицу AEF
+        "QRU": 1322,  # Bujumbura Rural, содержит Usumbura — административный центр
+        "REU": 1120,  # Réunion, содержит Saint-Denis
+        "AGO": 1221,  # Cuando Cubango source polygon, содержащий Luanda
+        "CPV": 1288,  # Santa Catarina, содержит Praia
+        "GNB": 1175,  # Bissau
+        "MOZ": 1224,  # Gaza source polygon, содержит Lourenço Marques
+        "STP": 1310,  # São Tomé
+        "ESH": 1124,  # единственный Spanish Sahara polygon
+        "GNQ": 1299,  # Bioko, содержит Santa Isabel
+        "DZA": 1150,  # Alger
+        "DJI": 1293,  # единственный French Somaliland polygon
+        "MDG": 1207,  # Bongolava source polygon, содержащий Tananarive
+        "GHA": 1245,  # Eastern source polygon, содержащий Accra
+        "GMB": 1128,  # единственный Gambia polygon
+        "KEN": 1240,  # Rift Valley source polygon, содержащий Nairobi
+        "MUS": 1308,  # Flacq source polygon, содержащий Port Louis
+        "NGA": 1192,  # Benue source polygon, содержащий Lagos
+        "SHN": 1125,  # Saint Helena, содержит Jamestown
+        "SLE": 1309,  # единственный Sierra Leone polygon, содержит Freetown
+        "SYC": 1292,  # Grand'Anse source polygon, содержащий Victoria
+        "ZMB": 1269,  # Southern source polygon, содержащий Lusaka
+        "ZWE": 1272,  # Mashonaland West source polygon, содержащий Salisbury
     }
 
     countries = []

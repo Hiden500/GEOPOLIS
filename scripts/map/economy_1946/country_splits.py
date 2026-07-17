@@ -53,14 +53,6 @@ KOREA_SPLIT = {
 assert sum(KOREA_SPLIT.values()) == MULTI_FRAGMENT_TOTALS["KOREA_TOTAL"].population
 
 # ============================================================
-# Руанда-Урунди: задокументированный пробел реестра (docs/DECISIONS.md,
-# 2026-06-28) — RWA и BDI делят одно имя. Не чиню владельца (вне мандата
-# этой задачи), делю тотал по площади их регионов (RWA=5 рег., BDI=3 рег.).
-# ============================================================
-RUANDA_URUNDI_SPLIT_BY_AREA = True  # флаг для fill-скрипта: делить по area, не 50/50
-
-
-# ============================================================
 # Колониальные блоки — группировка по распознаваемым реальным территориям.
 # match_any: список подстрок (case-insensitive) для names.en региона.
 # Остаток блока (bloc_total - sum groups) распределяется по площади среди
@@ -90,15 +82,6 @@ QCG_GROUPS = {
     "malaya_borneo": {"population": 5_800_000, "match_any": ["sabah", "sarawak", "johor", "labuan", "perak", "pahang", "singapore"]},
     "hong_kong": {"population": 1_600_000, "match_any": ["hong kong"]},
     "aden_protectorate": {"population": 650_000, "match_any": ["hadramawt", "al mahrah", "shabwah", "lahij"]},
-    "st_helena": {"population": 5_000, "match_any": ["saint helena", "indian ocean territory"]},
-    "gambia": {"population": 260_000, "match_any": ["gambia"]},
-    "nigeria_north": {"population": 7_500_000, "match_any": ["zamfara", "benue", "bauchi"]},
-    "kenya": {"population": 2_000_000, "match_any": ["rift valley"], "match_ids": [1237, 1238, 1239, 1240]},
-    "gold_coast": {"population": 2_000_000, "match_ids": [1245, 1246, 1247]},
-    "n_rhodesia": {"population": 1_300_000, "match_ids": [1267, 1268, 1269, 1270]},
-    "s_rhodesia": {"population": 1_200_000, "match_ids": [1271, 1272, 1273]},
-    "seychelles": {"population": 25_000, "match_ids": [1289, 1290, 1291, 1292]},
-    "mauritius": {"population": 150_000, "match_ids": [1306, 1307, 1308, 1309]},
     "pacific_micro": {"population": 35_000, "match_any": ["norfolk", "pitcairn", "tuvalu", "kiribati"]},
     "fiji": {"population": 260_000, "match_ids": [1365]},
 }
@@ -116,35 +99,11 @@ QCF_GROUPS = {
         ],
     },
     "laos_cambodia_leftover": {"population": 0, "match_any": []},  # LAO/KHM отдельные ownerCountryId, не в QCF
-    "aof_west_africa": {
-        "population": 15_000_000,
-        "match_any": [
-            "constantine", "oran", "alger", "cascades", "sahel", "boucle",
-            "hauts-bassins", "plateau-central", "faranah", "kindia", "mamou",
-            "nzérékoré", "kankan", "boke", "labé", "conakry", "n'zi-comoé",
-            "worodougou", "savanes", "bas-sassandra", "gao", "kidal",
-            "koulikoro", "timbuktu", "diffa", "zinder", "agadez", "matam",
-            "louga", "tambacounda", "alibori", "borgou", "hodh",
-        ],
-    },
-    "aef_equatorial_africa": {
-        "population": 3_600_000,
-        "match_any": ["ennedi", "kanem", "borkou", "guéra", "ombella", "haute-kotto", "pool", "cuvette", "ngounié", "ogooué"],
-    },
-    "madagascar": {"population": 4_200_000, "match_any": ["atsimo-andrefana", "anosy", "menabe", "sofia", "bongolava"]},
-    "algeria_south": {"population": 400_000, "match_any": ["territoires du sud", "est", "sud-ouest", "nord", "centre"]},
-    "djibouti": {"population": 60_000, "match_any": ["tadjourah"]},
-    "comoros": {"population": 160_000, "match_any": ["comoros"]},
     "pacific_france": {"population": 90_000, "match_any": ["new caledonia", "french polynesia", "wallis"]},
 }
 
 QCP_GROUPS = {
-    "angola": {"population": 4_100_000, "match_any": ["cabinda", "moxico", "huíla", "cuando cubango", "lunda norte"]},
-    "mozambique": {"population": 5_600_000, "match_any": ["tete", "sofala", "gaza", "niassa", "zambezia"]},
     "portuguese_timor": {"population": 460_000, "match_any": ["portuguese timor"]},
-    "guinea_bissau": {"population": 500_000, "match_any": ["bissau", "leste", "sul", "norte"]},
-    "cape_verde": {"population": 150_000, "match_any": ["brava", "maio", "boa vista", "sal", "vicente", "filipe", "ribeira brava", "porto novo", "santa catarina"]},
-    "sao_tome": {"population": 60_000, "match_any": ["são tomé", "príncipe"]},
     "macau": {"population": 500_000, "match_any": ["macau"]},
 }
 
@@ -167,8 +126,6 @@ QCZ_GROUPS = {
 }
 
 QCS_GROUPS = {
-    "western_sahara": {"population": 25_000, "match_any": ["western sahara"]},
-    "equatorial_guinea": {"population": 180_000, "match_any": ["annobón", "bioko", "centro sur"]},
 }
 
 COLONIAL_BLOC_GROUPS = {

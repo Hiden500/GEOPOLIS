@@ -60,7 +60,7 @@ commit.
 - [x] Южная Америка: GUY/SUR/GUF/FLK и Falkland Islands Dependencies.
 - [x] Северная Америка и Карибы.
 - [x] Европа и европейские островные территории.
-- [ ] Африка.
+- [x] Африка.
 - [ ] Азия.
 - [ ] Океания.
 - [ ] Удалить оставшиеся искусственные блоки и доказать полноту каталога.
@@ -94,6 +94,11 @@ commit.
   пишет заморские территории прямо на метрополию. Общий аудит direct overseas
   owners нашёл Martinique/Guadeloupe и BES-острова, обходившие merge-map;
   для таких случаев добавлен исполняемый `regionOwnerOverrides`.
+- Африка содержала не только legacy colonies, но и известный дубль одной
+  территории: RWA/BDI обе назывались Ruanda-Urundi. Исторический owner `QRU`
+  заменяет две современные границы на одну бельгийскую администрацию.
+- На дату снимка BIOT ещё не существовала, а Comoros не была отдельной от
+  Madagascar; source codes `IOT`/`COM` поэтому не становятся Country.
 
 ## Decision log
 
@@ -113,6 +118,9 @@ commit.
   Newfoundland.
 - 2026-07-17: Европа завершена сохранением CYP/GIB/MLT как трёх отдельных
   британских зависимостей. Современного раздела Cyprus на снимке нет.
+- 2026-07-17: Африка завершена: отдельные колонии сохранены, AOF/AEF и
+  Ruanda-Urundi восстановлены как исторические составные администрации,
+  direct-owner Réunion отделён от France, а BIOT/Comoros remap исправлен.
 
 ## Validation
 
@@ -185,6 +193,24 @@ inputs и dependency manifest.
   1/1 passed; `npx tsc --noEmit -p tsconfig.json`: exit 0.
 - `npm test` (`server/`): 680 passed, 1 skipped, exit 0.
 - `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
+
+### Африка — 2026-07-17
+
+- `python scripts/map/test_country_entities_1946.py`: 8/8 passed.
+- `python scripts/map/make_1946.py`: standard pipeline exit 0; 1366 регионов,
+  171 владелец, мировой тотал 2,285,986,440 в допуске.
+- Read-only generated audit: все 128 смен владельца ограничены `AFR-*`;
+  добавлены 24 ожидаемые сущности, удалены только `BDI`, `RWA`, `QCS`.
+- Девять African-регионов с прямым владельцем-метрополией сверены как
+  Tripolitania/Cyrenaica, Fezzan, British Somaliland и Eritrea под военными
+  администрациями; иных прямых African-owners не осталось.
+- `python scripts/map/validate_region_economy_1946.py` и
+  `python scripts/map/test_validate_region_economy_1946.py`: passed.
+- `npx vitest run src/simulation/__tests__/campaignSmoke.test.ts` (`server/`):
+  1/1 passed; `npx tsc --noEmit -p tsconfig.json`: exit 0.
+- `npm test` (`server/`): 680 passed, 1 skipped, exit 0.
+- `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
+- Full geometry rebuild: не запускался; provenance/dependency gap остаётся.
 
 ## Rollback / containment
 

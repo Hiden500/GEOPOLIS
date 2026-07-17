@@ -62,7 +62,13 @@ class CountryEntities1946Test(unittest.TestCase):
             self.assertTrue(target in self.catalog or target in CUSTOM_COUNTRIES)
 
     def test_every_curated_owner_has_population_anchor(self):
-        for code in self.preserve | set(self.owner_overrides.values()):
+        config = load_json(CONFIG_DIR / "country_entities_1946.json")
+        region_targets = {
+            entry["to"]
+            for section in config["continents"].values()
+            for entry in section.get("regionOwnerOverrides", [])
+        }
+        for code in self.preserve | set(self.owner_overrides.values()) | region_targets:
             self.assertIn(code, COUNTRY_POPULATION_1946)
 
     def test_norfolk_island_does_not_share_newfoundland_code(self):
@@ -73,6 +79,33 @@ class CountryEntities1946Test(unittest.TestCase):
         for code in ("CYP", "GIB", "MLT"):
             self.assertIn(code, self.preserve)
             self.assertNotIn(code, self.merge_map)
+
+    def test_african_entities_use_1946_administrations(self):
+        separate = {
+            "GHA", "GMB", "KEN", "MUS", "NGA", "SHN", "SLE", "SYC", "ZMB", "ZWE",
+            "AGO", "CPV", "GNB", "MOZ", "STP", "ESH", "GNQ", "DZA", "DJI", "MDG",
+        }
+        self.assertTrue(separate.issubset(self.preserve))
+        for code in separate:
+            self.assertNotIn(code, self.merge_map)
+
+        expected = {
+            "BEN": "QFW", "BFA": "QFW", "CIV": "QFW", "GIN": "QFW",
+            "MLI": "QFW", "MRT": "QFW", "NER": "QFW", "SEN": "QFW",
+            "CAF": "QFE", "COG": "QFE", "GAB": "QFE", "TCD": "QFE",
+            "COM": "MDG", "IOT": "MUS", "RWA": "QRU", "BDI": "QRU",
+        }
+        for source, target in expected.items():
+            self.assertEqual(self.owner_overrides[source], target)
+            self.assertEqual(self.merge_map[source], target)
+
+        config = load_json(CONFIG_DIR / "country_entities_1946.json")
+        region_overrides = {
+            entry["regionId"]: entry["to"]
+            for entry in config["continents"]["africa"]["regionOwnerOverrides"]
+        }
+        self.assertEqual(region_overrides, {"AFR-0001": "REU", "AFR-0002": "MDG"})
+        self.assertIn("REU", COUNTRY_POPULATION_1946)
 
 
 if __name__ == "__main__":

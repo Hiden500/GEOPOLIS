@@ -115,9 +115,18 @@ def load_historical_region_overrides() -> dict[str, str]:
     for continent, section in config.get("continents", {}).items():
         for entry in section.get("regionOwnerOverrides", []):
             region_id = entry["regionId"]
+            target = entry["to"]
+            confidence = entry.get("confidence")
+            reason = entry.get("reason")
+            if not isinstance(target, str) or len(target) != 3:
+                raise ValueError(f"Некорректный target historical region owner override: {entry}")
+            if confidence not in {"high", "medium", "low"}:
+                raise ValueError(f"Некорректный confidence historical region owner override: {entry}")
+            if not isinstance(reason, str) or not reason.strip():
+                raise ValueError(f"Пустой reason historical region owner override: {entry}")
             if region_id in overrides:
                 raise ValueError(f"Дубликат historical region owner override: {region_id} ({continent})")
-            overrides[region_id] = entry["to"]
+            overrides[region_id] = target
     return overrides
 
 
@@ -128,9 +137,17 @@ def main():
     names = {n["region_id"]: n for n in load_json(OUT_DIR / "names_ru.json")}
     overlay = load_json(CONFIG_DIR / "occupation_overlay.json")
     overlay = {k: v for k, v in overlay.items() if not k.startswith("_")}
-    overlay.update(load_historical_region_overrides())
 
     features = world["features"]
+    feature_ids = {ft["properties"]["region_id"] for ft in features}
+    historical_overrides = load_historical_region_overrides()
+    unknown_overrides = sorted(set(historical_overrides) - feature_ids)
+    if unknown_overrides:
+        raise ValueError(
+            "Historical region owner overrides ссылаются на неизвестные регионы: "
+            + ", ".join(unknown_overrides)
+        )
+    overlay.update(historical_overrides)
 
     # Числовой id — стабильный, в порядке region_id (уже continent-префиксован
     # и последовательный в world_1946.geojson).

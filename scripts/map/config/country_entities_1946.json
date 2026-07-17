@@ -347,6 +347,80 @@
         }
       ],
       "ownerOverrides": []
+    },
+    "africa": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — African Non-Self-Governing Territories and approximate population in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "French overseas history report — AOF 1895-1958 and AEF 1910-1958",
+          "url": "https://www.vie-publique.fr/files/rapport/pdf/289235.pdf",
+          "authority": "French Government, Vie publique"
+        },
+        {
+          "title": "Loi n°46-973 du 9 mai 1946 — organisation des pouvoirs publics aux Comores",
+          "url": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000874652",
+          "authority": "French Government, Légifrance"
+        },
+        {
+          "title": "British Indian Ocean Territory Order 1965 — territories detached from Mauritius and Seychelles",
+          "url": "https://www.legislation.gov.uk/uksi/1965/1920/pdfs/uksi_19651920_en.pdf",
+          "authority": "United Kingdom legislation"
+        },
+        {
+          "title": "Trusteeship Agreement for the Territory of Ruanda-Urundi",
+          "url": "https://treaties.un.org/doc/Publication/UNTS/Volume%208/v8.pdf",
+          "authority": "United Nations Treaty Series"
+        }
+      ],
+      "preserve": [
+        {"code": "GHA", "historicalName": "Gold Coast", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "GMB", "historicalName": "Gambia", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "KEN", "historicalName": "Kenya", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "MUS", "historicalName": "Mauritius", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high", "note": "Includes the Chagos dependency represented by AFR-0007 on 1946-01-01."},
+        {"code": "NGA", "historicalName": "Nigeria", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "SHN", "historicalName": "Saint Helena", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "SLE", "historicalName": "Sierra Leone", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "SYC", "historicalName": "Seychelles", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "ZMB", "historicalName": "Northern Rhodesia", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "ZWE", "historicalName": "Southern Rhodesia", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "AGO", "historicalName": "Angola", "subjectOf": "PRT", "subjectType": "colony", "confidence": "high"},
+        {"code": "CPV", "historicalName": "Cape Verde", "subjectOf": "PRT", "subjectType": "colony", "confidence": "high"},
+        {"code": "GNB", "historicalName": "Portuguese Guinea", "subjectOf": "PRT", "subjectType": "colony", "confidence": "high"},
+        {"code": "MOZ", "historicalName": "Mozambique", "subjectOf": "PRT", "subjectType": "colony", "confidence": "high"},
+        {"code": "STP", "historicalName": "São Tomé and Príncipe", "subjectOf": "PRT", "subjectType": "colony", "confidence": "high"},
+        {"code": "ESH", "historicalName": "Spanish Sahara", "subjectOf": "ESP", "subjectType": "colony", "confidence": "high"},
+        {"code": "GNQ", "historicalName": "Spanish Guinea", "subjectOf": "ESP", "subjectType": "colony", "confidence": "high"},
+        {"code": "DZA", "historicalName": "French Algeria", "subjectOf": "FRA", "subjectType": "colony", "confidence": "high"},
+        {"code": "DJI", "historicalName": "French Somaliland", "subjectOf": "FRA", "subjectType": "colony", "confidence": "high"},
+        {"code": "MDG", "historicalName": "Madagascar", "subjectOf": "FRA", "subjectType": "colony", "confidence": "high", "note": "Includes Comoros and Mayotte before the separate Comoros territory was organized on 1946-05-09."}
+      ],
+      "ownerOverrides": [
+        {"from": "BEN", "to": "QFW", "confidence": "high", "reason": "Dahomey formed part of French West Africa."},
+        {"from": "BFA", "to": "QFW", "confidence": "high", "reason": "Upper Volta formed part of French West Africa."},
+        {"from": "CIV", "to": "QFW", "confidence": "high", "reason": "Ivory Coast formed part of French West Africa."},
+        {"from": "GIN", "to": "QFW", "confidence": "high", "reason": "French Guinea formed part of French West Africa."},
+        {"from": "MLI", "to": "QFW", "confidence": "high", "reason": "French Sudan formed part of French West Africa."},
+        {"from": "MRT", "to": "QFW", "confidence": "high", "reason": "Mauritania formed part of French West Africa."},
+        {"from": "NER", "to": "QFW", "confidence": "high", "reason": "Niger formed part of French West Africa."},
+        {"from": "SEN", "to": "QFW", "confidence": "high", "reason": "Senegal was the seat and a component of French West Africa."},
+        {"from": "CAF", "to": "QFE", "confidence": "high", "reason": "Ubangi-Shari formed part of French Equatorial Africa."},
+        {"from": "COG", "to": "QFE", "confidence": "high", "reason": "Middle Congo was the seat and a component of French Equatorial Africa."},
+        {"from": "GAB", "to": "QFE", "confidence": "high", "reason": "Gabon formed part of French Equatorial Africa."},
+        {"from": "TCD", "to": "QFE", "confidence": "high", "reason": "Chad formed part of French Equatorial Africa."},
+        {"from": "COM", "to": "MDG", "confidence": "high", "reason": "Comoros remained attached to Madagascar on 1946-01-01; separate organization followed on 1946-05-09."},
+        {"from": "IOT", "to": "MUS", "confidence": "high", "reason": "BIOT did not exist until 1965; Chagos was a dependency of Mauritius."},
+        {"from": "RWA", "to": "QRU", "confidence": "high", "reason": "Rwanda and Urundi were one Belgian-administered mandated territory, Ruanda-Urundi."},
+        {"from": "BDI", "to": "QRU", "confidence": "high", "reason": "Rwanda and Urundi were one Belgian-administered mandated territory, Ruanda-Urundi."}
+      ],
+      "regionOwnerOverrides": [
+        {"regionId": "AFR-0001", "to": "REU", "confidence": "high", "reason": "Réunion was a separate colony on 1946-01-01; overseas-department status followed on 1946-03-19."},
+        {"regionId": "AFR-0002", "to": "MDG", "confidence": "high", "reason": "Mayotte was attached to Madagascar through the Comoros administration on 1946-01-01."}
+      ]
     }
   }
 }

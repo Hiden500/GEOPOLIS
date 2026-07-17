@@ -105,10 +105,10 @@ _DEV_TIERS: list[tuple[float, float, float, list[str]]] = [
     (0.22, 0.18, 0.32, ["QCG", "QCN", "QCF", "GUY", "SUR", "GUF", "FLK",
                           "BHS", "BLZ", "BMU", "BRB", "JAM", "NFD", "SPM", "TTO",
                           "MTQ", "GLP",
-                          "CYP", "GIB", "MLT",
+                          "CYP", "GIB", "MLT", "QFW", "QFE", "REU",
                           "QWL", "QWW", "QND", "LAO", "KHM", "NPL", "BTN", "MNG"]),
     (0.12, 0.10, 0.30, ["QCP", "QCU", "QCZ", "QCS", "PRI", "VIR", "ETH", "LBR", "SDN",
-                          "TZA", "COD", "RWA", "BDI", "MWI", "UGA", "NAM",
+                          "TZA", "COD", "QRU", "MWI", "UGA", "NAM",
                           "BWA", "LSO", "SWZ", "QSO", "TGO", "MAR", "TUN", "CMR"]),
     (0.16, 0.16, 0.45, ["PNG", "SLB", "FSM", "PLW", "MHL", "NRU", "TON",
                           "VUT", "WSM", "MNP"]),
@@ -141,24 +141,9 @@ def compute_region_tier(owner_id: str, name: str, area: float, all_areas: list[f
     return generic_tier(name, area, all_areas)
 
 
-def split_ruanda_urundi(regions: list[dict]) -> dict[str, int]:
-    total = MULTI_FRAGMENT_TOTALS["RUANDA_URUNDI_TOTAL"].population
-    rwa_area = sum(r["area"] for r in regions if r["ownerCountryId"] == "RWA")
-    bdi_area = sum(r["area"] for r in regions if r["ownerCountryId"] == "BDI")
-    total_area = rwa_area + bdi_area
-    if total_area == 0:
-        return {"RWA": total // 2, "BDI": total // 2}
-    return {
-        "RWA": round(total * rwa_area / total_area),
-        "BDI": round(total * bdi_area / total_area),
-    }
-
-
 def resolve_country_population(owner_id: str, regions: list[dict]) -> int:
     if owner_id in DIRECT_OWNER_POPULATION:
         return DIRECT_OWNER_POPULATION[owner_id]
-    if owner_id in ("RWA", "BDI"):
-        return split_ruanda_urundi(regions)[owner_id]
     if owner_id in COUNTRY_POPULATION_1946:
         return COUNTRY_POPULATION_1946[owner_id].population
     raise ValueError(f"Нет анкера населения для '{owner_id}' — заполни anchors.py явно, не угадывай молча.")

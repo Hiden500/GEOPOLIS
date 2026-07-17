@@ -64,7 +64,7 @@ python scripts/map/test_validate_region_economy_1946.py
 Targeted-инварианты проверяет `test_country_entities_1946.py`, который входит
 в стандартный pipeline.
 
-На текущем срезе завершены Южная Америка, Северная Америка/Карибы и Европа.
+На текущем срезе завершены Южная Америка, Северная Америка/Карибы, Европа и Африка.
 В Карибах современные островные ISO-коды объединяются по администрациям 1946
 (Leeward, Windward, Jamaica dependencies, Curaçao and Dependencies), а не
 механически превращаются в отдельные страны. В Европе Cyprus, Gibraltar и
@@ -72,6 +72,9 @@ Malta выведены из мирового британского блока �
 Для территорий, которые upstream ошибочно пишет прямо на метрополию,
 `regionOwnerOverrides` в том же континентальном разделе задаёт точечный owner
 (например, Martinique/Guadeloupe и острова Curaçao and Dependencies).
+Африка сохраняет AOF/AEF как реальные федерации 1946, объединяет современные
+RWA/BDI в Ruanda-Urundi и исправляет анахроничные BIOT и отдельные Comoros на
+их администрации Mauritius/Madagascar.
 
 ## Полная пересборка геометрии
 

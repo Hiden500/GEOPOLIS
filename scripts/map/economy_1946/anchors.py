@@ -50,17 +50,6 @@ MULTI_FRAGMENT_TOTALS: dict[str, Anchor] = {
         "из Японии/Маньчжурии после капитуляции). Делится между QKS (север, "
         "меньше населения, больше промышленности) и QKA (юг, больше населения)."
     ),
-    "RUANDA_URUNDI_TOTAL": Anchor(
-        3_800_000, "estimated",
-        "Руанда-Урунди как единая бельгийская подопечная территория midcentury. "
-        "В данных числится под ДВУМЯ разными ownerCountryId (RWA и BDI) с "
-        "одинаковым именем 'Ruanda-Urundi' — известный, задокументированный "
-        "пробел в реестре стран (docs/DECISIONS.md, 2026-06-28), не мой "
-        "уровень чинить (только заполняю экономику в рамках уже заданного "
-        "владельца, REGION_ECONOMY_FILL.md п.2). Делю тотал 50/50 по площади "
-        "(RWA=5 регионов, BDI=3 региона — не по числу регионов, а по area,"
-        " см. country_splits.py)."
-    ),
 }
 
 # Доли British India относительно исторического её же населения на 1941/46 —
@@ -136,9 +125,7 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "SDN": Anchor(8_700_000, "estimated", "Англо-Египетский Судан — общепринятая оценка midcentury."),
     "TZA": Anchor(6_900_000, "estimated", "Танганьика (брит. подопечная территория) — общепринятая оценка."),
     "COD": Anchor(11_000_000, "estimated", "Бельгийское Конго — общепринятая оценка midcentury."),
-    # RWA/BDI намеренно НЕ здесь — обе делят RUANDA_URUNDI_TOTAL через
-    # split_ruanda_urundi() (country_splits.py), прямой анкер на одну из
-    # них конфликтовал бы с этим механизмом (см. фикс 2026-07-04).
+    "QRU": Anchor(3_800_000, "estimated", "Ruanda-Urundi as one Belgian trust territory in the 1946 snapshot."),
     "MWI": Anchor(2_400_000, "estimated", "Ньясаленд — общепринятая оценка midcentury."),
     "UGA": Anchor(4_900_000, "estimated", "Уганда — общепринятая оценка midcentury."),
     "NAM": Anchor(350_000, "estimated", "Юго-Западная Африка (мандат ЮАР) — низкая плотность."),
@@ -213,6 +200,29 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "CYP": Anchor(447_000, "verified", "UN A/4192: Cyprus, approximate 1946 population 447,000."),
     "GIB": Anchor(20_000, "verified", "UN A/4192: Gibraltar, approximate 1946 population 20,000."),
     "MLT": Anchor(291_000, "verified", "UN A/4192: Malta, approximate 1946 population 291,000."),
+    "QFW": Anchor(16_524_000, "verified", "UN A/4192: French West Africa, approximate population 16,524,000 (1948 figure in the 1946 territory table)."),
+    "QFE": Anchor(4_127_000, "verified", "UN A/4192: French Equatorial Africa, approximate 1946 population 4,127,000."),
+    "REU": Anchor(225_000, "verified", "UN A/4192: Réunion, approximate 1946 population 225,000."),
+    "DZA": Anchor(8_600_000, "estimated", "French Algeria, census-adjacent midcentury estimate including the Saharan territories."),
+    "DJI": Anchor(56_000, "verified", "UN A/4192: French Somaliland, population 56,000 (1948 figure)."),
+    "MDG": Anchor(4_296_000, "verified", "UN A/4192: Madagascar 4,154,000 plus Comoro Archipelago 142,000; combined because Comoros/Mayotte remained Madagascar dependencies on 1946-01-01."),
+    "GHA": Anchor(4_018_000, "verified", "UN A/4192: Gold Coast, approximate 1946 population 4,018,000."),
+    "GMB": Anchor(263_000, "verified", "UN A/4192: Gambia, approximate 1946 population 263,000."),
+    "KEN": Anchor(5_227_000, "verified", "UN A/4192: Kenya, approximate 1946 population 5,227,000."),
+    "MUS": Anchor(441_000, "verified", "UN A/4192: Mauritius, approximate 1946 population 441,000, including dependencies represented by the scenario owner."),
+    "NGA": Anchor(24_300_000, "verified", "UN A/4192: Nigeria, population 24,300,000 (1950 figure in the 1946 territory table)."),
+    "SHN": Anchor(5_000, "verified", "UN A/4192: St. Helena and dependencies, approximate 1946 population 5,000."),
+    "SLE": Anchor(2_020_000, "verified", "UN A/4192: Sierra Leone, population 2,020,000 (1953 figure in the 1946 territory table)."),
+    "SYC": Anchor(35_000, "verified", "UN A/4192: Seychelles, approximate 1946 population 35,000."),
+    "ZMB": Anchor(1_650_000, "verified", "UN A/4192: Northern Rhodesia, approximate 1946 population 1,650,000."),
+    "ZWE": Anchor(1_200_000, "estimated", "Southern Rhodesia midcentury estimate retained from the previous colonial-bloc split."),
+    "AGO": Anchor(4_100_000, "estimated", "Angola midcentury estimate retained from the previous Portuguese colonial-bloc split."),
+    "CPV": Anchor(150_000, "estimated", "Cape Verde midcentury estimate retained from the previous Portuguese colonial-bloc split."),
+    "GNB": Anchor(500_000, "estimated", "Portuguese Guinea midcentury estimate retained from the previous colonial-bloc split."),
+    "MOZ": Anchor(5_600_000, "estimated", "Mozambique midcentury estimate retained from the previous Portuguese colonial-bloc split."),
+    "STP": Anchor(60_000, "estimated", "São Tomé and Príncipe midcentury estimate retained from the previous colonial-bloc split."),
+    "ESH": Anchor(25_000, "estimated", "Spanish Sahara midcentury estimate retained from the previous Spanish colonial-bloc split."),
+    "GNQ": Anchor(180_000, "estimated", "Spanish Guinea midcentury estimate retained from the previous Spanish colonial-bloc split."),
 
     # === Прочие мелкие/микро (низкая цена ошибки, широкие оценки) ===
     "ALB": Anchor(1_100_000, "estimated", "Общепринятая оценка Албании midcentury."),
