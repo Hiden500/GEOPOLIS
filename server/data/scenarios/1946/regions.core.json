@@ -6179,6 +6179,15 @@
     ]
   },
   {
+    "id": 422,
+    "geoJsonId": "ASI-0050",
+    "area": 1.3,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "ASI-0050"
+    ]
+  },
+  {
     "id": 423,
     "geoJsonId": "ASI-0051",
     "area": 2583.7,

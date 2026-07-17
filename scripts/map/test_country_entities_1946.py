@@ -16,7 +16,7 @@ class CountryEntities1946Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.catalog = load_json(OUT_DIR / "countries_1946.json")
-        cls.preserve, cls.owner_overrides = load_entity_config(cls.catalog)
+        cls.preserve, cls.owner_overrides, cls.subject_overrides = load_entity_config(cls.catalog)
         cls.merge_map = build_merge_map(cls.catalog, cls.preserve, cls.owner_overrides)
 
     def test_south_america_entities_are_not_legacy_merged(self):
@@ -106,6 +106,34 @@ class CountryEntities1946Test(unittest.TestCase):
         }
         self.assertEqual(region_overrides, {"AFR-0001": "REU", "AFR-0002": "MDG"})
         self.assertIn("REU", COUNTRY_POPULATION_1946)
+
+    def test_asian_entities_use_1946_administrations(self):
+        separate = {"HKG", "IND", "LKA", "MMR", "MYS", "SGP", "VNM", "IDN", "MAC", "TLS"}
+        self.assertTrue(separate.issubset(self.preserve))
+        for code in separate:
+            self.assertNotIn(code, self.merge_map)
+
+        self.assertEqual(self.owner_overrides["ARE"], "QAB")
+        self.assertEqual(self.subject_overrides, {"JOR": "GBR", "PHL": "USA"})
+
+        config = load_json(CONFIG_DIR / "country_entities_1946.json")
+        region_overrides = {
+            entry["regionId"]: entry["to"]
+            for entry in config["continents"]["asia"]["regionOwnerOverrides"]
+        }
+        expected = {
+            "ASI-0041": "QTB", "ASI-0119": "QSI", "ASI-0139": "QPI",
+            "ASI-0142": "QFI", "ASI-0263": "QNB", "ASI-0264": "QSR",
+            "ASI-0266": "QLB", "ASI-0377": "QDV", "ASI-0110": "QRI",
+            "ASI-0051": "QSH", "ASI-0052": "QRK", "ASI-0054": "QUQ",
+            "ASI-0055": "QAJ", "ASI-0056": "QFU", "ASI-0057": "QDU",
+            "ASI-0400": "QAD", "ASI-0196": "THA", "ASI-0197": "THA",
+            "ASI-0050": "VNM",
+        }
+        for region_id, target in expected.items():
+            self.assertEqual(region_overrides[region_id], target)
+        for region_id in ("ASI-0049", "ASI-0117", "ASI-0132", "ASI-0291", "ASI-0297"):
+            self.assertEqual(region_overrides[region_id], "QJK")
 
 
 if __name__ == "__main__":

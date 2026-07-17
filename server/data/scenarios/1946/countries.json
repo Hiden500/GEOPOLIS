@@ -145,35 +145,6 @@
     }
   },
   {
-    "id": "ARE",
-    "name": "Trucial States",
-    "shortName": "Trucial States",
-    "color": "#c9adb5",
-    "capitalRegionId": 425,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "ARG",
     "name": "Argentina",
     "shortName": "Argentina",
@@ -1359,12 +1330,14 @@
         "SPM",
         "TGO",
         "TUN",
+        "VNM",
         "MAR",
         "MTQ",
         "GLP",
         "QFW",
         "QFE",
-        "REU"
+        "REU",
+        "QFI"
       ],
       "sphereOfInfluence": [
         "CMR",
@@ -1377,12 +1350,14 @@
         "SPM",
         "TGO",
         "TUN",
+        "VNM",
         "MAR",
         "MTQ",
         "GLP",
         "QFW",
         "QFE",
         "REU",
+        "QFI",
         "SYR",
         "LBN"
       ]
@@ -1448,7 +1423,6 @@
     "diplomacy": {
       "puppets": [
         "JOR",
-        "ARE",
         "AUS",
         "BRB",
         "BHR",
@@ -1465,12 +1439,17 @@
         "GIB",
         "GMB",
         "GUY",
+        "HKG",
+        "IND",
         "JAM",
         "KEN",
         "KWT",
+        "LKA",
         "LSO",
         "MWI",
+        "MYS",
         "MLT",
+        "MMR",
         "MUS",
         "NFD",
         "NGA",
@@ -1480,56 +1459,7 @@
         "QAT",
         "SLB",
         "SYC",
-        "SHN",
-        "SLE",
-        "QSO",
-        "SWZ",
-        "TON",
-        "TTO",
-        "TZA",
-        "UGA",
-        "ZAF",
-        "ZMB",
-        "ZWE",
-        "SDN",
-        "VUT",
-        "QWL",
-        "QWW"
-      ],
-      "sphereOfInfluence": [
-        "JOR",
-        "ARE",
-        "AUS",
-        "BRB",
-        "BHR",
-        "BMU",
-        "BRN",
-        "BHS",
-        "BTN",
-        "BWA",
-        "BLZ",
-        "CAN",
-        "CYP",
-        "FLK",
-        "GHA",
-        "GIB",
-        "GMB",
-        "GUY",
-        "JAM",
-        "KEN",
-        "KWT",
-        "LSO",
-        "MWI",
-        "MLT",
-        "MUS",
-        "NFD",
-        "NGA",
-        "NRU",
-        "NZL",
-        "PSE",
-        "QAT",
-        "SLB",
-        "SYC",
+        "SGP",
         "SHN",
         "SLE",
         "QSO",
@@ -1545,6 +1475,87 @@
         "VUT",
         "QWL",
         "QWW",
+        "QSI",
+        "QJK",
+        "QNB",
+        "QSR",
+        "QLB",
+        "QAB",
+        "QDU",
+        "QSH",
+        "QAJ",
+        "QUQ",
+        "QRK",
+        "QFU",
+        "QAD"
+      ],
+      "sphereOfInfluence": [
+        "JOR",
+        "AUS",
+        "BRB",
+        "BHR",
+        "BMU",
+        "BRN",
+        "BHS",
+        "BTN",
+        "BWA",
+        "BLZ",
+        "CAN",
+        "CYP",
+        "FLK",
+        "GHA",
+        "GIB",
+        "GMB",
+        "GUY",
+        "HKG",
+        "IND",
+        "JAM",
+        "KEN",
+        "KWT",
+        "LKA",
+        "LSO",
+        "MWI",
+        "MYS",
+        "MLT",
+        "MMR",
+        "MUS",
+        "NFD",
+        "NGA",
+        "NRU",
+        "NZL",
+        "PSE",
+        "QAT",
+        "SLB",
+        "SYC",
+        "SGP",
+        "SHN",
+        "SLE",
+        "QSO",
+        "SWZ",
+        "TON",
+        "TTO",
+        "TZA",
+        "UGA",
+        "ZAF",
+        "ZMB",
+        "ZWE",
+        "SDN",
+        "VUT",
+        "QWL",
+        "QWW",
+        "QSI",
+        "QJK",
+        "QNB",
+        "QSR",
+        "QLB",
+        "QAB",
+        "QDU",
+        "QSH",
+        "QAJ",
+        "QUQ",
+        "QRK",
+        "QFU",
+        "QAD",
         "EGY"
       ]
     }
@@ -1869,6 +1880,35 @@
     }
   },
   {
+    "id": "HKG",
+    "name": "Hong Kong",
+    "shortName": "Hong Kong",
+    "color": "#c9adb5",
+    "capitalRegionId": 462,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "HND",
     "name": "Honduras",
     "shortName": "Honduras",
@@ -1932,6 +1972,64 @@
     "shortName": "Hungary",
     "color": "#2b529c",
     "capitalRegionId": 145,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "IDN",
+    "name": "Dutch East Indies",
+    "shortName": "Dutch East Indies",
+    "color": "#b59f8c",
+    "capitalRegionId": 479,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "IND",
+    "name": "British Raj",
+    "shortName": "British Raj",
+    "color": "#c9adb5",
+    "capitalRegionId": 519,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2403,6 +2501,35 @@
     }
   },
   {
+    "id": "LKA",
+    "name": "Ceylon",
+    "shortName": "Ceylon",
+    "color": "#c9adb5",
+    "capitalRegionId": 619,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "LSO",
     "name": "Basutoland",
     "shortName": "Basutoland",
@@ -2437,6 +2564,35 @@
     "shortName": "Luxembourg",
     "color": "#574d99",
     "capitalRegionId": 184,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "MAC",
+    "name": "Macau",
+    "shortName": "Macau",
+    "color": "#78a57e",
+    "capitalRegionId": 634,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2635,6 +2791,35 @@
     }
   },
   {
+    "id": "MMR",
+    "name": "Burma",
+    "shortName": "Burma",
+    "color": "#c9adb5",
+    "capitalRegionId": 621,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "MNG",
     "name": "Mongolia",
     "shortName": "Mongolia",
@@ -2809,6 +2994,35 @@
     }
   },
   {
+    "id": "MYS",
+    "name": "Malaya",
+    "shortName": "Malaya",
+    "color": "#c9adb5",
+    "capitalRegionId": 639,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "NAM",
     "name": "South West Africa",
     "shortName": "South West Africa",
@@ -2954,10 +3168,12 @@
     },
     "diplomacy": {
       "puppets": [
+        "IDN",
         "SUR",
         "QND"
       ],
       "sphereOfInfluence": [
+        "IDN",
         "SUR",
         "QND"
       ]
@@ -3178,7 +3394,7 @@
     "id": "PHL",
     "name": "Philippines",
     "shortName": "Philippines",
-    "color": "#4178af",
+    "color": "#7c98aa",
     "capitalRegionId": 649,
     "economyType": "mixed",
     "economyProfile": {
@@ -3352,15 +3568,21 @@
         "AGO",
         "CPV",
         "GNB",
+        "MAC",
         "MOZ",
-        "STP"
+        "STP",
+        "TLS",
+        "QPI"
       ],
       "sphereOfInfluence": [
         "AGO",
         "CPV",
         "GNB",
+        "MAC",
         "MOZ",
-        "STP"
+        "STP",
+        "TLS",
+        "QPI"
       ]
     }
   },
@@ -3420,6 +3642,93 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QAB",
+    "name": "Abu Dhabi",
+    "shortName": "Abu Dhabi",
+    "color": "#c9adb5",
+    "capitalRegionId": 425,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
+    }
+  },
+  {
+    "id": "QAD",
+    "name": "Aden Colony and Protectorate",
+    "shortName": "Aden Colony and Protecto",
+    "color": "#c9adb5",
+    "capitalRegionId": 772,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
+    }
+  },
+  {
+    "id": "QAJ",
+    "name": "Ajman",
+    "shortName": "Ajman",
+    "color": "#c9adb5",
+    "capitalRegionId": 427,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
     }
   },
   {
@@ -3485,7 +3794,7 @@
     "name": "France Colonies",
     "shortName": "France Colonies",
     "color": "#9d503f",
-    "capitalRegionId": 749,
+    "capitalRegionId": 1325,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3514,65 +3823,7 @@
     "name": "United Kingdom Colonies",
     "shortName": "United Kingdom Colonies",
     "color": "#826235",
-    "capitalRegionId": 666,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "QCN",
-    "name": "Netherlands Colonies",
-    "shortName": "Netherlands Colonies",
-    "color": "#3d34bc",
-    "capitalRegionId": 466,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "QCP",
-    "name": "Portugal Colonies",
-    "shortName": "Portugal Colonies",
-    "color": "#9b3b95",
-    "capitalRegionId": 708,
+    "capitalRegionId": 1365,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3655,6 +3906,64 @@
     }
   },
   {
+    "id": "QDU",
+    "name": "Dubai",
+    "shortName": "Dubai",
+    "color": "#c9adb5",
+    "capitalRegionId": 429,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
+    }
+  },
+  {
+    "id": "QDV",
+    "name": "Democratic Republic of Vietnam",
+    "shortName": "Democratic Republic of V",
+    "color": "#2e8499",
+    "capitalRegionId": 749,
+    "economyType": "planned",
+    "economyProfile": {
+      "taxRate": 0.2,
+      "spending": {
+        "military": 0.3,
+        "research": 0.08,
+        "education": 0.1,
+        "infrastructure": 0.25,
+        "welfare": 0.12,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.03,
+      "stateEnterpriseShare": 0.1,
+      "otherIncomeShare": 0.01,
+      "inflation": 2,
+      "unemployment": 1,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Communism"
+    }
+  },
+  {
     "id": "QFE",
     "name": "French Equatorial Africa",
     "shortName": "French Equatorial Africa",
@@ -3681,6 +3990,64 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QFI",
+    "name": "French India",
+    "shortName": "French India",
+    "color": "#80aaa5",
+    "capitalRegionId": 514,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QFU",
+    "name": "Fujairah",
+    "shortName": "Fujairah",
+    "color": "#c9adb5",
+    "capitalRegionId": 428,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
     }
   },
   {
@@ -3833,6 +4200,35 @@
     "currencyZoneAnchor": "SUN"
   },
   {
+    "id": "QJK",
+    "name": "Jammu and Kashmir",
+    "shortName": "Jammu and Kashmir",
+    "color": "#c9adb5",
+    "capitalRegionId": 504,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
+    }
+  },
+  {
     "id": "QKA",
     "name": "American Occupation Zone (Korea)",
     "shortName": "American Occupation Zone",
@@ -3891,6 +4287,35 @@
       "ideology": "Communism"
     },
     "currencyZoneAnchor": "SUN"
+  },
+  {
+    "id": "QLB",
+    "name": "Labuan",
+    "shortName": "Labuan",
+    "color": "#c9adb5",
+    "capitalRegionId": 638,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
   },
   {
     "id": "QMH",
@@ -3952,6 +4377,35 @@
     "currencyZoneAnchor": "SUN"
   },
   {
+    "id": "QNB",
+    "name": "North Borneo",
+    "shortName": "North Borneo",
+    "color": "#c9adb5",
+    "capitalRegionId": 635,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "QND",
     "name": "Curaçao and Dependencies",
     "shortName": "Curaçao and Dependencies",
@@ -3978,6 +4432,93 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QPI",
+    "name": "Portuguese India",
+    "shortName": "Portuguese India",
+    "color": "#78a57e",
+    "capitalRegionId": 511,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Authoritarianism"
+    }
+  },
+  {
+    "id": "QRI",
+    "name": "Republic of Indonesia",
+    "shortName": "Republic of Indonesia",
+    "color": "#843e51",
+    "capitalRegionId": 482,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Nationalism"
+    }
+  },
+  {
+    "id": "QRK",
+    "name": "Ras Al Khaimah",
+    "shortName": "Ras Al Khaimah",
+    "color": "#c9adb5",
+    "capitalRegionId": 424,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
     }
   },
   {
@@ -4010,6 +4551,64 @@
     }
   },
   {
+    "id": "QSH",
+    "name": "Sharjah",
+    "shortName": "Sharjah",
+    "color": "#c9adb5",
+    "capitalRegionId": 423,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
+    }
+  },
+  {
+    "id": "QSI",
+    "name": "Kingdom of Sikkim",
+    "shortName": "Kingdom of Sikkim",
+    "color": "#c9adb5",
+    "capitalRegionId": 491,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
+    }
+  },
+  {
     "id": "QSO",
     "name": "British Somaliland",
     "shortName": "British Somaliland",
@@ -4036,6 +4635,93 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QSR",
+    "name": "Sarawak",
+    "shortName": "Sarawak",
+    "color": "#c9adb5",
+    "capitalRegionId": 636,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "QTB",
+    "name": "Tibet",
+    "shortName": "Tibet",
+    "color": "#725aaf",
+    "capitalRegionId": 413,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
+    }
+  },
+  {
+    "id": "QUQ",
+    "name": "Umm Al Quwain",
+    "shortName": "Umm Al Quwain",
+    "color": "#c9adb5",
+    "capitalRegionId": 426,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Traditionalism"
     }
   },
   {
@@ -4189,6 +4875,35 @@
     "shortName": "Anglo-Egyptian Sudan",
     "color": "#c9adb5",
     "capitalRegionId": 1182,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "SGP",
+    "name": "Singapore",
+    "shortName": "Singapore",
+    "color": "#c9adb5",
+    "capitalRegionId": 682,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4658,6 +5373,35 @@
     }
   },
   {
+    "id": "TLS",
+    "name": "Portuguese Timor",
+    "shortName": "Portuguese Timor",
+    "color": "#78a57e",
+    "capitalRegionId": 708,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "TON",
     "name": "Tonga",
     "shortName": "Tonga",
@@ -4919,6 +5663,7 @@
     },
     "diplomacy": {
       "puppets": [
+        "PHL",
         "FSM",
         "MHL",
         "MNP",
@@ -4927,6 +5672,7 @@
         "VIR"
       ],
       "sphereOfInfluence": [
+        "PHL",
         "FSM",
         "MHL",
         "MNP",
@@ -5000,6 +5746,35 @@
     "shortName": "United States Virgin Isl",
     "color": "#7c98aa",
     "capitalRegionId": 928,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "VNM",
+    "name": "French Indochina",
+    "shortName": "French Indochina",
+    "color": "#80aaa5",
+    "capitalRegionId": 751,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,

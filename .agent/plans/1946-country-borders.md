@@ -61,7 +61,7 @@ commit.
 - [x] Северная Америка и Карибы.
 - [x] Европа и европейские островные территории.
 - [x] Африка.
-- [ ] Азия.
+- [x] Азия.
 - [ ] Океания.
 - [ ] Удалить оставшиеся искусственные блоки и доказать полноту каталога.
 - [ ] Синхронизировать каноническую документацию без перезаписи чужих docs.
@@ -99,6 +99,15 @@ commit.
   заменяет две современные границы на одну бельгийскую администрацию.
 - На дату снимка BIOT ещё не существовала, а Comoros не была отдельной от
   Madagascar; source codes `IOT`/`COM` поэтому не становятся Country.
+- Азиатский source `IND` смешивал British India с отдельными Jammu and
+  Kashmir, Sikkim, Portuguese India и French India; все четыре границы уже
+  выражаются существующими полигонами и не требуют новой геометрии.
+- Единственный Asian land-полигон без владельца был Spratly Islands. До
+  появления disputed-territory model он включён как low-confidence French
+  Indochina claim, поэтому pipeline больше не теряет этот регион.
+- Современный `ARE` скрывал семь самостоятельных Trucial Sheikhdoms; текущая
+  геометрия содержит ровно по одному полигону на каждое и допускает чистое
+  разделение без рисования границ.
 
 ## Decision log
 
@@ -121,6 +130,13 @@ commit.
 - 2026-07-17: Африка завершена: отдельные колонии сохранены, AOF/AEF и
   Ruanda-Urundi восстановлены как исторические составные администрации,
   direct-owner Réunion отделён от France, а BIOT/Comoros remap исправлен.
+- 2026-07-17: Азия завершена на уровне доступной ADM1-геометрии. Помимо
+  демонтажа legacy blocs восстановлены Tibet, Indian States/enclaves,
+  Trucial Sheikhdoms и отдельные British Southeast Asia territories;
+  Indonesia/Vietnam разделены по воспроизводимым крупным зонам контроля.
+- 2026-07-17: городские Allied bridgeheads в Java/Sumatra и локальные фронты
+  Indochina не аппроксимируются целыми провинциями; это было бы менее точно,
+  чем явная coarse-geometry граница с документированным confidence.
 
 ## Validation
 
@@ -209,6 +225,27 @@ inputs и dependency manifest.
 - `npx vitest run src/simulation/__tests__/campaignSmoke.test.ts` (`server/`):
   1/1 passed; `npx tsc --noEmit -p tsconfig.json`: exit 0.
 - `npm test` (`server/`): 680 passed, 1 skipped, exit 0.
+- `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
+- Full geometry rebuild: не запускался; provenance/dependency gap остаётся.
+
+### Азия — 2026-07-17
+
+- `python scripts/map/test_country_entities_1946.py`: 9/9 passed.
+- `python scripts/map/make_1946.py`: финальный standard pipeline exit 0;
+  1367 регионов, 196 стран/владельцев, мировой тотал 2,294,630,940 в допуске.
+- Read-only generated audit: все 137 добавленных/изменённых owner assignments
+  ограничены `ASI-*`; добавлены 28 ожидаемых сущностей, удалены только
+  `ARE`, `QCN`, `QCP`; Asian legacy owners отсутствуют.
+- Read-only capital/population/diplomacy assertions: 28 сущностей имеют свои
+  регионы и owned capitals; `PHL -> USA`, `JOR -> GBR`, custom dependencies
+  присутствуют у правильных suzerains — passed.
+- `python scripts/map/validate_region_economy_1946.py` и
+  `python scripts/map/test_validate_region_economy_1946.py`: passed.
+- `npx tsc --noEmit -p tsconfig.json`: exit 0;
+  `npx vitest run src/simulation/__tests__/campaignSmoke.test.ts`: 1/1 passed.
+- Первый параллельный `npm test` получил filesystem race в существующем
+  autosave integration test (`SaveNotFoundError`); изолированный повтор:
+  680 passed, 1 skipped, exit 0.
 - `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
 - Full geometry rebuild: не запускался; provenance/dependency gap остаётся.
 

@@ -421,6 +421,122 @@
         {"regionId": "AFR-0001", "to": "REU", "confidence": "high", "reason": "Réunion was a separate colony on 1946-01-01; overseas-department status followed on 1946-03-19."},
         {"regionId": "AFR-0002", "to": "MDG", "confidence": "high", "reason": "Mayotte was attached to Madagascar through the Comoros administration on 1946-01-01."}
       ]
+    },
+    "asia": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN A/4192 — 1946 Asian Non-Self-Governing Territories and population",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "FCO 141/14383 — British Military Administration of Malaya, September 1945–March 1946",
+          "url": "https://www.nas.gov.sg/archivesonline/private_records/record-details/da0d0ee0-d660-11e3-acbd-0050568939ad",
+          "authority": "UK National Archives via National Archives of Singapore"
+        },
+        {
+          "title": "FRUS 1946 VIII, document 26 — DRV government in Tonkin and incomplete French conquest of Cochinchina",
+          "url": "https://history.state.gov/historicaldocuments/frus1946v08/d26",
+          "authority": "United States Department of State, Office of the Historian"
+        },
+        {
+          "title": "FRUS 1946 VIII, document 580 — Republic of Indonesia in Java and restored Netherlands administration on outer islands",
+          "url": "https://history.state.gov/historicaldocuments/frus1946v08/d580",
+          "authority": "United States Department of State, Office of the Historian"
+        },
+        {
+          "title": "1935 Constitution of the Commonwealth of the Philippines — US sovereignty pending independence",
+          "url": "https://elibrary.judiciary.gov.ph/thebookshelf/showdocs/3/352",
+          "authority": "Supreme Court of the Philippines"
+        },
+        {
+          "title": "British Embassy status memorandum — Tibet enjoyed de facto independence since 1911",
+          "url": "https://history.state.gov/historicaldocuments/frus1943China/d562",
+          "authority": "United Kingdom Government reproduced by US Department of State"
+        },
+        {
+          "title": "US recognition history — seven Trucial Sheikhdoms existed separately before 1971",
+          "url": "https://history.state.gov/countries/united-arab-emirates",
+          "authority": "United States Department of State, Office of the Historian"
+        },
+        {
+          "title": "Indian Independence Act 1947 — British paramountcy over Indian States before partition",
+          "url": "https://www.legislation.gov.uk/ukpga/1947/30/pdfs/ukpga_19470030_en.pdf",
+          "authority": "United Kingdom legislation"
+        },
+        {
+          "title": "FRUS 1946 VIII, document 766 — French-Indochina territories annexed by Thailand had not yet returned",
+          "url": "https://history.state.gov/historicaldocuments/frus1946v08/d766",
+          "authority": "United States Department of State, Office of the Historian"
+        }
+      ],
+      "preserve": [
+        {"code": "HKG", "historicalName": "Hong Kong", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "IND", "historicalName": "British Raj", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high", "note": "Excludes separately represented Jammu and Kashmir, Sikkim, Portuguese India and French India."},
+        {"code": "LKA", "historicalName": "Ceylon", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "MMR", "historicalName": "Burma", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "MYS", "historicalName": "Malaya", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high", "note": "Peninsular Malaya under British Military Administration; Borneo territories are split by region overrides."},
+        {"code": "SGP", "historicalName": "Singapore", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "VNM", "historicalName": "French Indochina", "subjectOf": "FRA", "subjectType": "colony", "confidence": "medium", "note": "Represents the southern French/Allied administration; the DRV-controlled north is a separate owner."},
+        {"code": "IDN", "historicalName": "Dutch East Indies", "subjectOf": "NLD", "subjectType": "colony", "confidence": "medium", "note": "Represents outer islands where Netherlands administration had been restored; Republican Java and Sumatra are separate."},
+        {"code": "MAC", "historicalName": "Macau", "subjectOf": "PRT", "subjectType": "colony", "confidence": "high"},
+        {"code": "TLS", "historicalName": "Portuguese Timor", "subjectOf": "PRT", "subjectType": "colony", "confidence": "high"}
+      ],
+      "subjectOverrides": [
+        {"code": "JOR", "to": "GBR", "subjectType": "mandate", "confidence": "high", "reason": "Transjordan remained under the British mandate until 1946-05-25."},
+        {"code": "PHL", "to": "USA", "subjectType": "commonwealth", "confidence": "high", "reason": "The Commonwealth of the Philippines remained under United States sovereignty until independence on 1946-07-04."}
+      ],
+      "ownerOverrides": [
+        {"from": "ARE", "to": "QAB", "confidence": "high", "reason": "The Trucial States were seven separate sheikhdoms, not a state; Abu Dhabi is the base remap and the other six use region overrides."}
+      ],
+      "regionOwnerOverrides": [
+        {"regionId": "ASI-0041", "to": "QTB", "confidence": "high", "reason": "The Lhasa government exercised de facto authority over Tibet; China exercised no de facto authority."},
+        {"regionId": "ASI-0049", "to": "QJK", "confidence": "high", "reason": "Kashmir formed part of the princely State of Jammu and Kashmir before partition."},
+        {"regionId": "ASI-0117", "to": "QJK", "confidence": "high", "reason": "Ladakh formed part of the princely State of Jammu and Kashmir before partition."},
+        {"regionId": "ASI-0132", "to": "QJK", "confidence": "high", "reason": "Core Jammu and Kashmir polygon belonged to the undivided princely state."},
+        {"regionId": "ASI-0291", "to": "QJK", "confidence": "high", "reason": "Northern Areas formed part of the undivided princely State of Jammu and Kashmir."},
+        {"regionId": "ASI-0297", "to": "QJK", "confidence": "high", "reason": "Azad Kashmir did not exist before the 1947 war; this polygon belonged to the princely state."},
+        {"regionId": "ASI-0119", "to": "QSI", "confidence": "high", "reason": "Sikkim was a distinct British-protected kingdom, not part of British India."},
+        {"regionId": "ASI-0137", "to": "QPI", "confidence": "high", "reason": "Dadra and Nagar Haveli, Daman and Diu were Portuguese India, not British India."},
+        {"regionId": "ASI-0139", "to": "QPI", "confidence": "high", "reason": "Goa was Portuguese India until 1961."},
+        {"regionId": "ASI-0142", "to": "QFI", "confidence": "high", "reason": "Puducherry was part of the French Establishments in India."},
+        {"regionId": "ASI-0263", "to": "QNB", "confidence": "high", "reason": "North Borneo was a separate British-administered territory."},
+        {"regionId": "ASI-0264", "to": "QSR", "confidence": "high", "reason": "Sarawak was a separate British-administered territory."},
+        {"regionId": "ASI-0266", "to": "QLB", "confidence": "medium", "reason": "Labuan was a distinct former Straits Settlement under postwar military administration on 1946-01-01."},
+        {"regionId": "ASI-0368", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0369", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0370", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0371", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0372", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0373", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0374", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0375", "to": "QDV", "confidence": "medium", "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."},
+        {"regionId": "ASI-0377", "to": "QDV", "confidence": "high", "reason": "Hanoi was the seat of the Democratic Republic of Vietnam government."},
+        {"regionId": "ASI-0389", "to": "QDV", "confidence": "high", "reason": "Hòa Bình formed part of the DRV-administered Tonkin area."},
+        {"regionId": "ASI-0390", "to": "QDV", "confidence": "high", "reason": "The northeast formed part of the DRV-administered Tonkin area."},
+        {"regionId": "ASI-0391", "to": "QDV", "confidence": "high", "reason": "Hải Phòng lay in the northern Chinese surrender zone alongside the DRV government."},
+        {"regionId": "ASI-0392", "to": "QDV", "confidence": "high", "reason": "Thái Nguyên formed part of the DRV-administered Tonkin area."},
+        {"regionId": "ASI-0100", "to": "QRI", "confidence": "medium", "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."},
+        {"regionId": "ASI-0101", "to": "QRI", "confidence": "medium", "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."},
+        {"regionId": "ASI-0102", "to": "QRI", "confidence": "medium", "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."},
+        {"regionId": "ASI-0106", "to": "QRI", "confidence": "medium", "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."},
+        {"regionId": "ASI-0109", "to": "QRI", "confidence": "medium", "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."},
+        {"regionId": "ASI-0110", "to": "QRI", "confidence": "high", "reason": "The Republic of Indonesia was proclaimed in Java and exercised de facto authority over most of the island."},
+        {"regionId": "ASI-0051", "to": "QSH", "confidence": "high", "reason": "Sharjah was a separate British-protected Trucial Sheikhdom."},
+        {"regionId": "ASI-0052", "to": "QRK", "confidence": "high", "reason": "Ras Al Khaimah was a separate British-protected Trucial Sheikhdom."},
+        {"regionId": "ASI-0054", "to": "QUQ", "confidence": "high", "reason": "Umm Al Quwain was a separate British-protected Trucial Sheikhdom."},
+        {"regionId": "ASI-0055", "to": "QAJ", "confidence": "high", "reason": "Ajman was a separate British-protected Trucial Sheikhdom."},
+        {"regionId": "ASI-0056", "to": "QFU", "confidence": "medium", "reason": "Fujairah was a distinct sheikhdom, although British treaty recognition followed in 1952."},
+        {"regionId": "ASI-0057", "to": "QDU", "confidence": "high", "reason": "Dubai was a separate British-protected Trucial Sheikhdom."},
+        {"regionId": "ASI-0396", "to": "QAD", "confidence": "medium", "reason": "Hadramawt belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."},
+        {"regionId": "ASI-0397", "to": "QAD", "confidence": "medium", "reason": "Al Mahrah belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."},
+        {"regionId": "ASI-0399", "to": "QAD", "confidence": "medium", "reason": "Shabwah approximates states of the Aden Protectorate, not independent Yemen."},
+        {"regionId": "ASI-0400", "to": "QAD", "confidence": "medium", "reason": "Lahij and Aden belonged to the Aden Colony and Protectorate administration."},
+        {"regionId": "ASI-0196", "to": "THA", "confidence": "medium", "reason": "Battambang remained under Thai de facto administration until the November 1946 settlement restored the pre-1941 frontier."},
+        {"regionId": "ASI-0197", "to": "THA", "confidence": "medium", "reason": "Siem Reap remained under Thai de facto administration until the November 1946 settlement restored the pre-1941 frontier."},
+        {"regionId": "ASI-0050", "to": "VNM", "confidence": "low", "reason": "Spratly sovereignty was disputed; the coarse single polygon follows the prewar French Indochina claim pending a future disputed-territory model."}
+      ]
     }
   }
 }

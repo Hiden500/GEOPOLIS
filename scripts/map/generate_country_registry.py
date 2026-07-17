@@ -81,6 +81,24 @@ CUSTOM_COUNTRIES = {
     "QFE": {"name_en": "French Equatorial Africa", "ideology": "Liberal Democracy", "economy": "mixed"},
     "QRU": {"name_en": "Ruanda-Urundi", "ideology": "Liberal Democracy", "economy": "mixed"},
     "REU": {"name_en": "Réunion", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QTB": {"name_en": "Tibet", "ideology": "Traditionalism", "economy": "mixed"},
+    "QSI": {"name_en": "Kingdom of Sikkim", "ideology": "Traditionalism", "economy": "mixed"},
+    "QJK": {"name_en": "Jammu and Kashmir", "ideology": "Traditionalism", "economy": "mixed"},
+    "QPI": {"name_en": "Portuguese India", "ideology": "Authoritarianism", "economy": "mixed"},
+    "QFI": {"name_en": "French India", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QNB": {"name_en": "North Borneo", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QSR": {"name_en": "Sarawak", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QLB": {"name_en": "Labuan", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QDV": {"name_en": "Democratic Republic of Vietnam", "ideology": "Communism", "economy": "planned"},
+    "QRI": {"name_en": "Republic of Indonesia", "ideology": "Nationalism", "economy": "mixed"},
+    "QAB": {"name_en": "Abu Dhabi", "ideology": "Traditionalism", "economy": "mixed"},
+    "QDU": {"name_en": "Dubai", "ideology": "Traditionalism", "economy": "mixed"},
+    "QSH": {"name_en": "Sharjah", "ideology": "Traditionalism", "economy": "mixed"},
+    "QAJ": {"name_en": "Ajman", "ideology": "Traditionalism", "economy": "mixed"},
+    "QUQ": {"name_en": "Umm Al Quwain", "ideology": "Traditionalism", "economy": "mixed"},
+    "QRK": {"name_en": "Ras Al Khaimah", "ideology": "Traditionalism", "economy": "mixed"},
+    "QFU": {"name_en": "Fujairah", "ideology": "Traditionalism", "economy": "mixed"},
+    "QAD": {"name_en": "Aden Colony and Protectorate", "ideology": "Traditionalism", "economy": "mixed"},
 }
 
 # Суверены, исторически идущие с плановой экономикой/коммунистической идеологией.
@@ -90,17 +108,13 @@ PLANNED_ECONOMY_SOVEREIGNS = {"SUN", "YUG", "CHN", "MNG"}
 # sphereOfInfluence сюзерена напрямую, минуя catalog-driven путь subject_of.
 PUPPET_OVERRIDES = {
     "SUN": ["QAZ", "QMH"],
-    "GBR": ["QWL", "QWW"],
+    "GBR": ["QWL", "QWW", "QSI", "QJK", "QNB", "QSR", "QLB",
+            "QAB", "QDU", "QSH", "QAJ", "QUQ", "QRK", "QFU", "QAD"],
     "NLD": ["QND"],
-    "FRA": ["MTQ", "GLP", "QFW", "QFE", "REU"],
+    "FRA": ["MTQ", "GLP", "QFW", "QFE", "REU", "QFI"],
+    "PRT": ["QPI"],
     "BEL": ["QRU"],
 }
-
-# Мандат/протекторат без subject_of в каталоге MAP, но политически зависимый —
-# подставляется в catalog ПЕРЕД вычислением puppets/suzerain_of, чтобы пройти
-# тот же путь, что и нативные subject_of записи (см. PSE). Трансиордания была
-# британским мандатом до 25.05.1946, MAP отдаёт её как суверена.
-SUBJECT_OVERRIDES = {"JOR": "GBR"}
 
 # Тот же составной код MAP, что нормализуется в import_to_game.py — здесь
 # нужен повторно, т.к. countries_1946.json (каталог) хранит исходный код
@@ -180,16 +194,32 @@ def load_json(path: Path):
         return json.load(f)
 
 
-def load_entity_config(catalog: dict) -> tuple[set[str], dict[str, str]]:
+def load_entity_config(catalog: dict) -> tuple[set[str], dict[str, str], dict[str, str]]:
     """Читает курированные сущности 1946 и проверяет их против MAP-каталога.
 
     `preserve` исключает реальную зависимую территорию из искусственного
     мирового блока. `ownerOverrides` сводит современный ISO-код к реально
-    существовавшей на дату снимка администрации.
+    существовавшей на дату снимка администрации. `subjectOverrides` исправляет
+    историческую зависимость до построения diplomacy.
     """
     config = load_json(ENTITY_CONFIG)
     if config.get("_meta", {}).get("snapshotDate") != "1946-01-01":
         raise ValueError(f"{ENTITY_CONFIG}: snapshotDate должен быть 1946-01-01")
+
+    subject_overrides: dict[str, str] = {}
+    for continent, section in config.get("continents", {}).items():
+        for override in section.get("subjectOverrides", []):
+            code = override["code"]
+            target = override["to"]
+            if code in subject_overrides:
+                raise ValueError(f"{ENTITY_CONFIG}: дубликат subject override для {code}")
+            if code not in catalog or target not in catalog:
+                raise ValueError(
+                    f"{ENTITY_CONFIG}: subject override {code}->{target} ссылается на отсутствующий код"
+                )
+            subject_overrides[code] = target
+            catalog[code]["subject_of"] = target
+            catalog[code]["subject_type"] = override["subjectType"]
 
     preserve: set[str] = set()
     owner_overrides: dict[str, str] = {}
@@ -232,7 +262,7 @@ def load_entity_config(catalog: dict) -> tuple[set[str], dict[str, str]]:
     overlap = preserve & owner_overrides.keys()
     if overlap:
         raise ValueError(f"{ENTITY_CONFIG}: коды одновременно preserve и override source: {sorted(overlap)}")
-    return preserve, owner_overrides
+    return preserve, owner_overrides, subject_overrides
 
 
 def build_merge_map(catalog: dict, preserve: set[str], owner_overrides: dict[str, str]) -> dict:
@@ -353,14 +383,10 @@ def main():
     catalog = {CATALOG_CODE_ALIASES.get(k, k): v for k, v in catalog.items()}
     regions = load_regions_combined()
 
-    # Подставляем subject_of там, где MAP отдаёт суверена, но политически
-    # территория зависима (см. SUBJECT_OVERRIDES) — после этого код ниже
-    # обрабатывает её как нативную subject_of запись (как PSE).
-    for code, suzerain in SUBJECT_OVERRIDES.items():
-        if code in catalog and not catalog[code].get("subject_of"):
-            catalog[code]["subject_of"] = suzerain
-
-    preserve, owner_overrides = load_entity_config(catalog)
+    # Конфиг подставляет исторический subject status до вычисления diplomacy,
+    # чтобы такие случаи, как Transjordan и Commonwealth Philippines, прошли
+    # тот же catalog-driven путь, что и нативные зависимости.
+    preserve, owner_overrides, _subject_overrides = load_entity_config(catalog)
     merge_map = build_merge_map(catalog, preserve, owner_overrides)
     MERGE_OUT.write_text(json.dumps(merge_map, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -483,6 +509,34 @@ def main():
         "SYC": 1292,  # Grand'Anse source polygon, содержащий Victoria
         "ZMB": 1269,  # Southern source polygon, содержащий Lusaka
         "ZWE": 1272,  # Mashonaland West source polygon, содержащий Salisbury
+        "QTB": 413,   # Xizang polygon, содержит Lhasa
+        "QSI": 491,   # Sikkim, содержит Gangtok
+        "QJK": 504,   # Jammu and Kashmir, содержит Srinagar
+        "QPI": 511,   # Goa, административный центр Portuguese India
+        "QFI": 514,   # Puducherry
+        "HKG": 462,   # Hong Kong
+        "IND": 519,   # Delhi
+        "LKA": 619,   # Ceylon, содержит Colombo
+        "MMR": 621,   # Bago source polygon, содержащий Rangoon
+        "MYS": 639,   # Perak source polygon, содержащий Kuala Lumpur
+        "SGP": 682,   # Singapore
+        "QNB": 635,   # Sabah, содержит Jesselton
+        "QSR": 636,   # Sarawak, содержит Kuching
+        "QLB": 638,   # Labuan
+        "QDV": 749,   # Hà Nội
+        "VNM": 751,   # Hồ Chí Minh city / Saigon
+        "QRI": 482,   # Java polygon, содержит Yogyakarta
+        "IDN": 479,   # Sulawesi Selatan, Dutch eastern-administration anchor
+        "MAC": 634,   # Macau
+        "TLS": 708,   # Portuguese Timor, содержит Dili
+        "QSH": 423,   # Sharjah
+        "QRK": 424,   # Ras Al Khaimah
+        "QAB": 425,   # Abu Dhabi
+        "QUQ": 426,   # Umm Al Quwain
+        "QAJ": 427,   # Ajman
+        "QFU": 428,   # Fujairah
+        "QDU": 429,   # Dubai
+        "QAD": 772,   # Lahij source polygon, содержащий Aden
     }
 
     countries = []

@@ -10,7 +10,7 @@
 документирован явно, не выдаётся за точное знание.
 """
 
-from .anchors import MULTI_FRAGMENT_TOTALS, BRITISH_INDIA_1946
+from .anchors import MULTI_FRAGMENT_TOTALS
 
 
 # ============================================================
@@ -61,61 +61,17 @@ assert sum(KOREA_SPLIT.values()) == MULTI_FRAGMENT_TOTALS["KOREA_TOTAL"].populat
 # ============================================================
 
 QCG_GROUPS = {
-    # British India (включает пост-1947 индийские И пакистанские названия —
-    # артефакт геометрии, не моя правка; в 1946 это единая Британская Индия)
-    "british_india": {
-        "population": BRITISH_INDIA_1946.population,
-        "match_any": [
-            "kashmir", "chittagong", "rangpur", "rajshahi", "khulna", "dhaka",
-            "ladakh", "arunachal", "sikkim", "bengal", "assam", "uttarakhand",
-            "nagaland", "manipur", "mizoram", "tripura", "meghalaya", "punjab",
-            "rajasthan", "gujarat", "himachal", "jammu", "bihar", "pradesh",
-            "odisha", "dadra", "maharashtra", "goa", "karnataka", "kerala",
-            "puducherry", "tamil nadu", "lakshadweep", "andaman", "jharkhand",
-            "delhi", "chandigarh", "chhattisgarh", "haryana", "telangana",
-            "northern areas", "k.p.", "f.a.t.a.", "baluchistan", "sind",
-            "azad kashmir", "f.c.t.",
-        ],
-    },
-    "burma": {"population": 16_000_000, "match_any": ["kachin", "bago", "magway", "shan", "sagaing", "kayin"]},
-    "ceylon": {"population": 6_300_000, "match_any": ["ceylon"]},
-    "malaya_borneo": {"population": 5_800_000, "match_any": ["sabah", "sarawak", "johor", "labuan", "perak", "pahang", "singapore"]},
-    "hong_kong": {"population": 1_600_000, "match_any": ["hong kong"]},
-    "aden_protectorate": {"population": 650_000, "match_any": ["hadramawt", "al mahrah", "shabwah", "lahij"]},
     "pacific_micro": {"population": 35_000, "match_any": ["norfolk", "pitcairn", "tuvalu", "kiribati"]},
     "fiji": {"population": 260_000, "match_ids": [1365]},
 }
 
 QCF_GROUPS = {
-    "vietnam": {
-        "population": 21_500_000,
-        "match_any": [
-            "kon tum", "đắk", "gia lai", "bình phước", "tây ninh", "cửu long",
-            "điện biên", "son la", "thanh hóa", "nghệ an", "ha tinh", "quảng",
-            "thừa thiên", "hà nội", "bà rịa", "hồ chí minh", "khánh hòa",
-            "hau giang", "đông nam bộ", "bình thuận", "ninh thuận", "phú yên",
-            "bình định", "đà nẵng", "hòa bình", "đông bắc", "hải phòng",
-            "thái nguyên", "bình dương", "lâm đồng", "can tho",
-        ],
-    },
-    "laos_cambodia_leftover": {"population": 0, "match_any": []},  # LAO/KHM отдельные ownerCountryId, не в QCF
     "pacific_france": {"population": 90_000, "match_any": ["new caledonia", "french polynesia", "wallis"]},
 }
 
-QCP_GROUPS = {
-    "portuguese_timor": {"population": 460_000, "match_any": ["portuguese timor"]},
-    "macau": {"population": 500_000, "match_any": ["macau"]},
-}
+QCP_GROUPS = {}
 
-QCN_GROUPS = {
-    "indonesia": {
-        "population": 71_000_000,
-        "match_any": [
-            "kalimantan", "nusa tenggara", "papua", "maluku", "riau",
-            "sumatera", "aceh", "bali", "bangka", "sulawesi", "jambi", "jawa",
-        ],
-    },
-}
+QCN_GROUPS = {}
 
 QCU_GROUPS = {
     "us_pacific": {"population": 60_000, "match_any": ["american samoa", "guam", "outlying"]},

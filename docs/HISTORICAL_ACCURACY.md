@@ -176,7 +176,8 @@ League of Nations, Maddison Project, CIA, академические публи�
 
 Статус страновых границ/владения по континентам хранится в исполняемой
 конфигурации `scripts/map/config/country_entities_1946.json`. Южная Америка,
-Северная Америка/Карибы, Европа и Африка проверены для снимка `1946-01-01`. В Южной Америке
+Северная Америка/Карибы, Европа, Африка и Азия проверены для снимка
+`1946-01-01`. В Южной Америке
 British Guiana, Suriname, French Guiana и Falkland Islands являются отдельными
 зависимыми Country-сущностями; South Georgia/South Sandwich остаются Falkland
 Islands Dependencies. В Северной Америке отдельные администрации сохранены,
@@ -193,8 +194,15 @@ Martinique и Guadeloupe отделены от метрополии на дат�
 как существовавшие федерации, Ruanda-Urundi объединена в одну бельгийскую
 территорию, Chagos возвращён Mauritius, а Comoros/Mayotte — Madagascar на
 дату снимка. Британские/французские военные администрации Libya, Eritrea и
-Somalia остаются native controller-зонами. Азия и Океания ещё `UNKNOWN` и
-временно могут использовать legacy colonial blocs.
+Somalia остаются native controller-зонами. В Азии British Raj очищен от
+отдельных Jammu and Kashmir, Sikkim, Portuguese India и French India; Tibet
+получил de facto owner, семь Trucial Sheikhdoms разделены, а Malaya, Singapore,
+North Borneo, Sarawak и Labuan больше не являются одним британским блоком.
+Переходные зоны DRV/French administration и Republic of Indonesia/Netherlands
+Indies проведены по воспроизводимым крупным полигонам; городские bridgeheads,
+которых нет в геометрии, не выдумываются. Philippines остаётся US Commonwealth
+до 4 июля, Transjordan — британским мандатом до 25 мая. Океания ещё `UNKNOWN`
+и временно использует четыре оставшихся legacy colonial blocs.
 
 Наличие источника в этом списке не означает, что текущие значения уже были
 сверены с ним; фактический статус датасета фиксируется в `docs/SCENARIOS.md`.
