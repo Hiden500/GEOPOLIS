@@ -99,6 +99,8 @@ CUSTOM_COUNTRIES = {
     "QRK": {"name_en": "Ras Al Khaimah", "ideology": "Traditionalism", "economy": "mixed"},
     "QFU": {"name_en": "Fujairah", "ideology": "Traditionalism", "economy": "mixed"},
     "QAD": {"name_en": "Aden Colony and Protectorate", "ideology": "Traditionalism", "economy": "mixed"},
+    "NFK": {"name_en": "Norfolk Island", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QPS": {"name_en": "U.S. Naval Administration of the Former Japanese Mandated Islands", "ideology": "Liberal Democracy", "economy": "mixed"},
 }
 
 # Суверены, исторически идущие с плановой экономикой/коммунистической идеологией.
@@ -114,6 +116,8 @@ PUPPET_OVERRIDES = {
     "FRA": ["MTQ", "GLP", "QFW", "QFE", "REU", "QFI"],
     "PRT": ["QPI"],
     "BEL": ["QRU"],
+    "USA": ["QPS"],
+    "AUS": ["NFK"],
 }
 
 # Тот же составной код MAP, что нормализуется в import_to_game.py — здесь
@@ -537,6 +541,19 @@ def main():
         "QFU": 428,   # Fujairah
         "QDU": 429,   # Dubai
         "QAD": 772,   # Lahij source polygon, содержащий Aden
+        "NCL": 1325,  # New Caledonia, Nouméa
+        "PYF": 1326,  # French Polynesia, Papeete
+        "ASM": 1327,  # American Samoa, Pago Pago
+        "GUM": 1328,  # Guam, Hagåtña
+        "QPS": 1329,  # Northern Mariana Islands, Saipan administration anchor
+        "COK": 1330,  # Cook Islands, Rarotonga
+        "NIU": 1331,  # Niue, Alofi
+        "NFK": 1332,  # Norfolk Island, Kingston
+        "PCN": 1333,  # Pitcairn Island, Adamstown
+        "WLF": 1335,  # Wallis and Futuna, Mata-Utu
+        "TKL": 1336,  # Tokelau
+        "KIR": 1339,  # Gilbert and Ellice Islands Colony, Tarawa polygon
+        "FJI": 1365,  # Fiji, Suva
     }
 
     countries = []

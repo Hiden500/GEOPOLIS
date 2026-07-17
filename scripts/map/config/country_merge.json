@@ -31,17 +31,10 @@
   "RWA": "QRU",
   "BDI": "QRU",
   "ARE": "QAB",
-  "FJI": "QCG",
-  "KIR": "QCG",
-  "PCN": "QCG",
-  "TUV": "QCG",
-  "NCL": "QCF",
-  "PYF": "QCF",
-  "WLF": "QCF",
-  "ASM": "QCU",
-  "GUM": "QCU",
-  "UMI": "QCU",
-  "COK": "QCZ",
-  "NIU": "QCZ",
-  "TKL": "QCZ"
+  "TUV": "KIR",
+  "UMI": "USA",
+  "FSM": "QPS",
+  "MHL": "QPS",
+  "MNP": "QPS",
+  "PLW": "QPS"
 }

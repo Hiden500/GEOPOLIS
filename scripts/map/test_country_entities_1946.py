@@ -114,7 +114,8 @@ class CountryEntities1946Test(unittest.TestCase):
             self.assertNotIn(code, self.merge_map)
 
         self.assertEqual(self.owner_overrides["ARE"], "QAB")
-        self.assertEqual(self.subject_overrides, {"JOR": "GBR", "PHL": "USA"})
+        self.assertEqual(self.subject_overrides["JOR"], "GBR")
+        self.assertEqual(self.subject_overrides["PHL"], "USA")
 
         config = load_json(CONFIG_DIR / "country_entities_1946.json")
         region_overrides = {
@@ -134,6 +135,30 @@ class CountryEntities1946Test(unittest.TestCase):
             self.assertEqual(region_overrides[region_id], target)
         for region_id in ("ASI-0049", "ASI-0117", "ASI-0132", "ASI-0291", "ASI-0297"):
             self.assertEqual(region_overrides[region_id], "QJK")
+
+    def test_oceanian_entities_use_1946_administrations(self):
+        separate = {"NCL", "PYF", "WLF", "ASM", "GUM", "FJI", "PCN", "KIR", "COK", "NIU", "TKL"}
+        self.assertTrue(separate.issubset(self.preserve))
+        for code in separate:
+            self.assertNotIn(code, self.merge_map)
+
+        expected = {
+            "TUV": "KIR", "UMI": "USA",
+            "FSM": "QPS", "MHL": "QPS", "MNP": "QPS", "PLW": "QPS",
+        }
+        for source, target in expected.items():
+            self.assertEqual(self.owner_overrides[source], target)
+            self.assertEqual(self.merge_map[source], target)
+
+        self.assertEqual(self.subject_overrides["NRU"], "AUS")
+        self.assertEqual(self.subject_overrides["WLF"], "FRA")
+        config = load_json(CONFIG_DIR / "country_entities_1946.json")
+        region_overrides = {
+            entry["regionId"]: entry["to"]
+            for entry in config["continents"]["oceania"]["regionOwnerOverrides"]
+        }
+        self.assertEqual(region_overrides, {"OCE-0008": "NFK"})
+        self.assertTrue({"NFK", "QPS"}.issubset(CUSTOM_COUNTRIES))
 
 
 if __name__ == "__main__":

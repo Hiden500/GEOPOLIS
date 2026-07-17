@@ -537,6 +537,64 @@
         {"regionId": "ASI-0197", "to": "THA", "confidence": "medium", "reason": "Siem Reap remained under Thai de facto administration until the November 1946 settlement restored the pre-1941 frontier."},
         {"regionId": "ASI-0050", "to": "VNM", "confidence": "low", "reason": "Spratly sovereignty was disputed; the coarse single polygon follows the prewar French Indochina claim pending a future disputed-territory model."}
       ]
+    },
+    "oceania": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN A/4192 — 1946 Pacific Non-Self-Governing Territories and population",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "U.S. Navy Trust Territory of the Pacific Islands, ca. 1944–1951",
+          "url": "https://www.archives.gov/research/military/navy/guided-topics/ttpi",
+          "authority": "United States National Archives"
+        },
+        {
+          "title": "Cook Islands Act 1915 and Island Territories Act 1943 — separate Rarotonga and Niue administrations",
+          "url": "https://www.legislation.govt.nz/act/public/1943/4/en/latest/",
+          "authority": "New Zealand Legislation"
+        },
+        {
+          "title": "Norfolk Island Act 1913–1935 — Territory under Commonwealth authority",
+          "url": "https://www.legislation.gov.au/files/1935Vol4Part2.pdf",
+          "authority": "Australian Government, Federal Register of Legislation"
+        },
+        {
+          "title": "Australian Department of External Affairs cablegram 517 — Nauru administration in 1946",
+          "url": "https://www.dfat.gov.au/about-us/publications/historical-documents/Pages/volume-10/39-department-of-external-affairs-to-dunk-1",
+          "authority": "Australian Government, Department of Foreign Affairs and Trade"
+        }
+      ],
+      "preserve": [
+        {"code": "NCL", "historicalName": "New Caledonia", "subjectOf": "FRA", "subjectType": "colony", "confidence": "high"},
+        {"code": "PYF", "historicalName": "French Polynesia", "subjectOf": "FRA", "subjectType": "colony", "confidence": "high", "note": "Catalog-compatible display name; the 1946 administration was the French Establishments in Oceania."},
+        {"code": "WLF", "historicalName": "Wallis and Futuna", "subjectOf": "FRA", "subjectType": "protectorate", "confidence": "high"},
+        {"code": "ASM", "historicalName": "American Samoa", "subjectOf": "USA", "subjectType": "colony", "confidence": "high"},
+        {"code": "GUM", "historicalName": "Guam", "subjectOf": "USA", "subjectType": "colony", "confidence": "high"},
+        {"code": "FJI", "historicalName": "Fiji", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "PCN", "historicalName": "Pitcairn Islands", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "KIR", "historicalName": "Gilbert and Ellice Islands", "subjectOf": "GBR", "subjectType": "colony", "confidence": "high"},
+        {"code": "COK", "historicalName": "Cook Islands", "subjectOf": "NZL", "subjectType": "colony", "confidence": "high"},
+        {"code": "NIU", "historicalName": "Niue", "subjectOf": "NZL", "subjectType": "colony", "confidence": "high", "note": "Governed by its own Resident Commissioner and separate public account under the Cook Islands legislation."},
+        {"code": "TKL", "historicalName": "Tokelau", "subjectOf": "NZL", "subjectType": "colony", "confidence": "high", "note": "Catalog-compatible display name; contemporary sources use Tokelau Islands."}
+      ],
+      "subjectOverrides": [
+        {"code": "WLF", "to": "FRA", "subjectType": "protectorate", "confidence": "high", "reason": "Wallis and Futuna remained a French protectorate rather than a colony on 1946-01-01."},
+        {"code": "NRU", "to": "AUS", "subjectType": "mandate", "confidence": "high", "reason": "The Nauru mandate was jointly held by the United Kingdom, Australia and New Zealand, with Australia providing the administration."}
+      ],
+      "ownerOverrides": [
+        {"from": "TUV", "to": "KIR", "confidence": "high", "reason": "The Ellice Islands formed part of the Gilbert and Ellice Islands Colony in 1946."},
+        {"from": "UMI", "to": "USA", "confidence": "medium", "reason": "United States Minor Outlying Islands is a later statistical aggregate, not a single 1946 territorial administration; the source has only one coarse combined polygon."},
+        {"from": "FSM", "to": "QPS", "confidence": "high", "reason": "The Caroline Islands were administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."},
+        {"from": "MHL", "to": "QPS", "confidence": "high", "reason": "The Marshall Islands were administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."},
+        {"from": "MNP", "to": "QPS", "confidence": "high", "reason": "The Northern Mariana Islands were administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."},
+        {"from": "PLW", "to": "QPS", "confidence": "high", "reason": "Palau was administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."}
+      ],
+      "regionOwnerOverrides": [
+        {"regionId": "OCE-0008", "to": "NFK", "confidence": "high", "reason": "Norfolk Island was a distinct Australian external territory; NFD is reserved for Newfoundland elsewhere in the source catalog."}
+      ]
     }
   }
 }

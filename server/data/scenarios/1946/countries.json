@@ -174,6 +174,35 @@
     }
   },
   {
+    "id": "ASM",
+    "name": "American Samoa",
+    "shortName": "American Samoa",
+    "color": "#7c98aa",
+    "capitalRegionId": 1327,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "AUS",
     "name": "Australia",
     "shortName": "Australia",
@@ -203,10 +232,14 @@
     },
     "diplomacy": {
       "puppets": [
-        "PNG"
+        "NRU",
+        "PNG",
+        "NFK"
       ],
       "sphereOfInfluence": [
-        "PNG"
+        "NRU",
+        "PNG",
+        "NFK"
       ]
     }
   },
@@ -772,6 +805,35 @@
     }
   },
   {
+    "id": "COK",
+    "name": "Cook Islands",
+    "shortName": "Cook Islands",
+    "color": "#c799a9",
+    "capitalRegionId": 1330,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "COL",
     "name": "Colombia",
     "shortName": "Colombia",
@@ -1262,6 +1324,35 @@
     }
   },
   {
+    "id": "FJI",
+    "name": "Fiji",
+    "shortName": "Fiji",
+    "color": "#c9adb5",
+    "capitalRegionId": 1365,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "FLK",
     "name": "Falkland Islands",
     "shortName": "Falkland Islands",
@@ -1327,10 +1418,13 @@
         "KHM",
         "LAO",
         "MDG",
+        "NCL",
+        "PYF",
         "SPM",
         "TGO",
         "TUN",
         "VNM",
+        "WLF",
         "MAR",
         "MTQ",
         "GLP",
@@ -1347,10 +1441,13 @@
         "KHM",
         "LAO",
         "MDG",
+        "NCL",
+        "PYF",
         "SPM",
         "TGO",
         "TUN",
         "VNM",
+        "WLF",
         "MAR",
         "MTQ",
         "GLP",
@@ -1361,35 +1458,6 @@
         "SYR",
         "LBN"
       ]
-    }
-  },
-  {
-    "id": "FSM",
-    "name": "Micronesia",
-    "shortName": "Micronesia",
-    "color": "#7c98aa",
-    "capitalRegionId": 1367,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
     }
   },
   {
@@ -1434,6 +1502,7 @@
         "BLZ",
         "CAN",
         "CYP",
+        "FJI",
         "FLK",
         "GHA",
         "GIB",
@@ -1443,6 +1512,7 @@
         "IND",
         "JAM",
         "KEN",
+        "KIR",
         "KWT",
         "LKA",
         "LSO",
@@ -1453,8 +1523,8 @@
         "MUS",
         "NFD",
         "NGA",
-        "NRU",
         "NZL",
+        "PCN",
         "PSE",
         "QAT",
         "SLB",
@@ -1502,6 +1572,7 @@
         "BLZ",
         "CAN",
         "CYP",
+        "FJI",
         "FLK",
         "GHA",
         "GIB",
@@ -1511,6 +1582,7 @@
         "IND",
         "JAM",
         "KEN",
+        "KIR",
         "KWT",
         "LKA",
         "LSO",
@@ -1521,8 +1593,8 @@
         "MUS",
         "NFD",
         "NGA",
-        "NRU",
         "NZL",
+        "PCN",
         "PSE",
         "QAT",
         "SLB",
@@ -1827,6 +1899,35 @@
     "shortName": "French Guiana",
     "color": "#80aaa5",
     "capitalRegionId": 1070,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "GUM",
+    "name": "Guam",
+    "shortName": "Guam",
+    "color": "#7c98aa",
+    "capitalRegionId": 1328,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2356,6 +2457,35 @@
     }
   },
   {
+    "id": "KIR",
+    "name": "Gilbert and Ellice Islands",
+    "shortName": "Gilbert and Ellice Islan",
+    "color": "#c9adb5",
+    "capitalRegionId": 1339,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "KWT",
     "name": "Kuwait",
     "shortName": "Kuwait",
@@ -2733,35 +2863,6 @@
     }
   },
   {
-    "id": "MHL",
-    "name": "Marshall Islands",
-    "shortName": "Marshall Islands",
-    "color": "#7c98aa",
-    "capitalRegionId": 1340,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "MLT",
     "name": "Malta",
     "shortName": "Malta",
@@ -2846,35 +2947,6 @@
     },
     "politics": {
       "ideology": "Communism"
-    }
-  },
-  {
-    "id": "MNP",
-    "name": "Northern Mariana Islands",
-    "shortName": "Northern Mariana Islands",
-    "color": "#7c98aa",
-    "capitalRegionId": 1329,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
     }
   },
   {
@@ -3052,11 +3124,69 @@
     }
   },
   {
+    "id": "NCL",
+    "name": "New Caledonia",
+    "shortName": "New Caledonia",
+    "color": "#80aaa5",
+    "capitalRegionId": 1325,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "NFD",
     "name": "Newfoundland",
     "shortName": "Newfoundland",
     "color": "#c9adb5",
     "capitalRegionId": 781,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "NFK",
+    "name": "Norfolk Island",
+    "shortName": "Norfolk Island",
+    "color": "#c4b896",
+    "capitalRegionId": 1332,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3115,6 +3245,35 @@
     "shortName": "Nicaragua",
     "color": "#4ac4c4",
     "capitalRegionId": 902,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "NIU",
+    "name": "Niue",
+    "shortName": "Niue",
+    "color": "#c799a9",
+    "capitalRegionId": 1331,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3241,7 +3400,7 @@
     "id": "NRU",
     "name": "Nauru",
     "shortName": "Nauru",
-    "color": "#c9adb5",
+    "color": "#c4b896",
     "capitalRegionId": 1337,
     "economyType": "mixed",
     "economyProfile": {
@@ -3296,9 +3455,15 @@
     },
     "diplomacy": {
       "puppets": [
+        "COK",
+        "NIU",
+        "TKL",
         "WSM"
       ],
       "sphereOfInfluence": [
+        "COK",
+        "NIU",
+        "TKL",
         "WSM"
       ]
     }
@@ -3362,6 +3527,35 @@
     }
   },
   {
+    "id": "PCN",
+    "name": "Pitcairn Islands",
+    "shortName": "Pitcairn Islands",
+    "color": "#c9adb5",
+    "capitalRegionId": 1333,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "PER",
     "name": "Peru",
     "shortName": "Peru",
@@ -3396,35 +3590,6 @@
     "shortName": "Philippines",
     "color": "#7c98aa",
     "capitalRegionId": 649,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "PLW",
-    "name": "Palau",
-    "shortName": "Palau",
-    "color": "#7c98aa",
-    "capitalRegionId": 1364,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3645,6 +3810,35 @@
     }
   },
   {
+    "id": "PYF",
+    "name": "French Polynesia",
+    "shortName": "French Polynesia",
+    "color": "#80aaa5",
+    "capitalRegionId": 1326,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "QAB",
     "name": "Abu Dhabi",
     "shortName": "Abu Dhabi",
@@ -3787,122 +3981,6 @@
     },
     "politics": {
       "ideology": "Communism"
-    }
-  },
-  {
-    "id": "QCF",
-    "name": "France Colonies",
-    "shortName": "France Colonies",
-    "color": "#9d503f",
-    "capitalRegionId": 1325,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "QCG",
-    "name": "United Kingdom Colonies",
-    "shortName": "United Kingdom Colonies",
-    "color": "#826235",
-    "capitalRegionId": 1365,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "QCU",
-    "name": "United States Colonies",
-    "shortName": "United States Colonies",
-    "color": "#b25760",
-    "capitalRegionId": 1328,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "QCZ",
-    "name": "New Zealand Colonies",
-    "shortName": "New Zealand Colonies",
-    "color": "#375b95",
-    "capitalRegionId": 1331,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
     }
   },
   {
@@ -4461,6 +4539,35 @@
     },
     "politics": {
       "ideology": "Authoritarianism"
+    }
+  },
+  {
+    "id": "QPS",
+    "name": "U.S. Naval Administration of the Former Japanese Mandated Islands",
+    "shortName": "U.S. Naval Administratio",
+    "color": "#7c98aa",
+    "capitalRegionId": 1329,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
     }
   },
   {
@@ -5373,6 +5480,35 @@
     }
   },
   {
+    "id": "TKL",
+    "name": "Tokelau",
+    "shortName": "Tokelau",
+    "color": "#c799a9",
+    "capitalRegionId": 1336,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "TLS",
     "name": "Portuguese Timor",
     "shortName": "Portuguese Timor",
@@ -5664,21 +5800,19 @@
     "diplomacy": {
       "puppets": [
         "PHL",
-        "FSM",
-        "MHL",
-        "MNP",
+        "ASM",
+        "GUM",
         "PRI",
-        "PLW",
-        "VIR"
+        "VIR",
+        "QPS"
       ],
       "sphereOfInfluence": [
         "PHL",
-        "FSM",
-        "MHL",
-        "MNP",
+        "ASM",
+        "GUM",
         "PRI",
-        "PLW",
-        "VIR"
+        "VIR",
+        "QPS"
       ]
     }
   },
@@ -5804,6 +5938,35 @@
     "shortName": "New Hebrides",
     "color": "#c9adb5",
     "capitalRegionId": 1362,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "WLF",
+    "name": "Wallis and Futuna",
+    "shortName": "Wallis and Futuna",
+    "color": "#80aaa5",
+    "capitalRegionId": 1335,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
