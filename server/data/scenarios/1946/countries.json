@@ -1232,7 +1232,9 @@
         "SPM",
         "TGO",
         "TUN",
-        "MAR"
+        "MAR",
+        "MTQ",
+        "GLP"
       ],
       "sphereOfInfluence": [
         "CMR",
@@ -1243,6 +1245,8 @@
         "TGO",
         "TUN",
         "MAR",
+        "MTQ",
+        "GLP",
         "SYR",
         "LBN"
       ]
@@ -1395,6 +1399,35 @@
     "shortName": "Gibraltar",
     "color": "#c9adb5",
     "capitalRegionId": 125,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "GLP",
+    "name": "Guadeloupe",
+    "shortName": "Guadeloupe",
+    "color": "#80aaa5",
+    "capitalRegionId": 775,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2306,6 +2339,35 @@
     "shortName": "Northern Mariana Islands",
     "color": "#7c98aa",
     "capitalRegionId": 1329,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
+    "id": "MTQ",
+    "name": "Martinique",
+    "shortName": "Martinique",
+    "color": "#80aaa5",
+    "capitalRegionId": 774,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,

@@ -69,6 +69,9 @@ Targeted-инварианты проверяет `test_country_entities_1946.py`
 (Leeward, Windward, Jamaica dependencies, Curaçao and Dependencies), а не
 механически превращаются в отдельные страны. В Европе Cyprus, Gibraltar и
 Malta выведены из мирового британского блока как отдельные зависимости.
+Для территорий, которые upstream ошибочно пишет прямо на метрополию,
+`regionOwnerOverrides` в том же континентальном разделе задаёт точечный owner
+(например, Martinique/Guadeloupe и острова Curaçao and Dependencies).
 
 ## Полная пересборка геометрии
 

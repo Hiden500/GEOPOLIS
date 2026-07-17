@@ -208,6 +208,8 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "QND": Anchor(139_000, "verified", "UN A/4192: Curaçao, approximate 1946 population 139,000."),
     "PRI": Anchor(2_141_000, "verified", "UN A/4192: Puerto Rico, approximate 1946 population 2,141,000."),
     "VIR": Anchor(27_000, "verified", "UN A/4192: United States Virgin Islands, approximate 1946 population 27,000."),
+    "MTQ": Anchor(209_000, "verified", "UN A/4192: Martinique, approximate 1946 population 209,000."),
+    "GLP": Anchor(190_000, "verified", "UN A/4192: Guadeloupe, approximate 1946 population 190,000."),
     "CYP": Anchor(447_000, "verified", "UN A/4192: Cyprus, approximate 1946 population 447,000."),
     "GIB": Anchor(20_000, "verified", "UN A/4192: Gibraltar, approximate 1946 population 20,000."),
     "MLT": Anchor(291_000, "verified", "UN A/4192: Malta, approximate 1946 population 291,000."),

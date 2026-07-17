@@ -75,6 +75,8 @@ CUSTOM_COUNTRIES = {
     "QWL": {"name_en": "Leeward Islands", "ideology": "Liberal Democracy", "economy": "mixed"},
     "QWW": {"name_en": "Windward Islands", "ideology": "Liberal Democracy", "economy": "mixed"},
     "QND": {"name_en": "Curaçao and Dependencies", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "MTQ": {"name_en": "Martinique", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "GLP": {"name_en": "Guadeloupe", "ideology": "Liberal Democracy", "economy": "mixed"},
 }
 
 # Суверены, исторически идущие с плановой экономикой/коммунистической идеологией.
@@ -86,6 +88,7 @@ PUPPET_OVERRIDES = {
     "SUN": ["QAZ", "QMH"],
     "GBR": ["QWL", "QWW"],
     "NLD": ["QND"],
+    "FRA": ["MTQ", "GLP"],
 }
 
 # Мандат/протекторат без subject_of в каталоге MAP, но политически зависимый —
@@ -446,6 +449,8 @@ def main():
         "QWL": 824,   # Antigua, содержит St. John's — резиденцию Governor
         "QWW": 845,   # Grenada, содержит St. George's — резиденцию Governor
         "QND": 843,   # Curaçao, содержит Willemstad
+        "MTQ": 774,   # Martinique, содержит Fort-de-France
+        "GLP": 775,   # Guadeloupe, содержит Basse-Terre
         "CYP": 41,    # Nicosia
         "GIB": 125,   # Gibraltar
         "MLT": 194,   # Malta Xlokk, содержит Valletta (point-in-polygon)

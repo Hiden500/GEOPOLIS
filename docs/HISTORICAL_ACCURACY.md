@@ -183,6 +183,8 @@ Islands Dependencies. В Северной Америке отдельные ад
 а островные полигоны сведены к существовавшим Leeward Islands, Windward
 Islands, Jamaica with dependencies и Curaçao and Dependencies. Norfolk Island
 исправлен с конфликтующего кода Newfoundland на территорию Австралии.
+Martinique и Guadeloupe отделены от метрополии на дату до закона 19 марта
+1946 года; Bonaire, Sint Eustatius и Saba включены в Curaçao and Dependencies.
 В Европе Cyprus, Gibraltar и Malta восстановлены как отдельные британские
 зависимые Country-сущности; неделимый Cyprus отражает состояние до позднейшего
 раздела острова. Источники ООН, государственные законодательства и национальные

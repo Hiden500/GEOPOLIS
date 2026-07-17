@@ -90,6 +90,10 @@ commit.
 - Европейская часть legacy grouping содержала только Cyprus, Gibraltar и
   Malta. Все три перечислены ООН среди отдельных территорий 1946; UN A/4192
   одновременно дал population anchors 447k/20k/291k.
+- Инвентаризация только `country_merge.json` недостаточна: upstream местами
+  пишет заморские территории прямо на метрополию. Общий аудит direct overseas
+  owners нашёл Martinique/Guadeloupe и BES-острова, обходившие merge-map;
+  для таких случаев добавлен исполняемый `regionOwnerOverrides`.
 
 ## Decision log
 
@@ -169,6 +173,18 @@ inputs и dependency manifest.
 - `npm test` (`server/`): 680 passed, 1 skipped, exit 0.
 - `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
 - Full geometry rebuild: не запускался; provenance/dependency gap остаётся.
+
+### Коррекция Северной Америки/Карибов — 2026-07-17
+
+- `python scripts/map/test_country_entities_1946.py`: 7/7 passed.
+- `python scripts/map/make_1946.py`: standard pipeline exit 0; 1366 регионов,
+  150 владельцев, мировой тотал 2,252,030,453 в допуске.
+- Martinique/Guadeloupe стали отдельными FRA-зависимостями; Bonaire,
+  Sint Eustatius и Saba принадлежат QND.
+- `npx vitest run src/simulation/__tests__/campaignSmoke.test.ts` (`server/`):
+  1/1 passed; `npx tsc --noEmit -p tsconfig.json`: exit 0.
+- `npm test` (`server/`): 680 passed, 1 skipped, exit 0.
+- `python .agent/evals/public/run_public_evals.py`: 132 passed, 0 failed.
 
 ## Rollback / containment
 

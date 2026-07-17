@@ -13,6 +13,9 @@ import_to_game.py — превращает выходы пайплайна MAP (
                             которые НЕ выражены в ownership_1946.json.controller
                             (советская оккупация Маньчжурии отдельно от
                             остального Китая, раздел Китая КПК/Гоминьдан).
+  country_entities_1946.json — по-континентальные historical
+                            regionOwnerOverrides для современных/ошибочных
+                            owner-кодов, которые нельзя исправить всей страной.
 
 Зоны оккупации Германии и Кореи читаются из НАТИВНОГО поля
 ownership_1946.json[region_id].controller (MAP уже знает про 4 зоны в
@@ -106,6 +109,18 @@ def load_json(path: Path):
         return json.load(f)
 
 
+def load_historical_region_overrides() -> dict[str, str]:
+    config = load_json(CONFIG_DIR / "country_entities_1946.json")
+    overrides: dict[str, str] = {}
+    for continent, section in config.get("continents", {}).items():
+        for entry in section.get("regionOwnerOverrides", []):
+            region_id = entry["regionId"]
+            if region_id in overrides:
+                raise ValueError(f"Дубликат historical region owner override: {region_id} ({continent})")
+            overrides[region_id] = entry["to"]
+    return overrides
+
+
 def main():
     world = load_json(OUT_DIR / "world_1946.geojson")
     ownership = load_json(OUT_DIR / "ownership_1946.json")
@@ -113,6 +128,7 @@ def main():
     names = {n["region_id"]: n for n in load_json(OUT_DIR / "names_ru.json")}
     overlay = load_json(CONFIG_DIR / "occupation_overlay.json")
     overlay = {k: v for k, v in overlay.items() if not k.startswith("_")}
+    overlay.update(load_historical_region_overrides())
 
     features = world["features"]
 

@@ -273,6 +273,38 @@
           "confidence": "high",
           "reason": "Sint Maarten was part of Curaçao and Dependencies; source geometry has no separate BES polygons."
         }
+      ],
+      "regionOwnerOverrides": [
+        {
+          "regionId": "NAM-0001",
+          "to": "MTQ",
+          "confidence": "high",
+          "reason": "Martinique was a separate French colony on 1946-01-01; it became an overseas department on 1946-03-19."
+        },
+        {
+          "regionId": "NAM-0002",
+          "to": "GLP",
+          "confidence": "high",
+          "reason": "Guadeloupe was a separate French colony on 1946-01-01; it became an overseas department on 1946-03-19."
+        },
+        {
+          "regionId": "NAM-0003",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Bonaire formed part of Curaçao and Dependencies."
+        },
+        {
+          "regionId": "NAM-0004",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Sint Eustatius formed part of Curaçao and Dependencies."
+        },
+        {
+          "regionId": "NAM-0005",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Saba formed part of Curaçao and Dependencies."
+        }
       ]
     },
     "europe": {

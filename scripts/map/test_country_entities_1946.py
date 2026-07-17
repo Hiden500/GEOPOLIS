@@ -44,6 +44,16 @@ class CountryEntities1946Test(unittest.TestCase):
             self.assertEqual(self.owner_overrides[source], target)
             self.assertEqual(self.merge_map[source], target)
 
+        config = load_json(CONFIG_DIR / "country_entities_1946.json")
+        region_overrides = {
+            entry["regionId"]: entry["to"]
+            for entry in config["continents"]["north_america_caribbean"]["regionOwnerOverrides"]
+        }
+        self.assertEqual(region_overrides["NAM-0001"], "MTQ")
+        self.assertEqual(region_overrides["NAM-0002"], "GLP")
+        for region_id in ("NAM-0003", "NAM-0004", "NAM-0005"):
+            self.assertEqual(region_overrides[region_id], "QND")
+
     def test_all_curated_codes_exist_in_catalog(self):
         for code in self.preserve:
             self.assertIn(code, self.catalog)
