@@ -257,41 +257,6 @@
     }
   },
   {
-    "id": "AUT",
-    "name": {
-      "en": "Austria",
-      "ru": "Австрия"
-    },
-    "shortName": {
-      "en": "Austria",
-      "ru": "Австрия"
-    },
-    "color": "#cb15a1",
-    "capitalRegionId": 3,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "BEL",
     "name": {
       "en": "Belgium",
@@ -4261,6 +4226,150 @@
     "politics": {
       "ideology": "Liberal Democracy"
     }
+  },
+  {
+    "id": "QOA",
+    "name": {
+      "en": "American Occupation Zone (Austria)",
+      "ru": "Американская оккупационная зона (Австрия)"
+    },
+    "shortName": {
+      "en": "American Occupation Zone",
+      "ru": "Американская оккупационн"
+    },
+    "color": "#b24fc0",
+    "capitalRegionId": 4,
+    "economyType": "market",
+    "economyProfile": {
+      "taxRate": 0.1,
+      "spending": {
+        "military": 0.15,
+        "research": 0.1,
+        "education": 0.15,
+        "infrastructure": 0.15,
+        "welfare": 0.3,
+        "other": 0.1
+      },
+      "treasuryShare": 0.04,
+      "exportShare": 0.06,
+      "stateEnterpriseShare": 0.01,
+      "otherIncomeShare": 0.02,
+      "inflation": 2,
+      "unemployment": 5,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    },
+    "currencyZoneAnchor": "USA"
+  },
+  {
+    "id": "QOB",
+    "name": {
+      "en": "British Occupation Zone (Austria)",
+      "ru": "Британская оккупационная зона (Австрия)"
+    },
+    "shortName": {
+      "en": "British Occupation Zone ",
+      "ru": "Британская оккупационная"
+    },
+    "color": "#cc93b1",
+    "capitalRegionId": 10,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    },
+    "currencyZoneAnchor": "GBR"
+  },
+  {
+    "id": "QOF",
+    "name": {
+      "en": "French Occupation Zone (Austria)",
+      "ru": "Французская оккупационная зона (Австрия)"
+    },
+    "shortName": {
+      "en": "French Occupation Zone (",
+      "ru": "Французская оккупационна"
+    },
+    "color": "#52aca3",
+    "capitalRegionId": 7,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    },
+    "currencyZoneAnchor": "FRA"
+  },
+  {
+    "id": "QOS",
+    "name": {
+      "en": "Soviet Occupation Zone (Austria)",
+      "ru": "Советская оккупационная зона (Австрия)"
+    },
+    "shortName": {
+      "en": "Soviet Occupation Zone (",
+      "ru": "Советская оккупационная "
+    },
+    "color": "#c5645f",
+    "capitalRegionId": 3,
+    "economyType": "planned",
+    "economyProfile": {
+      "taxRate": 0.2,
+      "spending": {
+        "military": 0.3,
+        "research": 0.08,
+        "education": 0.1,
+        "infrastructure": 0.25,
+        "welfare": 0.12,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.03,
+      "stateEnterpriseShare": 0.1,
+      "otherIncomeShare": 0.01,
+      "inflation": 2,
+      "unemployment": 1,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Communism"
+    },
+    "currencyZoneAnchor": "SUN"
   },
   {
     "id": "QPI",

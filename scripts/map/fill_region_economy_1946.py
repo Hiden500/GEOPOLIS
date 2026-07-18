@@ -40,7 +40,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
 from economy_1946.country_splits import (
-    CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT, COLONIAL_BLOC_GROUPS,
+    CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT, AUSTRIA_SPLIT, COLONIAL_BLOC_GROUPS,
 )
 from economy_1946.density_tiers import (
     AREA_EXPONENT, TIER_MULTIPLIER, EXPLICIT_TIER_CLASSIFIERS, generic_tier,
@@ -58,7 +58,7 @@ _CATALOG = load_resource_catalog()
 ACTIVE_RESOURCES_1946 = resources_active_by(_CATALOG, 1946)
 MAX_EXTRACTION_LEVEL = _CATALOG["maxExtractionLevel"]
 
-DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT}
+DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT, **AUSTRIA_SPLIT}
 COLONIAL_BLOCS = set(COLONIAL_BLOC_GROUPS.keys())
 
 TIER_DEV_FACTOR = {1: 0.5, 2: 0.75, 3: 1.0, 4: 1.25, 5: 1.5, 6: 1.85}
@@ -92,8 +92,8 @@ _DEV_TIERS: list[tuple[float, float, float, list[str]]] = [
                           "QGB", "QGA", "QGF", "QGS", "JPN"]),
     (0.55, 0.45, 0.55, ["SUN"]),
     (0.50, 0.40, 0.45, ["ITA"]),
-    (0.42, 0.38, 0.42, ["POL", "CSK", "AUT", "HUN", "YUG", "BGR", "ROU",
-                          "GRC", "ESP", "PRT", "FIN", "ZAF"]),
+    (0.42, 0.38, 0.42, ["POL", "CSK", "QOS", "QOA", "QOB", "QOF", "HUN",
+                          "YUG", "BGR", "ROU", "GRC", "ESP", "PRT", "FIN", "ZAF"]),
     (0.38, 0.32, 0.50, ["ARG", "BRA", "MEX", "CHL", "URY"]),
     (0.28, 0.22, 0.45, ["CUB", "COL", "PER", "VEN", "PRY", "ECU", "BOL",
                           "GTM", "HND", "NIC", "CRI", "PAN", "SLV", "DOM", "HTI"]),

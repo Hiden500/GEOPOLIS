@@ -53,6 +53,24 @@ CUSTOM_COUNTRIES = {
     "QGA": {"name_en": "American Occupation Zone (Germany)", "name_ru": "Американская оккупационная зона (Германия)", "ideology": "Liberal Democracy", "economy": "market"},
     "QGB": {"name_en": "British Occupation Zone (Germany)", "name_ru": "Британская оккупационная зона (Германия)", "ideology": "Liberal Democracy", "economy": "mixed"},
     "QGF": {"name_en": "French Occupation Zone (Germany)", "name_ru": "Французская оккупационная зона (Германия)", "ideology": "Liberal Democracy", "economy": "mixed"},
+    # Австрия — те же 4 зоны оккупации, что и Германия (2026-07-19, по
+    # запросу пользователя), но Австрия НЕ дробится географически так
+    # мелко: MAP даёт только 9 регионов = 9 федеральных земель, без
+    # native controller-поля (в отличие от Германии/Кореи, где раздел уже
+    # в исходнике MAP) — назначение вручную, occupation_overlay.json.
+    # Вена по решению пользователя НЕ делится на секторы (геометрии
+    # секторов нет в источнике) — целиком в советскую зону (историческая
+    # оговорка: Вена физически анклав внутри советской зоны Нижней
+    # Австрии, хотя административно управлялась всеми 4 державами
+    # совместно, "Four in a Jeep" — источник: en.wikipedia.org/wiki/
+    # Allied-occupied_Austria). Восточный Тироль формально был британским,
+    # но регион у нас один "Tirol" (Северный+Восточный) — целиком к
+    # французской зоне, т.к. Северный Тироль (французский) существенно
+    # населённее.
+    "QOS": {"name_en": "Soviet Occupation Zone (Austria)", "name_ru": "Советская оккупационная зона (Австрия)", "ideology": "Communism", "economy": "planned"},
+    "QOA": {"name_en": "American Occupation Zone (Austria)", "name_ru": "Американская оккупационная зона (Австрия)", "ideology": "Liberal Democracy", "economy": "market"},
+    "QOB": {"name_en": "British Occupation Zone (Austria)", "name_ru": "Британская оккупационная зона (Австрия)", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QOF": {"name_en": "French Occupation Zone (Austria)", "name_ru": "Французская оккупационная зона (Австрия)", "ideology": "Liberal Democracy", "economy": "mixed"},
     "TWN": {"name_en": "Republic of China (Kuomintang)", "name_ru": "Китайская Республика (Гоминьдан)", "ideology": "Nationalism", "economy": "mixed"},
     "QKS": {"name_en": "Soviet Occupation Zone (Korea)", "name_ru": "Советская оккупационная зона (Корея)", "ideology": "Communism", "economy": "planned"},
     "QKA": {"name_en": "American Occupation Zone (Korea)", "name_ru": "Американская оккупационная зона (Корея)", "ideology": "Liberal Democracy", "economy": "market"},
@@ -207,6 +225,7 @@ ZONE_TINT_SUZERAIN = {
     "QGS": "SUN", "QGA": "USA", "QGB": "GBR", "QGF": "FRA",
     "QKS": "SUN", "QKA": "USA", "QMS": "SUN",
     "QAZ": "SUN", "QMH": "SUN",
+    "QOS": "SUN", "QOA": "USA", "QOB": "GBR", "QOF": "FRA",
 }
 
 # Двойной сюзерен (condominium) — единственный настоящий структурный случай,
@@ -228,7 +247,7 @@ CURATED_DEPENDENCY_COLORS = {
 # просто прямой словарь код -> русское имя, читается в name_ru_by_code (main()).
 SOVEREIGN_NAME_RU = {
     "AFG": "Афганистан", "ALA": "Аландские острова", "ALB": "Албания", "AND": "Андорра",
-    "ARG": "Аргентина", "AUS": "Австралия", "AUT": "Австрия", "BEL": "Бельгия",
+    "ARG": "Аргентина", "AUS": "Австралия", "BEL": "Бельгия",
     "BGR": "Болгария", "BOL": "Боливия", "BRA": "Бразилия", "BTN": "Бутан",
     "CAN": "Канада", "CHE": "Швейцария", "CHL": "Чили", "CHN": "Китай",
     "CMR": "Французский Камерун", "COD": "Бельгийское Конго", "COL": "Колумбия",
@@ -261,10 +280,10 @@ SOVEREIGN_NAME_RU = {
 # "не тянуть спорные случаи" (docs/plans/10_CURRENCY_ZONES.md). Подмножество
 # ZONE_TINT_SUZERAIN выше, не весь словарь.
 CURRENCY_ZONE_ANCHOR = {
-    "QGS": "SUN", "QKS": "SUN", "QMS": "SUN",
-    "QGA": "USA", "QKA": "USA",
-    "QGB": "GBR",
-    "QGF": "FRA",
+    "QGS": "SUN", "QKS": "SUN", "QMS": "SUN", "QOS": "SUN",
+    "QGA": "USA", "QKA": "USA", "QOA": "USA",
+    "QGB": "GBR", "QOB": "GBR",
+    "QGF": "FRA", "QOF": "FRA",
 }
 
 ARCHETYPES = {
