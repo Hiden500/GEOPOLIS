@@ -28,9 +28,17 @@ HDX/iGISMap — только современные границы State of Pale
     https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/PSE/ADM2/geoBoundaries-PSE-ADM2.geojson
 
 КРИТИЧНО: современный израильский округ "Golan" (Голанские высоты, захвачены
-у Сирии в 1967) ИСКЛЮЧЁН из входного набора целиком — в 1946 это была
-территория французского мандата Сирии, не Палестины. Остаётся в геометрии
-Сирии (build_asia_1946.py), не трогается здесь.
+у Сирии в 1967) ИСКЛЮЧЁН из группировки подрайонов Палестины целиком — в 1946
+это была территория французского мандата Сирии, не Палестины. Геометрия НЕ
+выбрасывается: game_map.json/Natural Earth не содержит эту территорию ни в
+сирийском, ни в израильском наборе (реальная дыра в исходных данных, не
+специфичная для этого скрипта — найдено 2026-07-19 по прямой жалобе
+пользователя на пропавшую на рендере территорию). Единственный источник её
+геометрии в этом пайплайне — уже загруженный здесь geoBoundaries ISR-набор,
+поэтому полигон экспортируется отдельной фичей с iso_a2="SY" в конце этого
+же выходного файла; build_asia_1946.py забирает её оттуда и вливает как
+дополнительный исходный юнит Сирии ДО геометрического слияния (GEOMETRIC["SY"]),
+чтобы алгоритм сам подхватил её к соседнему кластеру (Quneitra/Dar'a).
 
 Группировка современных ADM2 -> исторический подрайон 1946 года — каждая
 запись сверена с источником (не угадана):
@@ -111,23 +119,56 @@ def area_km2(geom):
     return abs(a) / 1e6
 
 
-def load_units(path: str, tag: str) -> dict[str, object]:
+def load_units(path: str, tag: str) -> tuple[dict[str, object], dict[str, object]]:
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     units = {}
+    excluded = {}
     for feat in data["features"]:
         name = feat["properties"]["shapeName"]
-        if (tag, name) in EXCLUDE_MODERN_UNITS:
-            continue
         g = shp_shape(feat["geometry"])
         if not g.is_valid:
             g = g.buffer(0)
+        if (tag, name) in EXCLUDE_MODERN_UNITS:
+            excluded[name] = g
+            continue
         units[name] = g
-    return units
+    return units, excluded
+
+
+def trim_internal_overlaps(features: list[dict], order: list[str]) -> None:
+    """15 подрайонов строятся из ДВУХ независимо оцифрованных источников
+    (geoBoundaries ISR + PSE) — их общие границы не совпадают идеально,
+    отсюда мелкие взаимные наложения между соседними подрайонами (до
+    ~0.002 deg2, найдено 2026-07-19 по жалобе пользователя на "разрывы
+    между полигонами" на рендере). Убираем детерминированно: каждый
+    следующий по `order` подрайон обрезается по уже обработанным ранее
+    (тот же принцип приоритета "уже построенный сосед", что и
+    clip_palestine_to_neighbors в build_asia_1946.py) — гарантирует ноль
+    взаимных наложений, ничего не подвигает и не создаёт новых зазоров."""
+    by_name = {ft["properties"]["name"]: ft for ft in features}
+    processed_union = None
+    for name in order:
+        ft = by_name.get(name)
+        if ft is None:
+            continue
+        g = shp_shape(ft["geometry"])
+        if processed_union is not None and g.intersects(processed_union):
+            trimmed = g.difference(processed_union)
+            if not trimmed.is_valid:
+                trimmed = trimmed.buffer(0)
+            if trimmed.area > 1e-9:
+                ft["geometry"] = mapping(trimmed)
+                ft["properties"]["area_km2"] = round(area_km2(trimmed), 1)
+                g = trimmed
+        processed_union = g if processed_union is None else unary_union([processed_union, g])
 
 
 def main():
-    units = {"ISR": load_units(ISR_SRC, "ISR"), "PSE": load_units(PSE_SRC, "PSE")}
+    units = {}
+    excluded = {}
+    units["ISR"], excluded["ISR"] = load_units(ISR_SRC, "ISR")
+    units["PSE"], excluded["PSE"] = load_units(PSE_SRC, "PSE")
 
     used = {"ISR": set(), "PSE": set()}
     out_features = []
@@ -171,16 +212,53 @@ def main():
         if unused:
             print(f"  ВНИМАНИЕ: неиспользованные {tag} юниты: {sorted(unused)}")
 
+    # Наложения между соседними подрайонами (два независимых источника ISR/
+    # PSE не совпадают идеально на общей границе) - см. докстринг
+    # trim_internal_overlaps.
+    trim_internal_overlaps(out_features, list(SUBDISTRICT_GROUPS.keys()))
+
+    # Голанские высоты - см. докстринг файла: не подрайон Палестины, но
+    # единственный источник их геометрии в пайплайне - уже загруженный
+    # здесь geoBoundaries ISR-набор. Экспортируем отдельной фичей с
+    # iso_a2="SY"; build_asia_1946.py вливает её в Сирию до геометрического
+    # слияния.
+    golan_geom = excluded.get("ISR", {}).get("Golan")
+    if golan_geom is not None:
+        out_features.append({
+            "type": "Feature",
+            "properties": {
+                "iso_a2": "SY",
+                "name": "Golan Heights",
+                "district_1946": "Syria (Quneitra)",
+                "merge_method": "historical_exclave_to_syria",
+                "note": "Голанские высоты (совр. израильский округ 'Golan' в "
+                         "geoBoundaries ISR ADM2) - на 1946 год часть французского "
+                         "мандата Сирии (захвачены Израилем в 1967), не Палестины. "
+                         "game_map.json/Natural Earth не содержит эту территорию ни "
+                         "в сирийском, ни в израильском наборе (реальная дыра в "
+                         "исходных данных, не только в этой реконструкции) - "
+                         "вливается в Сирию build_asia_1946.py до GEOMETRIC-слияния.",
+                "area_km2": round(area_km2(golan_geom), 1),
+            },
+            "geometry": mapping(golan_geom),
+        })
+    else:
+        print("  ВНИМАНИЕ: геометрия Golan не найдена в исключённых юнитах ISR")
+
     fc = {"type": "FeatureCollection", "features": out_features}
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(fc, f, ensure_ascii=False)
 
-    total = sum(ft["properties"]["area_km2"] for ft in out_features)
-    print(f"\nПодрайонов: {len(out_features)}")
+    ps_features = [ft for ft in out_features if ft["properties"]["iso_a2"] == "PS"]
+    total = sum(ft["properties"]["area_km2"] for ft in ps_features)
+    print(f"\nПодрайонов: {len(ps_features)}")
     print(f"Суммарная площадь: {total:,.0f} km2")
-    for ft in out_features:
+    for ft in ps_features:
         p = ft["properties"]
         print(f"  {p['name']:20s} ({p['district_1946']:10s}) {p['area_km2']:>8.1f} km2")
+    if golan_geom is not None:
+        print(f"  + Golan Heights -> SY (build_asia_1946.py): "
+              f"{round(area_km2(golan_geom), 1):,.1f} km2")
 
 
 if __name__ == "__main__":

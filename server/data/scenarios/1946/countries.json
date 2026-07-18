@@ -2049,7 +2049,7 @@
       "en": "Kenya",
       "ru": "Кения"
     },
-    "color": "#c58ac6",
+    "color": "#b68ac6",
     "capitalRegionId": 1240,
     "economyType": "mixed",
     "economyProfile": {
@@ -2679,7 +2679,7 @@
       "en": "Nyasaland",
       "ru": "Ньясаленд"
     },
-    "color": "#cfd594",
+    "color": "#d5949e",
     "capitalRegionId": 1179,
     "economyType": "mixed",
     "economyProfile": {
@@ -5254,7 +5254,7 @@
       "en": "Tanganyika",
       "ru": "Танганьика"
     },
-    "color": "#c77489",
+    "color": "#c774b2",
     "capitalRegionId": 1213,
     "economyType": "mixed",
     "economyProfile": {

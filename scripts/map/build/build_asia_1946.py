@@ -309,6 +309,38 @@ def clip_palestine_to_neighbors(features):
                 ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
 
 
+def clip_against_dead_sea(features):
+    """Иордания (Karak/Amman, game_map.json/Natural Earth) и Иерусалим/
+    Беэр-Шева (geoBoundaries) независимо заходят на полигон Мёртвого моря
+    (scripts/map/out/lakes_1946.geojson) на 0.01-0.03 deg2 — реальные
+    границы суши там ближе к берегу, чем оцифровка этих источников. Найдено
+    2026-07-19 по жалобе пользователя на "границы заходят на Мёртвое море".
+    ТОЛЬКО Мёртвое море - Аральское специально не трогаем здесь (пользователь
+    отложил его на будущее, у него отдельная история с восстановлением
+    границ 1946 года, см. lakes_1946.geojson)."""
+    lakes_path = out("lakes_1946.geojson")
+    with open(lakes_path, encoding="utf-8") as f:
+        lakes_fc = json.load(f)
+    lake_geoms = [shape(ft["geometry"]) for ft in lakes_fc["features"]
+                   if ft["properties"].get("name") == "Мёртвое море"]
+    if not lake_geoms:
+        print("  [DEAD SEA] ВНИМАНИЕ: полигон 'Мёртвое море' не найден в lakes_1946.geojson")
+        return
+    lake = unary_union(lake_geoms)
+    n_clipped = 0
+    for ft in features:
+        g = shape(ft["geometry"])
+        if g.intersects(lake):
+            clipped = g.difference(lake)
+            if not clipped.is_valid:
+                clipped = clipped.buffer(0)
+            if clipped.area > 1e-9:
+                ft["geometry"] = mapping(clipped)
+                ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
+                n_clipped += 1
+    print(f"  [DEAD SEA] обрезано регионов: {n_clipped}")
+
+
 def apply_vietnam_explicit_merges(features):
     """По явному списку кодов от пользователя (агломерации Ханоя и Хошимина
     на современной спутниковой карте) — а не автоматическим слиянием с
@@ -594,12 +626,43 @@ def main():
     # была одна территория в 1946 году.
     with open(PALESTINE_HISTORICAL_FILE, encoding="utf-8") as f:
         palestine_fc = json.load(f)
+    ps_count = 0
     for ft in palestine_fc["features"]:
+        if ft["properties"]["iso_a2"] == "SY":
+            # Голанские высоты (см. build_palestine_1946.py) — не подрайон
+            # Палестины, реальная дыра в game_map.json для Сирии/Израиля
+            # (не была покрыта ни одним набором до этой находки 2026-07-19).
+            # Вливаем как доп. исходный юнит Сирии ДО GEOMETRIC-слияния —
+            # алгоритм сам подхватит её к соседнему кластеру (Quneitra/Dar'a),
+            # а не оставляем отдельной необработанной фичей.
+            g = shape(ft["geometry"])
+            # geoBoundaries ISR-полигон Golan слегка заходит на границу
+            # Иордании (Natural Earth) — обрезаем по СЫРЫМ (ещё не слитым)
+            # исходным юнитам Иордании, уже загруженным в by_country на
+            # этом шаге; итоговая площадь union не зависит от того, как
+            # именно они будут сгруппированы дальше (найдено 2026-07-19,
+            # 0.00073 deg2 наложение Amman/Rif Dimashq до этого фикса).
+            jordan_raw = by_country.get("JO", [])
+            if jordan_raw:
+                jordan_union = unary_union([it["geom"] for it in jordan_raw])
+                if g.intersects(jordan_union):
+                    g = g.difference(jordan_union)
+                    if not g.is_valid:
+                        g = g.buffer(0)
+            by_country.setdefault("SY", []).append({
+                "adm1_code": "GEOB-ISR-GOLAN",
+                "name": ft["properties"]["name"],
+                "region_field": "",
+                "geom": g,
+                "area": area_km2(g),
+            })
+            continue
         ft["properties"]["source_adm1"] = [ft["properties"]["name"]]
         ft["properties"]["source_count"] = 1
         out_features.append(ft)
+        ps_count += 1
     report.append({"iso2": "PS", "method": "historical_adm2_group",
-                    "source_units": 31, "output_regions": len(palestine_fc["features"])})
+                    "source_units": 31, "output_regions": ps_count})
 
     # Отдельные фичи по adm1_code (анклавы с iso_a2='-1', спорные территории)
     for code, label, out_iso2 in EXTRA_SINGLE_FEATURES:
@@ -682,6 +745,7 @@ def main():
     # т.д.) совпадают по построению, отдельная борьба с зазорами/
     # пересечениями больше не нужна
     clip_palestine_to_neighbors(out_features)
+    clip_against_dead_sea(out_features)
     apply_vietnam_explicit_merges(out_features)
     tag_strategic_points(out_features)
 

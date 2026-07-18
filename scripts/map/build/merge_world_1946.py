@@ -7,8 +7,12 @@ continent/region_type. Это "статичный" слой геометрии -
 """
 from paths import out
 import json
+import sys
 from shapely.geometry import shape
 from shapely.strtree import STRtree
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 SOURCES = [
     ("EUR", "Europe", "land", out("europe_1946.geojson")),
