@@ -144,7 +144,7 @@ export function MapView({
       } as any,
       center: [37.6173, 55.7558],
       zoom: 2,
-      maxZoom: 8,
+      maxZoom: 12,
       minZoom: 2,
       attributionControl: false
     });
@@ -319,7 +319,7 @@ export function MapView({
           m.addSource('regions', {
             type: 'geojson',
             data: data.featureCollection,
-            maxzoom: 8
+            maxzoom: 12
           });
 
           // Сетка координат

@@ -49,6 +49,7 @@ CONFIG_DIR = REPO_ROOT / "scripts" / "map" / "config"
 OWNERSHIP_PATH = Path(out("ownership_1946.json"))
 OVERLAY_PATH = CONFIG_DIR / "occupation_overlay.json"
 ENTITIES_PATH = CONFIG_DIR / "country_entities_1946.json"
+NAMES_RU_PATH = Path(out("names_ru.json"))
 NEW_WORLD_PATH = REPO_ROOT / "client" / "public" / "world_1946.geojson"
 
 
@@ -136,6 +137,33 @@ def apply_entities_remap(remap, prefix):
     return remapped
 
 
+def apply_names_ru_remap(remap, prefix):
+    """scripts/map/out/names_ru.json — список {region_id, name_en, name_ru,
+    ...}, ТА ЖЕ позиционная хрупкость, что и ownership_1946.json, но не
+    регенерируется никаким шагом пайплайна вообще (regen_names_ru.py только
+    точечно правит exonym'ы поверх уже существующего файла) — легко забыть
+    (забыли при самой первой правке Палестины/Ливана/ОАЭ этой сессии,
+    найдено только 2026-07-19 по жалобе пользователя на "Кашмир"/"Пхукет"
+    на месте Иерусалима/Иордании)."""
+    data = load_json(NAMES_RU_PATH)
+    remapped, dropped = 0, []
+    for entry in data:
+        rid = entry.get("region_id")
+        if not rid or not rid.startswith(prefix):
+            continue
+        if rid in remap:
+            entry["region_id"] = remap[rid]
+            remapped += 1
+        else:
+            dropped.append(rid)
+    if dropped:
+        data = [e for e in data if e.get("region_id") not in dropped]
+    with open(NAMES_RU_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+        f.write("\n")
+    return remapped, dropped
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--old", required=True, help="Путь к world_1946.geojson ДО правки (напр. из git show HEAD:...)")
@@ -175,9 +203,11 @@ def main():
     n_own, dropped = apply_ownership_remap(remap, args.prefix)
     n_overlay = apply_overlay_remap(remap, args.prefix)
     n_entities = apply_entities_remap(remap, args.prefix)
+    n_names, dropped_names = apply_names_ru_remap(remap, args.prefix)
     print(f"\nПрименено: ownership_1946.json {n_own} ключей (отброшено {len(dropped)}: {dropped}), "
           f"occupation_overlay.json {n_overlay} ключей, "
-          f"country_entities_1946.json regionOwnerOverrides {n_entities} записей.")
+          f"country_entities_1946.json regionOwnerOverrides {n_entities} записей, "
+          f"names_ru.json {n_names} записей (отброшено {len(dropped_names)}: {dropped_names}).")
     print("Не забудь: (1) добавить occupation_overlay-записи для ПОЛНОСТЬЮ новых регионов "
           "(которых не было в старой карте вообще — их этот скрипт не создаёт, только "
           "переносит существующие соответствия), (2) прогнать make_1946.py и проверить "
