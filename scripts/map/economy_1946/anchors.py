@@ -196,13 +196,10 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "QRI": Anchor(60_000_000, "estimated", "Republican Java and mainland Sumatra share of the UN A/4192 Netherlands Indies total."),
     "IDN": Anchor(13_700_000, "estimated", "Outer-island Netherlands administration share; with QRI sums to the UN A/4192 total 73.7M."),
     "MAC": Anchor(500_000, "estimated", "Macau total retained from the previous Portuguese colonial-bloc split."),
-    "QAB": Anchor(25_000, "estimated", "Abu Dhabi share of the 80,000 Trucial States estimate."),
-    "QDU": Anchor(20_000, "estimated", "Dubai share of the 80,000 Trucial States estimate."),
-    "QSH": Anchor(15_000, "estimated", "Sharjah share of the 80,000 Trucial States estimate."),
-    "QRK": Anchor(10_000, "estimated", "Ras Al Khaimah share of the 80,000 Trucial States estimate."),
-    "QAJ": Anchor(5_000, "estimated", "Ajman share of the 80,000 Trucial States estimate."),
-    "QUQ": Anchor(3_000, "estimated", "Umm Al Quwain share of the 80,000 Trucial States estimate."),
-    "QFU": Anchor(2_000, "estimated", "Fujairah share of the 80,000 Trucial States estimate."),
+    # ОАЭ/Договорной Оман — консолидировано обратно в 1 страну (2026-07-19,
+    # разворот решения 2026-06-28 о разделе на 7 отдельных шейхств-стран, см.
+    # docs/DECISIONS.md) — единый anchor вместо суммы 7 долей.
+    "ARE": Anchor(80_000, "estimated", "Общая оценка населения Договорного Омана (7 шейхств) на 1946."),
     "QAD": Anchor(650_000, "estimated", "Aden Colony and Protectorate total retained from the previous British colonial-bloc split."),
 
     # === Прочие мелкие/микро (низкая цена ошибки, широкие оценки) ===

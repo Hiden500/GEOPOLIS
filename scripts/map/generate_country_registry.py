@@ -109,21 +109,6 @@ CUSTOM_COUNTRIES = {
     "QLB": {"name_en": "Labuan", "name_ru": "Лабуан", "ideology": "Liberal Democracy", "economy": "mixed"},
     "QDV": {"name_en": "Democratic Republic of Vietnam", "name_ru": "Демократическая Республика Вьетнам", "ideology": "Communism", "economy": "planned"},
     "QRI": {"name_en": "Republic of Indonesia", "name_ru": "Республика Индонезия", "ideology": "Nationalism", "economy": "mixed"},
-    # QAB/QDU/QSH/QAJ/QUQ/QRK/QFU (Trucial Sheikhdoms) are, per the same UK
-    # Home Office 1949 terminology as KWT/BHR/QAT/BRN (see country_entities_
-    # 1946.json, asia.subjectOverrides), British Protected States rather than
-    # Protectorates — each ruler retained full internal government, Britain
-    # controlled only external affairs. Not modeled as a subjectOverride
-    # because these are CUSTOM_COUNTRIES entries with no catalog subject_of/
-    # subject_type field for subjectOverrides to target; documentation parity
-    # only, no mechanical effect (see build_merge_map/build_puppets_by_suzerain).
-    "QAB": {"name_en": "Abu Dhabi", "name_ru": "Абу-Даби", "ideology": "Traditionalism", "economy": "mixed"},
-    "QDU": {"name_en": "Dubai", "name_ru": "Дубай", "ideology": "Traditionalism", "economy": "mixed"},
-    "QSH": {"name_en": "Sharjah", "name_ru": "Шарджа", "ideology": "Traditionalism", "economy": "mixed"},
-    "QAJ": {"name_en": "Ajman", "name_ru": "Аджман", "ideology": "Traditionalism", "economy": "mixed"},
-    "QUQ": {"name_en": "Umm Al Quwain", "name_ru": "Умм-эль-Кайвайн", "ideology": "Traditionalism", "economy": "mixed"},
-    "QRK": {"name_en": "Ras Al Khaimah", "name_ru": "Рас-эль-Хайма", "ideology": "Traditionalism", "economy": "mixed"},
-    "QFU": {"name_en": "Fujairah", "name_ru": "Фуджейра", "ideology": "Traditionalism", "economy": "mixed"},
     "QAD": {"name_en": "Aden Colony and Protectorate", "name_ru": "Колония и протекторат Аден", "ideology": "Traditionalism", "economy": "mixed"},
     "NFK": {"name_en": "Norfolk Island", "name_ru": "Остров Норфолк", "ideology": "Liberal Democracy", "economy": "mixed"},
     "QPS": {"name_en": "U.S. Naval Administration of the Former Japanese Mandated Islands", "name_ru": "Военно-морская администрация США бывших японских подмандатных островов", "ideology": "Liberal Democracy", "economy": "mixed"},
@@ -139,8 +124,7 @@ PLANNED_ECONOMY_SOVEREIGNS = {"SUN", "YUG", "CHN", "MNG"}
 # sphereOfInfluence сюзерена напрямую, минуя catalog-driven путь subject_of.
 PUPPET_OVERRIDES = {
     "SUN": ["QAZ", "QMH"],
-    "GBR": ["QWL", "QWW", "QSI", "QJK", "QNB", "QSR", "QLB",
-            "QAB", "QDU", "QSH", "QAJ", "QUQ", "QRK", "QFU", "QAD", "QZN"],
+    "GBR": ["QWL", "QWW", "QSI", "QJK", "QNB", "QSR", "QLB", "QAD", "QZN"],
     "NLD": ["QND"],
     "FRA": ["MTQ", "GLP", "QFW", "QFE", "QFI"],
     "PRT": ["QPI"],
@@ -256,7 +240,7 @@ SOVEREIGN_NAME_RU = {
     "ETH": "Эфиопия", "FIN": "Финляндия", "FRA": "Франция", "GBR": "Великобритания",
     "GRC": "Греция", "GRL": "Гренландия", "GTM": "Гватемала", "HND": "Гондурас",
     "HTI": "Гаити", "HUN": "Венгрия", "IRL": "Ирландия", "IRN": "Иран",
-    "IRQ": "Ирак", "ISL": "Исландия", "ITA": "Италия", "JOR": "Иордания",
+    "ARE": "Договорной Оман", "IRQ": "Ирак", "ISL": "Исландия", "ITA": "Италия", "JOR": "Иордания",
     "JPN": "Япония", "KHM": "Французская Камбоджа", "LAO": "Французский Лаос",
     "LBN": "Ливан", "LBR": "Либерия", "LIE": "Лихтенштейн", "LUX": "Люксембург",
     "MCO": "Монако", "MEX": "Мексика", "MNG": "Монголия", "NAM": "Юго-Западная Африка",

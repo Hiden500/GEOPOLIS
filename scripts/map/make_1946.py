@@ -35,6 +35,7 @@ SERVER_DIR = REPO_ROOT / "server"
 FULL_REBUILD_STEPS = [
     "build/build_europe_1946.py",
     "build/build_china_1946_v2.py",
+    "build/build_palestine_1946.py",
     "build/build_asia_1946.py",
     "build/build_namerica_1946.py",
     "build/build_us_states_split_1946.py",

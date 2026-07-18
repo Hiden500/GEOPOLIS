@@ -34,8 +34,6 @@ KEEP_AS_IS = {
     "PK": "Пакистан — уже компактно (8)",
     "IN": "Индия — план: 'сохранить текущую детализацию' (35-40, было 36)",
     "VN": "Вьетнам — оригинальные провинции, не группируем",
-    "IL": "Израиль — максимальная детализация по явному указанию (Ближний Восток)",
-    "PS": "Палестина — 2 натуральных юнита (Газа+Зап.берег), не объединяю",
     "KR": "Южная Корея — оригинал (17), Сеул/Инчхон/Пусан/Тэгу и др. критичны для симуляции",
     "KP": "Северная Корея — оригинал (11), Пхеньян/Расон отдельно критичны для симуляции",
 }
@@ -48,6 +46,14 @@ KEEP_AS_IS = {
 # Чунцин (вырезаны по современным контурам, других границ 1946 года нет) +
 # Парасельские острова.
 CHINA_HISTORICAL_FILE = out("china_1946_historical.json")
+
+# Подмандатная Палестина (IL+PS в исходнике) — реальный 1946 год: 16
+# подрайонов / 6 округов мандата, не 6 современных израильских округов + 2
+# нерасчленённых пятна. См. build_palestine_1946.py за источниками и
+# группировкой (в источнике нет native controller/historical shapefile, как
+# у Германии/Кореи/Китая — построено объединением совр. ADM2-юнитов
+# geoBoundaries по историческому подрайону).
+PALESTINE_HISTORICAL_FILE = out("palestine_1946_historical.json")
 
 # Микрогосударства + "потеряшки" с отдельным iso_a2, не входившие в список
 # стран Азии (аналог Косово/Аландов/Гибралтара в Европе)
@@ -104,13 +110,44 @@ CUSTOM_ZONED = {
         "default_zone": "Rest",
         "targets": {"AzGov": 3, "Mahabad": 1, "Rest": 6},
     },
+    "LB": {
+        # Ливан — курированная группировка в 5 РЕАЛЬНЫХ мухафаз 1946 года
+        # (Бейрут/Гора Ливан/Северный Ливан/Южный Ливан/Бекаа), не слепой
+        # geometric-merge (2026-07-19, по принципу "совместимость с будущими
+        # конфликтами" — см. docs/HISTORICAL_ACCURACY.md). Гражданская война
+        # 1975-1990 и последующие конфликты (южноливанская "зона
+        # безопасности" Израиля 1982-2000, война 2006) проходят ровно по
+        # линиям этих 5 мухафаз (Бейрут — христ./мусульм. раздел города;
+        # Гора Ливан — христиане/друзы; Север — сунниты; Бекаа — шииты,
+        # позже Хезболла и сирийское влияние; Юг — шииты/палестинские
+        # лагеря/зона израильской оккупации) — слепой алгоритм мог бы
+        # смешать ровно эти значимые для будущих сценариев линии.
+        # "An Nabatiyah" (мухафаза с 1975, выделена из Южного Ливана) на
+        # 1946 год не существовала — сворачиваю обратно в South Lebanon,
+        # территорию её происхождения.
+        "zone_of": {
+            "Beirut": "Beirut", "Mount Lebanon": "Mount Lebanon",
+            "North Lebanon": "North Lebanon", "South Lebanon": "South Lebanon",
+            "An Nabatiyah": "South Lebanon", "Beqaa": "Beqaa",
+        },
+        "default_zone": "South Lebanon",
+        "targets": {"Beirut": 1, "Mount Lebanon": 1, "North Lebanon": 1,
+                     "South Lebanon": 1, "Beqaa": 1},
+    },
 }
 
 GEOMETRIC = {
     "AF": 8, "AM": 3, "GE": 3, "JO": 6, "KG": 4, "TJ": 4,
     "MM": 6, "KH": 5, "LA": 4, "MN": 8, "KZ": 10, "UZ": 6, "MY": 6,
-    "ID": 20, "SY": 10, "SA": 8, "OM": 4, "AE": 7, "YE": 6,
-    "BD": 5, "TW": 4, "TH": 11, "KW": 2, "LB": 4,
+    "ID": 20, "SY": 10, "SA": 8, "OM": 4,
+    # AE (ОАЭ/Договорной Оман) — консолидировано обратно в 1 полигон/страну
+    # (2026-07-19, разворот решения 2026-06-28 о разделе на 7 отдельных
+    # шейхств-стран — см. docs/DECISIONS.md). Все 7 шейхств были одной и
+    # той же формой правления под одним и тем же британским протекторатом,
+    # без геймплейно различимого поведения — "бессмысленное деление" по
+    # принципу docs/HISTORICAL_ACCURACY.md.
+    "AE": 1,
+    "YE": 6, "BD": 5, "TW": 4, "TH": 11, "KW": 2,
 }
 
 ALL_COUNTRIES = (set(KEEP_AS_IS) | set(REGION_FIELD) | set(GEOMETRIC)
@@ -241,6 +278,35 @@ VIETNAM_EXPLICIT_MERGES = [
     (["VNM-503", "VNM-500", "VNM-498", "VNM-502", "VNM-508", "VNM-4834",
       "VNM-507", "VNM-506", "VNM-510", "VNM-509", "VNM-504"], "Đồng Bằng Sông Cửu Long"),
 ]
+
+
+def clip_palestine_to_neighbors(features):
+    """Границы Подмандатной Палестины (build_palestine_1946.py) построены из
+    geoBoundaries ADM2 — другого источника, чем game_map.json/Natural Earth,
+    из которого строятся Иордания/Сирия/Ливан. Проверка через
+    merge_world_1946.py нашла реальные пересечения на стыке (Беэр-Шева/
+    Акаба ~0.024 deg2, Беэр-Шева/Карак, Иерусалим/Амман и т.д.) — граница
+    современной Иордании (Natural Earth) остаётся приоритетной, обрезаем
+    Палестину по уже построенным полигонам соседей (тот же принцип, что и
+    clip_china_to_neighbors для Китая 1946 v1)."""
+    NEIGHBOR_ISO = {"JO", "SY", "LB"}
+    neighbor_geoms = [shape(ft["geometry"]) for ft in features
+                       if ft["properties"]["iso_a2"] in NEIGHBOR_ISO]
+    if not neighbor_geoms:
+        return
+    neighbors_union = unary_union(neighbor_geoms)
+
+    for ft in features:
+        if ft["properties"]["iso_a2"] != "PS":
+            continue
+        g = shape(ft["geometry"])
+        if g.intersects(neighbors_union):
+            clipped = g.difference(neighbors_union)
+            if not clipped.is_valid:
+                clipped = clipped.buffer(0)
+            if clipped.area > 1e-9:
+                ft["geometry"] = mapping(clipped)
+                ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
 
 
 def apply_vietnam_explicit_merges(features):
@@ -521,6 +587,20 @@ def main():
     report.append({"iso2": "CN", "method": "historical_shapefile",
                     "source_units": 36, "output_regions": len(china_fc["features"])})
 
+    # Подмандатная Палестина — отдельно обработанный исторический набор
+    # (см. build_palestine_1946.py). iso_a2="PS" на выходе (владелец в
+    # любом случае резолвится в PSE через occupation_overlay.json, не
+    # через iso_a2 напрямую) — единый тег вместо исходных IL/PS, т.к. это
+    # была одна территория в 1946 году.
+    with open(PALESTINE_HISTORICAL_FILE, encoding="utf-8") as f:
+        palestine_fc = json.load(f)
+    for ft in palestine_fc["features"]:
+        ft["properties"]["source_adm1"] = [ft["properties"]["name"]]
+        ft["properties"]["source_count"] = 1
+        out_features.append(ft)
+    report.append({"iso2": "PS", "method": "historical_adm2_group",
+                    "source_units": 31, "output_regions": len(palestine_fc["features"])})
+
     # Отдельные фичи по adm1_code (анклавы с iso_a2='-1', спорные территории)
     for code, label, out_iso2 in EXTRA_SINGLE_FEATURES:
         f = by_code.get(code)
@@ -580,6 +660,15 @@ def main():
         else:
             continue
 
+        if iso2 == "LB":
+            # Слитая зона "South Lebanon"+"An Nabatiyah" называется по имени
+            # наибольшей по площади исходной части — ей оказалась An Nabatiyah
+            # (мухафаза только с 1975 года), а не исторически верный South
+            # Lebanon. Переименовываем итоговый кластер явно.
+            for c in clusters:
+                if c["names"] and c["names"][0] == "An Nabatiyah":
+                    c["names"] = ["South Lebanon"] + c["names"][1:]
+
         for c in clusters:
             out_features.append(make_output_feature(c, iso2, method))
 
@@ -592,6 +681,7 @@ def main():
     # границы с соседями (Россия/Монголия/Корея/Вьетнам/Индия/Афганистан и
     # т.д.) совпадают по построению, отдельная борьба с зазорами/
     # пересечениями больше не нужна
+    clip_palestine_to_neighbors(out_features)
     apply_vietnam_explicit_merges(out_features)
     tag_strategic_points(out_features)
 

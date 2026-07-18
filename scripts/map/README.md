@@ -119,6 +119,15 @@ python scripts/map/make_1946.py --full-rebuild
 - `geoBoundaries-CHN-ADM2.geojson`;
 - `china_hist/1947-49/1947_1949`;
 - Antarctica/seas/lakes overlays.
+- `palestine_hist/geoBoundaries-ISR-ADM2.geojson` (15 израильских округов,
+  CC0 1.0 Public Domain) и `palestine_hist/geoBoundaries-PSE-ADM2.geojson`
+  (16 палестинских губернаторств, CC BY 4.0) — точная provenance ЕСТЬ
+  (2026-07-19, единственные 2 входа в этом списке с полным URL): скачаны с
+  `https://github.com/wmgeolab/geoBoundaries/raw/9469f09/releaseData/gbOpen/ISR/ADM2/geoBoundaries-ISR-ADM2.geojson`
+  и `.../gbOpen/PSE/ADM2/geoBoundaries-PSE-ADM2.geojson` соответственно
+  (geoBoundaries, коммит `9469f09`). Используются `build_palestine_1946.py`
+  для реконструкции 1946 подрайонов Подмандатной Палестины — см. докстринг
+  скрипта и `docs/HISTORICAL_ACCURACY.md`.
 
 Environment overrides `PAXMAP_GAME_MAP`, `PAXMAP_SOURCES` и `PAXMAP_OUT`
 описаны в `build/paths.py`.

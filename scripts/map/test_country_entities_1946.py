@@ -177,7 +177,6 @@ class CountryEntities1946Test(unittest.TestCase):
         self.assertNotIn("TLS", self.preserve)
         self.assertEqual(self.owner_overrides["TLS"], "PRT")
 
-        self.assertEqual(self.owner_overrides["ARE"], "QAB")
         self.assertEqual(self.subject_overrides["JOR"], "GBR")
         self.assertEqual(self.subject_overrides["PHL"], "USA")
 
@@ -193,18 +192,20 @@ class CountryEntities1946Test(unittest.TestCase):
             entry["regionId"]: entry["to"]
             for entry in config["continents"]["asia"]["regionOwnerOverrides"]
         }
+        # region_id здесь смещены на 2026-07-19 (Палестина 8->15 регионов,
+        # Ливан 4->5, ОАЭ 7->1 — см. docs/DECISIONS.md) относительно того,
+        # что было в этом тесте раньше; значения сверены заново с живым
+        # config после пересборки, не унаследованы механически.
         expected = {
-            "ASI-0041": "QTB", "ASI-0119": "QSI", "ASI-0139": "QPI",
-            "ASI-0142": "QFI", "ASI-0263": "QNB", "ASI-0264": "QSR",
-            "ASI-0266": "QLB", "ASI-0377": "QDV", "ASI-0110": "QRI",
-            "ASI-0051": "QSH", "ASI-0052": "QRK", "ASI-0054": "QUQ",
-            "ASI-0055": "QAJ", "ASI-0056": "QFU", "ASI-0057": "QDU",
-            "ASI-0400": "QAD", "ASI-0196": "THA", "ASI-0197": "THA",
-            "ASI-0050": "VNM",
+            "ASI-0041": "QTB", "ASI-0122": "QSI", "ASI-0142": "QPI",
+            "ASI-0145": "QFI", "ASI-0267": "QNB", "ASI-0268": "QSR",
+            "ASI-0270": "QLB", "ASI-0379": "QDV", "ASI-0119": "QRI",
+            "ASI-0402": "QAD", "ASI-0199": "THA", "ASI-0200": "THA",
+            "ASI-0065": "VNM",
         }
         for region_id, target in expected.items():
             self.assertEqual(region_overrides[region_id], target)
-        for region_id in ("ASI-0049", "ASI-0117", "ASI-0132", "ASI-0291", "ASI-0297"):
+        for region_id in ("ASI-0064", "ASI-0120", "ASI-0135", "ASI-0295", "ASI-0301"):
             self.assertEqual(region_overrides[region_id], "QJK")
 
     def test_oceanian_entities_use_1946_administrations(self):
