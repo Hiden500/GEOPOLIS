@@ -2,7 +2,7 @@ import { type z } from "zod";
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
-import { type Locale } from "@shared/types/i18n/LocalizedText";
+import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import * as diplomacyCommands from "../commands/diplomacy";
 import * as warCommands from "../commands/war";
 import * as economyCommands from "../commands/economy";
@@ -461,7 +461,7 @@ Hard limits (actions violating them are rejected):
     if (!player) return 'Unknown';
 
     return `
-- Name: ${player.name}
+- Name: ${getText(player.name, LLM_LOCALE)}
 - GDP: $${(player.economy.gdp / 1e9).toFixed(2)}B (per capita: $${Math.round(getGdpPerCapita(player)).toLocaleString()})
 - Population: ${(player.population / 1e6).toFixed(2)}M
 - Living standard index: ${Math.round(getLivingStandardIndex(player, this.game.regions))}/100
@@ -521,7 +521,7 @@ Hard limits (actions violating them are rejected):
     const majors = this.getMajorPowers();
     if (majors.length === 0) return 'No major powers';
     return majors.map(c =>
-      `- ${c.name}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}, Tech: ${this.getTechTierSummary(c)}` +
+      `- ${getText(c.name, LLM_LOCALE)}: GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, Military ${c.military.manpower.toLocaleString()}, Tech: ${this.getTechTierSummary(c)}` +
       this.getRecentTitlesLine(c.id, MAJOR_RECENT_TITLES_COUNT)
     ).join('\n');
   }
@@ -570,7 +570,7 @@ Hard limits (actions violating them are rejected):
     const spotlight = this.getSpotlightCountries();
     if (spotlight.length === 0) return 'No spotlight countries this cycle';
     return spotlight.map(c =>
-      `- ${c.name} (${c.tier}): GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, stability ${Math.round(c.politics.stability)}` +
+      `- ${getText(c.name, LLM_LOCALE)} (${c.tier}): GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, stability ${Math.round(c.politics.stability)}` +
       this.getRecentTitlesLine(c.id, SPOTLIGHT_RECENT_TITLES_COUNT)
     ).join('\n');
   }
@@ -588,7 +588,7 @@ Hard limits (actions violating them are rejected):
     const add = (id: string | undefined) => {
       if (!id) return;
       const country = this.game.countries.find(c => c.id === id);
-      if (country) referenced.set(country.id, country.name);
+      if (country) referenced.set(country.id, getText(country.name, LLM_LOCALE));
     };
 
     add(this.game.playerCountryId);
@@ -634,7 +634,10 @@ Hard limits (actions violating them are rejected):
     const activeWars = this.game.wars.filter(w => w.active);
     if (activeWars.length === 0) return 'No active wars';
 
-    const nameOf = (id: string) => this.game.countries.find(c => c.id === id)?.name ?? id;
+    const nameOf = (id: string) => {
+      const country = this.game.countries.find(c => c.id === id);
+      return country ? getText(country.name, LLM_LOCALE) : id;
+    };
 
     return activeWars.map(w => {
       const attackerNames = w.attackers.map(nameOf).join(', ');
@@ -730,7 +733,7 @@ Hard limits (actions violating them are rejected):
         const rival = this.game.countries.find(c => c.id === rivalId);
         if (rival) {
           const relation = country.diplomacy.relations[rivalId] || 0;
-          tensions.push(`${country.name} - ${rival.name}: ${relation}`);
+          tensions.push(`${getText(country.name, LLM_LOCALE)} - ${getText(rival.name, LLM_LOCALE)}: ${relation}`);
         }
       }
     }

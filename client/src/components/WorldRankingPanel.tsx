@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
   game: GameState;
@@ -29,7 +30,7 @@ export function WorldRankingPanel({ game, onSelectCountry }: Props) {
             >
               <td>
                 <span className="country-color" style={{ backgroundColor: country.color }} />
-                {country.shortName}
+                {getText(country.shortName, i18n.language as Locale)}
               </td>
               <td>{(country.population / 1_000_000).toFixed(1)}{t("units.million")}</td>
               <td>{Math.round(country.economy.gdp / 1000).toLocaleString(i18n.language)}K</td>

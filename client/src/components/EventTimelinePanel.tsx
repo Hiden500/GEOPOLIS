@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { type Event } from "@shared/types/Event";
 import { type Country } from "@shared/types/Country";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
   events: Event[];
@@ -40,7 +41,7 @@ export function EventTimelinePanel({ events, countries, onSelectCountry }: Props
                         style={country ? { borderColor: country.color } : undefined}
                         onClick={() => onSelectCountry(countryId)}
                       >
-                        {country?.shortName ?? countryId}
+                        {country ? getText(country.shortName, i18n.language as Locale) : countryId}
                       </button>
                     );
                   })}

@@ -4,8 +4,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 // Китайская Народная Республика (Коммунисты) — 1946
 export const China = createCountry({
   id: "China",
-  name: "People's Republic of China",
-  shortName: "PRC",
+  name: { en: "People's Republic of China" },
+  shortName: { en: "PRC" },
   color: "#b91c1c",
   capitalRegionId: 33,
   population: 540_000_000,

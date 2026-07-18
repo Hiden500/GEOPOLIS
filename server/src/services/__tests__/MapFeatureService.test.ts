@@ -14,8 +14,8 @@ describe('MapFeatureService', () => {
     const countries: Country[] = [
       {
         id: 'USA',
-        name: 'United States',
-        shortName: 'USA',
+        name: { en: 'United States' },
+        shortName: { en: 'USA' },
         color: '#3C3B6E',
         tier: 'major' as const,
         capitalRegionId: 1,

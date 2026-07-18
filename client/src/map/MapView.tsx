@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { FeatureCollection, LineString } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import type { MapFeature } from '@shared/types/map/MapFeature';
+import { getText, type Locale } from '@shared/types/i18n/LocalizedText';
 import { loadGameMapData, updateMapData, type GameMapData } from './GeoJsonLoader';
 import { buildTopologyEdges, type SharedEdgeProperties } from './engine/TopologyBuilder';
 import { buildCountryLabels, buildRegionLabels } from './engine/GeometryEngine';
@@ -117,6 +119,7 @@ export function MapView({
     regionEdges: Map<number, number[]>;
   } | null>(null);
   const regionsRef = useRef<Region[]>(regions);
+  const { i18n } = useTranslation();
 
   console.log('MapView render - regions:', regions.length, 'countries:', countries.length);
 
@@ -155,12 +158,19 @@ export function MapView({
       m.addImage('capital-icon', capitalCanvas);
       m.addImage('city-icon', cityCanvas);
 
-      // Фон — глубокий тёмный сланец
+      // Фон — тот же тон, что и дефолтный цвет океана (было '#0c1016',
+      // почти чёрный). Любой непокрытый пропуск в геометрии (мелкие озёра
+      // без полигона региона, микро-щели на стыках провинций, внутренние
+      // моря без отдельной ocean-фичи вроде Каспия) теперь читается как
+      // "вода", а не как чёрная дыра/артефакт — нашли 2026-07-18 по
+      // скриншоту пользователя (чёрные точки/пятна поверх суши). Настоящий
+      // фикс микро-щелей потребовал бы пересборки геометрии (см. TODO.md);
+      // это — визуально безопасный fallback-цвет, не заплатка на геометрию.
       m.addLayer({
         id: 'background',
         type: 'background',
         paint: {
-          'background-color': '#0c1016'
+          'background-color': '#1a3a5c'
         }
       });
 
@@ -291,8 +301,8 @@ export function MapView({
 
     const loadMap = async () => {
       try {
-        console.log('Loading map with countries:', countries.map(c => ({ id: c.id, name: c.name, color: c.color })));
-        const data = await loadGameMapData('/world_1946.geojson', regions, countries);
+        console.log('Loading map with countries:', countries.map(c => ({ id: c.id, name: getText(c.name), color: c.color })));
+        const data = await loadGameMapData('/world_1946.geojson', regions, countries, i18n.language as Locale);
         setMapData(data);
 
         // Строим топологию ребер один раз при инициализации
@@ -363,7 +373,12 @@ export function MapView({
             }
           });
 
-          // 3. Заливка регионов — opacity 0.36 чтобы приглушить цвета и показать подложку
+          // 3. Заливка регионов — было 0.36 (приглушить цвета и показать
+          // подложку), но реальной текстурной подложки нет — на практике это
+          // просто затемняло любой цвет через #0c1016 background layer и
+          // делало почти неразличимые тонкие геометрические швы между
+          // регионами заметными светлыми линиями. Поднято почти до непрозрачного
+          // (2026-07-18, по фидбеку пользователя — карта была слишком тёмной).
           m.addLayer({
             id: 'regions-fill',
             type: 'fill',
@@ -373,7 +388,7 @@ export function MapView({
               // coalesce: приоритет у оверлея mapmode (feature-state), иначе
               // политический цвет владельца (GeoJSON-свойство) — см. regionModeColors.
               'fill-color': ['coalesce', ['feature-state', 'modeColor'], ['get', 'ownerColor']],
-              'fill-opacity': 0.36,
+              'fill-opacity': 0.96,
               'fill-antialias': false
             }
           });
@@ -476,7 +491,7 @@ export function MapView({
   useEffect(() => {
     if (!mapRef.current || !mapData || !loaded) return;
 
-    const updatedData = updateMapData(mapData.featureCollection, regions, countries);
+    const updatedData = updateMapData(mapData.featureCollection, regions, countries, i18n.language as Locale);
     setMapData({ featureCollection: updatedData });
 
     const source = mapRef.current.getSource('regions') as maplibregl.GeoJSONSource;
@@ -509,6 +524,9 @@ export function MapView({
         type: 'symbol',
         source: 'country-labels',
         layout: {
+          // Временно скрыт (2026-07-18) по запросу пользователя — подписи
+          // стран ещё не доработаны. Убрать 'none', когда займёмся подписями.
+          visibility: 'none',
           'text-field': ['upcase', ['get', 'name']],
           'symbol-placement': 'point',
           'text-rotate': ['get', 'rotateDeg'],
@@ -663,6 +681,9 @@ export function MapView({
         type: 'symbol',
         source: 'map-features',
         layout: {
+          // Временно скрыт (2026-07-18) — зум/размер не доработаны, иконки
+          // мешают просмотру карты. Убрать 'none', когда займёмся Map Features.
+          visibility: 'none',
           'icon-image': [
             'case',
             ['==', ['get', 'type'], 'capital'], 'capital-icon',
@@ -686,6 +707,8 @@ export function MapView({
         type: 'symbol',
         source: 'map-features',
         layout: {
+          // Временно скрыт вместе с map-features-icons, см. комментарий там.
+          visibility: 'none',
           'text-field': ['get', 'name'],
           'text-font': ['IBM Plex Sans'],
           'text-size': [

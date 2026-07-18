@@ -7,8 +7,8 @@ function gameWithUsaUssr(overrides: Partial<GameState> = {}): GameState {
   return createTestGameState({
     playerCountryId: "USA",
     countries: [
-      createTestCountry({ id: "USA", name: "USA", tier: "major" }),
-      createTestCountry({ id: "USSR", name: "USSR", tier: "major" }),
+      createTestCountry({ id: "USA", name: { en: "USA" }, tier: "major" }),
+      createTestCountry({ id: "USSR", name: { en: "USSR" }, tier: "major" }),
     ],
     ...overrides,
   });
@@ -103,12 +103,12 @@ describe("LLMService", () => {
     it("Historical Context: 'No historical hinge points active this period' с реальными id вне срабатывающих предусловий (2026-07-06)", () => {
       // Каталог развилок ключуется на реальные id (SUN/USA/CHN/TWN/GRC/...), не на
       // условный "USSR" из gameWithUsaUssr() — отдельная игра с этими id.
-      const usa = createTestCountry({ id: "USA", name: "USA" });
+      const usa = createTestCountry({ id: "USA", name: { en: "USA" } });
       usa.diplomacy.guarantees.push("TWN"); // ломает предусловие chinese_civil_war
       const hpGame = createTestGameState({
         playerCountryId: "USA",
         currentDate: "1946-06-01", // внутри окна chinese_civil_war/greek_civil_war, до cold_war_hardening
-        countries: [usa, createTestCountry({ id: "SUN", name: "Soviet Union" })],
+        countries: [usa, createTestCountry({ id: "SUN", name: { en: "Soviet Union" } })],
       });
       const hpService = new LLMService(hpGame);
 
@@ -121,8 +121,8 @@ describe("LLMService", () => {
     });
 
     it("Historical Context: показывает развилку при выполненных предусловиях и инкрементирует showCount (2026-07-06)", () => {
-      const usa = createTestCountry({ id: "USA", name: "USA" });
-      const sun = createTestCountry({ id: "SUN", name: "Soviet Union" });
+      const usa = createTestCountry({ id: "USA", name: { en: "USA" } });
+      const sun = createTestCountry({ id: "SUN", name: { en: "Soviet Union" } });
       sun.diplomacy.relations = { USA: 10 }; // < 40 — предусловие cold_war_hardening выполнено
       const hpGame = createTestGameState({
         playerCountryId: "USA",
@@ -300,8 +300,8 @@ describe("LLMService", () => {
       const g = createTestGameState({
         playerCountryId: "USA",
         countries: [
-          createTestCountry({ id: "USA", name: "USA", tier: "major" }),
-          createTestCountry({ id: "AAA", name: "Alpha" }),
+          createTestCountry({ id: "USA", name: { en: "USA" }, tier: "major" }),
+          createTestCountry({ id: "AAA", name: { en: "Alpha" } }),
         ],
         eventHistory: [
           { id: "e1", date: "1946-01-01", title: "Old", description: "", countries: ["AAA"] },
@@ -341,13 +341,13 @@ describe("LLMService", () => {
       const g = createTestGameState({
         playerCountryId: "USA",
         countries: [
-          createTestCountry({ id: "USA", name: "USA" }),
+          createTestCountry({ id: "USA", name: { en: "USA" } }),
           createTestCountry({
             id: "SUN",
-            name: "Soviet Union",
+            name: { en: "Soviet Union" },
             diplomacy: { ...createTestCountry().diplomacy, rivals: ["ROU"] },
           }),
-          createTestCountry({ id: "ROU", name: "Romania" }),
+          createTestCountry({ id: "ROU", name: { en: "Romania" } }),
         ],
       });
       const svc = new LLMService(g);
@@ -362,7 +362,7 @@ describe("LLMService", () => {
         countries: [
           createTestCountry({
             id: "USA",
-            name: "USA",
+            name: { en: "USA" },
             diplomacy: { ...createTestCountry().diplomacy, allies: ["ATLANTIS"] },
           }),
         ],
@@ -383,8 +383,8 @@ describe("LLMService", () => {
       const g = createTestGameState({
         playerCountryId: "WEAK",
         countries: [
-          createTestCountry({ id: "WEAK", name: "Weak", economy: { ...createTestCountry().economy, gdp: 1 } }),
-          createTestCountry({ id: "STRONG", name: "Strong", economy: { ...createTestCountry().economy, gdp: 1_000 } }),
+          createTestCountry({ id: "WEAK", name: { en: "Weak" }, economy: { ...createTestCountry().economy, gdp: 1 } }),
+          createTestCountry({ id: "STRONG", name: { en: "Strong" }, economy: { ...createTestCountry().economy, gdp: 1_000 } }),
         ],
       });
       const svc = new LLMService(g);
@@ -436,13 +436,13 @@ describe("LLMService", () => {
       return createTestGameState({
         playerCountryId: "USA",
         countries: [
-          createTestCountry({ id: "USA", name: "USA", tier: "major" }),
-          createTestCountry({ id: "BBB", name: "Bravo" }),
-          createTestCountry({ id: "AAA", name: "Alpha" }),
-          createTestCountry({ id: "DDD", name: "Delta" }),
-          createTestCountry({ id: "CCC", name: "Charlie" }),
-          createTestCountry({ id: "EEE", name: "Echo" }),
-          createTestCountry({ id: "FFF", name: "Foxtrot" }),
+          createTestCountry({ id: "USA", name: { en: "USA" }, tier: "major" }),
+          createTestCountry({ id: "BBB", name: { en: "Bravo" } }),
+          createTestCountry({ id: "AAA", name: { en: "Alpha" } }),
+          createTestCountry({ id: "DDD", name: { en: "Delta" } }),
+          createTestCountry({ id: "CCC", name: { en: "Charlie" } }),
+          createTestCountry({ id: "EEE", name: { en: "Echo" } }),
+          createTestCountry({ id: "FFF", name: { en: "Foxtrot" } }),
         ],
       });
     }

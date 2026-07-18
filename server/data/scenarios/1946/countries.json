@@ -1,9 +1,15 @@
 [
   {
     "id": "AFG",
-    "name": "Afghanistan",
-    "shortName": "Afghanistan",
-    "color": "#47bd9a",
+    "name": {
+      "en": "Afghanistan",
+      "ru": "Афганистан"
+    },
+    "shortName": {
+      "en": "Afghanistan",
+      "ru": "Афганистан"
+    },
+    "color": "#40ddae",
     "capitalRegionId": 433,
     "economyType": "mixed",
     "economyProfile": {
@@ -30,9 +36,15 @@
   },
   {
     "id": "AGO",
-    "name": "Angola",
-    "shortName": "Angola",
-    "color": "#78a57e",
+    "name": {
+      "en": "Angola",
+      "ru": "Ангола"
+    },
+    "shortName": {
+      "en": "Angola",
+      "ru": "Ангола"
+    },
+    "color": "#45af87",
     "capitalRegionId": 1221,
     "economyType": "mixed",
     "economyProfile": {
@@ -59,9 +71,15 @@
   },
   {
     "id": "ALA",
-    "name": "Åland Islands",
-    "shortName": "Åland Islands",
-    "color": "#b7a3c2",
+    "name": {
+      "en": "Åland Islands",
+      "ru": "Аландские острова"
+    },
+    "shortName": {
+      "en": "Åland Islands",
+      "ru": "Аландские острова"
+    },
+    "color": "#475b96",
     "capitalRegionId": 12,
     "economyType": "mixed",
     "economyProfile": {
@@ -88,9 +106,15 @@
   },
   {
     "id": "ALB",
-    "name": "Albania",
-    "shortName": "Albania",
-    "color": "#c66139",
+    "name": {
+      "en": "Albania",
+      "ru": "Албания"
+    },
+    "shortName": {
+      "en": "Albania",
+      "ru": "Албания"
+    },
+    "color": "#e06c3e",
     "capitalRegionId": 2,
     "economyType": "mixed",
     "economyProfile": {
@@ -117,9 +141,15 @@
   },
   {
     "id": "AND",
-    "name": "Andorra",
-    "shortName": "Andorra",
-    "color": "#c8b246",
+    "name": {
+      "en": "Andorra",
+      "ru": "Андорра"
+    },
+    "shortName": {
+      "en": "Andorra",
+      "ru": "Андорра"
+    },
+    "color": "#acdc4c",
     "capitalRegionId": 1,
     "economyType": "mixed",
     "economyProfile": {
@@ -146,9 +176,15 @@
   },
   {
     "id": "ARG",
-    "name": "Argentina",
-    "shortName": "Argentina",
-    "color": "#59b1a5",
+    "name": {
+      "en": "Argentina",
+      "ru": "Аргентина"
+    },
+    "shortName": {
+      "en": "Argentina",
+      "ru": "Аргентина"
+    },
+    "color": "#6EB5E0",
     "capitalRegionId": 1079,
     "economyType": "mixed",
     "economyProfile": {
@@ -174,39 +210,16 @@
     }
   },
   {
-    "id": "ASM",
-    "name": "American Samoa",
-    "shortName": "American Samoa",
-    "color": "#7c98aa",
-    "capitalRegionId": 1327,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "AUS",
-    "name": "Australia",
-    "shortName": "Australia",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Australia",
+      "ru": "Австралия"
+    },
+    "shortName": {
+      "en": "Australia",
+      "ru": "Австралия"
+    },
+    "color": "#3E8F4A",
     "capitalRegionId": 1342,
     "economyType": "mixed",
     "economyProfile": {
@@ -245,9 +258,15 @@
   },
   {
     "id": "AUT",
-    "name": "Austria",
-    "shortName": "Austria",
-    "color": "#a03b89",
+    "name": {
+      "en": "Austria",
+      "ru": "Австрия"
+    },
+    "shortName": {
+      "en": "Austria",
+      "ru": "Австрия"
+    },
+    "color": "#cb15a1",
     "capitalRegionId": 3,
     "economyType": "mixed",
     "economyProfile": {
@@ -274,9 +293,15 @@
   },
   {
     "id": "BEL",
-    "name": "Belgium",
-    "shortName": "Belgium",
-    "color": "#bd3bbf",
+    "name": {
+      "en": "Belgium",
+      "ru": "Бельгия"
+    },
+    "shortName": {
+      "en": "Belgium",
+      "ru": "Бельгия"
+    },
+    "color": "#C0393F",
     "capitalRegionId": 16,
     "economyType": "mixed",
     "economyProfile": {
@@ -313,9 +338,15 @@
   },
   {
     "id": "BGR",
-    "name": "Bulgaria",
-    "shortName": "Bulgaria",
-    "color": "#924554",
+    "name": {
+      "en": "Bulgaria",
+      "ru": "Болгария"
+    },
+    "shortName": {
+      "en": "Bulgaria",
+      "ru": "Болгария"
+    },
+    "color": "#5C9C3E",
     "capitalRegionId": 23,
     "economyType": "mixed",
     "economyProfile": {
@@ -342,9 +373,15 @@
   },
   {
     "id": "BHR",
-    "name": "Bahrain",
-    "shortName": "Bahrain",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Bahrain",
+      "ru": "Бахрейн"
+    },
+    "shortName": {
+      "en": "Bahrain",
+      "ru": "Бахрейн"
+    },
+    "color": "#ca8886",
     "capitalRegionId": 456,
     "economyType": "mixed",
     "economyProfile": {
@@ -370,97 +407,16 @@
     }
   },
   {
-    "id": "BHS",
-    "name": "Bahamas",
-    "shortName": "Bahamas",
-    "color": "#c9adb5",
-    "capitalRegionId": 829,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "BLZ",
-    "name": "British Honduras",
-    "shortName": "British Honduras",
-    "color": "#c9adb5",
-    "capitalRegionId": 835,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "BMU",
-    "name": "Bermuda",
-    "shortName": "Bermuda",
-    "color": "#c9adb5",
-    "capitalRegionId": 828,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "BOL",
-    "name": "Bolivia",
-    "shortName": "Bolivia",
-    "color": "#643e79",
+    "name": {
+      "en": "Bolivia",
+      "ru": "Боливия"
+    },
+    "shortName": {
+      "en": "Bolivia",
+      "ru": "Боливия"
+    },
+    "color": "#7f2ead",
     "capitalRegionId": 1107,
     "economyType": "mixed",
     "economyProfile": {
@@ -487,9 +443,15 @@
   },
   {
     "id": "BRA",
-    "name": "Brazil",
-    "shortName": "Brazil",
-    "color": "#42a0b3",
+    "name": {
+      "en": "Brazil",
+      "ru": "Бразилия"
+    },
+    "shortName": {
+      "en": "Brazil",
+      "ru": "Бразилия"
+    },
+    "color": "#4CA860",
     "capitalRegionId": 1055,
     "economyType": "mixed",
     "economyProfile": {
@@ -515,39 +477,16 @@
     }
   },
   {
-    "id": "BRB",
-    "name": "Barbados",
-    "shortName": "Barbados",
-    "color": "#c9adb5",
-    "capitalRegionId": 827,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "BRN",
-    "name": "Brunei",
-    "shortName": "Brunei",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Brunei",
+      "ru": "Бруней"
+    },
+    "shortName": {
+      "en": "Brunei",
+      "ru": "Бруней"
+    },
+    "color": "#c495d5",
     "capitalRegionId": 457,
     "economyType": "mixed",
     "economyProfile": {
@@ -574,9 +513,15 @@
   },
   {
     "id": "BTN",
-    "name": "Bhutan",
-    "shortName": "Bhutan",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Bhutan",
+      "ru": "Бутан"
+    },
+    "shortName": {
+      "en": "Bhutan",
+      "ru": "Бутан"
+    },
+    "color": "#c48e7d",
     "capitalRegionId": 458,
     "economyType": "mixed",
     "economyProfile": {
@@ -602,39 +547,16 @@
     }
   },
   {
-    "id": "BWA",
-    "name": "Bechuanaland",
-    "shortName": "Bechuanaland",
-    "color": "#c9adb5",
-    "capitalRegionId": 1317,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "CAN",
-    "name": "Canada",
-    "shortName": "Canada",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Canada",
+      "ru": "Канада"
+    },
+    "shortName": {
+      "en": "Canada",
+      "ru": "Канада"
+    },
+    "color": "#C0453F",
     "capitalRegionId": 787,
     "economyType": "mixed",
     "economyProfile": {
@@ -661,9 +583,15 @@
   },
   {
     "id": "CHE",
-    "name": "Switzerland",
-    "shortName": "Switzerland",
-    "color": "#367281",
+    "name": {
+      "en": "Switzerland",
+      "ru": "Швейцария"
+    },
+    "shortName": {
+      "en": "Switzerland",
+      "ru": "Швейцария"
+    },
+    "color": "#B03040",
     "capitalRegionId": 38,
     "economyType": "mixed",
     "economyProfile": {
@@ -690,9 +618,15 @@
   },
   {
     "id": "CHL",
-    "name": "Chile",
-    "shortName": "Chile",
-    "color": "#6b51b3",
+    "name": {
+      "en": "Chile",
+      "ru": "Чили"
+    },
+    "shortName": {
+      "en": "Chile",
+      "ru": "Чили"
+    },
+    "color": "#e637b7",
     "capitalRegionId": 1105,
     "economyType": "mixed",
     "economyProfile": {
@@ -719,9 +653,15 @@
   },
   {
     "id": "CHN",
-    "name": "China",
-    "shortName": "China",
-    "color": "#bd6332",
+    "name": {
+      "en": "China",
+      "ru": "Китай"
+    },
+    "shortName": {
+      "en": "China",
+      "ru": "Китай"
+    },
+    "color": "#c0d92e",
     "capitalRegionId": 410,
     "economyType": "planned",
     "economyProfile": {
@@ -748,9 +688,15 @@
   },
   {
     "id": "CMR",
-    "name": "French Cameroun",
-    "shortName": "French Cameroun",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Cameroun",
+      "ru": "Французский Камерун"
+    },
+    "shortName": {
+      "en": "French Cameroun",
+      "ru": "Французский Камерун"
+    },
+    "color": "#73a7be",
     "capitalRegionId": 1251,
     "economyType": "mixed",
     "economyProfile": {
@@ -777,9 +723,15 @@
   },
   {
     "id": "COD",
-    "name": "Belgian Congo",
-    "shortName": "Belgian Congo",
-    "color": "#c68fc6",
+    "name": {
+      "en": "Belgian Congo",
+      "ru": "Бельгийское Конго"
+    },
+    "shortName": {
+      "en": "Belgian Congo",
+      "ru": "Бельгийское Конго"
+    },
+    "color": "#c76f80",
     "capitalRegionId": 1228,
     "economyType": "mixed",
     "economyProfile": {
@@ -806,9 +758,15 @@
   },
   {
     "id": "COK",
-    "name": "Cook Islands",
-    "shortName": "Cook Islands",
-    "color": "#c799a9",
+    "name": {
+      "en": "Cook Islands",
+      "ru": "Острова Кука"
+    },
+    "shortName": {
+      "en": "Cook Islands",
+      "ru": "Острова Кука"
+    },
+    "color": "#404084",
     "capitalRegionId": 1330,
     "economyType": "mixed",
     "economyProfile": {
@@ -835,9 +793,15 @@
   },
   {
     "id": "COL",
-    "name": "Colombia",
-    "shortName": "Colombia",
-    "color": "#60b937",
+    "name": {
+      "en": "Colombia",
+      "ru": "Колумбия"
+    },
+    "shortName": {
+      "en": "Colombia",
+      "ru": "Колумбия"
+    },
+    "color": "#4ac610",
     "capitalRegionId": 1086,
     "economyType": "mixed",
     "economyProfile": {
@@ -863,39 +827,16 @@
     }
   },
   {
-    "id": "CPV",
-    "name": "Cape Verde",
-    "shortName": "Cape Verde",
-    "color": "#78a57e",
-    "capitalRegionId": 1288,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "CRI",
-    "name": "Costa Rica",
-    "shortName": "Costa Rica",
-    "color": "#b7794e",
+    "name": {
+      "en": "Costa Rica",
+      "ru": "Коста-Рика"
+    },
+    "shortName": {
+      "en": "Costa Rica",
+      "ru": "Коста-Рика"
+    },
+    "color": "#b05a1c",
     "capitalRegionId": 839,
     "economyType": "mixed",
     "economyProfile": {
@@ -922,9 +863,15 @@
   },
   {
     "id": "CSK",
-    "name": "Czechoslovakia",
-    "shortName": "Czechoslovakia",
-    "color": "#ab41b9",
+    "name": {
+      "en": "Czechoslovakia",
+      "ru": "Чехословакия"
+    },
+    "shortName": {
+      "en": "Czechoslovakia",
+      "ru": "Чехословакия"
+    },
+    "color": "#4560A0",
     "capitalRegionId": 48,
     "economyType": "mixed",
     "economyProfile": {
@@ -951,9 +898,15 @@
   },
   {
     "id": "CUB",
-    "name": "Cuba",
-    "shortName": "Cuba",
-    "color": "#818235",
+    "name": {
+      "en": "Cuba",
+      "ru": "Куба"
+    },
+    "shortName": {
+      "en": "Cuba",
+      "ru": "Куба"
+    },
+    "color": "#a4a626",
     "capitalRegionId": 798,
     "economyType": "mixed",
     "economyProfile": {
@@ -979,68 +932,16 @@
     }
   },
   {
-    "id": "CYP",
-    "name": "Cyprus",
-    "shortName": "Cyprus",
-    "color": "#c9adb5",
-    "capitalRegionId": 41,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "DJI",
-    "name": "French Somaliland",
-    "shortName": "French Somaliland",
-    "color": "#80aaa5",
-    "capitalRegionId": 1293,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "DNK",
-    "name": "Denmark",
-    "shortName": "Denmark",
-    "color": "#8f5c28",
+    "name": {
+      "en": "Denmark",
+      "ru": "Дания"
+    },
+    "shortName": {
+      "en": "Denmark",
+      "ru": "Дания"
+    },
+    "color": "#A8303F",
     "capitalRegionId": 67,
     "economyType": "mixed",
     "economyProfile": {
@@ -1075,9 +976,15 @@
   },
   {
     "id": "DOM",
-    "name": "Dominican Republic",
-    "shortName": "Dominican Republic",
-    "color": "#358d5f",
+    "name": {
+      "en": "Dominican Republic",
+      "ru": "Доминиканская Республика"
+    },
+    "shortName": {
+      "en": "Dominican Republic",
+      "ru": "Доминиканская Республика"
+    },
+    "color": "#3ecc82",
     "capitalRegionId": 820,
     "economyType": "mixed",
     "economyProfile": {
@@ -1103,39 +1010,16 @@
     }
   },
   {
-    "id": "DZA",
-    "name": "French Algeria",
-    "shortName": "French Algeria",
-    "color": "#80aaa5",
-    "capitalRegionId": 1150,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "ECU",
-    "name": "Ecuador",
-    "shortName": "Ecuador",
-    "color": "#b0ba4f",
+    "name": {
+      "en": "Ecuador",
+      "ru": "Эквадор"
+    },
+    "shortName": {
+      "en": "Ecuador",
+      "ru": "Эквадор"
+    },
+    "color": "#a5b323",
     "capitalRegionId": 1111,
     "economyType": "mixed",
     "economyProfile": {
@@ -1162,68 +1046,16 @@
   },
   {
     "id": "EGY",
-    "name": "Egypt",
-    "shortName": "Egypt",
-    "color": "#b0b950",
+    "name": {
+      "en": "Egypt",
+      "ru": "Египет"
+    },
+    "shortName": {
+      "en": "Egypt",
+      "ru": "Египет"
+    },
+    "color": "#1F1F5C",
     "capitalRegionId": 1134,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "ESH",
-    "name": "Spanish Sahara",
-    "shortName": "Spanish Sahara",
-    "color": "#6eb767",
-    "capitalRegionId": 1124,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "ESP",
-    "name": "Spain",
-    "shortName": "Spain",
-    "color": "#35972b",
-    "capitalRegionId": 80,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1248,20 +1080,59 @@
     },
     "diplomacy": {
       "puppets": [
-        "ESH",
-        "GNQ"
+        "SDN"
       ],
       "sphereOfInfluence": [
-        "ESH",
-        "GNQ"
+        "SDN"
       ]
     }
   },
   {
+    "id": "ESP",
+    "name": {
+      "en": "Spain",
+      "ru": "Испания"
+    },
+    "shortName": {
+      "en": "Spain",
+      "ru": "Испания"
+    },
+    "color": "#E0B62E",
+    "capitalRegionId": 80,
+    "economyType": "mixed",
+    "economyProfile": {
+      "taxRate": 0.15,
+      "spending": {
+        "military": 0.2,
+        "research": 0.08,
+        "education": 0.15,
+        "infrastructure": 0.2,
+        "welfare": 0.22,
+        "other": 0.1
+      },
+      "treasuryShare": 0.05,
+      "exportShare": 0.05,
+      "stateEnterpriseShare": 0.03,
+      "otherIncomeShare": 0.02,
+      "inflation": 3,
+      "unemployment": 4,
+      "tradeBalance": 0
+    },
+    "politics": {
+      "ideology": "Liberal Democracy"
+    }
+  },
+  {
     "id": "ETH",
-    "name": "Ethiopia",
-    "shortName": "Ethiopia",
-    "color": "#6b3f7d",
+    "name": {
+      "en": "Ethiopia",
+      "ru": "Эфиопия"
+    },
+    "shortName": {
+      "en": "Ethiopia",
+      "ru": "Эфиопия"
+    },
+    "color": "#8413b4",
     "capitalRegionId": 1199,
     "economyType": "mixed",
     "economyProfile": {
@@ -1288,9 +1159,15 @@
   },
   {
     "id": "FIN",
-    "name": "Finland",
-    "shortName": "Finland",
-    "color": "#9156b3",
+    "name": {
+      "en": "Finland",
+      "ru": "Финляндия"
+    },
+    "shortName": {
+      "en": "Finland",
+      "ru": "Финляндия"
+    },
+    "color": "#2B3A6B",
     "capitalRegionId": 90,
     "economyType": "mixed",
     "economyProfile": {
@@ -1324,68 +1201,16 @@
     }
   },
   {
-    "id": "FJI",
-    "name": "Fiji",
-    "shortName": "Fiji",
-    "color": "#c9adb5",
-    "capitalRegionId": 1365,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "FLK",
-    "name": "Falkland Islands",
-    "shortName": "Falkland Islands",
-    "color": "#c9adb5",
-    "capitalRegionId": 1072,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "FRA",
-    "name": "France",
-    "shortName": "France",
-    "color": "#3f8f86",
+    "name": {
+      "en": "France",
+      "ru": "Франция"
+    },
+    "shortName": {
+      "en": "France",
+      "ru": "Франция"
+    },
+    "color": "#3FA0A0",
     "capitalRegionId": 108,
     "economyType": "mixed",
     "economyProfile": {
@@ -1412,48 +1237,34 @@
     "diplomacy": {
       "puppets": [
         "CMR",
-        "DJI",
-        "DZA",
-        "GUF",
         "KHM",
         "LAO",
         "MDG",
-        "NCL",
-        "PYF",
-        "SPM",
         "TGO",
         "TUN",
         "VNM",
-        "WLF",
         "MAR",
+        "VUT",
         "MTQ",
         "GLP",
         "QFW",
         "QFE",
-        "REU",
         "QFI"
       ],
       "sphereOfInfluence": [
         "CMR",
-        "DJI",
-        "DZA",
-        "GUF",
         "KHM",
         "LAO",
         "MDG",
-        "NCL",
-        "PYF",
-        "SPM",
         "TGO",
         "TUN",
         "VNM",
-        "WLF",
         "MAR",
+        "VUT",
         "MTQ",
         "GLP",
         "QFW",
         "QFE",
-        "REU",
         "QFI",
         "SYR",
         "LBN"
@@ -1462,9 +1273,15 @@
   },
   {
     "id": "GBR",
-    "name": "United Kingdom",
-    "shortName": "United Kingdom",
-    "color": "#b5657c",
+    "name": {
+      "en": "United Kingdom",
+      "ru": "Великобритания"
+    },
+    "shortName": {
+      "en": "United Kingdom",
+      "ru": "Великобритания"
+    },
+    "color": "#C25B7C",
     "capitalRegionId": 124,
     "economyType": "mixed",
     "economyProfile": {
@@ -1492,120 +1309,29 @@
       "puppets": [
         "JOR",
         "AUS",
-        "BRB",
         "BHR",
-        "BMU",
         "BRN",
-        "BHS",
         "BTN",
-        "BWA",
-        "BLZ",
         "CAN",
-        "CYP",
-        "FJI",
-        "FLK",
         "GHA",
-        "GIB",
-        "GMB",
-        "GUY",
         "HKG",
         "IND",
-        "JAM",
         "KEN",
-        "KIR",
         "KWT",
         "LKA",
-        "LSO",
         "MWI",
         "MYS",
-        "MLT",
         "MMR",
-        "MUS",
         "NFD",
         "NGA",
         "NZL",
-        "PCN",
         "PSE",
         "QAT",
         "SLB",
-        "SYC",
         "SGP",
-        "SHN",
         "SLE",
         "QSO",
-        "SWZ",
         "TON",
-        "TTO",
-        "TZA",
-        "UGA",
-        "ZAF",
-        "ZMB",
-        "ZWE",
-        "SDN",
-        "VUT",
-        "QWL",
-        "QWW",
-        "QSI",
-        "QJK",
-        "QNB",
-        "QSR",
-        "QLB",
-        "QAB",
-        "QDU",
-        "QSH",
-        "QAJ",
-        "QUQ",
-        "QRK",
-        "QFU",
-        "QAD"
-      ],
-      "sphereOfInfluence": [
-        "JOR",
-        "AUS",
-        "BRB",
-        "BHR",
-        "BMU",
-        "BRN",
-        "BHS",
-        "BTN",
-        "BWA",
-        "BLZ",
-        "CAN",
-        "CYP",
-        "FJI",
-        "FLK",
-        "GHA",
-        "GIB",
-        "GMB",
-        "GUY",
-        "HKG",
-        "IND",
-        "JAM",
-        "KEN",
-        "KIR",
-        "KWT",
-        "LKA",
-        "LSO",
-        "MWI",
-        "MYS",
-        "MLT",
-        "MMR",
-        "MUS",
-        "NFD",
-        "NGA",
-        "NZL",
-        "PCN",
-        "PSE",
-        "QAT",
-        "SLB",
-        "SYC",
-        "SGP",
-        "SHN",
-        "SLE",
-        "QSO",
-        "SWZ",
-        "TON",
-        "TTO",
         "TZA",
         "UGA",
         "ZAF",
@@ -1628,15 +1354,72 @@
         "QRK",
         "QFU",
         "QAD",
+        "QZN"
+      ],
+      "sphereOfInfluence": [
+        "JOR",
+        "AUS",
+        "BHR",
+        "BRN",
+        "BTN",
+        "CAN",
+        "GHA",
+        "HKG",
+        "IND",
+        "KEN",
+        "KWT",
+        "LKA",
+        "MWI",
+        "MYS",
+        "MMR",
+        "NFD",
+        "NGA",
+        "NZL",
+        "PSE",
+        "QAT",
+        "SLB",
+        "SGP",
+        "SLE",
+        "QSO",
+        "TON",
+        "TZA",
+        "UGA",
+        "ZAF",
+        "ZMB",
+        "ZWE",
+        "SDN",
+        "VUT",
+        "QWL",
+        "QWW",
+        "QSI",
+        "QJK",
+        "QNB",
+        "QSR",
+        "QLB",
+        "QAB",
+        "QDU",
+        "QSH",
+        "QAJ",
+        "QUQ",
+        "QRK",
+        "QFU",
+        "QAD",
+        "QZN",
         "EGY"
       ]
     }
   },
   {
     "id": "GHA",
-    "name": "Gold Coast",
-    "shortName": "Gold Coast",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Gold Coast",
+      "ru": "Золотой Берег"
+    },
+    "shortName": {
+      "en": "Gold Coast",
+      "ru": "Золотой Берег"
+    },
+    "color": "#ce8291",
     "capitalRegionId": 1245,
     "economyType": "mixed",
     "economyProfile": {
@@ -1662,39 +1445,16 @@
     }
   },
   {
-    "id": "GIB",
-    "name": "Gibraltar",
-    "shortName": "Gibraltar",
-    "color": "#c9adb5",
-    "capitalRegionId": 125,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "GLP",
-    "name": "Guadeloupe",
-    "shortName": "Guadeloupe",
-    "color": "#80aaa5",
+    "name": {
+      "en": "Guadeloupe",
+      "ru": "Гваделупа"
+    },
+    "shortName": {
+      "en": "Guadeloupe",
+      "ru": "Гваделупа"
+    },
+    "color": "#599caf",
     "capitalRegionId": 775,
     "economyType": "mixed",
     "economyProfile": {
@@ -1720,97 +1480,16 @@
     }
   },
   {
-    "id": "GMB",
-    "name": "Gambia",
-    "shortName": "Gambia",
-    "color": "#c9adb5",
-    "capitalRegionId": 1128,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "GNB",
-    "name": "Portuguese Guinea",
-    "shortName": "Portuguese Guinea",
-    "color": "#78a57e",
-    "capitalRegionId": 1175,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "GNQ",
-    "name": "Spanish Guinea",
-    "shortName": "Spanish Guinea",
-    "color": "#6eb767",
-    "capitalRegionId": 1299,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "GRC",
-    "name": "Greece",
-    "shortName": "Greece",
-    "color": "#359740",
+    "name": {
+      "en": "Greece",
+      "ru": "Греция"
+    },
+    "shortName": {
+      "en": "Greece",
+      "ru": "Греция"
+    },
+    "color": "#359eb0",
     "capitalRegionId": 128,
     "economyType": "mixed",
     "economyProfile": {
@@ -1837,9 +1516,15 @@
   },
   {
     "id": "GRL",
-    "name": "Greenland",
-    "shortName": "Greenland",
-    "color": "#b48a5f",
+    "name": {
+      "en": "Greenland",
+      "ru": "Гренландия"
+    },
+    "shortName": {
+      "en": "Greenland",
+      "ru": "Гренландия"
+    },
+    "color": "#c54146",
     "capitalRegionId": 846,
     "economyType": "mixed",
     "economyProfile": {
@@ -1866,9 +1551,15 @@
   },
   {
     "id": "GTM",
-    "name": "Guatemala",
-    "shortName": "Guatemala",
-    "color": "#624087",
+    "name": {
+      "en": "Guatemala",
+      "ru": "Гватемала"
+    },
+    "shortName": {
+      "en": "Guatemala",
+      "ru": "Гватемала"
+    },
+    "color": "#7324c6",
     "capitalRegionId": 847,
     "economyType": "mixed",
     "economyProfile": {
@@ -1894,97 +1585,16 @@
     }
   },
   {
-    "id": "GUF",
-    "name": "French Guiana",
-    "shortName": "French Guiana",
-    "color": "#80aaa5",
-    "capitalRegionId": 1070,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "GUM",
-    "name": "Guam",
-    "shortName": "Guam",
-    "color": "#7c98aa",
-    "capitalRegionId": 1328,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "GUY",
-    "name": "British Guiana",
-    "shortName": "British Guiana",
-    "color": "#c9adb5",
-    "capitalRegionId": 1114,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "HKG",
-    "name": "Hong Kong",
-    "shortName": "Hong Kong",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Hong Kong",
+      "ru": "Гонконг"
+    },
+    "shortName": {
+      "en": "Hong Kong",
+      "ru": "Гонконг"
+    },
+    "color": "#d89cab",
     "capitalRegionId": 462,
     "economyType": "mixed",
     "economyProfile": {
@@ -2011,9 +1621,15 @@
   },
   {
     "id": "HND",
-    "name": "Honduras",
-    "shortName": "Honduras",
-    "color": "#848b46",
+    "name": {
+      "en": "Honduras",
+      "ru": "Гондурас"
+    },
+    "shortName": {
+      "en": "Honduras",
+      "ru": "Гондурас"
+    },
+    "color": "#c0ce40",
     "capitalRegionId": 860,
     "economyType": "mixed",
     "economyProfile": {
@@ -2040,9 +1656,15 @@
   },
   {
     "id": "HTI",
-    "name": "Haiti",
-    "shortName": "Haiti",
-    "color": "#b15a48",
+    "name": {
+      "en": "Haiti",
+      "ru": "Гаити"
+    },
+    "shortName": {
+      "en": "Haiti",
+      "ru": "Гаити"
+    },
+    "color": "#b4361d",
     "capitalRegionId": 800,
     "economyType": "mixed",
     "economyProfile": {
@@ -2069,9 +1691,15 @@
   },
   {
     "id": "HUN",
-    "name": "Hungary",
-    "shortName": "Hungary",
-    "color": "#2b529c",
+    "name": {
+      "en": "Hungary",
+      "ru": "Венгрия"
+    },
+    "shortName": {
+      "en": "Hungary",
+      "ru": "Венгрия"
+    },
+    "color": "#3E7A3A",
     "capitalRegionId": 145,
     "economyType": "mixed",
     "economyProfile": {
@@ -2098,9 +1726,15 @@
   },
   {
     "id": "IDN",
-    "name": "Dutch East Indies",
-    "shortName": "Dutch East Indies",
-    "color": "#b59f8c",
+    "name": {
+      "en": "Dutch East Indies",
+      "ru": "Голландская Восточная Индия"
+    },
+    "shortName": {
+      "en": "Dutch East Indies",
+      "ru": "Голландская Восточная Ин"
+    },
+    "color": "#df60c8",
     "capitalRegionId": 479,
     "economyType": "mixed",
     "economyProfile": {
@@ -2127,9 +1761,15 @@
   },
   {
     "id": "IND",
-    "name": "British Raj",
-    "shortName": "British Raj",
-    "color": "#c9adb5",
+    "name": {
+      "en": "British Raj",
+      "ru": "Британская Индия"
+    },
+    "shortName": {
+      "en": "British Raj",
+      "ru": "Британская Индия"
+    },
+    "color": "#cc8495",
     "capitalRegionId": 519,
     "economyType": "mixed",
     "economyProfile": {
@@ -2156,9 +1796,15 @@
   },
   {
     "id": "IRL",
-    "name": "Ireland",
-    "shortName": "Ireland",
-    "color": "#3e587a",
+    "name": {
+      "en": "Ireland",
+      "ru": "Ирландия"
+    },
+    "shortName": {
+      "en": "Ireland",
+      "ru": "Ирландия"
+    },
+    "color": "#1557ac",
     "capitalRegionId": 157,
     "economyType": "mixed",
     "economyProfile": {
@@ -2185,9 +1831,15 @@
   },
   {
     "id": "IRN",
-    "name": "Iran",
-    "shortName": "Iran",
-    "color": "#4d3e79",
+    "name": {
+      "en": "Iran",
+      "ru": "Иран"
+    },
+    "shortName": {
+      "en": "Iran",
+      "ru": "Иран"
+    },
+    "color": "#4A9C5C",
     "capitalRegionId": 543,
     "economyType": "mixed",
     "economyProfile": {
@@ -2214,9 +1866,15 @@
   },
   {
     "id": "IRQ",
-    "name": "Iraq",
-    "shortName": "Iraq",
-    "color": "#536ba2",
+    "name": {
+      "en": "Iraq",
+      "ru": "Ирак"
+    },
+    "shortName": {
+      "en": "Iraq",
+      "ru": "Ирак"
+    },
+    "color": "#2A2A2A",
     "capitalRegionId": 532,
     "economyType": "mixed",
     "economyProfile": {
@@ -2243,9 +1901,15 @@
   },
   {
     "id": "ISL",
-    "name": "Iceland",
-    "shortName": "Iceland",
-    "color": "#4da63f",
+    "name": {
+      "en": "Iceland",
+      "ru": "Исландия"
+    },
+    "shortName": {
+      "en": "Iceland",
+      "ru": "Исландия"
+    },
+    "color": "#34b120",
     "capitalRegionId": 159,
     "economyType": "mixed",
     "economyProfile": {
@@ -2272,9 +1936,15 @@
   },
   {
     "id": "ITA",
-    "name": "Italy",
-    "shortName": "Italy",
-    "color": "#4f8f63",
+    "name": {
+      "en": "Italy",
+      "ru": "Италия"
+    },
+    "shortName": {
+      "en": "Italy",
+      "ru": "Италия"
+    },
+    "color": "#4CA86A",
     "capitalRegionId": 175,
     "economyType": "mixed",
     "economyProfile": {
@@ -2312,39 +1982,16 @@
     }
   },
   {
-    "id": "JAM",
-    "name": "Jamaica",
-    "shortName": "Jamaica",
-    "color": "#c9adb5",
-    "capitalRegionId": 862,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "JOR",
-    "name": "Jordan",
-    "shortName": "Jordan",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Jordan",
+      "ru": "Иордания"
+    },
+    "shortName": {
+      "en": "Jordan",
+      "ru": "Иордания"
+    },
+    "color": "#c27a8d",
     "capitalRegionId": 547,
     "economyType": "mixed",
     "economyProfile": {
@@ -2371,9 +2018,15 @@
   },
   {
     "id": "JPN",
-    "name": "Japan",
-    "shortName": "Japan",
-    "color": "#8f4a4a",
+    "name": {
+      "en": "Japan",
+      "ru": "Япония"
+    },
+    "shortName": {
+      "en": "Japan",
+      "ru": "Япония"
+    },
+    "color": "#A33F3F",
     "capitalRegionId": 557,
     "economyType": "mixed",
     "economyProfile": {
@@ -2400,9 +2053,15 @@
   },
   {
     "id": "KEN",
-    "name": "Kenya",
-    "shortName": "Kenya",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Kenya",
+      "ru": "Кения"
+    },
+    "shortName": {
+      "en": "Kenya",
+      "ru": "Кения"
+    },
+    "color": "#c58ac6",
     "capitalRegionId": 1240,
     "economyType": "mixed",
     "economyProfile": {
@@ -2429,9 +2088,15 @@
   },
   {
     "id": "KHM",
-    "name": "French Cambodia",
-    "shortName": "French Cambodia",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Cambodia",
+      "ru": "Французская Камбоджа"
+    },
+    "shortName": {
+      "en": "French Cambodia",
+      "ru": "Французская Камбоджа"
+    },
+    "color": "#65b784",
     "capitalRegionId": 570,
     "economyType": "mixed",
     "economyProfile": {
@@ -2457,39 +2122,16 @@
     }
   },
   {
-    "id": "KIR",
-    "name": "Gilbert and Ellice Islands",
-    "shortName": "Gilbert and Ellice Islan",
-    "color": "#c9adb5",
-    "capitalRegionId": 1339,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "KWT",
-    "name": "Kuwait",
-    "shortName": "Kuwait",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Kuwait",
+      "ru": "Кувейт"
+    },
+    "shortName": {
+      "en": "Kuwait",
+      "ru": "Кувейт"
+    },
+    "color": "#d28db0",
     "capitalRegionId": 599,
     "economyType": "mixed",
     "economyProfile": {
@@ -2516,9 +2158,15 @@
   },
   {
     "id": "LAO",
-    "name": "French Laos",
-    "shortName": "French Laos",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Laos",
+      "ru": "Французский Лаос"
+    },
+    "shortName": {
+      "en": "French Laos",
+      "ru": "Французский Лаос"
+    },
+    "color": "#63b4ad",
     "capitalRegionId": 613,
     "economyType": "mixed",
     "economyProfile": {
@@ -2545,9 +2193,15 @@
   },
   {
     "id": "LBN",
-    "name": "Lebanon",
-    "shortName": "Lebanon",
-    "color": "#c748b6",
+    "name": {
+      "en": "Lebanon",
+      "ru": "Ливан"
+    },
+    "shortName": {
+      "en": "Lebanon",
+      "ru": "Ливан"
+    },
+    "color": "#ba26a7",
     "capitalRegionId": 615,
     "economyType": "mixed",
     "economyProfile": {
@@ -2574,9 +2228,15 @@
   },
   {
     "id": "LBR",
-    "name": "Liberia",
-    "shortName": "Liberia",
-    "color": "#8e41be",
+    "name": {
+      "en": "Liberia",
+      "ru": "Либерия"
+    },
+    "shortName": {
+      "en": "Liberia",
+      "ru": "Либерия"
+    },
+    "color": "#a83cec",
     "capitalRegionId": 1302,
     "economyType": "mixed",
     "economyProfile": {
@@ -2603,9 +2263,15 @@
   },
   {
     "id": "LIE",
-    "name": "Liechtenstein",
-    "shortName": "Liechtenstein",
-    "color": "#8d58ad",
+    "name": {
+      "en": "Liechtenstein",
+      "ru": "Лихтенштейн"
+    },
+    "shortName": {
+      "en": "Liechtenstein",
+      "ru": "Лихтенштейн"
+    },
+    "color": "#9c13ec",
     "capitalRegionId": 180,
     "economyType": "mixed",
     "economyProfile": {
@@ -2632,9 +2298,15 @@
   },
   {
     "id": "LKA",
-    "name": "Ceylon",
-    "shortName": "Ceylon",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Ceylon",
+      "ru": "Цейлон"
+    },
+    "shortName": {
+      "en": "Ceylon",
+      "ru": "Цейлон"
+    },
+    "color": "#c3789a",
     "capitalRegionId": 619,
     "economyType": "mixed",
     "economyProfile": {
@@ -2660,39 +2332,16 @@
     }
   },
   {
-    "id": "LSO",
-    "name": "Basutoland",
-    "shortName": "Basutoland",
-    "color": "#c9adb5",
-    "capitalRegionId": 1303,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "LUX",
-    "name": "Luxembourg",
-    "shortName": "Luxembourg",
-    "color": "#574d99",
+    "name": {
+      "en": "Luxembourg",
+      "ru": "Люксембург"
+    },
+    "shortName": {
+      "en": "Luxembourg",
+      "ru": "Люксембург"
+    },
+    "color": "#331eb8",
     "capitalRegionId": 184,
     "economyType": "mixed",
     "economyProfile": {
@@ -2719,9 +2368,15 @@
   },
   {
     "id": "MAC",
-    "name": "Macau",
-    "shortName": "Macau",
-    "color": "#78a57e",
+    "name": {
+      "en": "Macau",
+      "ru": "Макао"
+    },
+    "shortName": {
+      "en": "Macau",
+      "ru": "Макао"
+    },
+    "color": "#4dad77",
     "capitalRegionId": 634,
     "economyType": "mixed",
     "economyProfile": {
@@ -2748,9 +2403,15 @@
   },
   {
     "id": "MAR",
-    "name": "French Morocco",
-    "shortName": "French Morocco",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Morocco",
+      "ru": "Французское Марокко"
+    },
+    "shortName": {
+      "en": "French Morocco",
+      "ru": "Французское Марокко"
+    },
+    "color": "#53b584",
     "capitalRegionId": 1215,
     "economyType": "mixed",
     "economyProfile": {
@@ -2777,9 +2438,15 @@
   },
   {
     "id": "MCO",
-    "name": "Monaco",
-    "shortName": "Monaco",
-    "color": "#2a9382",
+    "name": {
+      "en": "Monaco",
+      "ru": "Монако"
+    },
+    "shortName": {
+      "en": "Monaco",
+      "ru": "Монако"
+    },
+    "color": "#28ccb1",
     "capitalRegionId": 190,
     "economyType": "mixed",
     "economyProfile": {
@@ -2806,9 +2473,15 @@
   },
   {
     "id": "MDG",
-    "name": "Madagascar",
-    "shortName": "Madagascar",
-    "color": "#80aaa5",
+    "name": {
+      "en": "Madagascar",
+      "ru": "Мадагаскар"
+    },
+    "shortName": {
+      "en": "Madagascar",
+      "ru": "Мадагаскар"
+    },
+    "color": "#51b7b4",
     "capitalRegionId": 1207,
     "economyType": "mixed",
     "economyProfile": {
@@ -2835,9 +2508,15 @@
   },
   {
     "id": "MEX",
-    "name": "Mexico",
-    "shortName": "Mexico",
-    "color": "#479e93",
+    "name": {
+      "en": "Mexico",
+      "ru": "Мексика"
+    },
+    "shortName": {
+      "en": "Mexico",
+      "ru": "Мексика"
+    },
+    "color": "#4FA23E",
     "capitalRegionId": 870,
     "economyType": "mixed",
     "economyProfile": {
@@ -2863,39 +2542,16 @@
     }
   },
   {
-    "id": "MLT",
-    "name": "Malta",
-    "shortName": "Malta",
-    "color": "#c9adb5",
-    "capitalRegionId": 194,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "MMR",
-    "name": "Burma",
-    "shortName": "Burma",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Burma",
+      "ru": "Бирма"
+    },
+    "shortName": {
+      "en": "Burma",
+      "ru": "Бирма"
+    },
+    "color": "#d3aea0",
     "capitalRegionId": 621,
     "economyType": "mixed",
     "economyProfile": {
@@ -2922,9 +2578,15 @@
   },
   {
     "id": "MNG",
-    "name": "Mongolia",
-    "shortName": "Mongolia",
-    "color": "#c59a44",
+    "name": {
+      "en": "Mongolia",
+      "ru": "Монголия"
+    },
+    "shortName": {
+      "en": "Mongolia",
+      "ru": "Монголия"
+    },
+    "color": "#d4ab59",
     "capitalRegionId": 632,
     "economyType": "planned",
     "economyProfile": {
@@ -2951,9 +2613,15 @@
   },
   {
     "id": "MOZ",
-    "name": "Mozambique",
-    "shortName": "Mozambique",
-    "color": "#78a57e",
+    "name": {
+      "en": "Mozambique",
+      "ru": "Мозамбик"
+    },
+    "shortName": {
+      "en": "Mozambique",
+      "ru": "Мозамбик"
+    },
+    "color": "#4ba05c",
     "capitalRegionId": 1224,
     "economyType": "mixed",
     "economyProfile": {
@@ -2980,9 +2648,15 @@
   },
   {
     "id": "MTQ",
-    "name": "Martinique",
-    "shortName": "Martinique",
-    "color": "#80aaa5",
+    "name": {
+      "en": "Martinique",
+      "ru": "Мартиника"
+    },
+    "shortName": {
+      "en": "Martinique",
+      "ru": "Мартиника"
+    },
+    "color": "#59afac",
     "capitalRegionId": 774,
     "economyType": "mixed",
     "economyProfile": {
@@ -3008,39 +2682,16 @@
     }
   },
   {
-    "id": "MUS",
-    "name": "Mauritius",
-    "shortName": "Mauritius",
-    "color": "#c9adb5",
-    "capitalRegionId": 1308,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "MWI",
-    "name": "Nyasaland",
-    "shortName": "Nyasaland",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Nyasaland",
+      "ru": "Ньясаленд"
+    },
+    "shortName": {
+      "en": "Nyasaland",
+      "ru": "Ньясаленд"
+    },
+    "color": "#cfd594",
     "capitalRegionId": 1177,
     "economyType": "mixed",
     "economyProfile": {
@@ -3067,9 +2718,15 @@
   },
   {
     "id": "MYS",
-    "name": "Malaya",
-    "shortName": "Malaya",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Malaya",
+      "ru": "Малайя"
+    },
+    "shortName": {
+      "en": "Malaya",
+      "ru": "Малайя"
+    },
+    "color": "#d391a1",
     "capitalRegionId": 639,
     "economyType": "mixed",
     "economyProfile": {
@@ -3096,9 +2753,15 @@
   },
   {
     "id": "NAM",
-    "name": "South West Africa",
-    "shortName": "South West Africa",
-    "color": "#6ca0a7",
+    "name": {
+      "en": "South West Africa",
+      "ru": "Юго-Западная Африка"
+    },
+    "shortName": {
+      "en": "South West Africa",
+      "ru": "Юго-Западная Африка"
+    },
+    "color": "#d9df6b",
     "capitalRegionId": 1279,
     "economyType": "mixed",
     "economyProfile": {
@@ -3124,39 +2787,16 @@
     }
   },
   {
-    "id": "NCL",
-    "name": "New Caledonia",
-    "shortName": "New Caledonia",
-    "color": "#80aaa5",
-    "capitalRegionId": 1325,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "NFD",
-    "name": "Newfoundland",
-    "shortName": "Newfoundland",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Newfoundland",
+      "ru": "Ньюфаундленд"
+    },
+    "shortName": {
+      "en": "Newfoundland",
+      "ru": "Ньюфаундленд"
+    },
+    "color": "#c98c97",
     "capitalRegionId": 781,
     "economyType": "mixed",
     "economyProfile": {
@@ -3183,9 +2823,15 @@
   },
   {
     "id": "NFK",
-    "name": "Norfolk Island",
-    "shortName": "Norfolk Island",
-    "color": "#c4b896",
+    "name": {
+      "en": "Norfolk Island",
+      "ru": "Остров Норфолк"
+    },
+    "shortName": {
+      "en": "Norfolk Island",
+      "ru": "Остров Норфолк"
+    },
+    "color": "#65b579",
     "capitalRegionId": 1332,
     "economyType": "mixed",
     "economyProfile": {
@@ -3212,9 +2858,15 @@
   },
   {
     "id": "NGA",
-    "name": "Nigeria",
-    "shortName": "Nigeria",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Nigeria",
+      "ru": "Нигерия"
+    },
+    "shortName": {
+      "en": "Nigeria",
+      "ru": "Нигерия"
+    },
+    "color": "#c581a1",
     "capitalRegionId": 1192,
     "economyType": "mixed",
     "economyProfile": {
@@ -3241,9 +2893,15 @@
   },
   {
     "id": "NIC",
-    "name": "Nicaragua",
-    "shortName": "Nicaragua",
-    "color": "#4ac4c4",
+    "name": {
+      "en": "Nicaragua",
+      "ru": "Никарагуа"
+    },
+    "shortName": {
+      "en": "Nicaragua",
+      "ru": "Никарагуа"
+    },
+    "color": "#2fb6b6",
     "capitalRegionId": 902,
     "economyType": "mixed",
     "economyProfile": {
@@ -3269,40 +2927,17 @@
     }
   },
   {
-    "id": "NIU",
-    "name": "Niue",
-    "shortName": "Niue",
-    "color": "#c799a9",
-    "capitalRegionId": 1331,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "NLD",
-    "name": "Netherlands",
-    "shortName": "Netherlands",
-    "color": "#a36e43",
-    "capitalRegionId": 201,
+    "name": {
+      "en": "Netherlands",
+      "ru": "Нидерланды"
+    },
+    "shortName": {
+      "en": "Netherlands",
+      "ru": "Нидерланды"
+    },
+    "color": "#d92e95",
+    "capitalRegionId": 1117,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3328,21 +2963,25 @@
     "diplomacy": {
       "puppets": [
         "IDN",
-        "SUR",
         "QND"
       ],
       "sphereOfInfluence": [
         "IDN",
-        "SUR",
         "QND"
       ]
     }
   },
   {
     "id": "NOR",
-    "name": "Norway",
-    "shortName": "Norway",
-    "color": "#478235",
+    "name": {
+      "en": "Norway",
+      "ru": "Норвегия"
+    },
+    "shortName": {
+      "en": "Norway",
+      "ru": "Норвегия"
+    },
+    "color": "#8f662e",
     "capitalRegionId": 207,
     "economyType": "mixed",
     "economyProfile": {
@@ -3369,9 +3008,15 @@
   },
   {
     "id": "NPL",
-    "name": "Nepal",
-    "shortName": "Nepal",
-    "color": "#47889a",
+    "name": {
+      "en": "Nepal",
+      "ru": "Непал"
+    },
+    "shortName": {
+      "en": "Nepal",
+      "ru": "Непал"
+    },
+    "color": "#24b4db",
     "capitalRegionId": 641,
     "economyType": "mixed",
     "economyProfile": {
@@ -3398,9 +3043,15 @@
   },
   {
     "id": "NRU",
-    "name": "Nauru",
-    "shortName": "Nauru",
-    "color": "#c4b896",
+    "name": {
+      "en": "Nauru",
+      "ru": "Науру"
+    },
+    "shortName": {
+      "en": "Nauru",
+      "ru": "Науру"
+    },
+    "color": "#50a65f",
     "capitalRegionId": 1337,
     "economyType": "mixed",
     "economyProfile": {
@@ -3427,9 +3078,15 @@
   },
   {
     "id": "NZL",
-    "name": "New Zealand",
-    "shortName": "New Zealand",
-    "color": "#c9adb5",
+    "name": {
+      "en": "New Zealand",
+      "ru": "Новая Зеландия"
+    },
+    "shortName": {
+      "en": "New Zealand",
+      "ru": "Новая Зеландия"
+    },
+    "color": "#2B3A6B",
     "capitalRegionId": 1352,
     "economyType": "mixed",
     "economyProfile": {
@@ -3456,23 +3113,25 @@
     "diplomacy": {
       "puppets": [
         "COK",
-        "NIU",
-        "TKL",
         "WSM"
       ],
       "sphereOfInfluence": [
         "COK",
-        "NIU",
-        "TKL",
         "WSM"
       ]
     }
   },
   {
     "id": "OMN",
-    "name": "Oman",
-    "shortName": "Oman",
-    "color": "#56b38f",
+    "name": {
+      "en": "Oman",
+      "ru": "Оман"
+    },
+    "shortName": {
+      "en": "Oman",
+      "ru": "Оман"
+    },
+    "color": "#30a91e",
     "capitalRegionId": 645,
     "economyType": "mixed",
     "economyProfile": {
@@ -3499,9 +3158,15 @@
   },
   {
     "id": "PAN",
-    "name": "Panama",
-    "shortName": "Panama",
-    "color": "#3098a6",
+    "name": {
+      "en": "Panama",
+      "ru": "Панама"
+    },
+    "shortName": {
+      "en": "Panama",
+      "ru": "Панама"
+    },
+    "color": "#1ca3b5",
     "capitalRegionId": 913,
     "economyType": "mixed",
     "economyProfile": {
@@ -3527,39 +3192,16 @@
     }
   },
   {
-    "id": "PCN",
-    "name": "Pitcairn Islands",
-    "shortName": "Pitcairn Islands",
-    "color": "#c9adb5",
-    "capitalRegionId": 1333,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "PER",
-    "name": "Peru",
-    "shortName": "Peru",
-    "color": "#3e9858",
+    "name": {
+      "en": "Peru",
+      "ru": "Перу"
+    },
+    "shortName": {
+      "en": "Peru",
+      "ru": "Перу"
+    },
+    "color": "#12af3f",
     "capitalRegionId": 1087,
     "economyType": "mixed",
     "economyProfile": {
@@ -3586,9 +3228,15 @@
   },
   {
     "id": "PHL",
-    "name": "Philippines",
-    "shortName": "Philippines",
-    "color": "#7c98aa",
+    "name": {
+      "en": "Philippines",
+      "ru": "Филиппины"
+    },
+    "shortName": {
+      "en": "Philippines",
+      "ru": "Филиппины"
+    },
+    "color": "#7684c8",
     "capitalRegionId": 649,
     "economyType": "mixed",
     "economyProfile": {
@@ -3615,9 +3263,15 @@
   },
   {
     "id": "PNG",
-    "name": "Papua and New Guinea",
-    "shortName": "Papua and New Guinea",
-    "color": "#c4b896",
+    "name": {
+      "en": "Papua and New Guinea",
+      "ru": "Папуа и Новая Гвинея"
+    },
+    "shortName": {
+      "en": "Papua and New Guinea",
+      "ru": "Папуа и Новая Гвинея"
+    },
+    "color": "#4d9f74",
     "capitalRegionId": 1358,
     "economyType": "mixed",
     "economyProfile": {
@@ -3644,9 +3298,15 @@
   },
   {
     "id": "POL",
-    "name": "Poland",
-    "shortName": "Poland",
-    "color": "#9e532e",
+    "name": {
+      "en": "Poland",
+      "ru": "Польша"
+    },
+    "shortName": {
+      "en": "Poland",
+      "ru": "Польша"
+    },
+    "color": "#c09839",
     "capitalRegionId": 216,
     "economyType": "mixed",
     "economyProfile": {
@@ -3672,39 +3332,16 @@
     }
   },
   {
-    "id": "PRI",
-    "name": "Puerto Rico",
-    "shortName": "Puerto Rico",
-    "color": "#7c98aa",
-    "capitalRegionId": 915,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "PRT",
-    "name": "Portugal",
-    "shortName": "Portugal",
-    "color": "#3b8745",
+    "name": {
+      "en": "Portugal",
+      "ru": "Португалия"
+    },
+    "shortName": {
+      "en": "Portugal",
+      "ru": "Португалия"
+    },
+    "color": "#2E7A4A",
     "capitalRegionId": 217,
     "economyType": "mixed",
     "economyProfile": {
@@ -3731,31 +3368,29 @@
     "diplomacy": {
       "puppets": [
         "AGO",
-        "CPV",
-        "GNB",
         "MAC",
         "MOZ",
-        "STP",
-        "TLS",
         "QPI"
       ],
       "sphereOfInfluence": [
         "AGO",
-        "CPV",
-        "GNB",
         "MAC",
         "MOZ",
-        "STP",
-        "TLS",
         "QPI"
       ]
     }
   },
   {
     "id": "PRY",
-    "name": "Paraguay",
-    "shortName": "Paraguay",
-    "color": "#9d594d",
+    "name": {
+      "en": "Paraguay",
+      "ru": "Парагвай"
+    },
+    "shortName": {
+      "en": "Paraguay",
+      "ru": "Парагвай"
+    },
+    "color": "#ca472f",
     "capitalRegionId": 1118,
     "economyType": "mixed",
     "economyProfile": {
@@ -3782,9 +3417,15 @@
   },
   {
     "id": "PSE",
-    "name": "Palestine Mandate",
-    "shortName": "Palestine Mandate",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Palestine Mandate",
+      "ru": "Подмандатная Палестина"
+    },
+    "shortName": {
+      "en": "Palestine Mandate",
+      "ru": "Подмандатная Палестина"
+    },
+    "color": "#d18ec4",
     "capitalRegionId": 483,
     "economyType": "mixed",
     "economyProfile": {
@@ -3810,39 +3451,16 @@
     }
   },
   {
-    "id": "PYF",
-    "name": "French Polynesia",
-    "shortName": "French Polynesia",
-    "color": "#80aaa5",
-    "capitalRegionId": 1326,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "QAB",
-    "name": "Abu Dhabi",
-    "shortName": "Abu Dhabi",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Abu Dhabi",
+      "ru": "Абу-Даби"
+    },
+    "shortName": {
+      "en": "Abu Dhabi",
+      "ru": "Абу-Даби"
+    },
+    "color": "#c98cc3",
     "capitalRegionId": 425,
     "economyType": "mixed",
     "economyProfile": {
@@ -3869,9 +3487,15 @@
   },
   {
     "id": "QAD",
-    "name": "Aden Colony and Protectorate",
-    "shortName": "Aden Colony and Protecto",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Aden Colony and Protectorate",
+      "ru": "Колония и протекторат Аден"
+    },
+    "shortName": {
+      "en": "Aden Colony and Protecto",
+      "ru": "Колония и протекторат Ад"
+    },
+    "color": "#d09ead",
     "capitalRegionId": 772,
     "economyType": "mixed",
     "economyProfile": {
@@ -3898,9 +3522,15 @@
   },
   {
     "id": "QAJ",
-    "name": "Ajman",
-    "shortName": "Ajman",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Ajman",
+      "ru": "Аджман"
+    },
+    "shortName": {
+      "en": "Ajman",
+      "ru": "Аджман"
+    },
+    "color": "#cba994",
     "capitalRegionId": 427,
     "economyType": "mixed",
     "economyProfile": {
@@ -3927,9 +3557,15 @@
   },
   {
     "id": "QAT",
-    "name": "Qatar",
-    "shortName": "Qatar",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Qatar",
+      "ru": "Катар"
+    },
+    "shortName": {
+      "en": "Qatar",
+      "ru": "Катар"
+    },
+    "color": "#c17fa8",
     "capitalRegionId": 673,
     "economyType": "mixed",
     "economyProfile": {
@@ -3956,9 +3592,15 @@
   },
   {
     "id": "QAZ",
-    "name": "Azerbaijan People's Government",
-    "shortName": "Azerbaijan People's Gove",
-    "color": "#b87c7c",
+    "name": {
+      "en": "Azerbaijan People's Government",
+      "ru": "Азербайджанское национальное правительство"
+    },
+    "shortName": {
+      "en": "Azerbaijan People's Gove",
+      "ru": "Азербайджанское национал"
+    },
+    "color": "#b065c4",
     "capitalRegionId": 536,
     "economyType": "planned",
     "economyProfile": {
@@ -3985,9 +3627,15 @@
   },
   {
     "id": "QDU",
-    "name": "Dubai",
-    "shortName": "Dubai",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Dubai",
+      "ru": "Дубай"
+    },
+    "shortName": {
+      "en": "Dubai",
+      "ru": "Дубай"
+    },
+    "color": "#b099d0",
     "capitalRegionId": 429,
     "economyType": "mixed",
     "economyProfile": {
@@ -4014,9 +3662,15 @@
   },
   {
     "id": "QDV",
-    "name": "Democratic Republic of Vietnam",
-    "shortName": "Democratic Republic of V",
-    "color": "#2e8499",
+    "name": {
+      "en": "Democratic Republic of Vietnam",
+      "ru": "Демократическая Республика Вьетнам"
+    },
+    "shortName": {
+      "en": "Democratic Republic of V",
+      "ru": "Демократическая Республи"
+    },
+    "color": "#169ec0",
     "capitalRegionId": 749,
     "economyType": "planned",
     "economyProfile": {
@@ -4043,9 +3697,15 @@
   },
   {
     "id": "QFE",
-    "name": "French Equatorial Africa",
-    "shortName": "French Equatorial Africa",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Equatorial Africa",
+      "ru": "Французская Экваториальная Африка"
+    },
+    "shortName": {
+      "en": "French Equatorial Africa",
+      "ru": "Французская Экваториальн"
+    },
+    "color": "#725cb6",
     "capitalRegionId": 1320,
     "economyType": "mixed",
     "economyProfile": {
@@ -4072,9 +3732,15 @@
   },
   {
     "id": "QFI",
-    "name": "French India",
-    "shortName": "French India",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French India",
+      "ru": "Французская Индия"
+    },
+    "shortName": {
+      "en": "French India",
+      "ru": "Французская Индия"
+    },
+    "color": "#4f97ae",
     "capitalRegionId": 514,
     "economyType": "mixed",
     "economyProfile": {
@@ -4101,9 +3767,15 @@
   },
   {
     "id": "QFU",
-    "name": "Fujairah",
-    "shortName": "Fujairah",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Fujairah",
+      "ru": "Фуджейра"
+    },
+    "shortName": {
+      "en": "Fujairah",
+      "ru": "Фуджейра"
+    },
+    "color": "#c4a2d2",
     "capitalRegionId": 428,
     "economyType": "mixed",
     "economyProfile": {
@@ -4130,9 +3802,15 @@
   },
   {
     "id": "QFW",
-    "name": "French West Africa",
-    "shortName": "French West Africa",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French West Africa",
+      "ru": "Французская Западная Африка"
+    },
+    "shortName": {
+      "en": "French West Africa",
+      "ru": "Французская Западная Афр"
+    },
+    "color": "#6a8ec1",
     "capitalRegionId": 1275,
     "economyType": "mixed",
     "economyProfile": {
@@ -4159,9 +3837,15 @@
   },
   {
     "id": "QGA",
-    "name": "American Occupation Zone (Germany)",
-    "shortName": "American Occupation Zone",
-    "color": "#7c98aa",
+    "name": {
+      "en": "American Occupation Zone (Germany)",
+      "ru": "Американская оккупационная зона (Германия)"
+    },
+    "shortName": {
+      "en": "American Occupation Zone",
+      "ru": "Американская оккупационн"
+    },
+    "color": "#6f5eb7",
     "capitalRegionId": 50,
     "economyType": "market",
     "economyProfile": {
@@ -4189,9 +3873,15 @@
   },
   {
     "id": "QGB",
-    "name": "British Occupation Zone (Germany)",
-    "shortName": "British Occupation Zone ",
-    "color": "#c9adb5",
+    "name": {
+      "en": "British Occupation Zone (Germany)",
+      "ru": "Британская оккупационная зона (Германия)"
+    },
+    "shortName": {
+      "en": "British Occupation Zone ",
+      "ru": "Британская оккупационная"
+    },
+    "color": "#d3a0a9",
     "capitalRegionId": 54,
     "economyType": "mixed",
     "economyProfile": {
@@ -4219,9 +3909,15 @@
   },
   {
     "id": "QGF",
-    "name": "French Occupation Zone (Germany)",
-    "shortName": "French Occupation Zone (",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Occupation Zone (Germany)",
+      "ru": "Французская оккупационная зона (Германия)"
+    },
+    "shortName": {
+      "en": "French Occupation Zone (",
+      "ru": "Французская оккупационна"
+    },
+    "color": "#5574ae",
     "capitalRegionId": 51,
     "economyType": "mixed",
     "economyProfile": {
@@ -4249,9 +3945,15 @@
   },
   {
     "id": "QGS",
-    "name": "Soviet Occupation Zone (Germany)",
-    "shortName": "Soviet Occupation Zone (",
-    "color": "#b87c7c",
+    "name": {
+      "en": "Soviet Occupation Zone (Germany)",
+      "ru": "Советская оккупационная зона (Германия)"
+    },
+    "shortName": {
+      "en": "Soviet Occupation Zone (",
+      "ru": "Советская оккупационная "
+    },
+    "color": "#a4ce65",
     "capitalRegionId": 56,
     "economyType": "planned",
     "economyProfile": {
@@ -4279,9 +3981,15 @@
   },
   {
     "id": "QJK",
-    "name": "Jammu and Kashmir",
-    "shortName": "Jammu and Kashmir",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Jammu and Kashmir",
+      "ru": "Джамму и Кашмир"
+    },
+    "shortName": {
+      "en": "Jammu and Kashmir",
+      "ru": "Джамму и Кашмир"
+    },
+    "color": "#cea791",
     "capitalRegionId": 504,
     "economyType": "mixed",
     "economyProfile": {
@@ -4308,9 +4016,15 @@
   },
   {
     "id": "QKA",
-    "name": "American Occupation Zone (Korea)",
-    "shortName": "American Occupation Zone",
-    "color": "#7c98aa",
+    "name": {
+      "en": "American Occupation Zone (Korea)",
+      "ru": "Американская оккупационная зона (Корея)"
+    },
+    "shortName": {
+      "en": "American Occupation Zone",
+      "ru": "Американская оккупационн"
+    },
+    "color": "#6e90ca",
     "capitalRegionId": 582,
     "economyType": "market",
     "economyProfile": {
@@ -4338,9 +4052,15 @@
   },
   {
     "id": "QKS",
-    "name": "Soviet Occupation Zone (Korea)",
-    "shortName": "Soviet Occupation Zone (",
-    "color": "#b87c7c",
+    "name": {
+      "en": "Soviet Occupation Zone (Korea)",
+      "ru": "Советская оккупационная зона (Корея)"
+    },
+    "shortName": {
+      "en": "Soviet Occupation Zone (",
+      "ru": "Советская оккупационная "
+    },
+    "color": "#cf9383",
     "capitalRegionId": 580,
     "economyType": "planned",
     "economyProfile": {
@@ -4368,9 +4088,15 @@
   },
   {
     "id": "QLB",
-    "name": "Labuan",
-    "shortName": "Labuan",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Labuan",
+      "ru": "Лабуан"
+    },
+    "shortName": {
+      "en": "Labuan",
+      "ru": "Лабуан"
+    },
+    "color": "#c482a6",
     "capitalRegionId": 638,
     "economyType": "mixed",
     "economyProfile": {
@@ -4397,9 +4123,15 @@
   },
   {
     "id": "QMH",
-    "name": "Republic of Mahabad",
-    "shortName": "Republic of Mahabad",
-    "color": "#b87c7c",
+    "name": {
+      "en": "Republic of Mahabad",
+      "ru": "Мехабадская Республика"
+    },
+    "shortName": {
+      "en": "Republic of Mahabad",
+      "ru": "Мехабадская Республика"
+    },
+    "color": "#c6728d",
     "capitalRegionId": 544,
     "economyType": "planned",
     "economyProfile": {
@@ -4426,9 +4158,15 @@
   },
   {
     "id": "QMS",
-    "name": "Soviet-administered Manchuria",
-    "shortName": "Soviet-administered Manc",
-    "color": "#b87c7c",
+    "name": {
+      "en": "Soviet-administered Manchuria",
+      "ru": "Маньчжурия под советским управлением"
+    },
+    "shortName": {
+      "en": "Soviet-administered Manc",
+      "ru": "Маньчжурия под советским"
+    },
+    "color": "#a2be5c",
     "capitalRegionId": 407,
     "economyType": "planned",
     "economyProfile": {
@@ -4456,9 +4194,15 @@
   },
   {
     "id": "QNB",
-    "name": "North Borneo",
-    "shortName": "North Borneo",
-    "color": "#c9adb5",
+    "name": {
+      "en": "North Borneo",
+      "ru": "Северный Борнео"
+    },
+    "shortName": {
+      "en": "North Borneo",
+      "ru": "Северный Борнео"
+    },
+    "color": "#cc8484",
     "capitalRegionId": 635,
     "economyType": "mixed",
     "economyProfile": {
@@ -4485,9 +4229,15 @@
   },
   {
     "id": "QND",
-    "name": "Curaçao and Dependencies",
-    "shortName": "Curaçao and Dependencies",
-    "color": "#b59f8c",
+    "name": {
+      "en": "Curaçao and Dependencies",
+      "ru": "Кюрасао и зависимые территории"
+    },
+    "shortName": {
+      "en": "Curaçao and Dependencies",
+      "ru": "Кюрасао и зависимые терр"
+    },
+    "color": "#da749c",
     "capitalRegionId": 843,
     "economyType": "mixed",
     "economyProfile": {
@@ -4514,9 +4264,15 @@
   },
   {
     "id": "QPI",
-    "name": "Portuguese India",
-    "shortName": "Portuguese India",
-    "color": "#78a57e",
+    "name": {
+      "en": "Portuguese India",
+      "ru": "Португальская Индия"
+    },
+    "shortName": {
+      "en": "Portuguese India",
+      "ru": "Португальская Индия"
+    },
+    "color": "#499773",
     "capitalRegionId": 511,
     "economyType": "mixed",
     "economyProfile": {
@@ -4543,9 +4299,15 @@
   },
   {
     "id": "QPS",
-    "name": "U.S. Naval Administration of the Former Japanese Mandated Islands",
-    "shortName": "U.S. Naval Administratio",
-    "color": "#7c98aa",
+    "name": {
+      "en": "U.S. Naval Administration of the Former Japanese Mandated Islands",
+      "ru": "Военно-морская администрация США бывших японских подмандатных островов"
+    },
+    "shortName": {
+      "en": "U.S. Naval Administratio",
+      "ru": "Военно-морская администр"
+    },
+    "color": "#646dc5",
     "capitalRegionId": 1329,
     "economyType": "mixed",
     "economyProfile": {
@@ -4572,9 +4334,15 @@
   },
   {
     "id": "QRI",
-    "name": "Republic of Indonesia",
-    "shortName": "Republic of Indonesia",
-    "color": "#843e51",
+    "name": {
+      "en": "Republic of Indonesia",
+      "ru": "Республика Индонезия"
+    },
+    "shortName": {
+      "en": "Republic of Indonesia",
+      "ru": "Республика Индонезия"
+    },
+    "color": "#d15274",
     "capitalRegionId": 482,
     "economyType": "mixed",
     "economyProfile": {
@@ -4601,9 +4369,15 @@
   },
   {
     "id": "QRK",
-    "name": "Ras Al Khaimah",
-    "shortName": "Ras Al Khaimah",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Ras Al Khaimah",
+      "ru": "Рас-эль-Хайма"
+    },
+    "shortName": {
+      "en": "Ras Al Khaimah",
+      "ru": "Рас-эль-Хайма"
+    },
+    "color": "#c17fb2",
     "capitalRegionId": 424,
     "economyType": "mixed",
     "economyProfile": {
@@ -4630,9 +4404,15 @@
   },
   {
     "id": "QRU",
-    "name": "Ruanda-Urundi",
-    "shortName": "Ruanda-Urundi",
-    "color": "#c68fc6",
+    "name": {
+      "en": "Ruanda-Urundi",
+      "ru": "Руанда-Урунди"
+    },
+    "shortName": {
+      "en": "Ruanda-Urundi",
+      "ru": "Руанда-Урунди"
+    },
+    "color": "#cdca78",
     "capitalRegionId": 1322,
     "economyType": "mixed",
     "economyProfile": {
@@ -4659,9 +4439,15 @@
   },
   {
     "id": "QSH",
-    "name": "Sharjah",
-    "shortName": "Sharjah",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Sharjah",
+      "ru": "Шарджа"
+    },
+    "shortName": {
+      "en": "Sharjah",
+      "ru": "Шарджа"
+    },
+    "color": "#c78997",
     "capitalRegionId": 423,
     "economyType": "mixed",
     "economyProfile": {
@@ -4688,9 +4474,15 @@
   },
   {
     "id": "QSI",
-    "name": "Kingdom of Sikkim",
-    "shortName": "Kingdom of Sikkim",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Kingdom of Sikkim",
+      "ru": "Королевство Сикким"
+    },
+    "shortName": {
+      "en": "Kingdom of Sikkim",
+      "ru": "Королевство Сикким"
+    },
+    "color": "#ca7cb7",
     "capitalRegionId": 491,
     "economyType": "mixed",
     "economyProfile": {
@@ -4717,9 +4509,15 @@
   },
   {
     "id": "QSO",
-    "name": "British Somaliland",
-    "shortName": "British Somaliland",
-    "color": "#c9adb5",
+    "name": {
+      "en": "British Somaliland",
+      "ru": "Британский Сомалиленд"
+    },
+    "shortName": {
+      "en": "British Somaliland",
+      "ru": "Британский Сомалиленд"
+    },
+    "color": "#ce96c4",
     "capitalRegionId": 1122,
     "economyType": "mixed",
     "economyProfile": {
@@ -4746,9 +4544,15 @@
   },
   {
     "id": "QSR",
-    "name": "Sarawak",
-    "shortName": "Sarawak",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Sarawak",
+      "ru": "Саравак"
+    },
+    "shortName": {
+      "en": "Sarawak",
+      "ru": "Саравак"
+    },
+    "color": "#cb8ab4",
     "capitalRegionId": 636,
     "economyType": "mixed",
     "economyProfile": {
@@ -4775,9 +4579,15 @@
   },
   {
     "id": "QTB",
-    "name": "Tibet",
-    "shortName": "Tibet",
-    "color": "#725aaf",
+    "name": {
+      "en": "Tibet",
+      "ru": "Тибет"
+    },
+    "shortName": {
+      "en": "Tibet",
+      "ru": "Тибет"
+    },
+    "color": "#5428c3",
     "capitalRegionId": 413,
     "economyType": "mixed",
     "economyProfile": {
@@ -4804,9 +4614,15 @@
   },
   {
     "id": "QUQ",
-    "name": "Umm Al Quwain",
-    "shortName": "Umm Al Quwain",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Umm Al Quwain",
+      "ru": "Умм-эль-Кайвайн"
+    },
+    "shortName": {
+      "en": "Umm Al Quwain",
+      "ru": "Умм-эль-Кайвайн"
+    },
+    "color": "#cca484",
     "capitalRegionId": 426,
     "economyType": "mixed",
     "economyProfile": {
@@ -4833,9 +4649,15 @@
   },
   {
     "id": "QWL",
-    "name": "Leeward Islands",
-    "shortName": "Leeward Islands",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Leeward Islands",
+      "ru": "Наветренные острова"
+    },
+    "shortName": {
+      "en": "Leeward Islands",
+      "ru": "Наветренные острова"
+    },
+    "color": "#c87d89",
     "capitalRegionId": 824,
     "economyType": "mixed",
     "economyProfile": {
@@ -4862,9 +4684,15 @@
   },
   {
     "id": "QWW",
-    "name": "Windward Islands",
-    "shortName": "Windward Islands",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Windward Islands",
+      "ru": "Подветренные острова"
+    },
+    "shortName": {
+      "en": "Windward Islands",
+      "ru": "Подветренные острова"
+    },
+    "color": "#d59fb2",
     "capitalRegionId": 845,
     "economyType": "mixed",
     "economyProfile": {
@@ -4890,11 +4718,17 @@
     }
   },
   {
-    "id": "REU",
-    "name": "Réunion",
-    "shortName": "Réunion",
-    "color": "#80aaa5",
-    "capitalRegionId": 1120,
+    "id": "QZN",
+    "name": {
+      "en": "Zanzibar Protectorate",
+      "ru": "Занзибарский протекторат"
+    },
+    "shortName": {
+      "en": "Zanzibar Protectorate",
+      "ru": "Занзибарский протекторат"
+    },
+    "color": "#ce97b1",
+    "capitalRegionId": 1208,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4915,14 +4749,20 @@
       "tradeBalance": 0
     },
     "politics": {
-      "ideology": "Liberal Democracy"
+      "ideology": "Traditionalism"
     }
   },
   {
     "id": "ROU",
-    "name": "Romania",
-    "shortName": "Romania",
-    "color": "#7a922f",
+    "name": {
+      "en": "Romania",
+      "ru": "Румыния"
+    },
+    "shortName": {
+      "en": "Romania",
+      "ru": "Румыния"
+    },
+    "color": "#E0B62E",
     "capitalRegionId": 230,
     "economyType": "mixed",
     "economyProfile": {
@@ -4949,9 +4789,15 @@
   },
   {
     "id": "SAU",
-    "name": "Saudi Arabia",
-    "shortName": "Saudi Arabia",
-    "color": "#4d9d6b",
+    "name": {
+      "en": "Saudi Arabia",
+      "ru": "Саудовская Аравия"
+    },
+    "shortName": {
+      "en": "Saudi Arabia",
+      "ru": "Саудовская Аравия"
+    },
+    "color": "#1F6B3F",
     "capitalRegionId": 674,
     "economyType": "mixed",
     "economyProfile": {
@@ -4978,9 +4824,15 @@
   },
   {
     "id": "SDN",
-    "name": "Anglo-Egyptian Sudan",
-    "shortName": "Anglo-Egyptian Sudan",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Anglo-Egyptian Sudan",
+      "ru": "Англо-Египетский Судан"
+    },
+    "shortName": {
+      "en": "Anglo-Egyptian Sudan",
+      "ru": "Англо-Египетский Судан"
+    },
+    "color": "#8f7a4a",
     "capitalRegionId": 1182,
     "economyType": "mixed",
     "economyProfile": {
@@ -5007,9 +4859,15 @@
   },
   {
     "id": "SGP",
-    "name": "Singapore",
-    "shortName": "Singapore",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Singapore",
+      "ru": "Сингапур"
+    },
+    "shortName": {
+      "en": "Singapore",
+      "ru": "Сингапур"
+    },
+    "color": "#cca693",
     "capitalRegionId": 682,
     "economyType": "mixed",
     "economyProfile": {
@@ -5035,39 +4893,16 @@
     }
   },
   {
-    "id": "SHN",
-    "name": "Saint Helena",
-    "shortName": "Saint Helena",
-    "color": "#c9adb5",
-    "capitalRegionId": 1125,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "SLB",
-    "name": "Solomon Islands",
-    "shortName": "Solomon Islands",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Solomon Islands",
+      "ru": "Соломоновы Острова"
+    },
+    "shortName": {
+      "en": "Solomon Islands",
+      "ru": "Соломоновы Острова"
+    },
+    "color": "#c27a96",
     "capitalRegionId": 1361,
     "economyType": "mixed",
     "economyProfile": {
@@ -5094,9 +4929,15 @@
   },
   {
     "id": "SLE",
-    "name": "Sierra Leone",
-    "shortName": "Sierra Leone",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Sierra Leone",
+      "ru": "Сьерра-Леоне"
+    },
+    "shortName": {
+      "en": "Sierra Leone",
+      "ru": "Сьерра-Леоне"
+    },
+    "color": "#ca868b",
     "capitalRegionId": 1309,
     "economyType": "mixed",
     "economyProfile": {
@@ -5123,9 +4964,15 @@
   },
   {
     "id": "SLV",
-    "name": "El Salvador",
-    "shortName": "El Salvador",
-    "color": "#9f5838",
+    "name": {
+      "en": "El Salvador",
+      "ru": "Сальвадор"
+    },
+    "shortName": {
+      "en": "El Salvador",
+      "ru": "Сальвадор"
+    },
+    "color": "#d76733",
     "capitalRegionId": 921,
     "economyType": "mixed",
     "economyProfile": {
@@ -5152,9 +4999,15 @@
   },
   {
     "id": "SMR",
-    "name": "San Marino",
-    "shortName": "San Marino",
-    "color": "#956441",
+    "name": {
+      "en": "San Marino",
+      "ru": "Сан-Марино"
+    },
+    "shortName": {
+      "en": "San Marino",
+      "ru": "Сан-Марино"
+    },
+    "color": "#e17b33",
     "capitalRegionId": 338,
     "economyType": "mixed",
     "economyProfile": {
@@ -5180,68 +5033,16 @@
     }
   },
   {
-    "id": "SPM",
-    "name": "Saint Pierre and Miquelon",
-    "shortName": "Saint Pierre and Miquelo",
-    "color": "#80aaa5",
-    "capitalRegionId": 914,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "STP",
-    "name": "São Tomé and Príncipe",
-    "shortName": "São Tomé and Príncipe",
-    "color": "#78a57e",
-    "capitalRegionId": 1310,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "SUN",
-    "name": "Soviet Union",
-    "shortName": "Soviet Union",
-    "color": "#a23636",
+    "name": {
+      "en": "Soviet Union",
+      "ru": "Советский Союз"
+    },
+    "shortName": {
+      "en": "Soviet Union",
+      "ru": "Советский Союз"
+    },
+    "color": "#C13A3A",
     "capitalRegionId": 318,
     "economyType": "planned",
     "economyProfile": {
@@ -5277,39 +5078,16 @@
     }
   },
   {
-    "id": "SUR",
-    "name": "Suriname",
-    "shortName": "Suriname",
-    "color": "#b59f8c",
-    "capitalRegionId": 1116,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "SWE",
-    "name": "Sweden",
-    "shortName": "Sweden",
-    "color": "#69b040",
+    "name": {
+      "en": "Sweden",
+      "ru": "Швеция"
+    },
+    "shortName": {
+      "en": "Sweden",
+      "ru": "Швеция"
+    },
+    "color": "#6635b0",
     "capitalRegionId": 322,
     "economyType": "mixed",
     "economyProfile": {
@@ -5335,68 +5113,16 @@
     }
   },
   {
-    "id": "SWZ",
-    "name": "Swaziland",
-    "shortName": "Swaziland",
-    "color": "#c9adb5",
-    "capitalRegionId": 1312,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "SYC",
-    "name": "Seychelles",
-    "shortName": "Seychelles",
-    "color": "#c9adb5",
-    "capitalRegionId": 1292,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "SYR",
-    "name": "Syria",
-    "shortName": "Syria",
-    "color": "#3bba4e",
+    "name": {
+      "en": "Syria",
+      "ru": "Сирия"
+    },
+    "shortName": {
+      "en": "Syria",
+      "ru": "Сирия"
+    },
+    "color": "#1dd338",
     "capitalRegionId": 692,
     "economyType": "mixed",
     "economyProfile": {
@@ -5423,9 +5149,15 @@
   },
   {
     "id": "TGO",
-    "name": "French Togoland",
-    "shortName": "French Togoland",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Togoland",
+      "ru": "Французское Того"
+    },
+    "shortName": {
+      "en": "French Togoland",
+      "ru": "Французское Того"
+    },
+    "color": "#63abb4",
     "capitalRegionId": 1313,
     "economyType": "mixed",
     "economyProfile": {
@@ -5452,9 +5184,15 @@
   },
   {
     "id": "THA",
-    "name": "Thailand",
-    "shortName": "Thailand",
-    "color": "#2e6da8",
+    "name": {
+      "en": "Thailand",
+      "ru": "Таиланд"
+    },
+    "shortName": {
+      "en": "Thailand",
+      "ru": "Таиланд"
+    },
+    "color": "#2d659a",
     "capitalRegionId": 703,
     "economyType": "mixed",
     "economyProfile": {
@@ -5480,68 +5218,16 @@
     }
   },
   {
-    "id": "TKL",
-    "name": "Tokelau",
-    "shortName": "Tokelau",
-    "color": "#c799a9",
-    "capitalRegionId": 1336,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
-    "id": "TLS",
-    "name": "Portuguese Timor",
-    "shortName": "Portuguese Timor",
-    "color": "#78a57e",
-    "capitalRegionId": 708,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "TON",
-    "name": "Tonga",
-    "shortName": "Tonga",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Tonga",
+      "ru": "Тонга"
+    },
+    "shortName": {
+      "en": "Tonga",
+      "ru": "Тонга"
+    },
+    "color": "#c873a2",
     "capitalRegionId": 1341,
     "economyType": "mixed",
     "economyProfile": {
@@ -5567,39 +5253,16 @@
     }
   },
   {
-    "id": "TTO",
-    "name": "Trinidad and Tobago",
-    "shortName": "Trinidad and Tobago",
-    "color": "#c9adb5",
-    "capitalRegionId": 925,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "TUN",
-    "name": "French Tunisia",
-    "shortName": "French Tunisia",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Tunisia",
+      "ru": "Французский Тунис"
+    },
+    "shortName": {
+      "en": "French Tunisia",
+      "ru": "Французский Тунис"
+    },
+    "color": "#59b473",
     "capitalRegionId": 1243,
     "economyType": "mixed",
     "economyProfile": {
@@ -5626,9 +5289,15 @@
   },
   {
     "id": "TUR",
-    "name": "Turkey",
-    "shortName": "Turkey",
-    "color": "#4d995b",
+    "name": {
+      "en": "Turkey",
+      "ru": "Турция"
+    },
+    "shortName": {
+      "en": "Turkey",
+      "ru": "Турция"
+    },
+    "color": "#b52e7c",
     "capitalRegionId": 720,
     "economyType": "mixed",
     "economyProfile": {
@@ -5655,9 +5324,15 @@
   },
   {
     "id": "TWN",
-    "name": "Republic of China (Kuomintang)",
-    "shortName": "Republic of China (Kuomi",
-    "color": "#33538f",
+    "name": {
+      "en": "Republic of China (Kuomintang)",
+      "ru": "Китайская Республика (Гоминьдан)"
+    },
+    "shortName": {
+      "en": "Republic of China (Kuomi",
+      "ru": "Китайская Республика (Го"
+    },
+    "color": "#2E5FA6",
     "capitalRegionId": 382,
     "economyType": "mixed",
     "economyProfile": {
@@ -5684,9 +5359,15 @@
   },
   {
     "id": "TZA",
-    "name": "Tanganyika",
-    "shortName": "Tanganyika",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Tanganyika",
+      "ru": "Танганьика"
+    },
+    "shortName": {
+      "en": "Tanganyika",
+      "ru": "Танганьика"
+    },
+    "color": "#c77489",
     "capitalRegionId": 1211,
     "economyType": "mixed",
     "economyProfile": {
@@ -5713,9 +5394,15 @@
   },
   {
     "id": "UGA",
-    "name": "Uganda",
-    "shortName": "Uganda",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Uganda",
+      "ru": "Уганда"
+    },
+    "shortName": {
+      "en": "Uganda",
+      "ru": "Уганда"
+    },
+    "color": "#c59b85",
     "capitalRegionId": 1127,
     "economyType": "mixed",
     "economyProfile": {
@@ -5742,9 +5429,15 @@
   },
   {
     "id": "URY",
-    "name": "Uruguay",
-    "shortName": "Uruguay",
-    "color": "#723b8c",
+    "name": {
+      "en": "Uruguay",
+      "ru": "Уругвай"
+    },
+    "shortName": {
+      "en": "Uruguay",
+      "ru": "Уругвай"
+    },
+    "color": "#af37e6",
     "capitalRegionId": 1119,
     "economyType": "mixed",
     "economyProfile": {
@@ -5771,9 +5464,15 @@
   },
   {
     "id": "USA",
-    "name": "United States",
-    "shortName": "United States",
-    "color": "#3b6e8f",
+    "name": {
+      "en": "United States",
+      "ru": "Соединённые Штаты Америки"
+    },
+    "shortName": {
+      "en": "United States",
+      "ru": "Соединённые Штаты Америк"
+    },
+    "color": "#3D6FB4",
     "capitalRegionId": 990,
     "economyType": "mixed",
     "economyProfile": {
@@ -5800,27 +5499,25 @@
     "diplomacy": {
       "puppets": [
         "PHL",
-        "ASM",
-        "GUM",
-        "PRI",
-        "VIR",
         "QPS"
       ],
       "sphereOfInfluence": [
         "PHL",
-        "ASM",
-        "GUM",
-        "PRI",
-        "VIR",
         "QPS"
       ]
     }
   },
   {
     "id": "VAT",
-    "name": "Vatican City",
-    "shortName": "Vatican City",
-    "color": "#b2a353",
+    "name": {
+      "en": "Vatican City",
+      "ru": "Ватикан"
+    },
+    "shortName": {
+      "en": "Vatican City",
+      "ru": "Ватикан"
+    },
+    "color": "#d1b61f",
     "capitalRegionId": 364,
     "economyType": "mixed",
     "economyProfile": {
@@ -5847,9 +5544,15 @@
   },
   {
     "id": "VEN",
-    "name": "Venezuela",
-    "shortName": "Venezuela",
-    "color": "#7a348d",
+    "name": {
+      "en": "Venezuela",
+      "ru": "Венесуэла"
+    },
+    "shortName": {
+      "en": "Venezuela",
+      "ru": "Венесуэла"
+    },
+    "color": "#a72bca",
     "capitalRegionId": 1099,
     "economyType": "mixed",
     "economyProfile": {
@@ -5875,39 +5578,16 @@
     }
   },
   {
-    "id": "VIR",
-    "name": "United States Virgin Islands",
-    "shortName": "United States Virgin Isl",
-    "color": "#7c98aa",
-    "capitalRegionId": 928,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "VNM",
-    "name": "French Indochina",
-    "shortName": "French Indochina",
-    "color": "#80aaa5",
+    "name": {
+      "en": "French Indochina",
+      "ru": "Французский Индокитай"
+    },
+    "shortName": {
+      "en": "French Indochina",
+      "ru": "Французский Индокитай"
+    },
+    "color": "#5c86b1",
     "capitalRegionId": 751,
     "economyType": "mixed",
     "economyProfile": {
@@ -5934,9 +5614,15 @@
   },
   {
     "id": "VUT",
-    "name": "New Hebrides",
-    "shortName": "New Hebrides",
-    "color": "#c9adb5",
+    "name": {
+      "en": "New Hebrides",
+      "ru": "Новые Гебриды"
+    },
+    "shortName": {
+      "en": "New Hebrides",
+      "ru": "Новые Гебриды"
+    },
+    "color": "#7a5c8f",
     "capitalRegionId": 1362,
     "economyType": "mixed",
     "economyProfile": {
@@ -5962,39 +5648,16 @@
     }
   },
   {
-    "id": "WLF",
-    "name": "Wallis and Futuna",
-    "shortName": "Wallis and Futuna",
-    "color": "#80aaa5",
-    "capitalRegionId": 1335,
-    "economyType": "mixed",
-    "economyProfile": {
-      "taxRate": 0.15,
-      "spending": {
-        "military": 0.2,
-        "research": 0.08,
-        "education": 0.15,
-        "infrastructure": 0.2,
-        "welfare": 0.22,
-        "other": 0.1
-      },
-      "treasuryShare": 0.05,
-      "exportShare": 0.05,
-      "stateEnterpriseShare": 0.03,
-      "otherIncomeShare": 0.02,
-      "inflation": 3,
-      "unemployment": 4,
-      "tradeBalance": 0
-    },
-    "politics": {
-      "ideology": "Liberal Democracy"
-    }
-  },
-  {
     "id": "WSM",
-    "name": "Western Samoa",
-    "shortName": "Western Samoa",
-    "color": "#c799a9",
+    "name": {
+      "en": "Western Samoa",
+      "ru": "Западное Самоа"
+    },
+    "shortName": {
+      "en": "Western Samoa",
+      "ru": "Западное Самоа"
+    },
+    "color": "#3b5b84",
     "capitalRegionId": 1363,
     "economyType": "mixed",
     "economyProfile": {
@@ -6021,9 +5684,15 @@
   },
   {
     "id": "YEM",
-    "name": "Yemen",
-    "shortName": "Yemen",
-    "color": "#c23dae",
+    "name": {
+      "en": "Yemen",
+      "ru": "Йемен"
+    },
+    "shortName": {
+      "en": "Yemen",
+      "ru": "Йемен"
+    },
+    "color": "#eb19cc",
     "capitalRegionId": 773,
     "economyType": "mixed",
     "economyProfile": {
@@ -6050,9 +5719,15 @@
   },
   {
     "id": "YUG",
-    "name": "Yugoslavia",
-    "shortName": "Yugoslavia",
-    "color": "#4b9564",
+    "name": {
+      "en": "Yugoslavia",
+      "ru": "Югославия"
+    },
+    "shortName": {
+      "en": "Yugoslavia",
+      "ru": "Югославия"
+    },
+    "color": "#3560B0",
     "capitalRegionId": 13,
     "economyType": "planned",
     "economyProfile": {
@@ -6079,9 +5754,15 @@
   },
   {
     "id": "ZAF",
-    "name": "South Africa",
-    "shortName": "South Africa",
-    "color": "#c9adb5",
+    "name": {
+      "en": "South Africa",
+      "ru": "Южно-Африканский Союз"
+    },
+    "shortName": {
+      "en": "South Africa",
+      "ru": "Южно-Африканский Союз"
+    },
+    "color": "#D98A2E",
     "capitalRegionId": 1197,
     "economyType": "mixed",
     "economyProfile": {
@@ -6116,9 +5797,15 @@
   },
   {
     "id": "ZMB",
-    "name": "Northern Rhodesia",
-    "shortName": "Northern Rhodesia",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Northern Rhodesia",
+      "ru": "Северная Родезия"
+    },
+    "shortName": {
+      "en": "Northern Rhodesia",
+      "ru": "Северная Родезия"
+    },
+    "color": "#c7a189",
     "capitalRegionId": 1269,
     "economyType": "mixed",
     "economyProfile": {
@@ -6145,9 +5832,15 @@
   },
   {
     "id": "ZWE",
-    "name": "Southern Rhodesia",
-    "shortName": "Southern Rhodesia",
-    "color": "#c9adb5",
+    "name": {
+      "en": "Southern Rhodesia",
+      "ru": "Южная Родезия"
+    },
+    "shortName": {
+      "en": "Southern Rhodesia",
+      "ru": "Южная Родезия"
+    },
+    "color": "#cbcb85",
     "capitalRegionId": 1272,
     "economyType": "mixed",
     "economyProfile": {

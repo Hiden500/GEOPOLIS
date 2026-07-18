@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { getDomainTier } from "@shared/utils/technology";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
   target: { type: "country"; countryId: string } | { type: "region"; regionId: number };
@@ -73,7 +74,7 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
               <li key={id} className="relation-list-item">
                 <button className="relation-country" onClick={() => onSelectCountry(id)}>
                   <span className="country-color-dot" style={{ backgroundColor: other!.color }} />
-                  {other!.shortName}
+                  {getText(other!.shortName, i18n.language as Locale)}
                 </button>
                 <span className={value >= 0 ? "positive" : "negative"}>{Math.round(value)}</span>
               </li>
@@ -99,7 +100,7 @@ function RegionInspector({ regionId, game, onSelectCountry }: { regionId: number
         <p className="inspector-subtitle">
           <span className="country-color-dot" style={{ backgroundColor: owner.color }} />
           <button className="relation-country" onClick={() => onSelectCountry(owner.id)}>
-            {owner.name}
+            {getText(owner.name, i18n.language as Locale)}
           </button>
         </p>
       )}

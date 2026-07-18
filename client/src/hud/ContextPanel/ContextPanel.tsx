@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
-import { getText } from "@shared/types/i18n/LocalizedText";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { RESOURCE_CODES, RESOURCE_ICONS, formatResourceAmount } from "../../utils/resourceDisplay";
 import { Meter, Tag } from "../../primitives";
 import { type Selection } from "../types";
@@ -95,12 +95,12 @@ function RegionContext({
 
   return (
     <>
-      <Head eyebrow={t("context.regionEyebrow")} title={getText(region.names)} onClose={onClose} closeLabel={t("context.close")} />
+      <Head eyebrow={t("context.regionEyebrow")} title={getText(region.names, i18n.language as Locale)} onClose={onClose} closeLabel={t("context.close")} />
       <div className={styles.body}>
         {owner && (
           <button type="button" className={styles.owner} onClick={() => onSelectCountry(owner.id)}>
             <span className={styles.swatch} style={{ backgroundColor: owner.color }} />
-            {owner.name}
+            {getText(owner.name, i18n.language as Locale)}
           </button>
         )}
 
@@ -185,7 +185,7 @@ function CountryContext({
 
   return (
     <>
-      <Head eyebrow={t("context.countryEyebrow")} title={country.name} onClose={onClose} closeLabel={t("context.close")} />
+      <Head eyebrow={t("context.countryEyebrow")} title={getText(country.name, i18n.language as Locale)} onClose={onClose} closeLabel={t("context.close")} />
       <div className={styles.body}>
         {govLabel && <div className={styles.owner}>{govLabel}</div>}
 
@@ -215,7 +215,7 @@ function CountryContext({
                 <button key={id} type="button" className={styles.relationRow} onClick={() => onSelectCountry(id)}>
                   <span className={styles.relationName}>
                     <span className={styles.swatch} style={{ backgroundColor: other.color }} />
-                    {other.shortName}
+                    {getText(other.shortName, i18n.language as Locale)}
                   </span>
                   <span className={value >= 0 ? styles.positive : styles.negative}>{Math.round(value)}</span>
                 </button>

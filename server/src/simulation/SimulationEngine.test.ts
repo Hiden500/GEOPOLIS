@@ -28,7 +28,7 @@ describe("simulateMonth — детерминированные вехи (pending
             currentDate: "1946-01-01",
             countries: [createTestCountry({
                 id: "USA",
-                name: "United States",
+                name: { en: "United States" },
                 technology: { domains: { armor: 99 } }, // почти на пороге тира 1
             })],
         });
@@ -63,7 +63,7 @@ describe("simulateMonth — детерминированные вехи (pending
             currentDate: "1946-01-01",
             countries: [createTestCountry({
                 id: "USA",
-                name: "United States",
+                name: { en: "United States" },
                 economy: {
                     ...economy,
                     // Массивный дефицит относительно ВВП — inflation прыгает на
@@ -106,7 +106,7 @@ describe("simulateMonth — детерминированные вехи (pending
             currentDate: "1946-01-01",
             countries: [createTestCountry({
                 id: "USA",
-                name: "United States",
+                name: { en: "United States" },
                 politics: { ...base.politics, stability: 21, corruption: 90 }, // > STABILITY_HIGH_CORRUPTION_THRESHOLD(60)
                 economy: {
                     ...economy,
@@ -150,7 +150,7 @@ describe("simulateMonth — детерминированные вехи (pending
             currentDate: "1946-01-01",
             countries: [createTestCountry({
                 id: "USA",
-                name: "United States",
+                name: { en: "United States" },
                 economy: {
                     ...economy,
                     gdp: 1_000_000_000,

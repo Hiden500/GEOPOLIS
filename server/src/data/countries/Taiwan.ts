@@ -4,8 +4,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 // Республика Китай (Националисты) — 1946, Тайвань
 export const Taiwan = createCountry({
   id: "Taiwan",
-  name: "Republic of China",
-  shortName: "ROC",
+  name: { en: "Republic of China" },
+  shortName: { en: "ROC" },
   color: "#0ea5e9",
   capitalRegionId: 42,
   population: 6_000_000,

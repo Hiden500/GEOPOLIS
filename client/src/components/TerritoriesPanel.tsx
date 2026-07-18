@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { type Region } from "@shared/types/map/Region";
-import { getText } from "@shared/types/i18n/LocalizedText";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
   regions: Region[];
@@ -25,7 +25,7 @@ export function TerritoriesPanel({ regions, selectedRegionId, onSelectRegion }: 
             className={`region-list-item ${selectedRegionId === region.id ? "selected" : ""}`}
             onClick={() => onSelectRegion(region.id)}
           >
-            <strong>{getText(region.names)}</strong>
+            <strong>{getText(region.names, i18n.language as Locale)}</strong>
             <span className="region-population">
               {t("population", { value: (region.population ?? 0).toLocaleString(i18n.language) })}
             </span>

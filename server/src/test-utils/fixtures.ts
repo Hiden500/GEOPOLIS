@@ -9,8 +9,8 @@ import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 export function createTestCountry(overrides: Partial<Country> = {}): Country {
   return {
     id: "TEST",
-    name: "Test Country",
-    shortName: "TEST",
+    name: { en: "Test Country" },
+    shortName: { en: "TEST" },
     color: "#FF0000",
     tier: "minor",
     capitalRegionId: 1,

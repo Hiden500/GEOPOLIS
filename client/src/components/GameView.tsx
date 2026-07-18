@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type maplibregl from "maplibre-gl";
 import { type GameState } from "@shared/types/GameState";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { Header } from "../hud/Header/Header";
 import { SidePanel } from "../hud/SidePanel/SidePanel";
 import { BookPlaceholder } from "../hud/SidePanel/BookPlaceholder";
@@ -45,7 +46,7 @@ interface GameViewProps {
 }
 
 export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
-  const { t } = useTranslation("gameView");
+  const { t, i18n } = useTranslation("gameView");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
@@ -289,7 +290,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             report={game.lastTurnReport}
           />
 
-          <SidePanel book={activeBook} countryName={playerCountry.name} onClose={handleClosePanel}>
+          <SidePanel book={activeBook} countryName={getText(playerCountry.name, i18n.language as Locale)} onClose={handleClosePanel}>
             {activeBook && renderBookContent(activeBook)}
           </SidePanel>
 
@@ -314,7 +315,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           {windows.map(w => {
             const title =
               w.kind.type === "country" || w.kind.type === "region"
-                ? getInspectorTitle(w.kind, game)
+                ? getInspectorTitle(w.kind, game, i18n.language as Locale)
                 : t(`windowTitles.${w.kind.type}`);
 
             return (

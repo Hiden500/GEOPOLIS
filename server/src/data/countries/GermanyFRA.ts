@@ -4,8 +4,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 // Германия - Французская зона оккупации 1946
 export const GermanyFRA = createCountry({
   id: "DEU-FRA",
-  name: "Германия (Французская зона)",
-  shortName: "DEU-FRA",
+  name: { ru: "Германия (Французская зона)" },
+  shortName: { ru: "DEU-FRA" },
   color: "#0055AA",
   capitalRegionId: 0,
   population: 5_000_000,
