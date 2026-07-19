@@ -502,6 +502,42 @@ def add_cyprus_extra_territories(feats, out_features):
                 print(f"  [CY] {ft['properties']['name']} обрезана по "
                       f"Northern Cyprus/Dhekelia (-{round(overlap_km2, 2)} km2)")
 
+    clip_seas_against_land(extra_union, ["Mediterranean Sea - Eastern Basin"])
+
+
+def clip_seas_against_land(new_land_union, sea_names):
+    """`out/seas_1946.geojson` — внешний, вручную поддерживаемый вход (как
+    `lakes_1946.geojson`/`ownership_1946.json`), НЕ пересчитывается никаким
+    шагом пайплайна и не знает о суше, добавленной build-скриптами. Когда
+    Northern Cyprus/Dhekelia появились в игре (2026-07-19-j), их площадь
+    (3305.1 + 134.1 km2 — практически целиком) осталась морем в этом файле,
+    рендерясь ПОВЕРХ новой суши (найдено пользователем: "Из Средиземного
+    моря надо вырезать новые территории Кипра"). Обрезаем перечисленные
+    морские фичи по новой суше и перезаписываем файл — тот же класс правки,
+    что уже применялся к суше против воды (clip_against_dead_sea), только
+    в обратную сторону."""
+    seas_path = out("seas_1946.geojson")
+    with open(seas_path, encoding="utf-8") as f:
+        seas_fc = json.load(f)
+    n_clipped = 0
+    for ft in seas_fc["features"]:
+        if ft["properties"].get("name") not in sea_names:
+            continue
+        g = shape(ft["geometry"])
+        if not g.intersects(new_land_union):
+            continue
+        clipped = g.difference(new_land_union)
+        if not clipped.is_valid:
+            clipped = clipped.buffer(0)
+        removed_km2 = area_km2(g) - area_km2(clipped)
+        ft["geometry"] = mapping(clipped)
+        n_clipped += 1
+        print(f"  [SEA] '{ft['properties']['name']}' обрезано по новой суше "
+              f"(-{round(removed_km2, 1)} km2)")
+    if n_clipped:
+        with open(seas_path, "w", encoding="utf-8") as f:
+            json.dump(seas_fc, f, ensure_ascii=False)
+
 
 def main():
     t0 = time.time()

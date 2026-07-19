@@ -6,7 +6,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…j).
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…k).
 Do not re-open the same graves.
 
 ## Trigger
@@ -131,6 +131,30 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   don't just skip the excluded piece — union the excluded piece's full
   geometry into the region you kept the name from, then re-check for the
   MultiPolygon-fragment pattern above.
+- **Adding new land next to existing water: the water file doesn't clip
+  itself.** `out/seas_1946.geojson`/`lakes_1946.geojson` are hand-maintained
+  static inputs, same as `ownership_1946.json` — no build step subtracts new
+  land from them. Northern Cyprus/Dhekelia (2026-07-19-j) sat almost entirely
+  inside the Mediterranean polygon until this was done explicitly
+  (2026-07-19-k, user: "вырезать новые территории Кипра из моря") — same
+  move as `clip_against_dead_sea`, just in the opposite direction (clip
+  water by new land, not land by water). Do this in the same build step that
+  adds the new land, not as an afterthought.
+- **NEVER run a single `build_*.py` step "just to test it" if its output is
+  a gitignored `out/*.geojson`.** These files are NOT reproducible from
+  scratch by one script — they accumulate the result of a whole chain
+  (`build_namerica_1946.py` → `build_us_states_split_1946.py` → `fill_us_
+  border_gaps.py`, 51 states → 112 county clusters) PLUS at least one
+  enrichment no script reproduces at all (Panama Canal Zone — same class of
+  loss as the German occupation zones in 2026-07-19-i, `git log
+  -S"Panama Canal Zone"` only hits the original `146933a` import). Running
+  `build_namerica_1946.py` alone to check pyshp availability (2026-07-19-k)
+  silently regenerated it from `game_map.json` from scratch, discarding 62
+  regions (268→206) that no later step could rebuild. If you must confirm a
+  script runs, check the traceback/exit code only — don't let it finish
+  writing its output — or immediately diff the feature count against `git
+  show <last-good-commit>:client/public/world_1946.geojson` afterward and
+  restore from that commit if it shrank.
 
 ## Positional-file fragility (silent, untested)
 
@@ -241,4 +265,4 @@ neighbour id — validate: "region N: сосед M не существует").
   protocol before any "doesn't exist" conclusion or external-source reach.
 - `scripts/map/build/geometry_cleanup.py` — the gap-first implementation + docstrings.
 - `scripts/map/build/remap_region_ids.py` — the positional-fragility remap tool.
-- `docs/DECISIONS.md` 2026-07-19-a…j — the full incident history behind each rule.
+- `docs/DECISIONS.md` 2026-07-19-a…k — the full incident history behind each rule.
