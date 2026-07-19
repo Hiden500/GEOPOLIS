@@ -41,7 +41,11 @@ remap'ятся в:
 import argparse
 import json
 import collections
+import sys
 from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 from paths import out, REPO_ROOT
 
@@ -104,9 +108,16 @@ def apply_ownership_remap(remap, prefix):
 
 
 def apply_overlay_remap(remap, prefix):
+    """Неразрешённый старый ключ внутри префикса ДРОПАЕТСЯ, не сохраняется
+    как есть (2026-07-19-h): его старый region_id больше не существует как
+    отдельная фича, а числовая позиция могла достаться СОВСЕМ другому
+    региону в новой сборке — "оставляем как есть" тихо вешало оверрэй
+    оккупации не на ту фичу (найдено на Европе: orphaned "EUR-0366": "QGB"
+    от исчезнувшей Kiel Canal Zone внезапно приписался Ватикану, занявшему
+    ту же позицию после сдвига)."""
     data = load_json(OVERLAY_PATH)
     new_data = collections.OrderedDict()
-    remapped = 0
+    remapped, dropped = 0, []
     for k, v in data.items():
         if k.startswith("_") or not k.startswith(prefix):
             new_data[k] = v
@@ -115,11 +126,11 @@ def apply_overlay_remap(remap, prefix):
             new_data[remap[k]] = v
             remapped += 1
         else:
-            new_data[k] = v  # неизвестный старый id — оставляем, не наша забота
+            dropped.append(k)
     with open(OVERLAY_PATH, "w", encoding="utf-8") as f:
         json.dump(new_data, f, ensure_ascii=False, indent=2)
         f.write("\n")
-    return remapped
+    return remapped, dropped
 
 
 def apply_entities_remap(remap, prefix):
@@ -201,11 +212,11 @@ def main():
         return
 
     n_own, dropped = apply_ownership_remap(remap, args.prefix)
-    n_overlay = apply_overlay_remap(remap, args.prefix)
+    n_overlay, dropped_overlay = apply_overlay_remap(remap, args.prefix)
     n_entities = apply_entities_remap(remap, args.prefix)
     n_names, dropped_names = apply_names_ru_remap(remap, args.prefix)
     print(f"\nПрименено: ownership_1946.json {n_own} ключей (отброшено {len(dropped)}: {dropped}), "
-          f"occupation_overlay.json {n_overlay} ключей, "
+          f"occupation_overlay.json {n_overlay} ключей (отброшено {len(dropped_overlay)}: {dropped_overlay}), "
           f"country_entities_1946.json regionOwnerOverrides {n_entities} записей, "
           f"names_ru.json {n_names} записей (отброшено {len(dropped_names)}: {dropped_names}).")
     print("Не забудь: (1) добавить occupation_overlay-записи для ПОЛНОСТЬЮ новых регионов "

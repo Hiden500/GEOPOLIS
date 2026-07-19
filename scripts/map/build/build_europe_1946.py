@@ -12,9 +12,13 @@ build_europe_1946.py
 """
 from paths import game_map, out
 import json
+import sys
 import time
-from shapely.geometry import shape, mapping
-from shapely.ops import unary_union
+from shapely.geometry import shape, mapping, LineString
+from shapely.ops import unary_union, nearest_points
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from pyproj import Geod
 
 GEOD = Geod(ellps="WGS84")
@@ -30,7 +34,9 @@ KEEP_AS_IS = {
     "SK": "Словакия — уже 8 краёв",
     "DE": "Германия — уже 16 земель (зонирование отдельным шагом)",
     "DK": "Дания (метрополия) — уже 5 единиц",
-    "CY": "Кипр — 5 округов, не избыточно",
+    "CY": "Кипр — 5 округов источника не избыточны; 6-й (Kyrenia) отсутствовал"
+          " целиком в game_map.json, добавлен отдельным шагом extract_kyrenia.py"
+          " (2026-07-19-g)",
     "VA": "Ватикан — 1 регион",
     "BY": "Белорусская ССР — уже 6 областей + Минск",
     "GR": "Греция — оставлена без изменений по плану",
@@ -353,6 +359,77 @@ def geometric_merge_by_zone(items, sub_targets):
     return all_clusters
 
 
+def fix_cyprus_larnaca_exclave(features):
+    """game_map.json/Natural Earth относит небольшой отдельный кусок земли
+    рядом с Фамагустой к округу Larnaca (MultiPolygon, вторая часть
+    физически не касается основного тела Larnaca — 0.13 deg до него,
+    но touches() с Famagusta) — похоже на ошибку атрибуции в исходнике,
+    не реальный ларнакский эксклав. Найдено 2026-07-19-g по прямому
+    скриншоту пользователя (отдельный "остров" рядом с Кипром при
+    добавлении Кирении — extract_kyrenia.py). Переносим маленькую часть
+    в Famagusta, с которой она физически граничит."""
+    larnaca = next((ft for ft in features if ft["properties"].get("iso_a2") == "CY"
+                     and ft["properties"]["name"] == "Larnaca"), None)
+    famagusta = next((ft for ft in features if ft["properties"].get("iso_a2") == "CY"
+                        and ft["properties"]["name"] == "Famagusta"), None)
+    if larnaca is None or famagusta is None:
+        return
+    lg = shape(larnaca["geometry"])
+    if lg.geom_type != "MultiPolygon" or len(lg.geoms) < 2:
+        return
+    parts = list(lg.geoms)
+    main_part = max(parts, key=lambda p: p.area)
+    strays = [p for p in parts if p is not main_part]
+    fg = shape(famagusta["geometry"])
+    kept_strays = []
+    moved_area = 0.0
+    for p in strays:
+        if p.distance(fg) < 1e-6:
+            fg = unary_union([fg, p])
+            moved_area += area_km2(p)
+        else:
+            kept_strays.append(p)
+    if moved_area == 0.0:
+        return
+    new_larnaca = main_part if not kept_strays else unary_union([main_part] + kept_strays)
+    larnaca["geometry"] = mapping(new_larnaca)
+    larnaca["properties"]["area_km2"] = round(area_km2(new_larnaca), 1)
+    famagusta["geometry"] = mapping(fg)
+    famagusta["properties"]["area_km2"] = round(area_km2(fg), 1)
+    print(f"  [CY] перенесено {round(moved_area,1)} km2 из Larnaca-эксклава в Famagusta")
+
+
+def fix_cyprus_famagusta_gap(features, max_bridge_deg=0.15):
+    """Famagusta отделена от остального Кипра (Larnaca) разрывом ~0.098° уже
+    в САМОМ game_map.json/Natural Earth — не связано с geoBoundaries/
+    Киренией (extract_kyrenia.py), настоящая дыра в исходнике этого
+    континента. Найдено 2026-07-19-g тем же визуальным аудитом, что и
+    Larnaca-эксклав. Тот же минимальный мост (плоские торцы, без круглых
+    "пипок"), что и для Кирении — geometry_cleanup.absorb_slivers сюда не
+    подходит: разрыв закрыт полигоном моря (огрубление берега), это не
+    настоящий пролив, а gap-first не трогает то, что уже "вода"."""
+    famagusta = next((ft for ft in features if ft["properties"].get("iso_a2") == "CY"
+                        and ft["properties"]["name"] == "Famagusta"), None)
+    larnaca = next((ft for ft in features if ft["properties"].get("iso_a2") == "CY"
+                      and ft["properties"]["name"] == "Larnaca"), None)
+    if famagusta is None or larnaca is None:
+        return
+    fg = shape(famagusta["geometry"])
+    lg = shape(larnaca["geometry"])
+    gap = fg.distance(lg)
+    if gap == 0 or gap > max_bridge_deg:
+        return
+    p1, p2 = nearest_points(fg, lg)
+    bridge = LineString([p1, p2]).buffer(gap / 2 + 0.002, cap_style=2, join_style=2)
+    bridged = unary_union([fg, bridge])
+    if not bridged.is_valid:
+        bridged = bridged.buffer(0)
+    added_km2 = area_km2(bridged) - area_km2(fg)
+    famagusta["geometry"] = mapping(bridged)
+    famagusta["properties"]["area_km2"] = round(area_km2(bridged), 1)
+    print(f"  [CY] Famagusta соединена с Larnaca мостом (+{round(added_km2,1)} km2)")
+
+
 def main():
     t0 = time.time()
     feats = load_features(SRC)
@@ -450,6 +527,9 @@ def main():
             "source_units": n_source,
             "output_regions": len(clusters),
         })
+
+    fix_cyprus_larnaca_exclave(out_features)
+    fix_cyprus_famagusta_gap(out_features)
 
     fc = {"type": "FeatureCollection", "features": out_features}
     with open(OUT, "w", encoding="utf-8") as f:

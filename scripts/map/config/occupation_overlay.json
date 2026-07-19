@@ -3,7 +3,6 @@
   "_norfolk_island": "OCE-0008 ошибочно использует NFD, тот же код, что Newfoundland. Norfolk Island с 01.07.1914 был территорией Commonwealth of Australia. Источник: Norfolk Island Act 1913 и National Archives of Australia, https://www.naa.gov.au/explore-collection/australias-prime-ministers/joseph-cook/timeline",
   "OCE-0008": "AUS",
   "_germany_gap": "EUR-0366 (Kiel Canal Zone) — owner='DEU' в MAP, но controller отсутствует (единственный пробел в иначе полном native-покрытии немецких зон). Британская зона географически.",
-  "EUR-0366": "QGB",
   "_manchuria_soviet_occupation": "9 провинций исторической Маньчжурии (без приграничных Чахар/Жэхэ/Суйюань — это базовые районы КПК, не Маньчжурия) — под советской военной администрацией на 01.01.1946, вывод войск занял весь 1946 год. Отдельный код от QGS (Германия), т.к. разный театр/контекст.",
   "ASI-0027": "QMS",
   "ASI-0028": "QMS",

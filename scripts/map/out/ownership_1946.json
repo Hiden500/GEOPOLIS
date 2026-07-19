@@ -171,39 +171,33 @@
     "owner": "DEU",
     "controller": "GBR"
   },
-  "EUR-0056": {
-    "owner": "DEU",
-    "controller": "SUN"
-  },
   "EUR-0057": {
     "owner": "DEU",
     "controller": "SUN"
   },
   "EUR-0058": {
     "owner": "DEU",
-    "controller": "USA"
+    "controller": "SUN"
   },
   "EUR-0059": {
     "owner": "DEU",
-    "controller": "GBR"
+    "controller": "USA"
   },
   "EUR-0060": {
     "owner": "DEU",
-    "controller": "USA"
+    "controller": "GBR"
   },
   "EUR-0061": {
     "owner": "DEU",
-    "controller": "SUN"
+    "controller": "USA"
   },
   "EUR-0062": {
     "owner": "DEU",
     "controller": "SUN"
   },
   "EUR-0063": {
-    "owner": "DNK"
-  },
-  "EUR-0064": {
-    "owner": "DNK"
+    "owner": "DEU",
+    "controller": "SUN"
   },
   "EUR-0065": {
     "owner": "DNK"
@@ -215,19 +209,19 @@
     "owner": "DNK"
   },
   "EUR-0068": {
-    "owner": "SUN"
+    "owner": "DNK"
   },
   "EUR-0069": {
-    "owner": "SUN"
+    "owner": "DNK"
   },
   "EUR-0070": {
     "owner": "SUN"
   },
   "EUR-0071": {
-    "owner": "ESP"
+    "owner": "SUN"
   },
   "EUR-0072": {
-    "owner": "ESP"
+    "owner": "SUN"
   },
   "EUR-0073": {
     "owner": "ESP"
@@ -281,10 +275,10 @@
     "owner": "ESP"
   },
   "EUR-0090": {
-    "owner": "FIN"
+    "owner": "ESP"
   },
   "EUR-0091": {
-    "owner": "FIN"
+    "owner": "ESP"
   },
   "EUR-0092": {
     "owner": "FIN"
@@ -299,10 +293,10 @@
     "owner": "FIN"
   },
   "EUR-0096": {
-    "owner": "FRA"
+    "owner": "FIN"
   },
   "EUR-0097": {
-    "owner": "FRA"
+    "owner": "FIN"
   },
   "EUR-0098": {
     "owner": "FRA"
@@ -338,10 +332,10 @@
     "owner": "FRA"
   },
   "EUR-0109": {
-    "owner": "GBR"
+    "owner": "FRA"
   },
   "EUR-0110": {
-    "owner": "GBR"
+    "owner": "FRA"
   },
   "EUR-0111": {
     "owner": "GBR"
@@ -386,13 +380,13 @@
     "owner": "GBR"
   },
   "EUR-0125": {
-    "owner": "GIB"
+    "owner": "GBR"
   },
   "EUR-0126": {
-    "owner": "GRC"
+    "owner": "GBR"
   },
   "EUR-0127": {
-    "owner": "GRC"
+    "owner": "GIB"
   },
   "EUR-0128": {
     "owner": "GRC"
@@ -431,10 +425,10 @@
     "owner": "GRC"
   },
   "EUR-0140": {
-    "owner": "YUG"
+    "owner": "GRC"
   },
   "EUR-0141": {
-    "owner": "YUG"
+    "owner": "GRC"
   },
   "EUR-0142": {
     "owner": "YUG"
@@ -443,10 +437,10 @@
     "owner": "YUG"
   },
   "EUR-0144": {
-    "owner": "HUN"
+    "owner": "YUG"
   },
   "EUR-0145": {
-    "owner": "HUN"
+    "owner": "YUG"
   },
   "EUR-0146": {
     "owner": "HUN"
@@ -464,10 +458,10 @@
     "owner": "HUN"
   },
   "EUR-0151": {
-    "owner": "IRL"
+    "owner": "HUN"
   },
   "EUR-0152": {
-    "owner": "IRL"
+    "owner": "HUN"
   },
   "EUR-0153": {
     "owner": "IRL"
@@ -488,13 +482,13 @@
     "owner": "IRL"
   },
   "EUR-0159": {
-    "owner": "ISL"
+    "owner": "IRL"
   },
   "EUR-0160": {
-    "owner": "ITA"
+    "owner": "IRL"
   },
   "EUR-0161": {
-    "owner": "ITA"
+    "owner": "ISL"
   },
   "EUR-0162": {
     "owner": "ITA"
@@ -551,25 +545,25 @@
     "owner": "ITA"
   },
   "EUR-0180": {
-    "owner": "LIE"
+    "owner": "ITA"
   },
   "EUR-0181": {
-    "owner": "SUN"
+    "owner": "ITA"
   },
   "EUR-0182": {
-    "owner": "SUN"
+    "owner": "LIE"
   },
   "EUR-0183": {
     "owner": "SUN"
   },
   "EUR-0184": {
-    "owner": "LUX"
+    "owner": "SUN"
   },
   "EUR-0185": {
     "owner": "SUN"
   },
   "EUR-0186": {
-    "owner": "SUN"
+    "owner": "LUX"
   },
   "EUR-0187": {
     "owner": "SUN"
@@ -581,31 +575,31 @@
     "owner": "SUN"
   },
   "EUR-0190": {
-    "owner": "MCO"
+    "owner": "SUN"
   },
   "EUR-0191": {
     "owner": "SUN"
   },
   "EUR-0192": {
-    "owner": "YUG"
+    "owner": "MCO"
   },
   "EUR-0193": {
-    "owner": "YUG"
+    "owner": "SUN"
   },
   "EUR-0194": {
-    "owner": "MLT"
+    "owner": "YUG"
   },
   "EUR-0195": {
-    "owner": "MLT"
+    "owner": "YUG"
   },
   "EUR-0196": {
     "owner": "MLT"
   },
   "EUR-0197": {
-    "owner": "NLD"
+    "owner": "MLT"
   },
   "EUR-0198": {
-    "owner": "NLD"
+    "owner": "MLT"
   },
   "EUR-0199": {
     "owner": "NLD"
@@ -617,10 +611,10 @@
     "owner": "NLD"
   },
   "EUR-0202": {
-    "owner": "NOR"
+    "owner": "NLD"
   },
   "EUR-0203": {
-    "owner": "NOR"
+    "owner": "NLD"
   },
   "EUR-0204": {
     "owner": "NOR"
@@ -635,10 +629,10 @@
     "owner": "NOR"
   },
   "EUR-0208": {
-    "owner": "POL"
+    "owner": "NOR"
   },
   "EUR-0209": {
-    "owner": "POL"
+    "owner": "NOR"
   },
   "EUR-0210": {
     "owner": "POL"
@@ -662,10 +656,10 @@
     "owner": "POL"
   },
   "EUR-0217": {
-    "owner": "PRT"
+    "owner": "POL"
   },
   "EUR-0218": {
-    "owner": "PRT"
+    "owner": "POL"
   },
   "EUR-0219": {
     "owner": "PRT"
@@ -686,10 +680,10 @@
     "owner": "PRT"
   },
   "EUR-0225": {
-    "owner": "ROU"
+    "owner": "PRT"
   },
   "EUR-0226": {
-    "owner": "ROU"
+    "owner": "PRT"
   },
   "EUR-0227": {
     "owner": "ROU"
@@ -704,10 +698,10 @@
     "owner": "ROU"
   },
   "EUR-0231": {
-    "owner": "YUG"
+    "owner": "ROU"
   },
   "EUR-0232": {
-    "owner": "YUG"
+    "owner": "ROU"
   },
   "EUR-0233": {
     "owner": "YUG"
@@ -725,10 +719,10 @@
     "owner": "YUG"
   },
   "EUR-0238": {
-    "owner": "SUN"
+    "owner": "YUG"
   },
   "EUR-0239": {
-    "owner": "SUN"
+    "owner": "YUG"
   },
   "EUR-0240": {
     "owner": "SUN"
@@ -977,10 +971,10 @@
     "owner": "SUN"
   },
   "EUR-0322": {
-    "owner": "SWE"
+    "owner": "SUN"
   },
   "EUR-0323": {
-    "owner": "SWE"
+    "owner": "SUN"
   },
   "EUR-0324": {
     "owner": "SWE"
@@ -998,13 +992,13 @@
     "owner": "SWE"
   },
   "EUR-0329": {
-    "owner": "YUG"
+    "owner": "SWE"
   },
   "EUR-0330": {
-    "owner": "CSK"
+    "owner": "SWE"
   },
   "EUR-0331": {
-    "owner": "CSK"
+    "owner": "YUG"
   },
   "EUR-0332": {
     "owner": "CSK"
@@ -1025,13 +1019,13 @@
     "owner": "CSK"
   },
   "EUR-0338": {
-    "owner": "SMR"
+    "owner": "CSK"
   },
   "EUR-0339": {
-    "owner": "SUN"
+    "owner": "CSK"
   },
   "EUR-0340": {
-    "owner": "SUN"
+    "owner": "SMR"
   },
   "EUR-0341": {
     "owner": "SUN"
@@ -1103,37 +1097,16 @@
     "owner": "SUN"
   },
   "EUR-0364": {
-    "owner": "VAT"
+    "owner": "SUN"
   },
   "EUR-0365": {
-    "owner": "YUG"
+    "owner": "SUN"
   },
   "EUR-0366": {
-    "owner": "DEU"
+    "owner": "VAT"
   },
   "EUR-0367": {
-    "owner": "DEU",
-    "controller": "SUN"
-  },
-  "EUR-0368": {
-    "owner": "DEU",
-    "controller": "USA"
-  },
-  "EUR-0369": {
-    "owner": "DEU",
-    "controller": "GBR"
-  },
-  "EUR-0370": {
-    "owner": "DEU",
-    "controller": "FRA"
-  },
-  "EUR-0371": {
-    "owner": "DEU",
-    "controller": "USA"
-  },
-  "EUR-0372": {
-    "owner": "DEU",
-    "controller": "FRA"
+    "owner": "YUG"
   },
   "ASI-0001": {
     "owner": "CHN"
@@ -4570,5 +4543,16 @@
   },
   "LAK-0011": {
     "owner": null
+  },
+  "EUR-0056": {
+    "owner": "DEU",
+    "controller": "USA"
+  },
+  "EUR-0064": {
+    "owner": "DEU",
+    "controller": "SUN"
+  },
+  "EUR-0368": {
+    "owner": "CYP"
   }
 }
