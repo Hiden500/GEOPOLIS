@@ -70,7 +70,7 @@ def main():
     target_geoms = {id(ft): shape(ft["geometry"]) for ft in target_feats}
     target_union = unary_union(list(target_geoms.values()))
     neighbor_union = unary_union(neighbor_geoms)
-    buffered_neighbor = neighbor_union.buffer(GAP_THRESHOLD)
+    buffered_neighbor = neighbor_union.buffer(GAP_THRESHOLD, join_style=3)
 
     # Газа и Беэр-Шева соседствуют друг с другом, поэтому их общий зазор с
     # Египтом — ОДНА длинная непрерывная лента вдоль всей границы (~200 км),
@@ -82,7 +82,7 @@ def main():
     # локальная лента), без общего "ближайший победитель забирает всё".
     assigned = {}
     for ft in target_feats:
-        own_buffered = target_geoms[id(ft)].buffer(GAP_THRESHOLD)
+        own_buffered = target_geoms[id(ft)].buffer(GAP_THRESHOLD, join_style=3)
         own_gap = own_buffered.intersection(buffered_neighbor)
         own_gap = own_gap.difference(target_union).difference(neighbor_union)
         if own_gap.is_empty:
