@@ -34,9 +34,7 @@ SERVER_DIR = REPO_ROOT / "server"
 # Порядок — docs/plans/README.md/scripts/map/README.md "Порядок запуска".
 FULL_REBUILD_STEPS = [
     "build/build_europe_1946.py",
-    "build/extract_kyrenia.py",
     "build/build_china_1946_v2.py",
-    "build/build_palestine_1946.py",
     "build/build_asia_1946.py",
     "build/build_namerica_1946.py",
     "build/build_us_states_split_1946.py",

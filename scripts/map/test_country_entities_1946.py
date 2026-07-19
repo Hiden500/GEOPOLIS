@@ -192,20 +192,21 @@ class CountryEntities1946Test(unittest.TestCase):
             entry["regionId"]: entry["to"]
             for entry in config["continents"]["asia"]["regionOwnerOverrides"]
         }
-        # region_id здесь смещены на 2026-07-19 (Палестина 8->15 регионов,
-        # Ливан 4->5, ОАЭ 7->1 — см. docs/DECISIONS.md) относительно того,
-        # что было в этом тесте раньше; значения сверены заново с живым
-        # config после пересборки, не унаследованы механически.
+        # region_id здесь смещены на 2026-07-19-i (откат Сирии/Иордании/
+        # Ливана/Палестины на сырые провинции game_map.json — см.
+        # docs/DECISIONS.md) относительно того, что было в этом тесте
+        # раньше; значения сверены заново с живым config после пересборки,
+        # не унаследованы механически.
         expected = {
-            "ASI-0041": "QTB", "ASI-0122": "QSI", "ASI-0142": "QPI",
-            "ASI-0145": "QFI", "ASI-0267": "QNB", "ASI-0268": "QSR",
-            "ASI-0270": "QLB", "ASI-0379": "QDV", "ASI-0119": "QRI",
-            "ASI-0402": "QAD", "ASI-0199": "THA", "ASI-0200": "THA",
-            "ASI-0065": "VNM",
+            "ASI-0041": "QTB", "ASI-0115": "QSI", "ASI-0133": "QPI",
+            "ASI-0138": "QFI", "ASI-0267": "QNB", "ASI-0268": "QSR",
+            "ASI-0270": "QLB", "ASI-0376": "QDV", "ASI-0102": "QRI",
+            "ASI-0404": "QAD", "ASI-0198": "THA", "ASI-0199": "THA",
+            "ASI-0058": "VNM",
         }
         for region_id, target in expected.items():
             self.assertEqual(region_overrides[region_id], target)
-        for region_id in ("ASI-0064", "ASI-0120", "ASI-0135", "ASI-0295", "ASI-0301"):
+        for region_id in ("ASI-0057", "ASI-0113", "ASI-0128", "ASI-0295", "ASI-0301"):
             self.assertEqual(region_overrides[region_id], "QJK")
 
     def test_oceanian_entities_use_1946_administrations(self):

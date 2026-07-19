@@ -921,19 +921,19 @@
           "reason": "The Lhasa government exercised de facto authority over Tibet; China exercised no de facto authority."
         },
         {
-          "regionId": "ASI-0064",
+          "regionId": "ASI-0057",
           "to": "QJK",
           "confidence": "high",
           "reason": "Kashmir formed part of the princely State of Jammu and Kashmir before partition."
         },
         {
-          "regionId": "ASI-0120",
+          "regionId": "ASI-0113",
           "to": "QJK",
           "confidence": "high",
           "reason": "Ladakh formed part of the princely State of Jammu and Kashmir before partition."
         },
         {
-          "regionId": "ASI-0135",
+          "regionId": "ASI-0128",
           "to": "QJK",
           "confidence": "high",
           "reason": "Core Jammu and Kashmir polygon belonged to the undivided princely state."
@@ -951,25 +951,25 @@
           "reason": "Azad Kashmir did not exist before the 1947 war; this polygon belonged to the princely state."
         },
         {
-          "regionId": "ASI-0122",
+          "regionId": "ASI-0115",
           "to": "QSI",
           "confidence": "high",
           "reason": "Sikkim was a distinct British-protected kingdom, not part of British India."
         },
         {
-          "regionId": "ASI-0140",
+          "regionId": "ASI-0133",
           "to": "QPI",
           "confidence": "high",
           "reason": "Dadra and Nagar Haveli, Daman and Diu were Portuguese India, not British India."
         },
         {
-          "regionId": "ASI-0142",
+          "regionId": "ASI-0135",
           "to": "QPI",
           "confidence": "high",
           "reason": "Goa was Portuguese India until 1961."
         },
         {
-          "regionId": "ASI-0145",
+          "regionId": "ASI-0138",
           "to": "QFI",
           "confidence": "high",
           "reason": "Puducherry was part of the French Establishments in India."
@@ -993,42 +993,6 @@
           "reason": "Labuan was a distinct former Straits Settlement under postwar military administration on 1946-01-01."
         },
         {
-          "regionId": "ASI-0370",
-          "to": "QDV",
-          "confidence": "medium",
-          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
-        },
-        {
-          "regionId": "ASI-0371",
-          "to": "QDV",
-          "confidence": "medium",
-          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
-        },
-        {
-          "regionId": "ASI-0372",
-          "to": "QDV",
-          "confidence": "medium",
-          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
-        },
-        {
-          "regionId": "ASI-0373",
-          "to": "QDV",
-          "confidence": "medium",
-          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
-        },
-        {
-          "regionId": "ASI-0374",
-          "to": "QDV",
-          "confidence": "medium",
-          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
-        },
-        {
-          "regionId": "ASI-0375",
-          "to": "QDV",
-          "confidence": "medium",
-          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
-        },
-        {
           "regionId": "ASI-0376",
           "to": "QDV",
           "confidence": "medium",
@@ -1041,43 +1005,91 @@
           "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
         },
         {
+          "regionId": "ASI-0378",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
           "regionId": "ASI-0379",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0380",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0381",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0382",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0383",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0385",
           "to": "QDV",
           "confidence": "high",
           "reason": "Hanoi was the seat of the Democratic Republic of Vietnam government."
         },
         {
-          "regionId": "ASI-0391",
+          "regionId": "ASI-0397",
           "to": "QDV",
           "confidence": "high",
           "reason": "Hòa Bình formed part of the DRV-administered Tonkin area."
         },
         {
-          "regionId": "ASI-0392",
+          "regionId": "ASI-0398",
           "to": "QDV",
           "confidence": "high",
           "reason": "The northeast formed part of the DRV-administered Tonkin area."
         },
         {
-          "regionId": "ASI-0393",
+          "regionId": "ASI-0399",
           "to": "QDV",
           "confidence": "high",
           "reason": "Hải Phòng lay in the northern Chinese surrender zone alongside the DRV government."
         },
         {
-          "regionId": "ASI-0394",
+          "regionId": "ASI-0400",
           "to": "QDV",
           "confidence": "high",
           "reason": "Thái Nguyên formed part of the DRV-administered Tonkin area."
         },
         {
-          "regionId": "ASI-0109",
+          "regionId": "ASI-0102",
           "to": "QRI",
           "confidence": "medium",
           "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
         },
         {
-          "regionId": "ASI-0110",
+          "regionId": "ASI-0103",
+          "to": "QRI",
+          "confidence": "medium",
+          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
+        },
+        {
+          "regionId": "ASI-0104",
+          "to": "QRI",
+          "confidence": "medium",
+          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
+        },
+        {
+          "regionId": "ASI-0108",
           "to": "QRI",
           "confidence": "medium",
           "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
@@ -1089,61 +1101,49 @@
           "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
         },
         {
-          "regionId": "ASI-0115",
-          "to": "QRI",
-          "confidence": "medium",
-          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
-        },
-        {
-          "regionId": "ASI-0118",
-          "to": "QRI",
-          "confidence": "medium",
-          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
-        },
-        {
-          "regionId": "ASI-0119",
+          "regionId": "ASI-0112",
           "to": "QRI",
           "confidence": "high",
           "reason": "The Republic of Indonesia was proclaimed in Java and exercised de facto authority over most of the island."
         },
         {
-          "regionId": "ASI-0398",
+          "regionId": "ASI-0404",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Hadramawt belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."
         },
         {
-          "regionId": "ASI-0399",
+          "regionId": "ASI-0405",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Al Mahrah belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."
         },
         {
-          "regionId": "ASI-0401",
+          "regionId": "ASI-0407",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Shabwah approximates states of the Aden Protectorate, not independent Yemen."
         },
         {
-          "regionId": "ASI-0402",
+          "regionId": "ASI-0408",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Lahij and Aden belonged to the Aden Colony and Protectorate administration."
         },
         {
-          "regionId": "ASI-0199",
+          "regionId": "ASI-0198",
           "to": "THA",
           "confidence": "medium",
           "reason": "Battambang remained under Thai de facto administration until the November 1946 settlement restored the pre-1941 frontier."
         },
         {
-          "regionId": "ASI-0200",
+          "regionId": "ASI-0199",
           "to": "THA",
           "confidence": "medium",
           "reason": "Siem Reap remained under Thai de facto administration until the November 1946 settlement restored the pre-1941 frontier."
         },
         {
-          "regionId": "ASI-0065",
+          "regionId": "ASI-0058",
           "to": "VNM",
           "confidence": "low",
           "reason": "Spratly sovereignty was disputed; the coarse single polygon follows the prewar French Indochina claim pending a future disputed-territory model."

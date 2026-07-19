@@ -34,9 +34,10 @@ KEEP_AS_IS = {
     "SK": "Словакия — уже 8 краёв",
     "DE": "Германия — уже 16 земель (зонирование отдельным шагом)",
     "DK": "Дания (метрополия) — уже 5 единиц",
-    "CY": "Кипр — 5 округов источника не избыточны; 6-й (Kyrenia) отсутствовал"
-          " целиком в game_map.json, добавлен отдельным шагом extract_kyrenia.py"
-          " (2026-07-19-g)",
+    "CY": "Кипр — 5 округов источника + Northern Cyprus/Dhekelia добавляются"
+          " функцией add_cyprus_extra_territories (2026-07-19-i, см. её"
+          " докстринг — извлекаются из тех же 'потеряшек' iso_a2='-1', что и"
+          " Кашмир/Спратли в Азии, не из внешнего источника)",
     "VA": "Ватикан — 1 регион",
     "BY": "Белорусская ССР — уже 6 областей + Минск",
     "GR": "Греция — оставлена без изменений по плану",
@@ -400,14 +401,17 @@ def fix_cyprus_larnaca_exclave(features):
 
 
 def fix_cyprus_famagusta_gap(features, max_bridge_deg=0.15):
-    """Famagusta отделена от остального Кипра (Larnaca) разрывом ~0.098° уже
-    в САМОМ game_map.json/Natural Earth — не связано с geoBoundaries/
-    Киренией (extract_kyrenia.py), настоящая дыра в исходнике этого
-    континента. Найдено 2026-07-19-g тем же визуальным аудитом, что и
-    Larnaca-эксклав. Тот же минимальный мост (плоские торцы, без круглых
-    "пипок"), что и для Кирении — geometry_cleanup.absorb_slivers сюда не
-    подходит: разрыв закрыт полигоном моря (огрубление берега), это не
-    настоящий пролив, а gap-first не трогает то, что уже "вода"."""
+    """SUPERSEDED (2026-07-19-i) — БОЛЬШЕ НЕ ВЫЗЫВАЕТСЯ. Диагноз "Famagusta
+    оторвана от Larnaca разрывом ~0.098°" (2026-07-19-g) был неверным: тот
+    "разрыв" — это территория Northern Cyprus (iso_a2="-1" в game_map.json,
+    см. add_cyprus_extra_territories), которую я тогда не проверил.
+    Численно: main-body Larnaca касается Northern Cyprus на distance=0.0,
+    Famagusta тоже касается Northern Cyprus на distance=0.0 — Larnaca и
+    Famagusta НЕ должны быть смежны напрямую, между ними законно лежит
+    Northern Cyprus. Мост, который эта функция строила, на 100.27 из
+    101.5 km2 накладывался на настоящую территорию Northern Cyprus (нашлось
+    численно при добавлении последней). Оставлено в коде как пройденный
+    урок (см. find-existing-solutions), не удалено."""
     famagusta = next((ft for ft in features if ft["properties"].get("iso_a2") == "CY"
                         and ft["properties"]["name"] == "Famagusta"), None)
     larnaca = next((ft for ft in features if ft["properties"].get("iso_a2") == "CY"
@@ -428,6 +432,75 @@ def fix_cyprus_famagusta_gap(features, max_bridge_deg=0.15):
     famagusta["geometry"] = mapping(bridged)
     famagusta["properties"]["area_km2"] = round(area_km2(bridged), 1)
     print(f"  [CY] Famagusta соединена с Larnaca мостом (+{round(added_km2,1)} km2)")
+
+
+def add_cyprus_extra_territories(feats, out_features):
+    """Northern Cyprus и Dhekelia — не отдельные страны в game_map.json, а
+    фичи с iso_a2="-1" (тот же тег, что у Кашмира/Спратли в Азии — спорные/
+    де-факто территории без официального ISO). Раньше (extract_kyrenia.py,
+    2026-07-19-g) я проверил наличие Кирении только по iso_a2=="CY",
+    заключил, что её нет в game_map.json вовсе, и притащил внешний
+    geoBoundaries-граф с буферным мостом — получился уродливый шов,
+    пользователь отклонил и указал искать по смежным полигонам под другим
+    тегом (2026-07-19-i). Northern Cyprus (3309.8 km2, sov_a3="CYN") лежит
+    в том же файле и стыкуется с существующими 5 округами БЕЗ разрыва
+    (distance=0.0, overlap=0.0 — проверено численно) — покрывает больше
+    площади, чем одна историческая Кирения, и корректно смыкает суммарную
+    площадь острова (~9045 km2 против реальных ~9251 km2). Dhekelia
+    (134.1 km2) — британская военная база со статусом только с 1960 года
+    (в 1946 просто территория Ларнаки), но по решению пользователя
+    современные анахронизмы источника оставляются буквально, не
+    сворачиваются (тот же принцип, что для UNDOF/An Nabatiyah в Азии).
+    Выходной iso_a2="CY" для обеих — в 1946 весь остров был единой
+    британской колонией, Northern Cyprus/TRNC как отдельный статус не
+    существовал. extract_kyrenia.py остаётся на диске, помечен как
+    superseded в собственном докстринге, не вызывается пайплайном."""
+    EXTRA = ["Northern Cyprus", "Dhekelia"]
+    extra_geoms = []
+    for name in EXTRA:
+        ft = next((f for f in feats if f["properties"].get("iso_a2") == "-1"
+                    and f["properties"].get("name") == name), None)
+        if ft is None:
+            print(f"  [CY] ВНИМАНИЕ: '{name}' не найден в game_map.json")
+            continue
+        g = shape(ft["geometry"])
+        extra_geoms.append(g)
+        out_features.append({
+            "type": "Feature",
+            "properties": {
+                "iso_a2": "CY",
+                "name": name,
+                "source_adm1": [ft["properties"].get("adm1_code")],
+                "source_count": 1,
+                "area_km2": round(area_km2(g), 1),
+                "merge_method": "keep_raw_extra",
+            },
+            "geometry": mapping(g),
+        })
+        print(f"  [CY] добавлена {name} ({round(area_km2(g), 1)} km2)")
+
+    if not extra_geoms:
+        return
+    extra_union = unary_union(extra_geoms)
+    # fix_cyprus_famagusta_gap раздула Famagusta буферным мостом ДО того, как
+    # Northern Cyprus/Dhekelia появились в геометрии — мост слегка заходит на
+    # обе (0.0037/0.0062 deg2, проверено численно). Northern Cyprus/Dhekelia
+    # авторитетны (тот же провенанс, что остальные округа), поэтому клипаем
+    # существующие CY-фичи по ним, не наоборот.
+    for ft in out_features:
+        if ft["properties"].get("iso_a2") != "CY" or ft["properties"].get("name") in EXTRA:
+            continue
+        g = shape(ft["geometry"])
+        if g.intersects(extra_union):
+            clipped = g.difference(extra_union)
+            if not clipped.is_valid:
+                clipped = clipped.buffer(0)
+            if clipped.area > 1e-9:
+                overlap_km2 = area_km2(g) - area_km2(clipped)
+                ft["geometry"] = mapping(clipped)
+                ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
+                print(f"  [CY] {ft['properties']['name']} обрезана по "
+                      f"Northern Cyprus/Dhekelia (-{round(overlap_km2, 2)} km2)")
 
 
 def main():
@@ -529,7 +602,10 @@ def main():
         })
 
     fix_cyprus_larnaca_exclave(out_features)
-    fix_cyprus_famagusta_gap(out_features)
+    # fix_cyprus_famagusta_gap(out_features) — SUPERSEDED, см. её докстринг:
+    # "разрыв" Larnaca/Famagusta оказался территорией Northern Cyprus,
+    # добавляемой ниже, не настоящей дырой источника.
+    add_cyprus_extra_territories(feats, out_features)
 
     fc = {"type": "FeatureCollection", "features": out_features}
     with open(OUT, "w", encoding="utf-8") as f:

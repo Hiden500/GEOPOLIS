@@ -13,7 +13,7 @@ build_asia_1946.py
                  чтобы не сливать физически разные части страны
                  (напр. Маньчжурию с югом Китая)
 """
-from paths import game_map, out
+from paths import game_map, out, source
 import json
 import time
 import math
@@ -37,6 +37,15 @@ KEEP_AS_IS = {
     "VN": "Вьетнам — оригинальные провинции, не группируем",
     "KR": "Южная Корея — оригинал (17), Сеул/Инчхон/Пусан/Тэгу и др. критичны для симуляции",
     "KP": "Северная Корея — оригинал (11), Пхеньян/Расон отдельно критичны для симуляции",
+    # SY/JO/LB (2026-07-19-i): откат с geometric/custom_zoned-группировки на
+    # сырые провинции game_map.json — пользователь потребовал перестать
+    # курировать число/состав регионов без явного запроса ("Я потом скажу
+    # какие провинции разбить"), см. docs/DECISIONS.md. Современные
+    # анахронизмы источника (UNDOF в SY, An Nabatiyah в LB) оставлены
+    # буквально, не сворачиваются — по прямому решению пользователя.
+    "SY": "Сирия — сырые провинции game_map.json (было: geometric-слияние в 10)",
+    "JO": "Иордания — сырые провинции game_map.json (было: geometric-слияние в 6)",
+    "LB": "Ливан — сырые провинции game_map.json (было: курированные 5 мухафаз 1946)",
 }
 
 # Китай — НЕ из game_map.json (современные 32 провинции — потолок без
@@ -48,13 +57,17 @@ KEEP_AS_IS = {
 # Парасельские острова.
 CHINA_HISTORICAL_FILE = out("china_1946_historical.json")
 
-# Подмандатная Палестина (IL+PS в исходнике) — реальный 1946 год: 16
-# подрайонов / 6 округов мандата, не 6 современных израильских округов + 2
-# нерасчленённых пятна. См. build_palestine_1946.py за источниками и
-# группировкой (в источнике нет native controller/historical shapefile, как
-# у Германии/Кореи/Китая — построено объединением совр. ADM2-юнитов
-# geoBoundaries по историческому подрайону).
-PALESTINE_HISTORICAL_FILE = out("palestine_1946_historical.json")
+# Подмандатная Палестина (IL+PS в исходнике) — 2026-07-19-i: откат с
+# исторической 16-подрайонной реконструкции (build_palestine_1946.py, файл
+# и скрипт остаются на диске как справочный материал для будущего
+# разбиения — см. докстринг скрипта) на сырые 6 округов Израиля + 2 пятна
+# Палестины прямо из game_map.json, без объединения/группировки. Выходной
+# iso_a2 остаётся единым "PS" для всех (одна территория Подмандатной
+# Палестины в 1946 году — не решение о делении, конвенция не изменилась).
+# Голан (см. GOLAN_SRC ниже) по-прежнему вырезается из HaZafon и уходит в
+# Сирию — вопрос суверенитета 1946 года, не "провинция для разбиения".
+GOLAN_SRC = source("palestine_hist/geoBoundaries-ISR-ADM2.geojson")
+PALESTINE_RAW_ISO = {"IL", "PS"}
 
 # Микрогосударства + "потеряшки" с отдельным iso_a2, не входившие в список
 # стран Азии (аналог Косово/Аландов/Гибралтара в Европе)
@@ -111,36 +124,14 @@ CUSTOM_ZONED = {
         "default_zone": "Rest",
         "targets": {"AzGov": 3, "Mahabad": 1, "Rest": 6},
     },
-    "LB": {
-        # Ливан — курированная группировка в 5 РЕАЛЬНЫХ мухафаз 1946 года
-        # (Бейрут/Гора Ливан/Северный Ливан/Южный Ливан/Бекаа), не слепой
-        # geometric-merge (2026-07-19, по принципу "совместимость с будущими
-        # конфликтами" — см. docs/HISTORICAL_ACCURACY.md). Гражданская война
-        # 1975-1990 и последующие конфликты (южноливанская "зона
-        # безопасности" Израиля 1982-2000, война 2006) проходят ровно по
-        # линиям этих 5 мухафаз (Бейрут — христ./мусульм. раздел города;
-        # Гора Ливан — христиане/друзы; Север — сунниты; Бекаа — шииты,
-        # позже Хезболла и сирийское влияние; Юг — шииты/палестинские
-        # лагеря/зона израильской оккупации) — слепой алгоритм мог бы
-        # смешать ровно эти значимые для будущих сценариев линии.
-        # "An Nabatiyah" (мухафаза с 1975, выделена из Южного Ливана) на
-        # 1946 год не существовала — сворачиваю обратно в South Lebanon,
-        # территорию её происхождения.
-        "zone_of": {
-            "Beirut": "Beirut", "Mount Lebanon": "Mount Lebanon",
-            "North Lebanon": "North Lebanon", "South Lebanon": "South Lebanon",
-            "An Nabatiyah": "South Lebanon", "Beqaa": "Beqaa",
-        },
-        "default_zone": "South Lebanon",
-        "targets": {"Beirut": 1, "Mount Lebanon": 1, "North Lebanon": 1,
-                     "South Lebanon": 1, "Beqaa": 1},
-    },
+    # LB (курированные 5 мухафаз 1946) отменено 2026-07-19-i — откат на
+    # сырые провинции через KEEP_AS_IS, см. запись в docs/DECISIONS.md.
 }
 
 GEOMETRIC = {
-    "AF": 8, "AM": 3, "GE": 3, "JO": 6, "KG": 4, "TJ": 4,
+    "AF": 8, "AM": 3, "GE": 3, "KG": 4, "TJ": 4,
     "MM": 6, "KH": 5, "LA": 4, "MN": 8, "KZ": 10, "UZ": 6, "MY": 6,
-    "ID": 20, "SY": 10, "SA": 8, "OM": 4,
+    "ID": 20, "SA": 8, "OM": 4,
     # AE (ОАЭ/Договорной Оман) — консолидировано обратно в 1 полигон/страну
     # (2026-07-19, разворот решения 2026-06-28 о разделе на 7 отдельных
     # шейхств-стран — см. docs/DECISIONS.md). Все 7 шейхств были одной и
@@ -657,52 +648,98 @@ def main():
     report.append({"iso2": "CN", "method": "historical_shapefile",
                     "source_units": 36, "output_regions": len(china_fc["features"])})
 
-    # Подмандатная Палестина — отдельно обработанный исторический набор
-    # (см. build_palestine_1946.py). iso_a2="PS" на выходе (владелец в
-    # любом случае резолвится в PSE через occupation_overlay.json, не
-    # через iso_a2 напрямую) — единый тег вместо исходных IL/PS, т.к. это
-    # была одна территория в 1946 году.
-    with open(PALESTINE_HISTORICAL_FILE, encoding="utf-8") as f:
-        palestine_fc = json.load(f)
+    # Подмандатная Палестина (2026-07-19-i) — сырые провинции game_map.json
+    # (6 округов Израиля + 2 пятна Палестины), не историческая 16-подрайонная
+    # реконструкция (откат по требованию пользователя, build_palestine_
+    # 1946.py остаётся на диске справочным материалом для будущего
+    # разбиения). iso_a2="PS" на выходе для ВСЕХ (владелец резолвится в PSE
+    # через occupation_overlay.json) — единый тег вместо исходных IL/PS,
+    # т.к. это была одна территория в 1946 году (конвенция не изменилась).
+    golan_src_fc = None
+    golan_ft = None
+    with open(GOLAN_SRC, encoding="utf-8") as f:
+        golan_src_fc = json.load(f)
+    for ft in golan_src_fc["features"]:
+        if ft["properties"].get("shapeName") == "Golan":
+            golan_ft = ft
+            break
+    if golan_ft is None:
+        print("  [PS] ВНИМАНИЕ: 'Golan' не найден в geoBoundaries ISR ADM2 — Голан не вырезан")
+
+    golan_geom = shape(golan_ft["geometry"]) if golan_ft is not None else None
+    if golan_geom is not None:
+        # geoBoundaries ISR-полигон Golan слегка заходит на границы
+        # Иордании И Ливана (Natural Earth) — обрезаем по СЫРЫМ исходным
+        # юнитам обеих стран, уже в by_country (SY/JO/LB все теперь
+        # KEEP_AS_IS, см. выше). Иордания: 0.00073 deg2 наложение
+        # Amman/Rif Dimashq (2026-07-19); Ливан: 0.00013 deg2 наложение
+        # South Lebanon/Rif Dimashq в районе Шебаа/Хермон (2026-07-19-e).
+        raw_neighbors = by_country.get("JO", []) + by_country.get("LB", [])
+        if raw_neighbors:
+            neighbors_union = unary_union([it["geom"] for it in raw_neighbors])
+            if golan_geom.intersects(neighbors_union):
+                golan_geom = golan_geom.difference(neighbors_union)
+                if not golan_geom.is_valid:
+                    golan_geom = golan_geom.buffer(0)
+        # Раздельные источники: сырые сирийские провинции (Natural Earth,
+        # включая анахроничный UNDOF) и Golan (geoBoundaries ISR) реально
+        # накладываются — UNDOF (буферная зона ООН 1974 года) сидит именно
+        # на границе Голана, оцифрован независимо. Найдено численно
+        # (merge_world_1946.py: 'ASI-0313 UNDOF x ASI-0328 Golan 0.00412
+        # deg2' = 42.6 km2, ~16% площади UNDOF, 2026-07-19-i). Golan —
+        # специально построенная историческая граница, авторитетна для
+        # своей области; обрезаем по нему уже загруженные сырые сирийские
+        # юниты (UNDOF и любой другой, кто случайно заходит), не наоборот.
+        syria_raw = by_country.get("SY", [])
+        for it in syria_raw:
+            if it["geom"].intersects(golan_geom):
+                clipped = it["geom"].difference(golan_geom)
+                if not clipped.is_valid:
+                    clipped = clipped.buffer(0)
+                if clipped.area > 1e-9:
+                    removed_km2 = it["area"] - area_km2(clipped)
+                    it["geom"] = clipped
+                    it["area"] = area_km2(clipped)
+                    print(f"  [SY] {it['name']} обрезана по Golan "
+                          f"(-{round(removed_km2, 1)} km2)")
+
+        # Приклеиваем как доп. исходный юнит Сирии ДО того, как SY пройдёт
+        # через KEEP_AS_IS/clusters_from_items — станет отдельным сирийским
+        # регионом "Golan", как и остальные сырые провинции.
+        by_country.setdefault("SY", []).append({
+            "adm1_code": "GEOB-ISR-GOLAN",
+            "name": golan_ft["properties"]["shapeName"],
+            "region_field": "",
+            "geom": golan_geom,
+            "area": area_km2(golan_geom),
+        })
+
     ps_count = 0
-    for ft in palestine_fc["features"]:
-        if ft["properties"]["iso_a2"] == "SY":
-            # Голанские высоты (см. build_palestine_1946.py) — не подрайон
-            # Палестины, реальная дыра в game_map.json для Сирии/Израиля
-            # (не была покрыта ни одним набором до этой находки 2026-07-19).
-            # Вливаем как доп. исходный юнит Сирии ДО GEOMETRIC-слияния —
-            # алгоритм сам подхватит её к соседнему кластеру (Quneitra/Dar'a),
-            # а не оставляем отдельной необработанной фичей.
-            g = shape(ft["geometry"])
-            # geoBoundaries ISR-полигон Golan слегка заходит на границы
-            # Иордании И Ливана (Natural Earth) — обрезаем по СЫРЫМ (ещё не
-            # слитым) исходным юнитам обеих стран, уже загруженным в
-            # by_country на этом шаге; итоговая площадь union не зависит от
-            # того, как именно они будут сгруппированы дальше. Иордания:
-            # 0.00073 deg2 наложение Amman/Rif Dimashq (2026-07-19); Ливан:
-            # 0.00013 deg2 наложение South Lebanon/Rif Dimashq в районе
-            # Шебаа/Хермон (2026-07-19-e).
-            raw_neighbors = by_country.get("JO", []) + by_country.get("LB", [])
-            if raw_neighbors:
-                neighbors_union = unary_union([it["geom"] for it in raw_neighbors])
-                if g.intersects(neighbors_union):
-                    g = g.difference(neighbors_union)
-                    if not g.is_valid:
-                        g = g.buffer(0)
-            by_country.setdefault("SY", []).append({
-                "adm1_code": "GEOB-ISR-GOLAN",
-                "name": ft["properties"]["name"],
-                "region_field": "",
-                "geom": g,
-                "area": area_km2(g),
-            })
+    for f in feats:
+        iso2 = f["properties"].get("iso_a2")
+        if iso2 not in PALESTINE_RAW_ISO:
             continue
-        ft["properties"]["source_adm1"] = [ft["properties"]["name"]]
-        ft["properties"]["source_count"] = 1
-        out_features.append(ft)
+        it = to_item(f)
+        g = it["geom"]
+        if it["name"] == "HaZafon" and golan_geom is not None:
+            g = g.difference(golan_geom)
+            if not g.is_valid:
+                g = g.buffer(0)
+        out_features.append({
+            "type": "Feature",
+            "properties": {
+                "iso_a2": "PS",
+                "name": it["name"],
+                "source_adm1": [it["adm1_code"]],
+                "source_count": 1,
+                "area_km2": round(area_km2(g), 1),
+                "merge_method": "keep_raw",
+            },
+            "geometry": mapping(g),
+        })
         ps_count += 1
-    report.append({"iso2": "PS", "method": "historical_adm2_group",
-                    "source_units": 31, "output_regions": ps_count})
+    report.append({"iso2": "PS", "method": "keep_raw",
+                    "source_units": ps_count, "output_regions": ps_count})
 
     # Отдельные фичи по adm1_code (анклавы с iso_a2='-1', спорные территории)
     for code, label, out_iso2 in EXTRA_SINGLE_FEATURES:
@@ -763,14 +800,10 @@ def main():
         else:
             continue
 
-        if iso2 == "LB":
-            # Слитая зона "South Lebanon"+"An Nabatiyah" называется по имени
-            # наибольшей по площади исходной части — ей оказалась An Nabatiyah
-            # (мухафаза только с 1975 года), а не исторически верный South
-            # Lebanon. Переименовываем итоговый кластер явно.
-            for c in clusters:
-                if c["names"] and c["names"][0] == "An Nabatiyah":
-                    c["names"] = ["South Lebanon"] + c["names"][1:]
+        # LB (2026-07-19-i): раньше здесь переименовывался слитый кластер
+        # "South Lebanon"+"An Nabatiyah" — с откатом на KEEP_AS_IS слияния
+        # больше нет, An Nabatiyah выходит отдельной сырой провинцией под
+        # своим именем (буквально, по решению пользователя).
 
         for c in clusters:
             out_features.append(make_output_feature(c, iso2, method))
