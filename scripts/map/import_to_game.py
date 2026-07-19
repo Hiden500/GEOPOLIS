@@ -155,6 +155,17 @@ def main():
     for i, ft in enumerate(features, start=1):
         region_id_to_numeric[ft["properties"]["region_id"]] = i
 
+    # Множество land-регионов из САМОГО world-файла (не из names_ru.json) —
+    # только они становятся Region, поэтому только на них может ссылаться
+    # neighboringRegionIds. Раньше фильтр соседей смотрел region_type в
+    # names_ru.json; любой водоём, отсутствующий там (напр. заново добавленный
+    # Кинерет LAK-0012, 2026-07-19-f), проходил фильтр как "land" по дефолту и
+    # утекал висячей ссылкой в граф соседей. Источник истины о типе — world.
+    land_region_ids = {
+        ft["properties"]["region_id"] for ft in features
+        if ft["properties"].get("region_type", "land") == "land"
+    }
+
     # --- 1. Геометрия для клиента ---
     out_features = []
     for ft in features:
@@ -205,7 +216,7 @@ def main():
             region_id_to_numeric[n]
             for n in neighbors.get(region_id, [])
             # сосед должен сам быть land-регионом (только такие становятся Region)
-            if n in region_id_to_numeric and names.get(n, {}).get("region_type", "land") == "land"
+            if n in region_id_to_numeric and n in land_region_ids
         ]
         numeric_id = region_id_to_numeric[region_id]
 

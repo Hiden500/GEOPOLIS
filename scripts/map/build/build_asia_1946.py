@@ -337,36 +337,46 @@ def absorb_middle_east_slivers(features):
     absorb_slivers_until_stable(mutable, context, water, clip_box, label="MidEast")
 
 
+# Озёра, по которым обрезается суша (регион не должен закрывать воду) —
+# у каждого источника суши берег оцифрован грубее реального. НЕ включает
+# Аральское: пользователь отложил его на будущее (отдельная история с
+# восстановлением границ 1946 года, см. lakes_1946.geojson).
+CLIP_LAKE_NAMES = {
+    "Мёртвое море",             # Иордания/Иерусалим/Беэр-Шева заходили на 0.01-0.03 deg2
+    "Кинерет (Галилейское море)",  # Tiberias закрывал озеро сушей (2026-07-19-f)
+}
+
+
 def clip_against_dead_sea(features):
-    """Иордания (Karak/Amman, game_map.json/Natural Earth) и Иерусалим/
-    Беэр-Шева (geoBoundaries) независимо заходят на полигон Мёртвого моря
-    (scripts/map/out/lakes_1946.geojson) на 0.01-0.03 deg2 — реальные
-    границы суши там ближе к берегу, чем оцифровка этих источников. Найдено
-    2026-07-19 по жалобе пользователя на "границы заходят на Мёртвое море".
-    ТОЛЬКО Мёртвое море - Аральское специально не трогаем здесь (пользователь
-    отложил его на будущее, у него отдельная история с восстановлением
-    границ 1946 года, см. lakes_1946.geojson)."""
+    """Обрезает сушу по озёрам CLIP_LAKE_NAMES (scripts/map/out/
+    lakes_1946.geojson) — реальный берег ближе к воде, чем оцифровка
+    источников суши. Найдено 2026-07-19 по жалобе на "границы заходят на
+    Мёртвое море"; 2026-07-19-f сюда же добавлен Кинерет (округ Kinneret в
+    geoBoundaries ISR включает воду сплошняком, из-за чего Tiberias закрывал
+    озеро сушей — теперь озеро вырезано в настоящий водоём). geometry_cleanup
+    подхватывает эти озёра как воду автоматически (load_water_geoms), поэтому
+    absorb_slivers не заполняет вырезанное."""
     lakes_path = out("lakes_1946.geojson")
     with open(lakes_path, encoding="utf-8") as f:
         lakes_fc = json.load(f)
     lake_geoms = [shape(ft["geometry"]) for ft in lakes_fc["features"]
-                   if ft["properties"].get("name") == "Мёртвое море"]
+                   if ft["properties"].get("name") in CLIP_LAKE_NAMES]
     if not lake_geoms:
-        print("  [DEAD SEA] ВНИМАНИЕ: полигон 'Мёртвое море' не найден в lakes_1946.geojson")
+        print(f"  [LAKES] ВНИМАНИЕ: не найдено ни одного из {CLIP_LAKE_NAMES} в lakes_1946.geojson")
         return
-    lake = unary_union(lake_geoms)
+    lakes_union = unary_union(lake_geoms)
     n_clipped = 0
     for ft in features:
         g = shape(ft["geometry"])
-        if g.intersects(lake):
-            clipped = g.difference(lake)
+        if g.intersects(lakes_union):
+            clipped = g.difference(lakes_union)
             if not clipped.is_valid:
                 clipped = clipped.buffer(0)
             if clipped.area > 1e-9:
                 ft["geometry"] = mapping(clipped)
                 ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
                 n_clipped += 1
-    print(f"  [DEAD SEA] обрезано регионов: {n_clipped}")
+    print(f"  [LAKES] обрезано регионов по озёрам: {n_clipped}")
 
 
 def apply_vietnam_explicit_merges(features):

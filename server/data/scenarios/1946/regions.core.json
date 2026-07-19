@@ -6186,7 +6186,7 @@
   {
     "id": 422,
     "geoJsonId": "ASI-0050",
-    "area": 628.1,
+    "area": 468.1,
     "neighboringRegionIds": [
       420,
       421,
@@ -10025,7 +10025,7 @@
   {
     "id": 693,
     "geoJsonId": "ASI-0321",
-    "area": 19956.5,
+    "area": 19956.4,
     "neighboringRegionIds": [
       421,
       422,

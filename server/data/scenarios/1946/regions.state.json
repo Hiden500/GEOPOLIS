@@ -6978,14 +6978,14 @@
   {
     "id": 420,
     "ownerCountryId": "PSE",
-    "population": 76025,
+    "population": 77857,
     "urbanization": 0.086,
     "stability": 0.195,
     "infrastructure": 0.124,
     "development": 0.175,
-    "gdp": 1649742,
+    "gdp": 1689497,
     "deposits": {
-      "food": 51
+      "food": 53
     },
     "extraction": {
       "food": 10
@@ -6994,14 +6994,14 @@
   {
     "id": 421,
     "ownerCountryId": "PSE",
-    "population": 65310,
+    "population": 66884,
     "urbanization": 0.093,
     "stability": 0.193,
     "infrastructure": 0.128,
     "development": 0.164,
-    "gdp": 1370988,
+    "gdp": 1404029,
     "deposits": {
-      "food": 43
+      "food": 44
     },
     "extraction": {
       "food": 10
@@ -7010,14 +7010,14 @@
   {
     "id": 422,
     "ownerCountryId": "PSE",
-    "population": 299397,
+    "population": 260831,
     "urbanization": 0.28,
     "stability": 0.234,
     "infrastructure": 0.178,
     "development": 0.227,
-    "gdp": 12097435,
+    "gdp": 10539137,
     "deposits": {
-      "food": 218
+      "food": 190
     },
     "extraction": {
       "food": 10
@@ -7026,14 +7026,14 @@
   {
     "id": 423,
     "ownerCountryId": "PSE",
-    "population": 94507,
+    "population": 96784,
     "urbanization": 0.087,
     "stability": 0.2,
     "infrastructure": 0.142,
     "development": 0.166,
-    "gdp": 2227719,
+    "gdp": 2281392,
     "deposits": {
-      "food": 63
+      "food": 64
     },
     "extraction": {
       "food": 10
@@ -7042,14 +7042,14 @@
   {
     "id": 424,
     "ownerCountryId": "PSE",
-    "population": 76325,
+    "population": 78164,
     "urbanization": 0.084,
     "stability": 0.185,
     "infrastructure": 0.121,
     "development": 0.162,
-    "gdp": 1496123,
+    "gdp": 1532171,
     "deposits": {
-      "food": 51
+      "food": 52
     },
     "extraction": {
       "food": 10
@@ -7058,14 +7058,14 @@
   {
     "id": 425,
     "ownerCountryId": "PSE",
-    "population": 305485,
+    "population": 312845,
     "urbanization": 0.274,
     "stability": 0.234,
     "infrastructure": 0.211,
     "development": 0.239,
-    "gdp": 15405303,
+    "gdp": 15776461,
     "deposits": {
-      "food": 226
+      "food": 231
     },
     "extraction": {
       "food": 10
@@ -7074,14 +7074,14 @@
   {
     "id": 426,
     "ownerCountryId": "PSE",
-    "population": 88591,
+    "population": 90725,
     "urbanization": 0.089,
     "stability": 0.201,
     "infrastructure": 0.131,
     "development": 0.146,
-    "gdp": 1694391,
+    "gdp": 1735206,
     "deposits": {
-      "food": 57
+      "food": 59
     },
     "extraction": {
       "food": 10
@@ -7090,14 +7090,14 @@
   {
     "id": 427,
     "ownerCountryId": "PSE",
-    "population": 167593,
+    "population": 171632,
     "urbanization": 0.274,
     "stability": 0.233,
     "infrastructure": 0.204,
     "development": 0.256,
-    "gdp": 8752377,
+    "gdp": 8963310,
     "deposits": {
-      "food": 127
+      "food": 130
     },
     "extraction": {
       "food": 10
@@ -7106,14 +7106,14 @@
   {
     "id": 428,
     "ownerCountryId": "PSE",
-    "population": 42418,
+    "population": 43440,
     "urbanization": 0.041,
     "stability": 0.182,
     "infrastructure": 0.093,
     "development": 0.115,
-    "gdp": 453661,
+    "gdp": 464591,
     "deposits": {
-      "food": 26
+      "food": 27
     },
     "extraction": {
       "food": 10
@@ -7122,14 +7122,14 @@
   {
     "id": 429,
     "ownerCountryId": "PSE",
-    "population": 73898,
+    "population": 75679,
     "urbanization": 0.082,
     "stability": 0.188,
     "infrastructure": 0.133,
     "development": 0.146,
-    "gdp": 1434951,
+    "gdp": 1469535,
     "deposits": {
-      "food": 48
+      "food": 49
     },
     "extraction": {
       "food": 10
@@ -7138,14 +7138,14 @@
   {
     "id": 430,
     "ownerCountryId": "PSE",
-    "population": 71143,
+    "population": 72858,
     "urbanization": 0.093,
     "stability": 0.19,
     "infrastructure": 0.119,
     "development": 0.154,
-    "gdp": 1303767,
+    "gdp": 1335196,
     "deposits": {
-      "food": 47
+      "food": 48
     },
     "extraction": {
       "food": 10
@@ -7154,14 +7154,14 @@
   {
     "id": 431,
     "ownerCountryId": "PSE",
-    "population": 69057,
+    "population": 70721,
     "urbanization": 0.098,
     "stability": 0.185,
     "infrastructure": 0.139,
     "development": 0.154,
-    "gdp": 1478234,
+    "gdp": 1513854,
     "deposits": {
-      "food": 45
+      "food": 46
     },
     "extraction": {
       "food": 10
@@ -7170,14 +7170,14 @@
   {
     "id": 432,
     "ownerCountryId": "PSE",
-    "population": 327340,
+    "population": 335228,
     "urbanization": 0.253,
     "stability": 0.209,
     "infrastructure": 0.209,
     "development": 0.257,
-    "gdp": 17582413,
+    "gdp": 18006102,
     "deposits": {
-      "food": 248
+      "food": 254
     },
     "extraction": {
       "food": 10
@@ -7186,12 +7186,12 @@
   {
     "id": 433,
     "ownerCountryId": "PSE",
-    "population": 36769,
+    "population": 37655,
     "urbanization": 0.036,
     "stability": 0.205,
     "infrastructure": 0.103,
     "development": 0.121,
-    "gdp": 458252,
+    "gdp": 469294,
     "deposits": {
       "food": 23
     },
@@ -7202,14 +7202,14 @@
   {
     "id": 434,
     "ownerCountryId": "PSE",
-    "population": 106141,
+    "population": 108698,
     "urbanization": 0.042,
     "stability": 0.189,
     "infrastructure": 0.102,
     "development": 0.113,
-    "gdp": 1223381,
+    "gdp": 1252853,
     "deposits": {
-      "food": 65
+      "food": 67
     },
     "extraction": {
       "food": 10
@@ -11486,12 +11486,12 @@
   {
     "id": 685,
     "ownerCountryId": "SYR",
-    "population": 267154,
+    "population": 267155,
     "urbanization": 0.09,
     "stability": 0.411,
     "infrastructure": 0.212,
     "development": 0.269,
-    "gdp": 15235258,
+    "gdp": 15235315,
     "deposits": {
       "food": 205
     },
@@ -11534,14 +11534,14 @@
   {
     "id": 688,
     "ownerCountryId": "SYR",
-    "population": 627395,
+    "population": 627396,
     "urbanization": 0.297,
     "stability": 0.435,
     "infrastructure": 0.319,
     "development": 0.387,
-    "gdp": 77453795,
+    "gdp": 77453918,
     "deposits": {
-      "food": 556
+      "food": 557
     },
     "extraction": {
       "food": 10
