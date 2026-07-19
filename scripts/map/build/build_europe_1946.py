@@ -10,7 +10,7 @@ build_europe_1946.py
 
 Запуск: python3 build_europe_1946.py
 """
-from paths import game_map, out
+from paths import game_map, out, source
 import json
 import sys
 import time
@@ -32,7 +32,12 @@ OUT = out("europe_1946.geojson")
 KEEP_AS_IS = {
     "AT": "Австрия — уже 9 земель",
     "SK": "Словакия — уже 8 краёв",
-    "DE": "Германия — уже 16 земель (зонирование отдельным шагом)",
+    "DE": "Германия — 16 современных земель как основа; Берлин (4 сектора),"
+          " Кильский канал и Вюртемберг-Баден/Баден+Гогенцоллерн (южные зоны)"
+          " ЗАМЕНЯЮТ единые Berlin/Baden-Württemberg функцией"
+          " restore_german_occupation_zones (2026-07-19-k — см. её докстринг,"
+          " это не воспроизводимо ни одним скриптом из game_map.json, только"
+          " из committed scripts/map/sources/germany_occupation_zones_1946.json)",
     "DK": "Дания (метрополия) — уже 5 единиц",
     "CY": "Кипр — 5 округов источника + Northern Cyprus/Dhekelia добавляются"
           " функцией add_cyprus_extra_territories (2026-07-19-i, см. её"
@@ -539,6 +544,135 @@ def clip_seas_against_land(new_land_union, sea_names):
             json.dump(seas_fc, f, ensure_ascii=False)
 
 
+CLIP_LAKE_NAMES_EUROPE = {"Ладога", "Байкал"}
+
+
+def clip_land_against_lakes(out_features, lake_names):
+    """`out/lakes_1946.geojson` уже содержит Ладогу/Байкал как настоящие
+    водоёмы (добавлены в какой-то более ранней сессии) — но НИ ОДИН шаг
+    build_europe_1946.py никогда не вычитал их из земли Бурятской АССР/
+    Карельской АССР/Иркутской и Ленинградской областей (тот же класс
+    пробела, что MediterrAnean/Cyprus — не gitignored-регрессия конкретно
+    этого прогона, а изначально отсутствующий шаг, см. docs/DECISIONS.md
+    "2026-07-19-k"). Симметрично `clip_seas_against_land` (вода режется по
+    новой суше), здесь СУША режется по уже существующим озёрам —
+    тот же общий принцип, что `clip_against_dead_sea` в build_asia_1946.py."""
+    lakes_path = out("lakes_1946.geojson")
+    with open(lakes_path, encoding="utf-8") as f:
+        lakes_fc = json.load(f)
+    lake_geoms = [shape(ft["geometry"]) for ft in lakes_fc["features"]
+                   if ft["properties"].get("name") in lake_names]
+    if not lake_geoms:
+        print(f"  [LAKE] ВНИМАНИЕ: не найдено ни одного из {lake_names} в lakes_1946.geojson")
+        return
+    lakes_union = unary_union(lake_geoms)
+    n_clipped = 0
+    for ft in out_features:
+        g = shape(ft["geometry"])
+        if not g.intersects(lakes_union):
+            continue
+        clipped = g.difference(lakes_union)
+        if not clipped.is_valid:
+            clipped = clipped.buffer(0)
+        if clipped.area <= 1e-9:
+            continue
+        removed_km2 = area_km2(g) - area_km2(clipped)
+        if removed_km2 < 1e-6:
+            continue
+        ft["geometry"] = mapping(clipped)
+        ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
+        n_clipped += 1
+        print(f"  [LAKE] {ft['properties']['name']} обрезана по озёрам "
+              f"(-{round(removed_km2, 1)} km2)")
+    print(f"  [LAKE] обрезано регионов: {n_clipped}")
+
+
+GERMANY_ZONES_SRC = source("germany_occupation_zones_1946.json")
+
+
+def restore_german_occupation_zones(out_features):
+    """SUPERSEDED-РАЗВОРОТ 2026-07-19-k. Комментарий KEEP_AS_IS["DE"] раньше
+    гласил "зонирование отдельным шагом" — но такого шага НЕ БЫЛО НИ В ОДНОМ
+    СКРИПТЕ этого репозитория, только в исходном импорте d/MAP (`146933a`).
+    Берлин (4 сектора), Kiel Canal Zone и южно-германские зоны Вюртемберг-
+    Баден/Баден+Гогенцоллерн жили ТОЛЬКО в gitignored `out/europe_1946.
+    geojson`, годами накапливаясь как несброшенное состояние — build_europe_
+    1946.py всегда строил Германию заново из СОВРЕМЕННЫХ 16 земель
+    game_map.json, никогда не зная об этих зонах. Первый сегодняшний прогон
+    этого скрипта (в рамках работы над Кипром/Киренией, до находки
+    пользователя) тихо уничтожил их, заменив на единые Berlin/Baden-
+    Württemberg — тот же класс потери, что Зона Панамского канала в
+    Северной Америке (см. docs/DECISIONS.md "2026-07-19-k").
+
+    Восстановлено из последнего коммита ДО этой сессии (`64af2bf`,
+    `git show 64af2bf:client/public/world_1946.geojson`), где все 7 фич ещё
+    были целы — геометрия сохранена постоянно (не gitignored) в
+    `scripts/map/sources/germany_occupation_zones_1946.json` (.json, не
+    .geojson — тот паттерн gitignore здесь исключил бы файл снова).
+    Заменяет уже построенные единые Berlin/Baden-Württemberg этими 7."""
+    with open(GERMANY_ZONES_SRC, encoding="utf-8") as f:
+        zones_fc = json.load(f)
+
+    before = len(out_features)
+    kept = [ft for ft in out_features
+            if not (ft["properties"].get("iso_a2") == "DE"
+                     and ft["properties"].get("name") in ("Berlin", "Baden-Württemberg"))]
+    removed = before - len(kept)
+    out_features[:] = kept
+
+    added = 0
+    new_geoms = []
+    for ft in zones_fc["features"]:
+        name = ft["properties"]["name"]
+        iso2 = ft["properties"]["iso_a2"]
+        g = shape(ft["geometry"])
+        new_geoms.append(g)
+        out_features.append({
+            "type": "Feature",
+            "properties": {
+                "iso_a2": iso2,
+                "name": name,
+                "source_adm1": ["ORIGINAL_DMAP_IMPORT"],
+                "source_count": 1,
+                "area_km2": round(area_km2(g), 1),
+                "merge_method": "restored_from_commit_64af2bf",
+            },
+            "geometry": mapping(g),
+        })
+        added += 1
+    print(f"  [DE] заменено {removed} объединённых фичи (Berlin/Baden-"
+          f"Württemberg) на {added} восстановленных зон оккупации")
+
+    # Kiel Canal Zone — анклав ВНУТРИ Schleswig-Holstein (и краем задевает
+    # Niedersachsen), которые построены заново из game_map.json и ничего не
+    # знают об этом анклаве — реальное наложение (0.067 + 0.0001 deg2,
+    # 2026-07-19-k), не защита от которой gap-first: тут не разрыв, а
+    # наложение специально восстановленной исторической зоны поверх
+    # современной земли. Зона авторитетна (специально построена, как Голан/
+    # Northern Cyprus), обрезаем современные земли по ней.
+    new_union = unary_union(new_geoms)
+    for ft in out_features:
+        if ft["properties"].get("iso_a2") != "DE" or ft is None:
+            continue
+        if ft["properties"].get("name") in [z["properties"]["name"] for z in zones_fc["features"]]:
+            continue
+        g = shape(ft["geometry"])
+        if not g.intersects(new_union):
+            continue
+        clipped = g.difference(new_union)
+        if not clipped.is_valid:
+            clipped = clipped.buffer(0)
+        if clipped.area <= 1e-9:
+            continue
+        removed_km2 = area_km2(g) - area_km2(clipped)
+        if removed_km2 < 1e-6:
+            continue
+        ft["geometry"] = mapping(clipped)
+        ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
+        print(f"  [DE] {ft['properties']['name']} обрезана по восстановленным "
+              f"зонам (-{round(removed_km2, 2)} km2)")
+
+
 def main():
     t0 = time.time()
     feats = load_features(SRC)
@@ -642,6 +776,8 @@ def main():
     # "разрыв" Larnaca/Famagusta оказался территорией Northern Cyprus,
     # добавляемой ниже, не настоящей дырой источника.
     add_cyprus_extra_territories(feats, out_features)
+    restore_german_occupation_zones(out_features)
+    clip_land_against_lakes(out_features, CLIP_LAKE_NAMES_EUROPE)
 
     fc = {"type": "FeatureCollection", "features": out_features}
     with open(OUT, "w", encoding="utf-8") as f:
