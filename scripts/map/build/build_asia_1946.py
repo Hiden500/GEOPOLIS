@@ -69,6 +69,21 @@ CHINA_HISTORICAL_FILE = out("china_1946_historical.json")
 GOLAN_SRC = source("palestine_hist/geoBoundaries-ISR-ADM2.geojson")
 PALESTINE_RAW_ISO = {"IL", "PS"}
 
+# Западный берег (2026-07-19-j) — раньше единое пятно raw "West Bank" из
+# game_map.json, теперь заменяется 10 губернаторствами geoBoundaries PSE
+# ADM2 (тот же источник/коммит, что уже используется для Голана и в
+# superseded build_palestine_1946.py) — нужны для интифад/Осло-механик,
+# которые одним блоком смоделировать нельзя. "Jerusalem" губернаторство PSE
+# намеренно НЕ включено — совпало бы по имени с уже существующим raw
+# регионом "Jerusalem" (ISR-источник), не дублируем. Губернаторства сектора
+# Газа (Gaza/North Gaza/Deir Al Balah/Khan Yunis/Rafah) тоже не входят —
+# это не Западный берег.
+PSE_SRC = source("palestine_hist/geoBoundaries-PSE-ADM2.geojson")
+WEST_BANK_GOVERNORATES = [
+    "Jenin", "Tubas", "Tulkarm", "Nablus", "Qalqiliya", "Salfit",
+    "Ramallah & Al Bireh", "Jericho & Al Aghwar", "Bethlehem", "Hebron",
+]
+
 # Микрогосударства + "потеряшки" с отдельным iso_a2, не входившие в список
 # стран Азии (аналог Косово/Аландов/Гибралтара в Европе)
 SINGLE_REGION = {
@@ -92,9 +107,14 @@ REGION_FIELD = {
 
 ZONED_GEOMETRIC = {
     "IQ": {
-        # Ближний Восток — максимальная детализация для будущей войны
+        # Ближний Восток — максимальная детализация для будущей войны.
+        # Киркук (At-Ta'mim, 2026-07-19-j) вынесен в свою зону-синглтон
+        # ("Kirkuk": 1) прямо в main() ДО geometric_merge_by_zone — главная
+        # спорная территория курдского вопроса (ст. 140 конституции Ирака,
+        # референдум 2017), иначе тонет в одном из 7 обычных кластеров.
+        # "Iraq" снижен с 7 до 6, т.к. At-Ta'mim больше не в этой корзине.
         "field": "region",
-        "targets": {"Iraq": 7, "Kurdistan": 3},
+        "targets": {"Iraq": 6, "Kurdistan": 3, "Kirkuk": 1},
     },
 }
 
@@ -150,6 +170,9 @@ ALL_COUNTRIES = (set(KEEP_AS_IS) | set(REGION_FIELD) | set(GEOMETRIC)
 # --------------------------------------------------------------------------
 NAME_OVERRIDES_1946 = {
     "CHN-1155": "Бэйпин",  # Пекин в 1946 называлcя Бэйпин, столица была в Нанкине
+    "IRQ-3049": "Kirkuk",  # губернаторство переименовано в At-Ta'mim только в 1976
+                            # (Баасистский режим); на 1946 год — Kirkuk, тот же
+                            # источник даёт name_en="Kirkuk" при name="At-Ta'mim"
 }
 
 # --------------------------------------------------------------------------
@@ -747,15 +770,91 @@ def main():
             "area": area_km2(golan_geom),
         })
 
+    with open(PSE_SRC, encoding="utf-8") as f:
+        pse_src_fc = json.load(f)
+    pse_by_name = {ft["properties"]["shapeName"]: shape(ft["geometry"]) for ft in pse_src_fc["features"]}
+
+    # Остальные сырые PS-фичи (ISR-источник) уже занимают часть общей
+    # границы с новыми PSE-губернаторствами Западного берега (граница
+    # перемирия 1949 года/"зелёная линия" оцифрована по-разному в двух
+    # независимых источниках) — авторитетны существующие ISR-регионы,
+    # новые PSE-губернаторства обрезаются по ним, не наоборот.
+    existing_ps_geoms = []
+    for f in feats:
+        if f["properties"].get("iso_a2") not in PALESTINE_RAW_ISO:
+            continue
+        nm = f["properties"].get("name")
+        if nm == "West Bank":
+            continue
+        gg = hazafon_clipped_geom if (nm == "HaZafon" and hazafon_clipped_geom is not None) else shape(f["geometry"])
+        existing_ps_geoms.append(gg)
+    existing_ps_union = unary_union(existing_ps_geoms) if existing_ps_geoms else None
+
+    # PSE ADM2 "Jerusalem" губернаторство намеренно НЕ выделяется отдельным
+    # регионом (совпало бы по имени с уже существующим raw "Jerusalem" из
+    # ISR-источника) — но покрывает на 282.6 km2 больше, чем raw "Jerusalem"
+    # (восточная/окружная часть, Абу-Дис и т.п.), иначе эта площадь осталась
+    # бы настоящей дырой между Ramallah/Bethlehem/Jericho (2026-07-19-j,
+    # найдено рендером). Довешиваем недостающий кусок к существующему
+    # "Jerusalem" вместо создания дублирующего по имени региона.
+    pse_jerusalem_extra = None
+    pse_jerusalem_geom = pse_by_name.get("Jerusalem")
+    if pse_jerusalem_geom is not None and existing_ps_union is not None:
+        if not pse_jerusalem_geom.is_valid:
+            pse_jerusalem_geom = pse_jerusalem_geom.buffer(0)
+        pse_jerusalem_extra = pse_jerusalem_geom.difference(existing_ps_union)
+        if not pse_jerusalem_extra.is_valid:
+            pse_jerusalem_extra = pse_jerusalem_extra.buffer(0)
+        if pse_jerusalem_extra.area <= 1e-9:
+            pse_jerusalem_extra = None
+
     ps_count = 0
     for f in feats:
         iso2 = f["properties"].get("iso_a2")
         if iso2 not in PALESTINE_RAW_ISO:
             continue
         it = to_item(f)
+        if it["name"] == "West Bank":
+            # Заменяем единое пятно 10 губернаторствами PSE ADM2 — см.
+            # WEST_BANK_GOVERNORATES выше за обоснованием.
+            wb_neighbors_union = existing_ps_union
+            for gov_name in WEST_BANK_GOVERNORATES:
+                gg = pse_by_name.get(gov_name)
+                if gg is None:
+                    print(f"  [PS] ВНИМАНИЕ: губернаторство '{gov_name}' не найдено в geoBoundaries PSE ADM2")
+                    continue
+                if not gg.is_valid:
+                    gg = gg.buffer(0)
+                # Соседние губернаторства из ЭТОГО же источника, уже
+                # разложенные раньше по списку, плюс остальные PS-регионы
+                # (ISR-источник) — обрезаем по ним, чтобы не плодить
+                # внутренние наложения на общей границе.
+                if wb_neighbors_union is not None and gg.intersects(wb_neighbors_union):
+                    gg = gg.difference(wb_neighbors_union)
+                    if not gg.is_valid:
+                        gg = gg.buffer(0)
+                wb_neighbors_union = gg if wb_neighbors_union is None else unary_union([wb_neighbors_union, gg])
+                out_features.append({
+                    "type": "Feature",
+                    "properties": {
+                        "iso_a2": "PS",
+                        "name": gov_name,
+                        "source_adm1": [f"PSE-ADM2-{gov_name}"],
+                        "source_count": 1,
+                        "area_km2": round(area_km2(gg), 1),
+                        "merge_method": "west_bank_governorate",
+                    },
+                    "geometry": mapping(gg),
+                })
+                ps_count += 1
+            continue
         g = it["geom"]
         if it["name"] == "HaZafon" and hazafon_clipped_geom is not None:
             g = hazafon_clipped_geom
+        if it["name"] == "Jerusalem" and pse_jerusalem_extra is not None:
+            g = unary_union([g, pse_jerusalem_extra])
+            if not g.is_valid:
+                g = g.buffer(0)
         out_features.append({
             "type": "Feature",
             "properties": {
@@ -771,6 +870,46 @@ def main():
         ps_count += 1
     report.append({"iso2": "PS", "method": "keep_raw",
                     "source_units": ps_count, "output_regions": ps_count})
+
+    # Довесок PSE-Иерусалима выше union'ится с raw "Jerusalem" не идеально
+    # чисто — общая граница даёт несколько крошечных обрезков (<0.4 km2
+    # суммарно, 2026-07-19-j), все касаются Bethlehem (distance=0.0), не
+    # основного тела Иерусалима. Тот же приём, что для HaZafon/Golan:
+    # оставляем в Иерусалиме только наибольший кусок, обрезки — в Bethlehem.
+    jerusalem_ft = next((ft for ft in out_features if ft["properties"].get("iso_a2") == "PS"
+                          and ft["properties"].get("name") == "Jerusalem"), None)
+    if jerusalem_ft is not None:
+        jg = shape(jerusalem_ft["geometry"])
+        if jg.geom_type == "MultiPolygon" and len(jg.geoms) > 1:
+            parts = sorted(jg.geoms, key=lambda p: -p.area)
+            jer_main, jer_strays = parts[0], parts[1:]
+            bethlehem_ft = next((ft for ft in out_features if ft["properties"].get("iso_a2") == "PS"
+                                  and ft["properties"].get("name") == "Bethlehem"), None)
+            if bethlehem_ft is not None:
+                bg = unary_union([shape(bethlehem_ft["geometry"])] + list(jer_strays))
+                if not bg.is_valid:
+                    bg = bg.buffer(0)
+                bethlehem_ft["geometry"] = mapping(bg)
+                bethlehem_ft["properties"]["area_km2"] = round(area_km2(bg), 1)
+                stray_km2 = sum(area_km2(p) for p in jer_strays)
+                print(f"  [PS] Jerusalem: {len(jer_strays)} обрезков "
+                      f"({round(stray_km2, 2)} km2) у границы Bethlehem "
+                      f"переданы в Bethlehem, осталось основное тело")
+            jerusalem_ft["geometry"] = mapping(jer_main)
+            jerusalem_ft["properties"]["area_km2"] = round(area_km2(jer_main), 1)
+
+    # Киркук (At-Ta'mim) — 2026-07-19-j: вынести из зоны "Iraq" в свою
+    # зону-синглтон "Kirkuk" ДО geometric_merge_by_zone, чтобы не утонуть в
+    # одном из 7 обычных иракских кластеров. Главная спорная территория
+    # курдского вопроса (ст. 140 конституции Ирака, референдум 2017,
+    # столкновения пешмерга/иракской армии в 2017) — по значимости должна
+    # быть отдельным регионом, не частью произвольного соседа.
+    for it in by_country.get("IQ", []):
+        if it["name"] == "Kirkuk":  # NAME_OVERRIDES_1946 переименовал At-Ta'mim
+            it["region_field"] = "Kirkuk"
+            break
+    else:
+        print("  [IQ] ВНИМАНИЕ: 'Kirkuk' (At-Ta'mim) не найден среди сырых провинций")
 
     # Отдельные фичи по adm1_code (анклавы с iso_a2='-1', спорные территории)
     for code, label, out_iso2 in EXTRA_SINGLE_FEATURES:

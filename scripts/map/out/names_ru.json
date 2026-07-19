@@ -2100,11 +2100,83 @@
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PS",
-  "name_en": "West Bank",
-  "name_ru": "Западный берег"
+  "name_en": "Jenin",
+  "name_ru": "Дженин"
  },
  {
   "region_id": "ASI-0052",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Tubas",
+  "name_ru": "Тубас"
+ },
+ {
+  "region_id": "ASI-0053",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Tulkarm",
+  "name_ru": "Тулькарм"
+ },
+ {
+  "region_id": "ASI-0054",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Nablus",
+  "name_ru": "Наблус"
+ },
+ {
+  "region_id": "ASI-0055",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Qalqiliya",
+  "name_ru": "Калькилия"
+ },
+ {
+  "region_id": "ASI-0056",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Salfit",
+  "name_ru": "Сальфит"
+ },
+ {
+  "region_id": "ASI-0057",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Ramallah & Al Bireh",
+  "name_ru": "Рамалла и Эль-Бире"
+ },
+ {
+  "region_id": "ASI-0058",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Jericho & Al Aghwar",
+  "name_ru": "Иерихон и Эль-Агвар"
+ },
+ {
+  "region_id": "ASI-0059",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Bethlehem",
+  "name_ru": "Вифлеем"
+ },
+ {
+  "region_id": "ASI-0060",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "PS",
+  "name_en": "Hebron",
+  "name_ru": "Хеврон"
+ },
+ {
+  "region_id": "ASI-0061",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PS",
@@ -2112,7 +2184,7 @@
   "name_ru": "Хайфа"
  },
  {
-  "region_id": "ASI-0053",
+  "region_id": "ASI-0062",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PS",
@@ -2120,7 +2192,7 @@
   "name_ru": "ХаМеркaз (Центральный округ)"
  },
  {
-  "region_id": "ASI-0054",
+  "region_id": "ASI-0063",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PS",
@@ -2128,7 +2200,7 @@
   "name_ru": "Иерусалим"
  },
  {
-  "region_id": "ASI-0055",
+  "region_id": "ASI-0064",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PS",
@@ -2136,7 +2208,7 @@
   "name_ru": "Тель-Авив"
  },
  {
-  "region_id": "ASI-0056",
+  "region_id": "ASI-0065",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -2144,7 +2216,7 @@
   "name_ru": "Туратам"
  },
  {
-  "region_id": "ASI-0057",
+  "region_id": "ASI-0066",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KAS",
@@ -2152,7 +2224,7 @@
   "name_ru": "Кашмир"
  },
  {
-  "region_id": "ASI-0058",
+  "region_id": "ASI-0067",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PGA",
@@ -2160,7 +2232,7 @@
   "name_ru": "Спратли"
  },
  {
-  "region_id": "ASI-0059",
+  "region_id": "ASI-0068",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AE",
@@ -2168,7 +2240,7 @@
   "name_ru": "Абу-Даби"
  },
  {
-  "region_id": "ASI-0060",
+  "region_id": "ASI-0069",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2176,7 +2248,7 @@
   "name_ru": "Бадахшан"
  },
  {
-  "region_id": "ASI-0061",
+  "region_id": "ASI-0070",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2184,7 +2256,7 @@
   "name_ru": "Герат"
  },
  {
-  "region_id": "ASI-0062",
+  "region_id": "ASI-0071",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2192,7 +2264,7 @@
   "name_ru": "Фарах"
  },
  {
-  "region_id": "ASI-0063",
+  "region_id": "ASI-0072",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2200,7 +2272,7 @@
   "name_ru": "Баглан (21)"
  },
  {
-  "region_id": "ASI-0064",
+  "region_id": "ASI-0073",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2208,7 +2280,7 @@
   "name_ru": "Пактика (13)"
  },
  {
-  "region_id": "ASI-0065",
+  "region_id": "ASI-0074",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2216,7 +2288,7 @@
   "name_ru": "Кандагар (7)"
  },
  {
-  "region_id": "ASI-0066",
+  "region_id": "ASI-0075",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2224,7 +2296,7 @@
   "name_ru": "Фарьяб (13)"
  },
  {
-  "region_id": "ASI-0067",
+  "region_id": "ASI-0076",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AF",
@@ -2232,7 +2304,7 @@
   "name_ru": "Гильманд (3)"
  },
  {
-  "region_id": "ASI-0068",
+  "region_id": "ASI-0077",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AM",
@@ -2240,7 +2312,7 @@
   "name_ru": "Лори (3)"
  },
  {
-  "region_id": "ASI-0069",
+  "region_id": "ASI-0078",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AM",
@@ -2248,7 +2320,7 @@
   "name_ru": "Арагацотн (5)"
  },
  {
-  "region_id": "ASI-0070",
+  "region_id": "ASI-0079",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AM",
@@ -2256,7 +2328,7 @@
   "name_ru": "Гегаркуник (11)"
  },
  {
-  "region_id": "ASI-0071",
+  "region_id": "ASI-0080",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2264,7 +2336,7 @@
   "name_ru": "Гянджа-Газахский экономический район"
  },
  {
-  "region_id": "ASI-0072",
+  "region_id": "ASI-0081",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2272,7 +2344,7 @@
   "name_ru": "Кельбаджар-Лачинский экономический район"
  },
  {
-  "region_id": "ASI-0073",
+  "region_id": "ASI-0082",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2280,7 +2352,7 @@
   "name_ru": "Нахчыванская Автономная Республика"
  },
  {
-  "region_id": "ASI-0074",
+  "region_id": "ASI-0083",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2288,7 +2360,7 @@
   "name_ru": "Шеки-Загатальский экономический район"
  },
  {
-  "region_id": "ASI-0075",
+  "region_id": "ASI-0084",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2296,7 +2368,7 @@
   "name_ru": "Губа-Хачмазский экономический район"
  },
  {
-  "region_id": "ASI-0076",
+  "region_id": "ASI-0085",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2304,7 +2376,7 @@
   "name_ru": "Аранский экономический район"
  },
  {
-  "region_id": "ASI-0077",
+  "region_id": "ASI-0086",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2312,7 +2384,7 @@
   "name_ru": "Ленкораньский экономический район"
  },
  {
-  "region_id": "ASI-0078",
+  "region_id": "ASI-0087",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2320,7 +2392,7 @@
   "name_ru": "Юхарский Карабахский экономический район"
  },
  {
-  "region_id": "ASI-0079",
+  "region_id": "ASI-0088",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2328,7 +2400,7 @@
   "name_ru": "Апшеронский экономический район"
  },
  {
-  "region_id": "ASI-0080",
+  "region_id": "ASI-0089",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "AZ",
@@ -2336,7 +2408,7 @@
   "name_ru": "Нагорно-Ширванский экономический район"
  },
  {
-  "region_id": "ASI-0081",
+  "region_id": "ASI-0090",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BD",
@@ -2344,7 +2416,7 @@
   "name_ru": "Читтагонг"
  },
  {
-  "region_id": "ASI-0082",
+  "region_id": "ASI-0091",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BD",
@@ -2352,7 +2424,7 @@
   "name_ru": "Рангпур"
  },
  {
-  "region_id": "ASI-0083",
+  "region_id": "ASI-0092",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BD",
@@ -2360,7 +2432,7 @@
   "name_ru": "Раджшахи"
  },
  {
-  "region_id": "ASI-0084",
+  "region_id": "ASI-0093",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BD",
@@ -2368,7 +2440,7 @@
   "name_ru": "Хулна"
  },
  {
-  "region_id": "ASI-0085",
+  "region_id": "ASI-0094",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BD",
@@ -2376,7 +2448,7 @@
   "name_ru": "Дакка (5)"
  },
  {
-  "region_id": "ASI-0086",
+  "region_id": "ASI-0095",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BH",
@@ -2384,7 +2456,7 @@
   "name_ru": "Бахрейн"
  },
  {
-  "region_id": "ASI-0087",
+  "region_id": "ASI-0096",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BN",
@@ -2392,7 +2464,7 @@
   "name_ru": "Бруней"
  },
  {
-  "region_id": "ASI-0088",
+  "region_id": "ASI-0097",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "BT",
@@ -2400,7 +2472,7 @@
   "name_ru": "Бутан (план: 'каждый в отдельный регион')"
  },
  {
-  "region_id": "ASI-0089",
+  "region_id": "ASI-0098",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "GE",
@@ -2408,7 +2480,7 @@
   "name_ru": "Квемо Картли (5)"
  },
  {
-  "region_id": "ASI-0090",
+  "region_id": "ASI-0099",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "GE",
@@ -2416,7 +2488,7 @@
   "name_ru": "Самегрело-Земо-Сванети (11)"
  },
  {
-  "region_id": "ASI-0091",
+  "region_id": "ASI-0100",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "GE",
@@ -2424,7 +2496,7 @@
   "name_ru": "Мцхета-Мтианети (5)"
  },
  {
-  "region_id": "ASI-0092",
+  "region_id": "ASI-0101",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "HK",
@@ -2432,7 +2504,7 @@
   "name_ru": "Гонконг (отдельный iso_a2='HK', не входил в список стран)"
  },
  {
-  "region_id": "ASI-0093",
+  "region_id": "ASI-0102",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2440,7 +2512,7 @@
   "name_ru": "Калимантан Тимур"
  },
  {
-  "region_id": "ASI-0094",
+  "region_id": "ASI-0103",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2448,7 +2520,7 @@
   "name_ru": "Нуса Тенгара Тимур"
  },
  {
-  "region_id": "ASI-0095",
+  "region_id": "ASI-0104",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2456,7 +2528,7 @@
   "name_ru": "Калимантан Барат"
  },
  {
-  "region_id": "ASI-0096",
+  "region_id": "ASI-0105",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2464,7 +2536,7 @@
   "name_ru": "Папуа"
  },
  {
-  "region_id": "ASI-0097",
+  "region_id": "ASI-0106",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2472,7 +2544,7 @@
   "name_ru": "Малуку"
  },
  {
-  "region_id": "ASI-0098",
+  "region_id": "ASI-0107",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2480,7 +2552,7 @@
   "name_ru": "Нуса Тенгара Барат"
  },
  {
-  "region_id": "ASI-0099",
+  "region_id": "ASI-0108",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2488,7 +2560,7 @@
   "name_ru": "Папуа Барат"
  },
  {
-  "region_id": "ASI-0100",
+  "region_id": "ASI-0109",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2496,7 +2568,7 @@
   "name_ru": "Малуку Утара"
  },
  {
-  "region_id": "ASI-0101",
+  "region_id": "ASI-0110",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2504,7 +2576,7 @@
   "name_ru": "Кепулауан Риау"
  },
  {
-  "region_id": "ASI-0102",
+  "region_id": "ASI-0111",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2512,7 +2584,7 @@
   "name_ru": "Риау"
  },
  {
-  "region_id": "ASI-0103",
+  "region_id": "ASI-0112",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2520,7 +2592,7 @@
   "name_ru": "Суматера Утара"
  },
  {
-  "region_id": "ASI-0104",
+  "region_id": "ASI-0113",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2528,7 +2600,7 @@
   "name_ru": "Ачех"
  },
  {
-  "region_id": "ASI-0105",
+  "region_id": "ASI-0114",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2536,7 +2608,7 @@
   "name_ru": "Бали"
  },
  {
-  "region_id": "ASI-0106",
+  "region_id": "ASI-0115",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2544,7 +2616,7 @@
   "name_ru": "Бангка-Белитунг"
  },
  {
-  "region_id": "ASI-0107",
+  "region_id": "ASI-0116",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2552,7 +2624,7 @@
   "name_ru": "Центральный Сулавеси"
  },
  {
-  "region_id": "ASI-0108",
+  "region_id": "ASI-0117",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2560,7 +2632,7 @@
   "name_ru": "Южная Суматра"
  },
  {
-  "region_id": "ASI-0109",
+  "region_id": "ASI-0118",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2568,7 +2640,7 @@
   "name_ru": "Южный Сулавеси"
  },
  {
-  "region_id": "ASI-0110",
+  "region_id": "ASI-0119",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2576,7 +2648,7 @@
   "name_ru": "Калимантан Тенга (3)"
  },
  {
-  "region_id": "ASI-0111",
+  "region_id": "ASI-0120",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2584,7 +2656,7 @@
   "name_ru": "Джамби (3)"
  },
  {
-  "region_id": "ASI-0112",
+  "region_id": "ASI-0121",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "ID",
@@ -2592,7 +2664,7 @@
   "name_ru": "Джава Барат (11)"
  },
  {
-  "region_id": "ASI-0113",
+  "region_id": "ASI-0122",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2600,7 +2672,7 @@
   "name_ru": "Ладакх"
  },
  {
-  "region_id": "ASI-0114",
+  "region_id": "ASI-0123",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2608,7 +2680,7 @@
   "name_ru": "Аруначал-Прадеш"
  },
  {
-  "region_id": "ASI-0115",
+  "region_id": "ASI-0124",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2616,7 +2688,7 @@
   "name_ru": "Сикким"
  },
  {
-  "region_id": "ASI-0116",
+  "region_id": "ASI-0125",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2624,7 +2696,7 @@
   "name_ru": "Западная Бенгалия"
  },
  {
-  "region_id": "ASI-0117",
+  "region_id": "ASI-0126",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2632,7 +2704,7 @@
   "name_ru": "Ассам"
  },
  {
-  "region_id": "ASI-0118",
+  "region_id": "ASI-0127",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2640,7 +2712,7 @@
   "name_ru": "Уттаракханд"
  },
  {
-  "region_id": "ASI-0119",
+  "region_id": "ASI-0128",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2648,7 +2720,7 @@
   "name_ru": "Нагаленд"
  },
  {
-  "region_id": "ASI-0120",
+  "region_id": "ASI-0129",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2656,7 +2728,7 @@
   "name_ru": "Манипур"
  },
  {
-  "region_id": "ASI-0121",
+  "region_id": "ASI-0130",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2664,7 +2736,7 @@
   "name_ru": "Мизорам"
  },
  {
-  "region_id": "ASI-0122",
+  "region_id": "ASI-0131",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2672,7 +2744,7 @@
   "name_ru": "Трипура"
  },
  {
-  "region_id": "ASI-0123",
+  "region_id": "ASI-0132",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2680,7 +2752,7 @@
   "name_ru": "Мегхалая"
  },
  {
-  "region_id": "ASI-0124",
+  "region_id": "ASI-0133",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2688,7 +2760,7 @@
   "name_ru": "Пенджаб"
  },
  {
-  "region_id": "ASI-0125",
+  "region_id": "ASI-0134",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2696,7 +2768,7 @@
   "name_ru": "Раджастан"
  },
  {
-  "region_id": "ASI-0126",
+  "region_id": "ASI-0135",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2704,7 +2776,7 @@
   "name_ru": "Гуджарат"
  },
  {
-  "region_id": "ASI-0127",
+  "region_id": "ASI-0136",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2712,7 +2784,7 @@
   "name_ru": "Химачал-Прадеш"
  },
  {
-  "region_id": "ASI-0128",
+  "region_id": "ASI-0137",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2720,7 +2792,7 @@
   "name_ru": "Джамму и Кашмир"
  },
  {
-  "region_id": "ASI-0129",
+  "region_id": "ASI-0138",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2728,7 +2800,7 @@
   "name_ru": "Бихар"
  },
  {
-  "region_id": "ASI-0130",
+  "region_id": "ASI-0139",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2736,7 +2808,7 @@
   "name_ru": "Уттар-Прадеш"
  },
  {
-  "region_id": "ASI-0131",
+  "region_id": "ASI-0140",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2744,7 +2816,7 @@
   "name_ru": "Андхра-Прадеш"
  },
  {
-  "region_id": "ASI-0132",
+  "region_id": "ASI-0141",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2752,7 +2824,7 @@
   "name_ru": "Одиша"
  },
  {
-  "region_id": "ASI-0133",
+  "region_id": "ASI-0142",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2760,7 +2832,7 @@
   "name_ru": "Дадра и Нагар Хавели, Даман и Диу"
  },
  {
-  "region_id": "ASI-0134",
+  "region_id": "ASI-0143",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2768,7 +2840,7 @@
   "name_ru": "Махараштра"
  },
  {
-  "region_id": "ASI-0135",
+  "region_id": "ASI-0144",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2776,7 +2848,7 @@
   "name_ru": "Гоа"
  },
  {
-  "region_id": "ASI-0136",
+  "region_id": "ASI-0145",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2784,7 +2856,7 @@
   "name_ru": "Карнатака"
  },
  {
-  "region_id": "ASI-0137",
+  "region_id": "ASI-0146",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2792,7 +2864,7 @@
   "name_ru": "Керала"
  },
  {
-  "region_id": "ASI-0138",
+  "region_id": "ASI-0147",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2800,7 +2872,7 @@
   "name_ru": "Пудучерри"
  },
  {
-  "region_id": "ASI-0139",
+  "region_id": "ASI-0148",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2808,7 +2880,7 @@
   "name_ru": "Тамил Наду"
  },
  {
-  "region_id": "ASI-0140",
+  "region_id": "ASI-0149",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2816,7 +2888,7 @@
   "name_ru": "Лакшадвип"
  },
  {
-  "region_id": "ASI-0141",
+  "region_id": "ASI-0150",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2824,7 +2896,7 @@
   "name_ru": "Андаманские и Никобарские острова"
  },
  {
-  "region_id": "ASI-0142",
+  "region_id": "ASI-0151",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2832,7 +2904,7 @@
   "name_ru": "Джаркханд"
  },
  {
-  "region_id": "ASI-0143",
+  "region_id": "ASI-0152",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2840,7 +2912,7 @@
   "name_ru": "Дели"
  },
  {
-  "region_id": "ASI-0144",
+  "region_id": "ASI-0153",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2848,7 +2920,7 @@
   "name_ru": "Чандигарх"
  },
  {
-  "region_id": "ASI-0145",
+  "region_id": "ASI-0154",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2856,7 +2928,7 @@
   "name_ru": "Мадхья-Прадеш"
  },
  {
-  "region_id": "ASI-0146",
+  "region_id": "ASI-0155",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2864,7 +2936,7 @@
   "name_ru": "Чхаттисгарх"
  },
  {
-  "region_id": "ASI-0147",
+  "region_id": "ASI-0156",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2872,7 +2944,7 @@
   "name_ru": "Харьяна"
  },
  {
-  "region_id": "ASI-0148",
+  "region_id": "ASI-0157",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IN",
@@ -2880,7 +2952,7 @@
   "name_ru": "Телангана"
  },
  {
-  "region_id": "ASI-0149",
+  "region_id": "ASI-0158",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2888,7 +2960,7 @@
   "name_ru": "Дихок"
  },
  {
-  "region_id": "ASI-0150",
+  "region_id": "ASI-0159",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2896,7 +2968,7 @@
   "name_ru": "Эрбиль"
  },
  {
-  "region_id": "ASI-0151",
+  "region_id": "ASI-0160",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2904,7 +2976,7 @@
   "name_ru": "Ас-Сулеймания"
  },
  {
-  "region_id": "ASI-0152",
+  "region_id": "ASI-0161",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2912,15 +2984,7 @@
   "name_ru": "Дияла"
  },
  {
-  "region_id": "ASI-0153",
-  "continent": "Asia",
-  "region_type": "land",
-  "iso_a2": "IQ",
-  "name_en": "Wasit",
-  "name_ru": "Васит"
- },
- {
-  "region_id": "ASI-0154",
+  "region_id": "ASI-0162",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2928,7 +2992,7 @@
   "name_ru": "Ан-Наджаф"
  },
  {
-  "region_id": "ASI-0155",
+  "region_id": "ASI-0163",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2936,15 +3000,7 @@
   "name_ru": "Нинава"
  },
  {
-  "region_id": "ASI-0156",
-  "continent": "Asia",
-  "region_type": "land",
-  "iso_a2": "IQ",
-  "name_en": "Al-Anbar (7)",
-  "name_ru": "Аль-Анбар (7)"
- },
- {
-  "region_id": "ASI-0157",
+  "region_id": "ASI-0164",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2952,7 +3008,15 @@
   "name_ru": "Сала ад-Дин (3)"
  },
  {
-  "region_id": "ASI-0158",
+  "region_id": "ASI-0165",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "IQ",
+  "name_en": "Al-Anbar (7)",
+  "name_ru": "Аль-Анбар (7)"
+ },
+ {
+  "region_id": "ASI-0166",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IQ",
@@ -2960,7 +3024,15 @@
   "name_ru": "Аль-Мутания (9)"
  },
  {
-  "region_id": "ASI-0159",
+  "region_id": "ASI-0167",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "IQ",
+  "name_en": "Kirkuk",
+  "name_ru": "Киркук"
+ },
+ {
+  "region_id": "ASI-0168",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -2968,7 +3040,7 @@
   "name_ru": "Западный Азербайджан"
  },
  {
-  "region_id": "ASI-0160",
+  "region_id": "ASI-0169",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -2976,7 +3048,7 @@
   "name_ru": "Восточный Азербайджан"
  },
  {
-  "region_id": "ASI-0161",
+  "region_id": "ASI-0170",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -2984,7 +3056,7 @@
   "name_ru": "Ардебиль"
  },
  {
-  "region_id": "ASI-0162",
+  "region_id": "ASI-0171",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -2992,7 +3064,7 @@
   "name_ru": "Систан и Белуджистан"
  },
  {
-  "region_id": "ASI-0163",
+  "region_id": "ASI-0172",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -3000,7 +3072,7 @@
   "name_ru": "Фарс (7)"
  },
  {
-  "region_id": "ASI-0164",
+  "region_id": "ASI-0173",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -3008,7 +3080,7 @@
   "name_ru": "Керман (3)"
  },
  {
-  "region_id": "ASI-0165",
+  "region_id": "ASI-0174",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -3016,7 +3088,7 @@
   "name_ru": "Маркази (19)"
  },
  {
-  "region_id": "ASI-0166",
+  "region_id": "ASI-0175",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -3024,7 +3096,7 @@
   "name_ru": "Разави Хорасан (5)"
  },
  {
-  "region_id": "ASI-0167",
+  "region_id": "ASI-0176",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -3032,7 +3104,7 @@
   "name_ru": "Йезд (13)"
  },
  {
-  "region_id": "ASI-0168",
+  "region_id": "ASI-0177",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "IR",
@@ -3040,7 +3112,7 @@
   "name_ru": "Кордистан"
  },
  {
-  "region_id": "ASI-0169",
+  "region_id": "ASI-0178",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3048,7 +3120,7 @@
   "name_ru": "Ирбид"
  },
  {
-  "region_id": "ASI-0170",
+  "region_id": "ASI-0179",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3056,7 +3128,7 @@
   "name_ru": "Мадаба"
  },
  {
-  "region_id": "ASI-0171",
+  "region_id": "ASI-0180",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3064,7 +3136,7 @@
   "name_ru": "Карак (3)"
  },
  {
-  "region_id": "ASI-0172",
+  "region_id": "ASI-0181",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3072,7 +3144,7 @@
   "name_ru": "Тафила"
  },
  {
-  "region_id": "ASI-0173",
+  "region_id": "ASI-0182",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3080,7 +3152,7 @@
   "name_ru": "Акаба"
  },
  {
-  "region_id": "ASI-0174",
+  "region_id": "ASI-0183",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3088,7 +3160,7 @@
   "name_ru": "Балка"
  },
  {
-  "region_id": "ASI-0175",
+  "region_id": "ASI-0184",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3096,7 +3168,7 @@
   "name_ru": "Мафрак"
  },
  {
-  "region_id": "ASI-0176",
+  "region_id": "ASI-0185",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3104,7 +3176,7 @@
   "name_ru": "Маан"
  },
  {
-  "region_id": "ASI-0177",
+  "region_id": "ASI-0186",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3112,7 +3184,7 @@
   "name_ru": "Амман (11)"
  },
  {
-  "region_id": "ASI-0178",
+  "region_id": "ASI-0187",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3120,7 +3192,7 @@
   "name_ru": "Зарка"
  },
  {
-  "region_id": "ASI-0179",
+  "region_id": "ASI-0188",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3128,7 +3200,7 @@
   "name_ru": "Аджлун"
  },
  {
-  "region_id": "ASI-0180",
+  "region_id": "ASI-0189",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JO",
@@ -3136,7 +3208,7 @@
   "name_ru": "Джараш"
  },
  {
-  "region_id": "ASI-0181",
+  "region_id": "ASI-0190",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3144,7 +3216,7 @@
   "name_ru": "Кюсю"
  },
  {
-  "region_id": "ASI-0182",
+  "region_id": "ASI-0191",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3152,7 +3224,7 @@
   "name_ru": "Сикоку"
  },
  {
-  "region_id": "ASI-0183",
+  "region_id": "ASI-0192",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3160,7 +3232,7 @@
   "name_ru": "Тюгоку"
  },
  {
-  "region_id": "ASI-0184",
+  "region_id": "ASI-0193",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3168,7 +3240,7 @@
   "name_ru": "Кинки"
  },
  {
-  "region_id": "ASI-0185",
+  "region_id": "ASI-0194",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3176,7 +3248,7 @@
   "name_ru": "Чубу"
  },
  {
-  "region_id": "ASI-0186",
+  "region_id": "ASI-0195",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3184,7 +3256,7 @@
   "name_ru": "Тохоку"
  },
  {
-  "region_id": "ASI-0187",
+  "region_id": "ASI-0196",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3192,7 +3264,7 @@
   "name_ru": "Канто"
  },
  {
-  "region_id": "ASI-0188",
+  "region_id": "ASI-0197",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3200,7 +3272,7 @@
   "name_ru": "Хоккайдо"
  },
  {
-  "region_id": "ASI-0189",
+  "region_id": "ASI-0198",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3208,7 +3280,7 @@
   "name_ru": "Окинава"
  },
  {
-  "region_id": "ASI-0190",
+  "region_id": "ASI-0199",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3216,7 +3288,7 @@
   "name_ru": "Сага"
  },
  {
-  "region_id": "ASI-0191",
+  "region_id": "ASI-0200",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "JP",
@@ -3224,7 +3296,7 @@
   "name_ru": "Нагасаки"
  },
  {
-  "region_id": "ASI-0192",
+  "region_id": "ASI-0201",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KG",
@@ -3232,7 +3304,7 @@
   "name_ru": "Нарын"
  },
  {
-  "region_id": "ASI-0193",
+  "region_id": "ASI-0202",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KG",
@@ -3240,7 +3312,7 @@
   "name_ru": "Джалал-Абад (3)"
  },
  {
-  "region_id": "ASI-0194",
+  "region_id": "ASI-0203",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KG",
@@ -3248,7 +3320,7 @@
   "name_ru": "Ош (3)"
  },
  {
-  "region_id": "ASI-0195",
+  "region_id": "ASI-0204",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KG",
@@ -3256,7 +3328,7 @@
   "name_ru": "Ысык-Кёль (5)"
  },
  {
-  "region_id": "ASI-0196",
+  "region_id": "ASI-0205",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KH",
@@ -3264,7 +3336,7 @@
   "name_ru": "Ротанокири (3)"
  },
  {
-  "region_id": "ASI-0197",
+  "region_id": "ASI-0206",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KH",
@@ -3272,7 +3344,7 @@
   "name_ru": "Мондол Кири (3)"
  },
  {
-  "region_id": "ASI-0198",
+  "region_id": "ASI-0207",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KH",
@@ -3280,7 +3352,7 @@
   "name_ru": "Батдамбанг (9)"
  },
  {
-  "region_id": "ASI-0199",
+  "region_id": "ASI-0208",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KH",
@@ -3288,7 +3360,7 @@
   "name_ru": "Сиемреаб (5)"
  },
  {
-  "region_id": "ASI-0200",
+  "region_id": "ASI-0209",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KH",
@@ -3296,7 +3368,7 @@
   "name_ru": "Кампонг Тум (23)"
  },
  {
-  "region_id": "ASI-0201",
+  "region_id": "ASI-0210",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3304,7 +3376,7 @@
   "name_ru": "Канвон-до"
  },
  {
-  "region_id": "ASI-0202",
+  "region_id": "ASI-0211",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3312,7 +3384,7 @@
   "name_ru": "Хванхэ-букто"
  },
  {
-  "region_id": "ASI-0203",
+  "region_id": "ASI-0212",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3320,7 +3392,7 @@
   "name_ru": "Хамгён-букто"
  },
  {
-  "region_id": "ASI-0204",
+  "region_id": "ASI-0213",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3328,7 +3400,7 @@
   "name_ru": "Расон"
  },
  {
-  "region_id": "ASI-0205",
+  "region_id": "ASI-0214",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3336,7 +3408,7 @@
   "name_ru": "Рянганг"
  },
  {
-  "region_id": "ASI-0206",
+  "region_id": "ASI-0215",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3344,7 +3416,7 @@
   "name_ru": "Чагандо"
  },
  {
-  "region_id": "ASI-0207",
+  "region_id": "ASI-0216",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3352,7 +3424,7 @@
   "name_ru": "Пхеньян-букто"
  },
  {
-  "region_id": "ASI-0208",
+  "region_id": "ASI-0217",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3360,7 +3432,7 @@
   "name_ru": "Пхеньян-Намдо"
  },
  {
-  "region_id": "ASI-0209",
+  "region_id": "ASI-0218",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3368,7 +3440,7 @@
   "name_ru": "Хванхэ-Намдо"
  },
  {
-  "region_id": "ASI-0210",
+  "region_id": "ASI-0219",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3376,7 +3448,7 @@
   "name_ru": "Хамгён-Намдо"
  },
  {
-  "region_id": "ASI-0211",
+  "region_id": "ASI-0220",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KP",
@@ -3384,7 +3456,7 @@
   "name_ru": "Пхеньян"
  },
  {
-  "region_id": "ASI-0212",
+  "region_id": "ASI-0221",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3392,7 +3464,7 @@
   "name_ru": "Канвон"
  },
  {
-  "region_id": "ASI-0213",
+  "region_id": "ASI-0222",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3400,7 +3472,7 @@
   "name_ru": "Кёнги"
  },
  {
-  "region_id": "ASI-0214",
+  "region_id": "ASI-0223",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3408,7 +3480,7 @@
   "name_ru": "Южный Чхунчхон"
  },
  {
-  "region_id": "ASI-0215",
+  "region_id": "ASI-0224",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3416,7 +3488,7 @@
   "name_ru": "Инчхон"
  },
  {
-  "region_id": "ASI-0216",
+  "region_id": "ASI-0225",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3424,7 +3496,7 @@
   "name_ru": "Северная Чолла"
  },
  {
-  "region_id": "ASI-0217",
+  "region_id": "ASI-0226",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3432,7 +3504,7 @@
   "name_ru": "Южная Чолла"
  },
  {
-  "region_id": "ASI-0218",
+  "region_id": "ASI-0227",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3440,7 +3512,7 @@
   "name_ru": "Южный Кёнсан"
  },
  {
-  "region_id": "ASI-0219",
+  "region_id": "ASI-0228",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3448,7 +3520,7 @@
   "name_ru": "Пусан"
  },
  {
-  "region_id": "ASI-0220",
+  "region_id": "ASI-0229",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3456,7 +3528,7 @@
   "name_ru": "Ульсан"
  },
  {
-  "region_id": "ASI-0221",
+  "region_id": "ASI-0230",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3464,7 +3536,7 @@
   "name_ru": "Северный Кёнсан"
  },
  {
-  "region_id": "ASI-0222",
+  "region_id": "ASI-0231",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3472,7 +3544,7 @@
   "name_ru": "Чеджу"
  },
  {
-  "region_id": "ASI-0223",
+  "region_id": "ASI-0232",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3480,7 +3552,7 @@
   "name_ru": "Сеул"
  },
  {
-  "region_id": "ASI-0224",
+  "region_id": "ASI-0233",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3488,7 +3560,7 @@
   "name_ru": "Тэджон"
  },
  {
-  "region_id": "ASI-0225",
+  "region_id": "ASI-0234",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3496,7 +3568,7 @@
   "name_ru": "Седжон"
  },
  {
-  "region_id": "ASI-0226",
+  "region_id": "ASI-0235",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3504,7 +3576,7 @@
   "name_ru": "Северный Чхунчхон"
  },
  {
-  "region_id": "ASI-0227",
+  "region_id": "ASI-0236",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3512,7 +3584,7 @@
   "name_ru": "Кванджу"
  },
  {
-  "region_id": "ASI-0228",
+  "region_id": "ASI-0237",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KR",
@@ -3520,7 +3592,7 @@
   "name_ru": "Тэгу"
  },
  {
-  "region_id": "ASI-0229",
+  "region_id": "ASI-0238",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KW",
@@ -3528,7 +3600,7 @@
   "name_ru": "Аль-Джахра"
  },
  {
-  "region_id": "ASI-0230",
+  "region_id": "ASI-0239",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KW",
@@ -3536,7 +3608,7 @@
   "name_ru": "Аль-Ахмади (9)"
  },
  {
-  "region_id": "ASI-0231",
+  "region_id": "ASI-0240",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3544,7 +3616,7 @@
   "name_ru": "Восточный Казахстан"
  },
  {
-  "region_id": "ASI-0232",
+  "region_id": "ASI-0241",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3552,7 +3624,7 @@
   "name_ru": "Жамбыл"
  },
  {
-  "region_id": "ASI-0233",
+  "region_id": "ASI-0242",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3560,7 +3632,7 @@
   "name_ru": "Мангистау"
  },
  {
-  "region_id": "ASI-0234",
+  "region_id": "ASI-0243",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3568,7 +3640,7 @@
   "name_ru": "Актобе"
  },
  {
-  "region_id": "ASI-0235",
+  "region_id": "ASI-0244",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3576,7 +3648,7 @@
   "name_ru": "Костанай"
  },
  {
-  "region_id": "ASI-0236",
+  "region_id": "ASI-0245",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3584,7 +3656,7 @@
   "name_ru": "Алматы (3)"
  },
  {
-  "region_id": "ASI-0237",
+  "region_id": "ASI-0246",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3592,7 +3664,7 @@
   "name_ru": "Акмола (5)"
  },
  {
-  "region_id": "ASI-0238",
+  "region_id": "ASI-0247",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3600,7 +3672,7 @@
   "name_ru": "Западный Казахстан (3)"
  },
  {
-  "region_id": "ASI-0239",
+  "region_id": "ASI-0248",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3608,7 +3680,7 @@
   "name_ru": "Кызылорда (3)"
  },
  {
-  "region_id": "ASI-0240",
+  "region_id": "ASI-0249",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "KZ",
@@ -3616,7 +3688,7 @@
   "name_ru": "Караганда (3)"
  },
  {
-  "region_id": "ASI-0241",
+  "region_id": "ASI-0250",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LA",
@@ -3624,7 +3696,7 @@
   "name_ru": "Луанг Намта (7)"
  },
  {
-  "region_id": "ASI-0242",
+  "region_id": "ASI-0251",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LA",
@@ -3632,7 +3704,7 @@
   "name_ru": "Луангпрабанг (3)"
  },
  {
-  "region_id": "ASI-0243",
+  "region_id": "ASI-0252",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LA",
@@ -3640,7 +3712,7 @@
   "name_ru": "Саваннакхет (11)"
  },
  {
-  "region_id": "ASI-0244",
+  "region_id": "ASI-0253",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LA",
@@ -3648,7 +3720,7 @@
   "name_ru": "Вьентьян (9)"
  },
  {
-  "region_id": "ASI-0245",
+  "region_id": "ASI-0254",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LB",
@@ -3656,7 +3728,7 @@
   "name_ru": "Ан-Набатия"
  },
  {
-  "region_id": "ASI-0246",
+  "region_id": "ASI-0255",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LB",
@@ -3664,7 +3736,7 @@
   "name_ru": "Южный Ливан"
  },
  {
-  "region_id": "ASI-0247",
+  "region_id": "ASI-0256",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LB",
@@ -3672,7 +3744,7 @@
   "name_ru": "Бекаа"
  },
  {
-  "region_id": "ASI-0248",
+  "region_id": "ASI-0257",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LB",
@@ -3680,7 +3752,7 @@
   "name_ru": "Северный Ливан"
  },
  {
-  "region_id": "ASI-0249",
+  "region_id": "ASI-0258",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LB",
@@ -3688,7 +3760,7 @@
   "name_ru": "Горный Ливан (3)"
  },
  {
-  "region_id": "ASI-0250",
+  "region_id": "ASI-0259",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LB",
@@ -3696,7 +3768,7 @@
   "name_ru": "Бейрут"
  },
  {
-  "region_id": "ASI-0251",
+  "region_id": "ASI-0260",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "LK",
@@ -3704,7 +3776,7 @@
   "name_ru": "Цейлон (план: 'каждый в отдельный регион')"
  },
  {
-  "region_id": "ASI-0252",
+  "region_id": "ASI-0261",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MM",
@@ -3712,7 +3784,7 @@
   "name_ru": "Качин"
  },
  {
-  "region_id": "ASI-0253",
+  "region_id": "ASI-0262",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MM",
@@ -3720,7 +3792,7 @@
   "name_ru": "Баго (5)"
  },
  {
-  "region_id": "ASI-0254",
+  "region_id": "ASI-0263",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MM",
@@ -3728,7 +3800,7 @@
   "name_ru": "Магуэй (3)"
  },
  {
-  "region_id": "ASI-0255",
+  "region_id": "ASI-0264",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MM",
@@ -3736,7 +3808,7 @@
   "name_ru": "Шан (5)"
  },
  {
-  "region_id": "ASI-0256",
+  "region_id": "ASI-0265",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MM",
@@ -3744,7 +3816,7 @@
   "name_ru": "Сагаинг (3)"
  },
  {
-  "region_id": "ASI-0257",
+  "region_id": "ASI-0266",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MM",
@@ -3752,7 +3824,7 @@
   "name_ru": "Кайин (5)"
  },
  {
-  "region_id": "ASI-0258",
+  "region_id": "ASI-0267",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3760,7 +3832,7 @@
   "name_ru": "Дорнод"
  },
  {
-  "region_id": "ASI-0259",
+  "region_id": "ASI-0268",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3768,7 +3840,7 @@
   "name_ru": "Баянхонгор"
  },
  {
-  "region_id": "ASI-0260",
+  "region_id": "ASI-0269",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3776,7 +3848,7 @@
   "name_ru": "Овёрхангай (3)"
  },
  {
-  "region_id": "ASI-0261",
+  "region_id": "ASI-0270",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3784,7 +3856,7 @@
   "name_ru": "Ховд (5)"
  },
  {
-  "region_id": "ASI-0262",
+  "region_id": "ASI-0271",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3792,7 +3864,7 @@
   "name_ru": "Омногови (3)"
  },
  {
-  "region_id": "ASI-0263",
+  "region_id": "ASI-0272",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3800,7 +3872,7 @@
   "name_ru": "Гови-Алтай (3)"
  },
  {
-  "region_id": "ASI-0264",
+  "region_id": "ASI-0273",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3808,7 +3880,7 @@
   "name_ru": "Дорногови (7)"
  },
  {
-  "region_id": "ASI-0265",
+  "region_id": "ASI-0274",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MN",
@@ -3816,7 +3888,7 @@
   "name_ru": "Тёв (13)"
  },
  {
-  "region_id": "ASI-0266",
+  "region_id": "ASI-0275",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MO",
@@ -3824,7 +3896,7 @@
   "name_ru": "Макао (отдельный iso_a2='MO', не входил в список стран)"
  },
  {
-  "region_id": "ASI-0267",
+  "region_id": "ASI-0276",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3832,7 +3904,7 @@
   "name_ru": "Сабах"
  },
  {
-  "region_id": "ASI-0268",
+  "region_id": "ASI-0277",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3840,7 +3912,7 @@
   "name_ru": "Саравак"
  },
  {
-  "region_id": "ASI-0269",
+  "region_id": "ASI-0278",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3848,7 +3920,7 @@
   "name_ru": "Джохор"
  },
  {
-  "region_id": "ASI-0270",
+  "region_id": "ASI-0279",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3856,7 +3928,7 @@
   "name_ru": "Лабуан"
  },
  {
-  "region_id": "ASI-0271",
+  "region_id": "ASI-0280",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3864,7 +3936,7 @@
   "name_ru": "Перак (7)"
  },
  {
-  "region_id": "ASI-0272",
+  "region_id": "ASI-0281",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3872,7 +3944,7 @@
   "name_ru": "Паханг (15)"
  },
  {
-  "region_id": "ASI-0273",
+  "region_id": "ASI-0282",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "NP",
@@ -3880,7 +3952,7 @@
   "name_ru": "Непал (план: 'каждый в отдельный регион')"
  },
  {
-  "region_id": "ASI-0274",
+  "region_id": "ASI-0283",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3888,7 +3960,7 @@
   "name_ru": "Мусандам"
  },
  {
-  "region_id": "ASI-0275",
+  "region_id": "ASI-0284",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3896,7 +3968,7 @@
   "name_ru": "Дофар"
  },
  {
-  "region_id": "ASI-0276",
+  "region_id": "ASI-0285",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3904,7 +3976,7 @@
   "name_ru": "Аль-Дахира (5)"
  },
  {
-  "region_id": "ASI-0277",
+  "region_id": "ASI-0286",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3912,7 +3984,7 @@
   "name_ru": "Аль-Вуста (11)"
  },
  {
-  "region_id": "ASI-0278",
+  "region_id": "ASI-0287",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3920,7 +3992,7 @@
   "name_ru": "Автономный регион на мусульманском Минданао (ARMM)"
  },
  {
-  "region_id": "ASI-0279",
+  "region_id": "ASI-0288",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3928,7 +4000,7 @@
   "name_ru": "Давао (Регион XI)"
  },
  {
-  "region_id": "ASI-0280",
+  "region_id": "ASI-0289",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3936,7 +4008,7 @@
   "name_ru": "Полуостров Замбоанга (Регион IX)"
  },
  {
-  "region_id": "ASI-0281",
+  "region_id": "ASI-0290",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3944,7 +4016,7 @@
   "name_ru": "МИМАРОПА (Район IV-B)"
  },
  {
-  "region_id": "ASI-0282",
+  "region_id": "ASI-0291",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3952,7 +4024,7 @@
   "name_ru": "Острова Динагат (Регион XIII)"
  },
  {
-  "region_id": "ASI-0283",
+  "region_id": "ASI-0292",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3960,7 +4032,7 @@
   "name_ru": "Северный Минданао (Регион X)"
  },
  {
-  "region_id": "ASI-0284",
+  "region_id": "ASI-0293",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3968,7 +4040,7 @@
   "name_ru": "СОКСКСАРГЕН (Регион XII)"
  },
  {
-  "region_id": "ASI-0285",
+  "region_id": "ASI-0294",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3976,7 +4048,7 @@
   "name_ru": "Восточные Висайи (Регион VIII)"
  },
  {
-  "region_id": "ASI-0286",
+  "region_id": "ASI-0295",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3984,7 +4056,7 @@
   "name_ru": "Центральный Лусон (Регион III)"
  },
  {
-  "region_id": "ASI-0287",
+  "region_id": "ASI-0296",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3992,7 +4064,7 @@
   "name_ru": "КАЛАБАРСОН (Район IV-A)"
  },
  {
-  "region_id": "ASI-0288",
+  "region_id": "ASI-0297",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4000,7 +4072,7 @@
   "name_ru": "Бикол (Регион V)"
  },
  {
-  "region_id": "ASI-0289",
+  "region_id": "ASI-0298",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4008,7 +4080,7 @@
   "name_ru": "Национальный столичный регион"
  },
  {
-  "region_id": "ASI-0290",
+  "region_id": "ASI-0299",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4016,7 +4088,7 @@
   "name_ru": "Илокос (Регион I)"
  },
  {
-  "region_id": "ASI-0291",
+  "region_id": "ASI-0300",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4024,7 +4096,7 @@
   "name_ru": "Долина Кагаян (Регион II)"
  },
  {
-  "region_id": "ASI-0292",
+  "region_id": "ASI-0301",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4032,7 +4104,7 @@
   "name_ru": "Центральные Висайские острова (Регион VII)"
  },
  {
-  "region_id": "ASI-0293",
+  "region_id": "ASI-0302",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4040,7 +4112,7 @@
   "name_ru": "Западные Висайские острова (Регион VI)"
  },
  {
-  "region_id": "ASI-0294",
+  "region_id": "ASI-0303",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4048,7 +4120,7 @@
   "name_ru": "Административный регион Кордильеры (ЦАР)"
  },
  {
-  "region_id": "ASI-0295",
+  "region_id": "ASI-0304",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4056,7 +4128,7 @@
   "name_ru": "Северные районы"
  },
  {
-  "region_id": "ASI-0296",
+  "region_id": "ASI-0305",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4064,7 +4136,7 @@
   "name_ru": "К.П."
  },
  {
-  "region_id": "ASI-0297",
+  "region_id": "ASI-0306",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4072,7 +4144,7 @@
   "name_ru": "Ф.А.Т.А."
  },
  {
-  "region_id": "ASI-0298",
+  "region_id": "ASI-0307",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4080,7 +4152,7 @@
   "name_ru": "Белуджистан"
  },
  {
-  "region_id": "ASI-0299",
+  "region_id": "ASI-0308",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4088,7 +4160,7 @@
   "name_ru": "Пенджаб"
  },
  {
-  "region_id": "ASI-0300",
+  "region_id": "ASI-0309",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4096,7 +4168,7 @@
   "name_ru": "Синд"
  },
  {
-  "region_id": "ASI-0301",
+  "region_id": "ASI-0310",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4104,7 +4176,7 @@
   "name_ru": "Азад Кашмир"
  },
  {
-  "region_id": "ASI-0302",
+  "region_id": "ASI-0311",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4112,7 +4184,7 @@
   "name_ru": "Ф.К.Т."
  },
  {
-  "region_id": "ASI-0303",
+  "region_id": "ASI-0312",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "QA",
@@ -4120,7 +4192,7 @@
   "name_ru": "Катар"
  },
  {
-  "region_id": "ASI-0304",
+  "region_id": "ASI-0313",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4128,7 +4200,7 @@
   "name_ru": "Эш Шаркия"
  },
  {
-  "region_id": "ASI-0305",
+  "region_id": "ASI-0314",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4136,7 +4208,7 @@
   "name_ru": "Аль-Худуд аш-Шамалия"
  },
  {
-  "region_id": "ASI-0306",
+  "region_id": "ASI-0315",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4144,7 +4216,7 @@
   "name_ru": "Аль Джауф"
  },
  {
-  "region_id": "ASI-0307",
+  "region_id": "ASI-0316",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4152,7 +4224,7 @@
   "name_ru": "Мекка"
  },
  {
-  "region_id": "ASI-0308",
+  "region_id": "ASI-0317",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4160,7 +4232,7 @@
   "name_ru": "Град"
  },
  {
-  "region_id": "ASI-0309",
+  "region_id": "ASI-0318",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4168,7 +4240,7 @@
   "name_ru": "`Асир (5)"
  },
  {
-  "region_id": "ASI-0310",
+  "region_id": "ASI-0319",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4176,7 +4248,7 @@
   "name_ru": "Ар-Рияд (5)"
  },
  {
-  "region_id": "ASI-0311",
+  "region_id": "ASI-0320",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4184,7 +4256,7 @@
   "name_ru": "Аль-Мадина (3)"
  },
  {
-  "region_id": "ASI-0312",
+  "region_id": "ASI-0321",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SG",
@@ -4192,7 +4264,7 @@
   "name_ru": "Сингапур"
  },
  {
-  "region_id": "ASI-0313",
+  "region_id": "ASI-0322",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4200,7 +4272,7 @@
   "name_ru": "Зона UNDOF"
  },
  {
-  "region_id": "ASI-0314",
+  "region_id": "ASI-0323",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4208,7 +4280,7 @@
   "name_ru": "Хомс (Химс) (5)"
  },
  {
-  "region_id": "ASI-0315",
+  "region_id": "ASI-0324",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4216,7 +4288,7 @@
   "name_ru": "Тартус"
  },
  {
-  "region_id": "ASI-0316",
+  "region_id": "ASI-0325",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4224,7 +4296,7 @@
   "name_ru": "Риф Димашк (7)"
  },
  {
-  "region_id": "ASI-0317",
+  "region_id": "ASI-0326",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4232,7 +4304,7 @@
   "name_ru": "Хасака (Аль-Хакса)"
  },
  {
-  "region_id": "ASI-0318",
+  "region_id": "ASI-0327",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4240,7 +4312,7 @@
   "name_ru": "Ар-Ракка"
  },
  {
-  "region_id": "ASI-0319",
+  "region_id": "ASI-0328",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4248,7 +4320,7 @@
   "name_ru": "Алеппо"
  },
  {
-  "region_id": "ASI-0320",
+  "region_id": "ASI-0329",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4256,7 +4328,7 @@
   "name_ru": "Идлиб"
  },
  {
-  "region_id": "ASI-0321",
+  "region_id": "ASI-0330",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4264,7 +4336,7 @@
   "name_ru": "Латакия"
  },
  {
-  "region_id": "ASI-0322",
+  "region_id": "ASI-0331",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4272,7 +4344,7 @@
   "name_ru": "Как Сувайда"
  },
  {
-  "region_id": "ASI-0323",
+  "region_id": "ASI-0332",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4280,7 +4352,7 @@
   "name_ru": "Даръа"
  },
  {
-  "region_id": "ASI-0324",
+  "region_id": "ASI-0333",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4288,7 +4360,7 @@
   "name_ru": "Дайр Аз Заур"
  },
  {
-  "region_id": "ASI-0325",
+  "region_id": "ASI-0334",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4296,7 +4368,7 @@
   "name_ru": "Кунейтра"
  },
  {
-  "region_id": "ASI-0326",
+  "region_id": "ASI-0335",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4304,7 +4376,7 @@
   "name_ru": "Хама"
  },
  {
-  "region_id": "ASI-0327",
+  "region_id": "ASI-0336",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4312,7 +4384,7 @@
   "name_ru": "Дамаск"
  },
  {
-  "region_id": "ASI-0328",
+  "region_id": "ASI-0337",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4320,7 +4392,7 @@
   "name_ru": "Голан"
  },
  {
-  "region_id": "ASI-0329",
+  "region_id": "ASI-0338",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4328,7 +4400,7 @@
   "name_ru": "Пхукет"
  },
  {
-  "region_id": "ASI-0330",
+  "region_id": "ASI-0339",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4336,7 +4408,7 @@
   "name_ru": "Прачинбури (15)"
  },
  {
-  "region_id": "ASI-0331",
+  "region_id": "ASI-0340",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4344,7 +4416,7 @@
   "name_ru": "Пхетчабури (21)"
  },
  {
-  "region_id": "ASI-0332",
+  "region_id": "ASI-0341",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4352,7 +4424,7 @@
   "name_ru": "Нан (9)"
  },
  {
-  "region_id": "ASI-0333",
+  "region_id": "ASI-0342",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4360,7 +4432,7 @@
   "name_ru": "Пхитсанулок (7)"
  },
  {
-  "region_id": "ASI-0334",
+  "region_id": "ASI-0343",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4368,7 +4440,7 @@
   "name_ru": "Чиангмай (7)"
  },
  {
-  "region_id": "ASI-0335",
+  "region_id": "ASI-0344",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4376,7 +4448,7 @@
   "name_ru": "Накхонратчасима (7)"
  },
  {
-  "region_id": "ASI-0336",
+  "region_id": "ASI-0345",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4384,7 +4456,7 @@
   "name_ru": "Накхонситхаммарат (21)"
  },
  {
-  "region_id": "ASI-0337",
+  "region_id": "ASI-0346",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4392,7 +4464,7 @@
   "name_ru": "Убонратчатхани (13)"
  },
  {
-  "region_id": "ASI-0338",
+  "region_id": "ASI-0347",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4400,7 +4472,7 @@
   "name_ru": "Накхон Саван (23)"
  },
  {
-  "region_id": "ASI-0339",
+  "region_id": "ASI-0348",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4408,7 +4480,7 @@
   "name_ru": "Чайяпхум (19)"
  },
  {
-  "region_id": "ASI-0340",
+  "region_id": "ASI-0349",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4416,7 +4488,7 @@
   "name_ru": "Ленинабад"
  },
  {
-  "region_id": "ASI-0341",
+  "region_id": "ASI-0350",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4424,7 +4496,7 @@
   "name_ru": "Горный Бадахшан"
  },
  {
-  "region_id": "ASI-0342",
+  "region_id": "ASI-0351",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4432,7 +4504,7 @@
   "name_ru": "Хатлон"
  },
  {
-  "region_id": "ASI-0343",
+  "region_id": "ASI-0352",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4440,7 +4512,7 @@
   "name_ru": "Территории Таджикистана (3)"
  },
  {
-  "region_id": "ASI-0344",
+  "region_id": "ASI-0353",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TL",
@@ -4448,7 +4520,7 @@
   "name_ru": "Восточный Тимор (Португальский Тимор)"
  },
  {
-  "region_id": "ASI-0345",
+  "region_id": "ASI-0354",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4456,7 +4528,7 @@
   "name_ru": "Чарджоу"
  },
  {
-  "region_id": "ASI-0346",
+  "region_id": "ASI-0355",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4464,7 +4536,7 @@
   "name_ru": "Мэри"
  },
  {
-  "region_id": "ASI-0347",
+  "region_id": "ASI-0356",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4472,7 +4544,7 @@
   "name_ru": "Ахал"
  },
  {
-  "region_id": "ASI-0348",
+  "region_id": "ASI-0357",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4480,7 +4552,7 @@
   "name_ru": "Балканский"
  },
  {
-  "region_id": "ASI-0349",
+  "region_id": "ASI-0358",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4488,7 +4560,7 @@
   "name_ru": "Ташауз"
  },
  {
-  "region_id": "ASI-0350",
+  "region_id": "ASI-0359",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4496,7 +4568,7 @@
   "name_ru": "Диярбакыр (17)"
  },
  {
-  "region_id": "ASI-0351",
+  "region_id": "ASI-0360",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4504,7 +4576,7 @@
   "name_ru": "Шанлыурфа (15)"
  },
  {
-  "region_id": "ASI-0352",
+  "region_id": "ASI-0361",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4512,7 +4584,7 @@
   "name_ru": "Кютахья (15)"
  },
  {
-  "region_id": "ASI-0353",
+  "region_id": "ASI-0362",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4520,7 +4592,7 @@
   "name_ru": "Испарта (17)"
  },
  {
-  "region_id": "ASI-0354",
+  "region_id": "ASI-0363",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4528,7 +4600,7 @@
   "name_ru": "Кастамону (27)"
  },
  {
-  "region_id": "ASI-0355",
+  "region_id": "ASI-0364",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4536,7 +4608,7 @@
   "name_ru": "Эрзурум (29)"
  },
  {
-  "region_id": "ASI-0356",
+  "region_id": "ASI-0365",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4544,7 +4616,7 @@
   "name_ru": "Кайсери (27)"
  },
  {
-  "region_id": "ASI-0357",
+  "region_id": "ASI-0366",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4552,7 +4624,7 @@
   "name_ru": "Текирдаг (3)"
  },
  {
-  "region_id": "ASI-0358",
+  "region_id": "ASI-0367",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4560,7 +4632,7 @@
   "name_ru": "Кыркларели (3)"
  },
  {
-  "region_id": "ASI-0359",
+  "region_id": "ASI-0368",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4568,7 +4640,7 @@
   "name_ru": "Цзиньмэнь"
  },
  {
-  "region_id": "ASI-0360",
+  "region_id": "ASI-0369",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4576,7 +4648,7 @@
   "name_ru": "Пэнху"
  },
  {
-  "region_id": "ASI-0361",
+  "region_id": "ASI-0370",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4584,7 +4656,7 @@
   "name_ru": "Синьчжу (17)"
  },
  {
-  "region_id": "ASI-0362",
+  "region_id": "ASI-0371",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4592,7 +4664,7 @@
   "name_ru": "Наньтоу (19)"
  },
  {
-  "region_id": "ASI-0363",
+  "region_id": "ASI-0372",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4600,7 +4672,7 @@
   "name_ru": "Сурхандарьинская"
  },
  {
-  "region_id": "ASI-0364",
+  "region_id": "ASI-0373",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4608,7 +4680,7 @@
   "name_ru": "Навои"
  },
  {
-  "region_id": "ASI-0365",
+  "region_id": "ASI-0374",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4616,7 +4688,7 @@
   "name_ru": "Бухара"
  },
  {
-  "region_id": "ASI-0366",
+  "region_id": "ASI-0375",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4624,7 +4696,7 @@
   "name_ru": "Каракалпакстан (3)"
  },
  {
-  "region_id": "ASI-0367",
+  "region_id": "ASI-0376",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4632,7 +4704,7 @@
   "name_ru": "Кашкадарья (3)"
  },
  {
-  "region_id": "ASI-0368",
+  "region_id": "ASI-0377",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4640,7 +4712,7 @@
   "name_ru": "Джизак (13)"
  },
  {
-  "region_id": "ASI-0369",
+  "region_id": "ASI-0378",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4648,7 +4720,7 @@
   "name_ru": "Кон Тум"
  },
  {
-  "region_id": "ASI-0370",
+  "region_id": "ASI-0379",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4656,7 +4728,7 @@
   "name_ru": "Дик Нонг"
  },
  {
-  "region_id": "ASI-0371",
+  "region_id": "ASI-0380",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4664,7 +4736,7 @@
   "name_ru": "Дик Лук"
  },
  {
-  "region_id": "ASI-0372",
+  "region_id": "ASI-0381",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4672,7 +4744,7 @@
   "name_ru": "Джиа Лай"
  },
  {
-  "region_id": "ASI-0373",
+  "region_id": "ASI-0382",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4680,7 +4752,7 @@
   "name_ru": "Бинь Фок"
  },
  {
-  "region_id": "ASI-0374",
+  "region_id": "ASI-0383",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4688,7 +4760,7 @@
   "name_ru": "Тай Нинь"
  },
  {
-  "region_id": "ASI-0375",
+  "region_id": "ASI-0384",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4696,7 +4768,7 @@
   "name_ru": "Донг Бонг Сон Ку Лонг"
  },
  {
-  "region_id": "ASI-0376",
+  "region_id": "ASI-0385",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4704,7 +4776,7 @@
   "name_ru": "Джин Бьен"
  },
  {
-  "region_id": "ASI-0377",
+  "region_id": "ASI-0386",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4712,7 +4784,7 @@
   "name_ru": "Сон Ла"
  },
  {
-  "region_id": "ASI-0378",
+  "region_id": "ASI-0387",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4720,7 +4792,7 @@
   "name_ru": "Тхань Хоа"
  },
  {
-  "region_id": "ASI-0379",
+  "region_id": "ASI-0388",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4728,7 +4800,7 @@
   "name_ru": "Нго Ан"
  },
  {
-  "region_id": "ASI-0380",
+  "region_id": "ASI-0389",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4736,7 +4808,7 @@
   "name_ru": "Ха Тинь"
  },
  {
-  "region_id": "ASI-0381",
+  "region_id": "ASI-0390",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4744,7 +4816,7 @@
   "name_ru": "Куанг Бинь"
  },
  {
-  "region_id": "ASI-0382",
+  "region_id": "ASI-0391",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4752,7 +4824,7 @@
   "name_ru": "Куанг Тро"
  },
  {
-  "region_id": "ASI-0383",
+  "region_id": "ASI-0392",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4760,7 +4832,7 @@
   "name_ru": "Тхиа Тьен - Хуэ"
  },
  {
-  "region_id": "ASI-0384",
+  "region_id": "ASI-0393",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4768,7 +4840,7 @@
   "name_ru": "Куанг Нам"
  },
  {
-  "region_id": "ASI-0385",
+  "region_id": "ASI-0394",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4776,7 +4848,7 @@
   "name_ru": "Ха Ной"
  },
  {
-  "region_id": "ASI-0386",
+  "region_id": "ASI-0395",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4784,7 +4856,7 @@
   "name_ru": "Ба Руа - Вонг Тау"
  },
  {
-  "region_id": "ASI-0387",
+  "region_id": "ASI-0396",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4792,7 +4864,7 @@
   "name_ru": "Хошимин, город"
  },
  {
-  "region_id": "ASI-0388",
+  "region_id": "ASI-0397",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4800,7 +4872,7 @@
   "name_ru": "Кхань Хоа"
  },
  {
-  "region_id": "ASI-0389",
+  "region_id": "ASI-0398",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4808,7 +4880,7 @@
   "name_ru": "Хау Джанг"
  },
  {
-  "region_id": "ASI-0390",
+  "region_id": "ASI-0399",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4816,7 +4888,7 @@
   "name_ru": "Дон Нам Бо"
  },
  {
-  "region_id": "ASI-0391",
+  "region_id": "ASI-0400",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4824,7 +4896,7 @@
   "name_ru": "Бинь Тхуан"
  },
  {
-  "region_id": "ASI-0392",
+  "region_id": "ASI-0401",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4832,7 +4904,7 @@
   "name_ru": "Нинь Тхуан"
  },
  {
-  "region_id": "ASI-0393",
+  "region_id": "ASI-0402",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4840,7 +4912,7 @@
   "name_ru": "Фу Йен"
  },
  {
-  "region_id": "ASI-0394",
+  "region_id": "ASI-0403",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4848,7 +4920,7 @@
   "name_ru": "Бинь Динь"
  },
  {
-  "region_id": "ASI-0395",
+  "region_id": "ASI-0404",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4856,7 +4928,7 @@
   "name_ru": "Куанг Нгай"
  },
  {
-  "region_id": "ASI-0396",
+  "region_id": "ASI-0405",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4864,7 +4936,7 @@
   "name_ru": "Да Нонг"
  },
  {
-  "region_id": "ASI-0397",
+  "region_id": "ASI-0406",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4872,7 +4944,7 @@
   "name_ru": "Хоа Бинь"
  },
  {
-  "region_id": "ASI-0398",
+  "region_id": "ASI-0407",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4880,7 +4952,7 @@
   "name_ru": "Тонг Бок"
  },
  {
-  "region_id": "ASI-0399",
+  "region_id": "ASI-0408",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4888,7 +4960,7 @@
   "name_ru": "Хойфонг"
  },
  {
-  "region_id": "ASI-0400",
+  "region_id": "ASI-0409",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4896,7 +4968,7 @@
   "name_ru": "Тай Нгуен"
  },
  {
-  "region_id": "ASI-0401",
+  "region_id": "ASI-0410",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4904,7 +4976,7 @@
   "name_ru": "Бинь Донг"
  },
  {
-  "region_id": "ASI-0402",
+  "region_id": "ASI-0411",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4912,7 +4984,7 @@
   "name_ru": "Лам Донг"
  },
  {
-  "region_id": "ASI-0403",
+  "region_id": "ASI-0412",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4920,7 +4992,7 @@
   "name_ru": "Кан Тхо"
  },
  {
-  "region_id": "ASI-0404",
+  "region_id": "ASI-0413",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -4928,7 +5000,7 @@
   "name_ru": "Хадрамаут"
  },
  {
-  "region_id": "ASI-0405",
+  "region_id": "ASI-0414",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -4936,7 +5008,7 @@
   "name_ru": "Аль-Махра"
  },
  {
-  "region_id": "ASI-0406",
+  "region_id": "ASI-0415",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -4944,7 +5016,7 @@
   "name_ru": "Хаджа (7)"
  },
  {
-  "region_id": "ASI-0407",
+  "region_id": "ASI-0416",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -4952,7 +5024,7 @@
   "name_ru": "Шабва (3)"
  },
  {
-  "region_id": "ASI-0408",
+  "region_id": "ASI-0417",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -4960,7 +5032,7 @@
   "name_ru": "Лагич (11)"
  },
  {
-  "region_id": "ASI-0409",
+  "region_id": "ASI-0418",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",

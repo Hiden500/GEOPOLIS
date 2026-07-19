@@ -5,11 +5,14 @@ from generate_country_registry import (
     CONFIG_DIR,
     CUSTOM_COUNTRIES,
     OUT_DIR,
+    REPO_ROOT,
     build_merge_map,
     build_puppets_by_suzerain,
     load_entity_config,
     load_json,
 )
+
+WORLD_GEOJSON = REPO_ROOT / "client" / "public" / "world_1946.geojson"
 from economy_1946.anchors import COUNTRY_POPULATION_1946
 
 
@@ -192,22 +195,43 @@ class CountryEntities1946Test(unittest.TestCase):
             entry["regionId"]: entry["to"]
             for entry in config["continents"]["asia"]["regionOwnerOverrides"]
         }
-        # region_id здесь смещены на 2026-07-19-i (откат Сирии/Иордании/
-        # Ливана/Палестины на сырые провинции game_map.json — см.
-        # docs/DECISIONS.md) относительно того, что было в этом тесте
-        # раньше; значения сверены заново с живым config после пересборки,
-        # не унаследованы механически.
-        expected = {
-            "ASI-0041": "QTB", "ASI-0115": "QSI", "ASI-0133": "QPI",
-            "ASI-0138": "QFI", "ASI-0267": "QNB", "ASI-0268": "QSR",
-            "ASI-0270": "QLB", "ASI-0376": "QDV", "ASI-0102": "QRI",
-            "ASI-0404": "QAD", "ASI-0198": "THA", "ASI-0199": "THA",
-            "ASI-0058": "VNM",
+        # 2026-07-19-j: region_id сдвигаются при КАЖДОМ изменении числа
+        # регионов Азии (уже трижды за одну сессию — 2026-07-19-c/-i/-j, см.
+        # map-geometry-qa skill "A test with a hardcoded region_id..."), так
+        # что жёстко прописанные id тут были заведомо временными. Матчим по
+        # (name, iso_a2) из живого world_1946.geojson вместо литералов —
+        # тест переживёт следующий сдвиг без ручной правки.
+        world = load_json(WORLD_GEOJSON)
+        region_id_by_key = {
+            (ft["properties"]["name"], ft["properties"]["iso_a2"]): ft["properties"]["region_id"]
+            for ft in world["features"]
         }
-        for region_id, target in expected.items():
-            self.assertEqual(region_overrides[region_id], target)
-        for region_id in ("ASI-0057", "ASI-0113", "ASI-0128", "ASI-0295", "ASI-0301"):
-            self.assertEqual(region_overrides[region_id], "QJK")
+
+        def rid(name, iso2):
+            key = (name, iso2)
+            self.assertIn(key, region_id_by_key, f"регион {key} не найден в world_1946.geojson")
+            return region_id_by_key[key]
+
+        expected = {
+            ("Xizang", "CN"): "QTB",
+            ("Sikkim", "IN"): "QSI",
+            ("Dadra and Nagar Haveli and Daman and Diu", "IN"): "QPI",
+            ("Puducherry", "IN"): "QFI",
+            ("Sabah", "MY"): "QNB",
+            ("Sarawak", "MY"): "QSR",
+            ("Labuan", "MY"): "QLB",
+            ("Điện Biên", "VN"): "QDV",
+            ("Riau", "ID"): "QRI",
+            ("Hadramawt", "YE"): "QAD",
+            ("Batdâmbâng", "KH"): "THA",
+            ("Siemréab", "KH"): "THA",
+            ("Spratly Islands", "PGA"): "VNM",
+        }
+        for (name, iso2), target in expected.items():
+            self.assertEqual(region_overrides[rid(name, iso2)], target)
+        for name, iso2 in (("Kashmir", "KAS"), ("Ladakh", "IN"), ("Jammu and Kashmir", "IN"),
+                            ("Northern Areas", "PK"), ("Azad Kashmir", "PK")):
+            self.assertEqual(region_overrides[rid(name, iso2)], "QJK")
 
     def test_oceanian_entities_use_1946_administrations(self):
         # Крупные администрации/установленное самоуправление/монархия —

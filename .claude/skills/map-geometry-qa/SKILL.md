@@ -6,7 +6,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…i).
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…j).
 Do not re-open the same graves.
 
 ## Trigger
@@ -108,6 +108,29 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   gives you a ~130-byte text pointer (`version https://git-lfs.github.com/...`),
   not the actual content — no error, so it's easy to miss. Use
   `media.githubusercontent.com/media/<repo>/<commit>/<path>` instead.
+- **A plain `A.difference(B)` between two independently-digitized boundaries
+  can leave several small disconnected fragments of A stuck to B's edge, not
+  one clean line.** HaZafon minus Golan (2026-07-19-j) left 4 fragments
+  (22.8 km² total) that rendered as duplicate labels scattered across Golan —
+  all 4 touched Golan at distance=0 but were 0.02-0.1° from HaZafon's own main
+  body. Fix: after any `.difference()` between two features from different
+  sources, check `geom_type == "MultiPolygon"`; if so, keep only the largest
+  part for the feature being clipped and merge the stray parts into whichever
+  neighbour they actually touch (same move as the UNDOF/Golan overlap above,
+  just triggered by a subtraction instead of an addition). This bit twice in
+  one session (HaZafon→Golan, then a PSE-Jerusalem union leaving 5 stray
+  slivers → merged into Bethlehem) — check for it after every clip/union
+  involving two differently-sourced polygons, not just once.
+- **Merging a governorate/ADM2 polygon from a NEW source into an EXISTING
+  same-name region can still leave real gaps if you skip a piece for naming
+  reasons.** Splitting West Bank into geoBoundaries PSE governorates
+  (2026-07-19-j), the PSE "Jerusalem" governorate was excluded outright (to
+  avoid a duplicate-named region — the raw "Jerusalem" already existed) —
+  but PSE's Jerusalem covered 282.6 km² the existing region didn't, leaving a
+  real hole between Ramallah/Bethlehem/Jericho visible on render. Right move:
+  don't just skip the excluded piece — union the excluded piece's full
+  geometry into the region you kept the name from, then re-check for the
+  MultiPolygon-fragment pattern above.
 
 ## Positional-file fragility (silent, untested)
 
@@ -117,14 +140,30 @@ numbering of everything built after it (special blocks like China/Palestine sit
 near the front, so the shift is not limited to alphabetically-later countries).
 No test checks displayed names or per-region owners — the symptom is wrong
 names/owners on the live map, not a red test. This has now bitten Asia
-(2026-07-19-c and again -i, `--prefix ASI-`) and Europe (2026-07-19-h and
-again -i, `--prefix EUR-`) independently and repeatedly — assume it can hit
-any continent, EVERY time region counts change, not just once per continent.
+(2026-07-19-c, -i, -j, `--prefix ASI-`) and Europe (2026-07-19-h and again
+-i, `--prefix EUR-`) independently and repeatedly — assume it can hit any
+continent, EVERY time region counts change, not just once per continent.
 A test with a hardcoded `region_id` string (not read from live config) will
 silently go stale on the next shift too — `test_country_entities_1946.py`'s
-Gulf/Tonga test needed manual updates twice (2026-07-19-i); prefer asserting
-by looking the id up from `country_entities_1946.json` at test time over a
-literal string, where practical.
+Gulf/Tonga test needed manual updates THREE times (2026-07-19-i, -j) before
+being rewritten to match by `(name, iso_a2)` against the live
+`world_1946.geojson` instead of a literal id — do that rewrite the first
+time you touch a test like this, don't just patch the string again.
+
+**Never run `remap_region_ids.py --apply` twice against the same `--old`
+snapshot after an intermediate edit.** The tool diffs "snapshot" vs
+"current world" — it doesn't know the positional files were already
+partially remapped by an earlier run. Sequence that broke (2026-07-19-j):
+build with change A → `remap --apply` (files now hold post-A ids) → make
+code fix B → rebuild → `remap --apply` AGAIN with the SAME original
+snapshot → the tool's remap dict is keyed by pre-A ids, so post-A ids it
+find in the files don't match anything and get dropped as "unresolved",
+silently deleting ~20 already-correct entries (Kashmir, Spratly, Yemen
+provinces, etc.) that had nothing to do with change B. Recovery: `git
+checkout --` the 4 positional files back to the last clean commit, then run
+`remap --apply` exactly ONCE against the FINAL state (after every geometry/
+code edit is done). Batch all edits before remapping; don't remap after
+each intermediate step.
 
 **A third sibling, same disease, different location:** `generate_country_
 registry.py::CAPITAL_REGION_OVERRIDES` is a hardcoded Python dict of
@@ -202,4 +241,4 @@ neighbour id — validate: "region N: сосед M не существует").
   protocol before any "doesn't exist" conclusion or external-source reach.
 - `scripts/map/build/geometry_cleanup.py` — the gap-first implementation + docstrings.
 - `scripts/map/build/remap_region_ids.py` — the positional-fragility remap tool.
-- `docs/DECISIONS.md` 2026-07-19-a…i — the full incident history behind each rule.
+- `docs/DECISIONS.md` 2026-07-19-a…j — the full incident history behind each rule.

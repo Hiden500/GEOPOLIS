@@ -1250,68 +1250,41 @@
   "ASI-0047": {
     "owner": "CHN"
   },
-  "ASI-0056": {
-    "owner": "SUN"
-  },
-  "ASI-0057": {
-    "owner": "IND"
-  },
-  "ASI-0058": {
-    "owner": null
-  },
-  "ASI-0059": {
-    "owner": "ARE"
-  },
-  "ASI-0060": {
-    "owner": "AFG"
-  },
-  "ASI-0061": {
-    "owner": "AFG"
-  },
-  "ASI-0062": {
-    "owner": "AFG"
-  },
-  "ASI-0063": {
-    "owner": "AFG"
-  },
-  "ASI-0064": {
-    "owner": "AFG"
-  },
   "ASI-0065": {
-    "owner": "AFG"
+    "owner": "SUN"
   },
   "ASI-0066": {
-    "owner": "AFG"
+    "owner": "IND"
   },
   "ASI-0067": {
-    "owner": "AFG"
+    "owner": null
   },
   "ASI-0068": {
-    "owner": "SUN"
+    "owner": "ARE"
   },
   "ASI-0069": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0070": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0071": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0072": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0073": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0074": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0075": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0076": {
-    "owner": "SUN"
+    "owner": "AFG"
   },
   "ASI-0077": {
     "owner": "SUN"
@@ -1326,67 +1299,67 @@
     "owner": "SUN"
   },
   "ASI-0081": {
-    "owner": "IND"
+    "owner": "SUN"
   },
   "ASI-0082": {
-    "owner": "IND"
+    "owner": "SUN"
   },
   "ASI-0083": {
-    "owner": "IND"
+    "owner": "SUN"
   },
   "ASI-0084": {
-    "owner": "IND"
+    "owner": "SUN"
   },
   "ASI-0085": {
-    "owner": "IND"
+    "owner": "SUN"
   },
   "ASI-0086": {
-    "owner": "BHR"
+    "owner": "SUN"
   },
   "ASI-0087": {
-    "owner": "BRN"
+    "owner": "SUN"
   },
   "ASI-0088": {
-    "owner": "BTN"
+    "owner": "SUN"
   },
   "ASI-0089": {
     "owner": "SUN"
   },
   "ASI-0090": {
-    "owner": "SUN"
+    "owner": "IND"
   },
   "ASI-0091": {
-    "owner": "SUN"
+    "owner": "IND"
   },
   "ASI-0092": {
-    "owner": "HKG"
+    "owner": "IND"
   },
   "ASI-0093": {
-    "owner": "IDN"
+    "owner": "IND"
   },
   "ASI-0094": {
-    "owner": "IDN"
+    "owner": "IND"
   },
   "ASI-0095": {
-    "owner": "IDN"
+    "owner": "BHR"
   },
   "ASI-0096": {
-    "owner": "IDN"
+    "owner": "BRN"
   },
   "ASI-0097": {
-    "owner": "IDN"
+    "owner": "BTN"
   },
   "ASI-0098": {
-    "owner": "IDN"
+    "owner": "SUN"
   },
   "ASI-0099": {
-    "owner": "IDN"
+    "owner": "SUN"
   },
   "ASI-0100": {
-    "owner": "IDN"
+    "owner": "SUN"
   },
   "ASI-0101": {
-    "owner": "IDN"
+    "owner": "HKG"
   },
   "ASI-0102": {
     "owner": "IDN"
@@ -1422,31 +1395,31 @@
     "owner": "IDN"
   },
   "ASI-0113": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0114": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0115": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0116": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0117": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0118": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0119": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0120": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0121": {
-    "owner": "IND"
+    "owner": "IDN"
   },
   "ASI-0122": {
     "owner": "IND"
@@ -1530,109 +1503,106 @@
     "owner": "IND"
   },
   "ASI-0149": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0150": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0151": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0152": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0153": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0154": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0155": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0156": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0157": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0158": {
     "owner": "IRQ"
   },
   "ASI-0159": {
-    "owner": "IRN"
+    "owner": "IRQ"
   },
   "ASI-0160": {
-    "owner": "IRN"
+    "owner": "IRQ"
   },
   "ASI-0161": {
-    "owner": "IRN"
+    "owner": "IRQ"
   },
   "ASI-0162": {
-    "owner": "IRN"
+    "owner": "IRQ"
   },
   "ASI-0163": {
-    "owner": "IRN"
-  },
-  "ASI-0164": {
-    "owner": "IRN"
+    "owner": "IRQ"
   },
   "ASI-0165": {
-    "owner": "IRN"
+    "owner": "IRQ"
+  },
+  "ASI-0164": {
+    "owner": "IRQ"
   },
   "ASI-0166": {
-    "owner": "IRN"
-  },
-  "ASI-0167": {
-    "owner": "IRN"
+    "owner": "IRQ"
   },
   "ASI-0168": {
     "owner": "IRN"
   },
-  "ASI-0173": {
-    "owner": "JOR"
+  "ASI-0169": {
+    "owner": "IRN"
   },
-  "ASI-0175": {
-    "owner": "JOR"
-  },
-  "ASI-0176": {
-    "owner": "JOR"
-  },
-  "ASI-0178": {
-    "owner": "JOR"
+  "ASI-0170": {
+    "owner": "IRN"
   },
   "ASI-0171": {
-    "owner": "JOR"
+    "owner": "IRN"
+  },
+  "ASI-0172": {
+    "owner": "IRN"
+  },
+  "ASI-0173": {
+    "owner": "IRN"
+  },
+  "ASI-0174": {
+    "owner": "IRN"
+  },
+  "ASI-0175": {
+    "owner": "IRN"
+  },
+  "ASI-0176": {
+    "owner": "IRN"
   },
   "ASI-0177": {
-    "owner": "JOR"
-  },
-  "ASI-0181": {
-    "owner": "JPN"
+    "owner": "IRN"
   },
   "ASI-0182": {
-    "owner": "JPN"
-  },
-  "ASI-0183": {
-    "owner": "JPN"
+    "owner": "JOR"
   },
   "ASI-0184": {
-    "owner": "JPN"
+    "owner": "JOR"
   },
   "ASI-0185": {
-    "owner": "JPN"
-  },
-  "ASI-0186": {
-    "owner": "JPN"
+    "owner": "JOR"
   },
   "ASI-0187": {
-    "owner": "JPN"
+    "owner": "JOR"
   },
-  "ASI-0188": {
-    "owner": "JPN"
+  "ASI-0180": {
+    "owner": "JOR"
   },
-  "ASI-0189": {
-    "owner": "JPN"
+  "ASI-0186": {
+    "owner": "JOR"
   },
   "ASI-0190": {
     "owner": "JPN"
@@ -1641,76 +1611,58 @@
     "owner": "JPN"
   },
   "ASI-0192": {
-    "owner": "SUN"
+    "owner": "JPN"
   },
   "ASI-0193": {
-    "owner": "SUN"
+    "owner": "JPN"
   },
   "ASI-0194": {
-    "owner": "SUN"
+    "owner": "JPN"
   },
   "ASI-0195": {
-    "owner": "SUN"
+    "owner": "JPN"
   },
   "ASI-0196": {
-    "owner": "KHM"
+    "owner": "JPN"
   },
   "ASI-0197": {
-    "owner": "KHM"
+    "owner": "JPN"
   },
   "ASI-0198": {
-    "owner": "KHM"
+    "owner": "JPN"
   },
   "ASI-0199": {
-    "owner": "KHM"
+    "owner": "JPN"
   },
   "ASI-0200": {
-    "owner": "KHM"
+    "owner": "JPN"
   },
   "ASI-0201": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "SUN"
   },
   "ASI-0202": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "SUN"
   },
   "ASI-0203": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "SUN"
   },
   "ASI-0204": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "SUN"
   },
   "ASI-0205": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "KHM"
   },
   "ASI-0206": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "KHM"
   },
   "ASI-0207": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "KHM"
   },
   "ASI-0208": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "KHM"
   },
   "ASI-0209": {
-    "owner": "KOR",
-    "controller": "SUN",
-    "note": "Occupied by Soviet forces north of 38th parallel"
+    "owner": "KHM"
   },
   "ASI-0210": {
     "owner": "KOR",
@@ -1724,48 +1676,48 @@
   },
   "ASI-0212": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0213": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0214": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0215": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0216": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0217": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0218": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0219": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0220": {
     "owner": "KOR",
-    "controller": "USA",
-    "note": "Occupied by US forces south of 38th parallel"
+    "controller": "SUN",
+    "note": "Occupied by Soviet forces north of 38th parallel"
   },
   "ASI-0221": {
     "owner": "KOR",
@@ -1808,172 +1760,190 @@
     "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0229": {
-    "owner": "KWT"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0230": {
-    "owner": "KWT"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0231": {
-    "owner": "SUN"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0232": {
-    "owner": "SUN"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0233": {
-    "owner": "SUN"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0234": {
-    "owner": "SUN"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0235": {
-    "owner": "SUN"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0236": {
-    "owner": "SUN"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0237": {
-    "owner": "SUN"
+    "owner": "KOR",
+    "controller": "USA",
+    "note": "Occupied by US forces south of 38th parallel"
   },
   "ASI-0238": {
-    "owner": "SUN"
+    "owner": "KWT"
   },
   "ASI-0239": {
-    "owner": "SUN"
+    "owner": "KWT"
   },
   "ASI-0240": {
     "owner": "SUN"
   },
   "ASI-0241": {
-    "owner": "LAO"
+    "owner": "SUN"
   },
   "ASI-0242": {
-    "owner": "LAO"
+    "owner": "SUN"
   },
   "ASI-0243": {
-    "owner": "LAO"
+    "owner": "SUN"
   },
   "ASI-0244": {
-    "owner": "LAO"
+    "owner": "SUN"
   },
-  "ASI-0247": {
-    "owner": "LBN"
-  },
-  "ASI-0248": {
-    "owner": "LBN"
-  },
-  "ASI-0249": {
-    "owner": "LBN"
+  "ASI-0245": {
+    "owner": "SUN"
   },
   "ASI-0246": {
-    "owner": "LBN"
+    "owner": "SUN"
+  },
+  "ASI-0247": {
+    "owner": "SUN"
+  },
+  "ASI-0248": {
+    "owner": "SUN"
+  },
+  "ASI-0249": {
+    "owner": "SUN"
+  },
+  "ASI-0250": {
+    "owner": "LAO"
   },
   "ASI-0251": {
-    "owner": "LKA"
+    "owner": "LAO"
   },
   "ASI-0252": {
-    "owner": "MMR"
+    "owner": "LAO"
   },
   "ASI-0253": {
-    "owner": "MMR"
-  },
-  "ASI-0254": {
-    "owner": "MMR"
-  },
-  "ASI-0255": {
-    "owner": "MMR"
+    "owner": "LAO"
   },
   "ASI-0256": {
-    "owner": "MMR"
+    "owner": "LBN"
   },
   "ASI-0257": {
-    "owner": "MMR"
+    "owner": "LBN"
   },
   "ASI-0258": {
-    "owner": "MNG"
+    "owner": "LBN"
   },
-  "ASI-0259": {
-    "owner": "MNG"
+  "ASI-0255": {
+    "owner": "LBN"
   },
   "ASI-0260": {
-    "owner": "MNG"
+    "owner": "LKA"
   },
   "ASI-0261": {
-    "owner": "MNG"
+    "owner": "MMR"
   },
   "ASI-0262": {
-    "owner": "MNG"
+    "owner": "MMR"
   },
   "ASI-0263": {
-    "owner": "MNG"
+    "owner": "MMR"
   },
   "ASI-0264": {
-    "owner": "MNG"
+    "owner": "MMR"
   },
   "ASI-0265": {
-    "owner": "MNG"
+    "owner": "MMR"
   },
   "ASI-0266": {
-    "owner": "MAC"
+    "owner": "MMR"
   },
   "ASI-0267": {
-    "owner": "MYS"
+    "owner": "MNG"
   },
   "ASI-0268": {
-    "owner": "MYS"
+    "owner": "MNG"
   },
   "ASI-0269": {
-    "owner": "MYS"
+    "owner": "MNG"
   },
   "ASI-0270": {
-    "owner": "MYS"
+    "owner": "MNG"
   },
   "ASI-0271": {
-    "owner": "MYS"
+    "owner": "MNG"
   },
   "ASI-0272": {
-    "owner": "MYS"
+    "owner": "MNG"
   },
   "ASI-0273": {
-    "owner": "NPL"
+    "owner": "MNG"
   },
   "ASI-0274": {
-    "owner": "OMN"
+    "owner": "MNG"
   },
   "ASI-0275": {
-    "owner": "OMN"
+    "owner": "MAC"
   },
   "ASI-0276": {
-    "owner": "OMN"
+    "owner": "MYS"
   },
   "ASI-0277": {
-    "owner": "OMN"
+    "owner": "MYS"
   },
   "ASI-0278": {
-    "owner": "PHL"
+    "owner": "MYS"
   },
   "ASI-0279": {
-    "owner": "PHL"
+    "owner": "MYS"
   },
   "ASI-0280": {
-    "owner": "PHL"
+    "owner": "MYS"
   },
   "ASI-0281": {
-    "owner": "PHL"
+    "owner": "MYS"
   },
   "ASI-0282": {
-    "owner": "PHL"
+    "owner": "NPL"
   },
   "ASI-0283": {
-    "owner": "PHL"
+    "owner": "OMN"
   },
   "ASI-0284": {
-    "owner": "PHL"
+    "owner": "OMN"
   },
   "ASI-0285": {
-    "owner": "PHL"
+    "owner": "OMN"
   },
   "ASI-0286": {
-    "owner": "PHL"
+    "owner": "OMN"
   },
   "ASI-0287": {
     "owner": "PHL"
@@ -2000,115 +1970,115 @@
     "owner": "PHL"
   },
   "ASI-0295": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0296": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0297": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0298": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0299": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0300": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0301": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0302": {
-    "owner": "IND"
+    "owner": "PHL"
   },
   "ASI-0303": {
-    "owner": "QAT"
+    "owner": "PHL"
   },
   "ASI-0304": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0305": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0306": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0307": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0308": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0309": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0310": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0311": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0312": {
-    "owner": "SGP"
+    "owner": "QAT"
+  },
+  "ASI-0313": {
+    "owner": "SAU"
+  },
+  "ASI-0314": {
+    "owner": "SAU"
+  },
+  "ASI-0315": {
+    "owner": "SAU"
+  },
+  "ASI-0316": {
+    "owner": "SAU"
   },
   "ASI-0317": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0318": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0319": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0320": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
-  "ASI-0322": {
-    "owner": "SYR"
-  },
-  "ASI-0323": {
-    "owner": "SYR"
-  },
-  "ASI-0324": {
-    "owner": "SYR"
+  "ASI-0321": {
+    "owner": "SGP"
   },
   "ASI-0326": {
     "owner": "SYR"
   },
-  "ASI-0316": {
+  "ASI-0327": {
     "owner": "SYR"
   },
-  "ASI-0314": {
+  "ASI-0328": {
     "owner": "SYR"
   },
   "ASI-0329": {
-    "owner": "THA"
-  },
-  "ASI-0330": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0331": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0332": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0333": {
-    "owner": "THA"
-  },
-  "ASI-0334": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0335": {
-    "owner": "THA"
+    "owner": "SYR"
   },
-  "ASI-0336": {
-    "owner": "THA"
+  "ASI-0325": {
+    "owner": "SYR"
   },
-  "ASI-0337": {
-    "owner": "THA"
+  "ASI-0323": {
+    "owner": "SYR"
   },
   "ASI-0338": {
     "owner": "THA"
@@ -2117,118 +2087,118 @@
     "owner": "THA"
   },
   "ASI-0340": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0341": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0342": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0343": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0344": {
-    "owner": "TLS"
+    "owner": "THA"
   },
   "ASI-0345": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0346": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0347": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0348": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0349": {
     "owner": "SUN"
   },
   "ASI-0350": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0351": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0352": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0353": {
-    "owner": "TUR"
+    "owner": "TLS"
   },
   "ASI-0354": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0355": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0356": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0357": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0358": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0359": {
-    "owner": "CHN"
+    "owner": "TUR"
   },
   "ASI-0360": {
-    "owner": "CHN"
+    "owner": "TUR"
   },
   "ASI-0361": {
-    "owner": "CHN"
+    "owner": "TUR"
   },
   "ASI-0362": {
-    "owner": "CHN"
+    "owner": "TUR"
   },
   "ASI-0363": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0364": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0365": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0366": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0367": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0368": {
-    "owner": "SUN"
+    "owner": "CHN"
   },
   "ASI-0369": {
-    "owner": "VNM"
+    "owner": "CHN"
   },
   "ASI-0370": {
-    "owner": "VNM"
+    "owner": "CHN"
   },
   "ASI-0371": {
-    "owner": "VNM"
+    "owner": "CHN"
   },
   "ASI-0372": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0373": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0374": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0375": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0376": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0377": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0378": {
     "owner": "VNM"
@@ -2309,21 +2279,48 @@
     "owner": "VNM"
   },
   "ASI-0404": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0405": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0406": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0407": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0408": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0409": {
+    "owner": "VNM"
+  },
+  "ASI-0410": {
+    "owner": "VNM"
+  },
+  "ASI-0411": {
+    "owner": "VNM"
+  },
+  "ASI-0412": {
+    "owner": "VNM"
+  },
+  "ASI-0413": {
+    "owner": "YEM"
+  },
+  "ASI-0414": {
+    "owner": "YEM"
+  },
+  "ASI-0415": {
+    "owner": "YEM"
+  },
+  "ASI-0416": {
+    "owner": "YEM"
+  },
+  "ASI-0417": {
+    "owner": "YEM"
+  },
+  "ASI-0418": {
     "owner": "YEM"
   },
   "NAM-0001": {
@@ -4567,52 +4564,82 @@
   "ASI-0050": {
     "owner": "PSE"
   },
-  "ASI-0051": {
+  "ASI-0062": {
     "owner": "PSE"
   },
-  "ASI-0053": {
+  "ASI-0064": {
     "owner": "PSE"
   },
-  "ASI-0055": {
-    "owner": "PSE"
-  },
-  "ASI-0169": {
-    "owner": "JOR"
-  },
-  "ASI-0170": {
-    "owner": "JOR"
-  },
-  "ASI-0172": {
-    "owner": "JOR"
-  },
-  "ASI-0174": {
+  "ASI-0178": {
     "owner": "JOR"
   },
   "ASI-0179": {
     "owner": "JOR"
   },
-  "ASI-0180": {
+  "ASI-0181": {
     "owner": "JOR"
   },
-  "ASI-0245": {
+  "ASI-0183": {
+    "owner": "JOR"
+  },
+  "ASI-0188": {
+    "owner": "JOR"
+  },
+  "ASI-0189": {
+    "owner": "JOR"
+  },
+  "ASI-0254": {
     "owner": "LBN"
   },
-  "ASI-0313": {
+  "ASI-0322": {
     "owner": "SYR"
   },
-  "ASI-0315": {
+  "ASI-0324": {
     "owner": "SYR"
   },
-  "ASI-0321": {
+  "ASI-0330": {
     "owner": "SYR"
   },
-  "ASI-0325": {
+  "ASI-0334": {
     "owner": "SYR"
   },
-  "ASI-0327": {
+  "ASI-0336": {
     "owner": "SYR"
   },
-  "ASI-0328": {
+  "ASI-0337": {
     "owner": "SYR"
+  },
+  "ASI-0051": {
+    "owner": "PSE"
+  },
+  "ASI-0052": {
+    "owner": "PSE"
+  },
+  "ASI-0053": {
+    "owner": "PSE"
+  },
+  "ASI-0054": {
+    "owner": "PSE"
+  },
+  "ASI-0055": {
+    "owner": "PSE"
+  },
+  "ASI-0056": {
+    "owner": "PSE"
+  },
+  "ASI-0057": {
+    "owner": "PSE"
+  },
+  "ASI-0058": {
+    "owner": "PSE"
+  },
+  "ASI-0059": {
+    "owner": "PSE"
+  },
+  "ASI-0060": {
+    "owner": "PSE"
+  },
+  "ASI-0167": {
+    "owner": "IRQ"
   }
 }
