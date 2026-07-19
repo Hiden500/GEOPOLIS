@@ -667,6 +667,7 @@ def main():
         print("  [PS] ВНИМАНИЕ: 'Golan' не найден в geoBoundaries ISR ADM2 — Голан не вырезан")
 
     golan_geom = shape(golan_ft["geometry"]) if golan_ft is not None else None
+    hazafon_clipped_geom = None
     if golan_geom is not None:
         # geoBoundaries ISR-полигон Golan слегка заходит на границы
         # Иордании И Ливана (Natural Earth) — обрезаем по СЫРЫМ исходным
@@ -681,6 +682,38 @@ def main():
                 golan_geom = golan_geom.difference(neighbors_union)
                 if not golan_geom.is_valid:
                     golan_geom = golan_geom.buffer(0)
+        # HaZafon (Natural Earth) и Golan (geoBoundaries ISR) — независимо
+        # оцифрованные границы вдоль одного и того же шва. difference()
+        # между ними режет HaZafon не одной чистой линией, а зигзагом,
+        # оставляя несколько мелких кусков HaZafon, отрезанных от её
+        # основного тела и висящих прямо на границе Golan (2026-07-19-j,
+        # прямой скриншот пользователя — 3 подписи "HaZafon" на карте).
+        # Проверено численно: все такие обрезки касаются Golan на
+        # distance=0.0, но отстоят от основного тела HaZafon на 0.02-0.1° —
+        # это не отдельная территория, а шовный мусор. Тот же принцип, что
+        # уже применён к UNDOF: Golan авторитетен для своей границы,
+        # обрезки уходят в него, а не остаются висячими кусками HaZafon.
+        hazafon_ft = next((f for f in feats if f["properties"].get("iso_a2") in PALESTINE_RAW_ISO
+                             and f["properties"].get("name") == "HaZafon"), None)
+        if hazafon_ft is not None:
+            hz_clipped = shape(hazafon_ft["geometry"]).difference(golan_geom)
+            if not hz_clipped.is_valid:
+                hz_clipped = hz_clipped.buffer(0)
+            if hz_clipped.geom_type == "MultiPolygon":
+                parts = sorted(hz_clipped.geoms, key=lambda p: -p.area)
+                hz_main, hz_strays = parts[0], parts[1:]
+                stray_km2 = sum(area_km2(p) for p in hz_strays)
+                if hz_strays:
+                    golan_geom = unary_union([golan_geom] + hz_strays)
+                    if not golan_geom.is_valid:
+                        golan_geom = golan_geom.buffer(0)
+                    print(f"  [PS] HaZafon: {len(hz_strays)} обрезков "
+                          f"({round(stray_km2, 2)} km2) у границы Golan "
+                          f"переданы в Golan, осталось основное тело")
+                hazafon_clipped_geom = hz_main
+            else:
+                hazafon_clipped_geom = hz_clipped
+
         # Раздельные источники: сырые сирийские провинции (Natural Earth,
         # включая анахроничный UNDOF) и Golan (geoBoundaries ISR) реально
         # накладываются — UNDOF (буферная зона ООН 1974 года) сидит именно
@@ -721,10 +754,8 @@ def main():
             continue
         it = to_item(f)
         g = it["geom"]
-        if it["name"] == "HaZafon" and golan_geom is not None:
-            g = g.difference(golan_geom)
-            if not g.is_valid:
-                g = g.buffer(0)
+        if it["name"] == "HaZafon" and hazafon_clipped_geom is not None:
+            g = hazafon_clipped_geom
         out_features.append({
             "type": "Feature",
             "properties": {
