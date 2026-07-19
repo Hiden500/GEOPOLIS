@@ -17,9 +17,10 @@ from paths import game_map, out
 import json
 import time
 import math
-from shapely.geometry import shape, mapping
+from shapely.geometry import shape, mapping, box as shp_box
 from shapely.ops import unary_union
 from pyproj import Geod
+from geometry_cleanup import absorb_slivers_until_stable, load_water_geoms
 
 GEOD = Geod(ellps="WGS84")
 SRC = game_map()
@@ -309,189 +310,31 @@ def clip_palestine_to_neighbors(features):
                 ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
 
 
-def fill_palestine_gaps_to_neighbors(features, gap_threshold=0.05):
-    """clip_palestine_to_neighbors только ВЫЧИТАЕТ наложение Палестины на
-    уже построенных соседей (JO/SY/LB) — там, где вместо наложения РАЗРЫВ
-    (два независимых источника geoBoundaries/Natural Earth не идеально
-    стыкуются), он остаётся незакрытым. На протяжённой границе это даёт
-    "зиппер" из мелких разрывов вдоль всей линии (найдено 2026-07-19-c по
-    прямому скриншоту пользователя — граница Палестина/Иордания вся в
-    мелких тёмных зубцах). Тот же метод, что и fill_palestine_egypt_gap.py
-    (буфер СВОЕЙ геометрии на каждый подрайон отдельно, не от объединения —
-    иначе один длинный зазор достаётся одному "победителю" целиком), но
-    join_style=3 (bevel), а не круглый буфер по умолчанию — круглые швы
-    буфера создавали видимую "пипку" (округлый нарост) там, где предыдущая
-    версия fill_palestine_egypt_gap.py использовала обычный buffer().
-
-    Один проход не закрывает всё: `own_gap` каждого подрайона считается от
-    `ps_union`/`neighbors_union`, зафиксированных ДО цикла — если у двух
-    соседних подрайонов (напр. Acre/Safad у стыка с Ливаном) реальный зазор
-    шире, чем видно из ИХ ОДНОГО собственного буфера порознь, кусок находится
-    только вторым проходом (тот же паттерн, что и в fill_us_border_gaps.py,
-    вызывается дважды нарочно) — вызывать эту функцию 2 раза подряд."""
-    NEIGHBOR_ISO = {"JO", "SY", "LB"}
-    neighbor_geoms = [shape(ft["geometry"]) for ft in features
-                       if ft["properties"]["iso_a2"] in NEIGHBOR_ISO]
-    if not neighbor_geoms:
+def absorb_middle_east_slivers(features):
+    """Gap-first устранение "зиппер"-разрывов между Палестиной/Иорданией/
+    Сирией/Ливаном, их швов с авторитетными соседями (Ирак/Турция/Саудия —
+    context, не двигаются) и с водой. Заменяет buffer-based дозаполнение
+    с пост-клипами (см. docs/DECISIONS.md "2026-07-19-d" -> "-e"): вместо
+    наращивания полигонов буфером навстречу друг другу находим САМУ пустоту
+    (polygonize всех границ) и раздаём её по самой длинной общей границе.
+    Метод, защиты (Кинерет как намеренная озеро-дыра и т.п.) и причины
+    замены — в geometry_cleanup.py."""
+    MUTABLE_ISO = {"PS", "JO", "SY", "LB"}
+    mutable = [ft for ft in features if ft["properties"]["iso_a2"] in MUTABLE_ISO]
+    if not mutable:
         return
-    neighbors_union = unary_union(neighbor_geoms)
-    buffered_neighbors = neighbors_union.buffer(gap_threshold, join_style=3)
-
-    ps_feats = [ft for ft in features if ft["properties"]["iso_a2"] == "PS"]
-    ps_union = unary_union([shape(ft["geometry"]) for ft in ps_feats])
-
-    filled = 0
-    for ft in ps_feats:
-        g = shape(ft["geometry"])
-        own_buffered = g.buffer(gap_threshold, join_style=3)
-        own_gap = own_buffered.intersection(buffered_neighbors)
-        own_gap = own_gap.difference(ps_union).difference(neighbors_union)
-        if own_gap.is_empty:
-            continue
-        new_g = unary_union([g, own_gap])
-        if not new_g.is_valid:
-            new_g = new_g.buffer(0)
-        if new_g.geom_type not in ("Polygon", "MultiPolygon"):
-            continue
-        nb, ob = new_g.bounds, g.bounds
-        grew = max(ob[0] - nb[0], nb[2] - ob[2], ob[1] - nb[1], nb[3] - ob[3])
-        if grew > 0.2:
-            print(f"  [PS-GAP] {ft['properties']['name']}: отброшен, вырос на {grew:.3f}°")
-            continue
-        ft["geometry"] = mapping(new_g)
-        ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
-        filled += 1
-
-    # Заполнение из собственного буфера каждого подрайона может создать
-    # мелкое взаимное наложение между двумя соседними подрайонами Палестины
-    # у их общей границы (тот же эффект, что был у Газы/Беэр-Шевы против
-    # Синая) — убираем детерминированным проходом по уже сохранённому
-    # порядку списка.
-    processed_union = None
-    for ft in ps_feats:
-        g = shape(ft["geometry"])
-        if processed_union is not None and g.intersects(processed_union):
-            trimmed = g.difference(processed_union)
-            if not trimmed.is_valid:
-                trimmed = trimmed.buffer(0)
-            if trimmed.area > 1e-9:
-                ft["geometry"] = mapping(trimmed)
-                ft["properties"]["area_km2"] = round(area_km2(trimmed), 1)
-                g = trimmed
-        processed_union = g if processed_union is None else unary_union([processed_union, g])
-
-    print(f"  [PS-GAP] дозаполнено подрайонов: {filled}")
-
-
-def fill_gap_between_countries(features, iso_a, iso_b, gap_threshold=0.03):
-    """Иордания/Сирия/Ливан все строятся из ОДНОГО источника
-    (game_map.json/Natural Earth), но геометрическое слияние
-    (`geometric_merge`) и зональное слияние (`geometric_merge_by_custom_zone`
-    для Ливана) для каждой страны считаются НЕЗАВИСИМО — на стыке
-    остаются такие же мелкие зазоры, что и у Палестины против них (найдено
-    2026-07-19-c, попутно с починкой границы Палестины: JO-SY ~0.0009 deg2,
-    LB-SY ~0.0029 deg2). Тот же метод (свой буфер каждого выходного
-    кластера, bevel join, минус исключение по обеим сторонам)."""
-    feats_a = [ft for ft in features if ft["properties"]["iso_a2"] == iso_a]
-    feats_b = [ft for ft in features if ft["properties"]["iso_a2"] == iso_b]
-    if not feats_a or not feats_b:
-        return
-    union_a = unary_union([shape(ft["geometry"]) for ft in feats_a])
-    union_b = unary_union([shape(ft["geometry"]) for ft in feats_b])
-    buffered_b = union_b.buffer(gap_threshold, join_style=3)
-
-    filled = 0
-    for ft in feats_a:
-        g = shape(ft["geometry"])
-        own_buffered = g.buffer(gap_threshold, join_style=3)
-        own_gap = own_buffered.intersection(buffered_b)
-        own_gap = own_gap.difference(union_a).difference(union_b)
-        if own_gap.is_empty:
-            continue
-        new_g = unary_union([g, own_gap])
-        if not new_g.is_valid:
-            new_g = new_g.buffer(0)
-        if new_g.geom_type not in ("Polygon", "MultiPolygon"):
-            continue
-        nb, ob = new_g.bounds, g.bounds
-        grew = max(ob[0] - nb[0], nb[2] - ob[2], ob[1] - nb[1], nb[3] - ob[3])
-        if grew > 0.2:
-            print(f"  [{iso_a}-{iso_b}-GAP] {ft['properties']['name']}: отброшен, вырос на {grew:.3f}°")
-            continue
-        ft["geometry"] = mapping(new_g)
-        ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
-        filled += 1
-
-    processed_union = None
-    for ft in feats_a:
-        g = shape(ft["geometry"])
-        if processed_union is not None and g.intersects(processed_union):
-            trimmed = g.difference(processed_union)
-            if not trimmed.is_valid:
-                trimmed = trimmed.buffer(0)
-            if trimmed.area > 1e-9:
-                ft["geometry"] = mapping(trimmed)
-                ft["properties"]["area_km2"] = round(area_km2(trimmed), 1)
-                g = trimmed
-        processed_union = g if processed_union is None else unary_union([processed_union, g])
-
-    print(f"  [{iso_a}-{iso_b}-GAP] дозаполнено {iso_a}-кластеров: {filled}")
-
-
-def clip_country_against(features, iso_a, iso_b):
-    """Обрезает КАЖДЫЙ кластер iso_a по уже построенному iso_b — сосед
-    авторитетен, iso_a уступает при наложении (тот же принцип, что и
-    clip_palestine_to_neighbors, но для пары стран, ни одна из которых не
-    Палестина)."""
-    union_b = unary_union([shape(ft["geometry"]) for ft in features
-                             if ft["properties"]["iso_a2"] == iso_b])
-    if union_b.is_empty:
-        return
+    minx, miny, maxx, maxy = unary_union(
+        [shape(ft["geometry"]) for ft in mutable]).bounds
+    clip_box = shp_box(minx - 0.5, miny - 0.5, maxx + 0.5, maxy + 0.5)
+    context = []
     for ft in features:
-        if ft["properties"]["iso_a2"] != iso_a:
+        if ft["properties"]["iso_a2"] in MUTABLE_ISO:
             continue
         g = shape(ft["geometry"])
-        if g.intersects(union_b):
-            clipped = g.difference(union_b)
-            if not clipped.is_valid:
-                clipped = clipped.buffer(0)
-            if clipped.area > 1e-9:
-                ft["geometry"] = mapping(clipped)
-                ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
-
-
-def clip_asia_against_seas(features, iso2_set, sea_names):
-    """Общий вариант clip_against_dead_sea для scripts/map/out/seas_1946.geojson
-    (не lakes_1946.geojson) — многопроходное дозаполнение Палестины/Иордании/
-    Ливана против соседей (fill_palestine_gaps_to_neighbors,
-    fill_gap_between_countries) расширяет полигон буфером во ВСЕ стороны, не
-    только к нужному соседу — попутно может наехать на берег моря (найдено
-    2026-07-19-c: Беэр-Шева на Гулф-оф-Акаба выросла с 0.00065 до 0.00584
-    deg2, North Lebanon чуть зашёл на Средиземное море). Клипаем только
-    перечисленные iso2/моря, не всю Азию разом."""
-    seas_path = out("seas_1946.geojson")
-    with open(seas_path, encoding="utf-8") as f:
-        seas_fc = json.load(f)
-    sea_geoms = [shape(ft["geometry"]) for ft in seas_fc["features"]
-                  if ft["properties"].get("name") in sea_names]
-    if not sea_geoms:
-        print(f"  [SEAS] ВНИМАНИЕ: не найдены {sea_names} в seas_1946.geojson")
-        return
-    seas_union = unary_union(sea_geoms)
-    n_clipped = 0
-    for ft in features:
-        if ft["properties"]["iso_a2"] not in iso2_set:
-            continue
-        g = shape(ft["geometry"])
-        if g.intersects(seas_union):
-            clipped = g.difference(seas_union)
-            if not clipped.is_valid:
-                clipped = clipped.buffer(0)
-            if clipped.area > 1e-9:
-                ft["geometry"] = mapping(clipped)
-                ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
-                n_clipped += 1
-    print(f"  [SEAS] обрезано регионов: {n_clipped} ({', '.join(sea_names)})")
+        if g.intersects(clip_box):
+            context.append(g.intersection(clip_box))
+    water = load_water_geoms(clip_box)
+    absorb_slivers_until_stable(mutable, context, water, clip_box, label="MidEast")
 
 
 def clip_against_dead_sea(features):
@@ -821,17 +664,19 @@ def main():
             # алгоритм сам подхватит её к соседнему кластеру (Quneitra/Dar'a),
             # а не оставляем отдельной необработанной фичей.
             g = shape(ft["geometry"])
-            # geoBoundaries ISR-полигон Golan слегка заходит на границу
-            # Иордании (Natural Earth) — обрезаем по СЫРЫМ (ещё не слитым)
-            # исходным юнитам Иордании, уже загруженным в by_country на
-            # этом шаге; итоговая площадь union не зависит от того, как
-            # именно они будут сгруппированы дальше (найдено 2026-07-19,
-            # 0.00073 deg2 наложение Amman/Rif Dimashq до этого фикса).
-            jordan_raw = by_country.get("JO", [])
-            if jordan_raw:
-                jordan_union = unary_union([it["geom"] for it in jordan_raw])
-                if g.intersects(jordan_union):
-                    g = g.difference(jordan_union)
+            # geoBoundaries ISR-полигон Golan слегка заходит на границы
+            # Иордании И Ливана (Natural Earth) — обрезаем по СЫРЫМ (ещё не
+            # слитым) исходным юнитам обеих стран, уже загруженным в
+            # by_country на этом шаге; итоговая площадь union не зависит от
+            # того, как именно они будут сгруппированы дальше. Иордания:
+            # 0.00073 deg2 наложение Amman/Rif Dimashq (2026-07-19); Ливан:
+            # 0.00013 deg2 наложение South Lebanon/Rif Dimashq в районе
+            # Шебаа/Хермон (2026-07-19-e).
+            raw_neighbors = by_country.get("JO", []) + by_country.get("LB", [])
+            if raw_neighbors:
+                neighbors_union = unary_union([it["geom"] for it in raw_neighbors])
+                if g.intersects(neighbors_union):
+                    g = g.difference(neighbors_union)
                     if not g.is_valid:
                         g = g.buffer(0)
             by_country.setdefault("SY", []).append({
@@ -930,31 +775,12 @@ def main():
     # т.д.) совпадают по построению, отдельная борьба с зазорами/
     # пересечениями больше не нужна
     clip_palestine_to_neighbors(out_features)
-    fill_palestine_gaps_to_neighbors(out_features)
-    fill_palestine_gaps_to_neighbors(out_features)
-    fill_palestine_gaps_to_neighbors(out_features)
-    for _ in range(2):
-        fill_gap_between_countries(out_features, "JO", "SY")
-        fill_gap_between_countries(out_features, "LB", "SY")
-    # Финальный клип: несколько проходов дозаполнения (Палестина против
-    # JO/SY/LB, затем JO/LB против SY) могли не заметить, что сосед С
-    # ДРУГОЙ СТОРОНЫ тоже подрос за это время, и слегка наложиться на него
-    # (найдено 2026-07-19-c: Safad x South Lebanon, Tiberias x Amman) —
-    # повторный clip_palestine_to_neighbors обрезает только фактическое
-    # наложение, не трогая уже корректно дозаполненные куски.
-    clip_palestine_to_neighbors(out_features)
-    # Аналогично: JO/LB дозаполнялись против SY независимо и могли слегка
-    # наложиться на него самого (LB x SY ~0.00013 deg2 наложения найдено
-    # 2026-07-19-c) — Сирия авторитетна (не трогается этим клипом).
-    clip_country_against(out_features, "LB", "SY")
-    clip_country_against(out_features, "JO", "SY")
-    # JO дозаполнялась против SY тем же "буфер во все стороны" методом и
-    # слегка наехала на Ирак (Al-Anbar) на стыке трёх стран - Ирак тут
-    # авторитетен, не трогается.
-    clip_country_against(out_features, "JO", "IQ")
-    clip_asia_against_seas(out_features, {"PS", "JO", "LB"},
-                             {"Gulf of Aqaba", "Mediterranean Sea - Eastern Basin"})
     clip_against_dead_sea(out_features)
+    # Разрывы ("зиппер") между PS/JO/SY/LB и их швы с Ираком/Турцией/водой —
+    # gap-first поглощение слайверов вместо прежнего buffer-based
+    # дозаполнения с пост-клипами (см. geometry_cleanup.py за методом и
+    # docs/DECISIONS.md "2026-07-19-e" за историей замены).
+    absorb_middle_east_slivers(out_features)
     apply_vietnam_explicit_merges(out_features)
     tag_strategic_points(out_features)
 
