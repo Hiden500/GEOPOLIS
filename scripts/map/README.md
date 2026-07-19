@@ -231,6 +231,26 @@ python scripts/map/make_1946.py --full-rebuild
   (geoBoundaries, коммит `9469f09`). Используются `build_palestine_1946.py`
   для реконструкции 1946 подрайонов Подмандатной Палестины — см. докстринг
   скрипта и `docs/HISTORICAL_ACCURACY.md`.
+- `naturalearth/ne_10m_lakes.geojson` (Natural Earth 10m lakes, public
+  domain, ~5 МБ) — скачан с
+  `https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_lakes.geojson`
+  (2026-07-19-f). Используется `build/extract_kinneret.py` для извлечения
+  озера Кинерет ("Sea of Galilee") в `out/lakes_1946.geojson`. Остальные
+  озёра файла (Мёртвое море, Арал, Каспий, Великие озёра) — из того же
+  Natural Earth, добавлены раньше без сохранённого URL.
+
+`out/lakes_1946.geojson` и `out/ownership_1946.json` — внешние, вручную
+поддерживаемые входы (не перегенерируются пайплайном целиком, gitignored
+как прочие `out/*.geojson`); их изменения попадают в игру через
+уже-закоммиченные `client/public/world_1946.geojson` и `server/data/...`.
+
+## QA геометрии
+
+Любая правка геометрии/границ/числа регионов/озёр — под скилл
+`map-geometry-qa` (`.claude/skills/map-geometry-qa/SKILL.md`): он
+энфорсит чек-лист выше, требует gap-first `absorb_slivers` (не буферы) и
+пофичевый рендер каждого стыка. История каждого правила — `docs/DECISIONS.md`
+(записи 2026-07-19-a…f).
 
 Environment overrides `PAXMAP_GAME_MAP`, `PAXMAP_SOURCES` и `PAXMAP_OUT`
 описаны в `build/paths.py`.
