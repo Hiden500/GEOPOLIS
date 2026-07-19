@@ -255,7 +255,7 @@
       "ru": "Австралия"
     },
     "color": "#3E8F4A",
-    "capitalRegionId": 1361,
+    "capitalRegionId": 1364,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -697,7 +697,7 @@
       "ru": "Французский Камерун"
     },
     "color": "#73a7be",
-    "capitalRegionId": 1270,
+    "capitalRegionId": 1273,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -732,7 +732,7 @@
       "ru": "Бельгийское Конго"
     },
     "color": "#c76f80",
-    "capitalRegionId": 1247,
+    "capitalRegionId": 1250,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1133,7 +1133,7 @@
       "ru": "Эфиопия"
     },
     "color": "#8413b4",
-    "capitalRegionId": 1218,
+    "capitalRegionId": 1221,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2049,7 +2049,7 @@
       "en": "Kenya",
       "ru": "Кения"
     },
-    "color": "#b68ac6",
+    "color": "#c58ac6",
     "capitalRegionId": 1240,
     "economyType": "mixed",
     "economyProfile": {
@@ -2225,7 +2225,7 @@
       "ru": "Либерия"
     },
     "color": "#a83cec",
-    "capitalRegionId": 1321,
+    "capitalRegionId": 1324,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2400,7 +2400,7 @@
       "ru": "Французское Марокко"
     },
     "color": "#53b584",
-    "capitalRegionId": 1234,
+    "capitalRegionId": 1237,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2679,8 +2679,8 @@
       "en": "Nyasaland",
       "ru": "Ньясаленд"
     },
-    "color": "#d5949e",
-    "capitalRegionId": 1196,
+    "color": "#cfd594",
+    "capitalRegionId": 1195,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2750,7 +2750,7 @@
       "ru": "Юго-Западная Африка"
     },
     "color": "#d9df6b",
-    "capitalRegionId": 1298,
+    "capitalRegionId": 1301,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3040,7 +3040,7 @@
       "ru": "Науру"
     },
     "color": "#50a65f",
-    "capitalRegionId": 1356,
+    "capitalRegionId": 1359,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3075,7 +3075,7 @@
       "ru": "Новая Зеландия"
     },
     "color": "#2B3A6B",
-    "capitalRegionId": 1371,
+    "capitalRegionId": 1374,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3260,7 +3260,7 @@
       "ru": "Папуа и Новая Гвинея"
     },
     "color": "#4d9f74",
-    "capitalRegionId": 1377,
+    "capitalRegionId": 1380,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4720,7 +4720,7 @@
       "ru": "Англо-Египетский Судан"
     },
     "color": "#8f7a4a",
-    "capitalRegionId": 1201,
+    "capitalRegionId": 1200,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4790,7 +4790,7 @@
       "ru": "Соломоновы Острова"
     },
     "color": "#c27a96",
-    "capitalRegionId": 1380,
+    "capitalRegionId": 1383,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5045,7 +5045,7 @@
       "ru": "Французское Того"
     },
     "color": "#63abb4",
-    "capitalRegionId": 1332,
+    "capitalRegionId": 1335,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5115,7 +5115,7 @@
       "ru": "Тонга"
     },
     "color": "#c873a2",
-    "capitalRegionId": 1360,
+    "capitalRegionId": 1363,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5150,7 +5150,7 @@
       "ru": "Французский Тунис"
     },
     "color": "#59b473",
-    "capitalRegionId": 1262,
+    "capitalRegionId": 1265,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5254,8 +5254,8 @@
       "en": "Tanganyika",
       "ru": "Танганьика"
     },
-    "color": "#c774b2",
-    "capitalRegionId": 1230,
+    "color": "#c77489",
+    "capitalRegionId": 1233,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5290,7 +5290,7 @@
       "ru": "Уганда"
     },
     "color": "#c59b85",
-    "capitalRegionId": 1146,
+    "capitalRegionId": 1212,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5510,7 +5510,7 @@
       "ru": "Новые Гебриды"
     },
     "color": "#7a5c8f",
-    "capitalRegionId": 1381,
+    "capitalRegionId": 1384,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5545,7 +5545,7 @@
       "ru": "Западное Самоа"
     },
     "color": "#3b5b84",
-    "capitalRegionId": 1382,
+    "capitalRegionId": 1385,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5650,7 +5650,7 @@
       "ru": "Южно-Африканский Союз"
     },
     "color": "#D98A2E",
-    "capitalRegionId": 1216,
+    "capitalRegionId": 1219,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,

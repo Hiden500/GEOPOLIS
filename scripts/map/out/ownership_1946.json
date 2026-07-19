@@ -3387,10 +3387,10 @@
     "owner": "IOT"
   },
   "AFR-0008": {
-    "owner": "UGA"
+    "owner": "GMB"
   },
   "AFR-0009": {
-    "owner": "GMB"
+    "owner": "RWA"
   },
   "AFR-0010": {
     "owner": "RWA"
@@ -3405,7 +3405,7 @@
     "owner": "RWA"
   },
   "AFR-0014": {
-    "owner": "RWA"
+    "owner": "EGY"
   },
   "AFR-0015": {
     "owner": "EGY"
@@ -3432,7 +3432,9 @@
     "owner": "EGY"
   },
   "AFR-0023": {
-    "owner": "EGY"
+    "owner": "LBY",
+    "controller": "GBR",
+    "note": "Under British Military Administration"
   },
   "AFR-0024": {
     "owner": "LBY",
@@ -3441,13 +3443,11 @@
   },
   "AFR-0025": {
     "owner": "LBY",
-    "controller": "GBR",
-    "note": "Under British Military Administration"
-  },
-  "AFR-0026": {
-    "owner": "LBY",
     "controller": "FRA",
     "note": "Under French Military Administration"
+  },
+  "AFR-0026": {
+    "owner": "DZA"
   },
   "AFR-0027": {
     "owner": "DZA"
@@ -3462,7 +3462,7 @@
     "owner": "DZA"
   },
   "AFR-0031": {
-    "owner": "DZA"
+    "owner": "BFA"
   },
   "AFR-0032": {
     "owner": "BFA"
@@ -3501,7 +3501,7 @@
     "owner": "BFA"
   },
   "AFR-0044": {
-    "owner": "BFA"
+    "owner": "GIN"
   },
   "AFR-0045": {
     "owner": "GIN"
@@ -3525,7 +3525,7 @@
     "owner": "GIN"
   },
   "AFR-0052": {
-    "owner": "GIN"
+    "owner": "GNB"
   },
   "AFR-0053": {
     "owner": "GNB"
@@ -3537,7 +3537,7 @@
     "owner": "GNB"
   },
   "AFR-0056": {
-    "owner": "GNB"
+    "owner": "MWI"
   },
   "AFR-0057": {
     "owner": "MWI"
@@ -3555,7 +3555,7 @@
     "owner": "MWI"
   },
   "AFR-0062": {
-    "owner": "MWI"
+    "owner": "SDN"
   },
   "AFR-0063": {
     "owner": "SDN"
@@ -3581,38 +3581,26 @@
   "AFR-0070": {
     "owner": "SDN"
   },
-  "AFR-0071": {
-    "owner": "SDN"
-  },
-  "AFR-0072": {
-    "owner": "NGA"
-  },
-  "AFR-0073": {
-    "owner": "NGA"
-  },
-  "AFR-0074": {
-    "owner": "NGA"
-  },
   "AFR-0075": {
-    "owner": "ZAF"
+    "owner": "NGA"
   },
   "AFR-0076": {
-    "owner": "ZAF"
+    "owner": "NGA"
   },
   "AFR-0077": {
-    "owner": "ZAF"
+    "owner": "NGA"
   },
   "AFR-0078": {
     "owner": "ZAF"
   },
   "AFR-0079": {
-    "owner": "ETH"
+    "owner": "ZAF"
   },
   "AFR-0080": {
-    "owner": "ETH"
+    "owner": "ZAF"
   },
   "AFR-0081": {
-    "owner": "ETH"
+    "owner": "ZAF"
   },
   "AFR-0082": {
     "owner": "ETH"
@@ -3621,13 +3609,13 @@
     "owner": "ETH"
   },
   "AFR-0084": {
-    "owner": "MDG"
+    "owner": "ETH"
   },
   "AFR-0085": {
-    "owner": "MDG"
+    "owner": "ETH"
   },
   "AFR-0086": {
-    "owner": "MDG"
+    "owner": "ETH"
   },
   "AFR-0087": {
     "owner": "MDG"
@@ -3636,13 +3624,13 @@
     "owner": "MDG"
   },
   "AFR-0089": {
-    "owner": "TZA"
+    "owner": "MDG"
   },
   "AFR-0090": {
-    "owner": "TZA"
+    "owner": "MDG"
   },
   "AFR-0091": {
-    "owner": "TZA"
+    "owner": "MDG"
   },
   "AFR-0092": {
     "owner": "TZA"
@@ -3651,25 +3639,25 @@
     "owner": "TZA"
   },
   "AFR-0094": {
-    "owner": "MAR"
+    "owner": "TZA"
   },
   "AFR-0095": {
-    "owner": "MAR"
+    "owner": "TZA"
   },
   "AFR-0096": {
-    "owner": "MAR"
+    "owner": "TZA"
   },
   "AFR-0097": {
     "owner": "MAR"
   },
   "AFR-0098": {
-    "owner": "AGO"
+    "owner": "MAR"
   },
   "AFR-0099": {
-    "owner": "AGO"
+    "owner": "MAR"
   },
   "AFR-0100": {
-    "owner": "AGO"
+    "owner": "MAR"
   },
   "AFR-0101": {
     "owner": "AGO"
@@ -3678,13 +3666,13 @@
     "owner": "AGO"
   },
   "AFR-0103": {
-    "owner": "MOZ"
+    "owner": "AGO"
   },
   "AFR-0104": {
-    "owner": "MOZ"
+    "owner": "AGO"
   },
   "AFR-0105": {
-    "owner": "MOZ"
+    "owner": "AGO"
   },
   "AFR-0106": {
     "owner": "MOZ"
@@ -3693,13 +3681,13 @@
     "owner": "MOZ"
   },
   "AFR-0108": {
-    "owner": "COD"
+    "owner": "MOZ"
   },
   "AFR-0109": {
-    "owner": "COD"
+    "owner": "MOZ"
   },
   "AFR-0110": {
-    "owner": "COD"
+    "owner": "MOZ"
   },
   "AFR-0111": {
     "owner": "COD"
@@ -3711,19 +3699,13 @@
     "owner": "COD"
   },
   "AFR-0114": {
-    "owner": "SOM",
-    "controller": "GBR",
-    "note": "Italian Somaliland under British Military Administration"
+    "owner": "COD"
   },
   "AFR-0115": {
-    "owner": "SOM",
-    "controller": "GBR",
-    "note": "Italian Somaliland under British Military Administration"
+    "owner": "COD"
   },
   "AFR-0116": {
-    "owner": "SOM",
-    "controller": "GBR",
-    "note": "Italian Somaliland under British Military Administration"
+    "owner": "COD"
   },
   "AFR-0117": {
     "owner": "SOM",
@@ -3731,142 +3713,148 @@
     "note": "Italian Somaliland under British Military Administration"
   },
   "AFR-0118": {
-    "owner": "KEN"
+    "owner": "SOM",
+    "controller": "GBR",
+    "note": "Italian Somaliland under British Military Administration"
   },
   "AFR-0119": {
-    "owner": "KEN"
+    "owner": "SOM",
+    "controller": "GBR",
+    "note": "Italian Somaliland under British Military Administration"
   },
   "AFR-0120": {
-    "owner": "KEN"
+    "owner": "SOM",
+    "controller": "GBR",
+    "note": "Italian Somaliland under British Military Administration"
   },
   "AFR-0121": {
     "owner": "KEN"
   },
   "AFR-0122": {
-    "owner": "TUN"
+    "owner": "KEN"
   },
   "AFR-0123": {
-    "owner": "TUN"
+    "owner": "KEN"
   },
   "AFR-0124": {
-    "owner": "TUN"
+    "owner": "KEN"
   },
   "AFR-0125": {
     "owner": "TUN"
   },
   "AFR-0126": {
-    "owner": "GHA"
+    "owner": "TUN"
   },
   "AFR-0127": {
-    "owner": "GHA"
+    "owner": "TUN"
   },
   "AFR-0128": {
-    "owner": "GHA"
+    "owner": "TUN"
   },
   "AFR-0129": {
-    "owner": "CMR"
+    "owner": "GHA"
   },
   "AFR-0130": {
-    "owner": "CMR"
+    "owner": "GHA"
   },
   "AFR-0131": {
-    "owner": "CMR"
+    "owner": "GHA"
   },
   "AFR-0132": {
     "owner": "CMR"
   },
   "AFR-0133": {
-    "owner": "CIV"
+    "owner": "CMR"
   },
   "AFR-0134": {
-    "owner": "CIV"
+    "owner": "CMR"
   },
   "AFR-0135": {
-    "owner": "CIV"
+    "owner": "CMR"
   },
   "AFR-0136": {
     "owner": "CIV"
   },
   "AFR-0137": {
-    "owner": "MLI"
+    "owner": "CIV"
   },
   "AFR-0138": {
-    "owner": "MLI"
+    "owner": "CIV"
   },
   "AFR-0139": {
-    "owner": "MLI"
+    "owner": "CIV"
   },
   "AFR-0140": {
     "owner": "MLI"
   },
   "AFR-0141": {
-    "owner": "NER"
+    "owner": "MLI"
   },
   "AFR-0142": {
-    "owner": "NER"
+    "owner": "MLI"
   },
   "AFR-0143": {
-    "owner": "NER"
+    "owner": "MLI"
   },
   "AFR-0144": {
-    "owner": "TCD"
+    "owner": "NER"
   },
   "AFR-0145": {
-    "owner": "TCD"
+    "owner": "NER"
   },
   "AFR-0146": {
-    "owner": "TCD"
+    "owner": "NER"
   },
   "AFR-0147": {
     "owner": "TCD"
   },
   "AFR-0148": {
-    "owner": "ZMB"
+    "owner": "TCD"
   },
   "AFR-0149": {
-    "owner": "ZMB"
+    "owner": "TCD"
   },
   "AFR-0150": {
-    "owner": "ZMB"
+    "owner": "TCD"
   },
   "AFR-0151": {
     "owner": "ZMB"
   },
   "AFR-0152": {
-    "owner": "ZWE"
+    "owner": "ZMB"
   },
   "AFR-0153": {
-    "owner": "ZWE"
+    "owner": "ZMB"
   },
   "AFR-0154": {
-    "owner": "ZWE"
+    "owner": "ZMB"
   },
   "AFR-0155": {
-    "owner": "SEN"
+    "owner": "ZWE"
   },
   "AFR-0156": {
-    "owner": "SEN"
+    "owner": "ZWE"
   },
   "AFR-0157": {
-    "owner": "SEN"
+    "owner": "ZWE"
   },
   "AFR-0158": {
-    "owner": "NAM"
+    "owner": "SEN"
   },
   "AFR-0159": {
-    "owner": "NAM"
+    "owner": "SEN"
   },
   "AFR-0160": {
-    "owner": "NAM"
+    "owner": "SEN"
   },
   "AFR-0161": {
-    "owner": "CPV"
+    "owner": "NAM"
   },
   "AFR-0162": {
-    "owner": "CPV"
+    "owner": "NAM"
   },
   "AFR-0163": {
-    "owner": "CPV"
+    "owner": "NAM"
   },
   "AFR-0164": {
     "owner": "CPV"
@@ -3887,115 +3875,124 @@
     "owner": "CPV"
   },
   "AFR-0170": {
-    "owner": "SYC"
+    "owner": "CPV"
   },
   "AFR-0171": {
-    "owner": "SYC"
+    "owner": "CPV"
   },
   "AFR-0172": {
-    "owner": "SYC"
+    "owner": "CPV"
   },
   "AFR-0173": {
     "owner": "SYC"
   },
   "AFR-0174": {
-    "owner": "DJI"
+    "owner": "SYC"
   },
   "AFR-0175": {
-    "owner": "ERI",
-    "controller": "GBR",
-    "note": "Eritrea under British Military Administration"
+    "owner": "SYC"
   },
   "AFR-0176": {
+    "owner": "SYC"
+  },
+  "AFR-0177": {
+    "owner": "DJI"
+  },
+  "AFR-0178": {
     "owner": "ERI",
     "controller": "GBR",
     "note": "Eritrea under British Military Administration"
   },
-  "AFR-0177": {
-    "owner": "GAB"
-  },
-  "AFR-0178": {
-    "owner": "GAB"
-  },
   "AFR-0179": {
-    "owner": "GNQ"
+    "owner": "ERI",
+    "controller": "GBR",
+    "note": "Eritrea under British Military Administration"
   },
   "AFR-0180": {
-    "owner": "GNQ"
+    "owner": "GAB"
   },
   "AFR-0181": {
-    "owner": "GNQ"
+    "owner": "GAB"
   },
   "AFR-0182": {
-    "owner": "LBR"
+    "owner": "GNQ"
   },
   "AFR-0183": {
-    "owner": "LBR"
+    "owner": "GNQ"
   },
   "AFR-0184": {
-    "owner": "LSO"
+    "owner": "GNQ"
   },
   "AFR-0185": {
-    "owner": "MRT"
+    "owner": "LBR"
   },
   "AFR-0186": {
-    "owner": "MRT"
+    "owner": "LBR"
   },
   "AFR-0187": {
-    "owner": "MUS"
+    "owner": "LSO"
   },
   "AFR-0188": {
-    "owner": "MUS"
+    "owner": "MRT"
   },
   "AFR-0189": {
-    "owner": "MUS"
+    "owner": "MRT"
   },
   "AFR-0190": {
-    "owner": "SLE"
+    "owner": "MUS"
   },
   "AFR-0191": {
-    "owner": "STP"
+    "owner": "MUS"
   },
   "AFR-0192": {
-    "owner": "STP"
+    "owner": "MUS"
   },
   "AFR-0193": {
-    "owner": "SWZ"
+    "owner": "SLE"
   },
   "AFR-0194": {
-    "owner": "TGO"
+    "owner": "STP"
   },
   "AFR-0195": {
-    "owner": "BEN"
+    "owner": "STP"
   },
   "AFR-0196": {
-    "owner": "BEN"
+    "owner": "SWZ"
   },
   "AFR-0197": {
-    "owner": "BWA"
+    "owner": "TGO"
   },
   "AFR-0198": {
-    "owner": "BWA"
+    "owner": "BEN"
   },
   "AFR-0199": {
-    "owner": "CAF"
+    "owner": "BEN"
   },
   "AFR-0200": {
-    "owner": "CAF"
+    "owner": "BWA"
   },
   "AFR-0201": {
-    "owner": "COG"
+    "owner": "BWA"
   },
   "AFR-0202": {
-    "owner": "COG"
+    "owner": "CAF"
   },
   "AFR-0203": {
-    "owner": "BDI"
+    "owner": "CAF"
   },
   "AFR-0204": {
-    "owner": "BDI"
+    "owner": "COG"
   },
   "AFR-0205": {
+    "owner": "COG"
+  },
+  "AFR-0206": {
+    "owner": "BDI"
+  },
+  "AFR-0207": {
+    "owner": "BDI"
+  },
+  "AFR-0208": {
     "owner": "BDI"
   },
   "OCE-0001": {
@@ -4657,5 +4654,17 @@
   "EUR-0374": {
     "owner": "DEU",
     "controller": "FRA"
+  },
+  "AFR-0071": {
+    "owner": "UGA"
+  },
+  "AFR-0072": {
+    "owner": "UGA"
+  },
+  "AFR-0073": {
+    "owner": "UGA"
+  },
+  "AFR-0074": {
+    "owner": "UGA"
   }
 }

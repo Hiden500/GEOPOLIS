@@ -56,23 +56,7 @@
   "name_ru": "Брит. территория в Индийском океане (Чагос)"
  },
  {
-  "region_id": "AFR-0008",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "UG",
-  "name_en": "Uganda",
-  "name_ru": "Уганда"
- },
- {
   "region_id": "AFR-0009",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "GM",
-  "name_en": "Gambia",
-  "name_ru": "Гамбия"
- },
- {
-  "region_id": "AFR-0010",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "RW",
@@ -80,7 +64,7 @@
   "name_ru": "Восточный"
  },
  {
-  "region_id": "AFR-0011",
+  "region_id": "AFR-0010",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "RW",
@@ -88,7 +72,7 @@
   "name_ru": "Южный"
  },
  {
-  "region_id": "AFR-0012",
+  "region_id": "AFR-0011",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "RW",
@@ -96,7 +80,7 @@
   "name_ru": "Западный"
  },
  {
-  "region_id": "AFR-0013",
+  "region_id": "AFR-0012",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "RW",
@@ -104,7 +88,7 @@
   "name_ru": "Северный"
  },
  {
-  "region_id": "AFR-0014",
+  "region_id": "AFR-0013",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "RW",
@@ -112,7 +96,7 @@
   "name_ru": "Кигали Сити"
  },
  {
-  "region_id": "AFR-0015",
+  "region_id": "AFR-0014",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -120,7 +104,7 @@
   "name_ru": "Каир (Большой Каир)"
  },
  {
-  "region_id": "AFR-0016",
+  "region_id": "AFR-0015",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -128,7 +112,7 @@
   "name_ru": "Александрия"
  },
  {
-  "region_id": "AFR-0017",
+  "region_id": "AFR-0016",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -136,7 +120,7 @@
   "name_ru": "Дельта Нила (Нижний Египет)"
  },
  {
-  "region_id": "AFR-0018",
+  "region_id": "AFR-0017",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -144,7 +128,7 @@
   "name_ru": "Зона Суэцкого канала"
  },
  {
-  "region_id": "AFR-0019",
+  "region_id": "AFR-0018",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -152,7 +136,7 @@
   "name_ru": "Долина Нила (Верхний Египет)"
  },
  {
-  "region_id": "AFR-0020",
+  "region_id": "AFR-0019",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -160,7 +144,7 @@
   "name_ru": "Синай"
  },
  {
-  "region_id": "AFR-0021",
+  "region_id": "AFR-0020",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -168,7 +152,7 @@
   "name_ru": "Матрух"
  },
  {
-  "region_id": "AFR-0022",
+  "region_id": "AFR-0021",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -176,7 +160,7 @@
   "name_ru": "Красное море"
  },
  {
-  "region_id": "AFR-0023",
+  "region_id": "AFR-0022",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "EG",
@@ -184,7 +168,7 @@
   "name_ru": "Новая Долина (Зап. пустыня)"
  },
  {
-  "region_id": "AFR-0024",
+  "region_id": "AFR-0023",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "LY",
@@ -192,7 +176,7 @@
   "name_ru": "Триполитания"
  },
  {
-  "region_id": "AFR-0025",
+  "region_id": "AFR-0024",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "LY",
@@ -200,7 +184,7 @@
   "name_ru": "Киренаика"
  },
  {
-  "region_id": "AFR-0026",
+  "region_id": "AFR-0025",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "LY",
@@ -208,7 +192,7 @@
   "name_ru": "Феццан"
  },
  {
-  "region_id": "AFR-0027",
+  "region_id": "AFR-0026",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "DZ",
@@ -216,7 +200,7 @@
   "name_ru": "Territoires du Sud (Сахара)"
  },
  {
-  "region_id": "AFR-0028",
+  "region_id": "AFR-0027",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "DZ",
@@ -224,7 +208,7 @@
   "name_ru": "Territoires du Sud (кайма)"
  },
  {
-  "region_id": "AFR-0029",
+  "region_id": "AFR-0028",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "DZ",
@@ -232,7 +216,7 @@
   "name_ru": "Константин"
  },
  {
-  "region_id": "AFR-0030",
+  "region_id": "AFR-0029",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "DZ",
@@ -240,7 +224,7 @@
   "name_ru": "Оран"
  },
  {
-  "region_id": "AFR-0031",
+  "region_id": "AFR-0030",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "DZ",
@@ -248,7 +232,7 @@
   "name_ru": "Алжир"
  },
  {
-  "region_id": "AFR-0032",
+  "region_id": "AFR-0031",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -256,7 +240,7 @@
   "name_ru": "Стандартное восточное время"
  },
  {
-  "region_id": "AFR-0033",
+  "region_id": "AFR-0032",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -264,7 +248,7 @@
   "name_ru": "Каскады"
  },
  {
-  "region_id": "AFR-0034",
+  "region_id": "AFR-0033",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -272,7 +256,7 @@
   "name_ru": "Юг-Запад"
  },
  {
-  "region_id": "AFR-0035",
+  "region_id": "AFR-0034",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -280,7 +264,7 @@
   "name_ru": "Сахель"
  },
  {
-  "region_id": "AFR-0036",
+  "region_id": "AFR-0035",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -288,7 +272,7 @@
   "name_ru": "Норд"
  },
  {
-  "region_id": "AFR-0037",
+  "region_id": "AFR-0036",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -296,7 +280,7 @@
   "name_ru": "Букль дю Мухун"
  },
  {
-  "region_id": "AFR-0038",
+  "region_id": "AFR-0037",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -304,7 +288,7 @@
   "name_ru": "Верхний Бассен"
  },
  {
-  "region_id": "AFR-0039",
+  "region_id": "AFR-0038",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -312,7 +296,7 @@
   "name_ru": "Центр-Восток"
  },
  {
-  "region_id": "AFR-0040",
+  "region_id": "AFR-0039",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -320,7 +304,7 @@
   "name_ru": "Центр-Юг"
  },
  {
-  "region_id": "AFR-0041",
+  "region_id": "AFR-0040",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -328,7 +312,7 @@
   "name_ru": "Центр-Запад"
  },
  {
-  "region_id": "AFR-0042",
+  "region_id": "AFR-0041",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -336,7 +320,7 @@
   "name_ru": "Плато-Центральное"
  },
  {
-  "region_id": "AFR-0043",
+  "region_id": "AFR-0042",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -344,7 +328,7 @@
   "name_ru": "Центр"
  },
  {
-  "region_id": "AFR-0044",
+  "region_id": "AFR-0043",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BF",
@@ -352,7 +336,7 @@
   "name_ru": "Центр-Норд"
  },
  {
-  "region_id": "AFR-0045",
+  "region_id": "AFR-0044",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -360,7 +344,7 @@
   "name_ru": "Фарана"
  },
  {
-  "region_id": "AFR-0046",
+  "region_id": "AFR-0045",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -368,7 +352,7 @@
   "name_ru": "Киндия"
  },
  {
-  "region_id": "AFR-0047",
+  "region_id": "AFR-0046",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -376,7 +360,7 @@
   "name_ru": "Маму"
  },
  {
-  "region_id": "AFR-0048",
+  "region_id": "AFR-0047",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -384,7 +368,7 @@
   "name_ru": "Нзерекоре"
  },
  {
-  "region_id": "AFR-0049",
+  "region_id": "AFR-0048",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -392,7 +376,7 @@
   "name_ru": "Канкан"
  },
  {
-  "region_id": "AFR-0050",
+  "region_id": "AFR-0049",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -400,7 +384,7 @@
   "name_ru": "Боке"
  },
  {
-  "region_id": "AFR-0051",
+  "region_id": "AFR-0050",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -408,7 +392,7 @@
   "name_ru": "Лабе"
  },
  {
-  "region_id": "AFR-0052",
+  "region_id": "AFR-0051",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GN",
@@ -416,7 +400,7 @@
   "name_ru": "Конакри"
  },
  {
-  "region_id": "AFR-0053",
+  "region_id": "AFR-0052",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GW",
@@ -424,7 +408,7 @@
   "name_ru": "Лесте"
  },
  {
-  "region_id": "AFR-0054",
+  "region_id": "AFR-0053",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GW",
@@ -432,7 +416,7 @@
   "name_ru": "Сул"
  },
  {
-  "region_id": "AFR-0055",
+  "region_id": "AFR-0054",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GW",
@@ -440,7 +424,7 @@
   "name_ru": "Норте"
  },
  {
-  "region_id": "AFR-0056",
+  "region_id": "AFR-0055",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GW",
@@ -448,7 +432,7 @@
   "name_ru": "Бисау"
  },
  {
-  "region_id": "AFR-0057",
+  "region_id": "AFR-0056",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MW",
@@ -456,7 +440,7 @@
   "name_ru": "Северный"
  },
  {
-  "region_id": "AFR-0058",
+  "region_id": "AFR-0057",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MW",
@@ -464,12 +448,20 @@
   "name_ru": "Центральный"
  },
  {
-  "region_id": "AFR-0059",
+  "region_id": "AFR-0058",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MW",
   "name_en": "Southern",
   "name_ru": "Южный"
+ },
+ {
+  "region_id": "AFR-0059",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "MW",
+  "name_en": "Chitipa",
+  "name_ru": "Читипа"
  },
  {
   "region_id": "AFR-0060",
@@ -484,19 +476,11 @@
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MW",
-  "name_en": "Chitipa",
-  "name_ru": "Читипа"
- },
- {
-  "region_id": "AFR-0062",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "MW",
   "name_en": "Machinga",
   "name_ru": "Мачинга"
  },
  {
-  "region_id": "AFR-0063",
+  "region_id": "AFR-0062",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SD",
@@ -504,7 +488,7 @@
   "name_ru": "Дарфур"
  },
  {
-  "region_id": "AFR-0064",
+  "region_id": "AFR-0063",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SD",
@@ -512,7 +496,7 @@
   "name_ru": "Кассала"
  },
  {
-  "region_id": "AFR-0065",
+  "region_id": "AFR-0064",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SD",
@@ -520,7 +504,7 @@
   "name_ru": "Голубой Нил"
  },
  {
-  "region_id": "AFR-0066",
+  "region_id": "AFR-0065",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SD",
@@ -528,7 +512,7 @@
   "name_ru": "Северный"
  },
  {
-  "region_id": "AFR-0067",
+  "region_id": "AFR-0066",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SD",
@@ -536,7 +520,7 @@
   "name_ru": "Кордофан"
  },
  {
-  "region_id": "AFR-0068",
+  "region_id": "AFR-0067",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SD",
@@ -544,7 +528,7 @@
   "name_ru": "Хартум"
  },
  {
-  "region_id": "AFR-0069",
+  "region_id": "AFR-0068",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SS",
@@ -552,7 +536,7 @@
   "name_ru": "Экватория"
  },
  {
-  "region_id": "AFR-0070",
+  "region_id": "AFR-0069",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SS",
@@ -560,7 +544,7 @@
   "name_ru": "Бахр-эль-Газаль"
  },
  {
-  "region_id": "AFR-0071",
+  "region_id": "AFR-0070",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SS",
@@ -568,7 +552,7 @@
   "name_ru": "Верхний Нил"
  },
  {
-  "region_id": "AFR-0072",
+  "region_id": "AFR-0075",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NG",
@@ -576,7 +560,7 @@
   "name_ru": "Замфара"
  },
  {
-  "region_id": "AFR-0073",
+  "region_id": "AFR-0076",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NG",
@@ -584,7 +568,7 @@
   "name_ru": "Бенуэ"
  },
  {
-  "region_id": "AFR-0074",
+  "region_id": "AFR-0077",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NG",
@@ -592,7 +576,7 @@
   "name_ru": "Баучи"
  },
  {
-  "region_id": "AFR-0075",
+  "region_id": "AFR-0078",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZA",
@@ -600,7 +584,7 @@
   "name_ru": "Восточный Кейп"
  },
  {
-  "region_id": "AFR-0076",
+  "region_id": "AFR-0079",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZA",
@@ -608,7 +592,7 @@
   "name_ru": "Свободное государство"
  },
  {
-  "region_id": "AFR-0077",
+  "region_id": "AFR-0080",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZA",
@@ -616,7 +600,7 @@
   "name_ru": "Лимпопо"
  },
  {
-  "region_id": "AFR-0078",
+  "region_id": "AFR-0081",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZA",
@@ -624,7 +608,7 @@
   "name_ru": "Северный Кейп"
  },
  {
-  "region_id": "AFR-0079",
+  "region_id": "AFR-0082",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ET",
@@ -632,7 +616,7 @@
   "name_ru": "издалека"
  },
  {
-  "region_id": "AFR-0080",
+  "region_id": "AFR-0083",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ET",
@@ -640,7 +624,7 @@
   "name_ru": "Оромия"
  },
  {
-  "region_id": "AFR-0081",
+  "region_id": "AFR-0084",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ET",
@@ -648,7 +632,7 @@
   "name_ru": "Сомали"
  },
  {
-  "region_id": "AFR-0082",
+  "region_id": "AFR-0085",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ET",
@@ -656,7 +640,7 @@
   "name_ru": "Южные нации, национальности и народности"
  },
  {
-  "region_id": "AFR-0083",
+  "region_id": "AFR-0086",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ET",
@@ -664,7 +648,7 @@
   "name_ru": "Амхара"
  },
  {
-  "region_id": "AFR-0084",
+  "region_id": "AFR-0087",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MG",
@@ -672,7 +656,7 @@
   "name_ru": "Ацимо-Андрефана"
  },
  {
-  "region_id": "AFR-0085",
+  "region_id": "AFR-0088",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MG",
@@ -680,7 +664,7 @@
   "name_ru": "Аносия"
  },
  {
-  "region_id": "AFR-0086",
+  "region_id": "AFR-0089",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MG",
@@ -688,7 +672,7 @@
   "name_ru": "Менабе"
  },
  {
-  "region_id": "AFR-0087",
+  "region_id": "AFR-0090",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MG",
@@ -696,7 +680,7 @@
   "name_ru": "София"
  },
  {
-  "region_id": "AFR-0088",
+  "region_id": "AFR-0091",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MG",
@@ -704,7 +688,7 @@
   "name_ru": "Бонголава"
  },
  {
-  "region_id": "AFR-0089",
+  "region_id": "AFR-0092",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TZ",
@@ -712,7 +696,7 @@
   "name_ru": "Занзибар Южный и Центральный"
  },
  {
-  "region_id": "AFR-0090",
+  "region_id": "AFR-0093",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TZ",
@@ -720,7 +704,7 @@
   "name_ru": "Кусини-Пемба"
  },
  {
-  "region_id": "AFR-0091",
+  "region_id": "AFR-0094",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TZ",
@@ -728,7 +712,7 @@
   "name_ru": "Маньяра"
  },
  {
-  "region_id": "AFR-0092",
+  "region_id": "AFR-0095",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TZ",
@@ -736,7 +720,7 @@
   "name_ru": "Рувума"
  },
  {
-  "region_id": "AFR-0093",
+  "region_id": "AFR-0096",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TZ",
@@ -744,7 +728,7 @@
   "name_ru": "Табора"
  },
  {
-  "region_id": "AFR-0094",
+  "region_id": "AFR-0097",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MA",
@@ -752,7 +736,7 @@
   "name_ru": "Гулимим - Эс-Семара"
  },
  {
-  "region_id": "AFR-0095",
+  "region_id": "AFR-0098",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MA",
@@ -760,7 +744,7 @@
   "name_ru": "Таза – Эль-Хосейма – Таунат"
  },
  {
-  "region_id": "AFR-0096",
+  "region_id": "AFR-0099",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MA",
@@ -768,7 +752,7 @@
   "name_ru": "Марракеш - Тенсифт - Аль Хауз"
  },
  {
-  "region_id": "AFR-0097",
+  "region_id": "AFR-0100",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MA",
@@ -776,7 +760,7 @@
   "name_ru": "Уэд-эль-Дахаб"
  },
  {
-  "region_id": "AFR-0098",
+  "region_id": "AFR-0101",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "AO",
@@ -784,7 +768,7 @@
   "name_ru": "Кабинда"
  },
  {
-  "region_id": "AFR-0099",
+  "region_id": "AFR-0102",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "AO",
@@ -792,7 +776,7 @@
   "name_ru": "Мошико"
  },
  {
-  "region_id": "AFR-0100",
+  "region_id": "AFR-0103",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "AO",
@@ -800,7 +784,7 @@
   "name_ru": "Уила"
  },
  {
-  "region_id": "AFR-0101",
+  "region_id": "AFR-0104",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "AO",
@@ -808,7 +792,7 @@
   "name_ru": "Куандо Кубанго"
  },
  {
-  "region_id": "AFR-0102",
+  "region_id": "AFR-0105",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "AO",
@@ -816,7 +800,7 @@
   "name_ru": "Лунда Норте"
  },
  {
-  "region_id": "AFR-0103",
+  "region_id": "AFR-0106",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MZ",
@@ -824,7 +808,7 @@
   "name_ru": "Тете"
  },
  {
-  "region_id": "AFR-0104",
+  "region_id": "AFR-0107",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MZ",
@@ -832,7 +816,7 @@
   "name_ru": "Софала"
  },
  {
-  "region_id": "AFR-0105",
+  "region_id": "AFR-0108",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MZ",
@@ -840,7 +824,7 @@
   "name_ru": "Газа"
  },
  {
-  "region_id": "AFR-0106",
+  "region_id": "AFR-0109",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MZ",
@@ -848,7 +832,7 @@
   "name_ru": "Ньяса"
  },
  {
-  "region_id": "AFR-0107",
+  "region_id": "AFR-0110",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MZ",
@@ -856,7 +840,7 @@
   "name_ru": "Замбезия"
  },
  {
-  "region_id": "AFR-0108",
+  "region_id": "AFR-0111",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CD",
@@ -864,7 +848,7 @@
   "name_ru": "Экваториальный"
  },
  {
-  "region_id": "AFR-0109",
+  "region_id": "AFR-0112",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CD",
@@ -872,7 +856,7 @@
   "name_ru": "Восточный"
  },
  {
-  "region_id": "AFR-0110",
+  "region_id": "AFR-0113",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CD",
@@ -880,7 +864,7 @@
   "name_ru": "Катанга"
  },
  {
-  "region_id": "AFR-0111",
+  "region_id": "AFR-0114",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CD",
@@ -888,7 +872,7 @@
   "name_ru": "Бандунду"
  },
  {
-  "region_id": "AFR-0112",
+  "region_id": "AFR-0115",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CD",
@@ -896,7 +880,7 @@
   "name_ru": "Маниема"
  },
  {
-  "region_id": "AFR-0113",
+  "region_id": "AFR-0116",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CD",
@@ -904,7 +888,7 @@
   "name_ru": "Касаи-Восточный"
  },
  {
-  "region_id": "AFR-0114",
+  "region_id": "AFR-0117",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SO",
@@ -912,7 +896,7 @@
   "name_ru": "Бари"
  },
  {
-  "region_id": "AFR-0115",
+  "region_id": "AFR-0118",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SO",
@@ -920,7 +904,7 @@
   "name_ru": "Мудуг"
  },
  {
-  "region_id": "AFR-0116",
+  "region_id": "AFR-0119",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SO",
@@ -928,7 +912,7 @@
   "name_ru": "Хиран"
  },
  {
-  "region_id": "AFR-0117",
+  "region_id": "AFR-0120",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SO",
@@ -936,7 +920,7 @@
   "name_ru": "Залив"
  },
  {
-  "region_id": "AFR-0118",
+  "region_id": "AFR-0121",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "KE",
@@ -944,7 +928,7 @@
   "name_ru": "Восточный"
  },
  {
-  "region_id": "AFR-0119",
+  "region_id": "AFR-0122",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "KE",
@@ -952,7 +936,7 @@
   "name_ru": "Северо-Восточный"
  },
  {
-  "region_id": "AFR-0120",
+  "region_id": "AFR-0123",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "KE",
@@ -960,7 +944,7 @@
   "name_ru": "Побережье"
  },
  {
-  "region_id": "AFR-0121",
+  "region_id": "AFR-0124",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "KE",
@@ -968,7 +952,7 @@
   "name_ru": "Рифт-Валли"
  },
  {
-  "region_id": "AFR-0122",
+  "region_id": "AFR-0125",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TN",
@@ -976,7 +960,7 @@
   "name_ru": "Татауин"
  },
  {
-  "region_id": "AFR-0123",
+  "region_id": "AFR-0126",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TN",
@@ -984,7 +968,7 @@
   "name_ru": "Ле Кеф"
  },
  {
-  "region_id": "AFR-0124",
+  "region_id": "AFR-0127",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TN",
@@ -992,7 +976,7 @@
   "name_ru": "Кебили"
  },
  {
-  "region_id": "AFR-0125",
+  "region_id": "AFR-0128",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TN",
@@ -1000,7 +984,7 @@
   "name_ru": "Кайруан"
  },
  {
-  "region_id": "AFR-0126",
+  "region_id": "AFR-0129",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GH",
@@ -1008,7 +992,7 @@
   "name_ru": "Восточный"
  },
  {
-  "region_id": "AFR-0127",
+  "region_id": "AFR-0130",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GH",
@@ -1016,7 +1000,7 @@
   "name_ru": "Северный"
  },
  {
-  "region_id": "AFR-0128",
+  "region_id": "AFR-0131",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GH",
@@ -1024,7 +1008,7 @@
   "name_ru": "Бронг Ахафо"
  },
  {
-  "region_id": "AFR-0129",
+  "region_id": "AFR-0132",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CM",
@@ -1032,7 +1016,7 @@
   "name_ru": "Адамауа"
  },
  {
-  "region_id": "AFR-0130",
+  "region_id": "AFR-0133",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CM",
@@ -1040,7 +1024,7 @@
   "name_ru": "Стандартное восточное время"
  },
  {
-  "region_id": "AFR-0131",
+  "region_id": "AFR-0134",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CM",
@@ -1048,7 +1032,7 @@
   "name_ru": "Норд"
  },
  {
-  "region_id": "AFR-0132",
+  "region_id": "AFR-0135",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CM",
@@ -1056,7 +1040,7 @@
   "name_ru": "Центр"
  },
  {
-  "region_id": "AFR-0133",
+  "region_id": "AFR-0136",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CI",
@@ -1064,7 +1048,7 @@
   "name_ru": "Нзи-Комоэ"
  },
  {
-  "region_id": "AFR-0134",
+  "region_id": "AFR-0137",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CI",
@@ -1072,7 +1056,7 @@
   "name_ru": "Вородугу"
  },
  {
-  "region_id": "AFR-0135",
+  "region_id": "AFR-0138",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CI",
@@ -1080,7 +1064,7 @@
   "name_ru": "Саванес"
  },
  {
-  "region_id": "AFR-0136",
+  "region_id": "AFR-0139",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CI",
@@ -1088,7 +1072,7 @@
   "name_ru": "Бас-Сасандра"
  },
  {
-  "region_id": "AFR-0137",
+  "region_id": "AFR-0140",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ML",
@@ -1096,7 +1080,7 @@
   "name_ru": "Гао"
  },
  {
-  "region_id": "AFR-0138",
+  "region_id": "AFR-0141",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ML",
@@ -1104,7 +1088,7 @@
   "name_ru": "Кидаль"
  },
  {
-  "region_id": "AFR-0139",
+  "region_id": "AFR-0142",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ML",
@@ -1112,7 +1096,7 @@
   "name_ru": "Куликоро"
  },
  {
-  "region_id": "AFR-0140",
+  "region_id": "AFR-0143",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ML",
@@ -1120,7 +1104,7 @@
   "name_ru": "Тимбукту"
  },
  {
-  "region_id": "AFR-0141",
+  "region_id": "AFR-0144",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NE",
@@ -1128,7 +1112,7 @@
   "name_ru": "Диффа"
  },
  {
-  "region_id": "AFR-0142",
+  "region_id": "AFR-0145",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NE",
@@ -1136,7 +1120,7 @@
   "name_ru": "Зиндер"
  },
  {
-  "region_id": "AFR-0143",
+  "region_id": "AFR-0146",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NE",
@@ -1144,7 +1128,7 @@
   "name_ru": "Агадес"
  },
  {
-  "region_id": "AFR-0144",
+  "region_id": "AFR-0147",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TD",
@@ -1152,7 +1136,7 @@
   "name_ru": "Эннеди"
  },
  {
-  "region_id": "AFR-0145",
+  "region_id": "AFR-0148",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TD",
@@ -1160,7 +1144,7 @@
   "name_ru": "Канем"
  },
  {
-  "region_id": "AFR-0146",
+  "region_id": "AFR-0149",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TD",
@@ -1168,7 +1152,7 @@
   "name_ru": "Боркоу"
  },
  {
-  "region_id": "AFR-0147",
+  "region_id": "AFR-0150",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TD",
@@ -1176,7 +1160,7 @@
   "name_ru": "Гера"
  },
  {
-  "region_id": "AFR-0148",
+  "region_id": "AFR-0151",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZM",
@@ -1184,7 +1168,7 @@
   "name_ru": "Западный"
  },
  {
-  "region_id": "AFR-0149",
+  "region_id": "AFR-0152",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZM",
@@ -1192,7 +1176,7 @@
   "name_ru": "Северо-Западный"
  },
  {
-  "region_id": "AFR-0150",
+  "region_id": "AFR-0153",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZM",
@@ -1200,7 +1184,7 @@
   "name_ru": "Южный"
  },
  {
-  "region_id": "AFR-0151",
+  "region_id": "AFR-0154",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZM",
@@ -1208,7 +1192,7 @@
   "name_ru": "Мучинга"
  },
  {
-  "region_id": "AFR-0152",
+  "region_id": "AFR-0155",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZW",
@@ -1216,7 +1200,7 @@
   "name_ru": "Матабелеленд Север"
  },
  {
-  "region_id": "AFR-0153",
+  "region_id": "AFR-0156",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZW",
@@ -1224,7 +1208,7 @@
   "name_ru": "Машоналенд Запад"
  },
  {
-  "region_id": "AFR-0154",
+  "region_id": "AFR-0157",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ZW",
@@ -1232,7 +1216,7 @@
   "name_ru": "Масвинго"
  },
  {
-  "region_id": "AFR-0155",
+  "region_id": "AFR-0158",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SN",
@@ -1240,7 +1224,7 @@
   "name_ru": "Матам"
  },
  {
-  "region_id": "AFR-0156",
+  "region_id": "AFR-0159",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SN",
@@ -1248,7 +1232,7 @@
   "name_ru": "Луга"
  },
  {
-  "region_id": "AFR-0157",
+  "region_id": "AFR-0160",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SN",
@@ -1256,7 +1240,7 @@
   "name_ru": "Тамбакунда"
  },
  {
-  "region_id": "AFR-0158",
+  "region_id": "AFR-0161",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NA",
@@ -1264,7 +1248,7 @@
   "name_ru": "Кунене"
  },
  {
-  "region_id": "AFR-0159",
+  "region_id": "AFR-0162",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NA",
@@ -1272,7 +1256,7 @@
   "name_ru": "Очозондьюпа"
  },
  {
-  "region_id": "AFR-0160",
+  "region_id": "AFR-0163",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "NA",
@@ -1280,7 +1264,7 @@
   "name_ru": "Хардап"
  },
  {
-  "region_id": "AFR-0161",
+  "region_id": "AFR-0164",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1288,7 +1272,7 @@
   "name_ru": "Брава"
  },
  {
-  "region_id": "AFR-0162",
+  "region_id": "AFR-0165",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1296,7 +1280,7 @@
   "name_ru": "Майо"
  },
  {
-  "region_id": "AFR-0163",
+  "region_id": "AFR-0166",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1304,7 +1288,7 @@
   "name_ru": "Боа-Виста"
  },
  {
-  "region_id": "AFR-0164",
+  "region_id": "AFR-0167",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1312,7 +1296,7 @@
   "name_ru": "Сал"
  },
  {
-  "region_id": "AFR-0165",
+  "region_id": "AFR-0168",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1320,7 +1304,7 @@
   "name_ru": "Сан-Висенте"
  },
  {
-  "region_id": "AFR-0166",
+  "region_id": "AFR-0169",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1328,7 +1312,7 @@
   "name_ru": "Сан-Филипи"
  },
  {
-  "region_id": "AFR-0167",
+  "region_id": "AFR-0170",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1336,7 +1320,7 @@
   "name_ru": "Рибейра Брава"
  },
  {
-  "region_id": "AFR-0168",
+  "region_id": "AFR-0171",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1344,7 +1328,7 @@
   "name_ru": "Порто-Ново"
  },
  {
-  "region_id": "AFR-0169",
+  "region_id": "AFR-0172",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CV",
@@ -1352,7 +1336,7 @@
   "name_ru": "Санта-Катарина"
  },
  {
-  "region_id": "AFR-0170",
+  "region_id": "AFR-0173",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SC",
@@ -1360,7 +1344,7 @@
   "name_ru": "Внешние острова"
  },
  {
-  "region_id": "AFR-0171",
+  "region_id": "AFR-0174",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SC",
@@ -1368,7 +1352,7 @@
   "name_ru": "Ла-Диг и Внутренние острова"
  },
  {
-  "region_id": "AFR-0172",
+  "region_id": "AFR-0175",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SC",
@@ -1376,7 +1360,7 @@
   "name_ru": "Гранд Анс Праслин"
  },
  {
-  "region_id": "AFR-0173",
+  "region_id": "AFR-0176",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SC",
@@ -1384,7 +1368,7 @@
   "name_ru": "Гранд Анс"
  },
  {
-  "region_id": "AFR-0174",
+  "region_id": "AFR-0177",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "DJ",
@@ -1392,7 +1376,7 @@
   "name_ru": "Таджура"
  },
  {
-  "region_id": "AFR-0175",
+  "region_id": "AFR-0178",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ER",
@@ -1400,7 +1384,7 @@
   "name_ru": "Гаш Барка"
  },
  {
-  "region_id": "AFR-0176",
+  "region_id": "AFR-0179",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ER",
@@ -1408,7 +1392,7 @@
   "name_ru": "Дебуб"
  },
  {
-  "region_id": "AFR-0177",
+  "region_id": "AFR-0180",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GA",
@@ -1416,7 +1400,7 @@
   "name_ru": "Нгунье"
  },
  {
-  "region_id": "AFR-0178",
+  "region_id": "AFR-0181",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GA",
@@ -1424,7 +1408,7 @@
   "name_ru": "Огове-Ивиндо"
  },
  {
-  "region_id": "AFR-0179",
+  "region_id": "AFR-0182",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GQ",
@@ -1432,7 +1416,7 @@
   "name_ru": "Аннобон"
  },
  {
-  "region_id": "AFR-0180",
+  "region_id": "AFR-0183",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GQ",
@@ -1440,7 +1424,7 @@
   "name_ru": "Биоко Сур"
  },
  {
-  "region_id": "AFR-0181",
+  "region_id": "AFR-0184",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "GQ",
@@ -1448,7 +1432,7 @@
   "name_ru": "Центро-Сур"
  },
  {
-  "region_id": "AFR-0182",
+  "region_id": "AFR-0185",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "LR",
@@ -1456,7 +1440,7 @@
   "name_ru": "Гбаполу"
  },
  {
-  "region_id": "AFR-0183",
+  "region_id": "AFR-0186",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "LR",
@@ -1464,7 +1448,7 @@
   "name_ru": "Синоэ"
  },
  {
-  "region_id": "AFR-0184",
+  "region_id": "AFR-0187",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "LS",
@@ -1472,7 +1456,7 @@
   "name_ru": "Таба-Цека"
  },
  {
-  "region_id": "AFR-0185",
+  "region_id": "AFR-0188",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MR",
@@ -1480,7 +1464,7 @@
   "name_ru": "Ход-эч-Чарги"
  },
  {
-  "region_id": "AFR-0186",
+  "region_id": "AFR-0189",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MR",
@@ -1488,7 +1472,7 @@
   "name_ru": "Адрар"
  },
  {
-  "region_id": "AFR-0187",
+  "region_id": "AFR-0190",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MU",
@@ -1496,7 +1480,7 @@
   "name_ru": "Агалега"
  },
  {
-  "region_id": "AFR-0188",
+  "region_id": "AFR-0191",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MU",
@@ -1504,7 +1488,7 @@
   "name_ru": "Родригес"
  },
  {
-  "region_id": "AFR-0189",
+  "region_id": "AFR-0192",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "MU",
@@ -1512,7 +1496,7 @@
   "name_ru": "Флак"
  },
  {
-  "region_id": "AFR-0190",
+  "region_id": "AFR-0193",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SL",
@@ -1520,7 +1504,7 @@
   "name_ru": "Северный"
  },
  {
-  "region_id": "AFR-0191",
+  "region_id": "AFR-0194",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ST",
@@ -1528,7 +1512,7 @@
   "name_ru": "Сан-Томе"
  },
  {
-  "region_id": "AFR-0192",
+  "region_id": "AFR-0195",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "ST",
@@ -1536,7 +1520,7 @@
   "name_ru": "Принсипи"
  },
  {
-  "region_id": "AFR-0193",
+  "region_id": "AFR-0196",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "SZ",
@@ -1544,7 +1528,7 @@
   "name_ru": "Манзини"
  },
  {
-  "region_id": "AFR-0194",
+  "region_id": "AFR-0197",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "TG",
@@ -1552,7 +1536,7 @@
   "name_ru": "Плато"
  },
  {
-  "region_id": "AFR-0195",
+  "region_id": "AFR-0198",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BJ",
@@ -1560,7 +1544,7 @@
   "name_ru": "Алибори"
  },
  {
-  "region_id": "AFR-0196",
+  "region_id": "AFR-0199",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BJ",
@@ -1568,7 +1552,7 @@
   "name_ru": "Боргу"
  },
  {
-  "region_id": "AFR-0197",
+  "region_id": "AFR-0200",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BW",
@@ -1576,7 +1560,7 @@
   "name_ru": "Кгалагади"
  },
  {
-  "region_id": "AFR-0198",
+  "region_id": "AFR-0201",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BW",
@@ -1584,7 +1568,7 @@
   "name_ru": "Центральный"
  },
  {
-  "region_id": "AFR-0199",
+  "region_id": "AFR-0202",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CF",
@@ -1592,7 +1576,7 @@
   "name_ru": "Омбелла-М'Поко"
  },
  {
-  "region_id": "AFR-0200",
+  "region_id": "AFR-0203",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CF",
@@ -1600,7 +1584,7 @@
   "name_ru": "Верхнее Котто"
  },
  {
-  "region_id": "AFR-0201",
+  "region_id": "AFR-0204",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CG",
@@ -1608,7 +1592,7 @@
   "name_ru": "Бассейн"
  },
  {
-  "region_id": "AFR-0202",
+  "region_id": "AFR-0205",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "CG",
@@ -1616,7 +1600,7 @@
   "name_ru": "Кювета"
  },
  {
-  "region_id": "AFR-0203",
+  "region_id": "AFR-0206",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BI",
@@ -1624,7 +1608,7 @@
   "name_ru": "Бужумбура Сельский"
  },
  {
-  "region_id": "AFR-0204",
+  "region_id": "AFR-0207",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BI",
@@ -1632,7 +1616,7 @@
   "name_ru": "Макамба"
  },
  {
-  "region_id": "AFR-0205",
+  "region_id": "AFR-0208",
   "continent": "Africa",
   "region_type": "land",
   "iso_a2": "BI",
@@ -12134,5 +12118,37 @@
   "iso_a2": null,
   "name_en": "Arctic — Euro-Atlantic Sector",
   "name_ru": "Арктика — Евро-Атлантический сектор"
+ },
+ {
+  "region_id": "AFR-0071",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "UG",
+  "name_en": "Western",
+  "name_ru": "Западная провинция"
+ },
+ {
+  "region_id": "AFR-0072",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "UG",
+  "name_en": "Central",
+  "name_ru": "Центральная провинция"
+ },
+ {
+  "region_id": "AFR-0073",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "UG",
+  "name_en": "Eastern",
+  "name_ru": "Восточная провинция"
+ },
+ {
+  "region_id": "AFR-0074",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "UG",
+  "name_en": "Northern",
+  "name_ru": "Северная провинция"
  }
 ]

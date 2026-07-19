@@ -679,14 +679,14 @@
           "reason": "Mayotte was attached to Madagascar through the Comoros administration on 1946-01-01."
         },
         {
-          "regionId": "AFR-0089",
+          "regionId": "AFR-0092",
           "to": "QZN",
           "confidence": "high",
           "reason": "Zanzibar Protectorate (own Sultan under British protection) was legally distinct from Tanganyika in 1946; unification into Tanzania followed only in 1964.",
           "source": "https://en.wikipedia.org/wiki/Sultanate_of_Zanzibar"
         },
         {
-          "regionId": "AFR-0090",
+          "regionId": "AFR-0093",
           "to": "QZN",
           "confidence": "high",
           "reason": "Pemba was administered as part of the Zanzibar Protectorate, not Tanganyika.",

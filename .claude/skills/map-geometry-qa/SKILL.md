@@ -6,7 +6,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…l).
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…m).
 Do not re-open the same graves.
 
 ## Trigger
@@ -140,6 +140,47 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   move as `clip_against_dead_sea`, just in the opposite direction (clip
   water by new land, not land by water). Do this in the same build step that
   adds the new land, not as an afterthought.
+- **A water-clip gap can be a bug that was NEVER fixed on this continent,
+  not just a regression on this one.** Africa's Lake Victoria/Tanganyika
+  sat inside Tabora/Uganda/Katanga/Maniema/Rift Valley/Muchinga/Burundi
+  from the day `out/lakes_1946.geojson` first gained those lake features —
+  `build_africa_1946.py` never had a clip step for them at all (unlike
+  Europe's Dead Sea/Sea of Galilee, which did). Don't assume every missing
+  water-clip is "this session broke it" (2026-07-19-l) — check whether the
+  continent's build script ever had the step in the first place.
+- **A docstring and the code below it can silently disagree — trust
+  neither without checking the raw source data.** `build_africa_1946.py`'s
+  header docstring claimed "Uganda - exactly 4 British provinces 1946" and
+  `game_map.json`'s 112 raw Uganda districts do carry exactly that `region`
+  field (Central/Eastern/Northern/Western) — but `SINGLE_COUNTRY` collapsed
+  it to 1 region anyway, ignoring the field the docstring described
+  (2026-07-19-m). When a comment describes a mechanism that isn't what the
+  code actually does, check the raw source fields directly rather than
+  trusting either the comment or your assumption about "how it's probably
+  handled".
+- **`remap_region_ids.py`'s `--old` snapshot is compared against
+  `client/public/world_1946.geojson`, not the freshly-rebuilt
+  `scripts/map/out/world_1946.geojson`.** If you run the build chain but
+  haven't run `import_to_game.py` yet, `client/public` is still stale and
+  the remap dry-run will report "0 real shifts" — not because nothing
+  moved, but because it's comparing the old file to itself. Correct order:
+  build chain -> `import_to_game.py` (refreshes `client/public`, will warn
+  about ownerless regions using still-stale positional files — expected)
+  -> remap (now sees the real shift) -> manual additions for genuinely-new
+  regions -> `import_to_game.py` again -> `generate_country_registry.py`
+  -> `fill_region_economy_1946.py` -> validators/tests.
+- **The remap tool has no manual-disambiguation flag; when it blocks
+  `--apply` on a duplicate-name pair, resolve by exact area+centroid match
+  and call `apply_*_remap` directly instead of hand-editing every file.**
+  Two source features can legitimately share a name (Algeria's two
+  "Territoires du Sud" zones, Malawi's two "Chitipa" polygons — both
+  already documented in `build_africa_1946.py` as intentionally-not-merged
+  duplicates) and the tool's `(name, iso_a2)` key can't tell them apart.
+  Import `remap_region_ids` as a module, call `build_remap()`, merge in a
+  manually-verified `{old_id: new_id}` dict for the ambiguous pairs (verify
+  the pairing with `shapely` — identical `.area` and `.centroid` between
+  the old and new candidate is proof, not a guess), then call the four
+  `apply_*_remap` functions yourself with the combined dict.
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake

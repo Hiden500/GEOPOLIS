@@ -158,9 +158,30 @@ class CountryEntities1946Test(unittest.TestCase):
             entry["regionId"]: entry["to"]
             for entry in config["continents"]["africa"]["regionOwnerOverrides"]
         }
+        # 2026-07-19-m: region_id сдвигаются при любом изменении числа регионов
+        # Африки (Уганда 1->4 провинции), тот же паттерн, что уже описан для
+        # Азии выше ("region_id сдвигаются при КАЖДОМ изменении числа
+        # регионов..."). Матчим по (name, iso_a2) из живого world_1946.geojson
+        # вместо литералов.
+        world = load_json(WORLD_GEOJSON)
+        region_id_by_key = {
+            (ft["properties"]["name"], ft["properties"]["iso_a2"]): ft["properties"]["region_id"]
+            for ft in world["features"]
+        }
+
+        def rid(name, iso2):
+            key = (name, iso2)
+            self.assertIn(key, region_id_by_key, f"регион {key} не найден в world_1946.geojson")
+            return region_id_by_key[key]
+
         self.assertEqual(
             region_overrides,
-            {"AFR-0001": "FRA", "AFR-0002": "MDG", "AFR-0089": "QZN", "AFR-0090": "QZN"},
+            {
+                rid("Réunion", "FR"): "FRA",
+                rid("Mayotte", "FR"): "MDG",
+                rid("Zanzibar South and Central", "TZ"): "QZN",
+                rid("Kusini-Pemba", "TZ"): "QZN",
+            },
         )
         self.assertIn("QZN", COUNTRY_POPULATION_1946)
         self.assertIn("QZN", CUSTOM_COUNTRIES)
