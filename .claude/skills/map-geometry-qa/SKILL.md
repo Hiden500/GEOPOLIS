@@ -6,7 +6,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…m).
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…n).
 Do not re-open the same graves.
 
 ## Trigger
@@ -181,6 +181,47 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   the pairing with `shapely` — identical `.area` and `.centroid` between
   the old and new candidate is proof, not a guess), then call the four
   `apply_*_remap` functions yourself with the combined dict.
+- **When inverting `absorb_slivers` to grow WATER instead of land (mutable =
+  sea, context = land), the "skip large compact cells" safety net becomes
+  actively harmful, not just conservative.** That guard exists to protect
+  real inland lake-holes when mutable is LAND — it has no equivalent
+  meaning when mutable is a sea, since every real water body is already
+  passed in as `water_geoms`. Skipping it left visible white gaps between
+  islands in fragmented archipelagos (Alaska Panhandle/British Columbia,
+  2026-07-19-n) — 11603 km2 closed by the standard pass, another 23947 km2
+  needed a second, uncapped pass over the same cell set. Write the
+  compactness-check-free version as its own function; don't just raise the
+  area threshold on the shared one (land-absorption still needs it).
+- **A "snapshot taken once at the start" for `water_geoms`/`context_geoms`
+  goes stale the moment ANY of those same features get mutated later in
+  the same run.** Fixing coastline gaps sea-by-sea in one script, each sea
+  read every OTHER sea's geometry from a list built before the loop
+  started — sea B, processed after sea A had already grown, saw A's OLD
+  shape and could claim the same contested cell independently. Result:
+  433 sea-vs-sea overlaps (`merge_world_1946.py`'s own diagnostic caught
+  it) where baseline was ~6. Read mutated neighbors LIVE (`shape(other_ft
+  ["geometry"])`) inside the loop, never from a list frozen before it.
+- **Even with live reads, independent per-feature passes don't guarantee a
+  partition — add one deterministic finalize pass.** Growing N mutable
+  features one at a time, each only checking its own immediate neighbors,
+  can still leave the group non-disjoint at the far end of a long
+  processing order. After the main loop: walk the list once, clip each
+  feature against the union of all previously-finalized ones (list order
+  = priority) — cheap, deterministic, and guarantees zero overlaps within
+  the group regardless of how the main loop got there.
+- **`client/public/world_1946.geojson` and `scripts/map/out/world_
+  1946.geojson` use DIFFERENT property schemas — a filter that works on
+  one silently returns nothing on the other.** The `out/` file (straight
+  from `merge_world_1946.py`) has explicit `region_type: "land"/"sea"/
+  "lake"`. The `client/public/` file (after `import_to_game.py`) has
+  `type: "region"` and `continent`, with NO `region_type` key at all.
+  A land/water filter keyed on `region_type` against the client file
+  returns an empty list — `STRtree` built from it finds zero candidates
+  for every query, and every downstream `.difference()` becomes a silent
+  no-op. If you need `region_type`, read the `out/` file, even if you
+  need it for something scoped to the same land the client file also has
+  (2026-07-19-n: a "clip water against current land" step returned 0
+  candidates for every one of 113 seas before this was caught).
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake
