@@ -46,6 +46,15 @@ from shapely.ops import unary_union, polygonize
 
 BUFFER_DEG = 0.5
 
+# Абсолютный порог "точно машинный шум, а не гео-фича" — найдено 2026-07-19-q
+# на Ionian Sea/Inner Seas off the West Coast of Scotland/Norwegian Sea:
+# десятки MultiPolygon-частей площадью 1e-18..1e-6 deg2 (вычислительная
+# погрешность от повторных union/intersection/buffer(0), не остров).
+# Применяется В `to_polygonal()` — на КАЖДОМ union/intersection в этом
+# файле, не только в разовой чистке `cleanup_scattered_fragments` — иначе
+# новый прогон снова накопит такой же мусор.
+DEGENERATE_AREA_DEG2 = 1e-4
+
 
 def load_features(path):
     with open(path, encoding="utf-8") as f:
@@ -66,21 +75,29 @@ def safe_clip(geom, box):
 
 
 def to_polygonal(geom):
-    """Отбрасывает вырожденные не-полигональные компоненты (LineString/
+    """Отбрасывает (1) вырожденные не-полигональные компоненты (LineString/
     Point с area=0) — найдено на White Sea: предыдущие `unary_union`/
     `buffer(0)` в багованных прогонах превратили геометрию в
     GeometryCollection из 12 нулевых LineString-артефактов + 1 настоящий
-    Polygon. `absorb_slivers`/`absorb_compact_gaps` ожидают Polygon/
-    MultiPolygon (`.boundary` на GeometryCollection даёт непредсказуемый
-    результат, `cell.boundary.intersection(g.boundary)` может вернуть
-    None вместо геометрии -> AttributeError чуть ниже по стеку)."""
-    if geom.geom_type in ("Polygon", "MultiPolygon"):
-        return geom
+    Polygon; (2) MultiPolygon-части площадью < DEGENERATE_AREA_DEG2 —
+    машинный шум от тех же union/intersection/buffer(0), находимый уже
+    ПОСЛЕ типа геометрии (Ionian Sea/Norwegian Sea/Inner Seas off the West
+    Coast of Scotland, запись -q — части площадью 1e-18..1e-6 deg2,
+    физически рядом с настоящим маленьким островом, из-за чего кластерная
+    чистка их раньше не ловила). `absorb_slivers`/`absorb_compact_gaps`
+    ожидают Polygon/MultiPolygon (`.boundary` на GeometryCollection даёт
+    непредсказуемый результат, `cell.boundary.intersection(g.boundary)`
+    может вернуть None вместо геометрии -> AttributeError чуть ниже по
+    стеку)."""
     if geom.geom_type == "GeometryCollection":
         polys = [g for g in geom.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
-        if not polys:
+        geom = unary_union(polys) if len(polys) > 1 else (polys[0] if polys else geom)
+    if geom.geom_type == "MultiPolygon":
+        kept = [p for p in geom.geoms if p.area >= DEGENERATE_AREA_DEG2]
+        if not kept:
             return geom
-        return unary_union(polys) if len(polys) > 1 else polys[0]
+        if len(kept) < len(geom.geoms):
+            geom = unary_union(kept) if len(kept) > 1 else kept[0]
     return geom
 
 
@@ -145,21 +162,28 @@ def cleanup_scattered_fragments(seas_feats):
     (найдено пользователем на живом рендере: "Беринговое море разбросано
     по нескольким побережьям. Надо соединять только соседние").
 
-    Кластеризует части каждой MultiPolygon-фичи по близости (порог
-    CLUSTER_DIST_DEG). ПЕРВАЯ версия оставляла кластер, если его СУММАРНАЯ
-    площадь была большой — оказалось недостаточно: у Берингова моря
-    множество мелких (~0.01-0.04 deg2 каждый) оторванных фрагментов у
-    Гренландии/Лабрадора кластеризовались МЕЖДУ СОБОЙ (они действительно
-    близко друг к другу, просто не к настоящему Берингову морю) в один
-    "достаточно крупный по сумме" кластер и выживали (85 из 117 частей
-    остались за пределами реального региона моря после первой версии).
-    Исправлено: кластер легитимен, только если содержит хотя бы ОДНУ часть
-    с площадью >= ANCHOR_AREA_DEG2 ("ствол" моря — напр. два берега
-    Берингова пролива по разные стороны антимеридиана, оба на порядки
-    больше любого оторванного фрагмента) — рой мелких кусков без такого
-    якоря отбрасывается целиком, независимо от суммарной площади роя."""
+    Два независимых фильтра, оба нужны:
+    1. Безусловный отсев частей < DEGENERATE_AREA_DEG2 (машинный шум) ДО
+       кластеризации — иначе шумовая часть наследует легитимность своего
+       кластера просто потому, что физически рядом с настоящим маленьким
+       островом (Ionian Sea/Norwegian Sea/Inner Seas off the West Coast of
+       Scotland, найдено 2026-07-19-q — пользователь прямо указал, что
+       предыдущая проверка это пропустила).
+    2. Кластеризация ОСТАВШИХСЯ частей по близости (порог CLUSTER_DIST_DEG),
+       легитимен кластер, только если содержит хотя бы одну часть с
+       площадью >= ANCHOR_AREA_DEG2 ("ствол" моря — напр. два берега
+       Берингова пролива по разные стороны антимеридиана). ПЕРВАЯ версия
+       (до записи -o) проверяла только суммарную площадь кластера —
+       недостаточно, рой мелких оторванных фрагментов у ОДНОГО чужого
+       побережья (Гренландия/Лабрадор) кластеризовался между собой и
+       проходил порог по сумме, хотя ни один не был легитимен."""
+    total_degenerate = 0
     for ft in seas_feats:
-        g = to_polygonal(shape(ft["geometry"]))
+        raw = shape(ft["geometry"])
+        before_n = len(list(raw.geoms)) if raw.geom_type == "MultiPolygon" else 1
+        g = to_polygonal(raw)  # уже отбрасывает и GeometryCollection-мусор, и части < DEGENERATE_AREA_DEG2
+        after_n = len(list(g.geoms)) if g.geom_type == "MultiPolygon" else 1
+        total_degenerate += max(0, before_n - after_n)
         ft["geometry"] = mapping(g)
         if g.geom_type != "MultiPolygon":
             continue
@@ -203,6 +227,7 @@ def cleanup_scattered_fragments(seas_feats):
             ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
             print(f"  [CLEANUP] {ft['properties'].get('name')}: убрано "
                   f"{len(dropped_idxs)} оторванных фрагментов (-{dropped_area:.1f} km2)")
+    print(f"  [CLEANUP] всего отброшено машинно-шумовых частей (< {DEGENERATE_AREA_DEG2} deg2): {total_degenerate}")
 
 
 def finalize_no_overlaps(seas_feats):

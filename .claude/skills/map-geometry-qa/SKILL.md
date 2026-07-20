@@ -6,7 +6,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…p).
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…q).
 Do not re-open the same graves.
 
 ## Trigger
@@ -303,6 +303,23 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   `translate_world.py`'s own "Не переведено" count, not by any test) —
   happened twice in a row (Faroe Islands, then Malta) right after adding
   each to `SINGLE_REGION`. Add both in the same edit.
+- **An "is this cluster legitimate" check applied to the WHOLE cluster lets
+  pure numerical noise hide behind one real neighbor.** After fixing the
+  antimeridian bug, a self-check claimed "0 orphan fragments" across all
+  113 seas — wrong. Dozens of MultiPolygon parts at 1e-18..1e-6 deg2 (raw
+  floating-point residue from repeated `union`/`intersection`/`buffer(0)`
+  over several script runs, not geography at all) survived because the
+  proximity-cluster+anchor check evaluated legitimacy per CLUSTER: a
+  noise speck sitting within 2° of one real small island inherited that
+  island's legitimacy for the whole cluster it was grouped into, even
+  though the speck itself was garbage. Fix: filter individual parts below
+  an absolute epsilon (something on the order of 1e-4 deg2, i.e. a
+  fraction of a km2 — real coastal features at this map's resolution
+  don't get smaller than that) BEFORE any clustering/anchor logic runs,
+  not as part of the same per-cluster legitimacy check. Verify the choice
+  by histogramming every remaining part's area across the whole dataset —
+  a real epsilon sits at a clean gap between "clearly noise" and "clearly
+  a small real feature", not in the middle of a smooth distribution.
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake
