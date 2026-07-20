@@ -6,7 +6,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…o).
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…p).
 Do not re-open the same graves.
 
 ## Trigger
@@ -293,6 +293,16 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   Use `matplotlib.path.Path`/`PathPatch` with both the exterior AND each
   interior ring's vertices/codes when the verification depends on holes
   being visible, not a bare `ax.fill` per exterior only.
+- **Adding a country to `SINGLE_REGION` in `build_europe_1946.py` needs a
+  matching `translate_world.py::TRANSLATE` entry, every time.** The dict
+  VALUE is used directly as the feature's output name and is conventionally
+  Russian (`"AD": "Андорра"`) — `translate_world.py` has a reverse lookup
+  table that turns that exact string into the English name before it
+  reaches `world_1946.geojson`. Forgetting the entry doesn't error, it just
+  leaves the Russian string in the English `name` field (caught by
+  `translate_world.py`'s own "Не переведено" count, not by any test) —
+  happened twice in a row (Faroe Islands, then Malta) right after adding
+  each to `SINGLE_REGION`. Add both in the same edit.
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake
