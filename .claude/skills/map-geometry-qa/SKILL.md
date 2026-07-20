@@ -6,8 +6,8 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…q).
-Do not re-open the same graves.
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…q,
+2026-07-20). Do not re-open the same graves.
 
 ## Trigger
 
@@ -357,6 +357,54 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   earlier `build_europe_1946.py` run. Comparing to the oldest commit only
   proves a feature existed at some point, never that today's edits didn't
   touch it. See 2026-07-19-l for the full correction.
+- **A distance-based "is this fragment legitimate" threshold can't tell
+  "far from its own body but rightfully so" apart from "far from its own
+  body AND actually belongs to a neighbor"** — tightening `CLUSTER_DIST_DEG`
+  to fix one case (Baltic Sea wrongly claiming Norway's coast) broke another
+  (Ionian Sea's real Gulf of Patras gap-fill got discarded as if it were the
+  same kind of noise), because BOTH look identical under "distance to own
+  trunk". Tried replacing the absolute threshold with a relative one
+  ("closer to own sea than to the nearest OTHER registered sea") — also
+  failed, because the distance to a genuinely adjacent neighbor sea is
+  normally ≈0 (two seas sharing a strait/coastline touch by construction,
+  that's not a defect signal). Neither distance metric is the right lever;
+  see the next bullet for the actual fix (2026-07-20).
+- **The real bug wasn't the post-hoc cleanup — it was processing 113 seas
+  ONE AT A TIME with every other sea frozen as "authoritative context".**
+  When a genuinely-uncovered land-touching cell falls inside the buffered
+  clip_box of MULTIPLE seas (Gulf of Patras: both Ionian and Aegean;
+  Norway's Skagerrak coast: both Baltic and North Sea; Bristol Channel/
+  Thames Estuary/Moray Firth: both a giant Atlantic "sector" catch-all AND
+  the specific named sea that should own them), whichever sea happens to
+  run FIRST in list order claims it — geography never gets a vote. Fix:
+  process seas in GROUPS (tiled by rough continent bbox, matching
+  `diagnose_global_gaps.py`'s tiles for easy before/after comparison), and
+  when several seas are mutable in the same call, give a contested cell to
+  whichever one shares the LONGEST boundary with it (the same rule
+  `absorb_slivers` already uses for land) — not to whichever ran first.
+  Order-dependence disappears entirely; see `absorb_compact_gaps_multi()`
+  in `fix_sea_coastline_gaps.py`. Confirmed working: total area absorbed
+  went UP (24,100→36,560 km², cells that were previously ping-ponging
+  between two claimants now resolve immediately), and the post-loop cleanup
+  pass dropped from "dozens of seas losing hundreds-to-thousands of km²
+  each" down to one 2.8 km² noise fragment.
+- **A "global gap diagnostic" is only as trustworthy as the land layer it
+  reads — mixing curated and raw land in the same check manufactures fake
+  gaps.** `diagnose_global_gaps.py` used `client/public/world_1946.geojson`
+  (curated, post-session land) while the actual sea-gluing fix only ever
+  reads raw `game_map.json`. Wherever this session's own curation legitimately
+  diverges from raw Natural Earth (US county-level splits with more detail
+  than raw ADM1 — Chesapeake Bay; a county polygon that includes an entire
+  strait as "land" — Washington–San Juan, whose curated bounds run to
+  49.71°N while raw `game_map.json`'s Washington stops at 48.99°N), the
+  diagnostic reported a "gap" or an "overlap" that has nothing to do with sea
+  absorption completeness. This inflated one count 2772 gaps/6555 km² down
+  to the true 316/531.9 km² once the diagnostic was pointed at the SAME raw
+  land the fix script uses. Before treating a coarse gap/overlap count as a
+  measure of remaining work, confirm both sides of the check use the SAME
+  land source the fix itself is authoritative against — otherwise you're
+  measuring known, already-accepted land-curation divergence, not the bug
+  you're trying to close.
 
 ## Positional-file fragility (silent, untested)
 
