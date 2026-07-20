@@ -6,7 +6,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 # Map Geometry QA
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
-that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…n).
+that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…o).
 Do not re-open the same graves.
 
 ## Trigger
@@ -222,6 +222,77 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   need it for something scoped to the same land the client file also has
   (2026-07-19-n: a "clip water against current land" step returned 0
   candidates for every one of 113 seas before this was caught).
+- **Computing a "local" clip_box from `.bounds()` of a multi-part geometry
+  breaks silently at the antimeridian.** A sea/feature whose parts sit on
+  both sides of the dateline (Bering/Chukchi Sea, Pacific "sector"
+  polygons) has `.bounds() == (-180, ..., 180, ...)` for the WHOLE
+  MultiPolygon — a "local" clip_box (±0.5°) built from that is nearly the
+  entire globe in longitude. A gap-fill pass then treats anything within
+  that box as fair game — Bering Sea absorbed fragments near Norway,
+  Iceland, Greenland, and Finland because they all fell inside its
+  "local" bbox (2026-07-19-o, user: "Берингово море разбросано по
+  нескольким побережьям"). Fix: compute clip_box PER PART (`geom.geoms`),
+  never from the whole multi-part feature's own `.bounds()`. A genuinely
+  single-part feature that legitimately spans all longitudes (Southern
+  Ocean, a ring around Antarctica) still gets a large box correctly —
+  that's not a bug for that one case.
+- **Cleaning up already-scattered fragments by cluster TOTAL AREA isn't
+  enough — use an anchor.** Grouping a MultiPolygon's parts by proximity
+  and keeping clusters above an area threshold looks reasonable, but nearby
+  garbage fragments (many small pieces wrongly absorbed near the SAME
+  wrong coastline, e.g. Greenland) cluster with each other and can still
+  clear a total-area bar even though none of them is legitimate. Require
+  the cluster to contain at least one part above an "anchor" threshold
+  (something on the order of the feature's real trunk body, order of
+  magnitude larger than any stray fragment) — a swarm of small pieces with
+  no anchor gets dropped regardless of its summed area.
+- **`unary_union`/`buffer(0)`/`.intersection()` can silently degrade a
+  Polygon/MultiPolygon into a `GeometryCollection` with zero-area
+  `LineString`/`Point` artifacts mixed in.** Found on White Sea: a prior
+  buggy union left a `GeometryCollection` of 12 degenerate `LineString`s
+  plus 1 real `Polygon`. Downstream code that assumes Polygon/MultiPolygon
+  (`.boundary`, `cell.boundary.intersection(g.boundary)`) can silently
+  return `None` instead of raising anything useful, then crash on the next
+  attribute access. Write a `to_polygonal()` helper that filters a
+  `GeometryCollection` down to its Polygon/MultiPolygon members, and apply
+  it after every union AND after every `.intersection(clip_box)` call
+  (tangent intersections can produce the same degenerate mix) — not just
+  at the one place you first saw it break.
+- **Adding a genuinely new/previously-missing land feature still needs the
+  same "water doesn't know about new land" and "economy heuristics assume
+  typical shape" treatment as any other new territory.** The Faroe Islands
+  existed whole as a single untouched `game_map.json` feature but were
+  never in any country list in `build_europe_1946.py` — silently dropped
+  since the file was written, not a regression. Fixing "missing land"
+  still triggers: (1) `clip_seas_against_land` for whatever sea used to
+  cover that spot as open water: (2) a re-check of any generic per-country
+  economy heuristic that assumes "smallest region by area = capital/city"
+  (`economy_1946/density_tiers.py::generic_tier`) — a small OFFSHORE
+  territory newly added to a country's region list can trip that heuristic
+  and get a wildly wrong population (Faroe Islands got 1.2M instead of the
+  real ~23-30K until an explicit per-country tier classifier was added).
+- **When the user says a fix should stop reshaping ALREADY-CURATED land to
+  match a newly-glued authoritative source, don't clip the new source back
+  to match the old — leave the resulting land/sea mismatch as a known,
+  documented, deferred gap.** An early version of the sea-gluing finalize
+  step clipped the freshly-glued sea by the CURRENT curated land layer to
+  eliminate overlaps — this directly undid the point of using the raw
+  source as ground truth wherever curated land (Gaza/West Bank
+  geoBoundaries, restored German zones, US county-cluster splits) diverges
+  from it. The user's explicit call: the raw-glued water is right now; the
+  mismatched land gets trimmed in a LATER, separate pass. Removing an
+  "obviously helpful" clip because it fights the stated intent is
+  sometimes the correct fix, not a regression.
+- **A quick matplotlib render for verification can lie about coverage if it
+  ignores polygon interior holes.** `ax.fill(*p.exterior.xy)` paints the
+  WHOLE exterior ring solid, silently ignoring `p.interiors` — a sea
+  polygon correctly excluding a small island (a real hole around it) still
+  renders as one solid blob covering that island, making genuinely-correct
+  data look like a bug ("Faroe Islands missing" — they were present and
+  correctly un-overlapped; the render script just couldn't show a hole).
+  Use `matplotlib.path.Path`/`PathPatch` with both the exterior AND each
+  interior ring's vertices/codes when the verification depends on holes
+  being visible, not a bare `ax.fill` per exterior only.
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake

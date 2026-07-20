@@ -64,6 +64,11 @@ SINGLE_REGION = {
     "SM": "Сан-Марино (отдельный iso_a2='SM', не входил в список стран)",
     "MC": "Монако (отдельный iso_a2='MC', не входил в список стран)",
     "MD": "Молдавская ССР",
+    # Фарерские острова (автономия Дании) — отсутствовали вовсе, найдено
+    # пользователем на живом рендере (2026-07-19-o): game_map.json содержит
+    # 1 MultiPolygon-фичу 'Eysturoyar'/iso_a2='FO', покрывающую весь
+    # архипелаг — не входила ни в один список стран Европы.
+    "FO": "Фарерские острова",
 }
 
 REGION_FIELD = {
@@ -778,6 +783,16 @@ def main():
     add_cyprus_extra_territories(feats, out_features)
     restore_german_occupation_zones(out_features)
     clip_land_against_lakes(out_features, CLIP_LAKE_NAMES_EUROPE)
+
+    # Фарерские острова — новая суша (2026-07-19-o), моря её не знают:
+    # "Сев. Атлантика — Европейский сектор" уже накрывал эту точку открытым
+    # океаном (0.116 deg2 наложения, найдено merge_world_1946.py
+    # diagnostic) — тот же класс правки, что add_cyprus_extra_territories
+    # делает для Northern Cyprus/Dhekelia (вода режется по новой суше).
+    faroe_geoms = [shape(ft["geometry"]) for ft in out_features if ft["properties"]["iso_a2"] == "FO"]
+    if faroe_geoms:
+        clip_seas_against_land(unary_union(faroe_geoms),
+                                ["Сев. Атлантика — Европейский сектор", "Norwegian Sea"])
 
     fc = {"type": "FeatureCollection", "features": out_features}
     with open(OUT, "w", encoding="utf-8") as f:

@@ -206,7 +206,27 @@ def china_fragment_tier(name: str) -> int:
     return 3
 
 
+def dnk_tier(name: str) -> int:
+    """Дания: `generic_tier` трактует самый маленький по площади регион
+    страны как "вероятно столица/город" (тир 5, x5.0) — верно для
+    материковых регионов (Hovedstaden реально плотнее прочих), но НЕ для
+    Фарерских островов (2026-07-19-o: добавлены как отдельный регион,
+    оказались меньше материковых по площади и получили тир 5 наравне со
+    столицей — 1.2M населения при реальных ~25-30 тыс. на 1946 год).
+    Явный по-имени классификатор (как остальные EXPLICIT_TIER_CLASSIFIERS -
+    сигнатура classifier(name), area/country_areas сюда не передаются):
+    Фарерские острова — редконаселённая периферия (тир 1), Hovedstaden
+    (столичный регион) — городской бонус (тир 5), остальные материковые
+    регионы — базовый тир 3."""
+    if _contains_any(name, ["faroe"]):
+        return 1
+    if _contains_any(name, ["hovedstaden"]):
+        return 5
+    return 3
+
+
 EXPLICIT_TIER_CLASSIFIERS = {
+    "DNK": dnk_tier,
     "SUN": sun_tier,
     "USA": usa_tier,
     "GBR": gbr_tier,

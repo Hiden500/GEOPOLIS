@@ -30,7 +30,7 @@ land` в build_europe_1946.py, запись -k). Разрывы вдоль по�
 сделанные клипы (Кипр/Восточное Средиземноморье и т.п., сужение моря)
 остаются на месте автоматически.
 """
-from paths import game_map, out, REPO_ROOT
+from paths import game_map, out
 import json
 import sys
 import time
@@ -45,21 +45,43 @@ from geometry_cleanup import absorb_slivers_until_stable, area_km2
 from shapely.ops import unary_union, polygonize
 
 BUFFER_DEG = 0.5
-# ВАЖНО: не client/public/world_1946.geojson - тот файл (после import_to_
-# game.py) использует другую схему свойств (`type`/`continent`, БЕЗ
-# `region_type`), фильтр по `region_type == "land"` там молча возвращает 0
-# фич (найдено 2026-07-19: finalize_no_overlaps не находил ВООБЩЕ никакой
-# суши - STRtree.query() на пустом списке всегда пуст, клип по суше
-# бесшумно не срабатывал ни для одного моря). scripts/map/out/world_
-# 1946.geojson (выход merge_world_1946.py, ДО import_to_game.py) хранит
-# `region_type` explicit - используем его; суша там актуальна (не менялась
-# этой правкой), даже если сами море/озеро-фичи внутри него ещё старые.
-WORLD_PATH = out("world_1946.geojson")
 
 
 def load_features(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)["features"]
+
+
+def safe_clip(geom, box):
+    """`geom.intersection(box)` может вернуть GeometryCollection с
+    вырожденными LineString-компонентами на касательных пересечениях
+    (найдено 2026-07-19-o на построении `context`/`water` для клипа по
+    clip_box — не только на итоговом union, как White Sea). Возвращает
+    None, если после отсева не осталось полигональной части."""
+    inter = geom.intersection(box)
+    inter = to_polygonal(inter)
+    if inter.is_empty or inter.geom_type not in ("Polygon", "MultiPolygon"):
+        return None
+    return inter
+
+
+def to_polygonal(geom):
+    """Отбрасывает вырожденные не-полигональные компоненты (LineString/
+    Point с area=0) — найдено на White Sea: предыдущие `unary_union`/
+    `buffer(0)` в багованных прогонах превратили геометрию в
+    GeometryCollection из 12 нулевых LineString-артефактов + 1 настоящий
+    Polygon. `absorb_slivers`/`absorb_compact_gaps` ожидают Polygon/
+    MultiPolygon (`.boundary` на GeometryCollection даёт непредсказуемый
+    результат, `cell.boundary.intersection(g.boundary)` может вернуть
+    None вместо геометрии -> AttributeError чуть ниже по стеку)."""
+    if geom.geom_type in ("Polygon", "MultiPolygon"):
+        return geom
+    if geom.geom_type == "GeometryCollection":
+        polys = [g for g in geom.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
+        if not polys:
+            return geom
+        return unary_union(polys) if len(polys) > 1 else polys[0]
+    return geom
 
 
 def absorb_compact_gaps(ft, context_geoms, water_geoms, clip_box, label=""):
@@ -100,6 +122,7 @@ def absorb_compact_gaps(ft, context_geoms, water_geoms, clip_box, label=""):
     new_g = unary_union([sea_geom] + pieces)
     if not new_g.is_valid:
         new_g = new_g.buffer(0)
+    new_g = to_polygonal(new_g)
     added = area_km2(new_g) - area_km2(sea_geom)
     ft["geometry"] = mapping(new_g)
     ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
@@ -107,35 +130,104 @@ def absorb_compact_gaps(ft, context_geoms, water_geoms, clip_box, label=""):
     return added
 
 
-def finalize_no_overlaps(seas_feats, world_geojson_path):
+CLUSTER_DIST_DEG = 2.0
+ANCHOR_AREA_DEG2 = 1.0
+
+
+def cleanup_scattered_fragments(seas_feats):
+    """Убирает оторванные фрагменты, приклеенные по ошибке предыдущим
+    (багованным) прогоном этого скрипта до фикса 2026-07-19-o: для морей,
+    чьи части лежат по разные стороны антимеридиана (Берингово/Чукотское,
+    тихоокеанские "секторы"), `bounds()` всей фичи давал (-180, ..., 180,
+    ...) — "локальный" clip_box оказывался почти всем земным шаром по
+    долготе, `absorb_compact_gaps` подхватывал компактные разрывы у
+    Норвегии/Исландии/Гренландии/Финляндии как будто это Берингово море
+    (найдено пользователем на живом рендере: "Беринговое море разбросано
+    по нескольким побережьям. Надо соединять только соседние").
+
+    Кластеризует части каждой MultiPolygon-фичи по близости (порог
+    CLUSTER_DIST_DEG). ПЕРВАЯ версия оставляла кластер, если его СУММАРНАЯ
+    площадь была большой — оказалось недостаточно: у Берингова моря
+    множество мелких (~0.01-0.04 deg2 каждый) оторванных фрагментов у
+    Гренландии/Лабрадора кластеризовались МЕЖДУ СОБОЙ (они действительно
+    близко друг к другу, просто не к настоящему Берингову морю) в один
+    "достаточно крупный по сумме" кластер и выживали (85 из 117 частей
+    остались за пределами реального региона моря после первой версии).
+    Исправлено: кластер легитимен, только если содержит хотя бы ОДНУ часть
+    с площадью >= ANCHOR_AREA_DEG2 ("ствол" моря — напр. два берега
+    Берингова пролива по разные стороны антимеридиана, оба на порядки
+    больше любого оторванного фрагмента) — рой мелких кусков без такого
+    якоря отбрасывается целиком, независимо от суммарной площади роя."""
+    for ft in seas_feats:
+        g = to_polygonal(shape(ft["geometry"]))
+        ft["geometry"] = mapping(g)
+        if g.geom_type != "MultiPolygon":
+            continue
+        parts = list(g.geoms)
+        n = len(parts)
+        if n <= 1:
+            continue
+        parent = list(range(n))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a, b):
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[ra] = rb
+
+        for a in range(n):
+            for b in range(a + 1, n):
+                if parts[a].distance(parts[b]) < CLUSTER_DIST_DEG:
+                    union(a, b)
+
+        clusters = {}
+        for idx in range(n):
+            clusters.setdefault(find(idx), []).append(idx)
+        cluster_max_area = {r: max(parts[idx].area for idx in idxs) for r, idxs in clusters.items()}
+
+        keep_idxs = set()
+        for r, idxs in clusters.items():
+            if cluster_max_area[r] >= ANCHOR_AREA_DEG2:
+                keep_idxs.update(idxs)
+
+        if len(keep_idxs) < n:
+            dropped_idxs = [idx for idx in range(n) if idx not in keep_idxs]
+            dropped_area = sum(area_km2(parts[idx]) for idx in dropped_idxs)
+            new_g = unary_union([parts[idx] for idx in keep_idxs]) if keep_idxs else parts[0]
+            ft["geometry"] = mapping(new_g)
+            ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
+            print(f"  [CLEANUP] {ft['properties'].get('name')}: убрано "
+                  f"{len(dropped_idxs)} оторванных фрагментов (-{dropped_area:.1f} km2)")
+
+
+def finalize_no_overlaps(seas_feats):
     """Финальная защита ПОСЛЕ основного цикла: гарантирует 0 наложений
-    море-море и 0 наложений море-СУША (по актуальному, кураторскому
-    world_1946.geojson, не по сырому game_map.json, использованному как
-    context в основном цикле).
+    МОРЕ-МОРЕ. Основной цикл читал соседние моря как context ЖИВЫМ (см.
+    находку 2026-07-19-n), но даже с этим исправлением независимая (не
+    общая) последовательность absorb-проходов не гарантирует partition без
+    явного финального прохода — оставленные до фикса 433 пересечения
+    (найдено merge_world_1946.py diagnostic) резолвятся здесь
+    детерминированно: порядок списка = приоритет, каждое море обрезается
+    по объединению ВСЕХ уже финализированных (более ранних по списку)
+    морей.
 
-    Море-море: основной цикл читал соседние моря как context ЖИВЫМ (см.
-    правку выше), но даже с этим исправлением независимая (не общая)
-    последовательность absorb-проходов не гарантирует partition без явного
-    финального прохода — оставленные до фикса 433 пересечения (найдено
-    merge_world_1946.py diagnostic) резолвятся здесь детерминированно:
-    порядок списка = приоритет, каждое море обрезается по объединению ВСЕХ
-    уже финализированных (более ранних по списку) морей.
-
-    Море-суша: сырая суша game_map.json (авторитетный источник побережья
-    по решению пользователя) может НЕ совпадать 1:1 с кураторской сушей
-    world_1946.geojson там, где эта сессия использовала другой источник
-    геометрии для конкретного региона (Газа/Западный берег — geoBoundaries
-    PSE, а не Natural Earth; и т.п.) — Прованс/Лигурийское море 0.669 deg2
-    показал, что расхождение может быть заметным, не только фоновым шумом.
-    Финальный клип по кураторской суше убирает ЛЮБОЕ такое наложение,
-    независимо от причины, не трогая саму сушу."""
-    print("\nФинализация: 0 наложений море-море и море-суша...")
-    with open(world_geojson_path, encoding="utf-8") as f:
-        world = json.load(f)
-    land_geoms = [shape(f["geometry"]) for f in world["features"]
-                  if f["properties"].get("region_type") == "land"]
-    land_tree = STRtree(land_geoms)
-
+    НЕ клипает по суше (было в первой версии этой функции — убрано по
+    прямому указанию пользователя, 2026-07-19-o: "я просил взять сырую
+    сушу из game_map... там я точно уверен что вся суша как надо. Потому
+    что потом надо будет уже в конечном файле всё что не совпало обрезать
+    по линии морей" — т.е. сырое побережье game_map.json авторитетно ДЛЯ
+    МОРЯ уже сейчас; расхождения с кураторской сушей в местах, где эта
+    сессия использовала другой источник геометрии (Газа/Западный берег -
+    geoBoundaries, немецкие зоны, US-county-кластеры и т.п.) — известны,
+    но их устранение ОТЛОЖЕНО на будущий проход, который будет резать
+    СУШУ по линии моря, а не наоборот. Клипать море по кураторской суше
+    сейчас означало бы искажать уже верно приклеенное побережье."""
+    print("\nФинализация: 0 наложений море-море...")
     claimed = None
     for i, ft in enumerate(seas_feats):
         g = shape(ft["geometry"])
@@ -143,19 +235,12 @@ def finalize_no_overlaps(seas_feats, world_geojson_path):
             g = g.buffer(0)
         if claimed is not None and g.intersects(claimed):
             g = g.difference(claimed)
-        minx, miny, maxx, maxy = g.bounds
-        clip_box = shp_box(minx - 0.1, miny - 0.1, maxx + 0.1, maxy + 0.1)
-        local_land_idxs = land_tree.query(clip_box)
-        local_land = [land_geoms[int(j)] for j in local_land_idxs if land_geoms[int(j)].intersects(clip_box)]
-        if local_land:
-            local_land_union = unary_union(local_land)
-            if g.intersects(local_land_union):
-                g = g.difference(local_land_union)
         if not g.is_valid:
             g = g.buffer(0)
+        g = to_polygonal(g)
         ft["geometry"] = mapping(g)
         ft["properties"]["area_km2"] = round(area_km2(g), 1)
-        claimed = g if claimed is None else unary_union([claimed, g])
+        claimed = g if claimed is None else to_polygonal(unary_union([claimed, g]))
     print("Финализация завершена.")
 
 
@@ -177,6 +262,10 @@ def main():
     with open(seas_path, encoding="utf-8") as f:
         seas_fc = json.load(f)
     seas_feats = seas_fc["features"]
+
+    if not only:
+        print("Очистка оторванных фрагментов от предыдущих багованных прогонов...")
+        cleanup_scattered_fragments(seas_feats)
 
     lakes_feats = load_features(out("lakes_1946.geojson"))
 
@@ -203,52 +292,83 @@ def main():
         if only and name not in only:
             continue
         t0 = time.time()
-        sea_geom = sea_geoms[i]
-        minx, miny, maxx, maxy = sea_geom.bounds
-        clip_box = shp_box(minx - BUFFER_DEG, miny - BUFFER_DEG,
-                            maxx + BUFFER_DEG, maxy + BUFFER_DEG)
+        orig_geom = sea_geoms[i]
+        before_area = area_km2(orig_geom)
 
-        land_idxs = land_tree.query(clip_box)
-        context = []
-        for j in land_idxs:
-            j = int(j)
-            g = land_geoms[j]
-            if g.intersects(clip_box):
-                context.append(g.intersection(clip_box))
+        # ПО ЧАСТЯМ, не по bounds() всей фичи (2026-07-19-o): моря, чьи
+        # части лежат по разные стороны антимеридиана (Берингово/Чукотское,
+        # тихоокеанские "секторы") имели bounds() == (-180, ..., 180, ...) -
+        # "локальный" clip_box оказывался почти всем земным шаром по
+        # долготе, absorb_compact_gaps подхватывал компактные разрывы у
+        # Норвегии/Исландии/Гренландии/Финляндии как будто это Берингово
+        # море (найдено пользователем на живом рендере: "Беринговое море
+        # разбросано по нескольким побережьям"). Каждая ЧАСТЬ считает СВОЙ
+        # локальный bbox - если часть сама по себе действительно огромна
+        # (Southern Ocean - кольцо вокруг всей Антарктиды, 1 часть) её
+        # локальный bbox законно останется большим, это не баг для этого
+        # конкретного случая.
+        parts = list(orig_geom.geoms) if orig_geom.geom_type == "MultiPolygon" else [orig_geom]
+        grown_parts = []
+        total_context_n = 0
+        total_water_n = 0
+        for part in parts:
+            minx, miny, maxx, maxy = part.bounds
+            clip_box = shp_box(minx - BUFFER_DEG, miny - BUFFER_DEG,
+                                maxx + BUFFER_DEG, maxy + BUFFER_DEG)
 
-        water_idxs = water_tree.query(clip_box)
-        water = []
-        for j in water_idxs:
-            j = int(j)
-            if j == i:
-                continue
-            # ЖИВОЕ чтение: для других морей (j < len(seas_feats)) фича
-            # мутируется по ходу цикла (растёт), а `water_all_geoms[j]` —
-            # застывший снимок ДО начала прогона. Использование застывшего
-            # снимка даёт двум соседним морям устаревшее представление друг
-            # о друге -> оба могут захватить одну и ту же спорную ячейку
-            # независимо -> наложение море-море (найдено 2026-07-19 по
-            # merge_world_1946.py diagnostic: 433 пересечения вместо ~6
-            # фоновых). Озёра (j >= len(seas_feats)) не мутируются - для
-            # них живое чтение не нужно, но безопасно.
-            g = shape(seas_feats[j]["geometry"]) if j < len(seas_feats) else water_all_geoms[j]
-            if g.intersects(clip_box):
-                water.append(g.intersection(clip_box))
+            land_idxs = land_tree.query(clip_box)
+            context = []
+            for j in land_idxs:
+                j = int(j)
+                g = land_geoms[j]
+                clipped = safe_clip(g, clip_box)
+                if clipped is not None:
+                    context.append(clipped)
 
-        before_area = area_km2(sea_geom)
-        absorb_slivers_until_stable([ft], context, water, clip_box, label=name)
-        absorb_compact_gaps(ft, context, water, clip_box, label=name)
-        after_area = area_km2(shape(ft["geometry"]))
+            water_idxs = water_tree.query(clip_box)
+            water = []
+            for j in water_idxs:
+                j = int(j)
+                if j == i:
+                    continue
+                # ЖИВОЕ чтение для других морей (j < len(seas_feats)) - см.
+                # находку 2026-07-19-n (устаревший снимок -> наложения
+                # море-море). Озёра (j >= len(seas_feats)) не мутируются.
+                g = shape(seas_feats[j]["geometry"]) if j < len(seas_feats) else water_all_geoms[j]
+                clipped = safe_clip(g, clip_box)
+                if clipped is not None:
+                    water.append(clipped)
+            for other_part in parts:
+                if other_part is part:
+                    continue
+                clipped = safe_clip(other_part, clip_box)
+                if clipped is not None:
+                    water.append(clipped)
+
+            part_ft = {"type": "Feature", "properties": dict(ft["properties"]),
+                       "geometry": mapping(part)}
+            absorb_slivers_until_stable([part_ft], context, water, clip_box, label=name)
+            absorb_compact_gaps(part_ft, context, water, clip_box, label=name)
+            grown_parts.append(shape(part_ft["geometry"]))
+            total_context_n += len(context)
+            total_water_n += len(water)
+
+        new_g = unary_union(grown_parts)
+        if not new_g.is_valid:
+            new_g = new_g.buffer(0)
+        new_g = to_polygonal(new_g)
+        ft["geometry"] = mapping(new_g)
+        after_area = area_km2(new_g)
         added = after_area - before_area
         total_added_km2 += added
         dt = time.time() - t0
         print(f"[{i+1}/{len(seas_feats)}] {name}: +{added:.1f} km2 "
-              f"(context={len(context)}, water={len(water)}, {dt:.1f}s)")
+              f"(parts={len(parts)}, context={total_context_n}, water={total_water_n}, {dt:.1f}s)")
 
     print(f"\nВсего добавлено к морям: {total_added_km2:,.1f} km2")
 
     if not only:
-        finalize_no_overlaps(seas_feats, WORLD_PATH)
+        finalize_no_overlaps(seas_feats)
 
     with open(seas_path, "w", encoding="utf-8") as f:
         json.dump(seas_fc, f, ensure_ascii=False)
