@@ -1,5 +1,20 @@
 {
   "env": {
-    "ENABLE_TOOL_SEARCH": "auto:5"
+    "ENABLE_TOOL_SEARCH": "auto:5",
+    "AGENT_CACHE_SIZE": "10",
+    "AGENT_PROMOTION_THRESHOLD": "3"
+  },
+  "agents": {
+    "enabled": [
+      "bug-hunter",
+      "code-reviewer",
+      "security-scanner",
+      "database-architect"
+    ],
+    "deferred": [
+      "deployment-engineer",
+      "visual-effects-creator",
+      "qdrant-specialist"
+    ]
   }
 }

@@ -127,6 +127,35 @@ root:   python .agent/evals/public/run_public_evals.py
 и просмотра результата. Предсуществующий failure отделяй от регрессии; не
 маскируй его и не расширяй. Полный matrix — skill `verify-change`.
 
+## Agent Caching System (LRU Cache)
+
+### Enabled Agents (Always Loaded)
+Эти агенты загружаются при запуске:
+- bug-hunter (используется в /health-bugs)
+- code-reviewer (используется в code reviews)
+- security-scanner (используется в /health-security)
+- database-architect (для Pax Historia)
+
+### On-Demand Agents (Load via ToolSearch)
+Эти агенты загружаются только когда нужны:
+- deployment-engineer
+- visual-effects-creator
+- qdrant-specialist
+- llm-service-specialist
+
+### How to Use
+```javascript
+const AgentLRUCache = require('./.claude/cache/agent-lru-cache.js');
+const cache = new AgentLRUCache(10);
+
+// Используется автоматически в фоне
+// Проверить статистику:
+cache.getStats();
+```
+
+### Auto-Promotion
+Если агент используется 3+ раза → автоматически переходит в "enabled"
+
 ## Git, документация и завершение
 
 - Сохраняй чужие незакоммиченные изменения; не используй destructive Git.
