@@ -4636,16 +4636,16 @@
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
-  "name_en": "Hsinchu (17)",
-  "name_ru": "Синьчжу (17)"
+  "name_en": "Northern Taiwan",
+  "name_ru": "Северный Тайвань"
  },
  {
   "region_id": "ASI-0372",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
-  "name_en": "Nantou (19)",
-  "name_ru": "Наньтоу (19)"
+  "name_en": "Southern Taiwan",
+  "name_ru": "Южный Тайвань"
  },
  {
   "region_id": "ASI-0373",

@@ -5575,7 +5575,7 @@
   {
     "id": 382,
     "geoJsonId": "ASI-0005",
-    "area": 174052.9,
+    "area": 174071.5,
     "neighboringRegionIds": [
       381,
       384,
@@ -5641,7 +5641,7 @@
   {
     "id": 387,
     "geoJsonId": "ASI-0010",
-    "area": 99082.1,
+    "area": 99092.5,
     "neighboringRegionIds": [
       385,
       386,
@@ -5656,7 +5656,7 @@
   {
     "id": 388,
     "geoJsonId": "ASI-0011",
-    "area": 154809.0,
+    "area": 154817.9,
     "neighboringRegionIds": [
       387,
       389,
@@ -5861,7 +5861,7 @@
   {
     "id": 402,
     "geoJsonId": "ASI-0025",
-    "area": 180761.4,
+    "area": 180780.0,
     "neighboringRegionIds": [
       393,
       395,
@@ -5895,7 +5895,7 @@
   {
     "id": 404,
     "geoJsonId": "ASI-0027",
-    "area": 57404.1,
+    "area": 57408.1,
     "neighboringRegionIds": [
       389,
       405,
@@ -6145,7 +6145,7 @@
   {
     "id": 419,
     "geoJsonId": "ASI-0042",
-    "area": 2095.8,
+    "area": 2116.6,
     "neighboringRegionIds": [
       404
     ],
@@ -6156,7 +6156,7 @@
   {
     "id": 420,
     "geoJsonId": "ASI-0043",
-    "area": 995.9,
+    "area": 1004.6,
     "neighboringRegionIds": [
       387,
       403
@@ -6168,7 +6168,7 @@
   {
     "id": 421,
     "geoJsonId": "ASI-0044",
-    "area": 1062.2,
+    "area": 1071.1,
     "neighboringRegionIds": [
       388
     ],
@@ -6190,7 +6190,7 @@
   {
     "id": 423,
     "geoJsonId": "ASI-0046",
-    "area": 4798.6,
+    "area": 4815.5,
     "neighboringRegionIds": [
       402
     ],

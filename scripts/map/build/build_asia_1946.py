@@ -629,6 +629,25 @@ def geometric_merge(items, target):
     return reduce_clusters(clusters_from_items(items), target)
 
 
+# TW идёт через GEOMETRIC (target=4): Kinmen/Penghu остаются 1-уездными
+# кластерами (имя = реальный уезд, корректно), а 2 больших кластера (17 и 19
+# слитых уездов) получают имя "победившего" по площади уезда — вводит в
+# заблуждение (напр. регион назывался "Hsinchu" при 7x площади реального
+# Синьчжу). Пользователь (2026-07-22): "Только починить имена" — 4 региона
+# не менять, только переименовать многоуездные по географическому положению.
+TW_MULTI_NAMES_BY_LAT_DESC = ["Северный Тайвань", "Южный Тайвань", "Центральный Тайвань"]
+
+
+def rename_taiwan_clusters(clusters):
+    multi = [c for c in clusters if len(c["codes"]) > 1]
+    multi.sort(key=lambda c: -c["geom"].centroid.y)
+    for i, c in enumerate(multi):
+        name = (TW_MULTI_NAMES_BY_LAT_DESC[i] if i < len(TW_MULTI_NAMES_BY_LAT_DESC)
+                else f"Тайвань ({i + 1})")
+        c["names"][0] = name  # заменяем "победивший" уезд на геогр. имя, len(names) не трогаем (счётчик в скобках)
+    return clusters
+
+
 def geometric_merge_by_zone(items, sub_targets):
     buckets = {}
     for it in items:
@@ -971,6 +990,8 @@ def main():
         elif iso2 in GEOMETRIC:
             target = GEOMETRIC[iso2]
             clusters = geometric_merge(items, target)
+            if iso2 == "TW":
+                clusters = rename_taiwan_clusters(clusters)
             method = "geometric"
 
         else:

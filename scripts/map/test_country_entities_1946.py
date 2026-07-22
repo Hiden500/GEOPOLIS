@@ -105,7 +105,7 @@ class CountryEntities1946Test(unittest.TestCase):
 
     def test_norfolk_island_does_not_share_newfoundland_code(self):
         overlay = load_json(CONFIG_DIR / "occupation_overlay.json")
-        self.assertEqual(overlay["OCE-0008"], "AUS")
+        self.assertEqual(overlay["OCE-0011"], "AUS")
 
     def test_european_naval_bases_folded_to_direct_control(self):
         """2026-07-18 (пользователь): Мальта/Гибралтар/Кипр — морские базы/
@@ -293,7 +293,7 @@ class CountryEntities1946Test(unittest.TestCase):
             entry["regionId"]: entry["to"]
             for entry in config["continents"]["oceania"]["regionOwnerOverrides"]
         }
-        self.assertEqual(region_overrides, {"OCE-0008": "NFK"})
+        self.assertEqual(region_overrides, {"OCE-0011": "NFK"})
         self.assertTrue({"NFK", "QPS"}.issubset(CUSTOM_COUNTRIES))
 
     def test_dual_suzerain_condominiums_are_puppets_of_both(self):

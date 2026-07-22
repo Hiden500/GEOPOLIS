@@ -579,6 +579,64 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   can be set to whatever the sovereign's code is (here `"AU"`) since
   ownership is resolved separately via `ownership_1946.json`, not derived
   from the land feature's own iso_a2.
+- **China's ring gaps (previous bullet) are now fixed — and verifying the
+  fix by per-city area growth is the WRONG check.** `absorb_slivers_
+  until_stable` assigns each gap cell to whichever of the two touching
+  features has the longer shared boundary — for a thin ring, that can be
+  the HOST province rather than the city, so the city's own `area_km2`
+  can show 0 growth even though its ring closed completely (both sides are
+  China either way, so the visible hole is gone regardless of which one
+  absorbs it). Verify with a direct residual check instead:
+  `city.buffer(δ).difference(city).difference(all_china ∪ all_water)` —
+  must be empty. Checking only "did this feature's area increase" gave a
+  false "still broken" reading for 2 of 6 municipalities (Guangzhou,
+  Harbin) that were actually fully closed.
+- **A `MultiPolygon` part can be a real, far-flung piece of the same
+  feature (keep it) or a degenerate sliver from an intersection/difference
+  chain (drop it) — area alone doesn't distinguish them, render does.**
+  Qingdao's 4 parts looked like "2 real + 2 junk" by area alone (930+131 km²
+  vs 0.66+0.07 km²), but a zoomed render was still necessary to confirm the
+  2 small ones are thin needle-shaped triangles at the bay mouth (classic
+  computational-geometry noise) rather than small real islands — a
+  legitimately real small island would render roughly compact/rounded, not
+  a 1-2px-wide sliver. Drop mechanism: a small explicit `{feature_name:
+  threshold_km2}` dict, applied ONLY to named features — never a blanket
+  "drop every small part under N km²" for a whole continent/country, since
+  provinces with genuine archipelagos (Shandong: 10 parts, Liaoning: 21)
+  have many real small-but-legitimate islands mixed in with the same size
+  range.
+- **Renaming an EXISTING region (same `region_id`, no count/id shift) is
+  a SEPARATE staleness trigger from the count-shift class already
+  documented below — `names_ru.json` needs the same manual patch either
+  way.** `import_to_game.py` sources `name_en`/`name_ru` from `scripts/
+  map/out/names_ru.json` by `region_id`, falling back to the geojson's
+  `name` property ONLY when that `region_id` has no entry at all. A pure
+  rename in a `build_<continent>_1946.py` (Taiwan's 2 mis-named
+  geometric-merge clusters, 2026-07-22) doesn't change the region count,
+  so `remap_region_ids.py` isn't needed and wasn't run — but the OLD name
+  entry for that unchanged `region_id` is still sitting in `names_ru.json`
+  and wins over the fresh geojson name every time. Symptom: `client/public/
+  world_1946.geojson` shows the new name, but `server/data/scenarios/1946/
+  names.en.json`/`names.ru.json` (and therefore the live game) still show
+  the old one. Check both files, not just the geojson, after ANY rename —
+  not only after a count-changing rebuild.
+- **A hardcoded `region_id` in a test can go stale from someone ELSE's
+  remap, in a totally unrelated area of the map, and sit broken for a
+  whole session before anything runs it.** `test_country_entities_1946.py`
+  had two literal `"OCE-0008"` (Norfolk Island) assertions; package A's
+  Oceania rebuild (5 new regions inserted earlier in build order) shifted
+  it to `OCE-0011` in the actual config, and `remap_region_ids.py --apply`
+  correctly updated `country_entities_1946.json`/`occupation_overlay.json`
+  — but the test's literal string wasn't part of that remap and went stale
+  silently (package A's own ExecPlan claimed "12/12" — likely stated before
+  the final remap, or just not re-run). Caught only because package B
+  happened to run the full test suite again for an unrelated (China/
+  Taiwan) change. This is the exact same class already documented for the
+  Gulf/Tonga test below (rewritten to resolve by `(name, iso_a2)` instead
+  of a literal id) — Norfolk Island's two assertions were fixed in place
+  this round (not rewritten to the by-name pattern) since they're a single
+  simple `assertEqual`; a future hit on the SAME two assertions should
+  trigger the by-name rewrite instead of a third string patch.
 
 ## Positional-file fragility (silent, untested)
 
