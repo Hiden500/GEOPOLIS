@@ -463,6 +463,59 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   matching the already-pinned geoBoundaries commit `9469f09` used by ISR/
   PSE/CYP, via `media.githubusercontent.com` not `raw.` — same Git-LFS trap
   documented for CYP-ADM1) was the correct call, not skipping the step.
+- **Whole small territories drop silently during country-filtered builds — a
+  raw-vs-output land-coverage diagnostic catches them; a manual world scan
+  never will.** Akrotiri (adm0_a3=WSB) was never in the map at all; Maldives
+  (21 raw features), Isle of Man, Jersey, the French Caribbean islets, and
+  the Australian/French sub-Antarctic islands are all missing land that
+  renders as background. `scripts/map/build/diagnose_missing_land.py` (2026-
+  07-22, standalone, NOT a pipeline step) compares raw `game_map.json`
+  against the output by coverage in three layers: whole countries (iso in raw
+  absent from output — with a coverage check that separates genuine drops
+  from folded/retagged territories like Israel at 99%), disputed iso="-1" by
+  name (where Akrotiri hid), and per-feature uncovered points (flagging
+  lake-adjacent false positives with [LAKE]). Run it after any build that
+  changes country/region membership; it is scenario-agnostic (paths default
+  to 1946 but are overridable). It is the answer to "I can't check every
+  scrap by hand."
+- **A land feature whose representative point falls inside a carved lake is
+  usually NOT eaten — its district polygon just includes lake water, and only
+  the water was clipped.** After adding Lake Malawi, the diagnostic flagged
+  Likoma (a Malawian island district) as "missing" because its rep point
+  landed in the lake. But the district polygon is 198.8 km² (a Malawian
+  exclave whose administrative boundary extends into Mozambican lake waters);
+  the actual island (21.9 km²) survived because `ne_10m_lakes` carries an
+  interior hole for it, and `land.difference(lake)` kept the hole's land. The
+  before-state was WORSE (198 km² of "land" jutting into the lake). Verify a
+  suspected lake-eaten island by comparing its before/after *land-area
+  coverage*, not its rep-point coverage — and check whether the NE lake
+  polygon has a hole there before assuming the island was destroyed.
+- **Scattered small islands are a game-design "archipelago", not a geometry
+  bug — merge them, don't over-detail them.** The user's rule (2026-07-22):
+  islands with ≈0 political weight get consolidated into ONE polygon region
+  (they won't be governed separately — unnecessary depth), but they must
+  EXIST because the navy needs them (bases, fleet range). Reusable mechanism
+  already in the tree: `ARCHIPELAGO_BUFFER_DEG=3.0` + `reduce_clusters` in
+  `build_oceania_1946.py` union a country's scattered islands into one
+  MultiPolygon WITHOUT flooding the water between them (the buffer only tests
+  adjacency for the union, it doesn't add sea-as-land). A region that is a
+  disconnected mainland+islands blob (Philippines MIMAROPA: 24 parts, 340 km
+  span) is the same class — the islands want separating from the mainland
+  part into their own archipelago region.
+- **China gaps are a distinct, self-inflicted class: `host.difference(city.
+  buffer(δ))` leaves a δ-wide no-man's ring around every carved-out special
+  municipality.** `build_china_1946_v2.py` cuts each special city as `city =
+  district ∩ host_province`, then removes it from the host via
+  `host.difference(city.buffer(0.001))`. Because the city was already clipped
+  to the host but the subtraction inflates it by 0.001° (~95 m), a ~95 m
+  ring around each of the 6 municipalities (Nanjing/Qingdao/Guangzhou/Hankou/
+  Harbin/Dalian) is claimed by neither — 19-47 km² of background per city.
+  There is NO gap-closing pass for China at all (v2 disabled
+  `fill_china_gaps`/`clip_china_to_neighbors`; `fix_sea_coastline_gaps.py`
+  only touches seas). Note also that `china_1946_historical.json` cannot be
+  regenerated (its Virtual Shanghai `china_hist/1947-49` shapefile was never
+  committed and is nowhere on disk) — China fixes must POST-PROCESS the
+  existing 47-feature output JSON directly, not re-run the build.
 
 ## Positional-file fragility (silent, untested)
 
@@ -544,6 +597,12 @@ neighbour id — validate: "region N: сосед M не существует").
    a µ-residual 2-3 orders below anything visible — note it, don't chase it.
 3. **Diagnostic polygonize** of the final file: 0 absorbable inter-land cells
    (only coastal strips + pure-water slivers remain, by design).
+3b. **Missing-land scan** after any build that changes country/region
+   membership: `python scripts/map/build/diagnose_missing_land.py` — flags
+   whole territories present in raw `game_map.json` but absent from output
+   (the manual-scan-is-impossible class: Akrotiri, Maldives, Channel
+   Islands). Layer-1/2 `*** ПРОПАЖА ***` lines are genuine drops; Layer-3
+   `[LAKE]` tags are lake-adjacent false positives, not drops.
 4. **Per-seam renders** (matplotlib → PNG → Read tool), yellow/beige background so
    any void is loud. Label placement must skip collisions (largest-area first) or
    dense clusters are illegible — that itself was a complaint.
