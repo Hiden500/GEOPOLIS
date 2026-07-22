@@ -3880,7 +3880,7 @@
   "name_ru": "Макао (отдельный iso_a2='MO', не входил в список стран)"
  },
  {
-  "region_id": "ASI-0276",
+  "region_id": "ASI-0277",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3888,7 +3888,7 @@
   "name_ru": "Сабах"
  },
  {
-  "region_id": "ASI-0277",
+  "region_id": "ASI-0278",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3896,7 +3896,7 @@
   "name_ru": "Саравак"
  },
  {
-  "region_id": "ASI-0278",
+  "region_id": "ASI-0279",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3904,7 +3904,7 @@
   "name_ru": "Джохор"
  },
  {
-  "region_id": "ASI-0279",
+  "region_id": "ASI-0280",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3912,7 +3912,7 @@
   "name_ru": "Лабуан"
  },
  {
-  "region_id": "ASI-0280",
+  "region_id": "ASI-0281",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3920,7 +3920,7 @@
   "name_ru": "Перак (7)"
  },
  {
-  "region_id": "ASI-0281",
+  "region_id": "ASI-0282",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "MY",
@@ -3928,7 +3928,7 @@
   "name_ru": "Паханг (15)"
  },
  {
-  "region_id": "ASI-0282",
+  "region_id": "ASI-0283",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "NP",
@@ -3936,7 +3936,7 @@
   "name_ru": "Непал (план: 'каждый в отдельный регион')"
  },
  {
-  "region_id": "ASI-0283",
+  "region_id": "ASI-0284",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3944,7 +3944,7 @@
   "name_ru": "Мусандам"
  },
  {
-  "region_id": "ASI-0284",
+  "region_id": "ASI-0285",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3952,7 +3952,7 @@
   "name_ru": "Дофар"
  },
  {
-  "region_id": "ASI-0285",
+  "region_id": "ASI-0286",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3960,7 +3960,7 @@
   "name_ru": "Аль-Дахира (5)"
  },
  {
-  "region_id": "ASI-0286",
+  "region_id": "ASI-0287",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "OM",
@@ -3968,7 +3968,7 @@
   "name_ru": "Аль-Вуста (11)"
  },
  {
-  "region_id": "ASI-0287",
+  "region_id": "ASI-0288",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3976,7 +3976,7 @@
   "name_ru": "Автономный регион на мусульманском Минданао (ARMM)"
  },
  {
-  "region_id": "ASI-0288",
+  "region_id": "ASI-0289",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3984,7 +3984,7 @@
   "name_ru": "Давао (Регион XI)"
  },
  {
-  "region_id": "ASI-0289",
+  "region_id": "ASI-0290",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -3992,7 +3992,7 @@
   "name_ru": "Полуостров Замбоанга (Регион IX)"
  },
  {
-  "region_id": "ASI-0290",
+  "region_id": "ASI-0291",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4000,7 +4000,7 @@
   "name_ru": "МИМАРОПА (Район IV-B)"
  },
  {
-  "region_id": "ASI-0291",
+  "region_id": "ASI-0292",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4008,7 +4008,7 @@
   "name_ru": "Острова Динагат (Регион XIII)"
  },
  {
-  "region_id": "ASI-0292",
+  "region_id": "ASI-0293",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4016,7 +4016,7 @@
   "name_ru": "Северный Минданао (Регион X)"
  },
  {
-  "region_id": "ASI-0293",
+  "region_id": "ASI-0294",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4024,7 +4024,7 @@
   "name_ru": "СОКСКСАРГЕН (Регион XII)"
  },
  {
-  "region_id": "ASI-0294",
+  "region_id": "ASI-0295",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4032,7 +4032,7 @@
   "name_ru": "Восточные Висайи (Регион VIII)"
  },
  {
-  "region_id": "ASI-0295",
+  "region_id": "ASI-0296",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4040,7 +4040,7 @@
   "name_ru": "Центральный Лусон (Регион III)"
  },
  {
-  "region_id": "ASI-0296",
+  "region_id": "ASI-0297",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4048,7 +4048,7 @@
   "name_ru": "КАЛАБАРСОН (Район IV-A)"
  },
  {
-  "region_id": "ASI-0297",
+  "region_id": "ASI-0298",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4056,7 +4056,7 @@
   "name_ru": "Бикол (Регион V)"
  },
  {
-  "region_id": "ASI-0298",
+  "region_id": "ASI-0299",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4064,7 +4064,7 @@
   "name_ru": "Национальный столичный регион"
  },
  {
-  "region_id": "ASI-0299",
+  "region_id": "ASI-0300",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4072,7 +4072,7 @@
   "name_ru": "Илокос (Регион I)"
  },
  {
-  "region_id": "ASI-0300",
+  "region_id": "ASI-0301",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4080,7 +4080,7 @@
   "name_ru": "Долина Кагаян (Регион II)"
  },
  {
-  "region_id": "ASI-0301",
+  "region_id": "ASI-0302",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4088,7 +4088,7 @@
   "name_ru": "Центральные Висайские острова (Регион VII)"
  },
  {
-  "region_id": "ASI-0302",
+  "region_id": "ASI-0303",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4096,7 +4096,7 @@
   "name_ru": "Западные Висайские острова (Регион VI)"
  },
  {
-  "region_id": "ASI-0303",
+  "region_id": "ASI-0304",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PH",
@@ -4104,7 +4104,7 @@
   "name_ru": "Административный регион Кордильеры (ЦАР)"
  },
  {
-  "region_id": "ASI-0304",
+  "region_id": "ASI-0305",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4112,7 +4112,7 @@
   "name_ru": "Северные районы"
  },
  {
-  "region_id": "ASI-0305",
+  "region_id": "ASI-0306",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4120,7 +4120,7 @@
   "name_ru": "К.П."
  },
  {
-  "region_id": "ASI-0306",
+  "region_id": "ASI-0307",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4128,7 +4128,7 @@
   "name_ru": "Ф.А.Т.А."
  },
  {
-  "region_id": "ASI-0307",
+  "region_id": "ASI-0308",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4136,7 +4136,7 @@
   "name_ru": "Белуджистан"
  },
  {
-  "region_id": "ASI-0308",
+  "region_id": "ASI-0309",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4144,7 +4144,7 @@
   "name_ru": "Пенджаб"
  },
  {
-  "region_id": "ASI-0309",
+  "region_id": "ASI-0310",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4152,7 +4152,7 @@
   "name_ru": "Синд"
  },
  {
-  "region_id": "ASI-0310",
+  "region_id": "ASI-0311",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4160,7 +4160,7 @@
   "name_ru": "Азад Кашмир"
  },
  {
-  "region_id": "ASI-0311",
+  "region_id": "ASI-0312",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "PK",
@@ -4168,7 +4168,7 @@
   "name_ru": "Ф.К.Т."
  },
  {
-  "region_id": "ASI-0312",
+  "region_id": "ASI-0313",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "QA",
@@ -4176,7 +4176,7 @@
   "name_ru": "Катар"
  },
  {
-  "region_id": "ASI-0313",
+  "region_id": "ASI-0314",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4184,7 +4184,7 @@
   "name_ru": "Эш Шаркия"
  },
  {
-  "region_id": "ASI-0314",
+  "region_id": "ASI-0315",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4192,7 +4192,7 @@
   "name_ru": "Аль-Худуд аш-Шамалия"
  },
  {
-  "region_id": "ASI-0315",
+  "region_id": "ASI-0316",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4200,7 +4200,7 @@
   "name_ru": "Аль Джауф"
  },
  {
-  "region_id": "ASI-0316",
+  "region_id": "ASI-0317",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4208,7 +4208,7 @@
   "name_ru": "Мекка"
  },
  {
-  "region_id": "ASI-0317",
+  "region_id": "ASI-0318",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4216,7 +4216,7 @@
   "name_ru": "Град"
  },
  {
-  "region_id": "ASI-0318",
+  "region_id": "ASI-0319",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4224,7 +4224,7 @@
   "name_ru": "`Асир (5)"
  },
  {
-  "region_id": "ASI-0319",
+  "region_id": "ASI-0320",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4232,7 +4232,7 @@
   "name_ru": "Ар-Рияд (5)"
  },
  {
-  "region_id": "ASI-0320",
+  "region_id": "ASI-0321",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SA",
@@ -4240,7 +4240,7 @@
   "name_ru": "Аль-Мадина (3)"
  },
  {
-  "region_id": "ASI-0321",
+  "region_id": "ASI-0322",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SG",
@@ -4248,7 +4248,7 @@
   "name_ru": "Сингапур"
  },
  {
-  "region_id": "ASI-0322",
+  "region_id": "ASI-0323",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4256,7 +4256,7 @@
   "name_ru": "Зона UNDOF"
  },
  {
-  "region_id": "ASI-0323",
+  "region_id": "ASI-0324",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4264,7 +4264,7 @@
   "name_ru": "Хомс (Химс) (5)"
  },
  {
-  "region_id": "ASI-0324",
+  "region_id": "ASI-0325",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4272,7 +4272,7 @@
   "name_ru": "Тартус"
  },
  {
-  "region_id": "ASI-0325",
+  "region_id": "ASI-0326",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4280,7 +4280,7 @@
   "name_ru": "Риф Димашк (7)"
  },
  {
-  "region_id": "ASI-0326",
+  "region_id": "ASI-0327",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4288,7 +4288,7 @@
   "name_ru": "Хасака (Аль-Хакса)"
  },
  {
-  "region_id": "ASI-0327",
+  "region_id": "ASI-0328",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4296,7 +4296,7 @@
   "name_ru": "Ар-Ракка"
  },
  {
-  "region_id": "ASI-0328",
+  "region_id": "ASI-0329",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4304,7 +4304,7 @@
   "name_ru": "Алеппо"
  },
  {
-  "region_id": "ASI-0329",
+  "region_id": "ASI-0330",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4312,7 +4312,7 @@
   "name_ru": "Идлиб"
  },
  {
-  "region_id": "ASI-0330",
+  "region_id": "ASI-0331",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4320,7 +4320,7 @@
   "name_ru": "Латакия"
  },
  {
-  "region_id": "ASI-0331",
+  "region_id": "ASI-0332",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4328,7 +4328,7 @@
   "name_ru": "Как Сувайда"
  },
  {
-  "region_id": "ASI-0332",
+  "region_id": "ASI-0333",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4336,7 +4336,7 @@
   "name_ru": "Даръа"
  },
  {
-  "region_id": "ASI-0333",
+  "region_id": "ASI-0334",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4344,7 +4344,7 @@
   "name_ru": "Дайр Аз Заур"
  },
  {
-  "region_id": "ASI-0334",
+  "region_id": "ASI-0335",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4352,7 +4352,7 @@
   "name_ru": "Кунейтра"
  },
  {
-  "region_id": "ASI-0335",
+  "region_id": "ASI-0336",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4360,7 +4360,7 @@
   "name_ru": "Хама"
  },
  {
-  "region_id": "ASI-0336",
+  "region_id": "ASI-0337",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4368,7 +4368,7 @@
   "name_ru": "Дамаск"
  },
  {
-  "region_id": "ASI-0337",
+  "region_id": "ASI-0338",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "SY",
@@ -4376,7 +4376,7 @@
   "name_ru": "Голан"
  },
  {
-  "region_id": "ASI-0338",
+  "region_id": "ASI-0339",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4384,7 +4384,7 @@
   "name_ru": "Пхукет"
  },
  {
-  "region_id": "ASI-0339",
+  "region_id": "ASI-0340",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4392,7 +4392,7 @@
   "name_ru": "Прачинбури (15)"
  },
  {
-  "region_id": "ASI-0340",
+  "region_id": "ASI-0341",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4400,7 +4400,7 @@
   "name_ru": "Пхетчабури (21)"
  },
  {
-  "region_id": "ASI-0341",
+  "region_id": "ASI-0342",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4408,7 +4408,7 @@
   "name_ru": "Нан (9)"
  },
  {
-  "region_id": "ASI-0342",
+  "region_id": "ASI-0343",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4416,7 +4416,7 @@
   "name_ru": "Пхитсанулок (7)"
  },
  {
-  "region_id": "ASI-0343",
+  "region_id": "ASI-0344",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4424,7 +4424,7 @@
   "name_ru": "Чиангмай (7)"
  },
  {
-  "region_id": "ASI-0344",
+  "region_id": "ASI-0345",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4432,7 +4432,7 @@
   "name_ru": "Накхонратчасима (7)"
  },
  {
-  "region_id": "ASI-0345",
+  "region_id": "ASI-0346",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4440,7 +4440,7 @@
   "name_ru": "Накхонситхаммарат (21)"
  },
  {
-  "region_id": "ASI-0346",
+  "region_id": "ASI-0347",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4448,7 +4448,7 @@
   "name_ru": "Убонратчатхани (13)"
  },
  {
-  "region_id": "ASI-0347",
+  "region_id": "ASI-0348",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4456,7 +4456,7 @@
   "name_ru": "Накхон Саван (23)"
  },
  {
-  "region_id": "ASI-0348",
+  "region_id": "ASI-0349",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TH",
@@ -4464,7 +4464,7 @@
   "name_ru": "Чайяпхум (19)"
  },
  {
-  "region_id": "ASI-0349",
+  "region_id": "ASI-0350",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4472,7 +4472,7 @@
   "name_ru": "Ленинабад"
  },
  {
-  "region_id": "ASI-0350",
+  "region_id": "ASI-0351",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4480,7 +4480,7 @@
   "name_ru": "Горный Бадахшан"
  },
  {
-  "region_id": "ASI-0351",
+  "region_id": "ASI-0352",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4488,7 +4488,7 @@
   "name_ru": "Хатлон"
  },
  {
-  "region_id": "ASI-0352",
+  "region_id": "ASI-0353",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TJ",
@@ -4496,7 +4496,7 @@
   "name_ru": "Территории Таджикистана (3)"
  },
  {
-  "region_id": "ASI-0353",
+  "region_id": "ASI-0354",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TL",
@@ -4504,7 +4504,7 @@
   "name_ru": "Восточный Тимор (Португальский Тимор)"
  },
  {
-  "region_id": "ASI-0354",
+  "region_id": "ASI-0355",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4512,7 +4512,7 @@
   "name_ru": "Чарджоу"
  },
  {
-  "region_id": "ASI-0355",
+  "region_id": "ASI-0356",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4520,7 +4520,7 @@
   "name_ru": "Мэри"
  },
  {
-  "region_id": "ASI-0356",
+  "region_id": "ASI-0357",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4528,7 +4528,7 @@
   "name_ru": "Ахал"
  },
  {
-  "region_id": "ASI-0357",
+  "region_id": "ASI-0358",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4536,7 +4536,7 @@
   "name_ru": "Балканский"
  },
  {
-  "region_id": "ASI-0358",
+  "region_id": "ASI-0359",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TM",
@@ -4544,7 +4544,7 @@
   "name_ru": "Ташауз"
  },
  {
-  "region_id": "ASI-0359",
+  "region_id": "ASI-0360",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4552,7 +4552,7 @@
   "name_ru": "Диярбакыр (17)"
  },
  {
-  "region_id": "ASI-0360",
+  "region_id": "ASI-0361",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4560,7 +4560,7 @@
   "name_ru": "Шанлыурфа (15)"
  },
  {
-  "region_id": "ASI-0361",
+  "region_id": "ASI-0362",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4568,7 +4568,7 @@
   "name_ru": "Кютахья (15)"
  },
  {
-  "region_id": "ASI-0362",
+  "region_id": "ASI-0363",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4576,7 +4576,7 @@
   "name_ru": "Испарта (17)"
  },
  {
-  "region_id": "ASI-0363",
+  "region_id": "ASI-0364",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4584,7 +4584,7 @@
   "name_ru": "Кастамону (27)"
  },
  {
-  "region_id": "ASI-0364",
+  "region_id": "ASI-0365",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4592,7 +4592,7 @@
   "name_ru": "Эрзурум (29)"
  },
  {
-  "region_id": "ASI-0365",
+  "region_id": "ASI-0366",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4600,7 +4600,7 @@
   "name_ru": "Кайсери (27)"
  },
  {
-  "region_id": "ASI-0366",
+  "region_id": "ASI-0367",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4608,7 +4608,7 @@
   "name_ru": "Текирдаг (3)"
  },
  {
-  "region_id": "ASI-0367",
+  "region_id": "ASI-0368",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TR",
@@ -4616,7 +4616,7 @@
   "name_ru": "Кыркларели (3)"
  },
  {
-  "region_id": "ASI-0368",
+  "region_id": "ASI-0369",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4624,7 +4624,7 @@
   "name_ru": "Цзиньмэнь"
  },
  {
-  "region_id": "ASI-0369",
+  "region_id": "ASI-0370",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4632,7 +4632,7 @@
   "name_ru": "Пэнху"
  },
  {
-  "region_id": "ASI-0370",
+  "region_id": "ASI-0371",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4640,7 +4640,7 @@
   "name_ru": "Синьчжу (17)"
  },
  {
-  "region_id": "ASI-0371",
+  "region_id": "ASI-0372",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "TW",
@@ -4648,7 +4648,7 @@
   "name_ru": "Наньтоу (19)"
  },
  {
-  "region_id": "ASI-0372",
+  "region_id": "ASI-0373",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4656,7 +4656,7 @@
   "name_ru": "Сурхандарьинская"
  },
  {
-  "region_id": "ASI-0373",
+  "region_id": "ASI-0374",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4664,7 +4664,7 @@
   "name_ru": "Навои"
  },
  {
-  "region_id": "ASI-0374",
+  "region_id": "ASI-0375",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4672,7 +4672,7 @@
   "name_ru": "Бухара"
  },
  {
-  "region_id": "ASI-0375",
+  "region_id": "ASI-0376",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4680,7 +4680,7 @@
   "name_ru": "Каракалпакстан (3)"
  },
  {
-  "region_id": "ASI-0376",
+  "region_id": "ASI-0377",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4688,7 +4688,7 @@
   "name_ru": "Кашкадарья (3)"
  },
  {
-  "region_id": "ASI-0377",
+  "region_id": "ASI-0378",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "UZ",
@@ -4696,7 +4696,7 @@
   "name_ru": "Джизак (13)"
  },
  {
-  "region_id": "ASI-0378",
+  "region_id": "ASI-0379",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4704,7 +4704,7 @@
   "name_ru": "Кон Тум"
  },
  {
-  "region_id": "ASI-0379",
+  "region_id": "ASI-0380",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4712,7 +4712,7 @@
   "name_ru": "Дик Нонг"
  },
  {
-  "region_id": "ASI-0380",
+  "region_id": "ASI-0381",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4720,7 +4720,7 @@
   "name_ru": "Дик Лук"
  },
  {
-  "region_id": "ASI-0381",
+  "region_id": "ASI-0382",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4728,7 +4728,7 @@
   "name_ru": "Джиа Лай"
  },
  {
-  "region_id": "ASI-0382",
+  "region_id": "ASI-0383",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4736,7 +4736,7 @@
   "name_ru": "Бинь Фок"
  },
  {
-  "region_id": "ASI-0383",
+  "region_id": "ASI-0384",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4744,7 +4744,7 @@
   "name_ru": "Тай Нинь"
  },
  {
-  "region_id": "ASI-0384",
+  "region_id": "ASI-0385",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4752,7 +4752,7 @@
   "name_ru": "Донг Бонг Сон Ку Лонг"
  },
  {
-  "region_id": "ASI-0385",
+  "region_id": "ASI-0386",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4760,7 +4760,7 @@
   "name_ru": "Джин Бьен"
  },
  {
-  "region_id": "ASI-0386",
+  "region_id": "ASI-0387",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4768,7 +4768,7 @@
   "name_ru": "Сон Ла"
  },
  {
-  "region_id": "ASI-0387",
+  "region_id": "ASI-0388",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4776,7 +4776,7 @@
   "name_ru": "Тхань Хоа"
  },
  {
-  "region_id": "ASI-0388",
+  "region_id": "ASI-0389",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4784,7 +4784,7 @@
   "name_ru": "Нго Ан"
  },
  {
-  "region_id": "ASI-0389",
+  "region_id": "ASI-0390",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4792,7 +4792,7 @@
   "name_ru": "Ха Тинь"
  },
  {
-  "region_id": "ASI-0390",
+  "region_id": "ASI-0391",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4800,7 +4800,7 @@
   "name_ru": "Куанг Бинь"
  },
  {
-  "region_id": "ASI-0391",
+  "region_id": "ASI-0392",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4808,7 +4808,7 @@
   "name_ru": "Куанг Тро"
  },
  {
-  "region_id": "ASI-0392",
+  "region_id": "ASI-0393",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4816,7 +4816,7 @@
   "name_ru": "Тхиа Тьен - Хуэ"
  },
  {
-  "region_id": "ASI-0393",
+  "region_id": "ASI-0394",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4824,7 +4824,7 @@
   "name_ru": "Куанг Нам"
  },
  {
-  "region_id": "ASI-0394",
+  "region_id": "ASI-0395",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4832,7 +4832,7 @@
   "name_ru": "Ха Ной"
  },
  {
-  "region_id": "ASI-0395",
+  "region_id": "ASI-0396",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4840,7 +4840,7 @@
   "name_ru": "Ба Руа - Вонг Тау"
  },
  {
-  "region_id": "ASI-0396",
+  "region_id": "ASI-0397",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4848,7 +4848,7 @@
   "name_ru": "Хошимин, город"
  },
  {
-  "region_id": "ASI-0397",
+  "region_id": "ASI-0398",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4856,7 +4856,7 @@
   "name_ru": "Кхань Хоа"
  },
  {
-  "region_id": "ASI-0398",
+  "region_id": "ASI-0399",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4864,7 +4864,7 @@
   "name_ru": "Хау Джанг"
  },
  {
-  "region_id": "ASI-0399",
+  "region_id": "ASI-0400",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4872,7 +4872,7 @@
   "name_ru": "Дон Нам Бо"
  },
  {
-  "region_id": "ASI-0400",
+  "region_id": "ASI-0401",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4880,7 +4880,7 @@
   "name_ru": "Бинь Тхуан"
  },
  {
-  "region_id": "ASI-0401",
+  "region_id": "ASI-0402",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4888,7 +4888,7 @@
   "name_ru": "Нинь Тхуан"
  },
  {
-  "region_id": "ASI-0402",
+  "region_id": "ASI-0403",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4896,7 +4896,7 @@
   "name_ru": "Фу Йен"
  },
  {
-  "region_id": "ASI-0403",
+  "region_id": "ASI-0404",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4904,7 +4904,7 @@
   "name_ru": "Бинь Динь"
  },
  {
-  "region_id": "ASI-0404",
+  "region_id": "ASI-0405",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4912,7 +4912,7 @@
   "name_ru": "Куанг Нгай"
  },
  {
-  "region_id": "ASI-0405",
+  "region_id": "ASI-0406",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4920,7 +4920,7 @@
   "name_ru": "Да Нонг"
  },
  {
-  "region_id": "ASI-0406",
+  "region_id": "ASI-0407",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4928,7 +4928,7 @@
   "name_ru": "Хоа Бинь"
  },
  {
-  "region_id": "ASI-0407",
+  "region_id": "ASI-0408",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4936,7 +4936,7 @@
   "name_ru": "Тонг Бок"
  },
  {
-  "region_id": "ASI-0408",
+  "region_id": "ASI-0409",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4944,7 +4944,7 @@
   "name_ru": "Хойфонг"
  },
  {
-  "region_id": "ASI-0409",
+  "region_id": "ASI-0410",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4952,7 +4952,7 @@
   "name_ru": "Тай Нгуен"
  },
  {
-  "region_id": "ASI-0410",
+  "region_id": "ASI-0411",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4960,7 +4960,7 @@
   "name_ru": "Бинь Донг"
  },
  {
-  "region_id": "ASI-0411",
+  "region_id": "ASI-0412",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4968,7 +4968,7 @@
   "name_ru": "Лам Донг"
  },
  {
-  "region_id": "ASI-0412",
+  "region_id": "ASI-0413",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "VN",
@@ -4976,7 +4976,7 @@
   "name_ru": "Кан Тхо"
  },
  {
-  "region_id": "ASI-0413",
+  "region_id": "ASI-0414",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -4984,7 +4984,7 @@
   "name_ru": "Хадрамаут"
  },
  {
-  "region_id": "ASI-0414",
+  "region_id": "ASI-0415",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -4992,7 +4992,7 @@
   "name_ru": "Аль-Махра"
  },
  {
-  "region_id": "ASI-0415",
+  "region_id": "ASI-0416",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -5000,7 +5000,7 @@
   "name_ru": "Хаджа (7)"
  },
  {
-  "region_id": "ASI-0416",
+  "region_id": "ASI-0417",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -5008,7 +5008,7 @@
   "name_ru": "Шабва (3)"
  },
  {
-  "region_id": "ASI-0417",
+  "region_id": "ASI-0418",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -5016,7 +5016,7 @@
   "name_ru": "Лагич (11)"
  },
  {
-  "region_id": "ASI-0418",
+  "region_id": "ASI-0419",
   "continent": "Asia",
   "region_type": "land",
   "iso_a2": "YE",
@@ -6016,7 +6016,7 @@
   "name_ru": "Большой Лондон"
  },
  {
-  "region_id": "EUR-0126",
+  "region_id": "EUR-0127",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GI",
@@ -6024,7 +6024,7 @@
   "name_ru": "Гибралтар (отдельный iso_a2='GI', не входил в список стран)"
  },
  {
-  "region_id": "EUR-0127",
+  "region_id": "EUR-0128",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6032,7 +6032,7 @@
   "name_ru": "Западная Македония"
  },
  {
-  "region_id": "EUR-0128",
+  "region_id": "EUR-0129",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6040,7 +6040,7 @@
   "name_ru": "Эпир"
  },
  {
-  "region_id": "EUR-0129",
+  "region_id": "EUR-0130",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6048,7 +6048,7 @@
   "name_ru": "Центральная Македония"
  },
  {
-  "region_id": "EUR-0130",
+  "region_id": "EUR-0131",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6056,7 +6056,7 @@
   "name_ru": "Восточная Македония и Фракия"
  },
  {
-  "region_id": "EUR-0131",
+  "region_id": "EUR-0132",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6064,7 +6064,7 @@
   "name_ru": "Афон"
  },
  {
-  "region_id": "EUR-0132",
+  "region_id": "EUR-0133",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6072,7 +6072,7 @@
   "name_ru": "Фессалия"
  },
  {
-  "region_id": "EUR-0133",
+  "region_id": "EUR-0134",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6080,7 +6080,7 @@
   "name_ru": "Центральная Греция"
  },
  {
-  "region_id": "EUR-0134",
+  "region_id": "EUR-0135",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6088,7 +6088,7 @@
   "name_ru": "Аттика"
  },
  {
-  "region_id": "EUR-0135",
+  "region_id": "EUR-0136",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6096,7 +6096,7 @@
   "name_ru": "Пелопоннес"
  },
  {
-  "region_id": "EUR-0136",
+  "region_id": "EUR-0137",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6104,7 +6104,7 @@
   "name_ru": "Западная Греция"
  },
  {
-  "region_id": "EUR-0137",
+  "region_id": "EUR-0138",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6112,7 +6112,7 @@
   "name_ru": "Крити"
  },
  {
-  "region_id": "EUR-0138",
+  "region_id": "EUR-0139",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6120,7 +6120,7 @@
   "name_ru": "Южные Эгейские острова"
  },
  {
-  "region_id": "EUR-0139",
+  "region_id": "EUR-0140",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6128,7 +6128,7 @@
   "name_ru": "Северные Эгейские острова"
  },
  {
-  "region_id": "EUR-0140",
+  "region_id": "EUR-0141",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "GR",
@@ -6136,7 +6136,7 @@
   "name_ru": "Ионические острова"
  },
  {
-  "region_id": "EUR-0141",
+  "region_id": "EUR-0142",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HR",
@@ -6144,7 +6144,7 @@
   "name_ru": "Вуковарско-Сриемска (5)"
  },
  {
-  "region_id": "EUR-0142",
+  "region_id": "EUR-0143",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HR",
@@ -6152,7 +6152,7 @@
   "name_ru": "Сисако-Мославацкая (5)"
  },
  {
-  "region_id": "EUR-0143",
+  "region_id": "EUR-0144",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HR",
@@ -6160,7 +6160,7 @@
   "name_ru": "Вараждинская (13)"
  },
  {
-  "region_id": "EUR-0144",
+  "region_id": "EUR-0145",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HR",
@@ -6168,7 +6168,7 @@
   "name_ru": "Личко-Сеньска (15)"
  },
  {
-  "region_id": "EUR-0145",
+  "region_id": "EUR-0146",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HU",
@@ -6176,7 +6176,7 @@
   "name_ru": "Северная Великая равнина"
  },
  {
-  "region_id": "EUR-0146",
+  "region_id": "EUR-0147",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HU",
@@ -6184,7 +6184,7 @@
   "name_ru": "Великая южная равнина"
  },
  {
-  "region_id": "EUR-0147",
+  "region_id": "EUR-0148",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HU",
@@ -6192,7 +6192,7 @@
   "name_ru": "Западное Задунайье"
  },
  {
-  "region_id": "EUR-0148",
+  "region_id": "EUR-0149",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HU",
@@ -6200,7 +6200,7 @@
   "name_ru": "Южное Задунайье"
  },
  {
-  "region_id": "EUR-0149",
+  "region_id": "EUR-0150",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HU",
@@ -6208,7 +6208,7 @@
   "name_ru": "Северная Венгрия"
  },
  {
-  "region_id": "EUR-0150",
+  "region_id": "EUR-0151",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HU",
@@ -6216,7 +6216,7 @@
   "name_ru": "Центральное Задунайье"
  },
  {
-  "region_id": "EUR-0151",
+  "region_id": "EUR-0152",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "HU",
@@ -6224,7 +6224,7 @@
   "name_ru": "Центральная Венгрия"
  },
  {
-  "region_id": "EUR-0152",
+  "region_id": "EUR-0153",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6232,7 +6232,7 @@
   "name_ru": "Граница"
  },
  {
-  "region_id": "EUR-0153",
+  "region_id": "EUR-0154",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6240,7 +6240,7 @@
   "name_ru": "Дублин"
  },
  {
-  "region_id": "EUR-0154",
+  "region_id": "EUR-0155",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6248,7 +6248,7 @@
   "name_ru": "Средний Восток"
  },
  {
-  "region_id": "EUR-0155",
+  "region_id": "EUR-0156",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6256,7 +6256,7 @@
   "name_ru": "Юго-Восток"
  },
  {
-  "region_id": "EUR-0156",
+  "region_id": "EUR-0157",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6264,7 +6264,7 @@
   "name_ru": "Юго-Запад"
  },
  {
-  "region_id": "EUR-0157",
+  "region_id": "EUR-0158",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6272,7 +6272,7 @@
   "name_ru": "Средний Запад"
  },
  {
-  "region_id": "EUR-0158",
+  "region_id": "EUR-0159",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6280,7 +6280,7 @@
   "name_ru": "Запад"
  },
  {
-  "region_id": "EUR-0159",
+  "region_id": "EUR-0160",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IE",
@@ -6288,7 +6288,7 @@
   "name_ru": "Мидлендс"
  },
  {
-  "region_id": "EUR-0160",
+  "region_id": "EUR-0162",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IS",
@@ -6296,7 +6296,7 @@
   "name_ru": "Исландия"
  },
  {
-  "region_id": "EUR-0161",
+  "region_id": "EUR-0163",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6304,7 +6304,7 @@
   "name_ru": "Валле д'Аоста"
  },
  {
-  "region_id": "EUR-0162",
+  "region_id": "EUR-0164",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6312,7 +6312,7 @@
   "name_ru": "Пьемонте"
  },
  {
-  "region_id": "EUR-0163",
+  "region_id": "EUR-0165",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6320,7 +6320,7 @@
   "name_ru": "Ломбардия"
  },
  {
-  "region_id": "EUR-0164",
+  "region_id": "EUR-0166",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6328,7 +6328,7 @@
   "name_ru": "Трентино-Альто-Адидже"
  },
  {
-  "region_id": "EUR-0165",
+  "region_id": "EUR-0167",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6336,7 +6336,7 @@
   "name_ru": "Лигурия"
  },
  {
-  "region_id": "EUR-0166",
+  "region_id": "EUR-0168",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6344,7 +6344,7 @@
   "name_ru": "Эмилия-Романья"
  },
  {
-  "region_id": "EUR-0167",
+  "region_id": "EUR-0169",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6352,7 +6352,7 @@
   "name_ru": "Марке"
  },
  {
-  "region_id": "EUR-0168",
+  "region_id": "EUR-0170",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6360,7 +6360,7 @@
   "name_ru": "Венето"
  },
  {
-  "region_id": "EUR-0169",
+  "region_id": "EUR-0171",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6368,7 +6368,7 @@
   "name_ru": "Фриули-Венеция-Джулия"
  },
  {
-  "region_id": "EUR-0170",
+  "region_id": "EUR-0172",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6376,7 +6376,7 @@
   "name_ru": "Абруццо"
  },
  {
-  "region_id": "EUR-0171",
+  "region_id": "EUR-0173",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6384,7 +6384,7 @@
   "name_ru": "Молизе"
  },
  {
-  "region_id": "EUR-0172",
+  "region_id": "EUR-0174",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6392,7 +6392,7 @@
   "name_ru": "Апулия"
  },
  {
-  "region_id": "EUR-0173",
+  "region_id": "EUR-0175",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6400,7 +6400,7 @@
   "name_ru": "Базиликата"
  },
  {
-  "region_id": "EUR-0174",
+  "region_id": "EUR-0176",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6408,7 +6408,7 @@
   "name_ru": "Калабрия"
  },
  {
-  "region_id": "EUR-0175",
+  "region_id": "EUR-0177",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6416,7 +6416,7 @@
   "name_ru": "Кампания"
  },
  {
-  "region_id": "EUR-0176",
+  "region_id": "EUR-0178",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6424,7 +6424,7 @@
   "name_ru": "Лацио"
  },
  {
-  "region_id": "EUR-0177",
+  "region_id": "EUR-0179",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6432,7 +6432,7 @@
   "name_ru": "Тоскана"
  },
  {
-  "region_id": "EUR-0178",
+  "region_id": "EUR-0180",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6440,7 +6440,7 @@
   "name_ru": "Сицилия"
  },
  {
-  "region_id": "EUR-0179",
+  "region_id": "EUR-0181",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6448,7 +6448,7 @@
   "name_ru": "Сардиния"
  },
  {
-  "region_id": "EUR-0180",
+  "region_id": "EUR-0182",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "IT",
@@ -6456,7 +6456,7 @@
   "name_ru": "Умбрия"
  },
  {
-  "region_id": "EUR-0181",
+  "region_id": "EUR-0184",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LI",
@@ -6464,7 +6464,7 @@
   "name_ru": "Лихтенштейн (отдельный iso_a2='LI', не входил в список стран)"
  },
  {
-  "region_id": "EUR-0182",
+  "region_id": "EUR-0185",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LT",
@@ -6472,7 +6472,7 @@
   "name_ru": "Паневецио (3)"
  },
  {
-  "region_id": "EUR-0183",
+  "region_id": "EUR-0186",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LT",
@@ -6480,7 +6480,7 @@
   "name_ru": "Алитаус (5)"
  },
  {
-  "region_id": "EUR-0184",
+  "region_id": "EUR-0187",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LT",
@@ -6488,7 +6488,7 @@
   "name_ru": "Шяуляй (9)"
  },
  {
-  "region_id": "EUR-0185",
+  "region_id": "EUR-0188",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LU",
@@ -6496,7 +6496,7 @@
   "name_ru": "Люксембург (5)"
  },
  {
-  "region_id": "EUR-0186",
+  "region_id": "EUR-0189",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LV",
@@ -6504,7 +6504,7 @@
   "name_ru": "Видземе"
  },
  {
-  "region_id": "EUR-0187",
+  "region_id": "EUR-0190",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LV",
@@ -6512,7 +6512,7 @@
   "name_ru": "Рига"
  },
  {
-  "region_id": "EUR-0188",
+  "region_id": "EUR-0191",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LV",
@@ -6520,7 +6520,7 @@
   "name_ru": "Латгале"
  },
  {
-  "region_id": "EUR-0189",
+  "region_id": "EUR-0192",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LV",
@@ -6528,7 +6528,7 @@
   "name_ru": "Земгале"
  },
  {
-  "region_id": "EUR-0190",
+  "region_id": "EUR-0193",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "LV",
@@ -6536,7 +6536,7 @@
   "name_ru": "Курземе"
  },
  {
-  "region_id": "EUR-0191",
+  "region_id": "EUR-0194",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "MC",
@@ -6544,7 +6544,7 @@
   "name_ru": "Монако (отдельный iso_a2='MC', не входил в список стран)"
  },
  {
-  "region_id": "EUR-0192",
+  "region_id": "EUR-0195",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "MD",
@@ -6552,7 +6552,7 @@
   "name_ru": "Молдавская ССР"
  },
  {
-  "region_id": "EUR-0193",
+  "region_id": "EUR-0196",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "ME",
@@ -6560,7 +6560,7 @@
   "name_ru": "Черногория"
  },
  {
-  "region_id": "EUR-0194",
+  "region_id": "EUR-0197",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "MK",
@@ -6568,7 +6568,7 @@
   "name_ru": "Северная Македония"
  },
  {
-  "region_id": "EUR-0198",
+  "region_id": "EUR-0201",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NL",
@@ -6576,7 +6576,7 @@
   "name_ru": "Гелдерланд (3)"
  },
  {
-  "region_id": "EUR-0199",
+  "region_id": "EUR-0202",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NL",
@@ -6584,7 +6584,7 @@
   "name_ru": "Фрисландия (3)"
  },
  {
-  "region_id": "EUR-0200",
+  "region_id": "EUR-0203",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NL",
@@ -6592,7 +6592,7 @@
   "name_ru": "Флеволанд (9)"
  },
  {
-  "region_id": "EUR-0201",
+  "region_id": "EUR-0204",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NO",
@@ -6600,7 +6600,7 @@
   "name_ru": "Шпицберген"
  },
  {
-  "region_id": "EUR-0202",
+  "region_id": "EUR-0205",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NO",
@@ -6608,7 +6608,7 @@
   "name_ru": "Остров Буве"
  },
  {
-  "region_id": "EUR-0203",
+  "region_id": "EUR-0206",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NO",
@@ -6616,7 +6616,7 @@
   "name_ru": "Бускеруд (13)"
  },
  {
-  "region_id": "EUR-0204",
+  "region_id": "EUR-0207",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NO",
@@ -6624,7 +6624,7 @@
   "name_ru": "Согн ог Фьордане (9)"
  },
  {
-  "region_id": "EUR-0205",
+  "region_id": "EUR-0208",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NO",
@@ -6632,7 +6632,7 @@
   "name_ru": "Хедмарк (7)"
  },
  {
-  "region_id": "EUR-0206",
+  "region_id": "EUR-0209",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "NO",
@@ -6640,7 +6640,7 @@
   "name_ru": "Нордланд (5)"
  },
  {
-  "region_id": "EUR-0207",
+  "region_id": "EUR-0210",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6648,7 +6648,7 @@
   "name_ru": "Мазовецкий"
  },
  {
-  "region_id": "EUR-0208",
+  "region_id": "EUR-0211",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6656,7 +6656,7 @@
   "name_ru": "Великая Польша"
  },
  {
-  "region_id": "EUR-0209",
+  "region_id": "EUR-0212",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6664,7 +6664,7 @@
   "name_ru": "Силезский (3)"
  },
  {
-  "region_id": "EUR-0210",
+  "region_id": "EUR-0213",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6672,7 +6672,7 @@
   "name_ru": "Малая Польша (3)"
  },
  {
-  "region_id": "EUR-0211",
+  "region_id": "EUR-0214",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6680,7 +6680,7 @@
   "name_ru": "Нижнесилезское (3)"
  },
  {
-  "region_id": "EUR-0212",
+  "region_id": "EUR-0215",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6688,7 +6688,7 @@
   "name_ru": "Лодзь (3)"
  },
  {
-  "region_id": "EUR-0213",
+  "region_id": "EUR-0216",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6696,7 +6696,7 @@
   "name_ru": "Люблин (3)"
  },
  {
-  "region_id": "EUR-0214",
+  "region_id": "EUR-0217",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6704,7 +6704,7 @@
   "name_ru": "Западно-Поморское (3)"
  },
  {
-  "region_id": "EUR-0215",
+  "region_id": "EUR-0218",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PL",
@@ -6712,7 +6712,7 @@
   "name_ru": "Варминско-Мазурское (3)"
  },
  {
-  "region_id": "EUR-0216",
+  "region_id": "EUR-0219",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6720,7 +6720,7 @@
   "name_ru": "Алентежу"
  },
  {
-  "region_id": "EUR-0217",
+  "region_id": "EUR-0220",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6728,7 +6728,7 @@
   "name_ru": "Норте"
  },
  {
-  "region_id": "EUR-0218",
+  "region_id": "EUR-0221",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6736,7 +6736,7 @@
   "name_ru": "Центро"
  },
  {
-  "region_id": "EUR-0219",
+  "region_id": "EUR-0222",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6744,7 +6744,7 @@
   "name_ru": "Алгарве"
  },
  {
-  "region_id": "EUR-0220",
+  "region_id": "EUR-0223",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6752,7 +6752,7 @@
   "name_ru": "Лиссабон"
  },
  {
-  "region_id": "EUR-0221",
+  "region_id": "EUR-0224",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6760,7 +6760,7 @@
   "name_ru": "Норте, Центро"
  },
  {
-  "region_id": "EUR-0222",
+  "region_id": "EUR-0225",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6768,7 +6768,7 @@
   "name_ru": "Мадейра"
  },
  {
-  "region_id": "EUR-0223",
+  "region_id": "EUR-0226",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "PT",
@@ -6776,7 +6776,7 @@
   "name_ru": "Азорские острова"
  },
  {
-  "region_id": "EUR-0224",
+  "region_id": "EUR-0227",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RO",
@@ -6784,7 +6784,7 @@
   "name_ru": "Арад (7)"
  },
  {
-  "region_id": "EUR-0225",
+  "region_id": "EUR-0228",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RO",
@@ -6792,7 +6792,7 @@
   "name_ru": "Яссы (9)"
  },
  {
-  "region_id": "EUR-0226",
+  "region_id": "EUR-0229",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RO",
@@ -6800,7 +6800,7 @@
   "name_ru": "Кэлэрашь (17)"
  },
  {
-  "region_id": "EUR-0227",
+  "region_id": "EUR-0230",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RO",
@@ -6808,7 +6808,7 @@
   "name_ru": "Горж (9)"
  },
  {
-  "region_id": "EUR-0228",
+  "region_id": "EUR-0231",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RO",
@@ -6816,7 +6816,7 @@
   "name_ru": "Муреш (15)"
  },
  {
-  "region_id": "EUR-0229",
+  "region_id": "EUR-0232",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RO",
@@ -6824,7 +6824,7 @@
   "name_ru": "Прахова (21)"
  },
  {
-  "region_id": "EUR-0230",
+  "region_id": "EUR-0233",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RS",
@@ -6832,7 +6832,7 @@
   "name_ru": "Ябланицки (5)"
  },
  {
-  "region_id": "EUR-0231",
+  "region_id": "EUR-0234",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RS",
@@ -6840,7 +6840,7 @@
   "name_ru": "Шумадийский (5)"
  },
  {
-  "region_id": "EUR-0232",
+  "region_id": "EUR-0235",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RS",
@@ -6848,7 +6848,7 @@
   "name_ru": "Северно-Банацкий (7)"
  },
  {
-  "region_id": "EUR-0233",
+  "region_id": "EUR-0236",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RS",
@@ -6856,7 +6856,7 @@
   "name_ru": "Нишавский (7)"
  },
  {
-  "region_id": "EUR-0234",
+  "region_id": "EUR-0237",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RS",
@@ -6864,7 +6864,7 @@
   "name_ru": "Златиборски (5)"
  },
  {
-  "region_id": "EUR-0235",
+  "region_id": "EUR-0238",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RS",
@@ -6872,7 +6872,7 @@
   "name_ru": "Сремски (7)"
  },
  {
-  "region_id": "EUR-0236",
+  "region_id": "EUR-0239",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RS",
@@ -6880,7 +6880,7 @@
   "name_ru": "Браничевски (7)"
  },
  {
-  "region_id": "EUR-0237",
+  "region_id": "EUR-0240",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6888,7 +6888,7 @@
   "name_ru": "Башкирская АССР"
  },
  {
-  "region_id": "EUR-0238",
+  "region_id": "EUR-0241",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6896,7 +6896,7 @@
   "name_ru": "Бурятская АССР"
  },
  {
-  "region_id": "EUR-0239",
+  "region_id": "EUR-0242",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6904,7 +6904,7 @@
   "name_ru": "Дагестанская АССР"
  },
  {
-  "region_id": "EUR-0240",
+  "region_id": "EUR-0243",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6912,7 +6912,7 @@
   "name_ru": "Кабардино-Балкарская АССР"
  },
  {
-  "region_id": "EUR-0241",
+  "region_id": "EUR-0244",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6920,7 +6920,7 @@
   "name_ru": "Калмыцкая АССР"
  },
  {
-  "region_id": "EUR-0242",
+  "region_id": "EUR-0245",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6928,7 +6928,7 @@
   "name_ru": "Карельская АССР"
  },
  {
-  "region_id": "EUR-0243",
+  "region_id": "EUR-0246",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6936,7 +6936,7 @@
   "name_ru": "Коми АССР"
  },
  {
-  "region_id": "EUR-0244",
+  "region_id": "EUR-0247",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6944,7 +6944,7 @@
   "name_ru": "Марийская АССР"
  },
  {
-  "region_id": "EUR-0245",
+  "region_id": "EUR-0248",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6952,7 +6952,7 @@
   "name_ru": "Мордовская АССР"
  },
  {
-  "region_id": "EUR-0246",
+  "region_id": "EUR-0249",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6960,7 +6960,7 @@
   "name_ru": "Северо-Осетинская АССР"
  },
  {
-  "region_id": "EUR-0247",
+  "region_id": "EUR-0250",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6968,7 +6968,7 @@
   "name_ru": "Татарская АССР"
  },
  {
-  "region_id": "EUR-0248",
+  "region_id": "EUR-0251",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6976,7 +6976,7 @@
   "name_ru": "Тувинская АССР"
  },
  {
-  "region_id": "EUR-0249",
+  "region_id": "EUR-0252",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6984,7 +6984,7 @@
   "name_ru": "Удмуртская АССР"
  },
  {
-  "region_id": "EUR-0250",
+  "region_id": "EUR-0253",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -6992,7 +6992,7 @@
   "name_ru": "Чечено-Ингушская АССР"
  },
  {
-  "region_id": "EUR-0251",
+  "region_id": "EUR-0254",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7000,7 +7000,7 @@
   "name_ru": "Чувашская АССР"
  },
  {
-  "region_id": "EUR-0252",
+  "region_id": "EUR-0255",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7008,7 +7008,7 @@
   "name_ru": "Якутская АССР"
  },
  {
-  "region_id": "EUR-0253",
+  "region_id": "EUR-0256",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7016,7 +7016,7 @@
   "name_ru": "Алтайский край"
  },
  {
-  "region_id": "EUR-0254",
+  "region_id": "EUR-0257",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7024,7 +7024,7 @@
   "name_ru": "Краснодарский край"
  },
  {
-  "region_id": "EUR-0255",
+  "region_id": "EUR-0258",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7032,7 +7032,7 @@
   "name_ru": "Красноярский край"
  },
  {
-  "region_id": "EUR-0256",
+  "region_id": "EUR-0259",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7040,7 +7040,7 @@
   "name_ru": "Приморский край"
  },
  {
-  "region_id": "EUR-0257",
+  "region_id": "EUR-0260",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7048,7 +7048,7 @@
   "name_ru": "Ставропольский край"
  },
  {
-  "region_id": "EUR-0258",
+  "region_id": "EUR-0261",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7056,7 +7056,7 @@
   "name_ru": "Хабаровский край"
  },
  {
-  "region_id": "EUR-0259",
+  "region_id": "EUR-0262",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7064,7 +7064,7 @@
   "name_ru": "Амурская область"
  },
  {
-  "region_id": "EUR-0260",
+  "region_id": "EUR-0263",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7072,7 +7072,7 @@
   "name_ru": "Архангельская область"
  },
  {
-  "region_id": "EUR-0261",
+  "region_id": "EUR-0264",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7080,7 +7080,7 @@
   "name_ru": "Астраханская область"
  },
  {
-  "region_id": "EUR-0262",
+  "region_id": "EUR-0265",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7088,7 +7088,7 @@
   "name_ru": "Белгородская область"
  },
  {
-  "region_id": "EUR-0263",
+  "region_id": "EUR-0266",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7096,7 +7096,7 @@
   "name_ru": "Брянская область"
  },
  {
-  "region_id": "EUR-0264",
+  "region_id": "EUR-0267",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7104,7 +7104,7 @@
   "name_ru": "Владимирская область"
  },
  {
-  "region_id": "EUR-0265",
+  "region_id": "EUR-0268",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7112,7 +7112,7 @@
   "name_ru": "Сталинградская область"
  },
  {
-  "region_id": "EUR-0266",
+  "region_id": "EUR-0269",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7120,7 +7120,7 @@
   "name_ru": "Вологодская область"
  },
  {
-  "region_id": "EUR-0267",
+  "region_id": "EUR-0270",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7128,7 +7128,7 @@
   "name_ru": "Воронежская область"
  },
  {
-  "region_id": "EUR-0268",
+  "region_id": "EUR-0271",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7136,7 +7136,7 @@
   "name_ru": "Горьковская область"
  },
  {
-  "region_id": "EUR-0269",
+  "region_id": "EUR-0272",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7144,7 +7144,7 @@
   "name_ru": "Ивановская область"
  },
  {
-  "region_id": "EUR-0270",
+  "region_id": "EUR-0273",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7152,7 +7152,7 @@
   "name_ru": "Иркутская область"
  },
  {
-  "region_id": "EUR-0271",
+  "region_id": "EUR-0274",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7160,7 +7160,7 @@
   "name_ru": "Калининградская область"
  },
  {
-  "region_id": "EUR-0272",
+  "region_id": "EUR-0275",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7168,7 +7168,7 @@
   "name_ru": "Калининская область"
  },
  {
-  "region_id": "EUR-0273",
+  "region_id": "EUR-0276",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7176,7 +7176,7 @@
   "name_ru": "Калужская область"
  },
  {
-  "region_id": "EUR-0274",
+  "region_id": "EUR-0277",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7184,7 +7184,7 @@
   "name_ru": "Камчатская область"
  },
  {
-  "region_id": "EUR-0275",
+  "region_id": "EUR-0278",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7192,7 +7192,7 @@
   "name_ru": "Кемеровская область"
  },
  {
-  "region_id": "EUR-0276",
+  "region_id": "EUR-0279",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7200,7 +7200,7 @@
   "name_ru": "Кировская область"
  },
  {
-  "region_id": "EUR-0277",
+  "region_id": "EUR-0280",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7208,7 +7208,7 @@
   "name_ru": "Костромская область"
  },
  {
-  "region_id": "EUR-0278",
+  "region_id": "EUR-0281",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7216,7 +7216,7 @@
   "name_ru": "Куйбышевская область"
  },
  {
-  "region_id": "EUR-0279",
+  "region_id": "EUR-0282",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7224,7 +7224,7 @@
   "name_ru": "Курганская область"
  },
  {
-  "region_id": "EUR-0280",
+  "region_id": "EUR-0283",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7232,7 +7232,7 @@
   "name_ru": "Курская область"
  },
  {
-  "region_id": "EUR-0281",
+  "region_id": "EUR-0284",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7240,7 +7240,7 @@
   "name_ru": "Ленинградская область"
  },
  {
-  "region_id": "EUR-0282",
+  "region_id": "EUR-0285",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7248,7 +7248,7 @@
   "name_ru": "Липецкая область"
  },
  {
-  "region_id": "EUR-0283",
+  "region_id": "EUR-0286",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7256,7 +7256,7 @@
   "name_ru": "Магаданская область"
  },
  {
-  "region_id": "EUR-0284",
+  "region_id": "EUR-0287",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7264,7 +7264,7 @@
   "name_ru": "Московская область"
  },
  {
-  "region_id": "EUR-0285",
+  "region_id": "EUR-0288",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7272,7 +7272,7 @@
   "name_ru": "Мурманская область"
  },
  {
-  "region_id": "EUR-0286",
+  "region_id": "EUR-0289",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7280,7 +7280,7 @@
   "name_ru": "Новгородская область"
  },
  {
-  "region_id": "EUR-0287",
+  "region_id": "EUR-0290",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7288,7 +7288,7 @@
   "name_ru": "Новосибирская область"
  },
  {
-  "region_id": "EUR-0288",
+  "region_id": "EUR-0291",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7296,7 +7296,7 @@
   "name_ru": "Омская область"
  },
  {
-  "region_id": "EUR-0289",
+  "region_id": "EUR-0292",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7304,7 +7304,7 @@
   "name_ru": "Чкаловская область"
  },
  {
-  "region_id": "EUR-0290",
+  "region_id": "EUR-0293",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7312,7 +7312,7 @@
   "name_ru": "Орловская область"
  },
  {
-  "region_id": "EUR-0291",
+  "region_id": "EUR-0294",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7320,7 +7320,7 @@
   "name_ru": "Пензенская область"
  },
  {
-  "region_id": "EUR-0292",
+  "region_id": "EUR-0295",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7328,7 +7328,7 @@
   "name_ru": "Молотовская область"
  },
  {
-  "region_id": "EUR-0293",
+  "region_id": "EUR-0296",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7336,7 +7336,7 @@
   "name_ru": "Псковская область"
  },
  {
-  "region_id": "EUR-0294",
+  "region_id": "EUR-0297",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7344,7 +7344,7 @@
   "name_ru": "Ростовская область"
  },
  {
-  "region_id": "EUR-0295",
+  "region_id": "EUR-0298",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7352,7 +7352,7 @@
   "name_ru": "Рязанская область"
  },
  {
-  "region_id": "EUR-0296",
+  "region_id": "EUR-0299",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7360,7 +7360,7 @@
   "name_ru": "Саратовская область"
  },
  {
-  "region_id": "EUR-0297",
+  "region_id": "EUR-0300",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7368,7 +7368,7 @@
   "name_ru": "Сахалинская область"
  },
  {
-  "region_id": "EUR-0298",
+  "region_id": "EUR-0301",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7376,7 +7376,7 @@
   "name_ru": "Свердловская область"
  },
  {
-  "region_id": "EUR-0299",
+  "region_id": "EUR-0302",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7384,7 +7384,7 @@
   "name_ru": "Смоленская область"
  },
  {
-  "region_id": "EUR-0300",
+  "region_id": "EUR-0303",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7392,7 +7392,7 @@
   "name_ru": "Тамбовская область"
  },
  {
-  "region_id": "EUR-0301",
+  "region_id": "EUR-0304",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7400,7 +7400,7 @@
   "name_ru": "Томская область"
  },
  {
-  "region_id": "EUR-0302",
+  "region_id": "EUR-0305",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7408,7 +7408,7 @@
   "name_ru": "Тульская область"
  },
  {
-  "region_id": "EUR-0303",
+  "region_id": "EUR-0306",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7416,7 +7416,7 @@
   "name_ru": "Тюменская область"
  },
  {
-  "region_id": "EUR-0304",
+  "region_id": "EUR-0307",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7424,7 +7424,7 @@
   "name_ru": "Ульяновская область"
  },
  {
-  "region_id": "EUR-0305",
+  "region_id": "EUR-0308",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7432,7 +7432,7 @@
   "name_ru": "Челябинская область"
  },
  {
-  "region_id": "EUR-0306",
+  "region_id": "EUR-0309",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7440,7 +7440,7 @@
   "name_ru": "Читинская область"
  },
  {
-  "region_id": "EUR-0307",
+  "region_id": "EUR-0310",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7448,7 +7448,7 @@
   "name_ru": "Ярославская область"
  },
  {
-  "region_id": "EUR-0308",
+  "region_id": "EUR-0311",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7456,7 +7456,7 @@
   "name_ru": "Адыгейская АО"
  },
  {
-  "region_id": "EUR-0309",
+  "region_id": "EUR-0312",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7464,7 +7464,7 @@
   "name_ru": "Горно-Алтайская АО"
  },
  {
-  "region_id": "EUR-0310",
+  "region_id": "EUR-0313",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7472,7 +7472,7 @@
   "name_ru": "Еврейская АО"
  },
  {
-  "region_id": "EUR-0311",
+  "region_id": "EUR-0314",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7480,7 +7480,7 @@
   "name_ru": "Карачаево-Черкесская АО"
  },
  {
-  "region_id": "EUR-0312",
+  "region_id": "EUR-0315",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7488,7 +7488,7 @@
   "name_ru": "Хакасская АО"
  },
  {
-  "region_id": "EUR-0313",
+  "region_id": "EUR-0316",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7496,7 +7496,7 @@
   "name_ru": "Ненецкий АО"
  },
  {
-  "region_id": "EUR-0314",
+  "region_id": "EUR-0317",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7504,7 +7504,7 @@
   "name_ru": "Ханты-Мансийский АО"
  },
  {
-  "region_id": "EUR-0315",
+  "region_id": "EUR-0318",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7512,7 +7512,7 @@
   "name_ru": "Чукотский АО"
  },
  {
-  "region_id": "EUR-0316",
+  "region_id": "EUR-0319",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7520,7 +7520,7 @@
   "name_ru": "Ямало-Ненецкий АО"
  },
  {
-  "region_id": "EUR-0317",
+  "region_id": "EUR-0320",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7528,7 +7528,7 @@
   "name_ru": "Москва"
  },
  {
-  "region_id": "EUR-0318",
+  "region_id": "EUR-0321",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7536,7 +7536,7 @@
   "name_ru": "Ленинград"
  },
  {
-  "region_id": "EUR-0319",
+  "region_id": "EUR-0322",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7544,7 +7544,7 @@
   "name_ru": "Крым"
  },
  {
-  "region_id": "EUR-0320",
+  "region_id": "EUR-0323",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "RU",
@@ -7552,7 +7552,7 @@
   "name_ru": "Севастополь"
  },
  {
-  "region_id": "EUR-0321",
+  "region_id": "EUR-0324",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SE",
@@ -7560,7 +7560,7 @@
   "name_ru": "Норрботтен"
  },
  {
-  "region_id": "EUR-0322",
+  "region_id": "EUR-0325",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SE",
@@ -7568,7 +7568,7 @@
   "name_ru": "Вестерботтен"
  },
  {
-  "region_id": "EUR-0323",
+  "region_id": "EUR-0326",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SE",
@@ -7576,7 +7576,7 @@
   "name_ru": "Готланд"
  },
  {
-  "region_id": "EUR-0324",
+  "region_id": "EUR-0327",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SE",
@@ -7584,7 +7584,7 @@
   "name_ru": "Йёнчёпинг (11)"
  },
  {
-  "region_id": "EUR-0325",
+  "region_id": "EUR-0328",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SE",
@@ -7592,7 +7592,7 @@
   "name_ru": "Даларна (9)"
  },
  {
-  "region_id": "EUR-0326",
+  "region_id": "EUR-0329",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SE",
@@ -7600,7 +7600,7 @@
   "name_ru": "Вермланд (7)"
  },
  {
-  "region_id": "EUR-0327",
+  "region_id": "EUR-0330",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SE",
@@ -7608,7 +7608,7 @@
   "name_ru": "Емтланд (5)"
  },
  {
-  "region_id": "EUR-0328",
+  "region_id": "EUR-0331",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SI",
@@ -7616,7 +7616,7 @@
   "name_ru": "Словения"
  },
  {
-  "region_id": "EUR-0329",
+  "region_id": "EUR-0332",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7624,7 +7624,7 @@
   "name_ru": "Жилинский"
  },
  {
-  "region_id": "EUR-0330",
+  "region_id": "EUR-0333",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7632,7 +7632,7 @@
   "name_ru": "Прешов"
  },
  {
-  "region_id": "EUR-0331",
+  "region_id": "EUR-0334",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7640,7 +7640,7 @@
   "name_ru": "Кошицкий"
  },
  {
-  "region_id": "EUR-0332",
+  "region_id": "EUR-0335",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7648,7 +7648,7 @@
   "name_ru": "Братиславский"
  },
  {
-  "region_id": "EUR-0333",
+  "region_id": "EUR-0336",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7656,7 +7656,7 @@
   "name_ru": "Трнавский"
  },
  {
-  "region_id": "EUR-0334",
+  "region_id": "EUR-0337",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7664,7 +7664,7 @@
   "name_ru": "Тренчанский"
  },
  {
-  "region_id": "EUR-0335",
+  "region_id": "EUR-0338",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7672,7 +7672,7 @@
   "name_ru": "Банскобистрицкий"
  },
  {
-  "region_id": "EUR-0336",
+  "region_id": "EUR-0339",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SK",
@@ -7680,7 +7680,7 @@
   "name_ru": "Нитрянский"
  },
  {
-  "region_id": "EUR-0337",
+  "region_id": "EUR-0340",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "SM",
@@ -7688,7 +7688,7 @@
   "name_ru": "Сан-Марино (отдельный iso_a2='SM', не входил в список стран)"
  },
  {
-  "region_id": "EUR-0338",
+  "region_id": "EUR-0341",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7696,7 +7696,7 @@
   "name_ru": "Чернигов"
  },
  {
-  "region_id": "EUR-0339",
+  "region_id": "EUR-0342",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7704,7 +7704,7 @@
   "name_ru": "Волынь"
  },
  {
-  "region_id": "EUR-0340",
+  "region_id": "EUR-0343",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7712,7 +7712,7 @@
   "name_ru": "Ровно"
  },
  {
-  "region_id": "EUR-0341",
+  "region_id": "EUR-0344",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7720,7 +7720,7 @@
   "name_ru": "Житомир"
  },
  {
-  "region_id": "EUR-0342",
+  "region_id": "EUR-0345",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7728,7 +7728,7 @@
   "name_ru": "Киев"
  },
  {
-  "region_id": "EUR-0343",
+  "region_id": "EUR-0346",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7736,7 +7736,7 @@
   "name_ru": "Закарпатье"
  },
  {
-  "region_id": "EUR-0344",
+  "region_id": "EUR-0347",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7744,7 +7744,7 @@
   "name_ru": "Черновцы"
  },
  {
-  "region_id": "EUR-0345",
+  "region_id": "EUR-0348",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7752,7 +7752,7 @@
   "name_ru": "Ивано-Франковск"
  },
  {
-  "region_id": "EUR-0346",
+  "region_id": "EUR-0349",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7760,7 +7760,7 @@
   "name_ru": "Одесса"
  },
  {
-  "region_id": "EUR-0347",
+  "region_id": "EUR-0350",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7768,7 +7768,7 @@
   "name_ru": "Винница"
  },
  {
-  "region_id": "EUR-0348",
+  "region_id": "EUR-0351",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7776,7 +7776,7 @@
   "name_ru": "Львов"
  },
  {
-  "region_id": "EUR-0349",
+  "region_id": "EUR-0352",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7784,7 +7784,7 @@
   "name_ru": "Сумы"
  },
  {
-  "region_id": "EUR-0350",
+  "region_id": "EUR-0353",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7792,7 +7792,7 @@
   "name_ru": "Харьков"
  },
  {
-  "region_id": "EUR-0351",
+  "region_id": "EUR-0354",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7800,7 +7800,7 @@
   "name_ru": "Луганск"
  },
  {
-  "region_id": "EUR-0352",
+  "region_id": "EUR-0355",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7808,7 +7808,7 @@
   "name_ru": "Донецк"
  },
  {
-  "region_id": "EUR-0353",
+  "region_id": "EUR-0356",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7816,7 +7816,7 @@
   "name_ru": "Херсон"
  },
  {
-  "region_id": "EUR-0354",
+  "region_id": "EUR-0357",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7824,7 +7824,7 @@
   "name_ru": "Запорожье"
  },
  {
-  "region_id": "EUR-0355",
+  "region_id": "EUR-0358",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7832,7 +7832,7 @@
   "name_ru": "Николаев"
  },
  {
-  "region_id": "EUR-0356",
+  "region_id": "EUR-0359",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7840,7 +7840,7 @@
   "name_ru": "Полтава"
  },
  {
-  "region_id": "EUR-0357",
+  "region_id": "EUR-0360",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7848,7 +7848,7 @@
   "name_ru": "Хмельницкий"
  },
  {
-  "region_id": "EUR-0358",
+  "region_id": "EUR-0361",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7856,7 +7856,7 @@
   "name_ru": "Тернополь"
  },
  {
-  "region_id": "EUR-0359",
+  "region_id": "EUR-0362",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7864,7 +7864,7 @@
   "name_ru": "Днепропетровск"
  },
  {
-  "region_id": "EUR-0360",
+  "region_id": "EUR-0363",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7872,7 +7872,7 @@
   "name_ru": "Черкассы"
  },
  {
-  "region_id": "EUR-0361",
+  "region_id": "EUR-0364",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7880,7 +7880,7 @@
   "name_ru": "Кировоград"
  },
  {
-  "region_id": "EUR-0362",
+  "region_id": "EUR-0365",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "UA",
@@ -7888,7 +7888,7 @@
   "name_ru": "Город Киев"
  },
  {
-  "region_id": "EUR-0363",
+  "region_id": "EUR-0366",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "VA",
@@ -7896,7 +7896,7 @@
   "name_ru": "Ватикан"
  },
  {
-  "region_id": "EUR-0364",
+  "region_id": "EUR-0367",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "XK",
@@ -7904,7 +7904,7 @@
   "name_ru": "Косово"
  },
  {
-  "region_id": "EUR-0365",
+  "region_id": "EUR-0368",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "CY",
@@ -7912,7 +7912,7 @@
   "name_ru": "Северный Кипр"
  },
  {
-  "region_id": "EUR-0366",
+  "region_id": "EUR-0369",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "CY",
@@ -7920,7 +7920,7 @@
   "name_ru": "Декелия"
  },
  {
-  "region_id": "EUR-0367",
+  "region_id": "EUR-0370",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "CY",
@@ -7928,7 +7928,7 @@
   "name_ru": "Акротири"
  },
  {
-  "region_id": "EUR-0368",
+  "region_id": "EUR-0371",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE_KC",
@@ -7936,7 +7936,7 @@
   "name_ru": "Зона Кильского канала"
  },
  {
-  "region_id": "EUR-0369",
+  "region_id": "EUR-0372",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7944,7 +7944,7 @@
   "name_ru": "Берлин — Советский сектор"
  },
  {
-  "region_id": "EUR-0370",
+  "region_id": "EUR-0373",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7952,7 +7952,7 @@
   "name_ru": "Берлин — Американский сектор"
  },
  {
-  "region_id": "EUR-0371",
+  "region_id": "EUR-0374",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7960,7 +7960,7 @@
   "name_ru": "Берлин — Британский сектор"
  },
  {
-  "region_id": "EUR-0372",
+  "region_id": "EUR-0375",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7968,7 +7968,7 @@
   "name_ru": "Берлин — Французский сектор"
  },
  {
-  "region_id": "EUR-0373",
+  "region_id": "EUR-0376",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7976,7 +7976,7 @@
   "name_ru": "Вюртемберг-Баден"
  },
  {
-  "region_id": "EUR-0374",
+  "region_id": "EUR-0377",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -8520,7 +8520,7 @@
   "name_ru": "Барбадос"
  },
  {
-  "region_id": "NAM-0055",
+  "region_id": "NAM-0056",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BM",
@@ -8528,7 +8528,7 @@
   "name_ru": "Бермуды"
  },
  {
-  "region_id": "NAM-0056",
+  "region_id": "NAM-0057",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BS",
@@ -8536,7 +8536,7 @@
   "name_ru": "Багамы"
  },
  {
-  "region_id": "NAM-0057",
+  "region_id": "NAM-0058",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BZ",
@@ -8544,7 +8544,7 @@
   "name_ru": "Кайо"
  },
  {
-  "region_id": "NAM-0058",
+  "region_id": "NAM-0059",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BZ",
@@ -8552,7 +8552,7 @@
   "name_ru": "Оранжевая прогулка"
  },
  {
-  "region_id": "NAM-0059",
+  "region_id": "NAM-0060",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BZ",
@@ -8560,7 +8560,7 @@
   "name_ru": "Коросаль"
  },
  {
-  "region_id": "NAM-0060",
+  "region_id": "NAM-0061",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BZ",
@@ -8568,7 +8568,7 @@
   "name_ru": "Толедо"
  },
  {
-  "region_id": "NAM-0061",
+  "region_id": "NAM-0062",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BZ",
@@ -8576,7 +8576,7 @@
   "name_ru": "Стэнн Крик"
  },
  {
-  "region_id": "NAM-0062",
+  "region_id": "NAM-0063",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "BZ",
@@ -8584,7 +8584,7 @@
   "name_ru": "Белиз"
  },
  {
-  "region_id": "NAM-0063",
+  "region_id": "NAM-0064",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CR",
@@ -8592,7 +8592,7 @@
   "name_ru": "Алахуэла"
  },
  {
-  "region_id": "NAM-0064",
+  "region_id": "NAM-0065",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CR",
@@ -8600,7 +8600,7 @@
   "name_ru": "Гуанакасте"
  },
  {
-  "region_id": "NAM-0065",
+  "region_id": "NAM-0066",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CR",
@@ -8608,7 +8608,7 @@
   "name_ru": "Лимон"
  },
  {
-  "region_id": "NAM-0066",
+  "region_id": "NAM-0067",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CR",
@@ -8616,7 +8616,7 @@
   "name_ru": "Пунтаренас"
  },
  {
-  "region_id": "NAM-0067",
+  "region_id": "NAM-0068",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CR",
@@ -8624,7 +8624,7 @@
   "name_ru": "Эредиа"
  },
  {
-  "region_id": "NAM-0068",
+  "region_id": "NAM-0069",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CR",
@@ -8632,7 +8632,7 @@
   "name_ru": "Сан-Хосе"
  },
  {
-  "region_id": "NAM-0069",
+  "region_id": "NAM-0070",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CR",
@@ -8640,7 +8640,7 @@
   "name_ru": "Картаго"
  },
  {
-  "region_id": "NAM-0070",
+  "region_id": "NAM-0071",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "CW",
@@ -8648,7 +8648,7 @@
   "name_ru": "Кюрасао"
  },
  {
-  "region_id": "NAM-0071",
+  "region_id": "NAM-0072",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "DM",
@@ -8656,7 +8656,7 @@
   "name_ru": "Доминика"
  },
  {
-  "region_id": "NAM-0072",
+  "region_id": "NAM-0073",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GD",
@@ -8664,7 +8664,7 @@
   "name_ru": "Гренада"
  },
  {
-  "region_id": "NAM-0073",
+  "region_id": "NAM-0074",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GL",
@@ -8672,7 +8672,7 @@
   "name_ru": "Гренландия"
  },
  {
-  "region_id": "NAM-0074",
+  "region_id": "NAM-0075",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8680,7 +8680,7 @@
   "name_ru": "Петен"
  },
  {
-  "region_id": "NAM-0075",
+  "region_id": "NAM-0076",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8688,7 +8688,7 @@
   "name_ru": "Киче"
  },
  {
-  "region_id": "NAM-0076",
+  "region_id": "NAM-0077",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8696,7 +8696,7 @@
   "name_ru": "Изабаль"
  },
  {
-  "region_id": "NAM-0077",
+  "region_id": "NAM-0078",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8704,7 +8704,7 @@
   "name_ru": "Уэуэтенанго (3)"
  },
  {
-  "region_id": "NAM-0078",
+  "region_id": "NAM-0079",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8712,7 +8712,7 @@
   "name_ru": "Сан-Маркос (5)"
  },
  {
-  "region_id": "NAM-0079",
+  "region_id": "NAM-0080",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8720,7 +8720,7 @@
   "name_ru": "Альта Верапас (3)"
  },
  {
-  "region_id": "NAM-0080",
+  "region_id": "NAM-0081",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8728,7 +8728,7 @@
   "name_ru": "Сакапа (7)"
  },
  {
-  "region_id": "NAM-0081",
+  "region_id": "NAM-0082",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "GT",
@@ -8736,7 +8736,7 @@
   "name_ru": "Эскуинтла (15)"
  },
  {
-  "region_id": "NAM-0082",
+  "region_id": "NAM-0083",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "HN",
@@ -8744,7 +8744,7 @@
   "name_ru": "Грасиас а Диос"
  },
  {
-  "region_id": "NAM-0083",
+  "region_id": "NAM-0084",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "HN",
@@ -8752,7 +8752,7 @@
   "name_ru": "Ислас-де-ла-Баия"
  },
  {
-  "region_id": "NAM-0084",
+  "region_id": "NAM-0085",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "HN",
@@ -8760,7 +8760,7 @@
   "name_ru": "Франсиско Морасан (3)"
  },
  {
-  "region_id": "NAM-0085",
+  "region_id": "NAM-0086",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "HN",
@@ -8768,7 +8768,7 @@
   "name_ru": "Эль-Параисо (3)"
  },
  {
-  "region_id": "NAM-0086",
+  "region_id": "NAM-0087",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "HN",
@@ -8776,7 +8776,7 @@
   "name_ru": "Йоро (3)"
  },
  {
-  "region_id": "NAM-0087",
+  "region_id": "NAM-0088",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "HN",
@@ -8784,7 +8784,7 @@
   "name_ru": "Оланчо (3)"
  },
  {
-  "region_id": "NAM-0088",
+  "region_id": "NAM-0089",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "HN",
@@ -8792,7 +8792,7 @@
   "name_ru": "Лемпира (15)"
  },
  {
-  "region_id": "NAM-0089",
+  "region_id": "NAM-0090",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "JM",
@@ -8800,7 +8800,7 @@
   "name_ru": "Ямайка"
  },
  {
-  "region_id": "NAM-0090",
+  "region_id": "NAM-0091",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "KN",
@@ -8808,7 +8808,7 @@
   "name_ru": "Невис"
  },
  {
-  "region_id": "NAM-0091",
+  "region_id": "NAM-0092",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "KN",
@@ -8816,7 +8816,7 @@
   "name_ru": "Сент-Китс"
  },
  {
-  "region_id": "NAM-0092",
+  "region_id": "NAM-0093",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "KY",
@@ -8824,7 +8824,7 @@
   "name_ru": "Каймановы о-ва"
  },
  {
-  "region_id": "NAM-0093",
+  "region_id": "NAM-0094",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "LC",
@@ -8832,7 +8832,7 @@
   "name_ru": "Сент-Люсия"
  },
  {
-  "region_id": "NAM-0094",
+  "region_id": "NAM-0096",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MS",
@@ -8840,7 +8840,7 @@
   "name_ru": "Монтсеррат"
  },
  {
-  "region_id": "NAM-0095",
+  "region_id": "NAM-0097",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8848,7 +8848,7 @@
   "name_ru": "Сонора"
  },
  {
-  "region_id": "NAM-0096",
+  "region_id": "NAM-0098",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8856,7 +8856,7 @@
   "name_ru": "Нижняя Калифорния"
  },
  {
-  "region_id": "NAM-0097",
+  "region_id": "NAM-0099",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8864,7 +8864,7 @@
   "name_ru": "Чихуахуа"
  },
  {
-  "region_id": "NAM-0098",
+  "region_id": "NAM-0100",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8872,7 +8872,7 @@
   "name_ru": "Коауила"
  },
  {
-  "region_id": "NAM-0099",
+  "region_id": "NAM-0101",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8880,7 +8880,7 @@
   "name_ru": "Тамаулипас"
  },
  {
-  "region_id": "NAM-0100",
+  "region_id": "NAM-0102",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8888,7 +8888,7 @@
   "name_ru": "Нуэво-Леон"
  },
  {
-  "region_id": "NAM-0101",
+  "region_id": "NAM-0103",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8896,7 +8896,7 @@
   "name_ru": "Кинтана-Роо"
  },
  {
-  "region_id": "NAM-0102",
+  "region_id": "NAM-0104",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8904,7 +8904,7 @@
   "name_ru": "Кампече"
  },
  {
-  "region_id": "NAM-0103",
+  "region_id": "NAM-0105",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8912,7 +8912,7 @@
   "name_ru": "Табаско"
  },
  {
-  "region_id": "NAM-0104",
+  "region_id": "NAM-0106",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8920,7 +8920,7 @@
   "name_ru": "Чьяпас"
  },
  {
-  "region_id": "NAM-0105",
+  "region_id": "NAM-0107",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8928,7 +8928,7 @@
   "name_ru": "Колима"
  },
  {
-  "region_id": "NAM-0106",
+  "region_id": "NAM-0108",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8936,7 +8936,7 @@
   "name_ru": "Наярит"
  },
  {
-  "region_id": "NAM-0107",
+  "region_id": "NAM-0109",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8944,7 +8944,7 @@
   "name_ru": "Нижняя Калифорния Южная"
  },
  {
-  "region_id": "NAM-0108",
+  "region_id": "NAM-0110",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8952,7 +8952,7 @@
   "name_ru": "Синалоа"
  },
  {
-  "region_id": "NAM-0109",
+  "region_id": "NAM-0111",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8960,7 +8960,7 @@
   "name_ru": "Юкатан"
  },
  {
-  "region_id": "NAM-0110",
+  "region_id": "NAM-0112",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8968,7 +8968,7 @@
   "name_ru": "Веракрус"
  },
  {
-  "region_id": "NAM-0111",
+  "region_id": "NAM-0113",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8976,7 +8976,7 @@
   "name_ru": "Халиско"
  },
  {
-  "region_id": "NAM-0112",
+  "region_id": "NAM-0114",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8984,7 +8984,7 @@
   "name_ru": "Мичоакан"
  },
  {
-  "region_id": "NAM-0113",
+  "region_id": "NAM-0115",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -8992,7 +8992,7 @@
   "name_ru": "Герреро"
  },
  {
-  "region_id": "NAM-0114",
+  "region_id": "NAM-0116",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9000,7 +9000,7 @@
   "name_ru": "Оахака"
  },
  {
-  "region_id": "NAM-0115",
+  "region_id": "NAM-0117",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9008,7 +9008,7 @@
   "name_ru": ""
  },
  {
-  "region_id": "NAM-0116",
+  "region_id": "NAM-0118",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9016,7 +9016,7 @@
   "name_ru": "Мексика"
  },
  {
-  "region_id": "NAM-0117",
+  "region_id": "NAM-0119",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9024,7 +9024,7 @@
   "name_ru": "Пуэбла"
  },
  {
-  "region_id": "NAM-0118",
+  "region_id": "NAM-0120",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9032,7 +9032,7 @@
   "name_ru": "Морелос"
  },
  {
-  "region_id": "NAM-0119",
+  "region_id": "NAM-0121",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9040,7 +9040,7 @@
   "name_ru": "Керетаро"
  },
  {
-  "region_id": "NAM-0120",
+  "region_id": "NAM-0122",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9048,7 +9048,7 @@
   "name_ru": "Идальго"
  },
  {
-  "region_id": "NAM-0121",
+  "region_id": "NAM-0123",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9056,7 +9056,7 @@
   "name_ru": "Гуанахуато"
  },
  {
-  "region_id": "NAM-0122",
+  "region_id": "NAM-0124",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9064,7 +9064,7 @@
   "name_ru": "Сан-Луис-Потоси"
  },
  {
-  "region_id": "NAM-0123",
+  "region_id": "NAM-0125",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9072,7 +9072,7 @@
   "name_ru": "Сакатекас"
  },
  {
-  "region_id": "NAM-0124",
+  "region_id": "NAM-0126",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9080,7 +9080,7 @@
   "name_ru": "Агуаскальентес"
  },
  {
-  "region_id": "NAM-0125",
+  "region_id": "NAM-0127",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9088,7 +9088,7 @@
   "name_ru": "Дуранго"
  },
  {
-  "region_id": "NAM-0126",
+  "region_id": "NAM-0128",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9096,7 +9096,7 @@
   "name_ru": "Тласкала"
  },
  {
-  "region_id": "NAM-0127",
+  "region_id": "NAM-0129",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "MX",
@@ -9104,7 +9104,7 @@
   "name_ru": "Федеральный округ"
  },
  {
-  "region_id": "NAM-0128",
+  "region_id": "NAM-0130",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "NI",
@@ -9112,7 +9112,7 @@
   "name_ru": "Рио-Сан-Хуан"
  },
  {
-  "region_id": "NAM-0129",
+  "region_id": "NAM-0131",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "NI",
@@ -9120,7 +9120,7 @@
   "name_ru": "Атлантико Норте"
  },
  {
-  "region_id": "NAM-0130",
+  "region_id": "NAM-0132",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "NI",
@@ -9128,7 +9128,7 @@
   "name_ru": "Атлантико-Сур"
  },
  {
-  "region_id": "NAM-0131",
+  "region_id": "NAM-0133",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "NI",
@@ -9136,7 +9136,7 @@
   "name_ru": "Леон (5)"
  },
  {
-  "region_id": "NAM-0132",
+  "region_id": "NAM-0134",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "NI",
@@ -9144,7 +9144,7 @@
   "name_ru": "Хинотега (5)"
  },
  {
-  "region_id": "NAM-0133",
+  "region_id": "NAM-0135",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "NI",
@@ -9152,7 +9152,7 @@
   "name_ru": "Манагуа (9)"
  },
  {
-  "region_id": "NAM-0134",
+  "region_id": "NAM-0136",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "NI",
@@ -9160,7 +9160,7 @@
   "name_ru": "Чонталес (5)"
  },
  {
-  "region_id": "NAM-0135",
+  "region_id": "NAM-0137",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PA",
@@ -9168,7 +9168,7 @@
   "name_ru": "Чирики"
  },
  {
-  "region_id": "NAM-0136",
+  "region_id": "NAM-0138",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PA",
@@ -9176,7 +9176,7 @@
   "name_ru": "Верагуас"
  },
  {
-  "region_id": "NAM-0137",
+  "region_id": "NAM-0139",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PA",
@@ -9184,7 +9184,7 @@
   "name_ru": "Панама (3)"
  },
  {
-  "region_id": "NAM-0138",
+  "region_id": "NAM-0140",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PA",
@@ -9192,7 +9192,7 @@
   "name_ru": "Дарьен (3)"
  },
  {
-  "region_id": "NAM-0139",
+  "region_id": "NAM-0141",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PA",
@@ -9200,7 +9200,7 @@
   "name_ru": "Нгобе Бугле (3)"
  },
  {
-  "region_id": "NAM-0140",
+  "region_id": "NAM-0142",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PA",
@@ -9208,7 +9208,7 @@
   "name_ru": "Лос-Сантос (7)"
  },
  {
-  "region_id": "NAM-0141",
+  "region_id": "NAM-0143",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PM",
@@ -9216,7 +9216,7 @@
   "name_ru": "Сен-Пьер и Микелон"
  },
  {
-  "region_id": "NAM-0142",
+  "region_id": "NAM-0144",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "PR",
@@ -9224,7 +9224,7 @@
   "name_ru": "Пуэрто-Рико"
  },
  {
-  "region_id": "NAM-0143",
+  "region_id": "NAM-0145",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "SV",
@@ -9232,7 +9232,7 @@
   "name_ru": "Санта Ана"
  },
  {
-  "region_id": "NAM-0144",
+  "region_id": "NAM-0146",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "SV",
@@ -9240,7 +9240,7 @@
   "name_ru": "Ла Юнион"
  },
  {
-  "region_id": "NAM-0145",
+  "region_id": "NAM-0147",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "SV",
@@ -9248,7 +9248,7 @@
   "name_ru": "Усулутан"
  },
  {
-  "region_id": "NAM-0146",
+  "region_id": "NAM-0148",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "SV",
@@ -9256,7 +9256,7 @@
   "name_ru": "Сонсонате (3)"
  },
  {
-  "region_id": "NAM-0147",
+  "region_id": "NAM-0149",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "SV",
@@ -9264,7 +9264,7 @@
   "name_ru": "Сан-Мигель (3)"
  },
  {
-  "region_id": "NAM-0148",
+  "region_id": "NAM-0150",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "SV",
@@ -9272,7 +9272,7 @@
   "name_ru": "Сан-Висенте (13)"
  },
  {
-  "region_id": "NAM-0149",
+  "region_id": "NAM-0151",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "SX",
@@ -9280,7 +9280,7 @@
   "name_ru": "Синт-Мартен"
  },
  {
-  "region_id": "NAM-0150",
+  "region_id": "NAM-0152",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "TC",
@@ -9288,7 +9288,7 @@
   "name_ru": "Тёркс и Кайкос"
  },
  {
-  "region_id": "NAM-0151",
+  "region_id": "NAM-0153",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "TT",
@@ -9296,7 +9296,7 @@
   "name_ru": "Восточный Тобаго (3)"
  },
  {
-  "region_id": "NAM-0152",
+  "region_id": "NAM-0154",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "TT",
@@ -9304,7 +9304,7 @@
   "name_ru": "Рио Кларо-Маяро (27)"
  },
  {
-  "region_id": "NAM-0153",
+  "region_id": "NAM-0155",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "VC",
@@ -9312,7 +9312,7 @@
   "name_ru": "Сент-Винсент и Гренадины"
  },
  {
-  "region_id": "NAM-0154",
+  "region_id": "NAM-0156",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "VG",
@@ -9320,7 +9320,7 @@
   "name_ru": "Виргинские о-ва (Брит.)"
  },
  {
-  "region_id": "NAM-0155",
+  "region_id": "NAM-0157",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "VI",
@@ -9328,7 +9328,7 @@
   "name_ru": "Виргинские о-ва (США)"
  },
  {
-  "region_id": "NAM-0156",
+  "region_id": "NAM-0158",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9336,7 +9336,7 @@
   "name_ru": "Вашингтон — Сан-Хуан"
  },
  {
-  "region_id": "NAM-0157",
+  "region_id": "NAM-0159",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9344,7 +9344,7 @@
   "name_ru": "Вашингтон — Якима"
  },
  {
-  "region_id": "NAM-0158",
+  "region_id": "NAM-0160",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9352,7 +9352,7 @@
   "name_ru": "Вашингтон — Адамс"
  },
  {
-  "region_id": "NAM-0159",
+  "region_id": "NAM-0161",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9360,7 +9360,7 @@
   "name_ru": "Айдахо"
  },
  {
-  "region_id": "NAM-0160",
+  "region_id": "NAM-0162",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9368,7 +9368,7 @@
   "name_ru": "Монтана"
  },
  {
-  "region_id": "NAM-0161",
+  "region_id": "NAM-0163",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9376,7 +9376,7 @@
   "name_ru": "Северная Дакота"
  },
  {
-  "region_id": "NAM-0162",
+  "region_id": "NAM-0164",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9384,7 +9384,7 @@
   "name_ru": "Миннесота — Беккер"
  },
  {
-  "region_id": "NAM-0163",
+  "region_id": "NAM-0165",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9392,7 +9392,7 @@
   "name_ru": "Миннесота — Кэсс"
  },
  {
-  "region_id": "NAM-0164",
+  "region_id": "NAM-0166",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9400,7 +9400,7 @@
   "name_ru": "Миннесота — Лион"
  },
  {
-  "region_id": "NAM-0165",
+  "region_id": "NAM-0167",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9408,7 +9408,7 @@
   "name_ru": "Мичиган — Кроуфорд"
  },
  {
-  "region_id": "NAM-0166",
+  "region_id": "NAM-0168",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9416,7 +9416,7 @@
   "name_ru": "Мичиган — Лапир"
  },
  {
-  "region_id": "NAM-0167",
+  "region_id": "NAM-0169",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9424,7 +9424,7 @@
   "name_ru": "Мичиган — Маркетт"
  },
  {
-  "region_id": "NAM-0168",
+  "region_id": "NAM-0170",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9432,7 +9432,7 @@
   "name_ru": "Мичиган — Изабелла"
  },
  {
-  "region_id": "NAM-0169",
+  "region_id": "NAM-0171",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9440,7 +9440,7 @@
   "name_ru": "Огайо — Фэрфилд"
  },
  {
-  "region_id": "NAM-0170",
+  "region_id": "NAM-0172",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9448,7 +9448,7 @@
   "name_ru": "Огайо — Патнэм"
  },
  {
-  "region_id": "NAM-0171",
+  "region_id": "NAM-0173",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9456,7 +9456,7 @@
   "name_ru": "Огайо — Шампейн"
  },
  {
-  "region_id": "NAM-0172",
+  "region_id": "NAM-0174",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9464,7 +9464,7 @@
   "name_ru": "Огайо — Портедж"
  },
  {
-  "region_id": "NAM-0173",
+  "region_id": "NAM-0175",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9472,7 +9472,7 @@
   "name_ru": "Пенсильвания — Саскуэханна"
  },
  {
-  "region_id": "NAM-0174",
+  "region_id": "NAM-0176",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9480,7 +9480,7 @@
   "name_ru": "Пенсильвания — Лайкоминг"
  },
  {
-  "region_id": "NAM-0175",
+  "region_id": "NAM-0177",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9488,7 +9488,7 @@
   "name_ru": "Пенсильвания — Вашингтон"
  },
  {
-  "region_id": "NAM-0176",
+  "region_id": "NAM-0178",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9496,7 +9496,7 @@
   "name_ru": "Пенсильвания — Бедфорд"
  },
  {
-  "region_id": "NAM-0177",
+  "region_id": "NAM-0179",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9504,7 +9504,7 @@
   "name_ru": "Нью-Йорк — Ричмонд"
  },
  {
-  "region_id": "NAM-0178",
+  "region_id": "NAM-0180",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9512,7 +9512,7 @@
   "name_ru": "Нью-Йорк — Олбани"
  },
  {
-  "region_id": "NAM-0179",
+  "region_id": "NAM-0181",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9520,7 +9520,7 @@
   "name_ru": "Нью-Йорк — Дженеси"
  },
  {
-  "region_id": "NAM-0180",
+  "region_id": "NAM-0182",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9528,7 +9528,7 @@
   "name_ru": "Нью-Йорк — Штойбен"
  },
  {
-  "region_id": "NAM-0181",
+  "region_id": "NAM-0183",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9536,7 +9536,7 @@
   "name_ru": "Вермонт"
  },
  {
-  "region_id": "NAM-0182",
+  "region_id": "NAM-0184",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9544,7 +9544,7 @@
   "name_ru": "Нью-Гэмпшир"
  },
  {
-  "region_id": "NAM-0183",
+  "region_id": "NAM-0185",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9552,7 +9552,7 @@
   "name_ru": "Мэн"
  },
  {
-  "region_id": "NAM-0184",
+  "region_id": "NAM-0186",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9560,7 +9560,7 @@
   "name_ru": "Аризона — Апач"
  },
  {
-  "region_id": "NAM-0185",
+  "region_id": "NAM-0187",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9568,7 +9568,7 @@
   "name_ru": "Аризона — Марикопа"
  },
  {
-  "region_id": "NAM-0186",
+  "region_id": "NAM-0188",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9576,7 +9576,7 @@
   "name_ru": "Калифорния — Керн"
  },
  {
-  "region_id": "NAM-0187",
+  "region_id": "NAM-0189",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9584,7 +9584,7 @@
   "name_ru": "Калифорния — Фресно"
  },
  {
-  "region_id": "NAM-0188",
+  "region_id": "NAM-0190",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9592,7 +9592,7 @@
   "name_ru": "Калифорния — Сан-Бернардино"
  },
  {
-  "region_id": "NAM-0189",
+  "region_id": "NAM-0191",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9600,7 +9600,7 @@
   "name_ru": "Калифорния — Лассен"
  },
  {
-  "region_id": "NAM-0190",
+  "region_id": "NAM-0192",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9608,7 +9608,7 @@
   "name_ru": "Нью-Мексико"
  },
  {
-  "region_id": "NAM-0191",
+  "region_id": "NAM-0193",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9616,7 +9616,7 @@
   "name_ru": "Техас — Диммит"
  },
  {
-  "region_id": "NAM-0192",
+  "region_id": "NAM-0194",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9624,7 +9624,7 @@
   "name_ru": "Техас — Команчи"
  },
  {
-  "region_id": "NAM-0193",
+  "region_id": "NAM-0195",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9632,7 +9632,7 @@
   "name_ru": "Техас — Хейл"
  },
  {
-  "region_id": "NAM-0194",
+  "region_id": "NAM-0196",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9640,7 +9640,7 @@
   "name_ru": "Техас — Пекос"
  },
  {
-  "region_id": "NAM-0195",
+  "region_id": "NAM-0197",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9648,7 +9648,7 @@
   "name_ru": "Аляска — Западные Алеутские острова"
  },
  {
-  "region_id": "NAM-0196",
+  "region_id": "NAM-0198",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9656,7 +9656,7 @@
   "name_ru": "Аляска — Юкон-Коюкук"
  },
  {
-  "region_id": "NAM-0197",
+  "region_id": "NAM-0199",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9664,7 +9664,7 @@
   "name_ru": "Луизиана — Грант"
  },
  {
-  "region_id": "NAM-0198",
+  "region_id": "NAM-0200",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9672,7 +9672,7 @@
   "name_ru": "Луизиана — Джексон"
  },
  {
-  "region_id": "NAM-0199",
+  "region_id": "NAM-0201",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9680,7 +9680,7 @@
   "name_ru": "Миссисипи — Ковингтон"
  },
  {
-  "region_id": "NAM-0200",
+  "region_id": "NAM-0202",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9688,7 +9688,7 @@
   "name_ru": "Миссисипи — Понтоток"
  },
  {
-  "region_id": "NAM-0201",
+  "region_id": "NAM-0203",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9696,7 +9696,7 @@
   "name_ru": "Алабама — Даллас"
  },
  {
-  "region_id": "NAM-0202",
+  "region_id": "NAM-0204",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9704,7 +9704,7 @@
   "name_ru": "Алабама — Тускалуса"
  },
  {
-  "region_id": "NAM-0203",
+  "region_id": "NAM-0205",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9712,7 +9712,7 @@
   "name_ru": "Флорида — Уолтон"
  },
  {
-  "region_id": "NAM-0204",
+  "region_id": "NAM-0206",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9720,7 +9720,7 @@
   "name_ru": "Флорида — Хайлендс"
  },
  {
-  "region_id": "NAM-0205",
+  "region_id": "NAM-0207",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9728,7 +9728,7 @@
   "name_ru": "Флорида — Тейлор"
  },
  {
-  "region_id": "NAM-0206",
+  "region_id": "NAM-0208",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9736,7 +9736,7 @@
   "name_ru": "Грузия — Бартоу"
  },
  {
-  "region_id": "NAM-0207",
+  "region_id": "NAM-0209",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9744,7 +9744,7 @@
   "name_ru": "Джорджия — Уилкс"
  },
  {
-  "region_id": "NAM-0208",
+  "region_id": "NAM-0210",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9752,7 +9752,7 @@
   "name_ru": "Джорджия — Декейтер"
  },
  {
-  "region_id": "NAM-0209",
+  "region_id": "NAM-0211",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9760,7 +9760,7 @@
   "name_ru": "Южная Каролина — Абвиль"
  },
  {
-  "region_id": "NAM-0210",
+  "region_id": "NAM-0212",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9768,7 +9768,7 @@
   "name_ru": "Южная Каролина — Фэрфилд"
  },
  {
-  "region_id": "NAM-0211",
+  "region_id": "NAM-0213",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9776,7 +9776,7 @@
   "name_ru": "Северная Каролина — Оранжевый"
  },
  {
-  "region_id": "NAM-0212",
+  "region_id": "NAM-0214",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9784,7 +9784,7 @@
   "name_ru": "Северная Каролина — Сэмпсон"
  },
  {
-  "region_id": "NAM-0213",
+  "region_id": "NAM-0215",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9792,7 +9792,7 @@
   "name_ru": "Северная Каролина — Роуэн"
  },
  {
-  "region_id": "NAM-0214",
+  "region_id": "NAM-0216",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9800,7 +9800,7 @@
   "name_ru": "Вирджиния — Аккомак"
  },
  {
-  "region_id": "NAM-0215",
+  "region_id": "NAM-0217",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9808,7 +9808,7 @@
   "name_ru": "Вирджиния — Фокье"
  },
  {
-  "region_id": "NAM-0216",
+  "region_id": "NAM-0218",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9816,7 +9816,7 @@
   "name_ru": "Вирджиния — Питтсильвания"
  },
  {
-  "region_id": "NAM-0217",
+  "region_id": "NAM-0219",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9824,7 +9824,7 @@
   "name_ru": "Округ Колумбия"
  },
  {
-  "region_id": "NAM-0218",
+  "region_id": "NAM-0220",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9832,7 +9832,7 @@
   "name_ru": "Мэриленд"
  },
  {
-  "region_id": "NAM-0219",
+  "region_id": "NAM-0221",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9840,7 +9840,7 @@
   "name_ru": "Делавэр"
  },
  {
-  "region_id": "NAM-0220",
+  "region_id": "NAM-0222",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9848,7 +9848,7 @@
   "name_ru": "Нью-Джерси — Оушен"
  },
  {
-  "region_id": "NAM-0221",
+  "region_id": "NAM-0223",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9856,7 +9856,7 @@
   "name_ru": "Нью-Джерси — Берлингтон"
  },
  {
-  "region_id": "NAM-0222",
+  "region_id": "NAM-0224",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9864,7 +9864,7 @@
   "name_ru": "Нью-Джерси — Моррис"
  },
  {
-  "region_id": "NAM-0223",
+  "region_id": "NAM-0225",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9872,7 +9872,7 @@
   "name_ru": "Коннектикут — Личфилд"
  },
  {
-  "region_id": "NAM-0224",
+  "region_id": "NAM-0226",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9880,7 +9880,7 @@
   "name_ru": "Коннектикут — Виндхэм"
  },
  {
-  "region_id": "NAM-0225",
+  "region_id": "NAM-0227",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9888,7 +9888,7 @@
   "name_ru": "Род-Айленд — Ньюпорт"
  },
  {
-  "region_id": "NAM-0226",
+  "region_id": "NAM-0228",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9896,7 +9896,7 @@
   "name_ru": "Род-Айленд — Провиденс"
  },
  {
-  "region_id": "NAM-0227",
+  "region_id": "NAM-0229",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9904,7 +9904,7 @@
   "name_ru": "Массачусетс — Нантакет"
  },
  {
-  "region_id": "NAM-0228",
+  "region_id": "NAM-0230",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9912,7 +9912,7 @@
   "name_ru": "Массачусетс — Миддлсекс"
  },
  {
-  "region_id": "NAM-0229",
+  "region_id": "NAM-0231",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9920,7 +9920,7 @@
   "name_ru": "Массачусетс — Хэмпден"
  },
  {
-  "region_id": "NAM-0230",
+  "region_id": "NAM-0232",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9928,7 +9928,7 @@
   "name_ru": "Орегон — Дуглас"
  },
  {
-  "region_id": "NAM-0231",
+  "region_id": "NAM-0233",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9936,7 +9936,7 @@
   "name_ru": "Орегон — Харни"
  },
  {
-  "region_id": "NAM-0232",
+  "region_id": "NAM-0234",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9944,7 +9944,7 @@
   "name_ru": "Гавайи — Гонолулу"
  },
  {
-  "region_id": "NAM-0233",
+  "region_id": "NAM-0235",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9952,7 +9952,7 @@
   "name_ru": "Гавайи — Кауаи"
  },
  {
-  "region_id": "NAM-0234",
+  "region_id": "NAM-0236",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9960,7 +9960,7 @@
   "name_ru": "Гавайи — Гавайи"
  },
  {
-  "region_id": "NAM-0235",
+  "region_id": "NAM-0237",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9968,7 +9968,7 @@
   "name_ru": "Гавайи — Мауи"
  },
  {
-  "region_id": "NAM-0236",
+  "region_id": "NAM-0238",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9976,7 +9976,7 @@
   "name_ru": "Юта"
  },
  {
-  "region_id": "NAM-0237",
+  "region_id": "NAM-0239",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9984,7 +9984,7 @@
   "name_ru": "Вайоминг"
  },
  {
-  "region_id": "NAM-0238",
+  "region_id": "NAM-0240",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -9992,7 +9992,7 @@
   "name_ru": "Невада"
  },
  {
-  "region_id": "NAM-0239",
+  "region_id": "NAM-0241",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10000,7 +10000,7 @@
   "name_ru": "Колорадо — Вашингтон"
  },
  {
-  "region_id": "NAM-0240",
+  "region_id": "NAM-0242",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10008,7 +10008,7 @@
   "name_ru": "Колорадо — Сагуаш"
  },
  {
-  "region_id": "NAM-0241",
+  "region_id": "NAM-0243",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10016,7 +10016,7 @@
   "name_ru": "Южная Дакота"
  },
  {
-  "region_id": "NAM-0242",
+  "region_id": "NAM-0244",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10024,7 +10024,7 @@
   "name_ru": "Небраска"
  },
  {
-  "region_id": "NAM-0243",
+  "region_id": "NAM-0245",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10032,7 +10032,7 @@
   "name_ru": "Канзас — Линкольн"
  },
  {
-  "region_id": "NAM-0244",
+  "region_id": "NAM-0246",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10040,7 +10040,7 @@
   "name_ru": "Канзас — Томас"
  },
  {
-  "region_id": "NAM-0245",
+  "region_id": "NAM-0247",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10048,7 +10048,7 @@
   "name_ru": "Оклахома — Ле Флор"
  },
  {
-  "region_id": "NAM-0246",
+  "region_id": "NAM-0248",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10056,7 +10056,7 @@
   "name_ru": "Оклахома — Вашита"
  },
  {
-  "region_id": "NAM-0247",
+  "region_id": "NAM-0249",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10064,7 +10064,7 @@
   "name_ru": "Айова — Аппануз"
  },
  {
-  "region_id": "NAM-0248",
+  "region_id": "NAM-0250",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10072,7 +10072,7 @@
   "name_ru": "Айова — Кошут"
  },
  {
-  "region_id": "NAM-0249",
+  "region_id": "NAM-0251",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10080,7 +10080,7 @@
   "name_ru": "Миссури — Мейкон"
  },
  {
-  "region_id": "NAM-0250",
+  "region_id": "NAM-0252",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10088,7 +10088,7 @@
   "name_ru": "Миссури — Бентон"
  },
  {
-  "region_id": "NAM-0251",
+  "region_id": "NAM-0253",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10096,7 +10096,7 @@
   "name_ru": "Миссури — Райт"
  },
  {
-  "region_id": "NAM-0252",
+  "region_id": "NAM-0254",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10104,7 +10104,7 @@
   "name_ru": "Висконсин — Монро"
  },
  {
-  "region_id": "NAM-0253",
+  "region_id": "NAM-0255",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10112,7 +10112,7 @@
   "name_ru": "Висконсин — Бэррон"
  },
  {
-  "region_id": "NAM-0254",
+  "region_id": "NAM-0256",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10120,7 +10120,7 @@
   "name_ru": "Висконсин — Шавано"
  },
  {
-  "region_id": "NAM-0255",
+  "region_id": "NAM-0257",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10128,7 +10128,7 @@
   "name_ru": "Иллинойс — Морган"
  },
  {
-  "region_id": "NAM-0256",
+  "region_id": "NAM-0258",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10136,7 +10136,7 @@
   "name_ru": "Иллинойс — ЛаСалль"
  },
  {
-  "region_id": "NAM-0257",
+  "region_id": "NAM-0259",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10144,7 +10144,7 @@
   "name_ru": "Иллинойс — Сент-Клер"
  },
  {
-  "region_id": "NAM-0258",
+  "region_id": "NAM-0260",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10152,7 +10152,7 @@
   "name_ru": "Иллинойс — Шелби"
  },
  {
-  "region_id": "NAM-0259",
+  "region_id": "NAM-0261",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10160,7 +10160,7 @@
   "name_ru": "Кентукки — Кристиан"
  },
  {
-  "region_id": "NAM-0260",
+  "region_id": "NAM-0262",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10168,7 +10168,7 @@
   "name_ru": "Кентукки — Лесли"
  },
  {
-  "region_id": "NAM-0261",
+  "region_id": "NAM-0263",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10176,7 +10176,7 @@
   "name_ru": "Арканзас — Уайт"
  },
  {
-  "region_id": "NAM-0262",
+  "region_id": "NAM-0264",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10184,7 +10184,7 @@
   "name_ru": "Арканзас — Папа Римский"
  },
  {
-  "region_id": "NAM-0263",
+  "region_id": "NAM-0265",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10192,7 +10192,7 @@
   "name_ru": "Теннесси — Генри"
  },
  {
-  "region_id": "NAM-0264",
+  "region_id": "NAM-0266",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10200,7 +10200,7 @@
   "name_ru": "Теннесси — Овертон"
  },
  {
-  "region_id": "NAM-0265",
+  "region_id": "NAM-0267",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10208,15 +10208,7 @@
   "name_ru": "Западная Вирджиния"
  },
  {
-  "region_id": "NAM-0266",
-  "continent": "North America",
-  "region_type": "land",
-  "iso_a2": "US",
-  "name_en": "Indiana — Noble",
-  "name_ru": "Индиана — Нобл"
- },
- {
-  "region_id": "NAM-0267",
+  "region_id": "NAM-0269",
   "continent": "North America",
   "region_type": "land",
   "iso_a2": "US",
@@ -10224,15 +10216,7 @@
   "name_ru": "Индиана — Бун"
  },
  {
-  "region_id": "NAM-0268",
-  "continent": "North America",
-  "region_type": "land",
-  "iso_a2": "PA_CZ",
-  "name_en": "Panama Canal Zone",
-  "name_ru": "Зона Панамского канала"
- },
- {
-  "region_id": "OCE-0001",
+  "region_id": "OCE-0004",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NC",
@@ -10240,7 +10224,7 @@
   "name_ru": "Новая Каледония"
  },
  {
-  "region_id": "OCE-0002",
+  "region_id": "OCE-0005",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PF",
@@ -10248,7 +10232,7 @@
   "name_ru": "Французская Полинезия"
  },
  {
-  "region_id": "OCE-0003",
+  "region_id": "OCE-0006",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AS",
@@ -10256,7 +10240,7 @@
   "name_ru": "Американское Самоа"
  },
  {
-  "region_id": "OCE-0004",
+  "region_id": "OCE-0007",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "GU",
@@ -10264,7 +10248,7 @@
   "name_ru": "Гуам"
  },
  {
-  "region_id": "OCE-0005",
+  "region_id": "OCE-0008",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "MP",
@@ -10272,7 +10256,7 @@
   "name_ru": "Северные Марианские о-ва"
  },
  {
-  "region_id": "OCE-0006",
+  "region_id": "OCE-0009",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "CK",
@@ -10280,7 +10264,7 @@
   "name_ru": "О-ва Кука"
  },
  {
-  "region_id": "OCE-0007",
+  "region_id": "OCE-0010",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NU",
@@ -10288,7 +10272,7 @@
   "name_ru": "Ниуэ"
  },
  {
-  "region_id": "OCE-0008",
+  "region_id": "OCE-0011",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NF",
@@ -10296,7 +10280,7 @@
   "name_ru": "О. Норфолк"
  },
  {
-  "region_id": "OCE-0009",
+  "region_id": "OCE-0012",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PN",
@@ -10304,7 +10288,7 @@
   "name_ru": "О-ва Питкерн"
  },
  {
-  "region_id": "OCE-0010",
+  "region_id": "OCE-0013",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "UM",
@@ -10312,7 +10296,7 @@
   "name_ru": "Малые отдалённые о-ва США (Уэйк/Мидуэй/Джонстон)"
  },
  {
-  "region_id": "OCE-0011",
+  "region_id": "OCE-0014",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "WF",
@@ -10320,7 +10304,7 @@
   "name_ru": "Уоллис и Футуна"
  },
  {
-  "region_id": "OCE-0012",
+  "region_id": "OCE-0015",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "TK",
@@ -10328,7 +10312,7 @@
   "name_ru": "Токелау"
  },
  {
-  "region_id": "OCE-0013",
+  "region_id": "OCE-0018",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NR",
@@ -10336,7 +10320,7 @@
   "name_ru": "Науру"
  },
  {
-  "region_id": "OCE-0014",
+  "region_id": "OCE-0019",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "TV",
@@ -10344,7 +10328,7 @@
   "name_ru": "Тувалу"
  },
  {
-  "region_id": "OCE-0015",
+  "region_id": "OCE-0020",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "KI",
@@ -10352,7 +10336,7 @@
   "name_ru": "Кирибати"
  },
  {
-  "region_id": "OCE-0016",
+  "region_id": "OCE-0021",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "MH",
@@ -10360,7 +10344,7 @@
   "name_ru": "Маршалловы Острова"
  },
  {
-  "region_id": "OCE-0017",
+  "region_id": "OCE-0022",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "TO",
@@ -10368,7 +10352,7 @@
   "name_ru": "Тонга"
  },
  {
-  "region_id": "OCE-0018",
+  "region_id": "OCE-0023",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10376,7 +10360,7 @@
   "name_ru": "Западная Австралия"
  },
  {
-  "region_id": "OCE-0019",
+  "region_id": "OCE-0024",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10384,7 +10368,7 @@
   "name_ru": "Северная территория"
  },
  {
-  "region_id": "OCE-0020",
+  "region_id": "OCE-0025",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10392,7 +10376,7 @@
   "name_ru": "Южная Австралия"
  },
  {
-  "region_id": "OCE-0021",
+  "region_id": "OCE-0026",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10400,7 +10384,7 @@
   "name_ru": "Квинсленд"
  },
  {
-  "region_id": "OCE-0022",
+  "region_id": "OCE-0027",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10408,7 +10392,7 @@
   "name_ru": "Новый Южный Уэльс"
  },
  {
-  "region_id": "OCE-0023",
+  "region_id": "OCE-0028",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10416,7 +10400,7 @@
   "name_ru": "Виктория"
  },
  {
-  "region_id": "OCE-0024",
+  "region_id": "OCE-0029",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10424,7 +10408,7 @@
   "name_ru": "Тасмания"
  },
  {
-  "region_id": "OCE-0025",
+  "region_id": "OCE-0030",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "AU",
@@ -10432,7 +10416,7 @@
   "name_ru": "Австралийская столичная территория"
  },
  {
-  "region_id": "OCE-0026",
+  "region_id": "OCE-0031",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NZ",
@@ -10440,7 +10424,7 @@
   "name_ru": "Отдаленные острова Новой Зеландии"
  },
  {
-  "region_id": "OCE-0027",
+  "region_id": "OCE-0032",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NZ",
@@ -10448,7 +10432,7 @@
   "name_ru": "Острова Чатем"
  },
  {
-  "region_id": "OCE-0028",
+  "region_id": "OCE-0033",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NZ",
@@ -10456,7 +10440,7 @@
   "name_ru": "Южный остров"
  },
  {
-  "region_id": "OCE-0029",
+  "region_id": "OCE-0034",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "NZ",
@@ -10464,7 +10448,7 @@
   "name_ru": "Северный остров"
  },
  {
-  "region_id": "OCE-0030",
+  "region_id": "OCE-0035",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PG",
@@ -10472,7 +10456,7 @@
   "name_ru": "Северные Соломоновы острова"
  },
  {
-  "region_id": "OCE-0031",
+  "region_id": "OCE-0036",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PG",
@@ -10480,7 +10464,7 @@
   "name_ru": "Западный"
  },
  {
-  "region_id": "OCE-0032",
+  "region_id": "OCE-0037",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PG",
@@ -10488,7 +10472,7 @@
   "name_ru": "Южное Хайлендс"
  },
  {
-  "region_id": "OCE-0033",
+  "region_id": "OCE-0038",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PG",
@@ -10496,7 +10480,7 @@
   "name_ru": "Восточный Сепик"
  },
  {
-  "region_id": "OCE-0034",
+  "region_id": "OCE-0039",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PG",
@@ -10504,7 +10488,7 @@
   "name_ru": "Центральный"
  },
  {
-  "region_id": "OCE-0035",
+  "region_id": "OCE-0040",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "SB",
@@ -10512,7 +10496,7 @@
   "name_ru": "Малаита"
  },
  {
-  "region_id": "OCE-0036",
+  "region_id": "OCE-0041",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "SB",
@@ -10520,7 +10504,7 @@
   "name_ru": "Гуадалканал"
  },
  {
-  "region_id": "OCE-0037",
+  "region_id": "OCE-0042",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "SB",
@@ -10528,7 +10512,7 @@
   "name_ru": "Изабель"
  },
  {
-  "region_id": "OCE-0038",
+  "region_id": "OCE-0043",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "VU",
@@ -10536,7 +10520,7 @@
   "name_ru": "Санма"
  },
  {
-  "region_id": "OCE-0039",
+  "region_id": "OCE-0044",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "WS",
@@ -10544,7 +10528,7 @@
   "name_ru": "Палаули"
  },
  {
-  "region_id": "OCE-0040",
+  "region_id": "OCE-0045",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "PW",
@@ -10552,7 +10536,7 @@
   "name_ru": "Нгардмау"
  },
  {
-  "region_id": "OCE-0041",
+  "region_id": "OCE-0046",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "FJ",
@@ -10560,7 +10544,7 @@
   "name_ru": "Западный"
  },
  {
-  "region_id": "OCE-0042",
+  "region_id": "OCE-0047",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "FM",
@@ -10568,7 +10552,7 @@
   "name_ru": "Яп"
  },
  {
-  "region_id": "OCE-0043",
+  "region_id": "OCE-0048",
   "continent": "Oceania",
   "region_type": "land",
   "iso_a2": "FM",
@@ -12144,11 +12128,99 @@
   "name_ru": "Фарерские острова"
  },
  {
-  "region_id": "EUR-0195",
+  "region_id": "EUR-0198",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "MT",
   "name_en": "Malta",
   "name_ru": "Мальта"
+ },
+ {
+  "region_id": "EUR-0126",
+  "continent": "Europe",
+  "region_type": "land",
+  "iso_a2": "GG",
+  "name_en": "Guernsey",
+  "name_ru": "Гернси"
+ },
+ {
+  "region_id": "EUR-0161",
+  "continent": "Europe",
+  "region_type": "land",
+  "iso_a2": "IM",
+  "name_en": "Isle of Man",
+  "name_ru": "Остров Мэн"
+ },
+ {
+  "region_id": "EUR-0183",
+  "continent": "Europe",
+  "region_type": "land",
+  "iso_a2": "JE",
+  "name_en": "Jersey",
+  "name_ru": "Джерси"
+ },
+ {
+  "region_id": "ASI-0276",
+  "continent": "Asia",
+  "region_type": "land",
+  "iso_a2": "MV",
+  "name_en": "Maldives",
+  "name_ru": "Мальдивы"
+ },
+ {
+  "region_id": "NAM-0055",
+  "continent": "North America",
+  "region_type": "land",
+  "iso_a2": "BL",
+  "name_en": "Saint Barthélemy",
+  "name_ru": "Сен-Бартелеми"
+ },
+ {
+  "region_id": "NAM-0095",
+  "continent": "North America",
+  "region_type": "land",
+  "iso_a2": "MF",
+  "name_en": "Saint Martin",
+  "name_ru": "Сен-Мартен (франц.)"
+ },
+ {
+  "region_id": "OCE-0001",
+  "continent": "Oceania",
+  "region_type": "land",
+  "iso_a2": "AU",
+  "name_en": "Cocos (Keeling) Islands",
+  "name_ru": "Кокосовые (Килинг) острова"
+ },
+ {
+  "region_id": "OCE-0002",
+  "continent": "Oceania",
+  "region_type": "land",
+  "iso_a2": "AU",
+  "name_en": "Christmas Island",
+  "name_ru": "Остров Рождества"
+ },
+ {
+  "region_id": "OCE-0003",
+  "continent": "Oceania",
+  "region_type": "land",
+  "iso_a2": "AU",
+  "name_en": "Coral Sea Islands",
+  "name_ru": "О-ва Кораллового моря"
+ },
+ {
+  "region_id": "OCE-0016",
+  "continent": "Oceania",
+  "region_type": "land",
+  "iso_a2": "HM",
+  "name_en": "Heard Island and McDonald Islands",
+  "name_ru": "О. Херд и о-ва Макдональд"
+ },
+ {
+  "region_id": "OCE-0017",
+  "continent": "Oceania",
+  "region_type": "land",
+  "iso_a2": "TF",
+  "name_en": "French Southern Territories",
+  "name_ru": "Французские Южные территории"
  }
 ]

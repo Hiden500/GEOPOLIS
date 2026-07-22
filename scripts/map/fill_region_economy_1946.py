@@ -142,7 +142,14 @@ def resolve_country_tier_classifier(owner_id: str):
 def compute_region_tier(owner_id: str, name: str, area: float, all_areas: list[float]) -> int:
     classifier = resolve_country_tier_classifier(owner_id)
     if classifier:
-        return classifier(name)
+        tier = classifier(name)
+        # Классификатор может вернуть None для "не моё, отдай generic_tier"
+        # (2026-07-22, au_tier: явно знает только 4 крошечные внешние
+        # территории, для материковых штатов/территорий сознательно НЕ
+        # дублирует area-относительную логику generic_tier — она уже
+        # работала верно для них до появления этих территорий).
+        if tier is not None:
+            return tier
     return generic_tier(name, area, all_areas)
 
 

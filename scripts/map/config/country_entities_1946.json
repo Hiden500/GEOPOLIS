@@ -939,13 +939,13 @@
           "reason": "Core Jammu and Kashmir polygon belonged to the undivided princely state."
         },
         {
-          "regionId": "ASI-0304",
+          "regionId": "ASI-0305",
           "to": "QJK",
           "confidence": "high",
           "reason": "Northern Areas formed part of the undivided princely State of Jammu and Kashmir."
         },
         {
-          "regionId": "ASI-0310",
+          "regionId": "ASI-0311",
           "to": "QJK",
           "confidence": "high",
           "reason": "Azad Kashmir did not exist before the 1947 war; this polygon belonged to the princely state."
@@ -975,28 +975,22 @@
           "reason": "Puducherry was part of the French Establishments in India."
         },
         {
-          "regionId": "ASI-0276",
+          "regionId": "ASI-0277",
           "to": "QNB",
           "confidence": "high",
           "reason": "North Borneo was a separate British-administered territory."
         },
         {
-          "regionId": "ASI-0277",
+          "regionId": "ASI-0278",
           "to": "QSR",
           "confidence": "high",
           "reason": "Sarawak was a separate British-administered territory."
         },
         {
-          "regionId": "ASI-0279",
+          "regionId": "ASI-0280",
           "to": "QLB",
           "confidence": "medium",
           "reason": "Labuan was a distinct former Straits Settlement under postwar military administration on 1946-01-01."
-        },
-        {
-          "regionId": "ASI-0385",
-          "to": "QDV",
-          "confidence": "medium",
-          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
         },
         {
           "regionId": "ASI-0386",
@@ -1041,31 +1035,37 @@
           "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
         },
         {
-          "regionId": "ASI-0394",
+          "regionId": "ASI-0393",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0395",
           "to": "QDV",
           "confidence": "high",
           "reason": "Hanoi was the seat of the Democratic Republic of Vietnam government."
         },
         {
-          "regionId": "ASI-0406",
+          "regionId": "ASI-0407",
           "to": "QDV",
           "confidence": "high",
           "reason": "Hòa Bình formed part of the DRV-administered Tonkin area."
         },
         {
-          "regionId": "ASI-0407",
+          "regionId": "ASI-0408",
           "to": "QDV",
           "confidence": "high",
           "reason": "The northeast formed part of the DRV-administered Tonkin area."
         },
         {
-          "regionId": "ASI-0408",
+          "regionId": "ASI-0409",
           "to": "QDV",
           "confidence": "high",
           "reason": "Hải Phòng lay in the northern Chinese surrender zone alongside the DRV government."
         },
         {
-          "regionId": "ASI-0409",
+          "regionId": "ASI-0410",
           "to": "QDV",
           "confidence": "high",
           "reason": "Thái Nguyên formed part of the DRV-administered Tonkin area."
@@ -1107,25 +1107,25 @@
           "reason": "The Republic of Indonesia was proclaimed in Java and exercised de facto authority over most of the island."
         },
         {
-          "regionId": "ASI-0413",
+          "regionId": "ASI-0414",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Hadramawt belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."
         },
         {
-          "regionId": "ASI-0414",
+          "regionId": "ASI-0415",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Al Mahrah belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."
         },
         {
-          "regionId": "ASI-0416",
+          "regionId": "ASI-0417",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Shabwah approximates states of the Aden Protectorate, not independent Yemen."
         },
         {
-          "regionId": "ASI-0417",
+          "regionId": "ASI-0418",
           "to": "QAD",
           "confidence": "medium",
           "reason": "Lahij and Aden belonged to the Aden Colony and Protectorate administration."
@@ -1368,7 +1368,7 @@
       ],
       "regionOwnerOverrides": [
         {
-          "regionId": "OCE-0008",
+          "regionId": "OCE-0011",
           "to": "NFK",
           "confidence": "high",
           "reason": "Norfolk Island was a distinct Australian external territory; NFD is reserved for Newfoundland elsewhere in the source catalog."

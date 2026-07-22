@@ -516,6 +516,69 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   regenerated (its Virtual Shanghai `china_hist/1947-49` shapefile was never
   committed and is nowhere on disk) — China fixes must POST-PROCESS the
   existing 47-feature output JSON directly, not re-run the build.
+- **A "smallest-region-gets-a-capital-bonus" tier bug can hit ANY country,
+  not just the ones you already patched — check it for every newly-added
+  tiny territory, even under a country that already has an explicit
+  classifier.** Adding 11 missing islands (2026-07-22) reproduced the Faroe/
+  Akrotiri class of bug twice more: (1) GBR/FRA already have explicit
+  `gbr_tier`/`fra_tier` classifiers, but the new island names didn't match
+  any keyword branch, so they fell through to the unconditional `return 3`
+  default — too high a density assumption for small remote islands (Isle of
+  Man got 136K population against a real ~52K); (2) AUS had NO explicit
+  classifier at all, so newly-added Cocos/Christmas/Coral Sea/Heard fell
+  into `generic_tier`'s bottom-20%-by-area-in-country bucket alongside
+  Australia's mainland states — the exact same bug, just triggered by
+  country-relative area instead of an unconditional default (Christmas
+  Island: 43,791 against a real ~2-3K; Heard Island, genuinely uninhabited:
+  21,973). Fix pattern for a country with NO existing classifier: don't
+  force it to name-match every region (risks changing already-correct
+  behavior for the rest of the country) — let the classifier return `None`
+  for anything it doesn't explicitly recognize, and extend the dispatcher
+  (`compute_region_tier` in `fill_region_economy_1946.py`) to fall back to
+  `generic_tier` on `None`. This is a one-line, backward-compatible
+  extension (existing classifiers never returned `None`, so nothing else
+  changes) that lets a new classifier cover ONLY the newly-added edge cases.
+  Tier 1 (the lowest available) still won't reach true zero for genuinely
+  uninhabited large territories (French Southern Territories, 7244 km²,
+  landed at 43,658 even at tier 1 — the `area^0.55` term alone still
+  produces a non-trivial weight) — that's an accepted, pre-existing
+  limitation of the tier formula (Clipperton Island already showed the same
+  pattern at a smaller scale, 636 population for 3.1 km² uninhabited rock),
+  not something to chase further without a dedicated near-zero override
+  mechanism.
+- **The zombie-server-on-port-3000 bug (2026-07-19-i) recurred in this same
+  session two rounds later — `netstat` before every live check is not
+  optional, it's the only thing that catches it.** Started a fresh `nohup
+  npm run dev &` after a rebuild, the FIRST `/game/start` response looked
+  plausible but was wrong in a way only visible on close inspection
+  (`regions: 1388` instead of the expected 1399, scrambled owners — Isle of
+  Man showed `ITA`, Jersey showed `SUN`). `netstat -ano | grep :3000` before
+  trusting ANY live check showed only one LISTENING PID, but it was the
+  OLD server from earlier in the session, still alive under the SAME
+  believed-dead port — `nohup ... &` starting cleanly and printing "Server
+  started on port 3000" does NOT prove that message came from your new
+  process if an old one silently kept the port and Node just queued/failed
+  the bind in a way that didn't surface as an error in this environment.
+  `taskkill //F //PID <the one netstat shows>` then a fresh start fixed it
+  immediately. Treat every live-check result as suspect until you've
+  confirmed the PID currently on the port matches the process you just
+  launched — a plausible-looking wrong answer is worse than an obvious
+  crash because it doesn't prompt you to double-check.
+- **`build_oceania_1946.py`'s `SINGLE_ORPHANS` loop filters raw features by
+  `iso_a2` fresh each iteration — it does NOT depend on the `ALL_COUNTRIES`
+  union like `SINGLE_REGION`/`SINGLE_COUNTRY` do.** A country with a real
+  (non-"-1") iso_a2, even one with multiple scattered features that should
+  merge into one "archipelago" region (French Southern Territories: 4
+  features — Kerguelen/Crozet/Amsterdam/Éparses), can go straight into
+  `SINGLE_ORPHANS` with no other wiring needed — same one-line cost as
+  `SINGLE_REGION` elsewhere. Only iso_a2="-1" territories (Natural Earth's
+  tag for disputed/no-ISO features, shared by many unrelated entities) need
+  the heavier `EXTRA_SINGLE_FEATURES`-by-`adm1_code` mechanism that asia/
+  namerica already had and oceania didn't — added it there for Cocos/
+  Christmas/Coral Sea Islands (2026-07-22), same pattern, output `iso_a2`
+  can be set to whatever the sovereign's code is (here `"AU"`) since
+  ownership is resolved separately via `ownership_1946.json`, not derived
+  from the land feature's own iso_a2.
 
 ## Positional-file fragility (silent, untested)
 
