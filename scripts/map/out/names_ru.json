@@ -7923,12 +7923,20 @@
   "region_id": "EUR-0367",
   "continent": "Europe",
   "region_type": "land",
+  "iso_a2": "CY",
+  "name_en": "Akrotiri",
+  "name_ru": "Акротири"
+ },
+ {
+  "region_id": "EUR-0368",
+  "continent": "Europe",
+  "region_type": "land",
   "iso_a2": "DE_KC",
   "name_en": "Kiel Canal Zone",
   "name_ru": "Зона Кильского канала"
  },
  {
-  "region_id": "EUR-0368",
+  "region_id": "EUR-0369",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7936,7 +7944,7 @@
   "name_ru": "Берлин — Советский сектор"
  },
  {
-  "region_id": "EUR-0369",
+  "region_id": "EUR-0370",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7944,7 +7952,7 @@
   "name_ru": "Берлин — Американский сектор"
  },
  {
-  "region_id": "EUR-0370",
+  "region_id": "EUR-0371",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7952,7 +7960,7 @@
   "name_ru": "Берлин — Британский сектор"
  },
  {
-  "region_id": "EUR-0371",
+  "region_id": "EUR-0372",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7960,7 +7968,7 @@
   "name_ru": "Берлин — Французский сектор"
  },
  {
-  "region_id": "EUR-0372",
+  "region_id": "EUR-0373",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -7968,7 +7976,7 @@
   "name_ru": "Вюртемберг-Баден"
  },
  {
-  "region_id": "EUR-0373",
+  "region_id": "EUR-0374",
   "continent": "Europe",
   "region_type": "land",
   "iso_a2": "DE",
@@ -8062,6 +8070,22 @@
   "iso_a2": null,
   "name_en": "Aral Sea (1946, full historical extent)",
   "name_ru": "Аральское море (1946, полный размер)"
+ },
+ {
+  "region_id": "LAK-0012",
+  "continent": null,
+  "region_type": "lake",
+  "iso_a2": null,
+  "name_en": "Sea of Galilee",
+  "name_ru": "Кинерет (Галилейское море)"
+ },
+ {
+  "region_id": "LAK-0013",
+  "continent": null,
+  "region_type": "lake",
+  "iso_a2": null,
+  "name_en": "Lake Malawi",
+  "name_ru": "Малави (Ньяса)"
  },
  {
   "region_id": "NAM-0001",

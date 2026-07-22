@@ -156,6 +156,7 @@ TRANSLATE = {
     "Виктория": "Lake Victoria", "Танганьика": "Lake Tanganyika", "Мёртвое море": "Dead Sea",
     "Аральское море (1946, полный размер)": "Aral Sea (1946, full historical extent)",
     "Кинерет (Галилейское море)": "Sea of Galilee",
+    "Малави (Ньяса)": "Lake Malawi",
 }
 
 ZONE_TRANSLATE = {"СССР": "USSR", "США": "USA", "Великобритания": "UK", "Франция": "France"}

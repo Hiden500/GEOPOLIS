@@ -7,7 +7,7 @@ description: Verify 1946-map geometry after any cut/merge/border edit — close 
 
 Hard-won checklist for editing `scripts/map` geometry. Every rule here is a bug
 that already shipped on this repo (`docs/DECISIONS.md`, entries 2026-07-19-a…q,
-2026-07-20). Do not re-open the same graves.
+2026-07-20, 2026-07-22). Do not re-open the same graves.
 
 ## Trigger
 
@@ -405,6 +405,64 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   land source the fix itself is authoritative against — otherwise you're
   measuring known, already-accepted land-curation divergence, not the bug
   you're trying to close.
+- **"Misassigned to the wrong sea" is a touching-boundary question, not a
+  distance question — and it needs its own pass, separate from noise
+  cleanup.** After the order-independent tile-batched fix (previous bullet),
+  individual seas could still carry a stray MultiPolygon part that visibly
+  belongs to a NEIGHBORING sea (Ionian Sea's Argolic Gulf fragment touching
+  Aegean Sea's boundary at distance 0, not Ionian's own trunk; Andaman Sea
+  slivers touching Bay of Bengal, not their own body). Distance-based
+  cleanup (`cleanup_scattered_fragments`) can't fix this — the part IS close
+  to something (whichever sea it wrongly touches), just not to its own
+  trunk, and a 2026-07-20 attempt to use "distance to own sea vs distance to
+  nearest OTHER sea" failed for the identical reason documented above
+  (neighboring seas touch by construction, ≈0 distance either way). The
+  actual fix is a dedicated pass BEFORE cleanup: for each non-trunk part
+  that does NOT share a boundary with the rest of its own feature but DOES
+  share a boundary with a different sea, move it to whichever sea it shares
+  the longest boundary with (see `transfer_misassigned_parts()`). Running it
+  on the full 113-sea dataset (not just the reported case) surfaced ~100
+  more of the same class — spot-render a sample from different parts of the
+  world, not just the two the user pointed at, and confirm the pass
+  converges to 0 transfers on a second call before trusting it.
+- **A `python -c` sanity check that imports the module and inspects the
+  in-memory value proves the read path AND the string literal are correct —
+  it does NOT prove the persisted file is correct, because a PRIOR buggy run
+  may have already baked the corruption into that file.** Fixing a missing
+  `encoding="utf-8"` in a script's `open()` calls (2026-07-22, `build_us_
+  states_split_1946.py` read `namerica_1946.geojson` and a counties source
+  without it — on a machine whose default text encoding is not UTF-8, this
+  silently decoded already-correct UTF-8 bytes as the wrong codepage, then
+  wrote the now-corrupted in-memory strings back out as technically-valid
+  UTF-8) is necessary but not sufficient if the script already ran once
+  before the fix: the on-disk file it reads is now full of mojibake that
+  round-trips as valid UTF-8 forever after, since the corruption happened at
+  DECODE time, not encode time. Re-running the fixed script against that
+  same corrupted file just re-reads the mojibake correctly — it doesn't
+  un-mojibake it. The fix is to regenerate the upstream file FROM SCRATCH
+  (the earlier build step that isn't touched by the encoding bug) and only
+  then re-run the fixed script against clean input. Diagnostic for "is this
+  mojibake or real Cyrillic/error": `bad_string.encode('cp1251').decode
+  ('utf-8')` — if that round-trip produces readable text, it's UTF-8 bytes
+  that got decoded as CP1251 somewhere upstream, not a translation gap.
+- **A `build_*.py` step that crashes on a missing external source (before
+  writing any output) is safe to skip — its existing `out/*.geojson` stays
+  whatever it was before the run, and downstream steps that read it are
+  unaffected.** Two FULL_REBUILD_STEPS entries (`build_china_1946_v2.py`,
+  `build_brazil_1946.py`) failed on missing external shapefiles/geoBoundaries
+  files this session; both raised the exception at `open()`, before any
+  `json.dump`, so their pre-existing outputs (dated weeks before this
+  session, confirmed via file mtime) were untouched and downstream steps
+  (`build_asia_1946.py`, `build_southamerica_1946.py`) consumed them exactly
+  as before — not a regression, nothing to fix, unless that specific
+  country/continent is actually in scope for the current task. Contrast with
+  a step whose FIX requires the missing source (`build_us_states_split_
+  1946.py` needed `geoBoundaries-USA-ADM2.geojson` to produce the 112-region
+  county split this session's own earlier work — and this task — depended
+  on): there, downloading the file (with the user's explicit go-ahead,
+  matching the already-pinned geoBoundaries commit `9469f09` used by ISR/
+  PSE/CYP, via `media.githubusercontent.com` not `raw.` — same Git-LFS trap
+  documented for CYP-ADM1) was the correct call, not skipping the step.
 
 ## Positional-file fragility (silent, untested)
 

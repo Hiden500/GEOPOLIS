@@ -28,6 +28,8 @@ GEOD = Geod(ellps="WGS84")
 SRC = game_map()
 OUT = out("namerica_1946.geojson")
 
+CLIP_LAKE_NAMES_NAM = {"Озеро Верхнее", "Озеро Мичиган-Гурон", "Озеро Эри", "Озеро Онтарио"}
+
 KEEP_AS_IS = {
     "MX": "Мексика — 32 штата + CDMX, не менялось с 1917",
     "US": "США — границы штатов не менялись (Аляска/Гавайи геометрически "
@@ -149,6 +151,42 @@ def compactness(geom):
     if perim == 0:
         return 0.0
     return 4 * math.pi * geom.area / (perim ** 2)
+
+
+def clip_land_against_lakes(out_features, lake_names):
+    """`out/lakes_1946.geojson` содержит Великие озёра как настоящие водоёмы,
+    но ни один шаг build_namerica_1946.py никогда не вычитал их из суши США/
+    Канады — тот же класс пробела, что Ладога/Байкал в Европе (2026-07-19-l)
+    и Виктория/Танганьика в Африке. Симметрично `clip_land_against_lakes` в
+    build_europe_1946.py/build_africa_1946.py."""
+    lakes_path = out("lakes_1946.geojson")
+    with open(lakes_path, encoding="utf-8") as f:
+        lakes_fc = json.load(f)
+    lake_geoms = [shape(ft["geometry"]) for ft in lakes_fc["features"]
+                   if ft["properties"].get("name") in lake_names]
+    if not lake_geoms:
+        print(f"  [LAKE] ВНИМАНИЕ: не найдено ни одного из {lake_names} в lakes_1946.geojson")
+        return
+    lakes_union = unary_union(lake_geoms)
+    n_clipped = 0
+    for ft in out_features:
+        g = shape(ft["geometry"])
+        if not g.intersects(lakes_union):
+            continue
+        clipped = g.difference(lakes_union)
+        if not clipped.is_valid:
+            clipped = clipped.buffer(0)
+        if clipped.area <= 1e-9:
+            continue
+        removed_km2 = area_km2(g) - area_km2(clipped)
+        if removed_km2 < 1e-6:
+            continue
+        ft["geometry"] = mapping(clipped)
+        ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
+        n_clipped += 1
+        print(f"  [LAKE] {ft['properties']['name']} обрезана по озёрам "
+              f"(-{round(removed_km2, 1)} km2)")
+    print(f"  [LAKE] обрезано регионов: {n_clipped}")
 
 
 def load_features(path):
@@ -413,6 +451,8 @@ def main():
         for c in clusters:
             out_features.append(make_output_feature(c, iso2, method))
         report.append({"iso2": iso2, "method": method, "source_units": n_source, "output_regions": len(clusters)})
+
+    clip_land_against_lakes(out_features, CLIP_LAKE_NAMES_NAM)
 
     fc = {"type": "FeatureCollection", "features": out_features}
     with open(OUT, "w", encoding="utf-8") as f:

@@ -4529,10 +4529,19 @@
   "LAK-0011": {
     "owner": null
   },
+  "LAK-0012": {
+    "owner": null
+  },
+  "LAK-0013": {
+    "owner": null
+  },
   "EUR-0365": {
     "owner": "CYP"
   },
   "EUR-0366": {
+    "owner": "CYP"
+  },
+  "EUR-0367": {
     "owner": "CYP"
   },
   "ASI-0048": {
@@ -4622,27 +4631,27 @@
   "ASI-0167": {
     "owner": "IRQ"
   },
-  "EUR-0368": {
+  "EUR-0369": {
     "owner": "DEU",
     "controller": "SUN"
   },
-  "EUR-0369": {
-    "owner": "DEU",
-    "controller": "USA"
-  },
   "EUR-0370": {
     "owner": "DEU",
-    "controller": "GBR"
+    "controller": "USA"
   },
   "EUR-0371": {
     "owner": "DEU",
-    "controller": "FRA"
+    "controller": "GBR"
   },
   "EUR-0372": {
     "owner": "DEU",
-    "controller": "USA"
+    "controller": "FRA"
   },
   "EUR-0373": {
+    "owner": "DEU",
+    "controller": "USA"
+  },
+  "EUR-0374": {
     "owner": "DEU",
     "controller": "FRA"
   },

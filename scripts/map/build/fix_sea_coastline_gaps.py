@@ -357,6 +357,96 @@ def cleanup_scattered_fragments(seas_feats):
     print(f"  [CLEANUP] всего отброшено машинно-шумовых частей (< {DEGENERATE_AREA_DEG2} deg2): {total_degenerate}")
 
 
+def transfer_misassigned_parts(seas_feats):
+    """Переносит часть, ошибочно приписанную не тому морю, ЕЁ РЕАЛЬНОМУ
+    соседу — вместо того, чтобы оставлять её висеть на прежнем море или
+    ждать, что `cleanup_scattered_fragments` угадает по расстоянию (2026-07-20,
+    живые скриншоты пользователя: залив Патраикос/Арголидский залив у Ionian
+    Sea (0.012 deg2) касается Aegean Sea (общая граница > 0), но НЕ касается
+    остального тела Ionian Sea (граница = 0) — географически это вода
+    Эгейского моря; два тонких слайвера Andaman or Burma Sea у западного
+    берега Андаманских островов касаются Bay of Bengal, не своего же
+    "ствола" — на рендере клиента видны как рваный чужеродный шов на стыке
+    двух морей).
+
+    Критерий — не расстояние (см. предупреждение в докстринге
+    `cleanup_scattered_fragments`: расстояние до соседа почти всегда ≈0 и
+    для легитимных, и для нелегитимных случаев), а ФАКТ КАСАНИЯ границы:
+    часть, чья граница НЕ соприкасается с остальными частями своей же фичи
+    (`shared_own_boundary_length == 0`), но соприкасается с ДРУГИМ морем —
+    переносится в то море, с которым у неё САМАЯ ДЛИННАЯ общая граница (тот
+    же принцип, что уже использует `absorb_compact_gaps_multi`). Часть,
+    которая не касается вообще ничего (истинный оторванный островок без
+    соседа) остаётся на месте — её судьбу решает `cleanup_scattered_
+    fragments` по своим правилам (площадь/кластер), не эта функция.
+
+    Вызывается ДО `cleanup_scattered_fragments` (не после) — иначе
+    дистанционная кластеризация той функции может по ошибке "простить"
+    неправильно приписанную часть только потому, что она физически близко
+    к своему нынешнему (неверному) морю, так и не узнав, что у неё есть
+    более подходящий сосед."""
+    all_geoms = [shape(ft["geometry"]) for ft in seas_feats]
+    transfers = []  # (from_idx, to_idx, part)
+
+    for i, ft in enumerate(seas_feats):
+        g = all_geoms[i]
+        if g.geom_type != "MultiPolygon":
+            continue
+        parts = list(g.geoms)
+        n = len(parts)
+        if n <= 1:
+            continue
+        trunk_idx = max(range(n), key=lambda k: parts[k].area)
+        keep_parts = []
+        for k in range(n):
+            part = parts[k]
+            if k == trunk_idx or part.area >= ANCHOR_AREA_DEG2:
+                keep_parts.append(part)
+                continue
+            own_others = unary_union([parts[j] for j in range(n) if j != k])
+            shared_own = part.boundary.intersection(own_others.boundary).length
+            if shared_own > 1e-9:
+                keep_parts.append(part)
+                continue
+            best_j, best_len = None, 0.0
+            for j in range(len(seas_feats)):
+                if j == i:
+                    continue
+                shared = part.boundary.intersection(all_geoms[j].boundary).length
+                if shared > best_len:
+                    best_j, best_len = j, shared
+            if best_j is not None:
+                transfers.append((i, best_j, part))
+            else:
+                keep_parts.append(part)  # некуда переносить - оставить как есть
+        if len(keep_parts) < n:
+            new_g = unary_union(keep_parts) if keep_parts else parts[trunk_idx]
+            new_g = to_polygonal(new_g)
+            ft["geometry"] = mapping(new_g)
+            ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
+            all_geoms[i] = new_g
+
+    if not transfers:
+        print("  [TRANSFER] неправильно приписанных частей не найдено")
+        return
+
+    by_dest = {}
+    for i, j, part in transfers:
+        by_dest.setdefault(j, []).append((i, part))
+    for j, items in by_dest.items():
+        dest_g = all_geoms[j]
+        new_g = unary_union([dest_g] + [p for _, p in items])
+        new_g = to_polygonal(new_g)
+        seas_feats[j]["geometry"] = mapping(new_g)
+        seas_feats[j]["properties"]["area_km2"] = round(area_km2(new_g), 1)
+        all_geoms[j] = new_g
+        for i, part in items:
+            c = part.centroid
+            print(f"  [TRANSFER] {seas_feats[i]['properties'].get('name')} -> "
+                  f"{seas_feats[j]['properties'].get('name')}: {area_km2(part):.1f} km2 "
+                  f"centroid=({c.x:.2f},{c.y:.2f})")
+
+
 def finalize_no_overlaps(seas_feats):
     """Финальная защита ПОСЛЕ основного цикла: гарантирует 0 наложений
     МОРЕ-МОРЕ. Основной цикл читал соседние моря как context ЖИВЫМ (см.
@@ -416,6 +506,8 @@ def main():
     seas_feats = seas_fc["features"]
 
     if not only:
+        print("Перенос неправильно приписанных частей их реальным соседям...")
+        transfer_misassigned_parts(seas_feats)
         print("Очистка оторванных фрагментов от предыдущих багованных прогонов...")
         cleanup_scattered_fragments(seas_feats)
 
@@ -595,7 +687,8 @@ def main():
         # ячейку, касающуюся ЛЮБОЙ суши — не зная, что эта суша не имеет
         # отношения к Балтийскому морю. Чистка после основного цикла
         # убирает то, что цикл успел заново налепить.
-        print("\nПовторная очистка после основного цикла...")
+        print("\nПовторный перенос + очистка после основного цикла...")
+        transfer_misassigned_parts(seas_feats)
         cleanup_scattered_fragments(seas_feats)
         finalize_no_overlaps(seas_feats)
 

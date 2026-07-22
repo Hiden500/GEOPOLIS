@@ -19,7 +19,7 @@ from shapely.geometry import shape, mapping
 from shapely.ops import unary_union
 from pyproj import Geod
 
-CLIP_LAKE_NAMES_AFRICA = {"Виктория", "Танганьика"}
+CLIP_LAKE_NAMES_AFRICA = {"Виктория", "Танганьика", "Малави (Ньяса)"}
 
 GEOD = Geod(ellps="WGS84")
 SRC = game_map()

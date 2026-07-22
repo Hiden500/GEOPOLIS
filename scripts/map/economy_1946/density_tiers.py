@@ -225,8 +225,24 @@ def dnk_tier(name: str) -> int:
     return 3
 
 
+def cyp_tier(name: str) -> int:
+    """Кипр: тот же класс риска, что `dnk_tier` (Фарерские острова) — Akrotiri
+    (2026-07-20) и Dhekelia (британские военные базы, площадь ~100-134 km2)
+    меньше любого из 5 реальных округов острова, `generic_tier` трактовал бы
+    одну из них как "столица" по чисто площадному критерию. Nicosia —
+    настоящая столица (тир 5); Akrotiri/Dhekelia/Northern Cyprus —
+    малонаселённая военная/спорная периферия (тир 1); остальные округа —
+    базовый тир 3."""
+    if _contains_any(name, ["nicosia"]):
+        return 5
+    if _contains_any(name, ["akrotiri", "dhekelia", "northern cyprus"]):
+        return 1
+    return 3
+
+
 EXPLICIT_TIER_CLASSIFIERS = {
     "DNK": dnk_tier,
+    "CYP": cyp_tier,
     "SUN": sun_tier,
     "USA": usa_tier,
     "GBR": gbr_tier,

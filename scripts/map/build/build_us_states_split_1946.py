@@ -89,9 +89,9 @@ def reduce_clusters(clusters, target):
 
 
 def main():
-    with open(COUNTIES_SRC) as f:
+    with open(COUNTIES_SRC, encoding="utf-8") as f:
         counties_fc = json.load(f)
-    with open(NA_SRC) as f:
+    with open(NA_SRC, encoding="utf-8") as f:
         na_fc = json.load(f)
 
     us_states = [ft for ft in na_fc["features"] if ft["properties"]["iso_a2"] == "US"]
