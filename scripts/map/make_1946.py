@@ -11,13 +11,13 @@ make_1946.py — оркестратор пайплайна сценария 1946
       Стандартный путь: из уже готовых scripts/map/out/*.geojson+*.json
       (build_*/merge_world_1946/translate_world НЕ перезапускаются — по
       умолчанию репозиторий держит готовые выходы, см. scripts/map/README.md)
-      до валидного сценария. Экспорт каталога ресурсов (Node/tsx) →
-      import_to_game → generate_country_registry → fill_region_economy_1946 →
-      validate_region_economy_1946 → тест структурных инвариантов.
+      до валидного сценария. Экспорт каталога ресурсов (Node/tsx) ->
+      import_to_game -> generate_country_registry -> fill_region_economy_1946 ->
+      validate_region_economy_1946 -> тест структурных инвариантов.
 
   python scripts/map/make_1946.py --full-rebuild
       То же самое, но сначала полностью пересобирает геометрию из
-      scripts/map/sources/ (build_europe_1946.py → ... → translate_world.py).
+      scripts/map/sources/ (build_europe_1946.py -> ... -> translate_world.py).
       Нужны shapely/pyproj/pyshp и внешние источники — см. README "Внешние
       источники". Не нужно для рутинного изменения экономики/владения/каталога
       ресурсов — только при правке самой геометрии/границ.
@@ -34,8 +34,8 @@ SERVER_DIR = REPO_ROOT / "server"
 # Порядок — docs/plans/README.md/scripts/map/README.md "Порядок запуска".
 FULL_REBUILD_STEPS = [
     "build/build_europe_1946.py",
-    "build/build_asia_1946.py",
     "build/build_china_1946_v2.py",
+    "build/build_asia_1946.py",
     "build/build_namerica_1946.py",
     "build/build_us_states_split_1946.py",
     "build/fill_us_border_gaps.py",

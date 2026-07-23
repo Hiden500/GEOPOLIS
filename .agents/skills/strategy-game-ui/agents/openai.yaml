@@ -1,0 +1,4 @@
+interface:
+  display_name: "Strategy Game UI"
+  short_description: "Strategy-game UI/UX audit and design"
+  default_prompt: "Use $strategy-game-ui to audit this strategy game UI from gameplay scenarios and repository evidence."

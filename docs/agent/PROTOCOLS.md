@@ -1,6 +1,10 @@
 # PROTOCOLS — рабочие протоколы агента
 
-Дополняет [MASTER_PROMPT.md](MASTER_PROMPT.md). Здесь — пошаговые процедуры.
+> **HISTORICAL / SUPERSEDED (2026-07-15).** Не исполнять как активные
+> инструкции. Актуальные workflow находятся в `.agents/skills/`, планирование
+> — в `.agent/PLANS.md`. Ниже сохранён исходный proposal для истории.
+
+Исторически дополнял [MASTER_PROMPT.md](MASTER_PROMPT.md).
 
 ---
 

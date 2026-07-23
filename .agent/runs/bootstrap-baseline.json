@@ -1,0 +1,127 @@
+{
+  "$schema": "../run-record.schema.json",
+  "schema_version": 1,
+  "run_id": "bootstrap-baseline-2026-07-15",
+  "task_identifier": "docs/tasks/GLOBAL_AUDIT.md:phase-0",
+  "agent": {
+    "client": "Codex Desktop",
+    "name": "Codex",
+    "model": null,
+    "reasoning_setting": null
+  },
+  "started_at": null,
+  "finished_at": null,
+  "elapsed_seconds": null,
+  "starting_commit": "470a719748c3aab3a73d82f213706f0fd3e60abf",
+  "ending_commit": "470a719748c3aab3a73d82f213706f0fd3e60abf",
+  "branch": "codex/global-working-agreements",
+  "sandbox_mode": "workspace-write",
+  "approval_mode": "auto_review",
+  "network_mode": "restricted",
+  "tools_used": [
+    "shell_command",
+    "repowise-distill",
+    "subagents"
+  ],
+  "commands": [
+    {
+      "cwd": "server",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exit_code": 0,
+      "duration_ms": 4139
+    },
+    {
+      "cwd": "client",
+      "command": "npx tsc --noEmit -p tsconfig.app.json",
+      "exit_code": 0,
+      "duration_ms": 4273
+    },
+    {
+      "cwd": "server",
+      "command": "npm test",
+      "exit_code": 0,
+      "duration_ms": 4958,
+      "summary": "679 passed, 1 skipped"
+    },
+    {
+      "cwd": "client",
+      "command": "npm test",
+      "exit_code": 0,
+      "duration_ms": 3658,
+      "summary": "92 passed"
+    },
+    {
+      "cwd": "client",
+      "command": "npm run lint",
+      "exit_code": 1,
+      "duration_ms": 4816,
+      "summary": "20 errors"
+    },
+    {
+      "cwd": "client",
+      "command": "npm run build",
+      "exit_code": 0,
+      "duration_ms": 5025,
+      "summary": "built with chunk-size warning"
+    },
+    {
+      "cwd": ".",
+      "command": "python scripts/map/validate_region_economy_1946.py",
+      "exit_code": 0,
+      "duration_ms": 1640
+    },
+    {
+      "cwd": ".",
+      "command": "python scripts/map/test_validate_region_economy_1946.py",
+      "exit_code": 0,
+      "duration_ms": 1752,
+      "summary": "9 passed"
+    },
+    {
+      "cwd": "client",
+      "command": "npm audit --audit-level=high",
+      "exit_code": 0,
+      "duration_ms": 1646,
+      "summary": "0 vulnerabilities"
+    },
+    {
+      "cwd": "server",
+      "command": "npm audit --audit-level=high",
+      "exit_code": 0,
+      "duration_ms": 1206,
+      "summary": "0 vulnerabilities"
+    },
+    {
+      "cwd": ".",
+      "command": "npm audit --audit-level=high",
+      "exit_code": 0,
+      "duration_ms": 1622,
+      "summary": "1 low-severity esbuild advisory"
+    }
+  ],
+  "tests_executed": [
+    "client-vitest",
+    "server-vitest",
+    "scenario-1946-validation",
+    "scenario-1946-structural-unit-tests"
+  ],
+  "baseline_failures": [
+    "client lint: 20 errors",
+    "PyShp missing and no Python dependency manifest",
+    "root npm audit: 1 low-severity advisory",
+    "ordinary Windows sandbox shell startup denied"
+  ],
+  "introduced_failures": [],
+  "human_interventions": 0,
+  "files_changed": [],
+  "agent_configuration_mutations": [],
+  "token_usage": null,
+  "cost": null,
+  "final_status": "baseline_captured_with_failures",
+  "unresolved_risks": [
+    "local checks used Node 24 while CI uses Node 22",
+    "Repowise and Context7 MCP loading was not observable",
+    "no browser end-to-end baseline was executed",
+    "TruffleHog was not available locally"
+  ]
+}

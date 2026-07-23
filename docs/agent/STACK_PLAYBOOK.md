@@ -1,7 +1,11 @@
 # STACK PLAYBOOK — процессы под конкретный стек
 
-Практика работы с TS-монорепо / Vitest / Zod / Python-пайплайном / Windows.
-Команды проверены на текущей структуре репозитория.
+> **HISTORICAL / EXPLANATORY (2026-07-15).** Это snapshot раннего bootstrap,
+> не активный runbook. Реальные команды — manifests/CI, краткий matrix —
+> root/nested `AGENTS.md` и skill `verify-change`. Ниже есть stale claims.
+
+Практика работы с TS / Vitest / Zod / Python-пайплайном / Windows на момент
+создания snapshot.
 
 ---
 
