@@ -386,12 +386,12 @@
   {
     "id": 25,
     "ownerCountryId": "SUN",
-    "population": 1050400,
+    "population": 1050399,
     "urbanization": 0.216,
     "stability": 0.559,
     "infrastructure": 0.612,
     "development": 0.62,
-    "gdp": 398563776,
+    "gdp": 398563397,
     "deposits": {
       "food": 1176
     },
@@ -2984,12 +2984,12 @@
   {
     "id": 185,
     "ownerCountryId": "SUN",
-    "population": 748062,
+    "population": 748061,
     "urbanization": 0.246,
     "stability": 0.522,
     "infrastructure": 0.576,
     "development": 0.677,
-    "gdp": 291708273,
+    "gdp": 291707883,
     "deposits": {
       "food": 880
     },
@@ -3016,12 +3016,12 @@
   {
     "id": 187,
     "ownerCountryId": "SUN",
-    "population": 1015900,
+    "population": 1015899,
     "urbanization": 0.243,
     "stability": 0.596,
     "infrastructure": 0.516,
     "development": 0.668,
-    "gdp": 350168539,
+    "gdp": 350168195,
     "deposits": {
       "food": 1187
     },
@@ -3064,12 +3064,12 @@
   {
     "id": 190,
     "ownerCountryId": "SUN",
-    "population": 537017,
+    "population": 537016,
     "urbanization": 0.234,
     "stability": 0.54,
     "infrastructure": 0.553,
     "development": 0.752,
-    "gdp": 223321742,
+    "gdp": 223321326,
     "deposits": {
       "food": 672
     },
@@ -3080,12 +3080,12 @@
   {
     "id": 191,
     "ownerCountryId": "SUN",
-    "population": 675986,
+    "population": 675985,
     "urbanization": 0.24,
     "stability": 0.534,
     "infrastructure": 0.533,
     "development": 0.701,
-    "gdp": 252570677,
+    "gdp": 252570304,
     "deposits": {
       "food": 812
     },
@@ -3096,12 +3096,12 @@
   {
     "id": 192,
     "ownerCountryId": "SUN",
-    "population": 617724,
+    "population": 617723,
     "urbanization": 0.222,
     "stability": 0.564,
     "infrastructure": 0.594,
     "development": 0.683,
-    "gdp": 250611862,
+    "gdp": 250611457,
     "deposits": {
       "food": 731
     },
@@ -3112,12 +3112,12 @@
   {
     "id": 193,
     "ownerCountryId": "SUN",
-    "population": 649061,
+    "population": 649060,
     "urbanization": 0.218,
     "stability": 0.577,
     "infrastructure": 0.612,
     "development": 0.683,
-    "gdp": 271304902,
+    "gdp": 271304484,
     "deposits": {
       "food": 768
     },
@@ -3144,12 +3144,12 @@
   {
     "id": 195,
     "ownerCountryId": "SUN",
-    "population": 1129317,
+    "population": 1129316,
     "urbanization": 0.228,
     "stability": 0.557,
     "infrastructure": 0.513,
     "development": 0.673,
-    "gdp": 389895565,
+    "gdp": 389895220,
     "deposits": {
       "food": 1325
     },
@@ -3944,12 +3944,12 @@
   {
     "id": 244,
     "ownerCountryId": "SUN",
-    "population": 723665,
+    "population": 723664,
     "urbanization": 0.121,
     "stability": 0.528,
     "infrastructure": 0.459,
     "development": 0.576,
-    "gdp": 191325447,
+    "gdp": 191325183,
     "deposits": {
       "oil": 40,
       "food": 779,
@@ -3964,12 +3964,12 @@
   {
     "id": 245,
     "ownerCountryId": "SUN",
-    "population": 1201025,
+    "population": 1201024,
     "urbanization": 0.13,
     "stability": 0.568,
     "infrastructure": 0.492,
     "development": 0.528,
-    "gdp": 311997470,
+    "gdp": 311997211,
     "deposits": {
       "food": 1235,
       "timber": 33
@@ -4116,12 +4116,12 @@
   {
     "id": 254,
     "ownerCountryId": "SUN",
-    "population": 368619,
+    "population": 368618,
     "urbanization": 0.136,
     "stability": 0.561,
     "infrastructure": 0.425,
     "development": 0.6,
-    "gdp": 93997845,
+    "gdp": 93997590,
     "deposits": {
       "food": 405
     },
@@ -4170,12 +4170,12 @@
   {
     "id": 257,
     "ownerCountryId": "SUN",
-    "population": 1720425,
+    "population": 1720424,
     "urbanization": 0.237,
     "stability": 0.576,
     "infrastructure": 0.542,
     "development": 0.664,
-    "gdp": 619160312,
+    "gdp": 619159953,
     "deposits": {
       "food": 2003,
       "timber": 15
@@ -4188,12 +4188,12 @@
   {
     "id": 258,
     "ownerCountryId": "SUN",
-    "population": 1625319,
+    "population": 1625338,
     "urbanization": 0.057,
     "stability": 0.502,
     "infrastructure": 0.365,
     "development": 0.415,
-    "gdp": 246195196,
+    "gdp": 246198074,
     "deposits": {
       "food": 1487,
       "timber": 466
@@ -4206,12 +4206,12 @@
   {
     "id": 259,
     "ownerCountryId": "SUN",
-    "population": 1280312,
+    "population": 1280311,
     "urbanization": 0.127,
     "stability": 0.525,
     "infrastructure": 0.478,
     "development": 0.523,
-    "gdp": 320070318,
+    "gdp": 320070068,
     "deposits": {
       "food": 1310,
       "timber": 33
@@ -4278,14 +4278,14 @@
   {
     "id": 263,
     "ownerCountryId": "SUN",
-    "population": 744530,
+    "population": 744556,
     "urbanization": 0.056,
     "stability": 0.571,
     "infrastructure": 0.322,
     "development": 0.418,
-    "gdp": 100210760,
+    "gdp": 100214259,
     "deposits": {
-      "food": 683,
+      "food": 684,
       "timber": 81
     },
     "extraction": {
@@ -4360,12 +4360,12 @@
   {
     "id": 268,
     "ownerCountryId": "SUN",
-    "population": 915995,
+    "population": 915994,
     "urbanization": 0.123,
     "stability": 0.59,
     "infrastructure": 0.45,
     "development": 0.555,
-    "gdp": 228769751,
+    "gdp": 228769502,
     "deposits": {
       "food": 966,
       "timber": 23
@@ -4396,12 +4396,12 @@
   {
     "id": 270,
     "ownerCountryId": "SUN",
-    "population": 1293555,
+    "population": 1293554,
     "urbanization": 0.206,
     "stability": 0.545,
     "infrastructure": 0.51,
     "development": 0.708,
-    "gdp": 467076839,
+    "gdp": 467076478,
     "deposits": {
       "food": 1563,
       "timber": 10
@@ -4414,12 +4414,12 @@
   {
     "id": 271,
     "ownerCountryId": "SUN",
-    "population": 1556411,
+    "population": 1556410,
     "urbanization": 0.237,
     "stability": 0.544,
     "infrastructure": 0.555,
     "development": 0.714,
-    "gdp": 616758987,
+    "gdp": 616758591,
     "deposits": {
       "food": 1889,
       "timber": 15
@@ -4432,12 +4432,12 @@
   {
     "id": 272,
     "ownerCountryId": "SUN",
-    "population": 875731,
+    "population": 875730,
     "urbanization": 0.222,
     "stability": 0.527,
     "infrastructure": 0.564,
     "development": 0.694,
-    "gdp": 342775125,
+    "gdp": 342774734,
     "deposits": {
       "food": 1046
     },
@@ -4448,12 +4448,12 @@
   {
     "id": 273,
     "ownerCountryId": "SUN",
-    "population": 972826,
+    "population": 972825,
     "urbanization": 0.056,
     "stability": 0.553,
     "infrastructure": 0.354,
     "development": 0.442,
-    "gdp": 152216139,
+    "gdp": 152215982,
     "deposits": {
       "food": 916,
       "timber": 152
@@ -4500,12 +4500,12 @@
   {
     "id": 276,
     "ownerCountryId": "SUN",
-    "population": 1075402,
+    "population": 1075401,
     "urbanization": 0.246,
     "stability": 0.57,
     "infrastructure": 0.585,
     "development": 0.717,
-    "gdp": 451071992,
+    "gdp": 451071572,
     "deposits": {
       "food": 1309
     },
@@ -4534,12 +4534,12 @@
   {
     "id": 278,
     "ownerCountryId": "SUN",
-    "population": 959455,
+    "population": 959454,
     "urbanization": 0.138,
     "stability": 0.548,
     "infrastructure": 0.427,
     "development": 0.574,
-    "gdp": 235160502,
+    "gdp": 235160256,
     "deposits": {
       "coal": 250,
       "food": 1030,
@@ -4554,12 +4554,12 @@
   {
     "id": 279,
     "ownerCountryId": "SUN",
-    "population": 1058915,
+    "population": 1058914,
     "urbanization": 0.122,
     "stability": 0.534,
     "infrastructure": 0.488,
     "development": 0.577,
-    "gdp": 298165050,
+    "gdp": 298164768,
     "deposits": {
       "food": 1140,
       "timber": 24
@@ -4590,12 +4590,12 @@
   {
     "id": 281,
     "ownerCountryId": "SUN",
-    "population": 1536805,
+    "population": 1536804,
     "urbanization": 0.238,
     "stability": 0.566,
     "infrastructure": 0.527,
     "development": 0.649,
-    "gdp": 525622657,
+    "gdp": 525622314,
     "deposits": {
       "oil": 150,
       "food": 1766,
@@ -4610,12 +4610,12 @@
   {
     "id": 282,
     "ownerCountryId": "SUN",
-    "population": 753139,
+    "population": 753138,
     "urbanization": 0.137,
     "stability": 0.591,
     "infrastructure": 0.463,
     "development": 0.542,
-    "gdp": 188997219,
+    "gdp": 188996969,
     "deposits": {
       "food": 785,
       "timber": 14
@@ -4644,12 +4644,12 @@
   {
     "id": 284,
     "ownerCountryId": "SUN",
-    "population": 8550564,
+    "population": 8550559,
     "urbanization": 0.526,
     "stability": 0.551,
     "infrastructure": 0.799,
     "development": 0.95,
-    "gdp": 6490305604,
+    "gdp": 6490301809,
     "deposits": {
       "food": 12398,
       "timber": 15
@@ -4678,12 +4678,12 @@
   {
     "id": 286,
     "ownerCountryId": "SUN",
-    "population": 781908,
+    "population": 781907,
     "urbanization": 0.051,
     "stability": 0.512,
     "infrastructure": 0.311,
     "development": 0.415,
-    "gdp": 100916956,
+    "gdp": 100916827,
     "deposits": {
       "food": 715,
       "timber": 93
@@ -4696,12 +4696,12 @@
   {
     "id": 287,
     "ownerCountryId": "SUN",
-    "population": 7522858,
+    "population": 7522855,
     "urbanization": 0.57,
     "stability": 0.583,
     "infrastructure": 0.902,
     "development": 0.93,
-    "gdp": 6310624662,
+    "gdp": 6310622145,
     "deposits": {
       "food": 10758
     },
@@ -4748,12 +4748,12 @@
   {
     "id": 290,
     "ownerCountryId": "SUN",
-    "population": 1166486,
+    "population": 1166485,
     "urbanization": 0.127,
     "stability": 0.58,
     "infrastructure": 0.433,
     "development": 0.515,
-    "gdp": 260120546,
+    "gdp": 260120323,
     "deposits": {
       "food": 1184,
       "timber": 36
@@ -4766,12 +4766,12 @@
   {
     "id": 291,
     "ownerCountryId": "SUN",
-    "population": 1173703,
+    "population": 1173702,
     "urbanization": 0.134,
     "stability": 0.511,
     "infrastructure": 0.452,
     "development": 0.514,
-    "gdp": 272684071,
+    "gdp": 272683838,
     "deposits": {
       "food": 1190,
       "timber": 28
@@ -4820,12 +4820,12 @@
   {
     "id": 294,
     "ownerCountryId": "SUN",
-    "population": 623209,
+    "population": 623208,
     "urbanization": 0.127,
     "stability": 0.577,
     "infrastructure": 0.467,
     "development": 0.55,
-    "gdp": 160071232,
+    "gdp": 160070975,
     "deposits": {
       "food": 654
     },
@@ -4876,12 +4876,12 @@
   {
     "id": 297,
     "ownerCountryId": "SUN",
-    "population": 1896247,
+    "population": 1896246,
     "urbanization": 0.242,
     "stability": 0.582,
     "infrastructure": 0.573,
     "development": 0.754,
-    "gdp": 819258346,
+    "gdp": 819257914,
     "deposits": {
       "food": 2378,
       "timber": 20
@@ -4894,12 +4894,12 @@
   {
     "id": 298,
     "ownerCountryId": "SUN",
-    "population": 1311524,
+    "population": 1311523,
     "urbanization": 0.241,
     "stability": 0.573,
     "infrastructure": 0.57,
     "development": 0.686,
-    "gdp": 512832114,
+    "gdp": 512831723,
     "deposits": {
       "food": 1555
     },
@@ -4910,12 +4910,12 @@
   {
     "id": 299,
     "ownerCountryId": "SUN",
-    "population": 2123795,
+    "population": 2123794,
     "urbanization": 0.22,
     "stability": 0.526,
     "infrastructure": 0.554,
     "development": 0.651,
-    "gdp": 765955162,
+    "gdp": 765954801,
     "deposits": {
       "food": 2444,
       "timber": 20
@@ -4928,12 +4928,12 @@
   {
     "id": 300,
     "ownerCountryId": "SUN",
-    "population": 301313,
+    "population": 301312,
     "urbanization": 0.06,
     "stability": 0.497,
     "infrastructure": 0.343,
     "development": 0.401,
-    "gdp": 41443494,
+    "gdp": 41443356,
     "deposits": {
       "food": 271,
       "timber": 17
@@ -4970,12 +4970,12 @@
   {
     "id": 302,
     "ownerCountryId": "SUN",
-    "population": 624154,
+    "population": 624153,
     "urbanization": 0.136,
     "stability": 0.573,
     "infrastructure": 0.452,
     "development": 0.575,
-    "gdp": 162217625,
+    "gdp": 162217365,
     "deposits": {
       "food": 671,
       "timber": 10
@@ -4988,12 +4988,12 @@
   {
     "id": 303,
     "ownerCountryId": "SUN",
-    "population": 1161262,
+    "population": 1161261,
     "urbanization": 0.228,
     "stability": 0.579,
     "infrastructure": 0.585,
     "development": 0.709,
-    "gdp": 481650833,
+    "gdp": 481650419,
     "deposits": {
       "food": 1404
     },
@@ -5004,12 +5004,12 @@
   {
     "id": 304,
     "ownerCountryId": "SUN",
-    "population": 583893,
+    "population": 583892,
     "urbanization": 0.06,
     "stability": 0.553,
     "infrastructure": 0.306,
     "development": 0.432,
-    "gdp": 77185983,
+    "gdp": 77185851,
     "deposits": {
       "food": 544,
       "timber": 63
@@ -5038,12 +5038,12 @@
   {
     "id": 306,
     "ownerCountryId": "SUN",
-    "population": 1197198,
+    "population": 1197197,
     "urbanization": 0.133,
     "stability": 0.591,
     "infrastructure": 0.445,
     "development": 0.502,
-    "gdp": 267442061,
+    "gdp": 267441838,
     "deposits": {
       "food": 1200,
       "timber": 32
@@ -5266,12 +5266,12 @@
   {
     "id": 319,
     "ownerCountryId": "SUN",
-    "population": 860762,
+    "population": 860800,
     "urbanization": 0.057,
     "stability": 0.509,
     "infrastructure": 0.341,
     "development": 0.419,
-    "gdp": 122984814,
+    "gdp": 122990243,
     "deposits": {
       "food": 791,
       "timber": 137
@@ -5284,12 +5284,12 @@
   {
     "id": 320,
     "ownerCountryId": "SUN",
-    "population": 1509964,
+    "population": 1509963,
     "urbanization": 0.567,
     "stability": 0.626,
     "infrastructure": 0.839,
     "development": 0.95,
-    "gdp": 1203516806,
+    "gdp": 1203516009,
     "deposits": {
       "food": 2189
     },
@@ -5300,12 +5300,12 @@
   {
     "id": 321,
     "ownerCountryId": "SUN",
-    "population": 1331574,
+    "population": 1331573,
     "urbanization": 0.536,
     "stability": 0.593,
     "infrastructure": 0.911,
     "development": 0.947,
-    "gdp": 1148771527,
+    "gdp": 1148770664,
     "deposits": {
       "food": 1927
     },
@@ -5332,12 +5332,12 @@
   {
     "id": 323,
     "ownerCountryId": "SUN",
-    "population": 132621,
+    "population": 132620,
     "urbanization": 0.205,
     "stability": 0.538,
     "infrastructure": 0.598,
     "development": 0.755,
-    "gdp": 59877055,
+    "gdp": 59876604,
     "deposits": {
       "food": 166
     },
@@ -5696,12 +5696,12 @@
   {
     "id": 345,
     "ownerCountryId": "SUN",
-    "population": 2216119,
+    "population": 2216118,
     "urbanization": 0.349,
     "stability": 0.588,
     "infrastructure": 0.676,
     "development": 0.902,
-    "gdp": 1351282992,
+    "gdp": 1351282383,
     "deposits": {
       "food": 3107
     },
@@ -5712,12 +5712,12 @@
   {
     "id": 346,
     "ownerCountryId": "SUN",
-    "population": 701836,
+    "population": 701835,
     "urbanization": 0.227,
     "stability": 0.587,
     "infrastructure": 0.533,
     "development": 0.669,
-    "gdp": 250258575,
+    "gdp": 250258219,
     "deposits": {
       "food": 820
     },
@@ -5728,12 +5728,12 @@
   {
     "id": 347,
     "ownerCountryId": "SUN",
-    "population": 478771,
+    "population": 478770,
     "urbanization": 0.221,
     "stability": 0.541,
     "infrastructure": 0.596,
     "development": 0.685,
-    "gdp": 195463048,
+    "gdp": 195462640,
     "deposits": {
       "food": 567
     },
@@ -5760,12 +5760,12 @@
   {
     "id": 349,
     "ownerCountryId": "SUN",
-    "population": 2403857,
+    "population": 2403856,
     "urbanization": 0.374,
     "stability": 0.596,
     "infrastructure": 0.638,
     "development": 0.817,
-    "gdp": 1253000846,
+    "gdp": 1253000325,
     "deposits": {
       "food": 3166
     },
@@ -5792,12 +5792,12 @@
   {
     "id": 351,
     "ownerCountryId": "SUN",
-    "population": 879183,
+    "population": 879182,
     "urbanization": 0.205,
     "stability": 0.528,
     "infrastructure": 0.542,
     "development": 0.69,
-    "gdp": 328796858,
+    "gdp": 328796484,
     "deposits": {
       "food": 1046
     },
@@ -5824,12 +5824,12 @@
   {
     "id": 353,
     "ownerCountryId": "SUN",
-    "population": 2271637,
+    "population": 2271636,
     "urbanization": 0.386,
     "stability": 0.572,
     "infrastructure": 0.733,
     "development": 0.815,
-    "gdp": 1357064586,
+    "gdp": 1357063988,
     "deposits": {
       "food": 2987
     },
@@ -5840,12 +5840,12 @@
   {
     "id": 354,
     "ownerCountryId": "SUN",
-    "population": 2157893,
+    "population": 2157892,
     "urbanization": 0.353,
     "stability": 0.555,
     "infrastructure": 0.701,
     "development": 0.824,
-    "gdp": 1246450786,
+    "gdp": 1246450209,
     "deposits": {
       "coal": 400,
       "food": 2857
@@ -5858,12 +5858,12 @@
   {
     "id": 355,
     "ownerCountryId": "SUN",
-    "population": 2323315,
+    "population": 2323314,
     "urbanization": 0.351,
     "stability": 0.581,
     "infrastructure": 0.649,
     "development": 0.81,
-    "gdp": 1221343462,
+    "gdp": 1221342937,
     "deposits": {
       "coal": 500,
       "iron": 200,
@@ -5894,12 +5894,12 @@
   {
     "id": 357,
     "ownerCountryId": "SUN",
-    "population": 2124835,
+    "population": 2124833,
     "urbanization": 0.423,
     "stability": 0.604,
     "infrastructure": 0.739,
     "development": 0.753,
-    "gdp": 1182400558,
+    "gdp": 1182399445,
     "deposits": {
       "food": 2662
     },
@@ -5926,12 +5926,12 @@
   {
     "id": 359,
     "ownerCountryId": "SUN",
-    "population": 912846,
+    "population": 912845,
     "urbanization": 0.237,
     "stability": 0.544,
     "infrastructure": 0.609,
     "development": 0.635,
-    "gdp": 353011241,
+    "gdp": 353010854,
     "deposits": {
       "food": 1036
     },
@@ -5974,12 +5974,12 @@
   {
     "id": 362,
     "ownerCountryId": "SUN",
-    "population": 2342448,
+    "population": 2342447,
     "urbanization": 0.386,
     "stability": 0.531,
     "infrastructure": 0.61,
     "development": 0.75,
-    "gdp": 1071669960,
+    "gdp": 1071669502,
     "deposits": {
       "iron": 400,
       "manganese": 150,
@@ -5994,12 +5994,12 @@
   {
     "id": 363,
     "ownerCountryId": "SUN",
-    "population": 929174,
+    "population": 929173,
     "urbanization": 0.237,
     "stability": 0.554,
     "infrastructure": 0.576,
     "development": 0.619,
-    "gdp": 331291415,
+    "gdp": 331291058,
     "deposits": {
       "food": 1040
     },
@@ -6010,12 +6010,12 @@
   {
     "id": 364,
     "ownerCountryId": "SUN",
-    "population": 943126,
+    "population": 943125,
     "urbanization": 0.231,
     "stability": 0.587,
     "infrastructure": 0.604,
     "development": 0.681,
-    "gdp": 387930359,
+    "gdp": 387929948,
     "deposits": {
       "food": 1114
     },
@@ -6026,12 +6026,12 @@
   {
     "id": 365,
     "ownerCountryId": "SUN",
-    "population": 521039,
+    "population": 521038,
     "urbanization": 0.422,
     "stability": 0.545,
     "infrastructure": 0.705,
     "development": 0.811,
-    "gdp": 297906653,
+    "gdp": 297906082,
     "deposits": {
       "food": 683
     },
@@ -6270,12 +6270,12 @@
   {
     "id": 380,
     "ownerCountryId": "TWN",
-    "population": 14820859,
+    "population": 14820857,
     "urbanization": 0.094,
     "stability": 0.339,
     "infrastructure": 0.232,
     "development": 0.286,
-    "gdp": 983393636,
+    "gdp": 983393504,
     "deposits": {
       "food": 11649,
       "timber": 77
@@ -6288,12 +6288,12 @@
   {
     "id": 381,
     "ownerCountryId": "TWN",
-    "population": 11422365,
+    "population": 11422364,
     "urbanization": 0.09,
     "stability": 0.321,
     "infrastructure": 0.268,
     "development": 0.323,
-    "gdp": 988765604,
+    "gdp": 988765517,
     "deposits": {
       "food": 9401,
       "timber": 47
@@ -6306,12 +6306,12 @@
   {
     "id": 382,
     "ownerCountryId": "TWN",
-    "population": 18258225,
+    "population": 18258223,
     "urbanization": 0.16,
     "stability": 0.321,
     "infrastructure": 0.341,
     "development": 0.4,
-    "gdp": 2490421890,
+    "gdp": 2490421617,
     "deposits": {
       "food": 16432,
       "timber": 35
@@ -6340,12 +6340,12 @@
   {
     "id": 384,
     "ownerCountryId": "TWN",
-    "population": 7653301,
+    "population": 7653300,
     "urbanization": 0.093,
     "stability": 0.324,
     "infrastructure": 0.226,
     "development": 0.317,
-    "gdp": 548297790,
+    "gdp": 548297719,
     "deposits": {
       "food": 6253,
       "timber": 24
@@ -6358,12 +6358,12 @@
   {
     "id": 385,
     "ownerCountryId": "TWN",
-    "population": 14310288,
+    "population": 14310286,
     "urbanization": 0.167,
     "stability": 0.34,
     "infrastructure": 0.292,
     "development": 0.353,
-    "gdp": 1475047246,
+    "gdp": 1475047040,
     "deposits": {
       "food": 12207,
       "timber": 20
@@ -6376,12 +6376,12 @@
   {
     "id": 386,
     "ownerCountryId": "TWN",
-    "population": 16341745,
+    "population": 16341743,
     "urbanization": 0.435,
     "stability": 0.358,
     "infrastructure": 0.487,
     "development": 0.564,
-    "gdp": 4488554416,
+    "gdp": 4488553866,
     "deposits": {
       "food": 17388
     },
@@ -6392,12 +6392,12 @@
   {
     "id": 387,
     "ownerCountryId": "TWN",
-    "population": 14922393,
+    "population": 14922391,
     "urbanization": 0.174,
     "stability": 0.354,
     "infrastructure": 0.296,
     "development": 0.367,
-    "gdp": 1621049396,
+    "gdp": 1621049179,
     "deposits": {
       "food": 12938,
       "timber": 20
@@ -6410,12 +6410,12 @@
   {
     "id": 388,
     "ownerCountryId": "TWN",
-    "population": 18099282,
+    "population": 18099325,
     "urbanization": 0.16,
     "stability": 0.32,
     "infrastructure": 0.283,
     "development": 0.399,
-    "gdp": 2043716626,
+    "gdp": 2043721481,
     "deposits": {
       "food": 16271,
       "timber": 31
@@ -6446,12 +6446,12 @@
   {
     "id": 390,
     "ownerCountryId": "TWN",
-    "population": 22132661,
+    "population": 22132658,
     "urbanization": 0.417,
     "stability": 0.336,
     "infrastructure": 0.435,
     "development": 0.574,
-    "gdp": 5526304125,
+    "gdp": 5526303376,
     "deposits": {
       "food": 23770
     },
@@ -6478,12 +6478,12 @@
   {
     "id": 392,
     "ownerCountryId": "TWN",
-    "population": 28733686,
+    "population": 28733683,
     "urbanization": 0.435,
     "stability": 0.369,
     "infrastructure": 0.428,
     "development": 0.589,
-    "gdp": 7243532371,
+    "gdp": 7243531615,
     "deposits": {
       "food": 31291
     },
@@ -6512,12 +6512,12 @@
   {
     "id": 394,
     "ownerCountryId": "TWN",
-    "population": 9553303,
+    "population": 9553302,
     "urbanization": 0.088,
     "stability": 0.309,
     "infrastructure": 0.243,
     "development": 0.323,
-    "gdp": 749829199,
+    "gdp": 749829121,
     "deposits": {
       "food": 7862,
       "timber": 35
@@ -6530,12 +6530,12 @@
   {
     "id": 395,
     "ownerCountryId": "TWN",
-    "population": 22164220,
+    "population": 22164217,
     "urbanization": 0.175,
     "stability": 0.323,
     "infrastructure": 0.322,
     "development": 0.368,
-    "gdp": 2626371413,
+    "gdp": 2626371058,
     "deposits": {
       "food": 19239,
       "timber": 42
@@ -6584,12 +6584,12 @@
   {
     "id": 398,
     "ownerCountryId": "TWN",
-    "population": 2361998,
+    "population": 2361997,
     "urbanization": 0.016,
     "stability": 0.278,
     "infrastructure": 0.128,
     "development": 0.161,
-    "gdp": 48676055,
+    "gdp": 48676034,
     "deposits": {
       "food": 1561,
       "timber": 143
@@ -6620,12 +6620,12 @@
   {
     "id": 400,
     "ownerCountryId": "TWN",
-    "population": 9359151,
+    "population": 9359150,
     "urbanization": 0.089,
     "stability": 0.321,
     "infrastructure": 0.252,
     "development": 0.304,
-    "gdp": 716985840,
+    "gdp": 716985763,
     "deposits": {
       "food": 7525,
       "timber": 34
@@ -6638,12 +6638,12 @@
   {
     "id": 401,
     "ownerCountryId": "TWN",
-    "population": 17446245,
+    "population": 17446243,
     "urbanization": 0.158,
     "stability": 0.306,
     "infrastructure": 0.317,
     "development": 0.393,
-    "gdp": 2173470648,
+    "gdp": 2173470399,
     "deposits": {
       "food": 15579,
       "timber": 33
@@ -6656,12 +6656,12 @@
   {
     "id": 402,
     "ownerCountryId": "TWN",
-    "population": 18362898,
+    "population": 18362896,
     "urbanization": 0.175,
     "stability": 0.327,
     "infrastructure": 0.324,
     "development": 0.34,
-    "gdp": 2022856844,
+    "gdp": 2022856623,
     "deposits": {
       "food": 15425,
       "timber": 36
@@ -6674,12 +6674,12 @@
   {
     "id": 403,
     "ownerCountryId": "TWN",
-    "population": 16392442,
+    "population": 16392439,
     "urbanization": 0.175,
     "stability": 0.314,
     "infrastructure": 0.329,
     "development": 0.39,
-    "gdp": 2103314233,
+    "gdp": 2103313848,
     "deposits": {
       "food": 14589,
       "timber": 28
@@ -6908,12 +6908,12 @@
   {
     "id": 416,
     "ownerCountryId": "TWN",
-    "population": 29141068,
+    "population": 29141064,
     "urbanization": 0.147,
     "stability": 0.314,
     "infrastructure": 0.336,
     "development": 0.382,
-    "gdp": 3740314360,
+    "gdp": 3740313847,
     "deposits": {
       "food": 25702,
       "timber": 67
@@ -6926,12 +6926,12 @@
   {
     "id": 417,
     "ownerCountryId": "TWN",
-    "population": 1554090,
+    "population": 1554089,
     "urbanization": 0.014,
     "stability": 0.311,
     "infrastructure": 0.132,
     "development": 0.148,
-    "gdp": 30360702,
+    "gdp": 30360683,
     "deposits": {
       "food": 1007,
       "timber": 79
@@ -6962,12 +6962,12 @@
   {
     "id": 419,
     "ownerCountryId": "TWN",
-    "population": 9722141,
+    "population": 9722140,
     "urbanization": 0.429,
     "stability": 0.325,
     "infrastructure": 0.451,
     "development": 0.591,
-    "gdp": 2591349184,
+    "gdp": 2591348918,
     "deposits": {
       "food": 10607
     },
@@ -6978,12 +6978,12 @@
   {
     "id": 420,
     "ownerCountryId": "TWN",
-    "population": 6585860,
+    "population": 6585859,
     "urbanization": 0.392,
     "stability": 0.342,
     "infrastructure": 0.442,
     "development": 0.608,
-    "gdp": 1769857673,
+    "gdp": 1769857404,
     "deposits": {
       "food": 7297
     },
@@ -6994,12 +6994,12 @@
   {
     "id": 421,
     "ownerCountryId": "TWN",
-    "population": 6190848,
+    "population": 6190847,
     "urbanization": 0.423,
     "stability": 0.338,
     "infrastructure": 0.457,
     "development": 0.569,
-    "gdp": 1609824778,
+    "gdp": 1609824518,
     "deposits": {
       "food": 6618
     },
@@ -7010,12 +7010,12 @@
   {
     "id": 422,
     "ownerCountryId": "TWN",
-    "population": 7437963,
+    "population": 7437962,
     "urbanization": 0.418,
     "stability": 0.372,
     "infrastructure": 0.422,
     "development": 0.524,
-    "gdp": 1644741882,
+    "gdp": 1644741661,
     "deposits": {
       "food": 7616
     },
@@ -7584,12 +7584,12 @@
   {
     "id": 457,
     "ownerCountryId": "SUN",
-    "population": 590574,
+    "population": 590573,
     "urbanization": 0.238,
     "stability": 0.584,
     "infrastructure": 0.511,
     "development": 0.666,
-    "gdp": 200987687,
+    "gdp": 200987347,
     "deposits": {
       "food": 689
     },
@@ -7648,12 +7648,12 @@
   {
     "id": 461,
     "ownerCountryId": "SUN",
-    "population": 426297,
+    "population": 426296,
     "urbanization": 0.245,
     "stability": 0.562,
     "infrastructure": 0.571,
     "development": 0.646,
-    "gdp": 157246469,
+    "gdp": 157246100,
     "deposits": {
       "food": 489
     },
@@ -7884,12 +7884,12 @@
   {
     "id": 475,
     "ownerCountryId": "SUN",
-    "population": 662236,
+    "population": 662235,
     "urbanization": 0.226,
     "stability": 0.53,
     "infrastructure": 0.589,
     "development": 0.656,
-    "gdp": 255877395,
+    "gdp": 255877008,
     "deposits": {
       "food": 766
     },
@@ -9668,12 +9668,12 @@
   {
     "id": 579,
     "ownerCountryId": "SUN",
-    "population": 565225,
+    "population": 565224,
     "urbanization": 0.126,
     "stability": 0.547,
     "infrastructure": 0.425,
     "development": 0.495,
-    "gdp": 118909209,
+    "gdp": 118908999,
     "deposits": {
       "food": 562
     },
@@ -9684,12 +9684,12 @@
   {
     "id": 580,
     "ownerCountryId": "SUN",
-    "population": 541591,
+    "population": 541590,
     "urbanization": 0.136,
     "stability": 0.584,
     "infrastructure": 0.412,
     "development": 0.507,
-    "gdp": 113129694,
+    "gdp": 113129486,
     "deposits": {
       "food": 545
     },
@@ -10284,12 +10284,12 @@
   {
     "id": 617,
     "ownerCountryId": "SUN",
-    "population": 1569020,
+    "population": 1569019,
     "urbanization": 0.137,
     "stability": 0.567,
     "infrastructure": 0.444,
     "development": 0.516,
-    "gdp": 359468758,
+    "gdp": 359468529,
     "deposits": {
       "copper": 100,
       "food": 1594,
@@ -10304,12 +10304,12 @@
   {
     "id": 618,
     "ownerCountryId": "SUN",
-    "population": 1029633,
+    "population": 1029632,
     "urbanization": 0.118,
     "stability": 0.529,
     "infrastructure": 0.465,
     "development": 0.536,
-    "gdp": 256625729,
+    "gdp": 256625480,
     "deposits": {
       "food": 1067,
       "timber": 28
@@ -10340,12 +10340,12 @@
   {
     "id": 620,
     "ownerCountryId": "SUN",
-    "population": 1738279,
+    "population": 1738278,
     "urbanization": 0.136,
     "stability": 0.511,
     "infrastructure": 0.429,
     "development": 0.512,
-    "gdp": 381809506,
+    "gdp": 381809286,
     "deposits": {
       "food": 1759,
       "timber": 60
@@ -10358,12 +10358,12 @@
   {
     "id": 621,
     "ownerCountryId": "SUN",
-    "population": 1443519,
+    "population": 1443518,
     "urbanization": 0.122,
     "stability": 0.572,
     "infrastructure": 0.408,
     "development": 0.569,
-    "gdp": 335115823,
+    "gdp": 335115591,
     "deposits": {
       "food": 1543,
       "timber": 40
@@ -10376,12 +10376,12 @@
   {
     "id": 622,
     "ownerCountryId": "SUN",
-    "population": 1542699,
+    "population": 1542698,
     "urbanization": 0.116,
     "stability": 0.563,
     "infrastructure": 0.43,
     "development": 0.604,
-    "gdp": 400669784,
+    "gdp": 400669525,
     "deposits": {
       "food": 1703,
       "timber": 44
@@ -10394,12 +10394,12 @@
   {
     "id": 623,
     "ownerCountryId": "SUN",
-    "population": 1502238,
+    "population": 1502237,
     "urbanization": 0.125,
     "stability": 0.583,
     "infrastructure": 0.461,
     "development": 0.599,
-    "gdp": 414826499,
+    "gdp": 414826223,
     "deposits": {
       "food": 1651,
       "timber": 49
@@ -10412,12 +10412,12 @@
   {
     "id": 624,
     "ownerCountryId": "SUN",
-    "population": 1448496,
+    "population": 1448495,
     "urbanization": 0.118,
     "stability": 0.508,
     "infrastructure": 0.411,
     "development": 0.501,
-    "gdp": 298261260,
+    "gdp": 298261054,
     "deposits": {
       "copper": 100,
       "food": 1450,
@@ -10432,12 +10432,12 @@
   {
     "id": 625,
     "ownerCountryId": "SUN",
-    "population": 1827606,
+    "population": 1827605,
     "urbanization": 0.122,
     "stability": 0.559,
     "infrastructure": 0.486,
     "development": 0.597,
-    "gdp": 530265260,
+    "gdp": 530264970,
     "deposits": {
       "food": 2005,
       "timber": 68
@@ -10450,12 +10450,12 @@
   {
     "id": 626,
     "ownerCountryId": "SUN",
-    "population": 2325873,
+    "population": 2325872,
     "urbanization": 0.132,
     "stability": 0.557,
     "infrastructure": 0.478,
     "development": 0.594,
-    "gdp": 660389773,
+    "gdp": 660389489,
     "deposits": {
       "food": 2545,
       "timber": 111
@@ -12250,12 +12250,12 @@
   {
     "id": 732,
     "ownerCountryId": "SUN",
-    "population": 870292,
+    "population": 870291,
     "urbanization": 0.124,
     "stability": 0.564,
     "infrastructure": 0.434,
     "development": 0.583,
-    "gdp": 220203022,
+    "gdp": 220202769,
     "deposits": {
       "food": 943,
       "timber": 19
@@ -12322,12 +12322,12 @@
   {
     "id": 736,
     "ownerCountryId": "SUN",
-    "population": 761616,
+    "population": 761615,
     "urbanization": 0.129,
     "stability": 0.563,
     "infrastructure": 0.454,
     "development": 0.54,
-    "gdp": 186717779,
+    "gdp": 186717533,
     "deposits": {
       "food": 792,
       "timber": 15
@@ -12546,12 +12546,12 @@
   {
     "id": 749,
     "ownerCountryId": "TWN",
-    "population": 2845027,
+    "population": 2845026,
     "urbanization": 0.09,
     "stability": 0.304,
     "infrastructure": 0.262,
     "development": 0.325,
-    "gdp": 242254049,
+    "gdp": 242253964,
     "deposits": {
       "food": 2347
     },
@@ -12578,12 +12578,12 @@
   {
     "id": 751,
     "ownerCountryId": "SUN",
-    "population": 1056289,
+    "population": 1056288,
     "urbanization": 0.119,
     "stability": 0.58,
     "infrastructure": 0.442,
     "development": 0.507,
-    "gdp": 236708027,
+    "gdp": 236707803,
     "deposits": {
       "food": 1064,
       "timber": 22
@@ -12630,12 +12630,12 @@
   {
     "id": 754,
     "ownerCountryId": "SUN",
-    "population": 606732,
+    "population": 606731,
     "urbanization": 0.127,
     "stability": 0.576,
     "infrastructure": 0.454,
     "development": 0.503,
-    "gdp": 138554533,
+    "gdp": 138554305,
     "deposits": {
       "food": 609
     },
@@ -13460,12 +13460,12 @@
   {
     "id": 805,
     "ownerCountryId": "CAN",
-    "population": 287061,
+    "population": 287064,
     "urbanization": 0.028,
     "stability": 0.556,
     "infrastructure": 0.388,
     "development": 0.399,
-    "gdp": 44440488,
+    "gdp": 44440952,
     "deposits": {
       "food": 258,
       "timber": 686
@@ -13496,12 +13496,12 @@
   {
     "id": 807,
     "ownerCountryId": "CAN",
-    "population": 1056676,
+    "population": 1056675,
     "urbanization": 0.191,
     "stability": 0.578,
     "infrastructure": 0.768,
     "development": 0.831,
-    "gdp": 674379077,
+    "gdp": 674378438,
     "deposits": {
       "oil": 200,
       "food": 1406,
@@ -13552,12 +13552,12 @@
   {
     "id": 810,
     "ownerCountryId": "CAN",
-    "population": 2940016,
+    "population": 2940015,
     "urbanization": 0.332,
     "stability": 0.603,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 2653364440,
+    "gdp": 2653363538,
     "deposits": {
       "nickel": 150,
       "iron": 100,
@@ -13574,12 +13574,12 @@
   {
     "id": 811,
     "ownerCountryId": "CAN",
-    "population": 3621533,
+    "population": 3621532,
     "urbanization": 0.331,
     "stability": 0.648,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 3268433532,
+    "gdp": 3268432630,
     "deposits": {
       "food": 5251,
       "timber": 301
@@ -15910,12 +15910,12 @@
   {
     "id": 954,
     "ownerCountryId": "USA",
-    "population": 226617,
+    "population": 227250,
     "urbanization": 0.192,
     "stability": 0.597,
     "infrastructure": 0.785,
     "development": 0.813,
-    "gdp": 144628102,
+    "gdp": 145032086,
     "deposits": {
       "food": 298
     },
@@ -15926,14 +15926,14 @@
   {
     "id": 955,
     "ownerCountryId": "USA",
-    "population": 742466,
+    "population": 743595,
     "urbanization": 0.197,
     "stability": 0.629,
     "infrastructure": 0.888,
     "development": 0.771,
-    "gdp": 508327862,
+    "gdp": 509100830,
     "deposits": {
-      "food": 944,
+      "food": 945,
       "timber": 14
     },
     "extraction": {
@@ -15944,14 +15944,14 @@
   {
     "id": 956,
     "ownerCountryId": "USA",
-    "population": 885466,
+    "population": 883704,
     "urbanization": 0.17,
     "stability": 0.572,
     "infrastructure": 0.828,
     "development": 0.777,
-    "gdp": 569669864,
+    "gdp": 568536271,
     "deposits": {
-      "food": 1131,
+      "food": 1128,
       "timber": 21
     },
     "extraction": {
@@ -16076,12 +16076,12 @@
   {
     "id": 963,
     "ownerCountryId": "USA",
-    "population": 1102804,
+    "population": 1102628,
     "urbanization": 0.292,
     "stability": 0.651,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 995280610,
+    "gdp": 995121770,
     "deposits": {
       "food": 1599
     },
@@ -16092,14 +16092,14 @@
   {
     "id": 964,
     "ownerCountryId": "USA",
-    "population": 1026516,
+    "population": 1025825,
     "urbanization": 0.297,
     "stability": 0.675,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 926430690,
+    "gdp": 925807062,
     "deposits": {
-      "food": 1488
+      "food": 1487
     },
     "extraction": {
       "food": 10
@@ -16108,14 +16108,14 @@
   {
     "id": 965,
     "ownerCountryId": "USA",
-    "population": 1756907,
+    "population": 1758695,
     "urbanization": 0.3,
     "stability": 0.639,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 1585608568,
+    "gdp": 1587222237,
     "deposits": {
-      "food": 2548
+      "food": 2550
     },
     "extraction": {
       "food": 10
@@ -16124,14 +16124,14 @@
   {
     "id": 966,
     "ownerCountryId": "USA",
-    "population": 1728195,
+    "population": 1727274,
     "urbanization": 0.35,
     "stability": 0.672,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 1559695987,
+    "gdp": 1558864785,
     "deposits": {
-      "food": 2506,
+      "food": 2505,
       "timber": 12
     },
     "extraction": {
@@ -16288,12 +16288,12 @@
   {
     "id": 975,
     "ownerCountryId": "USA",
-    "population": 482711,
+    "population": 482697,
     "urbanization": 0.523,
     "stability": 0.691,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 435646677,
+    "gdp": 435634042,
     "deposits": {
       "food": 700
     },
@@ -16304,12 +16304,12 @@
   {
     "id": 976,
     "ownerCountryId": "USA",
-    "population": 4334283,
+    "population": 4334573,
     "urbanization": 0.294,
     "stability": 0.621,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 3911690407,
+    "gdp": 3911952132,
     "deposits": {
       "food": 6285
     },
@@ -16320,12 +16320,12 @@
   {
     "id": 977,
     "ownerCountryId": "USA",
-    "population": 3202859,
+    "population": 3202767,
     "urbanization": 0.305,
     "stability": 0.62,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 2890580247,
+    "gdp": 2890497218,
     "deposits": {
       "food": 4644
     },
@@ -16336,12 +16336,12 @@
   {
     "id": 978,
     "ownerCountryId": "USA",
-    "population": 6378179,
+    "population": 6377995,
     "urbanization": 0.308,
     "stability": 0.665,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 5756306547,
+    "gdp": 5756140488,
     "deposits": {
       "food": 9248,
       "timber": 15
@@ -16440,12 +16440,12 @@
   {
     "id": 984,
     "ownerCountryId": "USA",
-    "population": 1235092,
+    "population": 1235183,
     "urbanization": 0.172,
     "stability": 0.61,
     "infrastructure": 0.845,
     "development": 0.802,
-    "gdp": 837009497,
+    "gdp": 837071167,
     "deposits": {
       "food": 1608,
       "timber": 10
@@ -16458,12 +16458,12 @@
   {
     "id": 985,
     "ownerCountryId": "USA",
-    "population": 1411286,
+    "population": 1411266,
     "urbanization": 0.176,
     "stability": 0.595,
     "infrastructure": 0.861,
     "development": 0.737,
-    "gdp": 895541410,
+    "gdp": 895528719,
     "deposits": {
       "food": 1746,
       "timber": 13
@@ -16476,12 +16476,12 @@
   {
     "id": 986,
     "ownerCountryId": "USA",
-    "population": 2068110,
+    "population": 2068079,
     "urbanization": 0.197,
     "stability": 0.619,
     "infrastructure": 0.807,
     "development": 0.798,
-    "gdp": 1331833886,
+    "gdp": 1331813923,
     "deposits": {
       "food": 2684,
       "timber": 24
@@ -16494,12 +16494,12 @@
   {
     "id": 987,
     "ownerCountryId": "USA",
-    "population": 2663784,
+    "population": 2663745,
     "urbanization": 0.176,
     "stability": 0.657,
     "infrastructure": 0.805,
     "development": 0.721,
-    "gdp": 1546073553,
+    "gdp": 1546050917,
     "deposits": {
       "food": 3252,
       "timber": 34
@@ -16618,12 +16618,12 @@
   {
     "id": 993,
     "ownerCountryId": "USA",
-    "population": 4513,
+    "population": 4526,
     "urbanization": 0.073,
     "stability": 0.562,
     "infrastructure": 0.607,
     "development": 0.613,
-    "gdp": 1679247,
+    "gdp": 1684084,
     "deposits": {
       "food": 5
     },
@@ -16634,12 +16634,12 @@
   {
     "id": 994,
     "ownerCountryId": "USA",
-    "population": 72955,
+    "population": 72942,
     "urbanization": 0.082,
     "stability": 0.57,
     "infrastructure": 0.569,
     "development": 0.557,
-    "gdp": 23121847,
+    "gdp": 23117727,
     "deposits": {
       "food": 77,
       "timber": 304
@@ -16652,12 +16652,12 @@
   {
     "id": 995,
     "ownerCountryId": "USA",
-    "population": 1198794,
+    "population": 1198801,
     "urbanization": 0.329,
     "stability": 0.596,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 1081911585,
+    "gdp": 1081917902,
     "deposits": {
       "oil": 200,
       "food": 1738,
@@ -16672,12 +16672,12 @@
   {
     "id": 996,
     "ownerCountryId": "USA",
-    "population": 1326234,
+    "population": 1326227,
     "urbanization": 0.314,
     "stability": 0.64,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 1196926185,
+    "gdp": 1196919868,
     "deposits": {
       "oil": 200,
       "food": 1923,
@@ -16826,12 +16826,12 @@
   {
     "id": 1004,
     "ownerCountryId": "USA",
-    "population": 1073403,
+    "population": 1073400,
     "urbanization": 0.299,
     "stability": 0.598,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 968746207,
+    "gdp": 968743500,
     "deposits": {
       "food": 1556
     },
@@ -16842,12 +16842,12 @@
   {
     "id": 1005,
     "ownerCountryId": "USA",
-    "population": 875398,
+    "population": 875395,
     "urbanization": 0.319,
     "stability": 0.636,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 790046695,
+    "gdp": 790043987,
     "deposits": {
       "food": 1269
     },
@@ -16858,12 +16858,12 @@
   {
     "id": 1006,
     "ownerCountryId": "USA",
-    "population": 1387869,
+    "population": 1387876,
     "urbanization": 0.326,
     "stability": 0.616,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 1252551772,
+    "gdp": 1252558090,
     "deposits": {
       "food": 2012,
       "timber": 14
@@ -17138,14 +17138,14 @@
   {
     "id": 1023,
     "ownerCountryId": "USA",
-    "population": 170408,
+    "population": 170980,
     "urbanization": 0.582,
     "stability": 0.682,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 153793220,
+    "gdp": 154309450,
     "deposits": {
-      "food": 247
+      "food": 248
     },
     "extraction": {
       "food": 10
@@ -17154,14 +17154,14 @@
   {
     "id": 1024,
     "ownerCountryId": "USA",
-    "population": 591568,
+    "population": 590996,
     "urbanization": 0.501,
     "stability": 0.637,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 533890120,
+    "gdp": 533373890,
     "deposits": {
-      "food": 858
+      "food": 857
     },
     "extraction": {
       "food": 10
@@ -17170,12 +17170,12 @@
   {
     "id": 1025,
     "ownerCountryId": "USA",
-    "population": 214598,
+    "population": 214593,
     "urbanization": 0.561,
     "stability": 0.596,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 193674695,
+    "gdp": 193670182,
     "deposits": {
       "food": 311
     },
@@ -17186,12 +17186,12 @@
   {
     "id": 1026,
     "ownerCountryId": "USA",
-    "population": 2116033,
+    "population": 2116092,
     "urbanization": 0.525,
     "stability": 0.6,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 1909719782,
+    "gdp": 1909773030,
     "deposits": {
       "food": 3068
     },
@@ -17202,14 +17202,14 @@
   {
     "id": 1027,
     "ownerCountryId": "USA",
-    "population": 2280366,
+    "population": 2280312,
     "urbanization": 0.521,
     "stability": 0.633,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 2058030315,
+    "gdp": 2057981580,
     "deposits": {
-      "food": 3307
+      "food": 3306
     },
     "extraction": {
       "food": 10
@@ -17254,12 +17254,12 @@
   {
     "id": 1030,
     "ownerCountryId": "USA",
-    "population": 203389,
+    "population": 203464,
     "urbanization": 0.514,
     "stability": 0.603,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 183558572,
+    "gdp": 183626260,
     "deposits": {
       "food": 295
     },
@@ -17270,12 +17270,12 @@
   {
     "id": 1031,
     "ownerCountryId": "USA",
-    "population": 50490,
+    "population": 50584,
     "urbanization": 0.193,
     "stability": 0.625,
     "infrastructure": 0.881,
     "development": 0.743,
-    "gdp": 33049896,
+    "gdp": 33111426,
     "deposits": {
       "food": 63
     },
@@ -17286,12 +17286,12 @@
   {
     "id": 1032,
     "ownerCountryId": "USA",
-    "population": 133619,
+    "population": 133377,
     "urbanization": 0.171,
     "stability": 0.613,
     "infrastructure": 0.816,
     "development": 0.738,
-    "gdp": 80466431,
+    "gdp": 80320696,
     "deposits": {
       "food": 165
     },
@@ -17302,14 +17302,14 @@
   {
     "id": 1033,
     "ownerCountryId": "USA",
-    "population": 64691,
+    "population": 64763,
     "urbanization": 0.175,
     "stability": 0.667,
     "infrastructure": 0.82,
     "development": 0.805,
-    "gdp": 42702529,
+    "gdp": 42750056,
     "deposits": {
-      "food": 84
+      "food": 85
     },
     "extraction": {
       "food": 10
@@ -17608,12 +17608,12 @@
   {
     "id": 1050,
     "ownerCountryId": "USA",
-    "population": 871946,
+    "population": 871606,
     "urbanization": 0.299,
     "stability": 0.601,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 786931265,
+    "gdp": 786624415,
     "deposits": {
       "food": 1264
     },
@@ -17624,12 +17624,12 @@
   {
     "id": 1051,
     "ownerCountryId": "USA",
-    "population": 1071870,
+    "population": 1072114,
     "urbanization": 0.313,
     "stability": 0.675,
     "infrastructure": 0.95,
     "development": 0.901,
-    "gdp": 917467126,
+    "gdp": 917675978,
     "deposits": {
       "food": 1502
     },
@@ -17640,12 +17640,12 @@
   {
     "id": 1052,
     "ownerCountryId": "USA",
-    "population": 1407664,
+    "population": 1407760,
     "urbanization": 0.295,
     "stability": 0.668,
     "infrastructure": 0.95,
     "development": 0.95,
-    "gdp": 1270416760,
+    "gdp": 1270503400,
     "deposits": {
       "food": 2041,
       "timber": 15

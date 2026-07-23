@@ -638,6 +638,94 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   simple `assertEqual`; a future hit on the SAME two assertions should
   trigger the by-name rewrite instead of a third string patch.
 
+- **Sea/lake polygons carry interior-ring holes pre-cut for islands from a
+  richer coastline source than `game_map.json`'s ADM1 layer — a hole with
+  NO matching land is a distinct bug class from anything `diagnose_missing_
+  land.py` catches.** That tool diffs against ADM1 records, so it's blind
+  to an island that never had an ADM1 record to begin with. Found
+  (2026-07-23, user screenshot: a sharp white wedge on a solid-colour sea —
+  turned out to be a French Polynesia atoll) via a NEW permanent tool,
+  `diagnose_sea_holes.py`: for every interior ring in every sea/lake
+  feature, `hole.difference(nearby_land)` — non-empty residual (even
+  partial — a single representative-point check gives false "covered"
+  when land only partly overlaps the hole) means a real gap. 115 found
+  world-wide, split into two very different fix paths: 95 matched an
+  actual raw `game_map.json` feature at >30% area overlap (the island is
+  real, just never reached the output — most likely eaten by
+  threshold-based scattered-fragment cleanup during a state/province
+  geometric merge, see Alaska below); 20 had no raw source at all
+  (genuine synthesis-from-hole-shape territory, needs a per-case owner
+  decision, not auto-applied).
+- **When restoring a real-but-dropped island, union the HOLE's geometry,
+  not the raw source feature's geometry.** The hole is guaranteed
+  seam-free against the sea polygon by construction (it IS the sea
+  polygon's own cutout); the raw ADM1 feature may have been digitized
+  against a different coastline source and re-introduce a hairline gap.
+  Use the raw match only to identify country/state (for choosing which
+  existing output feature to merge into), not for the shape.
+- **Alaska's build output is 2 geometric-merge clusters ("Alaska —
+  Aleutians West", "Alaska — Yukon-Koyukuk"), not a real county split —
+  same "winner name, not true boundary" pattern as Taiwan.** 47 of the 115
+  sea-holes matched Alaska alone: small coastal/Aleutian islands whose
+  raw ADM1 record exists but got dropped, almost certainly by the same
+  scattered-fragment cleanup pattern already documented for China/other
+  continents (a state with thousands of tiny real offshore islands is
+  exactly the shape a distance-threshold cleanup misclassifies as noise).
+  Fix used nearest-existing-same-`iso_a2`-feature merging rather than
+  trying to map each island to its "correct" borough — good enough for
+  ownership correctness, consistent with the existing tolerance for
+  approximate sub-country labels.
+- **Merging an island into "nearest same-country feature" by raw distance
+  can silently overlap a DIFFERENT feature of that same country if the
+  county-cluster geometry is complex/far-reaching.** Filling the San Juan
+  Islands (WA) holes picked "Washington — Adams" as nearest for one hole
+  even though "Washington — San Juan" is the thematically obvious owner —
+  the two are both geometric multi-county merges, so "nearest by boundary
+  distance" isn't the same as "nearest by name/theme," and produced a real
+  0.002° overlap between the two Washington clusters. Caught by the
+  standard `merge_world_1946.py` overlap-count regression check (98→99),
+  not by anything geometry-specific — reinforces that the overlap
+  diagnostic must be re-run after ANY hole-fill, not just after
+  edits that look like they touch a border. Fixed by `A.difference(B)` in
+  favor of whichever cluster is the more sensible thematic owner.
+- **A post-processing script that patches `scripts/map/out/*.geojson`
+  continent files directly is only safe if those files are NOT regenerated
+  by anything else — check `.gitignore` before assuming a fix persists.**
+  `fix_china_geometry.py` gets away with living outside `FULL_REBUILD_
+  STEPS` because it patches `china_1946_historical.json`, a git-TRACKED
+  file nothing else regenerates (China rebuild is impossible — see
+  earlier entry). The first version of `fill_sea_holes.py` copied that
+  "standalone post-processing script" shape but patched `out/namerica_
+  1946.geojson`/`out/europe_1946.geojson` — both match `*.geojson` in
+  `.gitignore` and get FULLY OVERWRITTEN by `build_namerica_1946.py`/
+  `build_europe_1946.py` on every run, for any reason, not just this one.
+  The fix would have silently vanished the next time either continent
+  needed a rebuild for something unrelated. Caught before commit by
+  checking `git status` and noticing the modified continent `.geojson`
+  files simply weren't in the diff. Fix: rewrite to read/write the
+  continent files directly (not the merged `client/public/world_1946.
+  geojson`) and add the script to `FULL_REBUILD_STEPS` in `make_1946.py`,
+  positioned after `fix_sea_coastline_gaps.py` (sea already stabilized)
+  and before `merge_world_1946.py` — same "must be in the reproducible
+  chain" rule from README checklist #5, but this is the first time it
+  bit a script that LOOKED like it followed the safe `fix_china_
+  geometry.py` precedent while actually violating the precondition that
+  makes that precedent safe (target file not regenerated elsewhere).
+- **A brand-new hole-scan on a freshly-fixed area can surface an
+  UNRELATED, larger pre-existing bug purely because you finally rendered
+  that spot with water layered in.** Verifying the Isle Royale fix (Lake
+  Superior) turned up ~448 km² of real, unrelated land-vs-lake coastline
+  gaps along the south shore — and the same class exists on all 4 Great
+  Lakes (~2086 km² total). Root cause is very likely a side effect of the
+  EARLIER `refresh_lakes_from_ne10m.py` lake-shape replacement (2026-07-22,
+  package A): swapping in the full `ne_10m_lakes` contour changed the
+  lake's coastline precision without a matching land-vs-lake reconciliation
+  pass (the kind of gap-first absorb every SEA coastline already gets).
+  Not fixed in the same session it was found — flagged as a separate,
+  sizable, not-point-fixable finding for the user to prioritize
+  separately, same call as "this is too big to fold into the current
+  patch" for the 20 synthesis-needed holes above.
+
 ## Positional-file fragility (silent, untested)
 
 `ownership_1946.json` and `names_ru.json` are external, positionally-keyed, and
@@ -724,6 +812,14 @@ neighbour id — validate: "region N: сосед M не существует").
    (the manual-scan-is-impossible class: Akrotiri, Maldives, Channel
    Islands). Layer-1/2 `*** ПРОПАЖА ***` lines are genuine drops; Layer-3
    `[LAKE]` tags are lake-adjacent false positives, not drops.
+3c. **Sea/lake hole scan**, a different class 3b can't see (no ADM1 record
+   required to be a real gap): `python scripts/map/build/diagnose_sea_
+   holes.py` — finds interior-ring holes in sea/lake polygons with no
+   (or only partial) covering land. Splits results into matched-to-raw-
+   source (safe to auto-fill via `fill_sea_holes.py`, merge the hole
+   geometry — not the raw feature's — into the nearest same-`iso_a2`
+   output feature) vs unmatched (needs a per-case owner decision before
+   any land is synthesized).
 4. **Per-seam renders** (matplotlib → PNG → Read tool), yellow/beige background so
    any void is loud. Label placement must skip collisions (largest-area first) or
    dense clusters are illegible — that itself was a complaint.

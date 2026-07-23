@@ -41,6 +41,16 @@ intersection/difference при вычислении `city = уезд ∩ host_п
 многочастных китайских фич — у Shandong/Liaoning десятки мелких частей,
 это настоящие прибрежные острова, трогать их не в scope этой находки).
 
+Третий шаг (2026-07-23, найдено ПОСЛЕ первого прохода absorb — отдельный
+QA-рендер поймал белый клин у горловины зал. Цзяочжоу, суша↔море, НЕ
+город↔host): точечный `bbox.difference(china ∪ context ∪ water)` для
+конкретного bbox из `MANUAL_GAP_PATCHES` — 0.66 км² между Shandong и морем,
+absorb_slivers его не поймал (скорее всего эта конкретная ячейка
+polygonize слилась с намного бо́льшей смежной water-ячейкой при разбиении
+плоскости и не прошла `MAX_COMPACT_AREA`). Прямая проверка по всему
+bbox Китая (2026-07-23) — это ЕДИНСТВЕННЫЙ такой разрыв (0 остатка везде
+кроме этой точки), не системный паттерн — точечный патч, не общий проход.
+
 Запуск: python scripts/map/build/fix_china_geometry.py
 """
 from paths import game_map, out
@@ -65,6 +75,36 @@ CHINA_BBOX = shp_box(68, 15, 136, 55)
 DROP_SLIVER_PARTS = {
     "Qingdao": 1.0,
 }
+
+# Точечные разрывы суша<->море, не пойманные absorb_slivers (см. докстринг,
+# шаг 3): (имя фичи-получателя, bbox вокруг разрыва). Считается gap =
+# bbox.difference(вся_суша ∪ вся_вода) и добавляется к фиче целиком.
+# Идемпотентно: на уже исправленном файле gap пуст, union с пустой
+# геометрией — no-op.
+MANUAL_GAP_PATCHES = [
+    ("Shandong", (120.05, 36.15, 120.15, 36.25)),  # горловина зал. Цзяочжоу
+]
+
+
+def apply_manual_gap_patches(feats, context, water, label=""):
+    by_name = {ft["properties"].get("name"): ft for ft in feats}
+    full_land = unary_union([shape(ft["geometry"]) for ft in feats] + list(context))
+    full = unary_union([full_land] + list(water))
+    for name, bbox in MANUAL_GAP_PATCHES:
+        ft = by_name.get(name)
+        if ft is None:
+            print(f"  [GAP-PATCH/{label}] ВНИМАНИЕ: '{name}' не найдена")
+            continue
+        gap = shp_box(*bbox).difference(full)
+        if gap.is_empty or area_km2(gap) < 0.05:
+            continue
+        g = shape(ft["geometry"])
+        new_g = unary_union([g, gap])
+        if not new_g.is_valid:
+            new_g = new_g.buffer(0)
+        ft["geometry"] = mapping(new_g)
+        ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
+        print(f"  [GAP-PATCH/{label}] {name}: +{area_km2(gap):.2f} km2 (bbox {bbox})")
 
 
 def drop_named_slivers(feats, label=""):
@@ -132,6 +172,7 @@ def main():
     print(f"  добавлено суммарно: +{after_total - before_total:.1f} km2")
 
     drop_named_slivers(china_feats, label="China")
+    apply_manual_gap_patches(china_feats, context, water, label="China")
 
     with open(CHINA_PATH, "w", encoding="utf-8") as f:
         json.dump(china_fc, f, ensure_ascii=False)
