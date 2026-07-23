@@ -128,6 +128,24 @@ vitest 680+1skip; живой `/game/start` (свежий процесс, `netsta
 подтверждён) — Dalian 3638.9 км²/TWN, Qingdao 955.6 км²/TWN, 1399
 регионов/157 стран.
 
+## Progress (раунд 2 — пользовательский рендер-ревью)
+
+- [x] 11. Пользователь прислал зумированный скриншот с 2 обведёнными
+      находками. «Крючок»-остров (98.15 км², сидел прямо на линии 39.46°)
+      — перенесён из Dalian в Liaoning по прямому указанию. 3 вырожденные
+      interior-дыры (4-точечные кольца, площадь <0.001 км²) в главном теле
+      Dalian — визуально это «чёрные полоски» на рендере — убраны точечным
+      порогом.
+- [x] 12. Пересборка Asia→merge→neighbor-graph→translate→import→registry→
+      economy→validators (континенты не тронуты — полный `--full-rebuild`
+      не требовался). Итог: Dalian 3540.7 км² (было 3638.9), Qingdao без
+      изменений (955.6 км²).
+- [x] 13. Верификация: 98 пересечений (baseline), 0 нарушений
+      валидатора, оба теста зелёные, живой `/game/start` (свежий процесс)
+      подтверждает 3540.7/955.6 км², TWN.
+- [x] 14. Документация обновлена (`docs/DECISIONS.md` доп. запись, этот
+      файл).
+
 ## Rollback / containment
 
 Изменения в `.claude/worktrees/capital-region-fix` (ветка `claude/
@@ -137,9 +155,10 @@ worktree.
 
 ## Final outcome
 
-Все 10 пунктов Progress выполнены. Изменено: `scripts/map/out/
-china_1946_historical.json` (Dalian/Qingdao/Liaoning/Shandong
-геометрия), `scripts/map/build/fill_sea_holes.py`
+Все 14 пунктов Progress выполнены (10 основных + 4 по итогам
+пользовательского рендер-ревью). Изменено: `scripts/map/out/
+china_1946_historical.json` (Dalian: 3540.7 км² финально, Qingdao/
+Liaoning/Shandong геометрия), `scripts/map/build/fill_sea_holes.py`
 (`resolve_same_iso_overlaps`), плюс полный каскад пересборки (client/
 public/world_1946.geojson, server/data/scenarios/1946/*.json),
 документация.

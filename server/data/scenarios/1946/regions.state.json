@@ -6234,14 +6234,14 @@
   {
     "id": 378,
     "ownerCountryId": "TWN",
-    "population": 3896253,
+    "population": 3898413,
     "urbanization": 0.016,
     "stability": 0.272,
     "infrastructure": 0.123,
     "development": 0.154,
-    "gdp": 73802824,
+    "gdp": 73843739,
     "deposits": {
-      "food": 2548,
+      "food": 2550,
       "timber": 326
     },
     "extraction": {
@@ -6270,14 +6270,14 @@
   {
     "id": 380,
     "ownerCountryId": "TWN",
-    "population": 14694634,
+    "population": 14702781,
     "urbanization": 0.094,
     "stability": 0.339,
     "infrastructure": 0.232,
     "development": 0.286,
-    "gdp": 975018355,
+    "gdp": 975558925,
     "deposits": {
-      "food": 11550,
+      "food": 11556,
       "timber": 77
     },
     "extraction": {
@@ -6288,14 +6288,14 @@
   {
     "id": 381,
     "ownerCountryId": "TWN",
-    "population": 11325085,
+    "population": 11331364,
     "urbanization": 0.09,
     "stability": 0.321,
     "infrastructure": 0.268,
     "development": 0.323,
-    "gdp": 980344658,
+    "gdp": 980888193,
     "deposits": {
-      "food": 9321,
+      "food": 9326,
       "timber": 47
     },
     "extraction": {
@@ -6306,14 +6306,14 @@
   {
     "id": 382,
     "ownerCountryId": "TWN",
-    "population": 18102726,
+    "population": 18112762,
     "urbanization": 0.16,
     "stability": 0.321,
     "infrastructure": 0.341,
     "development": 0.4,
-    "gdp": 2469211826,
+    "gdp": 2470580737,
     "deposits": {
-      "food": 16292,
+      "food": 16301,
       "timber": 35
     },
     "extraction": {
@@ -6324,14 +6324,14 @@
   {
     "id": 383,
     "ownerCountryId": "TWN",
-    "population": 3265997,
+    "population": 3267807,
     "urbanization": 0.086,
     "stability": 0.337,
     "infrastructure": 0.273,
     "development": 0.33,
-    "gdp": 294233670,
+    "gdp": 294396733,
     "deposits": {
-      "food": 2711
+      "food": 2712
     },
     "extraction": {
       "food": 10
@@ -6340,14 +6340,14 @@
   {
     "id": 384,
     "ownerCountryId": "TWN",
-    "population": 7588120,
+    "population": 7592327,
     "urbanization": 0.093,
     "stability": 0.324,
     "infrastructure": 0.226,
     "development": 0.317,
-    "gdp": 543628093,
+    "gdp": 543929491,
     "deposits": {
-      "food": 6199,
+      "food": 6203,
       "timber": 24
     },
     "extraction": {
@@ -6358,14 +6358,14 @@
   {
     "id": 385,
     "ownerCountryId": "TWN",
-    "population": 14188412,
+    "population": 14196278,
     "urbanization": 0.167,
     "stability": 0.34,
     "infrastructure": 0.292,
     "development": 0.353,
-    "gdp": 1462484755,
+    "gdp": 1463295551,
     "deposits": {
-      "food": 12103,
+      "food": 12109,
       "timber": 20
     },
     "extraction": {
@@ -6376,14 +6376,14 @@
   {
     "id": 386,
     "ownerCountryId": "TWN",
-    "population": 16202568,
+    "population": 16211551,
     "urbanization": 0.435,
     "stability": 0.358,
     "infrastructure": 0.487,
     "development": 0.564,
-    "gdp": 4450326947,
+    "gdp": 4452794290,
     "deposits": {
-      "food": 17240
+      "food": 17249
     },
     "extraction": {
       "food": 10
@@ -6392,14 +6392,14 @@
   {
     "id": 387,
     "ownerCountryId": "TWN",
-    "population": 14795304,
+    "population": 14803507,
     "urbanization": 0.174,
     "stability": 0.354,
     "infrastructure": 0.296,
     "development": 0.367,
-    "gdp": 1607243464,
+    "gdp": 1608134572,
     "deposits": {
-      "food": 12828,
+      "food": 12835,
       "timber": 20
     },
     "extraction": {
@@ -6410,14 +6410,14 @@
   {
     "id": 388,
     "ownerCountryId": "TWN",
-    "population": 17952550,
+    "population": 17962503,
     "urbanization": 0.16,
     "stability": 0.32,
     "infrastructure": 0.283,
     "development": 0.399,
-    "gdp": 2027148088,
+    "gdp": 2028271951,
     "deposits": {
-      "food": 16139,
+      "food": 16148,
       "timber": 31
     },
     "extraction": {
@@ -6446,14 +6446,14 @@
   {
     "id": 390,
     "ownerCountryId": "TWN",
-    "population": 21944164,
+    "population": 21956330,
     "urbanization": 0.417,
     "stability": 0.336,
     "infrastructure": 0.435,
     "development": 0.574,
-    "gdp": 5479238309,
+    "gdp": 5482276038,
     "deposits": {
-      "food": 23568
+      "food": 23581
     },
     "extraction": {
       "food": 10
@@ -6462,12 +6462,12 @@
   {
     "id": 391,
     "ownerCountryId": "TWN",
-    "population": 9152,
+    "population": 9157,
     "urbanization": 0.083,
     "stability": 0.326,
     "infrastructure": 0.26,
     "development": 0.281,
-    "gdp": 668645,
+    "gdp": 669010,
     "deposits": {
       "food": 7
     },
@@ -6478,14 +6478,14 @@
   {
     "id": 392,
     "ownerCountryId": "TWN",
-    "population": 28488971,
+    "population": 28504765,
     "urbanization": 0.435,
     "stability": 0.369,
     "infrastructure": 0.428,
     "development": 0.589,
-    "gdp": 7181841677,
+    "gdp": 7185823218,
     "deposits": {
-      "food": 31024
+      "food": 31042
     },
     "extraction": {
       "food": 10
@@ -6494,14 +6494,14 @@
   {
     "id": 393,
     "ownerCountryId": "TWN",
-    "population": 5911615,
+    "population": 5914892,
     "urbanization": 0.088,
     "stability": 0.32,
     "infrastructure": 0.262,
     "development": 0.293,
-    "gdp": 453811037,
+    "gdp": 454062599,
     "deposits": {
-      "food": 4688,
+      "food": 4691,
       "timber": 16
     },
     "extraction": {
@@ -6512,14 +6512,14 @@
   {
     "id": 394,
     "ownerCountryId": "TWN",
-    "population": 9471941,
+    "population": 9477192,
     "urbanization": 0.088,
     "stability": 0.309,
     "infrastructure": 0.243,
     "development": 0.323,
-    "gdp": 743443177,
+    "gdp": 743855323,
     "deposits": {
-      "food": 7795,
+      "food": 7800,
       "timber": 35
     },
     "extraction": {
@@ -6530,14 +6530,14 @@
   {
     "id": 395,
     "ownerCountryId": "TWN",
-    "population": 21975455,
+    "population": 21987638,
     "urbanization": 0.175,
     "stability": 0.323,
     "infrastructure": 0.322,
     "development": 0.368,
-    "gdp": 2604003516,
+    "gdp": 2605447152,
     "deposits": {
-      "food": 19075,
+      "food": 19085,
       "timber": 42
     },
     "extraction": {
@@ -6584,14 +6584,14 @@
   {
     "id": 398,
     "ownerCountryId": "TWN",
-    "population": 2341881,
+    "population": 2343180,
     "urbanization": 0.016,
     "stability": 0.278,
     "infrastructure": 0.128,
     "development": 0.161,
-    "gdp": 48261484,
+    "gdp": 48288253,
     "deposits": {
-      "food": 1548,
+      "food": 1549,
       "timber": 143
     },
     "extraction": {
@@ -6620,14 +6620,14 @@
   {
     "id": 400,
     "ownerCountryId": "TWN",
-    "population": 9279442,
+    "population": 9284587,
     "urbanization": 0.089,
     "stability": 0.321,
     "infrastructure": 0.252,
     "development": 0.304,
-    "gdp": 710879493,
+    "gdp": 711273641,
     "deposits": {
-      "food": 7461,
+      "food": 7465,
       "timber": 34
     },
     "extraction": {
@@ -6638,14 +6638,14 @@
   {
     "id": 401,
     "ownerCountryId": "TWN",
-    "population": 17297661,
+    "population": 17307251,
     "urbanization": 0.158,
     "stability": 0.306,
     "infrastructure": 0.317,
     "development": 0.393,
-    "gdp": 2154959905,
+    "gdp": 2156154637,
     "deposits": {
-      "food": 15447,
+      "food": 15455,
       "timber": 33
     },
     "extraction": {
@@ -6656,14 +6656,14 @@
   {
     "id": 402,
     "ownerCountryId": "TWN",
-    "population": 18206508,
+    "population": 18216601,
     "urbanization": 0.175,
     "stability": 0.327,
     "infrastructure": 0.324,
     "development": 0.34,
-    "gdp": 2005628921,
+    "gdp": 2006740766,
     "deposits": {
-      "food": 15293,
+      "food": 15302,
       "timber": 36
     },
     "extraction": {
@@ -6674,14 +6674,14 @@
   {
     "id": 403,
     "ownerCountryId": "TWN",
-    "population": 16252833,
+    "population": 16261843,
     "urbanization": 0.175,
     "stability": 0.314,
     "infrastructure": 0.329,
     "development": 0.39,
-    "gdp": 2085401002,
+    "gdp": 2086557075,
     "deposits": {
-      "food": 14465,
+      "food": 14473,
       "timber": 28
     },
     "extraction": {
@@ -6692,14 +6692,14 @@
   {
     "id": 404,
     "ownerCountryId": "QMS",
-    "population": 2428180,
+    "population": 2430335,
     "urbanization": 0.085,
     "stability": 0.345,
     "infrastructure": 0.232,
     "development": 0.327,
-    "gdp": 184211448,
+    "gdp": 184374934,
     "deposits": {
-      "food": 2008,
+      "food": 2010,
       "timber": 11
     },
     "extraction": {
@@ -6710,12 +6710,12 @@
   {
     "id": 405,
     "ownerCountryId": "QMS",
-    "population": 2275186,
+    "population": 2275008,
     "urbanization": 0.097,
     "stability": 0.297,
     "infrastructure": 0.227,
     "development": 0.315,
-    "gdp": 162687175,
+    "gdp": 162674447,
     "deposits": {
       "food": 1854,
       "timber": 12
@@ -6728,12 +6728,12 @@
   {
     "id": 406,
     "ownerCountryId": "QMS",
-    "population": 3442185,
+    "population": 3441916,
     "urbanization": 0.095,
     "stability": 0.344,
     "infrastructure": 0.228,
     "development": 0.312,
-    "gdp": 244863272,
+    "gdp": 244844137,
     "deposits": {
       "food": 2795,
       "timber": 24
@@ -6746,12 +6746,12 @@
   {
     "id": 407,
     "ownerCountryId": "QMS",
-    "population": 2881388,
+    "population": 2881162,
     "urbanization": 0.087,
     "stability": 0.31,
     "infrastructure": 0.261,
     "development": 0.31,
-    "gdp": 233133103,
+    "gdp": 233114817,
     "deposits": {
       "food": 2334,
       "timber": 20
@@ -6764,12 +6764,12 @@
   {
     "id": 408,
     "ownerCountryId": "QMS",
-    "population": 2698649,
+    "population": 2698438,
     "urbanization": 0.092,
     "stability": 0.32,
     "infrastructure": 0.259,
     "development": 0.294,
-    "gdp": 205491327,
+    "gdp": 205475260,
     "deposits": {
       "food": 2143,
       "timber": 15
@@ -6782,12 +6782,12 @@
   {
     "id": 409,
     "ownerCountryId": "QMS",
-    "population": 3424930,
+    "population": 3424662,
     "urbanization": 0.093,
     "stability": 0.331,
     "infrastructure": 0.248,
     "development": 0.282,
-    "gdp": 239525904,
+    "gdp": 239507162,
     "deposits": {
       "food": 2678,
       "timber": 24
@@ -6800,12 +6800,12 @@
   {
     "id": 410,
     "ownerCountryId": "QMS",
-    "population": 2770418,
+    "population": 2770201,
     "urbanization": 0.082,
     "stability": 0.331,
     "infrastructure": 0.233,
     "development": 0.324,
-    "gdp": 209144396,
+    "gdp": 209128014,
     "deposits": {
       "food": 2283,
       "timber": 16
@@ -6818,12 +6818,12 @@
   {
     "id": 411,
     "ownerCountryId": "QMS",
-    "population": 4594067,
+    "population": 4593708,
     "urbanization": 0.084,
     "stability": 0.342,
     "infrastructure": 0.252,
     "development": 0.278,
-    "gdp": 321841958,
+    "gdp": 321816808,
     "deposits": {
       "food": 3574,
       "timber": 45
@@ -6836,12 +6836,12 @@
   {
     "id": 412,
     "ownerCountryId": "QMS",
-    "population": 5484998,
+    "population": 5484570,
     "urbanization": 0.092,
     "stability": 0.301,
     "infrastructure": 0.226,
     "development": 0.307,
-    "gdp": 380560131,
+    "gdp": 380530436,
     "deposits": {
       "food": 4426,
       "timber": 57
@@ -6908,14 +6908,14 @@
   {
     "id": 416,
     "ownerCountryId": "TWN",
-    "population": 28892883,
+    "population": 28908902,
     "urbanization": 0.147,
     "stability": 0.314,
     "infrastructure": 0.336,
     "development": 0.382,
-    "gdp": 3708459319,
+    "gdp": 3710515390,
     "deposits": {
-      "food": 25484,
+      "food": 25498,
       "timber": 67
     },
     "extraction": {
@@ -6926,14 +6926,14 @@
   {
     "id": 417,
     "ownerCountryId": "TWN",
-    "population": 1540854,
+    "population": 1541708,
     "urbanization": 0.014,
     "stability": 0.311,
     "infrastructure": 0.132,
     "development": 0.148,
-    "gdp": 30102124,
+    "gdp": 30118807,
     "deposits": {
-      "food": 998,
+      "food": 999,
       "timber": 79
     },
     "extraction": {
@@ -6962,14 +6962,14 @@
   {
     "id": 419,
     "ownerCountryId": "TWN",
-    "population": 12986125,
+    "population": 12799286,
     "urbanization": 0.429,
     "stability": 0.325,
     "infrastructure": 0.451,
     "development": 0.591,
-    "gdp": 3461334744,
+    "gdp": 3411534490,
     "deposits": {
-      "food": 14168
+      "food": 13964
     },
     "extraction": {
       "food": 10
@@ -6978,14 +6978,14 @@
   {
     "id": 420,
     "ownerCountryId": "TWN",
-    "population": 6529770,
+    "population": 6533390,
     "urbanization": 0.392,
     "stability": 0.342,
     "infrastructure": 0.442,
     "development": 0.608,
-    "gdp": 1754784271,
+    "gdp": 1755757095,
     "deposits": {
-      "food": 7235
+      "food": 7239
     },
     "extraction": {
       "food": 10
@@ -6994,14 +6994,14 @@
   {
     "id": 421,
     "ownerCountryId": "TWN",
-    "population": 5764756,
+    "population": 5767952,
     "urbanization": 0.423,
     "stability": 0.338,
     "infrastructure": 0.457,
     "development": 0.569,
-    "gdp": 1499026797,
+    "gdp": 1499857862,
     "deposits": {
-      "food": 6163
+      "food": 6166
     },
     "extraction": {
       "food": 10
@@ -7010,14 +7010,14 @@
   {
     "id": 422,
     "ownerCountryId": "TWN",
-    "population": 7374616,
+    "population": 7378705,
     "urbanization": 0.418,
     "stability": 0.372,
     "infrastructure": 0.422,
     "development": 0.524,
-    "gdp": 1630734087,
+    "gdp": 1631638279,
     "deposits": {
-      "food": 7552
+      "food": 7556
     },
     "extraction": {
       "food": 10
@@ -7026,14 +7026,14 @@
   {
     "id": 423,
     "ownerCountryId": "TWN",
-    "population": 1241374,
+    "population": 1242062,
     "urbanization": 0.087,
     "stability": 0.321,
     "infrastructure": 0.272,
     "development": 0.312,
-    "gdp": 105347963,
+    "gdp": 105406350,
     "deposits": {
-      "food": 1008
+      "food": 1009
     },
     "extraction": {
       "food": 10
@@ -7042,14 +7042,14 @@
   {
     "id": 424,
     "ownerCountryId": "TWN",
-    "population": 7235334,
+    "population": 7239346,
     "urbanization": 0.382,
     "stability": 0.324,
     "infrastructure": 0.43,
     "development": 0.563,
-    "gdp": 1751602008,
+    "gdp": 1752573273,
     "deposits": {
-      "food": 7691
+      "food": 7695
     },
     "extraction": {
       "food": 10
@@ -12498,12 +12498,12 @@
   {
     "id": 746,
     "ownerCountryId": "TWN",
-    "population": 199069,
+    "population": 199179,
     "urbanization": 0.091,
     "stability": 0.312,
     "infrastructure": 0.233,
     "development": 0.285,
-    "gdp": 13219177,
+    "gdp": 13226481,
     "deposits": {
       "food": 156
     },
@@ -12514,12 +12514,12 @@
   {
     "id": 747,
     "ownerCountryId": "TWN",
-    "population": 135711,
+    "population": 135787,
     "urbanization": 0.096,
     "stability": 0.307,
     "infrastructure": 0.265,
     "development": 0.322,
-    "gdp": 11580220,
+    "gdp": 11586705,
     "deposits": {
       "food": 112
     },
@@ -12530,14 +12530,14 @@
   {
     "id": 748,
     "ownerCountryId": "TWN",
-    "population": 2087439,
+    "population": 2088596,
     "urbanization": 0.091,
     "stability": 0.307,
     "infrastructure": 0.274,
     "development": 0.308,
-    "gdp": 176163152,
+    "gdp": 176260794,
     "deposits": {
-      "food": 1687
+      "food": 1688
     },
     "extraction": {
       "food": 10
@@ -12546,14 +12546,14 @@
   {
     "id": 749,
     "ownerCountryId": "TWN",
-    "population": 2820796,
+    "population": 2822360,
     "urbanization": 0.09,
     "stability": 0.304,
     "infrastructure": 0.262,
     "development": 0.325,
-    "gdp": 240190779,
+    "gdp": 240323954,
     "deposits": {
-      "food": 2327
+      "food": 2328
     },
     "extraction": {
       "food": 10
