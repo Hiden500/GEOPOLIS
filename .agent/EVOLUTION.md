@@ -133,3 +133,55 @@ read-only mini-audit без изменений файлов.
 Fresh-session status: verified for skill discovery and explicit invocation;
 runtime/visual-QA capability проверяется отдельно на реальном проекте.
 Decision: keep.
+
+## 2026-07-23 — `agent-os-partial-integration`
+
+Problem evidence: два независимых аудита
+(`.agent/audits/agent-system-audit-2026-07-23.md`,
+`documentation-audit-2026-07-23.md`): bootstrap-слой 8 дней не смержен, при
+этом `main` жил со старой системой — Claude не получал `AGENTS.md`
+автоматически (в сессии 07-23 автозагружен только `.claude/CLAUDE.md`;
+официальная документация подтверждает отсутствие нативной поддержки),
+checkout-протокол в 3 файлах конфликтовал с живой параллельной сессией в
+основном checkout (наблюдён новый commit чужой сессии во время аудита),
+Codex отсутствовал в правилах координации, память Claude несла проектные
+правила, невидимые другим инструментам.
+
+Layer changed: интеграция bootstrap-инфраструктуры и док-фиксов в
+task-ветку `claude/agent-infrastructure-audit-4335d1` **частями**.
+Исключено из переноса (остаётся только на ветках, отдельное ревью):
+`server/src/services/GameService.ts` (+тест), `shared/src/types/GameState.ts`,
+весь `client/src/**` diff (включая `hud/Onboarding/`, `hud/NationalBriefing/`,
+правки `Window`/`useWindows`/`MapView`/`GeometryEngine`, i18n-неймспейсы
+onboarding), а также статусные версии `docs/TODO.md`/`docs/DECISIONS.md`/
+`docs/plans/12_UI_REDESIGN.md`/секции UI_DESIGN, описывающие этот код.
+Записи журнала 2026-07-15..17 выше описывают контекст bootstrap-ветки
+целиком — к составу этого дерева применима только настоящая запись.
+Плюс дельты: `@../AGENTS.md`-импорт в
+`.claude/CLAUDE.md` (синтаксис сверен с официальной документацией: relative
+paths resolve relative to the file containing the import), секция «Worktree и
+параллельная работа» + роли + профиль пользователя в корневом `AGENTS.md`;
+статусные доки (`TODO`/`UI_DESIGN`/план 12) приведены к состоянию `main`.
+
+Expected benefit: один канонический слой правил, доставляемый всем трём
+инструментам штатными механизмами загрузки; worktree-протокол вместо
+опасного checkout-протокола; честные статусы доков (код замороженной ветки
+не выдаётся за состояние `main`).
+
+Risks and containment: (а) `@`-импорт не проверен в свежей сессии — в
+адаптере оставлена явная fallback-инструкция «прочитай AGENTS.md, если
+раздел не в контексте»; (б) частичная интеграция оставляет на ветках
+продуктовый код — зафиксировано в `docs/DECISIONS.md` и `docs/TODO.md`;
+(в) сама интеграция выполнена третьей стороной (Claude) поверх работы
+Codex — независимое ревью diff заказано через `codex review --base main`.
+
+Validation: public eval 132/132 PASS; data-валидатор + 9 unit-тестов PASS;
+решения пользователя (вариант A частями, заморозка обеих UI-линий,
+инструментарий на усмотрение агента) записаны в `docs/DECISIONS.md`
+2026-07-23.
+
+Fresh-session status: pending — `@`-импорт Claude (`/context` в свежей
+сессии), загрузка repo-local `.codex/` в доверенном worktree.
+
+Decision: keep (по явному утверждению пользователя); влитие в `main` —
+отдельное решение пользователя.

@@ -1,6 +1,8 @@
 # Map/data pipeline rules
 
-Применяется к `scripts/map/` и генерируемым scenario data вместе с корневым
+Применяется к `scripts/map/` и генерируемым scenario data — конкретно
+`scripts/map/out/**` и `server/data/scenarios/**` (выход пайплайна; правки
+этих файлов вручную тоже подпадают под правила ниже) — вместе с корневым
 `AGENTS.md`.
 
 - `make_1946.py` — оркестратор; builders/validators и `paths.py` определяют
