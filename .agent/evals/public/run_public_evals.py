@@ -78,8 +78,15 @@ def validate_toml() -> None:
             f"sandbox_mode={data.get('sandbox_mode')!r}",
         )
 
-    for path in (".mcp.json", ".gemini/settings.json"):
+    for path in (".mcp.json", ".gemini/settings.json", ".codex/hooks.json", ".claude/settings.json"):
         check(isinstance(load_json(ROOT / path), dict), f"JSON config parses: {path}")
+
+    check((ROOT / "scripts/hooks/guard.mjs").is_file(), "Shared guard hook exists")
+    for cfg in (".claude/settings.json", ".codex/hooks.json"):
+        check(
+            "scripts/hooks/guard.mjs" in read(cfg),
+            f"Guard hook registered in {cfg}",
+        )
 
 
 def validate_instructions_and_skills() -> None:

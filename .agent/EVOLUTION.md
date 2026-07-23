@@ -185,3 +185,37 @@ Fresh-session status: pending — `@`-импорт Claude (`/context` в све�
 
 Decision: keep (по явному утверждению пользователя); влитие в `main` —
 отдельное решение пользователя.
+
+## 2026-07-23 — `worktree-guard-hook`
+
+Problem evidence: worktree-протокол существовал только текстом; аудит
+2026-07-23 наблюдал живую параллельную сессию в основном checkout, а прежний
+checkout-протокол в 3 файлах прямо предписывал его переключать. Ручные правки
+генерируемых данных запрещены `scripts/map/AGENTS.md`, но ничем не
+блокировались. Пользователь явно утвердил внедрение guard-хука.
+
+Layer changed: `scripts/hooks/guard.mjs` (общий Node-скрипт, fail-open) +
+регистрации PreToolUse в `.claude/settings.json` (проект) и `.codex/hooks.json`;
+public eval расширен проверками наличия/регистрации/парсинга. Формат событий
+Codex клонирует Claude (официальная дока hooks, GA c 2026-05; Windows-quoting
+исправлен в CLI 0.145.0).
+
+Expected benefit: физическая блокировка (exit 2) правок в основном checkout,
+ручных правок `server/data/scenarios/**`/`scripts/map/out/**`, а также
+`git push --force` (кроме `--force-with-lease`), `git reset --hard`,
+`git clean -f`, `rm -rf` — вместо надежды на дисциплину.
+
+Risks and containment: fail-open по построению (ошибка хука не блокирует
+работу); command-правила regex-грубые — возможны редкие ложные срабатывания,
+причина всегда печатается в stderr; Codex применяет repo-hooks только в
+trusted-проекте после одобрения хэша через `/hooks`.
+
+Validation: 8 синтетических кейсов через stdin — блокирует: правку в основном
+checkout, запись в генерируемые данные, force-push, reset --hard; пропускает:
+правку в своём worktree, `--force-with-lease`, обычные команды, мусор в stdin
+(fail-open). Public eval после расширения зелёный.
+
+Fresh-session status: pending — срабатывание в живой Claude-сессии (хук
+проектного уровня подхватится со следующей) и одобрение хэша в Codex `/hooks`.
+
+Decision: keep (явное утверждение пользователя).
