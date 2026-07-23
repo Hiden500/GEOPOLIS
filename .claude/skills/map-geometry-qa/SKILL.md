@@ -726,6 +726,72 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   separately, same call as "this is too big to fold into the current
   patch" for the 20 synthesis-needed holes above.
 
+- **"Ugly zigzag border" has two different root causes that need different
+  fixes — check which one BEFORE proposing a solution.** User flagged
+  Dalian↔Liaoning and Qingdao↔Shandong as both "badly cut." Rendering the
+  RAW source polygon (`geoBoundaries-CHN-ADM2.geojson`'s own `Qingdaoshi`,
+  before any `∩ host_province`) showed it was already smooth — the zigzag
+  was purely an artifact of the pipeline's intersection step, fixable by
+  using the raw polygon directly, no research needed. The RAW `Dalianshi`
+  polygon, by contrast, was itself jagged (real coastal detail) AND
+  undersized vs. the true historical Kwantung Leased Territory — a
+  fundamentally different problem needing a real administrative-boundary
+  fix, not a coastline-precision one. Same symptom, opposite diagnosis;
+  render the raw source before assuming either.
+- **Don't assume "preserve current area exactly" when a user asks to fix a
+  bad boundary — ask, or check if current area is itself the bug.** First
+  pass here computed a smoothing algorithm engineered to keep Dalian's
+  area byte-identical to its CURRENT (2116.6 km²) value. User rejected
+  this outright: the current area was already wrong (a known, previously
+  logged, deferred finding — Dalian's area was ~40% short of the
+  documented historical Kwantung Leased Territory). "Fix the boundary" can
+  mean "keep the total the same, just make the line pretty" or "make the
+  line historically correct, area be damned" — these produce very
+  different algorithms. When in doubt, especially after a "known area
+  discrepancy" was logged earlier in the same investigation, don't default
+  to area-preservation as a silent constraint.
+- **An unused constant left in the codebase can be a pre-validated answer,
+  not dead code — check before doing the research yourself.**
+  `build_china_1946_v2.py` had `PORT_ARTHUR_LAT_CUT = 39.46` sitting
+  unreferenced (grep found exactly 2 hits, both the definition itself) —
+  the build ultimately used a different method (`Dalianshi` raw county) and
+  left this behind. Applying it anyway (a horizontal cut at that exact
+  latitude) produced 3638.9 km², landing right inside the independently
+  Wikipedia-sourced 3400-3500 km² range for the real 1898-1945 Kwantung
+  Leased Territory — a near-exact match that's not coincidence. A previous
+  session almost certainly already did this research and calibrated the
+  constant, then abandoned the approach for unrelated reasons (maybe
+  wanting a real county boundary instead of an arbitrary line) without
+  deleting the evidence. `grep` for suspiciously-specific unused constants
+  near the feature you're fixing before opening a browser.
+- **A "horizontal line" request can still produce real (not synthetic)
+  islands as a side effect — that's not a bug.** Cutting Dalian/Liaoning at
+  a constant latitude swept up 4 small pre-existing Liaoning islets (their
+  bounds matched exactly ones already catalogued earlier in the session)
+  that happened to sit south of the line, turning Dalian from 1 part into
+  5. Correct and expected under "everything south of the line belongs to
+  Dalian" — verify by checking whether the extra MultiPolygon parts
+  correspond to real, previously-known small islands (they do here) before
+  treating a part-count increase as a regression.
+- **`fill_sea_holes.py`'s "nearest feature of the same iso_a2" pick can
+  create a new same-country overlap on EVERY fresh rebuild, not just
+  once** — first hit (Washington "San Juan" vs "Adams", package-B era) was
+  patched by hand; a from-scratch `--full-rebuild` in a fresh worktree
+  reproduced the identical overlap deterministically, because the
+  underlying "nearest by raw distance, not by touching-boundary" choice
+  never changed. Manual per-incident patches don't survive a regenerate.
+  Fixed by adding a general `resolve_same_iso_overlaps()` post-pass to the
+  script itself: after filling, check every same-`iso_a2` pair in a
+  continent for a NEW overlap and resolve it to whichever side has the
+  longer shared boundary with the overlap polygon (same longest-boundary
+  principle as `absorb_slivers` elsewhere in this codebase) — self-heals
+  on every future rebuild instead of needing a human to notice the same
+  `merge_world_1946.py` overlap-count regression again. The check must run
+  unconditionally per continent, not only when new holes were filled in
+  that specific invocation — an idempotent re-run (0 new holes) is exactly
+  when a *leftover* overlap from an earlier run would otherwise never get
+  caught.
+
 ## Positional-file fragility (silent, untested)
 
 `ownership_1946.json` and `names_ru.json` are external, positionally-keyed, and
