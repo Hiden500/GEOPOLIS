@@ -13,6 +13,11 @@
       "type": "http",
       "url": "https://mcp.context7.com/mcp",
       "description": "remote external-library documentation; never send secrets or private runtime data"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "description": "browser automation for UI QA (official Microsoft MCP); local browser only, never send secrets"
     }
   }
 }
