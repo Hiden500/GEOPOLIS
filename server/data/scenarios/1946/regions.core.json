@@ -11685,7 +11685,7 @@
   {
     "id": 810,
     "geoJsonId": "NAM-0014",
-    "area": 987552.2,
+    "area": 987571.8,
     "neighboringRegionIds": [
       809,
       811,
@@ -11703,7 +11703,7 @@
   {
     "id": 811,
     "geoJsonId": "NAM-0015",
-    "area": 1505505.2,
+    "area": 1505506.0,
     "neighboringRegionIds": [
       804,
       805,
@@ -13711,7 +13711,7 @@
   {
     "id": 961,
     "geoJsonId": "NAM-0165",
-    "area": 100697.2,
+    "area": 100697.4,
     "neighboringRegionIds": [
       810,
       960,
@@ -13743,7 +13743,7 @@
   {
     "id": 963,
     "geoJsonId": "NAM-0167",
-    "area": 25149.9,
+    "area": 25411.7,
     "neighboringRegionIds": [
       966
     ],
@@ -13754,7 +13754,7 @@
   {
     "id": 964,
     "geoJsonId": "NAM-0168",
-    "area": 24585.2,
+    "area": 24704.8,
     "neighboringRegionIds": [
       810,
       966,
@@ -13767,7 +13767,7 @@
   {
     "id": 965,
     "geoJsonId": "NAM-0169",
-    "area": 47610.2,
+    "area": 48046.3,
     "neighboringRegionIds": [
       810,
       1051,
@@ -13780,7 +13780,7 @@
   {
     "id": 966,
     "geoJsonId": "NAM-0170",
-    "area": 57922.3,
+    "area": 58256.2,
     "neighboringRegionIds": [
       963,
       964,
@@ -13808,7 +13808,7 @@
   {
     "id": 968,
     "geoJsonId": "NAM-0172",
-    "area": 22133.8,
+    "area": 22165.2,
     "neighboringRegionIds": [
       964,
       966,
@@ -13839,7 +13839,7 @@
   {
     "id": 970,
     "geoJsonId": "NAM-0174",
-    "area": 46207.3,
+    "area": 46380.3,
     "neighboringRegionIds": [
       967,
       968,
@@ -13881,7 +13881,7 @@
   {
     "id": 973,
     "geoJsonId": "NAM-0177",
-    "area": 32839.2,
+    "area": 32876.3,
     "neighboringRegionIds": [
       970,
       974,
@@ -13943,7 +13943,7 @@
   {
     "id": 977,
     "geoJsonId": "NAM-0181",
-    "area": 20271.1,
+    "area": 20464.9,
     "neighboringRegionIds": [
       810,
       973,
@@ -13957,7 +13957,7 @@
   {
     "id": 978,
     "geoJsonId": "NAM-0182",
-    "area": 74527.3,
+    "area": 74682.2,
     "neighboringRegionIds": [
       810,
       811,
@@ -15005,7 +15005,7 @@
   {
     "id": 1051,
     "geoJsonId": "NAM-0255",
-    "area": 37131.0,
+    "area": 37291.0,
     "neighboringRegionIds": [
       961,
       962,
@@ -15020,7 +15020,7 @@
   {
     "id": 1052,
     "geoJsonId": "NAM-0256",
-    "area": 74325.4,
+    "area": 74442.7,
     "neighboringRegionIds": [
       965,
       1050,
@@ -15050,7 +15050,7 @@
   {
     "id": 1054,
     "geoJsonId": "NAM-0258",
-    "area": 36501.8,
+    "area": 36517.6,
     "neighboringRegionIds": [
       1045,
       1050,
@@ -15210,7 +15210,7 @@
   {
     "id": 1064,
     "geoJsonId": "NAM-0268",
-    "area": 30155.2,
+    "area": 30210.7,
     "neighboringRegionIds": [
       966,
       968,

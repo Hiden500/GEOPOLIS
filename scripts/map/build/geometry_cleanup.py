@@ -252,3 +252,57 @@ def absorb_slivers_until_stable(mutable_feats, context_geoms=(), water_geoms=(),
         if n == 0:
             return
     print(f"  [SLIVER/{label}] ВНИМАНИЕ: {max_passes} проходов не сошлись до 0 — проверь стык вручную")
+
+
+def resolve_same_iso_overlaps(feats, label=""):
+    """После заливки дыр/поглощения слайверов фичи ОДНОГО iso_a2 в одном
+    continent-файле могут начать пересекаться (San Juan/Adams-случай,
+    `fill_sea_holes.py`, 2026-07-23 — "ближайшая фича того же iso_a2" не то
+    же самое, что "ближайшая по смыслу"). Для каждой найденной пары — общая
+    ячейка пересечения отдаётся той из двух, у кого длиннее общая граница с
+    этой ячейкой (тот же принцип "самая длинная граница", что и в
+    absorb_slivers выше), отбирается у другой через .difference(). Точечный
+    проход только по парам, которые ДЕЙСТВИТЕЛЬНО пересекаются сейчас — не
+    трогает штатные касания (dist=0, но area=0). Общая утилита (не
+    привязана к морям) — используется `fill_sea_holes.py` и
+    `fix_lake_coastline_gaps.py`; вызывать безусловно после любого прохода
+    слияния "ближайшая фича того же iso_a2 в существующие" — идемпотентный
+    повторный запуск (0 новых дыр) иначе никогда не поймает leftover-
+    наложение от предыдущего прогона."""
+    n_fixed = 0
+    by_iso = {}
+    for i, ft in enumerate(feats):
+        by_iso.setdefault(ft["properties"].get("iso_a2"), []).append(i)
+
+    for iso, idxs in by_iso.items():
+        if len(idxs) < 2:
+            continue
+        for a in range(len(idxs)):
+            for b in range(a + 1, len(idxs)):
+                ia, ib = idxs[a], idxs[b]
+                ga = shape(feats[ia]["geometry"])
+                gb = shape(feats[ib]["geometry"])
+                overlap = ga.intersection(gb)
+                if overlap.geom_type == "GeometryCollection":
+                    polys = [g for g in overlap.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
+                    overlap = unary_union(polys) if polys else None
+                if overlap is None or overlap.geom_type not in ("Polygon", "MultiPolygon"):
+                    continue
+                if overlap.is_empty or overlap.area < 1e-12:
+                    continue
+                shared_a = overlap.boundary.intersection(ga.boundary).length
+                shared_b = overlap.boundary.intersection(gb.boundary).length
+                loser_idx = ib if shared_a >= shared_b else ia
+                winner_name = feats[ia]["properties"].get("name") if loser_idx == ib else feats[ib]["properties"].get("name")
+                loser_ft = feats[loser_idx]
+                loser_g = shape(loser_ft["geometry"])
+                new_g = loser_g.difference(overlap)
+                if not new_g.is_valid:
+                    new_g = new_g.buffer(0)
+                loser_ft["geometry"] = mapping(new_g)
+                if "area_km2" in loser_ft["properties"]:
+                    loser_ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
+                print(f"  [OVERLAP-FIX/{label}] {loser_ft['properties'].get('name')} уступает "
+                      f"{area_km2(overlap):.3f} km2 в пользу {winner_name} (длиннее общая граница)")
+                n_fixed += 1
+    return n_fixed

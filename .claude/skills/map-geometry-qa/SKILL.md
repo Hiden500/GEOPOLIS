@@ -877,6 +877,58 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   chosen owner vs. 1.5-14° to the next-nearest alternative) — a close
   three-way tie near a real, contested land border would still need a
   judgment call, not an automatic nearest-neighbor pick.
+- **When a lake gains a new, more detailed contour and no longer matches
+  land, check which side actually moved before assuming water is
+  authoritative and growing water into land — it can be the reverse.**
+  The Great Lakes gap-fix's whole design hinged on one measurement done
+  BEFORE writing any code: the lake's current contour gives EXACTLY 0.0
+  km² of gap against RAW `game_map.json` land, for all 4 lakes — meaning
+  the NE10m refresh (`refresh_lakes_from_ne10m.py`, 2026-07-22) is
+  perfectly aligned with the original source. The gap only exists against
+  CURATED `out/namerica_1946.geojson` land, which has its own history of
+  divergence from raw (the same geometric-cluster county-split that
+  produces "Michigan — Crawford"/"Lapeer"/"Marquette" as separate
+  regions). That flips the standard `fix_sea_coastline_gaps.py` authority
+  direction on its head: there, land is old/authoritative and sea grows;
+  here, the LAKE is what independently matches ground truth, so LAND has
+  to grow toward it — the exact same `absorb_slivers_until_stable` engine
+  (`geometry_cleanup.py`), just with mutable/authoritative roles swapped,
+  and no need for the sea-specific `absorb_compact_gaps` (its liberal,
+  no-compactness-check variant only makes sense when mutable is water and
+  every real lake-hole is already excluded via `water_geoms` — for
+  mutable=land the standard blob-safety check is exactly the one you
+  want, same as any other land-gap fix in this codebase). Don't assume
+  the newly-refreshed feature is the one that regressed — measure both
+  candidate authorities against the original raw source first.
+- **A gap-cell diagnostic that copies `absorb_slivers`'s cell-mosaic logic
+  MUST clip `water_geoms`/`context_geoms` to the local bbox before
+  passing them in — the real function tolerates unclipped, far-away
+  geometry; a standalone copy checking things in a different order might
+  not.** Building a quick side-script to inspect exactly which cells
+  `absorb_slivers` was skipping as "compact blobs" near the Great Lakes,
+  passing ALL 13 lakes (unclipped) as `water_geoms` produced phantom
+  "blob" cells at coordinates nowhere near the Great Lakes — (33°E,-2°N)
+  and (48-52°E,44-52°N), i.e. Lake Victoria/Tanganyika and Caspian/Aral
+  territory. `absorb_slivers` itself is immune to this (a cell that
+  doesn't touch any `mutable_feats` boundary gets dropped via the
+  `land_touch` check regardless of how far-flung the water geometry that
+  produced it was), but a hand-rolled diagnostic that reorders or omits
+  that check can report nonsense. Always intersect water/context geometry
+  with the clip_box (or at minimum filter by `.intersects(clip_box)`)
+  before feeding it into any copy of this cell-mosaic pattern.
+- **`absorb_slivers`'s `n_skipped_blob` counter increments BEFORE checking
+  whether the cell is already covered by existing land/water — it can
+  overcount cells that aren't real gaps at all, just interior mosaic
+  subdivisions at a complex multi-feature junction.** Investigating the
+  Great Lakes fix's "24 compact blobs skipped" message (after fixing the
+  clipping bug above), an independent re-check that ALSO verified
+  `representative_point()` coverage before classifying a cell as a
+  "blob" found zero real candidates — every one of the 24 was already
+  covered by an existing feature. The count isn't wrong for its stated
+  purpose (it never claims to filter by coverage), but reading it as "N
+  real potential gaps got protected" is wrong. If a `n_skipped_blob`
+  count seems large, don't treat it as N missed gaps without independently
+  re-checking coverage first — it may be entirely benign.
 
 ## Positional-file fragility (silent, untested)
 

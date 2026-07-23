@@ -70,6 +70,7 @@ from pyproj import Geod
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from diagnose_sea_holes import find_holes, classify, MATCH_RATIO  # noqa: E402
+from geometry_cleanup import resolve_same_iso_overlaps  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -143,54 +144,6 @@ def area_km2(geom):
 def load_features(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)["features"]
-
-
-def resolve_same_iso_overlaps(feats, label=""):
-    """После заливки дыр фичи ОДНОГО iso_a2 в одном continent-файле могут
-    начать пересекаться (см. докстринг модуля, San Juan/Adams-случай).
-    Для каждой найденной пары — общая ячейка пересечения отдаётся той из
-    двух, у кого длиннее общая граница с этой ячейкой (тот же принцип
-    "самая длинная граница", что и в absorb_slivers/geometry_cleanup.py),
-    отбирается у другой через .difference(). Точечный проход только по
-    парам, которые ДЕЙСТВИТЕЛЬНО пересекаются сейчас — не трогает штатные
-    касания (dist=0, но area=0)."""
-    n_fixed = 0
-    by_iso = {}
-    for i, ft in enumerate(feats):
-        by_iso.setdefault(ft["properties"].get("iso_a2"), []).append(i)
-
-    for iso, idxs in by_iso.items():
-        if len(idxs) < 2:
-            continue
-        for a in range(len(idxs)):
-            for b in range(a + 1, len(idxs)):
-                ia, ib = idxs[a], idxs[b]
-                ga = shape(feats[ia]["geometry"])
-                gb = shape(feats[ib]["geometry"])
-                overlap = ga.intersection(gb)
-                if overlap.geom_type == "GeometryCollection":
-                    polys = [g for g in overlap.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
-                    overlap = unary_union(polys) if polys else None
-                if overlap is None or overlap.geom_type not in ("Polygon", "MultiPolygon"):
-                    continue
-                if overlap.is_empty or overlap.area < 1e-12:
-                    continue
-                shared_a = overlap.boundary.intersection(ga.boundary).length
-                shared_b = overlap.boundary.intersection(gb.boundary).length
-                loser_idx = ib if shared_a >= shared_b else ia
-                winner_name = feats[ia]["properties"].get("name") if loser_idx == ib else feats[ib]["properties"].get("name")
-                loser_ft = feats[loser_idx]
-                loser_g = shape(loser_ft["geometry"])
-                new_g = loser_g.difference(overlap)
-                if not new_g.is_valid:
-                    new_g = new_g.buffer(0)
-                loser_ft["geometry"] = mapping(new_g)
-                if "area_km2" in loser_ft["properties"]:
-                    loser_ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
-                print(f"  [OVERLAP-FIX/{label}] {loser_ft['properties'].get('name')} уступает "
-                      f"{area_km2(overlap):.3f} km2 в пользу {winner_name} (длиннее общая граница)")
-                n_fixed += 1
-    return n_fixed
 
 
 def _merge_hole_into_nearest(candidates, hole_geom):
