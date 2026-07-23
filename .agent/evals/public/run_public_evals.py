@@ -78,8 +78,15 @@ def validate_toml() -> None:
             f"sandbox_mode={data.get('sandbox_mode')!r}",
         )
 
-    for path in (".mcp.json", ".gemini/settings.json"):
+    for path in (".mcp.json", ".gemini/settings.json", ".codex/hooks.json", ".claude/settings.json"):
         check(isinstance(load_json(ROOT / path), dict), f"JSON config parses: {path}")
+
+    check((ROOT / "scripts/hooks/guard.mjs").is_file(), "Shared guard hook exists")
+    for cfg in (".claude/settings.json", ".codex/hooks.json"):
+        check(
+            "scripts/hooks/guard.mjs" in read(cfg),
+            f"Guard hook registered in {cfg}",
+        )
 
 
 def validate_instructions_and_skills() -> None:
@@ -128,9 +135,18 @@ def validate_instructions_and_skills() -> None:
                 check(key in metadata_text, f"{path.parent.name} metadata defines {key[:-1]}")
     check(len(names) == len(set(names)), "Skill names are unique")
 
-    canonical = read(".agents/skills/verify-change/SKILL.md")
-    mirror = read(".claude/skills/verify-change/SKILL.md")
-    check(canonical == mirror, "Claude verify-change mirror matches canonical skill")
+    check(
+        (ROOT / ".claude/skills/verify-change/SKILL.md").is_file(),
+        "Claude verify-change mirror exists",
+    )
+    for mirror_path in sorted((ROOT / ".claude/skills").glob("*/SKILL.md")):
+        canonical_path = ROOT / ".agents/skills" / mirror_path.parent.name / "SKILL.md"
+        if canonical_path.exists():
+            check(
+                canonical_path.read_text(encoding="utf-8")
+                == mirror_path.read_text(encoding="utf-8"),
+                f"Claude mirror matches canonical skill: {mirror_path.parent.name}",
+            )
 
     claude_reviewer = ROOT / ".claude/agents/ui-reviewer.md"
     check(claude_reviewer.is_file(), "Claude read-only UI reviewer exists")

@@ -82,3 +82,6 @@ logs/
 # конфиг MCP трекается в корневом .mcp.json. В main .repowise никогда не
 # трекался; ветка gemini однажды закоммитила 362 файла индекса — не повторять.
 .repowise/
+
+# Map pipeline sources (external/heavy inputs, kept out of git)
+scripts/map/sources/

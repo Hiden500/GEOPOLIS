@@ -1,20 +1,20 @@
 {
   "env": {
-    "ENABLE_TOOL_SEARCH": "auto:5",
-    "AGENT_CACHE_SIZE": "10",
-    "AGENT_PROMOTION_THRESHOLD": "3"
+    "ENABLE_TOOL_SEARCH": "auto:5"
   },
-  "agents": {
-    "enabled": [
-      "bug-hunter",
-      "code-reviewer",
-      "security-scanner",
-      "database-architect"
-    ],
-    "deferred": [
-      "deployment-engineer",
-      "visual-effects-creator",
-      "qdrant-specialist"
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/guard.mjs",
+            "timeout": 10,
+            "statusMessage": "guard: worktree/данные/git-safety"
+          }
+        ]
+      }
     ]
   }
 }
