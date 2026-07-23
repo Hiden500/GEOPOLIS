@@ -3230,6 +3230,77 @@ country_entities_1946.py` 12/12, `test_validate_region_economy_1946.py`
 
 ---
 
+## 2026-07-23 — интеграция agent-os + CAPITAL_REGION_OVERRIDES remap (46)
+
+Пользователь дал прямое поручение: смержить `integration/agent-os-1946` в
+текущую ветку, начать применять корневой `AGENTS.md`/`scripts/map/AGENTS.md`/
+`.agent/PLANS.md`, прогнать `run_public_evals.py`, починить 46 известных
+`capitalRegionId` FAIL.
+
+**Мерж (`git merge integration/agent-os-1946`, fast-forward, конфликтов
+нет).** Перед мержем — due diligence (не слепой мерж по инструкции):
+ветка удаляла `client/src/assets/game_map.json` (36 МБ) коммитом «Чистка:
+мёртвый game_map.json из client» — файл на деле ЖИВОЙ первичный источник
+геометрии для ВСЕГО `scripts/map` (сам `paths.py`, не тронутый этой
+веткой, прямым текстом «НЕ удалять»; собственный memory-файл сессии
+`map-dataset-integration` фиксирует решение пользователя от 2026-06-28
+«keep game_map.json (geometry source)»). Автор чистки (другая агентная
+сессия) не увидел Python-использование. Согласовано с пользователем:
+смержить, затем восстановить файл — `git checkout <pre-merge-HEAD> --
+client/src/assets/game_map.json` (35.2 МБ, размер совпал). Отдельным
+коммитом `af781e4`.
+
+**Guard-хук (`scripts/hooks/guard.mjs`, зарегистрирован в `.claude/
+settings.json` той же веткой) сразу же реально заблокировал правку в
+основном checkout** — не promt на одобрение (как ожидалось по инструкции
+пользователя «не одобряй пока хэш»), а жёсткий PreToolUse-блок. Не стала
+искать способ ослабить/отключить хук самостоятельно (прямое требование
+свежепрочитанного `AGENTS.md`: «Не ослабляй sandbox, approvals, проверки...
+security controls») — уточнено у пользователя напрямую, решено перейти в
+worktree сейчас же (не дожидаясь «следующей задачи», как планировалось
+изначально). Worktree создан вручную (`git worktree add -b claude/
+capital-region-fix ... <SHA текущего HEAD>`), не через дефолтный
+`EnterWorktree(name=...)` — тот использует `worktree.baseRef` (`fresh` по
+умолчанию = ветка от `origin/<default-branch>`, здесь `origin/main`), что
+потеряло бы все локальные коммиты этой ветки; ручное создание с явным SHA
+исключило этот риск. `node_modules` расшарен symlink'ами из основного
+checkout (не `npm install` — тот же пакет уже стоит, экономия времени, не
+коммитится — gitignored).
+
+**`run_public_evals.py`: 159/159 PASS** (сразу после мержа, до починки
+capitalRegionId — публичные evals не проверяют экономику региона).
+
+**CAPITAL_REGION_OVERRIDES (`generate_country_registry.py`, 61 запись,
+хардкод-словарь, НЕ файл, НЕ регенерируется `remap_region_ids.py`) — 46 из
+61 протухли.** Метод: для каждой протухшей записи — ключевое слово из
+существующего в словаре комментария (напр. «Баглан» для AFG, «Cuando
+Cubango» для AGO) → поиск по текущим `names.en.json`/`names.ru.json` →
+фильтр кандидатов по текущему владельцу (`regions.state.json`) — у 44 из
+46 однозначный единственный матч с первого прохода. 2 ручных: QRI («Java»,
+комментарий «содержит Yogyakarta») — ни один из регионов QRI не назван
+буквально «Java» (индонезийское «Jawa» не даёт substring-match) — найден
+по расстоянию геометрии до координат Джокьякарты (Jawa Barat, dist=0).
+SLE («единственный Sierra Leone polygon») — это не буквальное имя региона,
+а описание «у SLE только 1 регион» — тот единственный называется
+«Northern» (AFR-0193). Побочная находка: у QZN комментарий содержал
+буквальную ссылку на `geoJsonId` «AFR-0089» — сам этот id тоже устарел
+(сейчас указывает на другой регион, MDG «Menabe»), верный «Zanzibar South
+and Central» сейчас под AFR-0092 — урок: не доверять embedded id в
+комментарии, тот же класс протухания, что и сам числовой capitalRegionId.
+Все 46 новых id перепроверены против `regions.state.json` (0 расхождений
+владельца), проверены на дубликаты между собой (0).
+
+**Итог:** `validate_region_economy_1946.py` — 0 нарушений (было 46).
+`test_validate_region_economy_1946.py` 9/9, `test_country_entities_1946.py`
+12/12, `run_public_evals.py` 159/159, server+client `tsc --noEmit` чисты,
+server vitest 680+1skip, живой `/game/start` (свежий процесс, `netstat`
+подтверждён) — выборочно AFG/BRA/JPN/QRI/SLE резолвятся в верную
+столицу/владельца. Работа велась в `.claude/worktrees/capital-region-fix`
+(ветка `claude/capital-region-fix` от `codex/1946-country-borders`) — не
+влияет на исходную ветку до явного мержа пользователем.
+
+---
+
 ## Открытые вопросы (актуально на 2026-07-15)
 
 Живой индекс нерешённого — единственный источник статуса "что ещё не решено".

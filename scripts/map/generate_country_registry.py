@@ -695,57 +695,65 @@ def main():
         candidate = tint_from_suzerain(suzerain_color, country_id) if suzerain_color else deterministic_color(country_id)
         finalize_color(country_id, candidate)
 
+    # region_id — ПОЗИЦИОННЫЙ хардкод (см. scripts/map/AGENTS.md "Каскад
+    # region_id"): любое изменение числа регионов ЛЮБОЙ страны сдвигает
+    # нумерацию всего после неё. Проверка — validate_region_economy_1946.py.
+    # 2026-07-23: 46 из 61 записи протухли (пакеты A/B этой ветки добавили/
+    # переставили регионы) — id пересчитаны поиском текущего region_id по
+    # имени из комментария (names.en.json/names.ru.json), с проверкой
+    # владельца (regions.state.json). 0 расхождений владельца после
+    # пересчёта — см. docs/DECISIONS.md 2026-07-23.
     CAPITAL_REGION_OVERRIDES = {
         "SUN": 318,   # Москва
         "USA": 990,   # Округ Колумбия (Вашингтон)
         "GBR": 124,   # Большой Лондон
         "FRA": 108,   # Иль-де-Франс (Париж)
         "DNK": 67,    # Столичный регион (Копенгаген)
-        "CAN": 787,   # Онтарио (Оттава)
-        "BRA": 1055,  # Рио-де-Жанейро
+        "CAN": 810,   # Онтарио (Оттава)
+        "BRA": 1079,  # Рио-де-Жанейро
         "ITA": 175,   # Лацио (Рим)
-        "JPN": 557,   # Канто (Токио)
+        "JPN": 573,   # Канто (Токио)
         "TWN": 382,   # Цзянсу (Нанкин)
-        "AFG": 433,   # Баглан (Кабул)
-        "EGY": 1134,  # Каир
-        "NFD": 781,   # Newfoundland, содержит St. John's
-        "QWL": 824,   # Antigua, содержит St. John's — резиденцию Governor
-        "QWW": 845,   # Grenada, содержит St. George's — резиденцию Governor
-        "QND": 843,   # Curaçao, содержит Willemstad
-        "MTQ": 774,   # Martinique, содержит Fort-de-France
-        "GLP": 775,   # Guadeloupe, содержит Basse-Terre
-        "QFW": 1275,  # Louga, содержит Dakar — столицу AOF
-        "QFE": 1320,  # Pool, содержит Brazzaville — столицу AEF
-        "QRU": 1322,  # Bujumbura Rural, содержит Usumbura — административный центр
-        "QZN": 1208,  # AFR-0089 "Zanzibar South and Central", содержит Zanzibar Town/Stone Town
-        "AGO": 1221,  # Cuando Cubango source polygon, содержащий Luanda
-        "MOZ": 1224,  # Gaza source polygon, содержит Lourenço Marques
-        "MDG": 1207,  # Bongolava source polygon, содержащий Tananarive
-        "GHA": 1245,  # Eastern source polygon, содержащий Accra
-        "KEN": 1240,  # Rift Valley source polygon, содержащий Nairobi
-        "NGA": 1192,  # Benue source polygon, содержащий Lagos
-        "SLE": 1309,  # единственный Sierra Leone polygon, содержит Freetown
-        "ZMB": 1269,  # Southern source polygon, содержащий Lusaka
-        "ZWE": 1272,  # Mashonaland West source polygon, содержащий Salisbury
-        "QTB": 413,   # Xizang polygon, содержит Lhasa
-        "QSI": 491,   # Sikkim, содержит Gangtok
-        "QJK": 504,   # Jammu and Kashmir, содержит Srinagar
-        "QPI": 511,   # Goa, административный центр Portuguese India
-        "QFI": 514,   # Puducherry
-        "HKG": 462,   # Hong Kong
-        "IND": 519,   # Delhi
-        "LKA": 619,   # Ceylon, содержит Colombo
-        "MMR": 621,   # Bago source polygon, содержащий Rangoon
-        "MYS": 639,   # Perak source polygon, содержащий Kuala Lumpur
-        "SGP": 682,   # Singapore
-        "QNB": 635,   # Sabah, содержит Jesselton
-        "QSR": 636,   # Sarawak, содержит Kuching
-        "QLB": 638,   # Labuan
-        "QDV": 749,   # Hà Nội
-        "VNM": 751,   # Hồ Chí Minh city / Saigon
-        "QRI": 482,   # Java polygon, содержит Yogyakarta
+        "AFG": 449,   # Баглан (Кабул)
+        "EGY": 1157,  # Каир
+        "NFD": 804,   # Newfoundland, содержит St. John's
+        "QWL": 847,   # Antigua, содержит St. John's — резиденцию Governor
+        "QWW": 869,   # Grenada, содержит St. George's — резиденцию Governor
+        "QND": 867,   # Curaçao, содержит Willemstad
+        "MTQ": 797,   # Martinique, содержит Fort-de-France
+        "GLP": 798,   # Guadeloupe, содержит Basse-Terre
+        "QFW": 1302,  # Louga, содержит Dakar — столицу AOF
+        "QFE": 1347,  # Pool, содержит Brazzaville — столицу AEF
+        "QRU": 1349,  # Bujumbura Rural, содержит Usumbura — административный центр
+        "QZN": 1235,  # AFR-0092 "Zanzibar South and Central", содержит Zanzibar Town/Stone Town
+        "AGO": 1247,  # Cuando Cubango source polygon, содержащий Luanda
+        "MOZ": 1251,  # Gaza source polygon, содержит Lourenço Marques
+        "MDG": 1234,  # Bongolava source polygon, содержащий Tananarive
+        "GHA": 1272,  # Eastern source polygon, содержащий Accra
+        "KEN": 1267,  # Rift Valley source polygon, содержащий Nairobi
+        "NGA": 1219,  # Benue source polygon, содержащий Lagos
+        "SLE": 1336,  # AFR-0193 "Northern" — единственный Sierra Leone polygon, содержит Freetown
+        "ZMB": 1296,  # Southern source polygon, содержащий Lusaka
+        "ZWE": 1299,  # Mashonaland West source polygon, содержащий Salisbury
+        "QTB": 418,   # Xizang polygon, содержит Lhasa
+        "QSI": 501,   # Sikkim, содержит Gangtok
+        "QJK": 514,   # Jammu and Kashmir, содержит Srinagar
+        "QPI": 521,   # Goa, административный центр Portuguese India
+        "QFI": 524,   # Puducherry
+        "HKG": 478,   # Hong Kong
+        "IND": 529,   # Delhi
+        "LKA": 637,   # Ceylon, содержит Colombo
+        "MMR": 639,   # Bago source polygon, содержащий Rangoon
+        "MYS": 658,   # Perak source polygon, содержащий Kuala Lumpur
+        "SGP": 699,   # Singapore
+        "QNB": 654,   # Sabah, содержит Jesselton
+        "QSR": 655,   # Sarawak, содержит Kuching
+        "QLB": 657,   # Labuan
+        "QDV": 772,   # Hà Nội
+        "VNM": 774,   # Hồ Chí Minh city / Saigon
+        "QRI": 498,   # ASI-0121 "Jawa Barat" (dist=0 до Yogyakarta) — Java polygon, содержит Yogyakarta
         "IDN": 479,   # Sulawesi Selatan, Dutch eastern-administration anchor
-        "MAC": 634,   # Macau
+        "MAC": 652,   # Macau
         "QSH": 423,   # Sharjah
         "QRK": 424,   # Ras Al Khaimah
         "QAB": 425,   # Abu Dhabi
@@ -753,10 +761,10 @@ def main():
         "QAJ": 427,   # Ajman
         "QFU": 428,   # Fujairah
         "QDU": 429,   # Dubai
-        "QAD": 772,   # Lahij source polygon, содержащий Aden
-        "QPS": 1329,  # Northern Mariana Islands, Saipan administration anchor
-        "COK": 1330,  # Cook Islands, Rarotonga
-        "NFK": 1332,  # Norfolk Island, Kingston
+        "QAD": 795,   # Lahij source polygon, содержащий Aden
+        "QPS": 1359,  # Northern Mariana Islands, Saipan administration anchor
+        "COK": 1360,  # Cook Islands, Rarotonga
+        "NFK": 1362,  # Norfolk Island, Kingston
     }
 
     countries = []
