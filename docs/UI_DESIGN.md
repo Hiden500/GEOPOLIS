@@ -97,8 +97,10 @@ stat-pill-label, budget-item .label, panel-section h3/h4, timeline-date.
 
 Срез 4 (пятишаговый coach-tour `hud/Onboarding/`) и P0-слой «национального
 пульса» (`NationalBriefing`, LLM-гейт кнопки хода, desktop-контракт 1366×768)
-реализованы только на замороженной ветке `codex/interface-from-scratch` и в
-`main` **не влиты**. Обе UI-линии заморожены до решения пользователя о
+реализованы на bootstrap-линии (`codex/global-working-agreements` →
+`codex/1946-country-borders`) и в `main` **не влиты**; ветка
+`codex/interface-from-scratch` (линия B) этот интерфейс, наоборот, сбросила
+под clean-slate. Обе UI-линии заморожены до решения пользователя о
 канонической (2026-07-23, см. `docs/DECISIONS.md`); этот документ описывает
 состояние `main` — срезы 0-3 плана 12.
 
@@ -122,7 +124,7 @@ stat-pill-label, budget-item .label, panel-section h3/h4, timeline-date.
   Это отдельная система («значки на карте»), не путать с UI-иконками панелей.
 - Accessibility не аудирован: контраст `paper-dim` на `ink`, видимые focus-ring
   на интерактивных элементах, размер тач-таргетов при <768px — не проверялись.
-- Chrome/CDP QA на ветке `codex/interface-from-scratch` (2026-07-16) выявил
+- Chrome/CDP QA сессии онбординга (bootstrap-линия, 2026-07-16) выявил
   предсуществующий responsive blocker Header, применимый и к `main`: на
   390×844 документ шире viewport, stats почти уезжают за экран, кнопка
   следующего хода недоступна (RU/EN при 1440×900 и 760×900 — чисто).
