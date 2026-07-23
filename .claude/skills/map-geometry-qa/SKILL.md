@@ -933,6 +933,37 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   real potential gaps got protected" is wrong. If a `n_skipped_blob`
   count seems large, don't treat it as N missed gaps without independently
   re-checking coverage first — it may be entirely benign.
+- **When no historical shapefile is findable, anchor a hand-built polygon
+  to a few REAL, verifiable coordinates plus documented dimensions —
+  don't try to algorithmically deform a dramatically-shrunk modern remnant
+  back to its historical size.** The Aral Sea's 1946 shape was a
+  "calibrated ellipse" placeholder (right area, ~68,000 km², wrong shape
+  — a previous session had already tried and failed to find "точных
+  архивных контуров 1946 года"). WebSearch/WebFetch found no downloadable
+  historical vector data (cartographyvectors.com was unreachable in the
+  moment; a GitHub "historical-basemaps" project covers country borders,
+  not water bodies; cawater-info.net has only raster historical maps).
+  What WAS findable: real coordinates for 2 port cities that sat directly
+  on the 1946 shore (Muynak south, Aralsk northeast) and independently
+  documented overall dimensions (428-435 km N-S, 234-290 km E-W across 2
+  sources). First attempt — scale the modern, already-split North/South
+  Aral Sea polygons (`sources/naturalearth/ne_10m_lakes.geojson`) up from
+  a fixed corner to reach the historical area — produced a nonsense snake
+  shape, because 60 years of recession wasn't spatially uniform (the lake
+  retreated far more from the south/east than elsewhere), so naive scaling
+  distorts orientation, not just size. What worked: build a polygon
+  directly from waypoints (2 real anchors + synthesized intermediate
+  points matching the documented aspect ratio and overall silhouette),
+  densify with deterministic per-segment normal-offset jitter (fixed
+  `random.Random(seed)`, not the bare `random` module state) so the coast
+  looks organically irregular rather than a faceted rough polygon, then
+  do one final uniform area-correction scale from the centroid to land
+  exactly on the documented total area. Verify by checking both real
+  anchor points end up within ~2 km of the final boundary, and — since
+  the point of the reconstruction was to later clip 3 real administrative
+  regions by it — render the new lake shape against its real neighbors
+  and confirm it sits where the actual sea does relative to them, not
+  just that it "looks like a lake" in isolation.
 
 ## Positional-file fragility (silent, untested)
 
