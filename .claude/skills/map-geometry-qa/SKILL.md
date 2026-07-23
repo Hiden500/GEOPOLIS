@@ -791,6 +791,49 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   that specific invocation — an idempotent re-run (0 new holes) is exactly
   when a *leftover* overlap from an earlier run would otherwise never get
   caught.
+- **`absorb_slivers`'s cell classifier had an upper area bound (skip if
+  too big) but no LOWER one — a near-self-tangent boundary can produce a
+  truly-zero-area `polygonize` cell that gets absorbed forever without
+  converging.** Found 2026-07-23 on the Oceania tile: `fix_sea_coastline_
+  gaps.py` printed "3 проходов не сошлись" every full run. Per-cell
+  instrumentation showed the SAME cell (`area=1.7e-18 deg2`,
+  `compactness=0.000`) absorbed by the SAME single feature on every pass —
+  not two features fighting over a real sliver, a phantom artifact from
+  `polygonize(unary_union([...boundaries]))` at a spot where a polygon's
+  own boundary almost touches itself. Absorbing it is a geometric no-op
+  (union with a sliver of itself) but perturbs float coordinates just
+  enough that the next pass's `polygonize` regenerates an identical
+  phantom — an infinite loop that never trips `n_absorbed == 0`. Fixed by
+  a general `MIN_CELL_AREA_DEG2 = 1e-9` guard at the top of `absorb_
+  slivers`'s cell loop (`geometry_cleanup.py`) — NOT the same threshold as
+  `fix_sea_coastline_gaps.py`'s own `DEGENERATE_AREA_DEG2 = 1e-4` (that one
+  filters MultiPolygon parts AFTER a union, calibrated against noise
+  observed up to 1e-6 deg² in that different context; reusing it as a
+  PRE-absorption floor would risk dropping real small slivers — this
+  session absorbed real ones as small as 0.05 km² ≈ 4e-6 deg²). Pick a
+  cell-classifier floor from the specific noise magnitude you actually
+  reproduce, not by borrowing a neighboring constant that solved a
+  differently-scaled problem. `absorb_slivers` is shared by 6 pipeline
+  scripts — fix it at that shared layer, not in the one caller where the
+  symptom happened to surface.
+- **A tile-loop's printed per-tile "+X km2" can go negative and still be
+  harmless — verify by checking the PERSISTED property across repeated
+  runs, not just by reasoning about the union math.** While verifying the
+  fix above, re-running `fix_sea_coastline_gaps.py` on its own already-
+  processed `seas_1946.geojson` printed identical negative deltas for a
+  couple of seas (Norwegian Sea -12.7 km², 3 runs in a row, bit-for-bit
+  the same). `unary_union([full_before, grown_piece])` should mathematically
+  never shrink `full_before` for valid inputs, so this looked alarming at
+  first — but `g.is_valid` and `area_km2(g) == area_km2(g.buffer(0)) ==
+  area_km2(to_polygonal(g))` all checked out for the stored geometry
+  (ruling out invalid/self-overlapping input as the cause). The decisive
+  check: read the stored `area_km2` property before a run, run the real
+  script, read it again — it was bit-identical (1456629.1 both times).
+  That proves the printed delta is a transient measurement artifact
+  inside that one union call, not a persisted, compounding loss. Don't
+  trust "the math says X can't happen" OR "the number looks scary" alone
+  when a script is close to idempotent — read the actual persisted state
+  before and after a real run.
 
 ## Positional-file fragility (silent, untested)
 

@@ -53,6 +53,20 @@ from pyproj import Geod
 
 GEOD = Geod(ellps="WGS84")
 
+# Нижний порог: ячейка мельче — гарантированно не географическая фича, а
+# машинный шум (2026-07-23, Oceania-тайл `fix_sea_coastline_gaps.py`:
+# absorb_slivers_until_stable не сходился 3 прохода подряд, каждый заново
+# "поглощал" ячейку area=1.7e-18 deg2/compactness=0.000 в одну и ту же фичу
+# — вырожденный почти-самокасающийся артефакт `polygonize` после повторного
+# unary_union границ, не реальный слайвер; union такой ячейки — геометрический
+# no-op по площади, но чуть двигает float-координаты, поэтому на следующем
+# проходе `polygonize` восстанавливает такой же фантом заново). Порог взят
+# на ~9 порядков выше наблюдённого шума (1.7e-18) и на ~4 порядка ниже
+# самого маленького РЕАЛЬНОГО поглощения в этой сессии (0.05 км² слайвер
+# Qingdao, ~4e-6 deg2 на этой широте) — не может случайно отбросить
+# настоящий мелкий слайвер.
+MIN_CELL_AREA_DEG2 = 1e-9
+
 # Компактная ячейка (потенциально настоящее озеро-дыра) поглощается только
 # до этой площади; Кинерет ~0.017 deg2 должен остаться нетронутым.
 MAX_COMPACT_AREA = 0.008
@@ -153,6 +167,8 @@ def absorb_slivers(mutable_feats, context_geoms=(), water_geoms=(),
     n_absorbed = 0
     n_skipped_blob = 0
     for cell in cells:
+        if cell.area < MIN_CELL_AREA_DEG2:
+            continue  # машинный шум polygonize, не географическая фича
         c = compactness(cell)
         if cell.area > MAX_COMPACT_AREA and not (
                 cell.area <= MAX_RIBBON_AREA and c < RIBBON_COMPACTNESS):
