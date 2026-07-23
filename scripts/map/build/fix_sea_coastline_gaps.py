@@ -56,19 +56,10 @@ if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
-from geometry_cleanup import absorb_slivers_until_stable, area_km2
+from geometry_cleanup import absorb_slivers_until_stable, area_km2, to_polygonal, DEGENERATE_AREA_DEG2
 from shapely.ops import unary_union, polygonize
 
 BUFFER_DEG = 0.5
-
-# Абсолютный порог "точно машинный шум, а не гео-фича" — найдено 2026-07-19-q
-# на Ionian Sea/Inner Seas off the West Coast of Scotland/Norwegian Sea:
-# десятки MultiPolygon-частей площадью 1e-18..1e-6 deg2 (вычислительная
-# погрешность от повторных union/intersection/buffer(0), не остров).
-# Применяется В `to_polygonal()` — на КАЖДОМ union/intersection в этом
-# файле, не только в разовой чистке `cleanup_scattered_fragments` — иначе
-# новый прогон снова накопит такой же мусор.
-DEGENERATE_AREA_DEG2 = 1e-4
 
 
 def load_features(path):
@@ -87,33 +78,6 @@ def safe_clip(geom, box):
     if inter.is_empty or inter.geom_type not in ("Polygon", "MultiPolygon"):
         return None
     return inter
-
-
-def to_polygonal(geom):
-    """Отбрасывает (1) вырожденные не-полигональные компоненты (LineString/
-    Point с area=0) — найдено на White Sea: предыдущие `unary_union`/
-    `buffer(0)` в багованных прогонах превратили геометрию в
-    GeometryCollection из 12 нулевых LineString-артефактов + 1 настоящий
-    Polygon; (2) MultiPolygon-части площадью < DEGENERATE_AREA_DEG2 —
-    машинный шум от тех же union/intersection/buffer(0), находимый уже
-    ПОСЛЕ типа геометрии (Ionian Sea/Norwegian Sea/Inner Seas off the West
-    Coast of Scotland, запись -q — части площадью 1e-18..1e-6 deg2,
-    физически рядом с настоящим маленьким островом, из-за чего кластерная
-    чистка их раньше не ловила). `absorb_slivers`/`absorb_compact_gaps`
-    ожидают Polygon/MultiPolygon (`.boundary` на GeometryCollection даёт
-    непредсказуемый результат, `cell.boundary.intersection(g.boundary)`
-    может вернуть None вместо геометрии -> AttributeError чуть ниже по
-    стеку)."""
-    if geom.geom_type == "GeometryCollection":
-        polys = [g for g in geom.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
-        geom = unary_union(polys) if len(polys) > 1 else (polys[0] if polys else geom)
-    if geom.geom_type == "MultiPolygon":
-        kept = [p for p in geom.geoms if p.area >= DEGENERATE_AREA_DEG2]
-        if not kept:
-            return geom
-        if len(kept) < len(geom.geoms):
-            geom = unary_union(kept) if len(kept) > 1 else kept[0]
-    return geom
 
 
 def absorb_compact_gaps(ft, context_geoms, water_geoms, clip_box, label=""):

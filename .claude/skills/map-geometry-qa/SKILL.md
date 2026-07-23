@@ -964,6 +964,52 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   regions by it — render the new lake shape against its real neighbors
   and confirm it sits where the actual sea does relative to them, not
   just that it "looks like a lake" in isolation.
+- **"Clip land by every water polygon it overlaps" is not safe to apply
+  uniformly — check the FRACTION of each feature's area being removed,
+  not just whether an overlap exists.** `clip_land_by_water.py`'s first
+  run (2026-07-23) blindly subtracted every overlapping sea/lake from
+  every land feature and silently destroyed real territory: Washington —
+  San Juan dropped 94.4% (7704.6→425.4 km²), French Southern Territories
+  dropped 97.7% (7244.4→165.8 km²). Root cause: several "seas" in this
+  dataset are broad ocean SECTOR polygons (e.g. "Сев. Пасифика —
+  Американский сектор" spans from the equator to 49.7°N — effectively
+  "the whole ocean over there"), and even some precisely-named ones
+  (English Channel, Caribbean Sea) are too coarse to have island-shaped
+  holes cut for every small feature inside their bounds. Computing the
+  overlap-to-total-area ratio for all 83 affected land features revealed
+  a sharp, unambiguous gap in the distribution: 0-11% smoothly (genuine
+  coastline mismatches), then a jump straight to 14%+ and nine features
+  at exactly 100% (entirely swallowed). A `MAX_SAFE_FRACTION` threshold
+  (10% worked here) with an explicit, individually-vetted override list
+  for the few real exceptions (the Aral Sea trio, already confirmed
+  correct by rendering against neighbors) is the right shape for this
+  kind of "clip A by B" operation in general — never trust "they
+  overlap, so subtract" without also asking "how much of A would be left,
+  and is that plausible for a real administrative region?"
+- **When a gitignored, regenerated `out/*.geojson` gets corrupted mid-
+  session and there's no git history to fall back on, check whether
+  `--full-rebuild` can even complete before assuming you need it — and if
+  it can't, individual continent build scripts often still work
+  standalone.** Recovering from the clip incident above, `make_1946.py
+  --full-rebuild` died partway through on a genuinely missing external
+  source (`1947_1949.shp` for China) — a known, pre-existing limitation
+  of this worktree, not something the recovery could fix. But
+  `build_asia_1946.py` run BY ITSELF succeeded anyway: it reads China's
+  geometry from the already-existing, git-TRACKED `china_1946_
+  historical.json` rather than needing `build_china_1946_v2.py` to have
+  just regenerated it. Same for South America/Brazil (`build_brazil_
+  1946.py` failed on a missing geoBoundaries file, but `build_south
+  america_1946.py` used Brazil's already-existing, untouched output
+  file directly). Lesson: a failed upstream step doesn't necessarily
+  block downstream steps that merge in a separately-persisted
+  intermediate file — check what a script actually READS before assuming
+  the whole chain is blocked. This made it possible to regenerate only
+  the actually-corrupted continents (Europe/Asia/N.America/S.America/
+  Oceania) individually, then replay the session's own idempotent fixes
+  (`fill_sea_holes.py`, `fix_lake_coastline_gaps.py`) on top — verified
+  by confirming `merge_world_1946.py`'s overlap count and every
+  individual affected feature's area matched the pre-incident state
+  bit-for-bit, not just "looked plausible."
 
 ## Positional-file fragility (silent, untested)
 
