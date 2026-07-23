@@ -564,6 +564,28 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   confirmed the PID currently on the port matches the process you just
   launched — a plausible-looking wrong answer is worse than an obvious
   crash because it doesn't prompt you to double-check.
+- **The stray process on the shared port isn't always yours to kill — check
+  its command line before touching it.** 2026-07-23: a preview-tool
+  "server" restart reported success on port 3000, but the live-check
+  region/country counts (1366/128) didn't match the just-run validator
+  (1399/157). `netstat -ano | grep :3000` found one PID; `wmic process
+  where "ProcessId=<pid>" get CommandLine` showed it running from
+  `D:\Pax Historia LOCAL\node_modules\...` — the MAIN checkout, not this
+  worktree. Per `AGENTS.md` ("основной checkout может быть занят чужой
+  сессией"), that process is not provably mine to `taskkill` — unlike the
+  2026-07-19-i case above (same session, same worktree, genuinely orphaned
+  by an earlier round), this one could belong to another agent or the
+  user. Caveat: the worktree's OWN server also resolves `node_modules` to
+  the same physical main-checkout path when it's a symlink (this repo's
+  `server/node_modules` is symlinked there to skip a slow `npm install` in
+  fresh worktrees) — so the command line alone can't distinguish "started
+  in the worktree via symlink" from "started directly in the main
+  checkout." The safe move either way: don't kill anything you didn't
+  start yourself in this session. Launch your OWN process on an explicit,
+  different port (`PORT=39xx npx tsx src/index.ts`, `cd`'d into the
+  worktree's `server/` first) and verify against that instead — a fresh
+  port sidesteps the ownership question entirely instead of trying to
+  resolve it.
 - **`build_oceania_1946.py`'s `SINGLE_ORPHANS` loop filters raw features by
   `iso_a2` fresh each iteration — it does NOT depend on the `ALL_COUNTRIES`
   union like `SINGLE_REGION`/`SINGLE_COUNTRY` do.** A country with a real
@@ -834,6 +856,27 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   trust "the math says X can't happen" OR "the number looks scary" alone
   when a script is close to idempotent — read the actual persisted state
   before and after a real run.
+- **When a sourceless hole needs an owner, check the NEAREST EXISTING
+  feature in the dataset before doing independent historical research —
+  a prior session may have already made and vetted that sovereignty
+  call.** Assigning owners to the 20 sea-holes with no raw source
+  (2026-07-23) could have meant researching 1946 sovereignty for 8
+  scattered locations from scratch. Instead, for each hole, `Point(
+  *centroid).distance(g)` against every existing land feature found the
+  nearest one already in the dataset, and its `iso_a2`/owning country was
+  reused as-is. This wasn't just a shortcut — it surfaced choices already
+  more carefully researched than a fresh lookup would likely produce:
+  Yap/Pohnpei's owner in `countries.json` is `QPS`, "U.S. Naval
+  Administration of the Former Japanese Mandated Islands" — the real
+  transitional 1946 authority (Japan surrendered 1945, UN Trust Territory
+  only formalized 1947), not the anachronistic modern "Federated States
+  of Micronesia" a naive lookup might reach for. Greenland is its own
+  playable country (`GRL`), not merged into Denmark. Only trust the
+  nearest-feature answer when the distance is decisively small AND
+  unambiguous (this session's 8 clusters ranged 0.055-1.08° to the
+  chosen owner vs. 1.5-14° to the next-nearest alternative) — a close
+  three-way tie near a real, contested land border would still need a
+  judgment call, not an automatic nearest-neighbor pick.
 
 ## Positional-file fragility (silent, untested)
 

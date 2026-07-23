@@ -3779,7 +3779,7 @@
   {
     "id": 263,
     "geoJsonId": "EUR-0263",
-    "area": 403829.5,
+    "area": 403893.8,
     "neighboringRegionIds": [
       245,
       246,
@@ -11606,7 +11606,7 @@
   {
     "id": 805,
     "geoJsonId": "NAM-0009",
-    "area": 3428283.1,
+    "area": 3428376.8,
     "neighboringRegionIds": [
       804,
       806,
@@ -12468,7 +12468,7 @@
   {
     "id": 870,
     "geoJsonId": "NAM-0074",
-    "area": 2154593.7,
+    "area": 2154717.5,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "NAM-0074"
@@ -15458,7 +15458,7 @@
   {
     "id": 1081,
     "geoJsonId": "SAM-0016",
-    "area": 1230893.1,
+    "area": 1232176.3,
     "neighboringRegionIds": [
       1067,
       1068,
@@ -15784,7 +15784,7 @@
   {
     "id": 1104,
     "geoJsonId": "SAM-0039",
-    "area": 33.4,
+    "area": 287.9,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "SAM-0039"
@@ -16053,7 +16053,7 @@
   {
     "id": 1124,
     "geoJsonId": "SAM-0059",
-    "area": 103748.3,
+    "area": 103828.7,
     "neighboringRegionIds": [
       1103,
       1125,
@@ -16066,7 +16066,7 @@
   {
     "id": 1125,
     "geoJsonId": "SAM-0060",
-    "area": 121927.5,
+    "area": 122153.9,
     "neighboringRegionIds": [
       1097,
       1103,
@@ -19333,7 +19333,7 @@
   {
     "id": 1356,
     "geoJsonId": "OCE-0005",
-    "area": 3084.9,
+    "area": 4330.7,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "OCE-0005"
@@ -19423,7 +19423,7 @@
   {
     "id": 1366,
     "geoJsonId": "OCE-0015",
-    "area": 0.7,
+    "area": 98.9,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "OCE-0015"
@@ -19758,7 +19758,7 @@
   {
     "id": 1398,
     "geoJsonId": "OCE-0047",
-    "area": 89.1,
+    "area": 370.4,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "OCE-0047"
@@ -19767,7 +19767,7 @@
   {
     "id": 1399,
     "geoJsonId": "OCE-0048",
-    "area": 553.4,
+    "area": 665.4,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "OCE-0048"
