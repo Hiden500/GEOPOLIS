@@ -47,16 +47,18 @@ Append-only журнал. Когда решение полностью спро�
 (`python .agent/evals/public/run_public_evals.py`), fresh-session проверка
 `@`-импорта в Claude — следующей сессией.
 
-**Поправка (2026-07-23, при интеграции в `codex/1946-country-borders`):**
-уточнение атрибуции кода среза 4: онбординг/`NationalBriefing` реализованы на
+**Поправка (2026-07-23, при интеграции в рабочую линию карт):** уточнение
+атрибуции кода среза 4: онбординг/`NationalBriefing` реализованы на
 bootstrap-линии (`codex/global-working-agreements` → унаследованы веткой
-`codex/1946-country-borders`, где этот код ЕСТЬ); `codex/interface-from-scratch`
-(линия B) интерфейс, наоборот, сбросила под clean-slate. В `main` код среза 4
-по-прежнему не влит. Заморозка обеих линий не меняется. Эта же интеграция
-влита в рабочую ветку карт (`integration/agent-os-1946`): агентная
-инфраструктура объединена с их наработками (find-existing-solutions,
-map-geometry-qa, каскад region_id), чужеродный блок «Agent LRU Cache»
-(несуществующие агенты, `.claude/cache/agent-lru-cache.js`) — удалён.
+`codex/1946-country-borders`); `codex/interface-from-scratch` (линия B)
+интерфейс, наоборот, сбросила под clean-slate. В `main` код среза 4 не влит,
+заморозка обеих линий не меняется. Агентная система по просьбе пользователя
+влита в рабочую линию карт: ветка `integration/agent-os-1946`
+(= `codex/1946-country-borders` + agent-os, 16 конфликтов разрешено, public
+eval 159/159; 46 предсуществующих FAIL data-валидатора — состояние карточной
+линии, мержем не внесено). Чужеродный блок «Agent LRU Cache» из линии карт
+(несуществующие агенты, `.claude/cache/agent-lru-cache.js`) при интеграции
+удалён.
 
 ## 2026-07-16 — P0: обратная связь хода, runtime карты и 1366×768
 

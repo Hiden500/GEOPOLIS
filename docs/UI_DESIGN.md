@@ -97,11 +97,13 @@ stat-pill-label, budget-item .label, panel-section h3/h4, timeline-date.
 
 Срез 4 (пятишаговый coach-tour `hud/Onboarding/`) и P0-слой «национального
 пульса» (`NationalBriefing`, LLM-гейт кнопки хода, desktop-контракт 1366×768)
-реализованы на bootstrap-линии и **присутствуют в этой ветке**; в `main` не
-влиты. Ветка `codex/interface-from-scratch` (линия B, clean-slate) этот
+реализованы на bootstrap-линии (`codex/global-working-agreements` →
+`codex/1946-country-borders`, где этот код **присутствует**) и в `main` **не
+влиты**; ветка `codex/interface-from-scratch` (линия B, clean-slate) этот
 интерфейс, наоборот, сбросила. Обе UI-линии заморожены до решения
 пользователя о канонической (2026-07-23, см. `docs/DECISIONS.md`) — UI-код
-не развивается, онбординг здесь остаётся как есть.
+не развивается, онбординг здесь остаётся как есть; этот документ описывает
+состояние `main` — срезы 0-3 плана 12.
 
 ## Локализация (обязательное сквозное правило)
 
