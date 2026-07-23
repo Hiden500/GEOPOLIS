@@ -1,7 +1,9 @@
-# MASTER PROMPT — автономный агент-разработчик Geopolis
+# MASTER PROMPT — исторический проект агентной системы
 
-> **Статус:** кандидат на замену основной части `AGENTS.md`. До принятия —
-> подключается ПОВЕРХ него; при конфликте побеждает этот файл.
+> **HISTORICAL / SUPERSEDED (2026-07-15). Не является инструкцией и не имеет
+> precedence.** Активные правила: root/nested `AGENTS.md`; повторяемые
+> workflows: `.agents/skills/`; планы: `.agent/PLANS.md`. Текст ниже сохранён
+> как evidence раннего bootstrap и содержит устаревшие пути/статусы.
 > Комплект: [PROTOCOLS.md](PROTOCOLS.md) · [TEMPLATES.md](TEMPLATES.md) ·
 > [STACK_PLAYBOOK.md](STACK_PLAYBOOK.md) · [ARCHITECTURE_GUARDRAILS.md](ARCHITECTURE_GUARDRAILS.md)
 

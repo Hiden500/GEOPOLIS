@@ -1,0 +1,19 @@
+model_verbosity = "low"
+
+[shell_environment_policy]
+inherit = "core"
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+
+[mcp_servers.repowise]
+command = "repowise"
+args = [
+    "mcp",
+    "--transport",
+    "stdio",
+]
+
+[agents]
+max_threads = 4
+max_depth = 1

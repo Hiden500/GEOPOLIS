@@ -2,7 +2,7 @@ name: Doc & Repo Guardrails
 
 # Deliberately has NO path filter (unlike ci.yml) — the violations this catches
 # (committed .repowise index, stray root docs) live outside client/server/shared
-# and would silently skip ci.yml entirely. See AGENTS.md "Keep /docs Lean" and
+# and would silently skip ci.yml entirely. See AGENTS.md documentation rules and
 # docs/DECISIONS.md 2026-07-03 (gemini/ui-map-improvements cleanup) for the
 # incident that motivated this check.
 
@@ -19,10 +19,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Validate repository agent configuration and docs
+        run: python3 .agent/evals/public/run_public_evals.py
+
       - name: Reject committed .repowise/ index
         run: |
           if git ls-files | grep -q '^\.repowise/'; then
-            echo "::error::.repowise/ is machine-local (Repowise wiki index/cache) and must never be committed — see .gitignore and AGENTS.md 'Keep /docs Lean'."
+            echo "::error::.repowise/ is machine-local (Repowise wiki index/cache) and must never be committed — see .gitignore and AGENTS.md documentation rules."
             git ls-files | grep '^\.repowise/' | head -20
             exit 1
           fi
@@ -38,7 +41,7 @@ jobs:
           done
           if [ -n "$offenders" ]; then
             echo "::error::Root-level .md files outside the allowlist ($allowlist): $offenders"
-            echo "::error::Task-tracking docs belong in docs/ (see AGENTS.md 'Keep /docs Lean' — no new tracking doc per task)."
+            echo "::error::Task-tracking docs belong in docs/; do not add stray root-level tracking files."
             exit 1
           fi
 
