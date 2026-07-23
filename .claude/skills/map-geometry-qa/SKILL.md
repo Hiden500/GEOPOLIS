@@ -564,28 +564,32 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   confirmed the PID currently on the port matches the process you just
   launched — a plausible-looking wrong answer is worse than an obvious
   crash because it doesn't prompt you to double-check.
-- **The stray process on the shared port isn't always yours to kill — check
-  its command line before touching it.** 2026-07-23: a preview-tool
-  "server" restart reported success on port 3000, but the live-check
+- **The Browser-pane preview tool (`preview_start`/`.claude/launch.json`)
+  launches its "server"/"client" configs against the session's MAIN
+  checkout directory, not whatever worktree your Bash `cd` is currently
+  in — confirmed 2026-07-23 via `preview_list`, which showed `"cwd":
+  "D:\\Pax Historia LOCAL"` for a server started while working in `.claude/
+  worktrees/capital-region-fix`.** First symptom: a `preview_start(name=
+  "server")` restart reported success on port 3000, but the live-check
   region/country counts (1366/128) didn't match the just-run validator
-  (1399/157). `netstat -ano | grep :3000` found one PID; `wmic process
-  where "ProcessId=<pid>" get CommandLine` showed it running from
-  `D:\Pax Historia LOCAL\node_modules\...` — the MAIN checkout, not this
-  worktree. Per `AGENTS.md` ("основной checkout может быть занят чужой
-  сессией"), that process is not provably mine to `taskkill` — unlike the
-  2026-07-19-i case above (same session, same worktree, genuinely orphaned
-  by an earlier round), this one could belong to another agent or the
-  user. Caveat: the worktree's OWN server also resolves `node_modules` to
-  the same physical main-checkout path when it's a symlink (this repo's
-  `server/node_modules` is symlinked there to skip a slow `npm install` in
-  fresh worktrees) — so the command line alone can't distinguish "started
-  in the worktree via symlink" from "started directly in the main
-  checkout." The safe move either way: don't kill anything you didn't
-  start yourself in this session. Launch your OWN process on an explicit,
-  different port (`PORT=39xx npx tsx src/index.ts`, `cd`'d into the
-  worktree's `server/` first) and verify against that instead — a fresh
-  port sidesteps the ownership question entirely instead of trying to
-  resolve it.
+  (1399/157) — it was quietly serving the MAIN checkout's `server/data/
+  scenarios/1946/*.json`, not this worktree's freshly-rebuilt data.
+  `netstat -ano | grep :3000` + `wmic process where "ProcessId=<pid>" get
+  CommandLine` showed the listening process running from `D:\Pax Historia
+  LOCAL\node_modules\...` — looked at first like it could be another
+  agent's live session in the main checkout (a real possibility per
+  `AGENTS.md`, "основной checkout может быть занят чужой сессией", and
+  genuinely ambiguous in the moment since the worktree's OWN server ALSO
+  resolves `node_modules` to that same physical path when it's a symlink,
+  as this repo's `server/node_modules` is, to skip a slow `npm install` in
+  fresh worktrees) — `preview_list` afterward settled it: both entries
+  were this session's own processes, just aimed at the wrong cwd, not a
+  stranger's. Either way, the safe move is the same and doesn't require
+  resolving the ambiguity: for verifying WORKTREE data specifically, skip
+  the preview tool's named configs and launch your own process on an
+  explicit port instead (`PORT=39xx npx tsx src/index.ts`, `cd`'d into the
+  worktree's `server/` first) — a fresh, explicit port both sidesteps the
+  ownership question and guarantees you're hitting the right checkout.
 - **`build_oceania_1946.py`'s `SINGLE_ORPHANS` loop filters raw features by
   `iso_a2` fresh each iteration — it does NOT depend on the `ALL_COUNTRIES`
   union like `SINGLE_REGION`/`SINGLE_COUNTRY` do.** A country with a real
