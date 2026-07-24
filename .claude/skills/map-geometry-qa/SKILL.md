@@ -1010,6 +1010,30 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   by confirming `merge_world_1946.py`'s overlap count and every
   individual affected feature's area matched the pre-incident state
   bit-for-bit, not just "looked plausible."
+- **When a land-water overlap is flagged as "too large a fraction to trim
+  land," the fix is usually to clip the WATER instead, not to give up —
+  and running that as a general pass (no hardcoded feature list) makes it
+  naturally target exactly the residual cases.** The 19 features
+  `clip_land_by_water.py` flagged and skipped (2026-07-23) all shared one
+  root cause: the land was a real, precisely-shaped feature (Guernsey,
+  Washington — San Juan, French Southern Territories, ...), but the
+  overlapping sea was the imprecise side (a coarse ocean sector or a
+  low-resolution named sea with no island-shaped hole). Once you know
+  which side is imprecise, the fix is the mirror of the original
+  operation: `water = water.difference(land)` instead of `land =
+  land.difference(water)`. Writing `clip_sea_by_land.py` as a blanket
+  "for every sea/lake, subtract whatever land it still overlaps" pass —
+  run AFTER `clip_land_by_water.py`, with no explicit list of the 19
+  names — worked cleanly: everywhere the first pass had already resolved
+  the overlap (by trimming land), there was nothing left to subtract
+  (a no-op); the only features where an overlap remained were exactly
+  the 19 flagged ones, so the general pass targeted precisely the right
+  set without maintaining a name list that could drift out of sync with
+  future geometry changes. This direction also needs no symmetric
+  safety threshold — the "victim" (a sea, often millions of km²) is
+  always vastly bigger than the "aggressor" (a small island), so there's
+  no structural risk of the water disappearing the way small islands did
+  in the original direction.
 
 ## Positional-file fragility (silent, untested)
 

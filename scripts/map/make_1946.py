@@ -48,6 +48,7 @@ FULL_REBUILD_STEPS = [
     "build/fill_sea_holes.py",
     "build/fix_lake_coastline_gaps.py",
     "build/clip_land_by_water.py",
+    "build/clip_sea_by_land.py",
     "build/merge_world_1946.py",
     "build/build_neighbor_graph.py",
     "build/translate_world.py",
