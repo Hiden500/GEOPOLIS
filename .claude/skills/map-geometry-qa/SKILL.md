@@ -1117,6 +1117,49 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   the reasoning for why this one needs a narrower, different mechanism
   (e.g. "safe if it touches an already-registered water body directly")
   rather than just tuning the existing thresholds.
+- **Perimeter-based `compactness()` (4*pi*area/perimeter²) is fooled by a
+  jagged boundary even on a shape that isn't elongated at all — use
+  `minimum_rotated_rectangle` aspect ratio instead when you need to tell
+  "genuinely thin ribbon" from "compact blob with a noisy edge."**
+  Building `diagnose_coastline_gaps.py` (2026-07-24) turned up a 1464 km²
+  gap on the Brazil/Paraguay border whose `compactness` was 0.0024 - by
+  the same threshold `absorb_slivers` uses, indistinguishable from an
+  extreme ribbon. But its `minimum_rotated_rectangle` aspect ratio was
+  1.5 (nearly square) - a real, roughly-blob-shaped hole, not a sliver.
+  The gap's boundary was stitched from many small administrative-border
+  vertices (independently-digitized neighboring regions), which inflates
+  perimeter for ANY shape regardless of true elongation - a compact blob
+  with a fractal-ish edge scores exactly like a thin ribbon under a
+  perimeter-based formula. `minimum_rotated_rectangle`'s side ratio is
+  immune to edge jaggedness since it only cares about the point cloud's
+  extent, not the boundary path length. Empirically on this dataset:
+  genuine border-noise slivers had aspect >= ~10, genuine holes/gaps had
+  aspect <= ~2 - a wide, comfortable gap between the two, not a knife
+  edge. If a future gate/classifier needs "is this elongated," reach for
+  this instead of raw compactness when the input boundaries come from
+  independently-digitized adjacent polygons (i.e. almost always in this
+  dataset).
+- **A rendered "gap" that looks like a hairline is only real evidence of
+  being sub-visible noise if the render's zoom level could actually show
+  its true width - always check absolute width (geodesic distance, not
+  degrees) before dismissing something as noise from how it looks at a
+  continental scale.** The same session first rendered Alaska's coastline
+  at a 27°-wide bbox and saw dozens of what looked like thin red lines
+  hugging the coast - indistinguishable, by eye, from the land-land
+  border-seam noise found minutes earlier on Brazil/Paraguay. Computing
+  each candidate cell's `minimum_rotated_rectangle` short side via
+  `pyproj.Geod` geodesic distance showed 1-11 km real width - kilometers,
+  not the meter-scale you'd expect from vertex-precision noise. A
+  zoomed-in render of one specific cell (a ~2.5° bbox instead of 27°)
+  showed it as a solid, obviously-real filled gap (Prince William Sound,
+  75 km²) - the "thin line" appearance in the wide render was a
+  rendering-resolution artifact (a few-km-wide feature compressed to 1-2
+  pixels across a wide bbox), not evidence about the gap itself. Lesson:
+  visual classification of "is this noise or real" is only valid at a
+  zoom where the feature in question would occupy enough pixels to show
+  its actual shape - a wide sweep is fine for FINDING candidates, but
+  dismissing one as noise requires either a zoomed render or a real
+  distance measurement, not just how it looks zoomed out.
 
 ## Positional-file fragility (silent, untested)
 
