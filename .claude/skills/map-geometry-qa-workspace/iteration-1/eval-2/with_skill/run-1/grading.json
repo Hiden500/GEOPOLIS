@@ -1,0 +1,53 @@
+{
+  "expectations": [
+    {
+      "text": "Recommends a gap-first approach via absorb_slivers / geometry_cleanup.py (or an existing pipeline script that uses it) as the primary method",
+      "passed": true,
+      "evidence": "response.md leads with 'Закрывать gap-first методом — absorb_slivers_until_stable из scripts/map/build/geometry_cleanup.py', explicitly modeled on the existing absorb_middle_east_slivers() precedent, with a concrete proposed absorb_iraq_internal_slivers() function."
+    },
+    {
+      "text": "Explicitly recommends against a buffer()-based fill, with a stated reason (not just an unexplained preference)",
+      "passed": true,
+      "evidence": "'Не buffer()' stated up front, backed by dense tripoints near Kirkuk (Kurdistan/Arbil, Kurdistan/As-Sulaymaniyah, Iraq/Sala ad-Din) as a concrete reason buffer's all-directions inflation is especially risky here, citing the real Jordan/Iraq/Syria overlap incident from 2026-07-19-e as precedent for this exact failure mode."
+    },
+    {
+      "text": "Grounds the recommendation in this repo's actual context (references how Kirkuk was actually carved out, e.g. EXTRA_SINGLE_FEATURES/ZONED_GEOMETRIC in build_asia_1946.py, or the specific existing script)",
+      "passed": true,
+      "evidence": "Reads and quotes the actual commit (d8236d7), the exact ZONED_GEOMETRIC[\"IQ\"] config with targets, and correctly identifies the carve-out mechanism as a pre-merge zone relabel rather than a redraw - a level of specificity beyond generic advice."
+    },
+    {
+      "text": "Recommends render-based verification of the result, not only a numeric/count-based check",
+      "passed": true,
+      "evidence": "Dedicated 'Как проверять после фикса' section: 'Рендер обязателен, не пропускать' citing the skill's exact numeric-vs-visual principle and the Great Lakes precedent where numeric checks passed but a real gap remained."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 1433.1
+  },
+  "execution_metrics": {
+    "total_tool_calls": 70,
+    "errors_encountered": 0
+  },
+  "claims": [
+    {
+      "claim": "No detectable gap currently exists between Kirkuk and its Iraqi neighbors in the current committed data",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Agent empirically tested this via shapely distance/touches checks plus a rendered PNG at 1-2km zoom, and was transparent about the negative result rather than assuming the premise of the question was necessarily still true - offered concrete alternative explanations (later edit, LAND_SEAM noise, client rendering artifact) with a way to distinguish them."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "This run and its without_skill counterpart both pass all 4 assertions and reach essentially the same conclusion (gap-first, cite the same 2026-07-19-e history, both empirically test for a current gap and find none). The with_skill run's answer is slightly more specific/actionable (proposes a named function scoped to just Kirkuk with a smaller mutable set, explicitly reasons about why that scope is safer than the baseline's country-wide IQ scope) - a real but subtle quality difference these binary assertions don't fully capture. Consider an assertion or rubric dimension for 'scope precision of the proposed fix' in a future iteration."
+      }
+    ],
+    "overall": "All 4 assertions pass with strong, specific evidence. Slightly more actionable/precise than the baseline counterpart, though both are high quality."
+  }
+}

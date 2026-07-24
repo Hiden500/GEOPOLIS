@@ -1,0 +1,64 @@
+{
+  "expectations": [
+    {
+      "text": "Response names at least one specific concrete gap location (region/country/coordinate), not just an aggregate count",
+      "passed": true,
+      "evidence": "response.md names Mexicali (209.9 km2, ~-115.92,32.63), Cape of Good Hope, an antimeridian pair in Antarctica, Prince William Sound (Alaska, 75 km2), Chukotka (189.9 km2), Commander Islands, Florida, New Jersey/Sandy Hook, and the Brazil/Paraguay LAND_HOLE cluster, each with coordinates/areas and a named render file."
+    },
+    {
+      "text": "Agent produced or explicitly consulted a visual render (image file or rendering script run), not just numeric script output",
+      "passed": true,
+      "evidence": "12 PNG renders saved to outputs/renders/, each individually opened and interpreted in prose in response.md (e.g. 'Рендер (renders/mexicali.png) показывает прямую красную линию...')."
+    },
+    {
+      "text": "Agent explicitly re-verifies or questions a prior script's 'idempotent / 0 on rerun' claim rather than treating it as proof there are no remaining gaps",
+      "passed": true,
+      "evidence": "actions_log.md has a dedicated section 'Как проверялась claim idempotent/0 при повторном прогоне', explicitly quoting the skill's own principle that idempotency proves convergence not completeness, and independently re-ran the diagnostic against today's data rather than trusting old logs, specifically re-checking Great Lakes (0 candidates today) as a targeted re-verification of a prior fix claim."
+    },
+    {
+      "text": "Agent distinguishes real gaps from noise using a signal beyond raw compactness alone (e.g. aspect ratio, absolute width in km, or explicit visual inspection at adequate zoom) or explicitly flags land-seam noise as a distinct risk",
+      "passed": true,
+      "evidence": "Computed minimum_rotated_rectangle aspect ratio AND geodesic width in km (via pyproj) for every COASTLINE cell (extending what the shipped script does), then went further: discovered aspect ratio/width alone are insufficient (Florida/New Jersey have extreme aspect but are real coastline) and identified a novel 'along-coast vs perpendicular-into-land' directional heuristic, validated only by rendering."
+    },
+    {
+      "text": "Agent does not conclude 'no gaps found, all clean' without citing a visual/render-based check",
+      "passed": true,
+      "evidence": "Concludes real gaps exist (~2770 km2 across 7+ rendered locations) with explicit render citations for every claim; does not claim blanket cleanliness anywhere."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "executor_duration_seconds": 1587.8
+  },
+  "execution_metrics": {
+    "total_tool_calls": 56,
+    "errors_encountered": 0
+  },
+  "claims": [
+    {
+      "claim": "The script's own COASTLINE totals (991 cells/4701.1 km2) are inflated ~26% by double-counting at overlapping tile boundaries",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Agent wrote an independent dedup pass reusing the script's own functions and got 715/3466.7 km2; the math (991-715)/991 = 27.8%, close enough to the stated ~26% given rounding, and the mechanism (Alaska sitting in both the N.America and Pacific-dateline-wrap tiles) is a genuine, previously undocumented artifact of the tile scheme."
+    },
+    {
+      "claim": "diagnose_coastline_gaps.py has a blind spot: it never computes aspect ratio for cells that touch water (COASTLINE), only for land-only cells",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with the actual script logic (the water-touch check short-circuits before the aspect-ratio branch in _gap_cells) — this is a real, actionable finding about the tool itself, not just the eval task."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "This run and its without_skill counterpart both pass all 5 assertions equally well — the without_skill agent independently discovered the project's git history, arrived at nearly the same MRR-aspect-ratio methodology, caught its own render bug, and produced comparably thorough output. For this specific eval, none of these 5 assertions discriminate between conditions for a model this capable at git archaeology. The real observed difference was efficiency (this run: 1587.8s/282K tokens vs. baseline: 2381.5s/378K tokens), not presence/absence of correct behavior. A future iteration of this eval might add an assertion more likely to discriminate, e.g. 'agent discovers X specific pitfall in under N tool calls' or something that rewards not having to reconstruct the lesson from scratch."
+      }
+    ],
+    "overall": "All 5 assertions pass with strong evidence and this is a genuinely excellent, thorough run — but the assertions as designed did not end up separating with-skill from without-skill performance on this eval; see suggestion above."
+  }
+}
