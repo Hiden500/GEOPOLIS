@@ -1059,6 +1059,64 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   geographic extent when a country has been clustered down to a single
   feature — check `source_adm1`/actual bounds before assuming a named
   region matches its literal namesake's boundaries.
+- **"Idempotent, 0 absorbed on a second run" proves the algorithm
+  converged — it does NOT prove there's nothing left to absorb. A
+  function can stably, silently reject the same real gap on every single
+  run forever.** `fix_lake_coastline_gaps.py` (this same session, task 3)
+  reported success by every automated signal available at the time:
+  2110.7 km² added, idempotent re-run showed 0 further absorption. Real
+  gaps remained anyway — visible as thin red coastline ribbons in a
+  rendered view (New York-Genesee/Lake Erie, Michigan's western shore,
+  Lake Superior's south shore near Marquette). The automated checks were
+  answering "did the algorithm reach a fixed point," not "does the fixed
+  point match reality" — those are different questions, and only a
+  visual render (or equivalent independent check) answers the second
+  one. Numeric before/after diffs and "0 on re-run" are necessary but not
+  sufficient verification for anything geometry-shaped; render it.
+- **A cell-classifier with multiple size/shape gates doesn't automatically
+  share exceptions between them — a fix (or a design decision) applied to
+  one gate has to be deliberately re-checked against every OTHER gate the
+  same candidate could still hit.** `absorb_slivers` has two separate
+  place where a cell can be rejected for being "too big": (1) a general
+  gate at the top of the loop (reject unless compact-and-small OR a
+  ribbon: area <= MAX_RIBBON_AREA and compactness < RIBBON_COMPACTNESS),
+  and (2) a second, stricter gate specifically for cells touching exactly
+  1 land feature (2026-07-19-g's fix for "coastal mismatch, not masked by
+  background") that used a bare `area > MAX_COMPACT_AREA` check with NO
+  ribbon exception at all. A long, thin, obviously-ribbon-shaped gap
+  along a lake shore (114.7 km², compactness 0.031 - nowhere near a
+  round blob) passed gate 1 easily, then got silently rejected by gate 2
+  purely on absolute size, with no way to know from the outside why. The
+  fix mirrors gate 1's ribbon exception into gate 2 - not a new, looser
+  threshold, just consistency between two checks that should have agreed
+  from the start. When investigating "why didn't X get absorbed," trace
+  the SPECIFIC cell through every gate in the function by hand (or with
+  instrumented prints) rather than assuming the first gate that looks
+  relevant is the one that fired - this bug hid behind a gate that looked
+  like a minor, already-settled safety detail, three gates past the one
+  that seemed most likely to be the culprit. This function is shared by
+  6+ pipeline scripts - a fix here has effects everywhere, confirmed by a
+  full fix_sea_coastline_gaps.py run adding +14,112 km2 worldwide (stale,
+  previously-silent gaps of the exact same class, not a new regression).
+- **Not every rejected-by-a-safety-gate cell has the same root cause -
+  check WHICH gate fired before assuming one fix covers all remaining
+  cases.** After the fix above closed the Great Lakes gaps completely,
+  Greenland (853.7 km², 11 cells) and Svalbard (143.1 km², 5 cells)
+  gaps the user also flagged were completely unchanged. Tracing one
+  Greenland cell showed it was rejected by the FIRST, general gate (not
+  the one just fixed) - its compactness (0.16-0.45) was too high (too
+  round, not ribbon-shaped enough) to qualify for either gate's ribbon
+  exception, and its area alone exceeded the compact-blob cap. Loosening
+  that general gate further to let these through is a materially
+  different, riskier change (it's the primary defense against absorbing
+  a real, not-yet-modeled small lake, and one of the candidate cells'
+  shape - fairly round at 0.447 compactness - is exactly the profile a
+  real small lake would have). Left undone and clearly documented rather
+  than forcing a fix that would widen a shared safety net beyond what
+  the evidence justifies - see docs/TODO.md for the specific numbers and
+  the reasoning for why this one needs a narrower, different mechanism
+  (e.g. "safe if it touches an already-registered water body directly")
+  rather than just tuning the existing thresholds.
 
 ## Positional-file fragility (silent, untested)
 
