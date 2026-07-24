@@ -3,7 +3,8 @@
   left: 10px;
   bottom: 10px;
   z-index: 22;
-  width: min(360px, 40vw);
+  width: var(--hud-orders-width);
+  max-width: calc(100% - 20px);
   background: linear-gradient(180deg, var(--steel-2), var(--steel));
   border: 1px solid var(--hairline-2);
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5);
@@ -59,6 +60,8 @@
 
 .body {
   padding: 11px;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 @media (max-width: 900px) {

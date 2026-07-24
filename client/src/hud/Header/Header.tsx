@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
 import { RESOURCE_CODES, RESOURCE_ICONS, formatCompactCurrency, formatResourceAmount } from "../../utils/resourceDisplay";
 import { BOOK_ORDER, type BookId } from "../types";
-import { IconBell, IconGdp, IconLegitimacy, IconLedgers, IconMenu, IconMilitary, IconPopulation, IconSearch, IconSettings, IconStability, IconTreasury } from "../icons";
+import { IconBell, IconGdp, IconHelp, IconLegitimacy, IconLedgers, IconMenu, IconMilitary, IconPopulation, IconSearch, IconSettings, IconStability, IconTreasury } from "../icons";
 import { BOOK_ICONS } from "../bookIcons";
 import styles from "./Header.module.css";
 
@@ -18,6 +18,8 @@ export interface HeaderProps {
   onNextTurn: () => void;
   onOpenLlmCycle: () => void;
   onOpenCountryOverview: () => void;
+  onOpenOnboarding: () => void;
+  onResetWindowLayout: () => void;
   /** Пункт «Меню» тула — единственный сохранённый выход в ScenarioSelector (было .back-button в TopStatBar). */
   onBackToMenu: () => void;
 }
@@ -33,6 +35,8 @@ export function Header({
   onNextTurn,
   onOpenLlmCycle,
   onOpenCountryOverview,
+  onOpenOnboarding,
+  onResetWindowLayout,
   onBackToMenu,
 }: HeaderProps) {
   const { t, i18n } = useTranslation("hud");
@@ -58,19 +62,25 @@ export function Header({
             />
           </div>
           <div className={styles.stats}>
-            <div className={`${styles.statrow} ${styles.r1}`} aria-label={t("panel.stateLabel")}>
-              <StatButton icon={<IconGdp />} value={formatCompactCurrency(country.economy.gdp, currencyUnits, i18n.language)} title={t("stats.gdp")} onClick={() => onTabClick("economy")} />
-              <StatButton icon={<IconTreasury />} value={formatCompactCurrency(country.economy.treasury, currencyUnits, i18n.language)} title={t("stats.treasury")} onClick={() => onTabClick("economy")} />
-              <StatButton icon={<IconPopulation />} value={`${(country.population / 1e6).toFixed(1)}${t("units.million")}`} title={t("stats.population")} onClick={() => onTabClick("population")} />
-              <StatButton icon={<IconMilitary />} value={`${(country.military.manpower / 1e6).toFixed(2)}${t("units.million")}`} title={t("stats.military")} onClick={() => onTabClick("industry")} />
+            <div className={`${styles.statrow} ${styles.r1}`} aria-label={t("panel.stateLabel")} data-onboarding="stats">
+              <StatButton icon={<IconGdp />} value={formatCompactCurrency(country.economy.gdp, currencyUnits, i18n.language)} title={t("statHelp.gdp")} onClick={() => onTabClick("economy")} />
+              <StatButton icon={<IconTreasury />} value={formatCompactCurrency(country.economy.treasury, currencyUnits, i18n.language)} title={t("statHelp.treasury")} onClick={() => onTabClick("economy")} />
+              <StatButton icon={<IconPopulation />} value={`${(country.population / 1e6).toFixed(1)}${t("units.million")}`} title={t("statHelp.population")} onClick={() => onTabClick("population")} />
+              <StatButton icon={<IconMilitary />} value={`${(country.military.manpower / 1e6).toFixed(2)}${t("units.million")}`} title={t("statHelp.military")} onClick={() => onTabClick("industry")} />
               <StatButton
                 icon={<IconStability />}
                 value={`${Math.round(country.politics.stability)}`}
-                title={t("stats.stability")}
+                title={t("statHelp.stability")}
                 tone={country.politics.stability < 40 ? "crit" : country.politics.stability < 60 ? "warn" : "neutral"}
                 onClick={() => onTabClick("politics")}
               />
-              <StatButton icon={<IconLegitimacy />} value={`${Math.round(country.politics.legitimacy)}%`} title={t("stats.legitimacy")} onClick={() => onTabClick("politics")} />
+              <StatButton
+                icon={<IconLegitimacy />}
+                value={`${Math.round(country.politics.legitimacy)}%`}
+                title={t("statHelp.legitimacy")}
+                tone={country.politics.legitimacy < 40 ? "crit" : country.politics.legitimacy < 60 ? "warn" : "neutral"}
+                onClick={() => onTabClick("politics")}
+              />
             </div>
             {stockpileEntries.length > 0 && (
               <div className={`${styles.statrow} ${styles.r2}`} aria-label={t("resourceRow.ariaLabel")}>
@@ -89,7 +99,7 @@ export function Header({
           </div>
         </div>
 
-        <nav className={styles.tabs} aria-label={t("tabsAriaLabel")}>
+        <nav className={styles.tabs} aria-label={t("tabsAriaLabel")} data-onboarding="books">
           {BOOK_ORDER.map((book, i) => {
             const Icon = BOOK_ICONS[book];
             return (
@@ -110,7 +120,7 @@ export function Header({
 
       <div className={styles.spacer} />
 
-      <button type="button" className={styles.statuspill} onClick={onOpenLlmCycle}>
+      <button type="button" className={styles.statuspill} onClick={onOpenLlmCycle} data-onboarding="llm" aria-live="polite">
         <span className={`${styles.pulse} ${llmRespondedThisTurn ? styles.pulseReady : styles.pulseWaiting}`} />
         {llmRespondedThisTurn ? t("statusPill.ready") : t("statusPill.waiting")}
         <em className={styles.turnNo}>{t("statusPill.turnLabel", { turn: llmTurn })}</em>
@@ -121,7 +131,14 @@ export function Header({
           <div className={styles.date}>
             <b>{dateLabel}</b>
           </div>
-          <button type="button" className={styles.endturn} onClick={onNextTurn} disabled={loading}>
+          <button
+            type="button"
+            className={styles.endturn}
+            onClick={onNextTurn}
+            disabled={loading || !llmRespondedThisTurn}
+            title={!llmRespondedThisTurn ? t("turn.blockedReason") : undefined}
+            data-onboarding="turn"
+          >
             {loading ? t("turn.simulating") : t("turn.next")}
           </button>
         </div>
@@ -129,7 +146,8 @@ export function Header({
           <ToolButton icon={<IconSearch />} title={t("tools.search")} disabled />
           <ToolButton icon={<IconLedgers />} title={t("tools.ledgers")} disabled />
           <ToolButton icon={<IconBell />} title={t("tools.notifications")} disabled />
-          <ToolButton icon={<IconSettings />} title={t("tools.settings")} disabled />
+          <ToolButton icon={<IconSettings />} title={t("tools.resetWindowLayout")} onClick={onResetWindowLayout} />
+          <ToolButton icon={<IconHelp />} title={t("tools.help")} onClick={onOpenOnboarding} dataOnboarding="help" />
           <ToolButton icon={<IconMenu />} title={t("tools.menu")} onClick={onBackToMenu} />
         </div>
       </div>
@@ -165,14 +183,16 @@ function ToolButton({
   title,
   disabled,
   onClick,
+  dataOnboarding,
 }: {
   icon: ReactNode;
   title: string;
   disabled?: boolean;
   onClick?: () => void;
+  dataOnboarding?: string;
 }) {
   return (
-    <button type="button" className={styles.tbtn} title={title} aria-label={title} disabled={disabled} onClick={onClick}>
+    <button type="button" className={styles.tbtn} title={title} aria-label={title} disabled={disabled} onClick={onClick} data-onboarding={dataOnboarding}>
       {icon}
     </button>
   );

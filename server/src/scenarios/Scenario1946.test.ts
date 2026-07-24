@@ -133,7 +133,7 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
       const dir = makeTmpDir();
       writeFixture(dir, {
         countries: [{
-          id: "AND", name: "Andorra", shortName: "Andorra", color: "#123456",
+          id: "AND", name: { en: "Andorra" }, shortName: { en: "Andorra" }, color: "#123456",
           capitalRegionId: 1, economyType: "mixed",
           politics: { ideology: "Liberal Democracy" },
         }],
@@ -155,7 +155,7 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
       const dir = makeTmpDir();
       writeFixture(dir, {
         countries: [{
-          id: "QGS", name: "Soviet Occupation Zone (Germany)", shortName: "QGS", color: "#123456",
+          id: "QGS", name: { en: "Soviet Occupation Zone (Germany)" }, shortName: { en: "QGS" }, color: "#123456",
           capitalRegionId: 1, economyType: "planned",
           politics: { ideology: "Communism" },
           currencyZoneAnchor: "SUN",
@@ -171,7 +171,7 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
       const dir = makeTmpDir();
       writeFixture(dir, {
         countries: [{
-          id: "AND", name: "Andorra", shortName: "Andorra", color: "#123456",
+          id: "AND", name: { en: "Andorra" }, shortName: { en: "Andorra" }, color: "#123456",
           capitalRegionId: 1, economyType: "mixed",
           politics: {}, // нет ideology — обязательное поле
         }],
@@ -185,7 +185,7 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
       const dir = makeTmpDir();
       writeFixture(dir, {
         countries: [{
-          id: "AND", name: "Andorra", shortName: "Andorra", color: "#123456",
+          id: "AND", name: { en: "Andorra" }, shortName: { en: "Andorra" }, color: "#123456",
           capitalRegionId: 1, economyType: "communist", // не planned/mixed/market
           politics: { ideology: "Communism" },
         }],

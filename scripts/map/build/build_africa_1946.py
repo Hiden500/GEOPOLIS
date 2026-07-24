@@ -19,6 +19,8 @@ from shapely.geometry import shape, mapping
 from shapely.ops import unary_union
 from pyproj import Geod
 
+CLIP_LAKE_NAMES_AFRICA = {"Виктория", "Танганьика", "Малави (Ньяса)"}
+
 GEOD = Geod(ellps="WGS84")
 SRC = game_map()
 OUT = out("africa_1946.geojson")
@@ -30,10 +32,14 @@ REGION_FIELD = {
     "MW": {},  # 3 (Northern/Central/Southern)
     "SD": {},  # 6 историч. провинций Судана
     "SS": {},  # 3 историч. провинции Юж.Судана (Equatoria/Bahr al Ghazal/Upper Nile)
+    "UG": {},  # 4 британские провинции 1946: Central/Eastern/Northern/Western
+               # (2026-07-19-m: раньше UG сидел в SINGLE_COUNTRY - 1 сплошной
+               # регион, хотя докстринг файла и raw game_map.json.region уже
+               # содержали ровно эти 4 значения; расхождение между докстрингом
+               # и кодом, найдено по указанию пользователя)
 }
 
-# Уганда -> 1 регион целиком (по явному указанию)
-SINGLE_COUNTRY = {"UG": "Уганда", "GM": "Гамбия"}
+SINGLE_COUNTRY = {"GM": "Гамбия"}
 
 # Руанда: уже 4 провинции + Kigali - оставляем как есть (значимость геноцида
 # 1994 года - региональная динамика важна), не сливаем
@@ -138,6 +144,43 @@ def compactness(geom):
     if perim == 0:
         return 0.0
     return 4 * math.pi * geom.area / (perim ** 2)
+
+
+def clip_land_against_lakes(out_features, lake_names):
+    """`out/lakes_1946.geojson` уже содержит Виктория/Танганьика как настоящие
+    водоёмы, но ни один шаг build_africa_1946.py никогда не вычитал их из
+    земли (Tabora/Uganda/Rift Valley/Katanga/Maniema/Muchinga/Burundi) - тот
+    же класс пробела, что Ладога/Байкал в Европе (2026-07-19-l), найдено
+    пользователем ("А озёра в Африке?"). Симметрично `clip_land_against_lakes`
+    в build_europe_1946.py."""
+    lakes_path = out("lakes_1946.geojson")
+    with open(lakes_path, encoding="utf-8") as f:
+        lakes_fc = json.load(f)
+    lake_geoms = [shape(ft["geometry"]) for ft in lakes_fc["features"]
+                   if ft["properties"].get("name") in lake_names]
+    if not lake_geoms:
+        print(f"  [LAKE] ВНИМАНИЕ: не найдено ни одного из {lake_names} в lakes_1946.geojson")
+        return
+    lakes_union = unary_union(lake_geoms)
+    n_clipped = 0
+    for ft in out_features:
+        g = shape(ft["geometry"])
+        if not g.intersects(lakes_union):
+            continue
+        clipped = g.difference(lakes_union)
+        if not clipped.is_valid:
+            clipped = clipped.buffer(0)
+        if clipped.area <= 1e-9:
+            continue
+        removed_km2 = area_km2(g) - area_km2(clipped)
+        if removed_km2 < 1e-6:
+            continue
+        ft["geometry"] = mapping(clipped)
+        ft["properties"]["area_km2"] = round(area_km2(clipped), 1)
+        n_clipped += 1
+        print(f"  [LAKE] {ft['properties']['name']} обрезана по озёрам "
+              f"(-{round(removed_km2, 1)} km2)")
+    print(f"  [LAKE] обрезано регионов: {n_clipped}")
 
 
 def adjacency(clusters, buffer_deg=0.0005):
@@ -247,7 +290,7 @@ def main():
         g = unary_union([shape(f["geometry"]) for f in items])
         out_features.append(make_feature(iso2, label, g, "single_orphan"))
 
-    # Уганда -> 1 регион целиком (по явному указанию)
+    # Гамбия -> 1 регион целиком (по явному указанию)
     for iso2, label in SINGLE_COUNTRY.items():
         items = by_country.get(iso2, [])
         if not items:
@@ -334,6 +377,8 @@ def main():
         for cl in clusters:
             out_features.append(make_feature(iso2, cl["names"][0], cl["geom"], "geometric", cl["codes"]))
         print(f"{iso2}: {len(items)} -> {len(clusters)}")
+
+    clip_land_against_lakes(out_features, CLIP_LAKE_NAMES_AFRICA)
 
     fc = {"type": "FeatureCollection", "features": out_features}
     with open(OUT, "w", encoding="utf-8") as f:

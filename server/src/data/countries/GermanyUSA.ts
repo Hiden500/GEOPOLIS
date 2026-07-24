@@ -4,8 +4,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 // Германия - Американская зона оккупации 1946
 export const GermanyUSA = createCountry({
   id: "DEU-USA",
-  name: "Германия (Американская зона)",
-  shortName: "DEU-USA",
+  name: { ru: "Германия (Американская зона)" },
+  shortName: { ru: "DEU-USA" },
   color: "#0066CC",
   capitalRegionId: 0,
   population: 22_000_000,

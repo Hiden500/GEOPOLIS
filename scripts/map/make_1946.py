@@ -42,13 +42,21 @@ FULL_REBUILD_STEPS = [
     "build/build_brazil_1946.py",
     "build/build_southamerica_1946.py",
     "build/build_africa_1946.py",
+    "build/fill_palestine_egypt_gap.py",
     "build/build_oceania_1946.py",
+    "build/fix_sea_coastline_gaps.py",
+    "build/fill_sea_holes.py",
+    "build/fix_lake_coastline_gaps.py",
+    "build/clip_land_by_water.py",
+    "build/clip_sea_by_land.py",
+    "build/resolve_brazil_paraguay_overlap.py",
     "build/merge_world_1946.py",
     "build/build_neighbor_graph.py",
     "build/translate_world.py",
 ]
 
 STANDARD_STEPS = [
+    "test_country_entities_1946.py",
     "import_to_game.py",
     "generate_country_registry.py",
     "fill_region_economy_1946.py",

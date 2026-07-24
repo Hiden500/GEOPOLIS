@@ -1,0 +1,156 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 7, 5, 0.72);
+}
+
+.highlight {
+  position: fixed;
+  z-index: 1;
+  border: 2px solid var(--accent-2);
+  box-shadow: 0 0 0 4px rgba(230, 163, 56, 0.22), 0 0 28px rgba(230, 163, 56, 0.45);
+  pointer-events: none;
+}
+
+.card {
+  position: fixed;
+  z-index: 2;
+  left: 50%;
+  top: 50%;
+  width: min(420px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  padding: 18px;
+  background: linear-gradient(180deg, var(--steel-2), var(--ink-2));
+  border: 1px solid var(--accent-dim);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+  color: var(--paper);
+}
+
+.positioned {
+  transform: none;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font: 0.68rem/1.2 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card h2 {
+  margin: 6px 0 8px;
+  font: 1.25rem/1.2 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card h2:focus {
+  outline: none;
+}
+
+.card p {
+  margin: 0;
+  color: var(--paper-dim);
+  line-height: 1.45;
+}
+
+.statLegend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.statLegend div {
+  padding: 7px 8px;
+  border-left: 2px solid var(--accent-dim);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.statLegend dt {
+  color: var(--paper);
+  font: 0.7rem/1.2 var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.statLegend dd {
+  margin: 3px 0 0;
+  color: var(--paper-dim);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin: 16px 0 12px;
+}
+
+.dots button {
+  width: 22px;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  background: var(--hairline-2);
+  cursor: pointer;
+}
+
+.dots button.activeDot {
+  background: var(--accent);
+}
+
+.actions,
+.actions > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.actions button {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid var(--hairline-2);
+  font: 0.72rem var(--font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.skip,
+.back {
+  background: transparent;
+  color: var(--paper-dim);
+}
+
+.next {
+  background: var(--accent);
+  color: var(--ink);
+  border-color: var(--accent) !important;
+}
+
+.actions button:focus-visible,
+.dots button:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .statLegend {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    max-height: calc(100vh - 16px);
+  }
+}

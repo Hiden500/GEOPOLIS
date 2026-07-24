@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type Region } from "@shared/types/map/Region";
-import { getText } from "@shared/types/i18n/LocalizedText";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
   regions: Region[];
@@ -34,7 +34,8 @@ function findMentionQuery(text: string, cursor: number): { start: number; query:
  * игрок (а через него и LLM) не путал регион по одному лишь имени.
  */
 export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
-  const { t } = useTranslation("playerIntentPanel");
+  const { t, i18n } = useTranslation("playerIntentPanel");
+  const locale = i18n.language as Locale;
   const [text, setText] = useState(intent);
   const [mention, setMention] = useState<{ start: number; query: string } | null>(null);
   const [saved, setSaved] = useState(false);
@@ -48,7 +49,7 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
     if (!mention) return [];
     const query = mention.query.toLowerCase();
     return regions
-      .filter(r => getText(r.names).toLowerCase().includes(query))
+      .filter(r => getText(r.names, locale).toLowerCase().includes(query))
       .slice(0, MAX_SUGGESTIONS);
   }, [mention, regions]);
 
@@ -63,7 +64,7 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
     if (!mention) return;
     const textarea = textareaRef.current;
     const cursor = textarea ? textarea.selectionStart : mention.start + mention.query.length + 1;
-    const insertion = `${region.id}: ${getText(region.names)} `;
+    const insertion = `${region.id}: ${getText(region.names, locale)} `;
     const nextText = text.slice(0, mention.start) + insertion + text.slice(cursor);
     setText(nextText);
     setMention(null);
@@ -109,7 +110,7 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
                     onMouseDown={e => e.preventDefault()}
                     onClick={() => handleSelectRegion(region)}
                   >
-                    {region.id}: {getText(region.names)}
+                    {region.id}: {getText(region.names, locale)}
                   </button>
                 </li>
               ))}

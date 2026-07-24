@@ -40,7 +40,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
 from economy_1946.country_splits import (
-    CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT, COLONIAL_BLOC_GROUPS,
+    CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT, AUSTRIA_SPLIT, COLONIAL_BLOC_GROUPS,
 )
 from economy_1946.density_tiers import (
     AREA_EXPONENT, TIER_MULTIPLIER, EXPLICIT_TIER_CLASSIFIERS, generic_tier,
@@ -58,7 +58,7 @@ _CATALOG = load_resource_catalog()
 ACTIVE_RESOURCES_1946 = resources_active_by(_CATALOG, 1946)
 MAX_EXTRACTION_LEVEL = _CATALOG["maxExtractionLevel"]
 
-DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT}
+DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT, **AUSTRIA_SPLIT}
 COLONIAL_BLOCS = set(COLONIAL_BLOC_GROUPS.keys())
 
 TIER_DEV_FACTOR = {1: 0.5, 2: 0.75, 3: 1.0, 4: 1.25, 5: 1.5, 6: 1.85}
@@ -92,8 +92,8 @@ _DEV_TIERS: list[tuple[float, float, float, list[str]]] = [
                           "QGB", "QGA", "QGF", "QGS", "JPN"]),
     (0.55, 0.45, 0.55, ["SUN"]),
     (0.50, 0.40, 0.45, ["ITA"]),
-    (0.42, 0.38, 0.42, ["POL", "CSK", "AUT", "HUN", "YUG", "BGR", "ROU",
-                          "GRC", "ESP", "PRT", "FIN", "ZAF"]),
+    (0.42, 0.38, 0.42, ["POL", "CSK", "QOS", "QOA", "QOB", "QOF", "HUN",
+                          "YUG", "BGR", "ROU", "GRC", "ESP", "PRT", "FIN", "ZAF"]),
     (0.38, 0.32, 0.50, ["ARG", "BRA", "MEX", "CHL", "URY"]),
     (0.28, 0.22, 0.45, ["CUB", "COL", "PER", "VEN", "PRY", "ECU", "BOL",
                           "GTM", "HND", "NIC", "CRI", "PAN", "SLV", "DOM", "HTI"]),
@@ -102,12 +102,21 @@ _DEV_TIERS: list[tuple[float, float, float, list[str]]] = [
     (0.28, 0.22, 0.42, ["SAU", "KWT", "BHR", "QAT", "ARE", "IRQ", "IRN",
                           "TUR", "SYR", "LBN", "JOR", "EGY"]),
     (0.16, 0.13, 0.20, ["PSE", "QMH", "QAZ", "AFG"]),
-    (0.22, 0.18, 0.32, ["QCG", "QCN", "QCF", "LAO", "KHM", "NPL", "BTN", "MNG"]),
-    (0.12, 0.10, 0.30, ["QCP", "QCU", "QCZ", "QCS", "ETH", "LBR", "SDN",
-                          "TZA", "COD", "RWA", "BDI", "MWI", "UGA", "NAM",
-                          "BWA", "LSO", "SWZ", "QSO", "TGO", "MAR", "TUN", "CMR"]),
-    (0.16, 0.16, 0.45, ["PNG", "SLB", "FSM", "PLW", "MHL", "NRU", "TON",
-                          "VUT", "WSM", "MNP"]),
+    (0.22, 0.18, 0.32, ["QCG", "QCN", "QCF", "GUY", "SUR", "GUF", "FLK",
+                          "BHS", "BLZ", "BMU", "BRB", "JAM", "NFD", "SPM", "TTO",
+                          "MTQ", "GLP",
+                          "CYP", "GIB", "MLT", "QFW", "QFE", "REU",
+                          "QWL", "QWW", "QND", "LAO", "KHM", "NPL", "BTN", "MNG",
+                          "HKG", "IND", "LKA", "MMR", "MYS", "SGP", "QNB", "QSR", "QLB",
+                          "VNM", "IDN", "MAC", "TLS", "QPI", "QFI",
+                          "NCL", "PYF", "WLF", "FJI", "NFK"]),
+    (0.12, 0.10, 0.30, ["QCP", "QCU", "QCZ", "QCS", "PRI", "VIR", "ETH", "LBR", "SDN",
+                          "TZA", "COD", "QRU", "MWI", "UGA", "NAM",
+                          "BWA", "LSO", "SWZ", "QSO", "TGO", "MAR", "TUN", "CMR",
+                          "QTB", "QSI", "QJK", "QDV", "QRI", "ARE",
+                          "QAD", "ASM", "GUM", "PCN", "KIR",
+                          "COK", "NIU", "TKL"]),
+    (0.16, 0.16, 0.45, ["PNG", "SLB", "QPS", "NRU", "TON", "VUT", "WSM"]),
     (0.55, 0.55, 0.75, ["AND", "ALA", "ISL", "LIE", "LUX", "MCO", "SMR", "VAT"]),
     (0.30, 0.25, 0.55, ["ALB"]),
 ]
@@ -133,28 +142,20 @@ def resolve_country_tier_classifier(owner_id: str):
 def compute_region_tier(owner_id: str, name: str, area: float, all_areas: list[float]) -> int:
     classifier = resolve_country_tier_classifier(owner_id)
     if classifier:
-        return classifier(name)
+        tier = classifier(name)
+        # Классификатор может вернуть None для "не моё, отдай generic_tier"
+        # (2026-07-22, au_tier: явно знает только 4 крошечные внешние
+        # территории, для материковых штатов/территорий сознательно НЕ
+        # дублирует area-относительную логику generic_tier — она уже
+        # работала верно для них до появления этих территорий).
+        if tier is not None:
+            return tier
     return generic_tier(name, area, all_areas)
-
-
-def split_ruanda_urundi(regions: list[dict]) -> dict[str, int]:
-    total = MULTI_FRAGMENT_TOTALS["RUANDA_URUNDI_TOTAL"].population
-    rwa_area = sum(r["area"] for r in regions if r["ownerCountryId"] == "RWA")
-    bdi_area = sum(r["area"] for r in regions if r["ownerCountryId"] == "BDI")
-    total_area = rwa_area + bdi_area
-    if total_area == 0:
-        return {"RWA": total // 2, "BDI": total // 2}
-    return {
-        "RWA": round(total * rwa_area / total_area),
-        "BDI": round(total * bdi_area / total_area),
-    }
 
 
 def resolve_country_population(owner_id: str, regions: list[dict]) -> int:
     if owner_id in DIRECT_OWNER_POPULATION:
         return DIRECT_OWNER_POPULATION[owner_id]
-    if owner_id in ("RWA", "BDI"):
-        return split_ruanda_urundi(regions)[owner_id]
     if owner_id in COUNTRY_POPULATION_1946:
         return COUNTRY_POPULATION_1946[owner_id].population
     raise ValueError(f"Нет анкера населения для '{owner_id}' — заполни anchors.py явно, не угадывай молча.")

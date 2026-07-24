@@ -5,9 +5,9 @@ export const UK = createCountry({
 
   id: "UK",
 
-  name: "United Kingdom",
+  name: { en: "United Kingdom" },
 
-  shortName: "UK",
+  shortName: { en: "UK" },
 
   color: "#7c3aed",
 

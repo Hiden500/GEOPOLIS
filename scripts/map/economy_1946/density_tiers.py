@@ -105,6 +105,11 @@ def gbr_tier(name: str) -> int:
         return 4
     if _contains_any(n, ["tripolitania", "cyrenaica", "bari", "mudug", "hiiraan", "bay", "gash barka", "debub", "highlands and islands"]):
         return 1  # Ливия/Сомали/Эритрея под брит. администрацией — пустыня, малолюдно
+    if _contains_any(n, ["isle of man"]):
+        # 2026-07-22: без явного тира падал в default=3 — тот же плотностный
+        # множитель, что у английского графства, хотя реальная плотность
+        # острова (~52К/572 км² в 1946) намного ниже материковой Англии.
+        return 1
     return 3
 
 
@@ -116,6 +121,13 @@ def fra_tier(name: str) -> int:
     if _contains_any(n, ["hauts-de-france", "auvergne-rhône-alpes", "nouvelle-aquitaine", "occitanie", "grand est"]):
         return 4
     if _contains_any(n, ["fezzan", "clipperton"]):
+        return 1
+    if _contains_any(n, ["saint barthélemy", "saint martin", "french southern"]):
+        # 2026-07-22: без явного тира падали в default=3 — французская
+        # Вест-Индия (Сен-Бартелеми/Сен-Мартен) реально малонаселена (пара
+        # тысяч в 1946, не десятки), Французские Южные территории
+        # практически необитаемы (только ротационные научные станции).
+        # Тот же класс risk, что Clipperton выше.
         return 1
     if _contains_any(n, ["martinique", "guadeloupe", "réunion", "mayotte"]):
         return 5  # плотные острова
@@ -206,11 +218,68 @@ def china_fragment_tier(name: str) -> int:
     return 3
 
 
+def dnk_tier(name: str) -> int:
+    """Дания: `generic_tier` трактует самый маленький по площади регион
+    страны как "вероятно столица/город" (тир 5, x5.0) — верно для
+    материковых регионов (Hovedstaden реально плотнее прочих), но НЕ для
+    Фарерских островов (2026-07-19-o: добавлены как отдельный регион,
+    оказались меньше материковых по площади и получили тир 5 наравне со
+    столицей — 1.2M населения при реальных ~25-30 тыс. на 1946 год).
+    Явный по-имени классификатор (как остальные EXPLICIT_TIER_CLASSIFIERS -
+    сигнатура classifier(name), area/country_areas сюда не передаются):
+    Фарерские острова — редконаселённая периферия (тир 1), Hovedstaden
+    (столичный регион) — городской бонус (тир 5), остальные материковые
+    регионы — базовый тир 3."""
+    if _contains_any(name, ["faroe"]):
+        return 1
+    if _contains_any(name, ["hovedstaden"]):
+        return 5
+    return 3
+
+
+def au_tier(name: str) -> int | None:
+    """Австралия НЕ имела явного классификатора — материковые штаты/
+    территории шли через `generic_tier` (area-относительная логика: нижние
+    ~20% по площади среди ВСЕХ регионов страны получают тир 5 "столица").
+    Это работало нормально, пока все AU-регионы были штатами/крупными
+    территориями сопоставимого масштаба. 2026-07-22: добавлены 4 крошечные
+    внешние территории (diagnose_missing_land.py) — Cocos/Christmas/Coral
+    Sea Islands/Heard — на фоне материковых штатов (тысячи-миллионы км²)
+    они автоматически попадают в нижние 20% и получают тир 5 "столица" по
+    чисто площадному критерию (тот же класс бага, что Фареры/Akrotiri):
+    Christmas Island получила 43,791 населения при реальных ~2-3 тыс.
+    Возвращает None для всего остального (материковые штаты/территории) —
+    сигнал `compute_region_tier` использовать generic_tier как раньше, не
+    дублировать его area-относительную логику по имени."""
+    n = name.lower()
+    if _contains_any(n, ["cocos", "christmas island", "coral sea islands", "heard island"]):
+        return 1  # реально почти или полностью необитаемы
+    return None
+
+
+def cyp_tier(name: str) -> int:
+    """Кипр: тот же класс риска, что `dnk_tier` (Фарерские острова) — Akrotiri
+    (2026-07-20) и Dhekelia (британские военные базы, площадь ~100-134 km2)
+    меньше любого из 5 реальных округов острова, `generic_tier` трактовал бы
+    одну из них как "столица" по чисто площадному критерию. Nicosia —
+    настоящая столица (тир 5); Akrotiri/Dhekelia/Northern Cyprus —
+    малонаселённая военная/спорная периферия (тир 1); остальные округа —
+    базовый тир 3."""
+    if _contains_any(name, ["nicosia"]):
+        return 5
+    if _contains_any(name, ["akrotiri", "dhekelia", "northern cyprus"]):
+        return 1
+    return 3
+
+
 EXPLICIT_TIER_CLASSIFIERS = {
+    "DNK": dnk_tier,
+    "CYP": cyp_tier,
     "SUN": sun_tier,
     "USA": usa_tier,
     "GBR": gbr_tier,
     "FRA": fra_tier,
+    "AUS": au_tier,
     "ITA": ita_tier,
     "JPN": jpn_tier,
     "BRA": bra_tier,

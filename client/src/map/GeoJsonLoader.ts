@@ -1,7 +1,7 @@
 import type { FeatureCollection, Feature, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
-import { getText } from '@shared/types/i18n/LocalizedText';
+import { getText, type Locale } from '@shared/types/i18n/LocalizedText';
 
 export interface MapRegionProperties {
   id: string;
@@ -50,7 +50,8 @@ function buildRegionMapping(regions: Region[]): Map<string, Region> {
 export async function loadGameMapData(
   geoJsonUrl: string,
   regions: Region[],
-  countries: Country[]
+  countries: Country[],
+  locale?: Locale
 ): Promise<GameMapData> {
   try {
     console.log('Loading GeoJSON from:', geoJsonUrl);
@@ -83,14 +84,14 @@ export async function loadGameMapData(
         const matchedRegion = regionMapping.get(featureId);
         if (matchedRegion) {
           regionId = matchedRegion.id;
-          regionName = getText(matchedRegion.names);
+          regionName = getText(matchedRegion.names, locale);
           regionPopulation = matchedRegion.population;
 
           const country = countryMap.get(matchedRegion.ownerCountryId);
           if (country) {
             ownerCountryId = matchedRegion.ownerCountryId;
             ownerColor = country.color;
-            ownerName = country.name;
+            ownerName = getText(country.name, locale);
           }
         }
       }
@@ -138,7 +139,8 @@ export async function loadGameMapData(
 export function updateMapData(
   featureCollection: FeatureCollection<Polygon | MultiPolygon, MapRegionProperties>,
   regions: Region[],
-  countries: Country[]
+  countries: Country[],
+  locale?: Locale
 ): FeatureCollection<Polygon | MultiPolygon, MapRegionProperties> {
   const countryMap = new Map<string, Country>();
   countries.forEach(country => countryMap.set(country.id, country));
@@ -160,8 +162,8 @@ export function updateMapData(
             ...props,
             ownerCountryId: matchedRegion.ownerCountryId,
             ownerColor: country.color,
-            ownerName: country.name,
-            name: getText(matchedRegion.names),
+            ownerName: getText(country.name, locale),
+            name: getText(matchedRegion.names, locale),
             population: matchedRegion.population
           }
         };

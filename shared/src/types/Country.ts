@@ -8,15 +8,16 @@ import { type PoliticsState } from "./PoliticsState";
 import { type ResourceStockpile } from "./resources/ResourceStockpile";
 import { type EconomyType } from "./EconomyType";
 import { type AiTraits } from "./AiTraits";
+import { type LocalizedText } from "./i18n/LocalizedText";
 
 export type CountryTier = "major" | "regional" | "minor";
 
 export interface Country {
   id: string;
 
-  name: string;
+  name: LocalizedText;
 
-  shortName: string;
+  shortName: LocalizedText;
 
   color: string;
 

@@ -13,6 +13,7 @@
   padding: 6px 8px 0;
   background: transparent;
   min-width: 0;
+  width: 100%;
 }
 
 .cluster {
@@ -27,12 +28,14 @@
   align-items: flex-start;
   gap: 0;
   min-width: 0;
+  max-width: min(720px, 58vw);
 }
 
 .cluStats {
   display: grid;
   grid-template-columns: auto minmax(0, auto);
   min-width: 0;
+  max-width: 100%;
   /*
    * Слито с .tabs в один визуальный «остров» без шва (живой QA-фидбек
    * 2026-07-13; в замороженном эталоне это были 2 отдельных острова —
@@ -379,5 +382,41 @@
 @media (max-width: 900px) {
   .flag button {
     width: 64px;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1450px) {
+  .hleft {
+    max-width: 55vw;
+  }
+
+  .flag button {
+    width: 82px;
+  }
+
+  .st {
+    gap: 4px;
+    padding-inline: 6px;
+  }
+
+  .v {
+    font-size: 13px;
+  }
+
+  .statuspill {
+    padding-inline: 8px;
+    font-size: 10px;
+  }
+
+  .turnNo {
+    display: none;
+  }
+
+  .tools {
+    gap: 2px;
+  }
+
+  .tbtn {
+    width: 28px;
   }
 }

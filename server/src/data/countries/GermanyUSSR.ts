@@ -4,8 +4,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 // Германия - Советская зона оккупации 1946
 export const GermanyUSSR = createCountry({
   id: "DEU-USSR",
-  name: "Германия (Советская зона)",
-  shortName: "DEU-USSR",
+  name: { ru: "Германия (Советская зона)" },
+  shortName: { ru: "DEU-USSR" },
   color: "#CC0000",
   capitalRegionId: 0,
   population: 18_000_000,

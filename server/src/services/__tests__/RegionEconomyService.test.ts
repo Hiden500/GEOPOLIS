@@ -35,8 +35,8 @@ describe('RegionEconomyService', () => {
 
     country = {
       id: 'TEST',
-      name: 'Test Country',
-      shortName: 'TEST',
+      name: { en: 'Test Country' },
+      shortName: { en: 'TEST' },
       color: '#FF0000',
       tier: 'minor' as const,
       capitalRegionId: 1,

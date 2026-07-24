@@ -4,8 +4,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 // Германия - Британская зона оккупации 1946
 export const GermanyUK = createCountry({
   id: "DEU-UK",
-  name: "Германия (Британская зона)",
-  shortName: "DEU-UK",
+  name: { ru: "Германия (Британская зона)" },
+  shortName: { ru: "DEU-UK" },
   color: "#003366",
   capitalRegionId: 0,
   population: 20_000_000,

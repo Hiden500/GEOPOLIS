@@ -10,6 +10,14 @@
     "stability": "Stability — open politics",
     "legitimacy": "Legitimacy"
   },
+  "statHelp": {
+    "gdp": "GDP — annual economic output. There is no fixed norm: compare it with other countries and earlier turns. Click to open the economy.",
+    "treasury": "Treasury — money available to the state. Zero or a negative value signals debt risk. Click to open the budget.",
+    "population": "Population in millions — the country's demographic and labor base. There is no fixed norm.",
+    "military": "Available military manpower in millions. Read it relative to threats and total population.",
+    "stability": "Stability, 0–100. 60+ is normal, 40–59 is a warning, below 40 is a crisis. Click to open politics.",
+    "legitimacy": "Legitimacy, 0–100%. 60+ is normal, 40–59 is a warning, below 40 is a crisis."
+  },
   "resourceRow": {
     "ariaLabel": "Resources"
   },
@@ -37,13 +45,16 @@
   },
   "turn": {
     "next": "Next turn",
-    "simulating": "Simulating…"
+    "simulating": "Simulating…",
+    "blockedReason": "Complete the manual or automatic LLM cycle first"
   },
   "tools": {
     "search": "Search",
     "ledgers": "Ledgers & stats",
     "notifications": "Notifications — coming soon",
     "settings": "Settings — coming soon",
+    "resetWindowLayout": "Reset window layout",
+    "help": "Tutorial and help",
     "menu": "Menu — back to scenario selection"
   },
   "bookPlaceholder": {

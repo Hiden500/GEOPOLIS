@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { type ScenarioInfo, type FeaturedCountry } from "@shared/types/ScenarioInfo";
-import { type Locale } from "@shared/types/i18n/LocalizedText";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { getScenarios } from "../api/gameApi";
 
 interface ScenarioSelectorProps {
@@ -30,7 +30,7 @@ function CountryGroup({
   onSelect: (id: string) => void;
   defaultExpanded?: boolean;
 }) {
-  const { t } = useTranslation("scenarioSelector");
+  const { t, i18n } = useTranslation("scenarioSelector");
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   if (countries.length === 0) return null;
@@ -53,9 +53,9 @@ function CountryGroup({
               key={c.id}
               className={`country-button ${c.tier || ""} ${selectedCountry === c.id ? "selected" : ""}`}
               onClick={() => onSelect(c.id)}
-              title={c.name}
+              title={getText(c.name, i18n.language as Locale)}
             >
-              <span className="country-name">{c.name}</span>
+              <span className="country-name">{getText(c.name, i18n.language as Locale)}</span>
               <span className="country-id">{c.id}</span>
               {c.tier === "major" && <span className="country-major-badge">{t("majorPowerBadge")}</span>}
             </button>

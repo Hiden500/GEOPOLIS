@@ -17,7 +17,7 @@ export function OrdersBox({ children }: OrdersBoxProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <section className={styles.orders} aria-label={t("orders.title")}>
+    <section className={styles.orders} aria-label={t("orders.title")} data-onboarding="orders">
       <button
         type="button"
         className={styles.head}

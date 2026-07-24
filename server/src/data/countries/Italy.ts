@@ -7,8 +7,8 @@ export const Italy = createCountry({
   // ("ITA"), иначе страна не владеет ни одним регионом (gdp=0, найдено при
   // верификации Q9 — см. docs/DECISIONS.md 2026-06-26).
   id: "ITA",
-  name: "Italy",
-  shortName: "ITA",
+  name: { en: "Italy" },
+  shortName: { en: "ITA" },
   color: "#16a34a",
   capitalRegionId: 0,
   population: 47_000_000,

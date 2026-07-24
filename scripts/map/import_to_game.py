@@ -13,6 +13,9 @@ import_to_game.py — превращает выходы пайплайна MAP (
                             которые НЕ выражены в ownership_1946.json.controller
                             (советская оккупация Маньчжурии отдельно от
                             остального Китая, раздел Китая КПК/Гоминьдан).
+  country_entities_1946.json — по-континентальные historical
+                            regionOwnerOverrides для современных/ошибочных
+                            owner-кодов, которые нельзя исправить всей страной.
 
 Зоны оккупации Германии и Кореи читаются из НАТИВНОГО поля
 ownership_1946.json[region_id].controller (MAP уже знает про 4 зоны в
@@ -106,6 +109,27 @@ def load_json(path: Path):
         return json.load(f)
 
 
+def load_historical_region_overrides() -> dict[str, str]:
+    config = load_json(CONFIG_DIR / "country_entities_1946.json")
+    overrides: dict[str, str] = {}
+    for continent, section in config.get("continents", {}).items():
+        for entry in section.get("regionOwnerOverrides", []):
+            region_id = entry["regionId"]
+            target = entry["to"]
+            confidence = entry.get("confidence")
+            reason = entry.get("reason")
+            if not isinstance(target, str) or len(target) != 3:
+                raise ValueError(f"Некорректный target historical region owner override: {entry}")
+            if confidence not in {"high", "medium", "low"}:
+                raise ValueError(f"Некорректный confidence historical region owner override: {entry}")
+            if not isinstance(reason, str) or not reason.strip():
+                raise ValueError(f"Пустой reason historical region owner override: {entry}")
+            if region_id in overrides:
+                raise ValueError(f"Дубликат historical region owner override: {region_id} ({continent})")
+            overrides[region_id] = target
+    return overrides
+
+
 def main():
     world = load_json(OUT_DIR / "world_1946.geojson")
     ownership = load_json(OUT_DIR / "ownership_1946.json")
@@ -115,12 +139,32 @@ def main():
     overlay = {k: v for k, v in overlay.items() if not k.startswith("_")}
 
     features = world["features"]
+    feature_ids = {ft["properties"]["region_id"] for ft in features}
+    historical_overrides = load_historical_region_overrides()
+    unknown_overrides = sorted(set(historical_overrides) - feature_ids)
+    if unknown_overrides:
+        raise ValueError(
+            "Historical region owner overrides ссылаются на неизвестные регионы: "
+            + ", ".join(unknown_overrides)
+        )
+    overlay.update(historical_overrides)
 
     # Числовой id — стабильный, в порядке region_id (уже continent-префиксован
     # и последовательный в world_1946.geojson).
     region_id_to_numeric: dict[str, int] = {}
     for i, ft in enumerate(features, start=1):
         region_id_to_numeric[ft["properties"]["region_id"]] = i
+
+    # Множество land-регионов из САМОГО world-файла (не из names_ru.json) —
+    # только они становятся Region, поэтому только на них может ссылаться
+    # neighboringRegionIds. Раньше фильтр соседей смотрел region_type в
+    # names_ru.json; любой водоём, отсутствующий там (напр. заново добавленный
+    # Кинерет LAK-0012, 2026-07-19-f), проходил фильтр как "land" по дефолту и
+    # утекал висячей ссылкой в граф соседей. Источник истины о типе — world.
+    land_region_ids = {
+        ft["properties"]["region_id"] for ft in features
+        if ft["properties"].get("region_type", "land") == "land"
+    }
 
     # --- 1. Геометрия для клиента ---
     out_features = []
@@ -172,7 +216,7 @@ def main():
             region_id_to_numeric[n]
             for n in neighbors.get(region_id, [])
             # сосед должен сам быть land-регионом (только такие становятся Region)
-            if n in region_id_to_numeric and names.get(n, {}).get("region_type", "land") == "land"
+            if n in region_id_to_numeric and n in land_region_ids
         ]
         numeric_id = region_id_to_numeric[region_id]
 

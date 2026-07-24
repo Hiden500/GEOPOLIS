@@ -1,0 +1,345 @@
+"""
+geometry_cleanup.py
+
+Gap-first устранение слайверов между полигонами ("зиппер"-разрывы вдоль
+границ из независимых источников). Заменяет buffer-based дозаполнение
+(fill_palestine_gaps_to_neighbors / fill_gap_between_countries,
+docs/DECISIONS.md "2026-07-19-d"), у которого были врождённые дефекты:
+форма шва зависела от join_style буфера ("пипки"), пороговый радиус
+подбирался руками под конкретный стык, сходимость требовала нескольких
+проходов без гарантии, а буфер раздувал полигон ВО ВСЕ стороны и создавал
+новые наложения на третьих соседей/моря, которые приходилось дочищать
+отдельными клипами.
+
+Метод (2026-07-19-e, "gap-first"):
+  1. `polygonize` по объединению ВСЕХ границ (изменяемая земля + контекстная
+     земля + вода) -> точная мозаика ячеек плоскости.
+  2. Ячейка, чья representative_point не покрыта ни землёй, ни водой, —
+     слайвер (настоящая пустота между полигонами).
+  3. Каждый слайвер отдаётся изменяемой фиче с самой длинной общей
+     границей; крупные вытянутые ленты предварительно режутся пополам
+     рекурсивно, чтобы каждый отрезок ушёл СВОЕМУ ближайшему региону, а не
+     весь одному "победителю".
+
+По построению: ноль новых наложений (слайвер — пустота, ни с кем не
+пересекается), ноль разрывов после прохода, шов проходит ровно по
+существующей границе соседа — без буферов, значит физически неоткуда
+взяться "пипкам" и не нужны пост-клипы.
+
+Защиты:
+  - Настоящие озёра, которых НЕТ в lakes_1946.geojson (Кинерет/Галилейское
+    море ~0.017 deg2 — намеренная дыра в land-покрытии, рендерится фоном
+    карты), не должны быть проглочены: слайвером считается только ячейка
+    меньше MAX_COMPACT_AREA ЛИБО крупнее, но сильно вытянутая (лента вдоль
+    границы, а не компактный блоб).
+  - Ячейка, касающаяся ровно одной земельной фичи (сосед по остальной
+    границе — море либо никто), тоже поглощается в эту фичу, не только
+    ячейки на стыке 2+ земель. РАНЬШЕ такие "1 земля + вода" пропускались
+    в предположении, что прибрежная нестыковка (страна/полигон моря
+    оцифрованы чуть по-разному) маскируется фоном карты — предположение
+    было НЕВЕРНО (2026-07-19-g): фон карты темнее моря, разрыв между
+    сушей и морем показывает именно фон, разрыв виден. Единственный
+    предохранитель тот же — площадь (MAX_COMPACT_AREA/лента).
+  - Ячейки, обрезанные рамкой clip_box (контекст/вода режутся по bbox для
+    скорости — рамка порождает искусственные "закрытые" ячейки по краям),
+    отбрасываются по касанию границы рамки.
+"""
+from paths import out
+import json
+import math
+from shapely.geometry import shape, mapping, box as shp_box
+from shapely.ops import unary_union, polygonize
+from pyproj import Geod
+
+GEOD = Geod(ellps="WGS84")
+
+# Нижний порог: ячейка мельче — гарантированно не географическая фича, а
+# машинный шум (2026-07-23, Oceania-тайл `fix_sea_coastline_gaps.py`:
+# absorb_slivers_until_stable не сходился 3 прохода подряд, каждый заново
+# "поглощал" ячейку area=1.7e-18 deg2/compactness=0.000 в одну и ту же фичу
+# — вырожденный почти-самокасающийся артефакт `polygonize` после повторного
+# unary_union границ, не реальный слайвер; union такой ячейки — геометрический
+# no-op по площади, но чуть двигает float-координаты, поэтому на следующем
+# проходе `polygonize` восстанавливает такой же фантом заново). Порог взят
+# на ~9 порядков выше наблюдённого шума (1.7e-18) и на ~4 порядка ниже
+# самого маленького РЕАЛЬНОГО поглощения в этой сессии (0.05 км² слайвер
+# Qingdao, ~4e-6 deg2 на этой широте) — не может случайно отбросить
+# настоящий мелкий слайвер.
+MIN_CELL_AREA_DEG2 = 1e-9
+
+# Компактная ячейка (потенциально настоящее озеро-дыра) поглощается только
+# до этой площади; Кинерет ~0.017 deg2 должен остаться нетронутым.
+MAX_COMPACT_AREA = 0.008
+
+# Реальные внутренние водоёмы, которых НЕТ в lakes_1946.geojson — ячейка,
+# содержащая такую точку, НИКОГДА не поглощается. Порог компактности такие
+# блобы не защищает надёжно: изрезанная естественная береговая линия даёт
+# низкий Polsby-Popper, неотличимый от ленты зазора. Держи здесь любой
+# намеренный "прогал" в land-покрытии, который absorb_slivers иначе принял
+# бы за зазор. Прим.: Кинерет уже НЕ здесь — с 2026-07-19-f он настоящая
+# LAK-фича (lakes_1946.geojson), absorb видит его как воду через
+# load_water_geoms и не трогает.
+PROTECTED_HOLE_POINTS = [
+]
+# Вытянутая лента вдоль границы (низкая компактность) может быть крупнее —
+# исходный разрыв Газа/Синай был одной лентой ~0.04 deg2 на ~2° длины.
+MAX_RIBBON_AREA = 0.08
+RIBBON_COMPACTNESS = 0.12
+# Ленты крупнее этого режутся пополам рекурсивно перед раздачей.
+SPLIT_AREA = 0.0008
+
+# Абсолютный порог "точно машинный шум, а не гео-фича" — найдено 2026-07-19-q
+# на Ionian Sea/Inner Seas off the West Coast of Scotland/Norwegian Sea:
+# десятки MultiPolygon-частей площадью 1e-18..1e-6 deg2 (вычислительная
+# погрешность от повторных union/intersection/buffer(0), не остров).
+# Применяется В `to_polygonal()` — на КАЖДОМ union/intersection/difference,
+# не только в разовой чистке — иначе новый прогон снова накопит такой же
+# мусор. Общая утилита (не привязана к морям) — используется
+# `fix_sea_coastline_gaps.py` и `clip_land_by_water.py`.
+DEGENERATE_AREA_DEG2 = 1e-4
+
+
+def to_polygonal(geom):
+    """Отбрасывает (1) вырожденные не-полигональные компоненты (LineString/
+    Point с area=0) — найдено на White Sea: предыдущие `unary_union`/
+    `buffer(0)` в багованных прогонах превратили геометрию в
+    GeometryCollection из 12 нулевых LineString-артефактов + 1 настоящий
+    Polygon; (2) MultiPolygon-части площадью < DEGENERATE_AREA_DEG2 —
+    машинный шум от тех же union/intersection/buffer(0)/difference,
+    находимый уже ПОСЛЕ типа геометрии (Ionian Sea/Norwegian Sea/Inner Seas
+    off the West Coast of Scotland, запись -q — части площадью 1e-18..1e-6
+    deg2, физически рядом с настоящим маленьким островом, из-за чего
+    кластерная чистка их раньше не ловила). `absorb_slivers`/
+    `absorb_compact_gaps` ожидают Polygon/MultiPolygon (`.boundary` на
+    GeometryCollection даёт непредсказуемый результат,
+    `cell.boundary.intersection(g.boundary)` может вернуть None вместо
+    геометрии -> AttributeError чуть ниже по стеку)."""
+    if geom.geom_type == "GeometryCollection":
+        polys = [g for g in geom.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
+        geom = unary_union(polys) if len(polys) > 1 else (polys[0] if polys else geom)
+    if geom.geom_type == "MultiPolygon":
+        kept = [p for p in geom.geoms if p.area >= DEGENERATE_AREA_DEG2]
+        if not kept:
+            return geom
+        if len(kept) < len(geom.geoms):
+            geom = unary_union(kept) if len(kept) > 1 else kept[0]
+    return geom
+
+
+def area_km2(geom):
+    a, _ = GEOD.geometry_area_perimeter(geom)
+    return abs(a) / 1e6
+
+
+def compactness(geom):
+    """Polsby-Popper: 4*pi*A/P^2; 1.0 — круг, ~0 — нитевидная лента."""
+    perim = geom.length
+    if perim == 0:
+        return 0.0
+    return 4 * math.pi * geom.area / (perim ** 2)
+
+
+def load_water_geoms(clip_box=None):
+    """Все моря+озёра пайплайна, по желанию обрезанные по clip_box (границы
+    обрезки порождают ячейки, касающиеся рамки, — absorb_slivers их сам
+    отбрасывает)."""
+    geoms = []
+    for fname in ("seas_1946.geojson", "lakes_1946.geojson"):
+        with open(out(fname), encoding="utf-8") as f:
+            fc = json.load(f)
+        for ft in fc["features"]:
+            g = shape(ft["geometry"])
+            if not g.is_valid:
+                g = g.buffer(0)
+            if clip_box is not None:
+                if not g.intersects(clip_box):
+                    continue
+                g = g.intersection(clip_box)
+            geoms.append(g)
+    return geoms
+
+
+def _split_ribbon(cell, depth=0):
+    """Режет вытянутую ячейку пополам по длинной стороне bbox рекурсивно,
+    до кусочков ~SPLIT_AREA — чтобы длинная лента зазора раздалась по
+    сегментам ближайшим регионам, а не целиком одному."""
+    if depth >= 10 or cell.area <= SPLIT_AREA:
+        return [cell]
+    minx, miny, maxx, maxy = cell.bounds
+    if maxx - minx >= maxy - miny:
+        midx = (minx + maxx) / 2
+        halves = (shp_box(minx, miny, midx, maxy), shp_box(midx, miny, maxx, maxy))
+    else:
+        midy = (miny + maxy) / 2
+        halves = (shp_box(minx, miny, maxx, midy), shp_box(minx, midy, maxx, maxy))
+    parts = []
+    for half in halves:
+        piece = cell.intersection(half)
+        if piece.is_empty:
+            continue
+        sub = list(piece.geoms) if piece.geom_type.startswith("Multi") \
+            or piece.geom_type == "GeometryCollection" else [piece]
+        for p in sub:
+            if p.geom_type == "Polygon" and p.area > 1e-12:
+                parts.extend(_split_ribbon(p, depth + 1))
+    return parts or [cell]
+
+
+def absorb_slivers(mutable_feats, context_geoms=(), water_geoms=(),
+                   clip_box=None, label=""):
+    """Один проход gap-first поглощения слайверов. Меняет геометрию только
+    mutable_feats (контекст/вода авторитетны). Возвращает число поглощённых
+    ячеек (0 = слайверов не осталось)."""
+    mutable_geoms = [shape(ft["geometry"]) for ft in mutable_feats]
+    land_geoms = mutable_geoms + list(context_geoms)
+    all_geoms = land_geoms + list(water_geoms)
+
+    boundaries = unary_union([g.boundary for g in all_geoms])
+    cells = list(polygonize(boundaries))
+    frame = clip_box.boundary if clip_box is not None else None
+    protected_pts = [shape({"type": "Point", "coordinates": p})
+                     for p in PROTECTED_HOLE_POINTS]
+
+    additions = {}   # idx изменяемой фичи -> [геометрии на присоединение]
+    n_absorbed = 0
+    n_skipped_blob = 0
+    for cell in cells:
+        if cell.area < MIN_CELL_AREA_DEG2:
+            continue  # машинный шум polygonize, не географическая фича
+        c = compactness(cell)
+        if cell.area > MAX_COMPACT_AREA and not (
+                cell.area <= MAX_RIBBON_AREA and c < RIBBON_COMPACTNESS):
+            # либо интерьер страны/моря, либо компактный блоб (озеро-дыра)
+            if cell.area <= MAX_RIBBON_AREA:
+                n_skipped_blob += 1
+            continue
+        if any(cell.contains(p) for p in protected_pts):
+            continue  # известный настоящий водоём-дыра (Кинерет и т.п.)
+        if frame is not None and cell.boundary.intersection(frame).length > 1e-9:
+            continue  # артефакт обрезки контекста по clip_box
+        rp = cell.representative_point()
+        if any(g.contains(rp) for g in all_geoms):
+            continue  # ячейка уже покрыта землёй или водой
+        # общая граница с каждой земельной фичей
+        land_touch = []
+        for idx, g in enumerate(land_geoms):
+            shared = cell.boundary.intersection(g.boundary)
+            if shared.length > 1e-9:
+                land_touch.append((idx, shared.length))
+        if not land_touch:
+            continue
+        if len(land_touch) < 2:
+            # Одна земля (сосед по остальной границе ячейки — море либо
+            # никто): раньше здесь пропускались случаи "1 суша + вода",
+            # в предположении что такая прибрежная нестыковка (страна и
+            # полигон моря оцифрованы чуть по-разному) замаскирована фоном
+            # карты. НЕВЕРНО (2026-07-19-g, прямой скриншот пользователя —
+            # видимый разрыв ровно на побережье Ливана): в реальном рендере
+            # фон карты темнее моря, разрыв между сушей и морем показывает
+            # именно фон, не море — щель видна. Суша авторитетна для
+            # идентичности страны (море — просто подложка), поэтому такой
+            # слайвер поглощается в единственную касающуюся сушу, как и
+            # "пинхол" без воды рядом. Единственный предохранитель —
+            # площадь: не поглощаем то, что похоже на целое море/озеро.
+            if cell.area > MAX_COMPACT_AREA:
+                continue
+        mutable_touch = [(i, l) for i, l in land_touch if i < len(mutable_feats)]
+        if not mutable_touch:
+            continue  # шов между двумя авторитетными сторонами - не нам чинить
+
+        if len(mutable_touch) >= 2 and cell.area > SPLIT_AREA:
+            pieces = _split_ribbon(cell)
+        else:
+            pieces = [cell]
+        cand_idx = [i for i, _ in mutable_touch]
+        for piece in pieces:
+            best_i, best_len = None, 0.0
+            for i in cand_idx:
+                shared = piece.boundary.intersection(mutable_geoms[i].boundary)
+                if shared.length > best_len:
+                    best_i, best_len = i, shared.length
+            if best_i is None:  # отрезанный сегмент без общей границы - ближайшему
+                best_i = min(cand_idx, key=lambda i: piece.distance(mutable_geoms[i]))
+            additions.setdefault(best_i, []).append(piece)
+        n_absorbed += 1
+
+    for idx, pieces in additions.items():
+        new_g = unary_union([mutable_geoms[idx]] + pieces)
+        if not new_g.is_valid:
+            new_g = new_g.buffer(0)
+        if new_g.geom_type not in ("Polygon", "MultiPolygon"):
+            print(f"  [SLIVER/{label}] ОТКАЗ {mutable_feats[idx]['properties'].get('name')}: "
+                  f"union дал {new_g.geom_type}")
+            continue
+        mutable_feats[idx]["geometry"] = mapping(new_g)
+        mutable_feats[idx]["properties"]["area_km2"] = round(area_km2(new_g), 1)
+
+    blob_note = f", пропущено компактных блобов (озёра-дыры?): {n_skipped_blob}" if n_skipped_blob else ""
+    print(f"  [SLIVER/{label}] ячеек: {len(cells)}, поглощено слайверов: {n_absorbed}{blob_note}")
+    return n_absorbed
+
+
+def absorb_slivers_until_stable(mutable_feats, context_geoms=(), water_geoms=(),
+                                 clip_box=None, label="", max_passes=3):
+    """absorb_slivers сходится за один проход по построению; второй прогон —
+    дешёвая проверка инварианта (должен поглотить 0). max_passes — страховка
+    на случай каскадных ячеек у сложных тройных стыков."""
+    for i in range(max_passes):
+        n = absorb_slivers(mutable_feats, context_geoms, water_geoms, clip_box, label)
+        if n == 0:
+            return
+    print(f"  [SLIVER/{label}] ВНИМАНИЕ: {max_passes} проходов не сошлись до 0 — проверь стык вручную")
+
+
+def resolve_same_iso_overlaps(feats, label=""):
+    """После заливки дыр/поглощения слайверов фичи ОДНОГО iso_a2 в одном
+    continent-файле могут начать пересекаться (San Juan/Adams-случай,
+    `fill_sea_holes.py`, 2026-07-23 — "ближайшая фича того же iso_a2" не то
+    же самое, что "ближайшая по смыслу"). Для каждой найденной пары — общая
+    ячейка пересечения отдаётся той из двух, у кого длиннее общая граница с
+    этой ячейкой (тот же принцип "самая длинная граница", что и в
+    absorb_slivers выше), отбирается у другой через .difference(). Точечный
+    проход только по парам, которые ДЕЙСТВИТЕЛЬНО пересекаются сейчас — не
+    трогает штатные касания (dist=0, но area=0). Общая утилита (не
+    привязана к морям) — используется `fill_sea_holes.py` и
+    `fix_lake_coastline_gaps.py`; вызывать безусловно после любого прохода
+    слияния "ближайшая фича того же iso_a2 в существующие" — идемпотентный
+    повторный запуск (0 новых дыр) иначе никогда не поймает leftover-
+    наложение от предыдущего прогона."""
+    n_fixed = 0
+    by_iso = {}
+    for i, ft in enumerate(feats):
+        by_iso.setdefault(ft["properties"].get("iso_a2"), []).append(i)
+
+    for iso, idxs in by_iso.items():
+        if len(idxs) < 2:
+            continue
+        for a in range(len(idxs)):
+            for b in range(a + 1, len(idxs)):
+                ia, ib = idxs[a], idxs[b]
+                ga = shape(feats[ia]["geometry"])
+                gb = shape(feats[ib]["geometry"])
+                overlap = ga.intersection(gb)
+                if overlap.geom_type == "GeometryCollection":
+                    polys = [g for g in overlap.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
+                    overlap = unary_union(polys) if polys else None
+                if overlap is None or overlap.geom_type not in ("Polygon", "MultiPolygon"):
+                    continue
+                if overlap.is_empty or overlap.area < 1e-12:
+                    continue
+                shared_a = overlap.boundary.intersection(ga.boundary).length
+                shared_b = overlap.boundary.intersection(gb.boundary).length
+                loser_idx = ib if shared_a >= shared_b else ia
+                winner_name = feats[ia]["properties"].get("name") if loser_idx == ib else feats[ib]["properties"].get("name")
+                loser_ft = feats[loser_idx]
+                loser_g = shape(loser_ft["geometry"])
+                new_g = loser_g.difference(overlap)
+                if not new_g.is_valid:
+                    new_g = new_g.buffer(0)
+                loser_ft["geometry"] = mapping(new_g)
+                if "area_km2" in loser_ft["properties"]:
+                    loser_ft["properties"]["area_km2"] = round(area_km2(new_g), 1)
+                print(f"  [OVERLAP-FIX/{label}] {loser_ft['properties'].get('name')} уступает "
+                      f"{area_km2(overlap):.3f} km2 в пользу {winner_name} (длиннее общая граница)")
+                n_fixed += 1
+    return n_fixed

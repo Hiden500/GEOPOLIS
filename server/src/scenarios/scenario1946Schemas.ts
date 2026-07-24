@@ -15,6 +15,13 @@ const resourceRecordSchema = z.record(z.string(), z.number()).refine(
   { message: `Ключи должны быть из каталога ресурсов: ${RESOURCE_IDS.join(", ")}` }
 );
 
+// LocalizedText (shared/src/types/i18n/LocalizedText.ts): en всегда есть
+// (generate_country_registry.py гарантирует), ru — только если известен.
+const localizedTextSchema = z.object({
+  en: z.string().min(1),
+  ru: z.string().min(1).optional(),
+});
+
 export const regionCoreSchema = z.object({
   id: z.number().int().positive(),
   geoJsonId: z.string().min(1),
@@ -102,8 +109,8 @@ const authoredMilitarySchema = z.object({
 
 export const authoredCountrySchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(1),
-  shortName: z.string().min(1),
+  name: localizedTextSchema,
+  shortName: localizedTextSchema,
   color: z.string().min(1),
   capitalRegionId: z.number().int().nonnegative(),
   economyType: z.enum(["planned", "mixed", "market"]),

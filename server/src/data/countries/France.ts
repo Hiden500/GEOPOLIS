@@ -3,8 +3,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 
 export const FRA = createCountry({
   id: "FRA",
-  name: "France",
-  shortName: "FRA",
+  name: { en: "France" },
+  shortName: { en: "FRA" },
   color: "#6366f1",
   capitalRegionId: 26,
   population: 42_000_000,

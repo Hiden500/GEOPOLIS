@@ -16,8 +16,8 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
   function makeGame(): GameState {
     return createTestGameState({
       countries: [
-        createTestCountry({ id: "USA", name: "USA" }),
-        createTestCountry({ id: "USSR", name: "USSR" }),
+        createTestCountry({ id: "USA", name: { en: "USA" } }),
+        createTestCountry({ id: "USSR", name: { en: "USSR" } }),
       ],
     });
   }

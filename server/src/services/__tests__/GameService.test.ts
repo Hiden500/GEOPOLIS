@@ -16,7 +16,7 @@ import { GameService } from "../GameService";
 import { createGame } from "../../game/CreateGame";
 import { simulateMonth } from "../../simulation/SimulationEngine";
 import * as SaveService from "../../game/SaveService";
-import { createTestGameState } from "../../test-utils/fixtures";
+import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 
 describe("GameService", () => {
   let service: GameService;
@@ -102,6 +102,35 @@ describe("GameService", () => {
       expect(simulateMonth).toHaveBeenCalledTimes(3);
       expect(result).toBe(fakeGame);
       expect(fakeGame.llmRespondedThisTurn).toBe(false);
+    });
+
+    it("формирует bounded детерминированный отчёт по изменившимся показателям игрока", () => {
+      const country = createTestCountry({
+        goals: [{ id: "goal-rank", kind: "reach_power_rank", targetRank: 1, completed: false }],
+      });
+      const fakeGame = createTestGameState({ countries: [country], llmRespondedThisTurn: true });
+      vi.mocked(createGame).mockReturnValue(fakeGame);
+      vi.mocked(simulateMonth).mockImplementation(game => {
+        game.currentDate = "1946-02-01";
+        game.playerStanding = { ...game.playerStanding, power: game.playerStanding.power + 10 };
+        country.politics.stability -= 3;
+        country.goals[0]!.completed = true;
+      });
+      service.createGame("1946", fakeGame.playerCountryId);
+
+      service.advanceMonth();
+
+      expect(fakeGame.lastTurnReport).toEqual({
+        fromDate: "1946-01-01",
+        toDate: "1946-02-01",
+        months: 1,
+        changes: [
+          { metric: "power", before: 0, after: 10 },
+          { metric: "stability", before: 70, after: 67 },
+        ],
+        completedGoalIds: ["goal-rank"],
+      });
+      expect(fakeGame.lastTurnReport!.changes).toHaveLength(2);
     });
 
     it("автосейв (docs/plans/01_PERSISTENCE_STATE.md): каждый успешный ход перезаписывает слот 'autosave'", () => {

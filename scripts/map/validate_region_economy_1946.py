@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
-from economy_1946.country_splits import CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT
+from economy_1946.country_splits import CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT, AUSTRIA_SPLIT
 from economy_1946.region_files import load_regions_layers, combine_regions, load_json, SCENARIO_DIR
 from economy_1946.resource_catalog import load_resource_catalog, resources_introduced_after
 
@@ -27,7 +27,7 @@ WORLD_POP_MIN = 2_200_000_000
 WORLD_POP_MAX = 2_600_000_000
 COUNTRY_TOTAL_TOLERANCE = 0.03  # 3% — допуск на округление при распределении
 
-DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT}
+DIRECT_OWNER_POPULATION = {**CHINA_SPLIT, **GERMANY_SPLIT, **KOREA_SPLIT, **AUSTRIA_SPLIT}
 
 
 def validate_structural_invariants(

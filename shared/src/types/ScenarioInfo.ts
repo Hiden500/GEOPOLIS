@@ -1,8 +1,9 @@
 import { type CountryTier } from "./Country";
+import { type LocalizedText } from "./i18n/LocalizedText";
 
 export interface FeaturedCountry {
   id: string;
-  name: string;
+  name: LocalizedText;
   tier: CountryTier;
 }
 

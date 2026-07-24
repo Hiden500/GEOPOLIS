@@ -4,8 +4,8 @@ import { EconomyType } from "@shared/types/EconomyType";
 // Германия 1946 — оккупированная, без вооружённых сил
 export const Germany = createCountry({
   id: "Germany",
-  name: "Germany (Occupied)",
-  shortName: "DEU",
+  name: { en: "Germany (Occupied)" },
+  shortName: { en: "DEU" },
   color: "#808080",
   capitalRegionId: 0,
   population: 65_000_000,

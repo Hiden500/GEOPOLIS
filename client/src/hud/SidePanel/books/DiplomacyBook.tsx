@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { Tag } from "../../../primitives";
 import styles from "./bookLayout.module.css";
 
@@ -17,7 +18,8 @@ export interface DiplomacyBookProps {
  * больше в HUD целиком не показаны.
  */
 export function DiplomacyBook({ country, game, onSelectCountry }: DiplomacyBookProps) {
-  const { t } = useTranslation("hud");
+  const { t, i18n } = useTranslation("hud");
+  const locale = i18n.language as Locale;
   const countryById = new Map(game.countries.map(c => [c.id, c]));
   const { diplomacy } = country;
 
@@ -28,7 +30,10 @@ export function DiplomacyBook({ country, game, onSelectCountry }: DiplomacyBookP
 
   const nameList = (ids: string[]) =>
     ids
-      .map(id => countryById.get(id)?.shortName ?? id)
+      .map(id => {
+        const other = countryById.get(id);
+        return other ? getText(other.shortName, locale) : id;
+      })
       .filter(Boolean)
       .join(", ");
 
@@ -71,7 +76,7 @@ export function DiplomacyBook({ country, game, onSelectCountry }: DiplomacyBookP
               >
                 <span className={styles.rowName}>
                   <span className={styles.swatch} style={{ backgroundColor: other.color }} />
-                  {other.shortName}
+                  {getText(other.shortName, locale)}
                 </span>
                 <span className={value >= 0 ? styles.positive : styles.negative}>{Math.round(value)}</span>
               </button>
@@ -86,7 +91,7 @@ export function DiplomacyBook({ country, game, onSelectCountry }: DiplomacyBookP
           <div className={styles.tagRow}>
             {diplomacy.sphereOfInfluence.map(id => (
               <Tag key={id} variant="pill">
-                {countryById.get(id)?.shortName ?? id}
+                {countryById.get(id) ? getText(countryById.get(id)!.shortName, locale) : id}
               </Tag>
             ))}
           </div>
@@ -99,7 +104,7 @@ export function DiplomacyBook({ country, game, onSelectCountry }: DiplomacyBookP
           <div className={styles.tagRow}>
             {diplomacy.puppets.map(id => (
               <Tag key={id} variant="pill" tone="accent">
-                {countryById.get(id)?.shortName ?? id}
+                {countryById.get(id) ? getText(countryById.get(id)!.shortName, locale) : id}
               </Tag>
             ))}
           </div>
@@ -112,7 +117,7 @@ export function DiplomacyBook({ country, game, onSelectCountry }: DiplomacyBookP
           <div className={styles.tagRow}>
             {Object.entries(diplomacy.sanctions).map(([id, types]) => (
               <Tag key={id} variant="pill" tone="crit">
-                {countryById.get(id)?.shortName ?? id} ({types.length})
+                {countryById.get(id) ? getText(countryById.get(id)!.shortName, locale) : id} ({types.length})
               </Tag>
             ))}
           </div>

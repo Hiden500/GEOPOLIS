@@ -27,6 +27,16 @@ export interface CountryLabelProps {
 
 const READABLE_PX = 11;
 
+function extent(values: number[]): [number, number] {
+  let min = Number.POSITIVE_INFINITY;
+  let max = Number.NEGATIVE_INFINITY;
+  for (const value of values) {
+    if (value < min) min = value;
+    if (value > max) max = value;
+  }
+  return [min, max];
+}
+
 export function lonLatToMercator(lon: number, lat: number): [number, number] {
   const clampedLat = Math.max(-85.051128, Math.min(85.051128, lat));
   const x = 512 * (lon + 180) / 360;
@@ -187,7 +197,8 @@ export function computeCountryAxis(
   });
 
   const xsCentroid = centroidPoints.map(p => p.x);
-  if (xsCentroid.length > 0 && Math.max(...xsCentroid) - Math.min(...xsCentroid) > 256) {
+  const [minCentroidX, maxCentroidX] = extent(xsCentroid);
+  if (xsCentroid.length > 0 && maxCentroidX - minCentroidX > 256) {
     centroidPoints = centroidPoints.map(p => ({ ...p, x: p.x < 256 ? p.x + 512 : p.x }));
   }
 
@@ -209,7 +220,8 @@ export function computeCountryAxis(
   });
 
   const xs = normalizedPoints.map(p => p.x);
-  if (Math.max(...xs) - Math.min(...xs) > 256) {
+  const [minX, maxX] = extent(xs);
+  if (maxX - minX > 256) {
     normalizedPoints = normalizedPoints.map(p => ({ ...p, x: p.x < 256 ? p.x + 512 : p.x }));
   }
 
@@ -242,8 +254,10 @@ export function computeCountryAxis(
   const projU = xy.map(p => p.x * cosT + p.y * sinT);
   const projV = xy.map(p => -p.x * sinT + p.y * cosT);
 
-  let Lu = Math.max(...projU) - Math.min(...projU);
-  let Lv = Math.max(...projV) - Math.min(...projV);
+  const [minU, maxU] = extent(projU);
+  const [minV, maxV] = extent(projV);
+  let Lu = maxU - minU;
+  let Lv = maxV - minV;
 
   if (Lu < Lv) {
     const temp = Lu;

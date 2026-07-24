@@ -1,0 +1,39 @@
+{
+  "progress": "Operational briefing · {{current}}/{{total}}",
+  "stepsLabel": "Tutorial steps",
+  "goToStep": "Go to step {{step}}",
+  "skip": "Skip",
+  "back": "Back",
+  "next": "Next",
+  "finish": "Start playing",
+  "steps": {
+    "stats": {
+      "title": "State of the country",
+      "body": "The six figures in the upper-left corner are your briefing. Hover or focus any one to see units and risk thresholds; click it to open the related section."
+    },
+    "books": {
+      "title": "Management sections",
+      "body": "The icons open economy, industry, technology, population, politics, and other books. Click an active icon to close it; keys 1–9 are shortcuts."
+    },
+    "llm": {
+      "title": "Turn status",
+      "body": "Turn events are authored by the LLM. This indicator shows whether its response is ready; click it to open the LLM cycle and apply the response."
+    },
+    "orders": {
+      "title": "Your orders",
+      "body": "Describe your political intent in free text and add it to the turn. It guides the LLM narrative; it does not bypass the simulation rules."
+    },
+    "turn": {
+      "title": "Next month",
+      "body": "Once the LLM response is applied and your orders are ready, press Next turn. The simulation advances one month; you can replay this briefing from the ? button in the header."
+    }
+  },
+  "stats": {
+    "gdp": { "label": "GDP", "hint": "Annual economic output" },
+    "treasury": { "label": "Treasury", "hint": "Money available to the state" },
+    "population": { "label": "Population", "hint": "People and labor base" },
+    "military": { "label": "Military manpower", "hint": "Available personnel" },
+    "stability": { "label": "Stability", "hint": "60+ normal · <40 crisis" },
+    "legitimacy": { "label": "Legitimacy", "hint": "60+ normal · <40 crisis" }
+  }
+}

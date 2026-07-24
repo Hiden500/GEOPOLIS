@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type maplibregl from "maplibre-gl";
 import { type GameState } from "@shared/types/GameState";
+import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { Header } from "../hud/Header/Header";
 import { SidePanel } from "../hud/SidePanel/SidePanel";
 import { BookPlaceholder } from "../hud/SidePanel/BookPlaceholder";
@@ -12,6 +13,8 @@ import { ContextPanel } from "../hud/ContextPanel/ContextPanel";
 import { OrdersBox } from "../hud/OrdersBox/OrdersBox";
 import { MapControls } from "../hud/MapControls/MapControls";
 import { ErrorToast } from "../hud/ErrorToast/ErrorToast";
+import { Onboarding } from "../hud/Onboarding/Onboarding";
+import { shouldStartOnboarding } from "../hud/Onboarding/onboardingState";
 import { BOOK_ORDER, BOOKS_WITHOUT_CONTENT, type BookId, type Selection } from "../hud/types";
 import { computeMapModeColors, type MapMode } from "../hud/mapModeColors";
 import { ResourceTicker } from "./ResourceTicker";
@@ -27,6 +30,7 @@ import { TerritoriesPanel } from "./TerritoriesPanel";
 import { LLMPanel } from "./LLMPanel";
 import { EventTimelinePanel } from "./EventTimelinePanel";
 import { MapView } from "../map/MapView";
+import { NationalBriefing } from "../hud/NationalBriefing/NationalBriefing";
 import {
   nextTurn,
   updateBudget,
@@ -42,7 +46,7 @@ interface GameViewProps {
 }
 
 export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
-  const { t } = useTranslation("gameView");
+  const { t, i18n } = useTranslation("gameView");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMapPopupOpen, setIsMapPopupOpen] = useState(false);
@@ -50,8 +54,9 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   const [activeBook, setActiveBook] = useState<BookId | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [mapMode, setMapMode] = useState<MapMode>("pol");
+  const [onboardingOpen, setOnboardingOpen] = useState(shouldStartOnboarding);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
-  const { windows, openOrFocus, toggle, close, focus, move, resize } = useWindows();
+  const { windows, openOrFocus, toggle, close, focus, move, resize, resetLayout } = useWindows();
 
   const playerCountry = game.countries.find(
     c => c.id === game.playerCountryId
@@ -159,6 +164,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (onboardingOpen) return;
       const target = e.target as HTMLElement;
       const isTyping =
         target.tagName === "INPUT" ||
@@ -195,7 +201,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isMapPopupOpen, windows, close, activeBook, selection, handleTabClick]);
+  }, [isMapPopupOpen, windows, close, activeBook, selection, handleTabClick, onboardingOpen]);
 
   if (!playerCountry) {
     return (
@@ -257,6 +263,8 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
         onNextTurn={handleNextTurn}
         onOpenLlmCycle={() => toggle({ type: "llm" })}
         onOpenCountryOverview={() => handleSelectCountry(playerCountry.id)}
+        onOpenOnboarding={() => setOnboardingOpen(true)}
+        onResetWindowLayout={resetLayout}
         onBackToMenu={onBack}
       />
 
@@ -276,7 +284,13 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             onMapReady={handleMapReady}
           />
 
-          <SidePanel book={activeBook} countryName={playerCountry.name} onClose={handleClosePanel}>
+          <NationalBriefing
+            country={playerCountry}
+            standing={game.playerStanding}
+            report={game.lastTurnReport}
+          />
+
+          <SidePanel book={activeBook} countryName={getText(playerCountry.name, i18n.language as Locale)} onClose={handleClosePanel}>
             {activeBook && renderBookContent(activeBook)}
           </SidePanel>
 
@@ -301,7 +315,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           {windows.map(w => {
             const title =
               w.kind.type === "country" || w.kind.type === "region"
-                ? getInspectorTitle(w.kind, game)
+                ? getInspectorTitle(w.kind, game, i18n.language as Locale)
                 : t(`windowTitles.${w.kind.type}`);
 
             return (
@@ -329,6 +343,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
       </div>
 
       <ResourceTicker stockpile={playerCountry.stockpile} />
+      <Onboarding open={onboardingOpen} onClose={() => setOnboardingOpen(false)} />
     </div>
   );
 }

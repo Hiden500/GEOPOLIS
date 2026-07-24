@@ -56,7 +56,25 @@ SINGLE_ORPHANS = {
     "GU": "Гуам", "MP": "Северные Марианские о-ва", "CK": "О-ва Кука", "NU": "Ниуэ",
     "NF": "О. Норфолк", "PN": "О-ва Питкерн", "UM": "Малые отдалённые о-ва США (Уэйк/Мидуэй/Джонстон)",
     "WF": "Уоллис и Футуна", "TK": "Токелау",
+    # Субантарктика — отсутствовали вовсе (2026-07-22, diagnose_missing_
+    # land.py). Реальный iso_a2 (не "-1"), тот же простой orphan-путь.
+    # "Архипелаг" по игровому определению пользователя — 4 разбросанные
+    # фичи TF (Кергелен/Крозе/Амстердам/Эпарсе) сливаются в 1 регион.
+    "HM": "О. Херд и о-ва Макдональд",
+    "TF": "Французские Южные территории",
 }
+
+# Отдельные фичи по adm1_code, минуя страновой фильтр — для территорий с
+# iso_a2='-1' (не страна в датасете), у которых реально ЕСТЬ собственный
+# полигон. Тот же паттерн, что EXTRA_SINGLE_FEATURES в build_asia_1946.py/
+# build_namerica_1946.py. Cocos/Christmas/Coral Sea Islands (2026-07-22,
+# diagnose_missing_land.py) — sov_a3='AU1', австралийские внешние
+# территории, выходной iso_a2='AU' (владелец по сюзерену).
+EXTRA_SINGLE_FEATURES = [
+    ("IOA-1928", "Кокосовые (Килинг) острова", "AU"),
+    ("IOA-2652", "Остров Рождества", "AU"),
+    ("CSI+00?", "О-ва Кораллового моря", "AU"),
+]
 
 
 def area_km2(geom):
@@ -159,6 +177,16 @@ def main():
             })
 
     out_features = []
+
+    # Отдельные фичи по adm1_code (iso_a2='-1', минуя страновой фильтр)
+    by_code = {f["properties"].get("adm1_code"): f for f in feats}
+    for code, label, out_iso2 in EXTRA_SINGLE_FEATURES:
+        f = by_code.get(code)
+        if not f:
+            print(f"  [EXTRA] ВНИМАНИЕ: '{label}' ({code}) не найден в game_map.json")
+            continue
+        g = shape(f["geometry"])
+        out_features.append(make_feature(out_iso2, label, g, "extra", [code]))
 
     # Орфанные территории
     for iso2, label in SINGLE_ORPHANS.items():

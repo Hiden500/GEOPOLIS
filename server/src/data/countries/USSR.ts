@@ -6,9 +6,9 @@ export const USSR = createCountry({
 
   id: "USSR",
 
-  name: "Soviet Union",
+  name: { en: "Soviet Union" },
 
-  shortName: "USSR",
+  shortName: { en: "USSR" },
 
   color: "#d62828",
 

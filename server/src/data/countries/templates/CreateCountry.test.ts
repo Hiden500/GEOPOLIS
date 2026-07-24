@@ -11,8 +11,8 @@ describe("createCountry (план 05, Срез 2 — авторский ввод
   function minimalInput() {
     return {
       id: "TST",
-      name: "Testland",
-      shortName: "Testland",
+      name: { en: "Testland" },
+      shortName: { en: "Testland" },
       color: "#123456",
       capitalRegionId: 1,
       economyType: EconomyType.Mixed,

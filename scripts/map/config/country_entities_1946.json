@@ -1,0 +1,1379 @@
+{
+  "_meta": {
+    "snapshotDate": "1946-01-01",
+    "purpose": "Historical country and dependent-territory ownership overrides applied before legacy colonial-bloc grouping.",
+    "confidenceScale": [
+      "high",
+      "medium",
+      "low"
+    ]
+  },
+  "continents": {
+    "south_america": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — approximate population of Non-Self-Governing Territories in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Yearbook of the United Nations 1946-47, Non-Self-Governing Territories",
+          "url": "https://cdn.un.org/unyearbook/yun/chapter_pdf/1946-47YUN/1946-47_P1_SEC2.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Falkland Islands (Malvinas) — listing as a Non-Self-Governing Territory since 1946",
+          "url": "https://www.un.org/dppa/decolonization/en/content/falkland-islands-malvinas",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Construction de l'organisation territoriale de la France — loi du 19 mars 1946",
+          "url": "https://www.vie-publique.fr/eclairage/126857-construction-de-lorganisation-territoriale-de-la-france-chronologie",
+          "authority": "French Government, Vie publique"
+        },
+        {
+          "title": "Onafhankelijkheid Suriname (1975)",
+          "url": "https://www.nationaalarchief.nl/beleven/onderwijs/bronnenbox/onafhankelijkheid-suriname-1975",
+          "authority": "Nationaal Archief, Netherlands"
+        },
+        {
+          "title": "Falkland Islands Letters Patent, 1908",
+          "url": "https://laws.gov.gs/wp-content/uploads/2022/06/1908-09-01-Letters-Patent.pdf",
+          "authority": "Government of South Georgia and the South Sandwich Islands"
+        }
+      ],
+      "preserve": [],
+      "ownerOverrides": [
+        {
+          "from": "SGS",
+          "to": "FLK",
+          "confidence": "high",
+          "reason": "South Georgia and the South Sandwich Islands were Falkland Islands Dependencies in 1946; the separate modern territory dates from 1985."
+        },
+        {
+          "from": "GUY",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая колония без сохранившейся отдельной государственности (не монархия, население < 1М) - игровое упрощение вместо избыточной фрагментации карты (решение пользователя 2026-07-18)."
+        },
+        {
+          "from": "SUR",
+          "to": "NLD",
+          "confidence": "high",
+          "reason": "Небольшая колония, то же решение, что и для British Guiana/French Guiana - прямое владение метрополии вместо отдельной страны."
+        },
+        {
+          "from": "GUF",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Небольшая колония, то же решение, что и для British Guiana/Suriname."
+        },
+        {
+          "from": "FLK",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Крайне малое население (~2.6 тыс.), фактически военный/административный форпост - прямое владение Британии, как Мальта/Гибралтар."
+        }
+      ]
+    },
+    "north_america_caribbean": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — approximate population of Non-Self-Governing Territories in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Air Navigation (Colonies, Protectorates and Mandated Territories) Order, 1948 — official territory schedule",
+          "url": "https://www.legislation.gov.uk/uksi/1948/2255/pdfs/uksi_19482255_en.pdf",
+          "authority": "United Kingdom legislation"
+        },
+        {
+          "title": "Leeward Islands colonial records and composition",
+          "url": "https://www.nationalarchives.gov.uk/help-with-your-research/research-guides/caribbean-social-and-cultural-history/",
+          "authority": "The National Archives, United Kingdom"
+        },
+        {
+          "title": "Windward Islands — common Governor with separate island institutions",
+          "url": "https://www.nationalarchives.gov.uk/the-caribbean/windward-islands/",
+          "authority": "The National Archives, United Kingdom"
+        },
+        {
+          "title": "Autonomie voor Suriname en de Nederlandse Antillen — Curaçao en onderhorigen",
+          "url": "https://www.nationaalarchief.nl/beleven/onderwijs/bronnenbox/autonomie-voor-suriname-en-de-nederlandse-antillen-1954",
+          "authority": "Nationaal Archief, Netherlands"
+        },
+        {
+          "title": "Census of Newfoundland, 1945 — final tabulated results",
+          "url": "https://publications.gc.ca/site/eng/9.833448/publication.html",
+          "authority": "Government of Canada Publications"
+        }
+      ],
+      "preserve": [
+        {
+          "code": "NFD",
+          "historicalName": "Newfoundland",
+          "historicalNameRu": "Ньюфаундленд",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Separate Dominion under Commission of Government; joined Canada only in 1949."
+        }
+      ],
+      "ownerOverrides": [
+        {
+          "from": "ATG",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "Antigua and Barbuda was a presidency of the federal Colony of the Leeward Islands."
+        },
+        {
+          "from": "AIA",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "Anguilla was administered within the St Kitts-Nevis-Anguilla presidency of the Leeward Islands."
+        },
+        {
+          "from": "KNA",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "St Kitts and Nevis formed a presidency of the federal Colony of the Leeward Islands."
+        },
+        {
+          "from": "MSR",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "Montserrat was a presidency of the federal Colony of the Leeward Islands."
+        },
+        {
+          "from": "VGB",
+          "to": "QWL",
+          "confidence": "high",
+          "reason": "The British Virgin Islands formed the Virgin Islands presidency of the Leeward Islands."
+        },
+        {
+          "from": "DMA",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Dominica had been transferred to the Windward Islands administration in 1940."
+        },
+        {
+          "from": "GRD",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Grenada belonged to the Windward Islands administration."
+        },
+        {
+          "from": "LCA",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Saint Lucia belonged to the Windward Islands administration."
+        },
+        {
+          "from": "VCT",
+          "to": "QWW",
+          "confidence": "high",
+          "reason": "Saint Vincent belonged to the Windward Islands administration."
+        },
+        {
+          "from": "CYM",
+          "to": "JAM",
+          "confidence": "high",
+          "reason": "The Cayman Islands were a dependency administered with Jamaica."
+        },
+        {
+          "from": "TCA",
+          "to": "JAM",
+          "confidence": "high",
+          "reason": "The Turks and Caicos Islands were a dependency of Jamaica in the 1946 snapshot."
+        },
+        {
+          "from": "ABW",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Aruba was part of the Dutch territory Curaçao and Dependencies."
+        },
+        {
+          "from": "CUW",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Curaçao was the seat and namesake of Curaçao and Dependencies."
+        },
+        {
+          "from": "SXM",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Sint Maarten was part of Curaçao and Dependencies; source geometry has no separate BES polygons."
+        },
+        {
+          "from": "BHS",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая карибская колония - весь Карибский бассейн (кроме Ньюфаундленда) сведён к прямому владению метрополий (решение пользователя 2026-07-18)."
+        },
+        {
+          "from": "BLZ",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая карибская/центральноамериканская колония - см. общее решение по Карибскому бассейну."
+        },
+        {
+          "from": "BMU",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая колония-форпост - см. общее решение по Карибскому бассейну."
+        },
+        {
+          "from": "BRB",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая карибская колония - см. общее решение по Карибскому бассейну."
+        },
+        {
+          "from": "JAM",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Карибский бассейн сведён к прямому владению метрополий целиком (решение пользователя 2026-07-18), несмотря на сравнительно заметное население - явно оговорено пользователем как общее правило для региона."
+        },
+        {
+          "from": "PRI",
+          "to": "USA",
+          "confidence": "high",
+          "reason": "Карибский бассейн сведён к прямому владению метрополий целиком - см. общее решение."
+        },
+        {
+          "from": "SPM",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Крайне малое население, форпост - прямое владение Франции."
+        },
+        {
+          "from": "TTO",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая карибская колония - см. общее решение по Карибскому бассейну."
+        },
+        {
+          "from": "VIR",
+          "to": "USA",
+          "confidence": "high",
+          "reason": "Небольшая карибская колония - см. общее решение по Карибскому бассейну."
+        }
+      ],
+      "regionOwnerOverrides": [
+        {
+          "regionId": "NAM-0001",
+          "to": "MTQ",
+          "confidence": "high",
+          "reason": "Martinique was a separate French colony on 1946-01-01; it became an overseas department on 1946-03-19."
+        },
+        {
+          "regionId": "NAM-0002",
+          "to": "GLP",
+          "confidence": "high",
+          "reason": "Guadeloupe was a separate French colony on 1946-01-01; it became an overseas department on 1946-03-19."
+        },
+        {
+          "regionId": "NAM-0003",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Bonaire formed part of Curaçao and Dependencies."
+        },
+        {
+          "regionId": "NAM-0004",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Sint Eustatius formed part of Curaçao and Dependencies."
+        },
+        {
+          "regionId": "NAM-0005",
+          "to": "QND",
+          "confidence": "high",
+          "reason": "Saba formed part of Curaçao and Dependencies."
+        }
+      ]
+    },
+    "europe": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — Non-Self-Governing Territories and approximate population in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "Yearbook of the United Nations 1946-47 — territories reported under Article 73 e",
+          "url": "https://cdn.un.org/unyearbook/yun/chapter_pdf/1946-47YUN/1946-47_P1_SEC2.pdf",
+          "authority": "United Nations"
+        }
+      ],
+      "preserve": [],
+      "ownerOverrides": [
+        {
+          "from": "CYP",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Морская база/крепость без сохранившейся отдельной государственности - игровое упрощение (решение пользователя 2026-07-18, наравне с Мальтой и Гибралтаром)."
+        },
+        {
+          "from": "GIB",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Классическая морская крепость-база - прямое владение Британии."
+        },
+        {
+          "from": "MLT",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Морская база/крепость Британии в Средиземноморье - прямое владение."
+        }
+      ]
+    },
+    "africa": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN report A/4192 — African Non-Self-Governing Territories and approximate population in 1946",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "French overseas history report — AOF 1895-1958 and AEF 1910-1958",
+          "url": "https://www.vie-publique.fr/files/rapport/pdf/289235.pdf",
+          "authority": "French Government, Vie publique"
+        },
+        {
+          "title": "Loi n°46-973 du 9 mai 1946 — organisation des pouvoirs publics aux Comores",
+          "url": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000874652",
+          "authority": "French Government, Légifrance"
+        },
+        {
+          "title": "British Indian Ocean Territory Order 1965 — territories detached from Mauritius and Seychelles",
+          "url": "https://www.legislation.gov.uk/uksi/1965/1920/pdfs/uksi_19651920_en.pdf",
+          "authority": "United Kingdom legislation"
+        },
+        {
+          "title": "Trusteeship Agreement for the Territory of Ruanda-Urundi",
+          "url": "https://treaties.un.org/doc/Publication/UNTS/Volume%208/v8.pdf",
+          "authority": "United Nations Treaty Series"
+        }
+      ],
+      "preserve": [
+        {
+          "code": "GHA",
+          "historicalName": "Gold Coast",
+          "historicalNameRu": "Золотой Берег",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "KEN",
+          "historicalName": "Kenya",
+          "historicalNameRu": "Кения",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "NGA",
+          "historicalName": "Nigeria",
+          "historicalNameRu": "Нигерия",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "SLE",
+          "historicalName": "Sierra Leone",
+          "historicalNameRu": "Сьерра-Леоне",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "ZMB",
+          "historicalName": "Northern Rhodesia",
+          "historicalNameRu": "Северная Родезия",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "ZWE",
+          "historicalName": "Southern Rhodesia",
+          "historicalNameRu": "Южная Родезия",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "AGO",
+          "historicalName": "Angola",
+          "historicalNameRu": "Ангола",
+          "subjectOf": "PRT",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "MOZ",
+          "historicalName": "Mozambique",
+          "historicalNameRu": "Мозамбик",
+          "subjectOf": "PRT",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "MDG",
+          "historicalName": "Madagascar",
+          "historicalNameRu": "Мадагаскар",
+          "subjectOf": "FRA",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Includes Comoros and Mayotte before the separate Comoros territory was organized on 1946-05-09."
+        },
+        {
+          "code": "UGA",
+          "historicalName": "Uganda",
+          "historicalNameRu": "Уганда",
+          "subjectOf": "GBR",
+          "subjectType": "protectorate",
+          "confidence": "high",
+          "note": "Retroactive documentation: already correctly modeled as a separate British protectorate in the live data."
+        },
+        {
+          "code": "MWI",
+          "historicalName": "Nyasaland",
+          "historicalNameRu": "Ньясаленд",
+          "subjectOf": "GBR",
+          "subjectType": "protectorate",
+          "confidence": "high",
+          "note": "Retroactive documentation: already correctly modeled as a separate British protectorate in the live data."
+        },
+        {
+          "code": "MAR",
+          "historicalName": "French Morocco",
+          "historicalNameRu": "Французское Марокко",
+          "subjectOf": "FRA",
+          "subjectType": "protectorate",
+          "confidence": "high",
+          "note": "Retroactive documentation: already correctly modeled as a separate French protectorate, distinct from directly-owned French Algeria."
+        },
+        {
+          "code": "TUN",
+          "historicalName": "French Tunisia",
+          "historicalNameRu": "Французский Тунис",
+          "subjectOf": "FRA",
+          "subjectType": "protectorate",
+          "confidence": "high",
+          "note": "Retroactive documentation: already correctly modeled as a separate French protectorate, distinct from directly-owned French Algeria."
+        },
+        {
+          "code": "SDN",
+          "historicalName": "Anglo-Egyptian Sudan",
+          "historicalNameRu": "Англо-Египетский Судан",
+          "subjectOf": [
+            "GBR",
+            "EGY"
+          ],
+          "subjectType": "condominium",
+          "confidence": "high",
+          "note": "Anglo-Egyptian Condominium under the 1899 agreement — joint administration, formally shared sovereignty. See generate_country_registry.py for the dual-suzerain diplomacy fix (build_puppets_by_suzerain)."
+        }
+      ],
+      "ownerOverrides": [
+        {
+          "from": "BEN",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "Dahomey formed part of French West Africa."
+        },
+        {
+          "from": "BFA",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "Upper Volta formed part of French West Africa."
+        },
+        {
+          "from": "CIV",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "Ivory Coast formed part of French West Africa."
+        },
+        {
+          "from": "GIN",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "French Guinea formed part of French West Africa."
+        },
+        {
+          "from": "MLI",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "French Sudan formed part of French West Africa."
+        },
+        {
+          "from": "MRT",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "Mauritania formed part of French West Africa."
+        },
+        {
+          "from": "NER",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "Niger formed part of French West Africa."
+        },
+        {
+          "from": "SEN",
+          "to": "QFW",
+          "confidence": "high",
+          "reason": "Senegal was the seat and a component of French West Africa."
+        },
+        {
+          "from": "CAF",
+          "to": "QFE",
+          "confidence": "high",
+          "reason": "Ubangi-Shari formed part of French Equatorial Africa."
+        },
+        {
+          "from": "COG",
+          "to": "QFE",
+          "confidence": "high",
+          "reason": "Middle Congo was the seat and a component of French Equatorial Africa."
+        },
+        {
+          "from": "GAB",
+          "to": "QFE",
+          "confidence": "high",
+          "reason": "Gabon formed part of French Equatorial Africa."
+        },
+        {
+          "from": "TCD",
+          "to": "QFE",
+          "confidence": "high",
+          "reason": "Chad formed part of French Equatorial Africa."
+        },
+        {
+          "from": "COM",
+          "to": "MDG",
+          "confidence": "high",
+          "reason": "Comoros remained attached to Madagascar on 1946-01-01; separate organization followed on 1946-05-09."
+        },
+        {
+          "from": "IOT",
+          "to": "MUS",
+          "confidence": "high",
+          "reason": "BIOT did not exist until 1965; Chagos was a dependency of Mauritius."
+        },
+        {
+          "from": "RWA",
+          "to": "QRU",
+          "confidence": "high",
+          "reason": "Rwanda and Urundi were one Belgian-administered mandated territory, Ruanda-Urundi."
+        },
+        {
+          "from": "BDI",
+          "to": "QRU",
+          "confidence": "high",
+          "reason": "Rwanda and Urundi were one Belgian-administered mandated territory, Ruanda-Urundi."
+        },
+        {
+          "from": "DZA",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Algeria was organized as three French départements since 1848 — continuously integrated metropolitan French territory well before 1946, unlike genuine colonies or the about-to-become-departments Martinique/Guadeloupe/Réunion (department status only on 1946-03-19). Modeled as direct French territory rather than a separate dependent Country, per a deliberate game-simplicity preference over maximal historical fragmentation."
+        },
+        {
+          "from": "GMB",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая колония (население ~263 тыс., < 1М) - прямое владение вместо отдельной страны."
+        },
+        {
+          "from": "MUS",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Население < 1М, нет отдельной государственности - прямое владение Британии."
+        },
+        {
+          "from": "SHN",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Крайне малое население (~5 тыс.), удалённый форпост - прямое владение."
+        },
+        {
+          "from": "SYC",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая колония - прямое владение Британии."
+        },
+        {
+          "from": "CPV",
+          "to": "PRT",
+          "confidence": "high",
+          "reason": "Небольшая колония (население ~150 тыс.) - прямое владение Португалии."
+        },
+        {
+          "from": "GNB",
+          "to": "PRT",
+          "confidence": "high",
+          "reason": "Население < 1М - прямое владение Португалии."
+        },
+        {
+          "from": "STP",
+          "to": "PRT",
+          "confidence": "high",
+          "reason": "Крайне малое население - прямое владение Португалии."
+        },
+        {
+          "from": "ESH",
+          "to": "ESP",
+          "confidence": "high",
+          "reason": "Крайне малое население, колониальный форпост - прямое владение Испании."
+        },
+        {
+          "from": "GNQ",
+          "to": "ESP",
+          "confidence": "high",
+          "reason": "Небольшая колония - прямое владение Испании."
+        },
+        {
+          "from": "DJI",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Крайне малое население (~56 тыс.) - прямое владение Франции."
+        },
+        {
+          "from": "LSO",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Население < 1М - прямое владение Британии (игровое упрощение)."
+        },
+        {
+          "from": "BWA",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Население < 1М - прямое владение Британии, см. решение по Basutoland/Swaziland."
+        },
+        {
+          "from": "SWZ",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Население < 1М - прямое владение Британии, см. решение по Basutoland/Bechuanaland."
+        }
+      ],
+      "regionOwnerOverrides": [
+        {
+          "regionId": "AFR-0001",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Небольшая колония (население ~225 тыс.) - прямое владение Франции вместо отдельной страны (решение пользователя 2026-07-18, игровое упрощение). Была отдельной колонией на 1946-01-01, статус заморского департамента наступил 1946-03-19."
+        },
+        {
+          "regionId": "AFR-0002",
+          "to": "MDG",
+          "confidence": "high",
+          "reason": "Mayotte was attached to Madagascar through the Comoros administration on 1946-01-01."
+        },
+        {
+          "regionId": "AFR-0092",
+          "to": "QZN",
+          "confidence": "high",
+          "reason": "Zanzibar Protectorate (own Sultan under British protection) was legally distinct from Tanganyika in 1946; unification into Tanzania followed only in 1964.",
+          "source": "https://en.wikipedia.org/wiki/Sultanate_of_Zanzibar"
+        },
+        {
+          "regionId": "AFR-0093",
+          "to": "QZN",
+          "confidence": "high",
+          "reason": "Pemba was administered as part of the Zanzibar Protectorate, not Tanganyika.",
+          "source": "https://en.wikipedia.org/wiki/Sultanate_of_Zanzibar"
+        }
+      ]
+    },
+    "asia": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN A/4192 — 1946 Asian Non-Self-Governing Territories and population",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "FCO 141/14383 — British Military Administration of Malaya, September 1945–March 1946",
+          "url": "https://www.nas.gov.sg/archivesonline/private_records/record-details/da0d0ee0-d660-11e3-acbd-0050568939ad",
+          "authority": "UK National Archives via National Archives of Singapore"
+        },
+        {
+          "title": "FRUS 1946 VIII, document 26 — DRV government in Tonkin and incomplete French conquest of Cochinchina",
+          "url": "https://history.state.gov/historicaldocuments/frus1946v08/d26",
+          "authority": "United States Department of State, Office of the Historian"
+        },
+        {
+          "title": "FRUS 1946 VIII, document 580 — Republic of Indonesia in Java and restored Netherlands administration on outer islands",
+          "url": "https://history.state.gov/historicaldocuments/frus1946v08/d580",
+          "authority": "United States Department of State, Office of the Historian"
+        },
+        {
+          "title": "1935 Constitution of the Commonwealth of the Philippines — US sovereignty pending independence",
+          "url": "https://elibrary.judiciary.gov.ph/thebookshelf/showdocs/3/352",
+          "authority": "Supreme Court of the Philippines"
+        },
+        {
+          "title": "British Embassy status memorandum — Tibet enjoyed de facto independence since 1911",
+          "url": "https://history.state.gov/historicaldocuments/frus1943China/d562",
+          "authority": "United Kingdom Government reproduced by US Department of State"
+        },
+        {
+          "title": "US recognition history — seven Trucial Sheikhdoms existed separately before 1971",
+          "url": "https://history.state.gov/countries/united-arab-emirates",
+          "authority": "United States Department of State, Office of the Historian"
+        },
+        {
+          "title": "Indian Independence Act 1947 — British paramountcy over Indian States before partition",
+          "url": "https://www.legislation.gov.uk/ukpga/1947/30/pdfs/ukpga_19470030_en.pdf",
+          "authority": "United Kingdom legislation"
+        },
+        {
+          "title": "FRUS 1946 VIII, document 766 — French-Indochina territories annexed by Thailand had not yet returned",
+          "url": "https://history.state.gov/historicaldocuments/frus1946v08/d766",
+          "authority": "United States Department of State, Office of the Historian"
+        }
+      ],
+      "preserve": [
+        {
+          "code": "KWT",
+          "historicalName": "Kuwait",
+          "historicalNameRu": "Кувейт",
+          "subjectOf": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "note": "British Protected State per UK Home Office 1949 terminology; see asia.subjectOverrides for the reclassification reasoning."
+        },
+        {
+          "code": "BHR",
+          "historicalName": "Bahrain",
+          "historicalNameRu": "Бахрейн",
+          "subjectOf": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "note": "British Protected State per UK Home Office 1949 terminology; see asia.subjectOverrides for the reclassification reasoning."
+        },
+        {
+          "code": "QAT",
+          "historicalName": "Qatar",
+          "historicalNameRu": "Катар",
+          "subjectOf": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "note": "British Protected State per UK Home Office 1949 terminology; see asia.subjectOverrides for the reclassification reasoning."
+        },
+        {
+          "code": "BRN",
+          "historicalName": "Brunei",
+          "historicalNameRu": "Бруней",
+          "subjectOf": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "medium",
+          "note": "British Protected State per UK Home Office 1949 terminology; see asia.subjectOverrides for the reclassification reasoning."
+        },
+        {
+          "code": "HKG",
+          "historicalName": "Hong Kong",
+          "historicalNameRu": "Гонконг",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "IND",
+          "historicalName": "British Raj",
+          "historicalNameRu": "Британская Индия",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Excludes separately represented Jammu and Kashmir, Sikkim, Portuguese India and French India."
+        },
+        {
+          "code": "LKA",
+          "historicalName": "Ceylon",
+          "historicalNameRu": "Цейлон",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "MMR",
+          "historicalName": "Burma",
+          "historicalNameRu": "Бирма",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "MYS",
+          "historicalName": "Malaya",
+          "historicalNameRu": "Малайя",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high",
+          "note": "Peninsular Malaya under British Military Administration; Borneo territories are split by region overrides."
+        },
+        {
+          "code": "SGP",
+          "historicalName": "Singapore",
+          "historicalNameRu": "Сингапур",
+          "subjectOf": "GBR",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "VNM",
+          "historicalName": "French Indochina",
+          "historicalNameRu": "Французский Индокитай",
+          "subjectOf": "FRA",
+          "subjectType": "colony",
+          "confidence": "medium",
+          "note": "Represents the southern French/Allied administration; the DRV-controlled north is a separate owner."
+        },
+        {
+          "code": "IDN",
+          "historicalName": "Dutch East Indies",
+          "historicalNameRu": "Голландская Восточная Индия",
+          "subjectOf": "NLD",
+          "subjectType": "colony",
+          "confidence": "medium",
+          "note": "Represents outer islands where Netherlands administration had been restored; Republican Java and Sumatra are separate."
+        },
+        {
+          "code": "MAC",
+          "historicalName": "Macau",
+          "historicalNameRu": "Макао",
+          "subjectOf": "PRT",
+          "subjectType": "colony",
+          "confidence": "high"
+        }
+      ],
+      "subjectOverrides": [
+        {
+          "code": "JOR",
+          "to": "GBR",
+          "subjectType": "mandate",
+          "confidence": "high",
+          "reason": "Transjordan remained under the British mandate until 1946-05-25."
+        },
+        {
+          "code": "PHL",
+          "to": "USA",
+          "subjectType": "commonwealth",
+          "confidence": "high",
+          "reason": "The Commonwealth of the Philippines remained under United States sovereignty until independence on 1946-07-04."
+        },
+        {
+          "code": "KWT",
+          "to": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "reason": "UK Home Office 1949 terminology: a British Protected State, not a Protectorate — the Sheikh retained full internal government under the exclusive agreement of 1899, Britain controlled only external affairs.",
+          "source": "UK Home Office, 'Protectorates and Protected States'"
+        },
+        {
+          "code": "BHR",
+          "to": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "reason": "British Protected State per UK Home Office 1949 terminology, under the treaties of 1861/1892; internal government remained with the Al Khalifa ruler.",
+          "source": "UK Home Office, 'Protectorates and Protected States'"
+        },
+        {
+          "code": "QAT",
+          "to": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "reason": "British Protected State per UK Home Office 1949 terminology, under the 1916 treaty; internal government remained with the Al Thani ruler.",
+          "source": "UK Home Office, 'Protectorates and Protected States'"
+        },
+        {
+          "code": "BRN",
+          "to": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "medium",
+          "reason": "British Protected State per UK Home Office 1949 terminology, under the protection treaties of 1888/1906; internal government remained with the Sultan. Confidence medium pending a final source check on the exact treaty basis.",
+          "source": "UK Home Office, 'Protectorates and Protected States'"
+        }
+      ],
+      "ownerOverrides": [
+        {
+          "from": "TLS",
+          "to": "PRT",
+          "confidence": "high",
+          "reason": "Население < 1М, нет отдельной государственности - прямое владение Португалии."
+        }
+      ],
+      "regionOwnerOverrides": [
+        {
+          "regionId": "ASI-0041",
+          "to": "QTB",
+          "confidence": "high",
+          "reason": "The Lhasa government exercised de facto authority over Tibet; China exercised no de facto authority."
+        },
+        {
+          "regionId": "ASI-0066",
+          "to": "QJK",
+          "confidence": "high",
+          "reason": "Kashmir formed part of the princely State of Jammu and Kashmir before partition."
+        },
+        {
+          "regionId": "ASI-0122",
+          "to": "QJK",
+          "confidence": "high",
+          "reason": "Ladakh formed part of the princely State of Jammu and Kashmir before partition."
+        },
+        {
+          "regionId": "ASI-0137",
+          "to": "QJK",
+          "confidence": "high",
+          "reason": "Core Jammu and Kashmir polygon belonged to the undivided princely state."
+        },
+        {
+          "regionId": "ASI-0305",
+          "to": "QJK",
+          "confidence": "high",
+          "reason": "Northern Areas formed part of the undivided princely State of Jammu and Kashmir."
+        },
+        {
+          "regionId": "ASI-0311",
+          "to": "QJK",
+          "confidence": "high",
+          "reason": "Azad Kashmir did not exist before the 1947 war; this polygon belonged to the princely state."
+        },
+        {
+          "regionId": "ASI-0124",
+          "to": "QSI",
+          "confidence": "high",
+          "reason": "Sikkim was a distinct British-protected kingdom, not part of British India."
+        },
+        {
+          "regionId": "ASI-0142",
+          "to": "QPI",
+          "confidence": "high",
+          "reason": "Dadra and Nagar Haveli, Daman and Diu were Portuguese India, not British India."
+        },
+        {
+          "regionId": "ASI-0144",
+          "to": "QPI",
+          "confidence": "high",
+          "reason": "Goa was Portuguese India until 1961."
+        },
+        {
+          "regionId": "ASI-0147",
+          "to": "QFI",
+          "confidence": "high",
+          "reason": "Puducherry was part of the French Establishments in India."
+        },
+        {
+          "regionId": "ASI-0277",
+          "to": "QNB",
+          "confidence": "high",
+          "reason": "North Borneo was a separate British-administered territory."
+        },
+        {
+          "regionId": "ASI-0278",
+          "to": "QSR",
+          "confidence": "high",
+          "reason": "Sarawak was a separate British-administered territory."
+        },
+        {
+          "regionId": "ASI-0280",
+          "to": "QLB",
+          "confidence": "medium",
+          "reason": "Labuan was a distinct former Straits Settlement under postwar military administration on 1946-01-01."
+        },
+        {
+          "regionId": "ASI-0386",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0387",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0388",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0389",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0390",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0391",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0392",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0393",
+          "to": "QDV",
+          "confidence": "medium",
+          "reason": "North of the 16th parallel, the DRV government operated under the Chinese surrender zone."
+        },
+        {
+          "regionId": "ASI-0395",
+          "to": "QDV",
+          "confidence": "high",
+          "reason": "Hanoi was the seat of the Democratic Republic of Vietnam government."
+        },
+        {
+          "regionId": "ASI-0407",
+          "to": "QDV",
+          "confidence": "high",
+          "reason": "Hòa Bình formed part of the DRV-administered Tonkin area."
+        },
+        {
+          "regionId": "ASI-0408",
+          "to": "QDV",
+          "confidence": "high",
+          "reason": "The northeast formed part of the DRV-administered Tonkin area."
+        },
+        {
+          "regionId": "ASI-0409",
+          "to": "QDV",
+          "confidence": "high",
+          "reason": "Hải Phòng lay in the northern Chinese surrender zone alongside the DRV government."
+        },
+        {
+          "regionId": "ASI-0410",
+          "to": "QDV",
+          "confidence": "high",
+          "reason": "Thái Nguyên formed part of the DRV-administered Tonkin area."
+        },
+        {
+          "regionId": "ASI-0111",
+          "to": "QRI",
+          "confidence": "medium",
+          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
+        },
+        {
+          "regionId": "ASI-0112",
+          "to": "QRI",
+          "confidence": "medium",
+          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
+        },
+        {
+          "regionId": "ASI-0113",
+          "to": "QRI",
+          "confidence": "medium",
+          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
+        },
+        {
+          "regionId": "ASI-0117",
+          "to": "QRI",
+          "confidence": "medium",
+          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
+        },
+        {
+          "regionId": "ASI-0120",
+          "to": "QRI",
+          "confidence": "medium",
+          "reason": "The Republic of Indonesia exercised de facto authority across most of mainland Sumatra outside Allied bridgeheads."
+        },
+        {
+          "regionId": "ASI-0121",
+          "to": "QRI",
+          "confidence": "high",
+          "reason": "The Republic of Indonesia was proclaimed in Java and exercised de facto authority over most of the island."
+        },
+        {
+          "regionId": "ASI-0414",
+          "to": "QAD",
+          "confidence": "medium",
+          "reason": "Hadramawt belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."
+        },
+        {
+          "regionId": "ASI-0415",
+          "to": "QAD",
+          "confidence": "medium",
+          "reason": "Al Mahrah belonged to the Aden Protectorate system, not the independent Mutawakkilite Kingdom of Yemen."
+        },
+        {
+          "regionId": "ASI-0417",
+          "to": "QAD",
+          "confidence": "medium",
+          "reason": "Shabwah approximates states of the Aden Protectorate, not independent Yemen."
+        },
+        {
+          "regionId": "ASI-0418",
+          "to": "QAD",
+          "confidence": "medium",
+          "reason": "Lahij and Aden belonged to the Aden Colony and Protectorate administration."
+        },
+        {
+          "regionId": "ASI-0207",
+          "to": "THA",
+          "confidence": "medium",
+          "reason": "Battambang remained under Thai de facto administration until the November 1946 settlement restored the pre-1941 frontier."
+        },
+        {
+          "regionId": "ASI-0208",
+          "to": "THA",
+          "confidence": "medium",
+          "reason": "Siem Reap remained under Thai de facto administration until the November 1946 settlement restored the pre-1941 frontier."
+        },
+        {
+          "regionId": "ASI-0067",
+          "to": "VNM",
+          "confidence": "low",
+          "reason": "Spratly sovereignty was disputed; the coarse single polygon follows the prewar French Indochina claim pending a future disputed-territory model."
+        }
+      ]
+    },
+    "oceania": {
+      "status": "complete",
+      "sources": [
+        {
+          "title": "UN A/4192 — 1946 Pacific Non-Self-Governing Territories and population",
+          "url": "https://digitallibrary.un.org/record/841718/files/A_4192-EN.pdf",
+          "authority": "United Nations"
+        },
+        {
+          "title": "U.S. Navy Trust Territory of the Pacific Islands, ca. 1944–1951",
+          "url": "https://www.archives.gov/research/military/navy/guided-topics/ttpi",
+          "authority": "United States National Archives"
+        },
+        {
+          "title": "Cook Islands Act 1915 and Island Territories Act 1943 — separate Rarotonga and Niue administrations",
+          "url": "https://www.legislation.govt.nz/act/public/1943/4/en/latest/",
+          "authority": "New Zealand Legislation"
+        },
+        {
+          "title": "Norfolk Island Act 1913–1935 — Territory under Commonwealth authority",
+          "url": "https://www.legislation.gov.au/files/1935Vol4Part2.pdf",
+          "authority": "Australian Government, Federal Register of Legislation"
+        },
+        {
+          "title": "Australian Department of External Affairs cablegram 517 — Nauru administration in 1946",
+          "url": "https://www.dfat.gov.au/about-us/publications/historical-documents/Pages/volume-10/39-department-of-external-affairs-to-dunk-1",
+          "authority": "Australian Government, Department of Foreign Affairs and Trade"
+        }
+      ],
+      "preserve": [
+        {
+          "code": "COK",
+          "historicalName": "Cook Islands",
+          "historicalNameRu": "Острова Кука",
+          "subjectOf": "NZL",
+          "subjectType": "colony",
+          "confidence": "high"
+        },
+        {
+          "code": "PNG",
+          "historicalName": "Papua and New Guinea",
+          "historicalNameRu": "Папуа и Новая Гвинея",
+          "subjectOf": "AUS",
+          "subjectType": "mandate",
+          "confidence": "high",
+          "note": "The catalog's subject_type reflects the former German Territory of New Guinea (League/UN mandate, transitioning to UN trusteeship in November 1946); the adjoining Territory of Papua was legally a separate British/Australian possession (colony status since 1906), administered jointly with New Guinea under the Papua-New Guinea Provisional Administration Act 1945-46. Combined as one entity here because the source geometry/administration is already unified.",
+          "source": "https://en.wikipedia.org/wiki/Territory_of_Papua_and_New_Guinea"
+        },
+        {
+          "code": "SLB",
+          "historicalName": "Solomon Islands",
+          "historicalNameRu": "Соломоновы Острова",
+          "subjectOf": "GBR",
+          "subjectType": "protectorate",
+          "confidence": "high",
+          "note": "British Solomon Islands Protectorate, administered under the High Commissioner for the Western Pacific.",
+          "source": "https://en.wikipedia.org/wiki/British_Solomon_Islands"
+        },
+        {
+          "code": "TON",
+          "historicalName": "Tonga",
+          "historicalNameRu": "Тонга",
+          "subjectOf": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "note": "Tonga retained its own monarchy (Queen Sālote Tupou III) and full internal self-government throughout under the 1900/1905 Treaties of Friendship; Britain controlled only external affairs — a British Protected State, not a Protectorate, per UK Home Office 1949 terminology (see subjectOverrides above).",
+          "source": "https://en.wikipedia.org/wiki/S%C4%81lote_Tupou_III"
+        },
+        {
+          "code": "VUT",
+          "historicalName": "New Hebrides",
+          "historicalNameRu": "Новые Гебриды",
+          "subjectOf": [
+            "GBR",
+            "FRA"
+          ],
+          "subjectType": "condominium",
+          "confidence": "high",
+          "note": "Anglo-French Condominium under the 1906/1907 Protocol — joint, equal administration via two parallel Residencies and one Joint Court. See generate_country_registry.py for the fix ensuring both suzerains list it as a puppet.",
+          "source": "https://en.wikipedia.org/wiki/New_Hebrides"
+        },
+        {
+          "code": "WSM",
+          "historicalName": "Western Samoa",
+          "historicalNameRu": "Западное Самоа",
+          "subjectOf": "NZL",
+          "subjectType": "mandate",
+          "confidence": "high",
+          "note": "Former League of Nations Class C mandate (from 1920), administered by New Zealand; only became a formal UN Trusteeship in December 1946, so 'mandate' is the historically precise label on the 1946-01-01 snapshot date. Distinct from American Samoa (ASM, USA).",
+          "source": "https://research.un.org/en/docs/tc/westernsamoa"
+        }
+      ],
+      "subjectOverrides": [
+        {
+          "code": "WLF",
+          "to": "FRA",
+          "subjectType": "protectorate",
+          "confidence": "high",
+          "reason": "Wallis and Futuna remained a French protectorate rather than a colony on 1946-01-01."
+        },
+        {
+          "code": "NRU",
+          "to": "AUS",
+          "subjectType": "mandate",
+          "confidence": "high",
+          "reason": "The Nauru mandate was jointly held by the United Kingdom, Australia and New Zealand, with Australia providing the administration."
+        },
+        {
+          "code": "TON",
+          "to": "GBR",
+          "subjectType": "protected_state",
+          "confidence": "high",
+          "reason": "British Protected State, not a plain protectorate, per UK Home Office 1949 terminology — Tonga kept its own monarchy and full internal self-government throughout under the 1900/1905 Treaties of Friendship; Britain controlled only external affairs and defence.",
+          "source": "UK Home Office, 'Protectorates and Protected States'"
+        }
+      ],
+      "ownerOverrides": [
+        {
+          "from": "TUV",
+          "to": "KIR",
+          "confidence": "high",
+          "reason": "The Ellice Islands formed part of the Gilbert and Ellice Islands Colony in 1946."
+        },
+        {
+          "from": "UMI",
+          "to": "USA",
+          "confidence": "medium",
+          "reason": "United States Minor Outlying Islands is a later statistical aggregate, not a single 1946 territorial administration; the source has only one coarse combined polygon."
+        },
+        {
+          "from": "FSM",
+          "to": "QPS",
+          "confidence": "high",
+          "reason": "The Caroline Islands were administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."
+        },
+        {
+          "from": "MHL",
+          "to": "QPS",
+          "confidence": "high",
+          "reason": "The Marshall Islands were administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."
+        },
+        {
+          "from": "MNP",
+          "to": "QPS",
+          "confidence": "high",
+          "reason": "The Northern Mariana Islands were administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."
+        },
+        {
+          "from": "PLW",
+          "to": "QPS",
+          "confidence": "high",
+          "reason": "Palau was administered with the former Japanese South Seas Mandate by the United States Navy pending the 1947 trusteeship."
+        },
+        {
+          "from": "PCN",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "No distinct Pitcairn administration existed in 1946; the Governor of Fiji has doubled as Governor of Pitcairn since 1898. Modeled as direct British territory rather than a separate Country, per a deliberate game-simplicity preference (population ~150 in 1946).",
+          "source": "https://en.wikipedia.org/wiki/Governor_of_the_Pitcairn_Islands"
+        },
+        {
+          "from": "TKL",
+          "to": "NZL",
+          "confidence": "medium",
+          "reason": "Tokelau had no on-the-ground administration in 1946 (administered remotely through the Administrator of Western Samoa until 1925, no resident officer until 1955). Modeled as direct New Zealand territory rather than a separate Country, per a deliberate game-simplicity preference (population ~1,000 in 1946).",
+          "source": "https://en.wikipedia.org/wiki/Administrators_of_Tokelau"
+        },
+        {
+          "from": "NCL",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Небольшая колония (население ~60 тыс.) - прямое владение Франции; большинство Океании сведено к метрополиям (решение пользователя 2026-07-18), кроме крупных администраций (PNG, Соломоновы острова, Западное Самоа) и территорий со своей легислатурой/монархией (Острова Кука, Тонга, Новые Гебриды)."
+        },
+        {
+          "from": "PYF",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Небольшая колония - см. общее решение по Океании."
+        },
+        {
+          "from": "WLF",
+          "to": "FRA",
+          "confidence": "high",
+          "reason": "Крайне малое население - см. общее решение по Океании."
+        },
+        {
+          "from": "ASM",
+          "to": "USA",
+          "confidence": "high",
+          "reason": "Небольшая колония - см. общее решение по Океании."
+        },
+        {
+          "from": "GUM",
+          "to": "USA",
+          "confidence": "high",
+          "reason": "Небольшая колония - см. общее решение по Океании."
+        },
+        {
+          "from": "FJI",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "См. общее решение по Океании - прямое владение Британии, несмотря на существовавший Legislative Council (игровое упрощение)."
+        },
+        {
+          "from": "KIR",
+          "to": "GBR",
+          "confidence": "high",
+          "reason": "Небольшая колония - см. общее решение по Океании."
+        },
+        {
+          "from": "NIU",
+          "to": "NZL",
+          "confidence": "high",
+          "reason": "Небольшое население, управлялось в связке с Cook Islands - см. общее решение по Океании (Cook Islands остаются отдельной страной из-за собственной легислатуры, Niue сворачивается)."
+        }
+      ],
+      "regionOwnerOverrides": [
+        {
+          "regionId": "OCE-0011",
+          "to": "NFK",
+          "confidence": "high",
+          "reason": "Norfolk Island was a distinct Australian external territory; NFD is reserved for Newfoundland elsewhere in the source catalog."
+        }
+      ]
+    }
+  }
+}

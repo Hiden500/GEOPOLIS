@@ -50,35 +50,30 @@ MULTI_FRAGMENT_TOTALS: dict[str, Anchor] = {
         "из Японии/Маньчжурии после капитуляции). Делится между QKS (север, "
         "меньше населения, больше промышленности) и QKA (юг, больше населения)."
     ),
-    "RUANDA_URUNDI_TOTAL": Anchor(
-        3_800_000, "estimated",
-        "Руанда-Урунди как единая бельгийская подопечная территория midcentury. "
-        "В данных числится под ДВУМЯ разными ownerCountryId (RWA и BDI) с "
-        "одинаковым именем 'Ruanda-Urundi' — известный, задокументированный "
-        "пробел в реестре стран (docs/DECISIONS.md, 2026-06-28), не мой "
-        "уровень чинить (только заполняю экономику в рамках уже заданного "
-        "владельца, REGION_ECONOMY_FILL.md п.2). Делю тотал 50/50 по площади "
-        "(RWA=5 регионов, BDI=3 региона — не по числу регионов, а по area,"
-        " см. country_splits.py)."
+    "AUSTRIA_TOTAL": Anchor(
+        6_881_000, "estimated",
+        "Сумма 4 зон оккупации (WebSearch, en.wikipedia.org/wiki/"
+        "Allied-occupied_Austria: назначение земель по зонам; население по "
+        "земле — перепись 1951, ближайшая доступная детализация к 1946):  "
+        "Niederösterreich+Burgenland+Wien в советскую зону (Вена не делится "
+        "на секторы, см. country_splits.py — решение пользователя "
+        "2026-07-19), Oberösterreich+Salzburg — американская, "
+        "Kärnten+Steiermark — британская, Tirol+Vorarlberg — французская "
+        "(Восточный Тироль формально был британским, но в наших данных "
+        "Tirol — один регион, большинство населения в Северном Тироле, "
+        "который французский — не дробим). Заменяет прежний плоский anchor "
+        "AUT=6.9М (почти совпадает, теперь просто явно источникован по "
+        "землям, а не одной цифрой на всю страну)."
     ),
 }
-
-# Доли British India относительно исторического её же населения на 1941/46 —
-# используется в country_splits.py для разбивки QCG (British Colonies bloc).
-BRITISH_INDIA_1946 = Anchor(
-    410_000_000, "verified",
-    "1941 перепись: 388.8М (без Бирмы) — WebSearch подтвердил (Bengal 60.3М, "
-    "United Provinces 55.0М). Экстраполяция к 1946 (~1.1%/год, 5 лет) даёт "
-    "~410М. Британская Индия — крупнейшая составляющая блока QCG."
-)
 
 # Однофрагментные страны — population прямо есть anchor для этой ownerCountryId.
 COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     # === Великие державы (verified/хорошо документировано) ===
-    "USA": Anchor(141_000_000, "estimated", "Общепринятая цифра нас. США 1946 (перепись 1940=132.2М, 1950=151.3М, интерполяция с учётом послевоенного бэби-бума с 1946)."),
+    "USA": Anchor(143_209_000, "estimated", "Общепринятая цифра нас. США 1946 (перепись 1940=132.2М, 1950=151.3М, интерполяция с учётом послевоенного бэби-бума с 1946)."),
     "SUN": Anchor(172_000_000, "estimated", "Довоенное ~196М (1939) минус военные потери (~27М) плюс частичное восстановление к 1946 — общепринятая оценка диапазона 170-175М."),
-    "GBR": Anchor(49_200_000, "estimated", "Общепринятая перепись-близкая цифра (1951 перепись=50.2М, 1946 чуть ниже)."),
-    "FRA": Anchor(40_100_000, "estimated", "Общепринятая (перепись 1946=40.1М, первая послевоенная перепись Франции)."),
+    "GBR": Anchor(54_634_759, "estimated", "Общепринятая перепись-близкая цифра (1951 перепись=50.2М, 1946 чуть ниже) + Питкерн (~130, свёрнут в прямое владение 2026-07-18 — без своей администрации, губернатор Фиджи с 1898 года)."),
+    "FRA": Anchor(49_142_000, "estimated", "Перепись 1946=40.1М (метрополия) + Алжир ~8.6М — Алжир смоделирован прямым владением Франции (три департамента с 1848 года, не отдельная страна, см. country_entities_1946.json), поэтому его население должно входить в тот же anchor, иначе теряется из мирового тотала."),
     "ARG": Anchor(15_900_000, "estimated", "Общепринятая оценка midcentury для Аргентины."),
     "CAN": Anchor(12_300_000, "estimated", "Общепринятая оценка (перепись 1941=11.5М, 1951=14.0М, интерполяция)."),
 
@@ -99,21 +94,20 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "ROU": Anchor(15_800_000, "estimated", "Общепринятая оценка Румынии (после потери Бессарабии/Северной Буковины) midcentury."),
     "HUN": Anchor(9_000_000, "estimated", "Общепринятая оценка Венгрии (Трианон-границы) midcentury."),
     "SWE": Anchor(6_800_000, "estimated", "Общепринятая оценка Швеции midcentury."),
-    "ESP": Anchor(27_900_000, "estimated", "Общепринятая оценка франкистской Испании midcentury."),
+    "ESP": Anchor(28_105_000, "estimated", "Общепринятая оценка франкистской Испании midcentury."),
     "BEL": Anchor(8_400_000, "estimated", "Общепринятая оценка Бельгии midcentury."),
-    "NLD": Anchor(9_400_000, "estimated", "Общепринятая оценка Нидерландов (метрополия) midcentury."),
+    "NLD": Anchor(9_568_000, "estimated", "Общепринятая оценка Нидерландов (метрополия) midcentury."),
     "DNK": Anchor(4_100_000, "estimated", "Общепринятая оценка Дании midcentury."),
     "NOR": Anchor(3_150_000, "estimated", "Общепринятая оценка Норвегии midcentury."),
-    "AUT": Anchor(6_900_000, "estimated", "Общепринятая оценка Австрии midcentury."),
     "GRC": Anchor(7_300_000, "estimated", "Общепринятая оценка Греции midcentury."),
     "IRQ": Anchor(4_800_000, "estimated", "Общепринятая оценка Ирака midcentury."),
     "SAU": Anchor(3_200_000, "estimated", "Общепринятая оценка Саудовской Аравии midcentury (низкая плотность, кочевое население)."),
     "CHE": Anchor(4_400_000, "estimated", "Общепринятая оценка Швейцарии midcentury."),
     "IRL": Anchor(2_960_000, "estimated", "Общепринятая оценка Ирландии midcentury."),
-    "PRT": Anchor(8_100_000, "estimated", "Общепринятая оценка Португалии (метрополия) midcentury."),
+    "PRT": Anchor(9_270_000, "estimated", "Общепринятая оценка Португалии (метрополия) midcentury."),
     "AFG": Anchor(9_500_000, "estimated", "Общепринятая оценка Афганистана midcentury (низкая точность источников)."),
     "MNG": Anchor(800_000, "estimated", "Общепринятая оценка Монголии midcentury (очень низкая плотность)."),
-    "THA": Anchor(17_400_000, "estimated", "Общепринятая оценка Сиама/Таиланда midcentury."),
+    "THA": Anchor(17_900_000, "estimated", "Сиам/Таиланд с Battambang и Siem Reap, которые оставались под его de facto administration до ноября 1946."),
     "PHL": Anchor(18_600_000, "estimated", "Перепись 1948=19.2М, близко к 1946."),
 
     # === Ближний Восток / Средняя Азия ===
@@ -126,7 +120,6 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "KWT": Anchor(90_000, "estimated", "До нефтяного бума — очень малочисленный Кувейт midcentury."),
     "BHR": Anchor(120_000, "estimated", "Общепринятая оценка Бахрейна midcentury."),
     "QAT": Anchor(30_000, "estimated", "Общепринятая оценка Катара midcentury (крайне малочисленный)."),
-    "ARE": Anchor(80_000, "estimated", "Trucial States до нефти — очень малочисленны."),
     "QMH": Anchor(200_000, "estimated", "Мехабадская Республика (курдское квазигосударство) — малочисленна."),
     "QAZ": Anchor(1_000_000, "estimated", "Азербайджанская Народная Республика (советский протекторат в Иране) — оценка по региону."),
 
@@ -136,15 +129,10 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "SDN": Anchor(8_700_000, "estimated", "Англо-Египетский Судан — общепринятая оценка midcentury."),
     "TZA": Anchor(6_900_000, "estimated", "Танганьика (брит. подопечная территория) — общепринятая оценка."),
     "COD": Anchor(11_000_000, "estimated", "Бельгийское Конго — общепринятая оценка midcentury."),
-    # RWA/BDI намеренно НЕ здесь — обе делят RUANDA_URUNDI_TOTAL через
-    # split_ruanda_urundi() (country_splits.py), прямой анкер на одну из
-    # них конфликтовал бы с этим механизмом (см. фикс 2026-07-04).
+    "QRU": Anchor(3_800_000, "estimated", "Ruanda-Urundi as one Belgian trust territory in the 1946 snapshot."),
     "MWI": Anchor(2_400_000, "estimated", "Ньясаленд — общепринятая оценка midcentury."),
     "UGA": Anchor(4_900_000, "estimated", "Уганда — общепринятая оценка midcentury."),
     "NAM": Anchor(350_000, "estimated", "Юго-Западная Африка (мандат ЮАР) — низкая плотность."),
-    "BWA": Anchor(300_000, "estimated", "Бечуаналенд — низкая плотность."),
-    "LSO": Anchor(560_000, "estimated", "Басутоленд — общепринятая оценка."),
-    "SWZ": Anchor(180_000, "estimated", "Свазиленд — общепринятая оценка."),
     "QSO": Anchor(700_000, "estimated", "Британский Сомалиленд — общепринятая оценка."),
     "TGO": Anchor(700_000, "estimated", "Французское Того (подопечная) — общепринятая оценка."),
 
@@ -166,6 +154,53 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "CHL": Anchor(5_300_000, "estimated", "Общепринятая оценка Чили midcentury."),
     "PRY": Anchor(1_300_000, "estimated", "Общепринятая оценка Парагвая midcentury."),
     "URY": Anchor(2_300_000, "estimated", "Общепринятая оценка Уругвая midcentury."),
+    "NFD": Anchor(
+        321_819, "verified",
+        "Official 1945 Census of Newfoundland and Labrador total: 321,819."
+    ),
+    "QWL": Anchor(108_000, "verified", "UN A/4192: Leeward Islands, approximate 1946 population 108,000."),
+    "QWW": Anchor(252_000, "verified", "UN A/4192: Windward Islands, approximate 1946 population 252,000."),
+    "QND": Anchor(139_000, "verified", "UN A/4192: Curaçao, approximate 1946 population 139,000."),
+    "MTQ": Anchor(209_000, "verified", "UN A/4192: Martinique, approximate 1946 population 209,000."),
+    "GLP": Anchor(190_000, "verified", "UN A/4192: Guadeloupe, approximate 1946 population 190,000."),
+    "QFW": Anchor(16_524_000, "verified", "UN A/4192: French West Africa, approximate population 16,524,000 (1948 figure in the 1946 territory table)."),
+    "QFE": Anchor(4_127_000, "verified", "UN A/4192: French Equatorial Africa, approximate 1946 population 4,127,000."),
+    "MDG": Anchor(4_296_000, "verified", "UN A/4192: Madagascar 4,154,000 plus Comoro Archipelago 142,000; combined because Comoros/Mayotte remained Madagascar dependencies on 1946-01-01."),
+    "QZN": Anchor(230_000, "estimated", "Zanzibar Protectorate (Zanzibar + Pemba) — back-extrapolated from the 1958 census total of 299,111 at ~2.3%/yr; UN A/4192 does not clearly tabulate Zanzibar separately from Tanganyika. Needs a proper 1946-dated source pass before promoting to verified."),
+    "GHA": Anchor(4_018_000, "verified", "UN A/4192: Gold Coast, approximate 1946 population 4,018,000."),
+    "KEN": Anchor(5_227_000, "verified", "UN A/4192: Kenya, approximate 1946 population 5,227,000."),
+    "NGA": Anchor(24_300_000, "verified", "UN A/4192: Nigeria, population 24,300,000 (1950 figure in the 1946 territory table)."),
+    "SLE": Anchor(2_020_000, "verified", "UN A/4192: Sierra Leone, population 2,020,000 (1953 figure in the 1946 territory table)."),
+    "ZMB": Anchor(1_650_000, "verified", "UN A/4192: Northern Rhodesia, approximate 1946 population 1,650,000."),
+    "ZWE": Anchor(1_200_000, "estimated", "Southern Rhodesia midcentury estimate retained from the previous colonial-bloc split."),
+    "AGO": Anchor(4_100_000, "estimated", "Angola midcentury estimate retained from the previous Portuguese colonial-bloc split."),
+    "MOZ": Anchor(5_600_000, "estimated", "Mozambique midcentury estimate retained from the previous Portuguese colonial-bloc split."),
+
+    # === Азия: отдельные страны, колонии и переходные администрации ===
+    "IND": Anchor(404_926_705, "estimated", "British India 1946 estimate of 410M minus separately represented Kashmir, Sikkim, Portuguese India and French India."),
+    "QJK": Anchor(4_000_000, "estimated", "Undivided princely State of Jammu and Kashmir, pre-partition estimate."),
+    "QSI": Anchor(100_000, "estimated", "Kingdom of Sikkim midcentury estimate."),
+    "QPI": Anchor(650_000, "estimated", "Portuguese India including Goa, Daman and Diu midcentury estimate."),
+    "QFI": Anchor(323_295, "verified", "UN A/4192: French Establishments in India, population 323,295 (1939 figure in the 1946 territory table)."),
+    "QTB": Anchor(1_200_000, "estimated", "Tibet under the Lhasa government, conservative midcentury estimate."),
+    "HKG": Anchor(1_550_000, "verified", "UN A/4192: Hong Kong, approximate 1946 population 1,550,000."),
+    "MMR": Anchor(16_000_000, "estimated", "Burma total retained from the previous British colonial-bloc split."),
+    "LKA": Anchor(6_300_000, "estimated", "Ceylon total retained from the previous British colonial-bloc split."),
+    "MYS": Anchor(5_250_000, "verified", "UN A/4192: Malaya, approximate 1946 population 5,250,000."),
+    "SGP": Anchor(939_000, "verified", "UN A/4192: Singapore, population 939,000 (1947 figure in the 1946 territory table)."),
+    "QNB": Anchor(325_000, "verified", "UN A/4192 gives North Borneo 335,000; 10,000 is separated here for Labuan on the 1946-01-01 snapshot."),
+    "QLB": Anchor(10_000, "estimated", "Labuan midcentury estimate separated from the UN North Borneo aggregate."),
+    "QSR": Anchor(500_000, "verified", "UN A/4192: Sarawak, approximate 1946 population 500,000."),
+    "QDV": Anchor(16_000_000, "estimated", "Northern DRV share of the UN A/4192 Indochina total at the coarse 16th-parallel geometry."),
+    "VNM": Anchor(10_150_000, "estimated", "Southern French/Allied administration share; with QDV, LAO and KHM sums to the UN A/4192 Indochina total 30.25M."),
+    "QRI": Anchor(60_000_000, "estimated", "Republican Java and mainland Sumatra share of the UN A/4192 Netherlands Indies total."),
+    "IDN": Anchor(13_700_000, "estimated", "Outer-island Netherlands administration share; with QRI sums to the UN A/4192 total 73.7M."),
+    "MAC": Anchor(500_000, "estimated", "Macau total retained from the previous Portuguese colonial-bloc split."),
+    # ОАЭ/Договорной Оман — консолидировано обратно в 1 страну (2026-07-19,
+    # разворот решения 2026-06-28 о разделе на 7 отдельных шейхств-стран, см.
+    # docs/DECISIONS.md) — единый anchor вместо суммы 7 долей.
+    "ARE": Anchor(80_000, "estimated", "Общая оценка населения Договорного Омана (7 шейхств) на 1946."),
+    "QAD": Anchor(650_000, "estimated", "Aden Colony and Protectorate total retained from the previous British colonial-bloc split."),
 
     # === Прочие мелкие/микро (низкая цена ошибки, широкие оценки) ===
     "ALB": Anchor(1_100_000, "estimated", "Общепринятая оценка Албании midcentury."),
@@ -181,17 +216,16 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "BTN": Anchor(700_000, "estimated", "Бутан — низкая точность источников."),
     "NPL": Anchor(6_700_000, "estimated", "Общепринятая оценка Непала midcentury."),
     "GRL": Anchor(21_000, "estimated", "Гренландия — низкая плотность, известная цифра."),
-    "MNP": Anchor(10_000, "estimated", "Северные Марианские острова — низкая плотность."),
     "NRU": Anchor(3_000, "estimated", "Науру — микрогосударство."),
-    "MHL": Anchor(10_000, "estimated", "Маршалловы острова — низкая плотность."),
     "TON": Anchor(45_000, "estimated", "Тонга — общепринятая оценка."),
     "VUT": Anchor(45_000, "estimated", "Новые Гебриды — общепринятая оценка."),
     "WSM": Anchor(70_000, "estimated", "Западное Самоа — общепринятая оценка."),
-    "PLW": Anchor(6_000, "estimated", "Палау — низкая плотность."),
-    "FSM": Anchor(30_000, "estimated", "Микронезия — низкая плотность."),
     "SLB": Anchor(90_000, "estimated", "Соломоновы острова — общепринятая оценка."),
     "PNG": Anchor(1_500_000, "estimated", "Папуа и Новая Гвинея — общепринятая оценка."),
-    "NZL": Anchor(1_700_000, "estimated", "Общепринятая оценка Новой Зеландии midcentury."),
+    "NZL": Anchor(1_705_000, "estimated", "Общепринятая оценка Новой Зеландии midcentury + Токелау (~1,000, свёрнут в прямое владение 2026-07-18 — без администрации на месте в 1946 году)."),
+    "COK": Anchor(15_000, "verified", "UN A/4192: Cook Islands, approximate 1946 population 15,000."),
+    "NFK": Anchor(2_000, "estimated", "Norfolk Island midcentury estimate; distinct Australian external territory."),
+    "QPS": Anchor(56_000, "estimated", "Combined retained native-population anchors for the former Japanese mandated Caroline, Marshall and Northern Mariana island districts under U.S. Navy administration."),
     "FIN": Anchor(3_900_000, "estimated", "Общепринятая оценка Финляндии midcentury."),
 
     # === Французские/испанские протектораты со своим ownerCountryId
@@ -200,7 +234,7 @@ COUNTRY_POPULATION_1946: dict[str, Anchor] = {
     "TUN": Anchor(2_900_000, "estimated", "Французский Тунис — общепринятая оценка midcentury."),
     "CMR": Anchor(2_600_000, "estimated", "Французский Камерун (подопечная) — общепринятая оценка midcentury."),
     "LAO": Anchor(1_100_000, "estimated", "Французский Лаос — общепринятая оценка midcentury."),
-    "KHM": Anchor(3_000_000, "estimated", "Французская Камбоджа — общепринятая оценка midcentury."),
+    "KHM": Anchor(2_500_000, "estimated", "Французская Камбоджа без Battambang и Siem Reap, возвращённых из Thai administration позднее в 1946; общий THA+KHM anchor сохранён."),
 
     # === Германия / Корея / Китай — единая точка входа-заглушка,
     # фактические числа считаются из MULTI_FRAGMENT_TOTALS в country_splits.py.

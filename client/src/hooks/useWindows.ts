@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * Сужено до сценария "сравнить два объекта рядом" (docs/plans/12_UI_REDESIGN.md
@@ -34,10 +34,45 @@ function windowId(kind: WindowKind): string {
 
 const LEFT_SIDE: WindowKind["type"][] = ["country", "region"];
 const SETTINGS_KEY = "geopolis_window_settings";
+const WINDOW_GUTTER = 16;
+const MIN_WINDOW_WIDTH = 340;
+const MIN_WINDOW_HEIGHT = 180;
+const DEFAULT_WINDOW_WIDTH = 440;
 
 interface WindowSetting {
   position: { x: number; y: number };
   size?: { width: number; height: number };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function normalizeSetting(setting: WindowSetting): WindowSetting {
+  const viewportWidth = Math.max(window.innerWidth, MIN_WINDOW_WIDTH + WINDOW_GUTTER * 2);
+  const viewportHeight = Math.max(window.innerHeight, MIN_WINDOW_HEIGHT + WINDOW_GUTTER * 2);
+  const size = setting.size
+    ? {
+        width: clamp(setting.size.width, MIN_WINDOW_WIDTH, viewportWidth - WINDOW_GUTTER * 2),
+        height: clamp(setting.size.height, MIN_WINDOW_HEIGHT, viewportHeight - WINDOW_GUTTER * 2),
+      }
+    : undefined;
+  const width = size?.width ?? DEFAULT_WINDOW_WIDTH;
+  const height = size?.height ?? MIN_WINDOW_HEIGHT;
+  return {
+    position: {
+      x: clamp(setting.position.x, 0, Math.max(0, viewportWidth - width)),
+      y: clamp(setting.position.y, 0, Math.max(0, viewportHeight - height)),
+    },
+    ...(size ? { size } : {}),
+  };
+}
+
+function defaultPosition(kind: WindowKind, sameSideCount: number): { x: number; y: number } {
+  const baseX = LEFT_SIDE.includes(kind.type) ? WINDOW_GUTTER : window.innerWidth - DEFAULT_WINDOW_WIDTH - WINDOW_GUTTER;
+  return normalizeSetting({
+    position: { x: baseX + sameSideCount * 24, y: 100 + sameSideCount * 24 },
+  }).position;
 }
 
 // Ключ по экземпляру (id уже уникален через windowId()), не по категории —
@@ -88,13 +123,12 @@ export function useWindows() {
 
       let position = saved?.position;
       if (!position) {
-        const baseX = LEFT_SIDE.includes(kind.type) ? 16 : window.innerWidth - 360;
-        position = { x: baseX + sameSideCount * 24, y: 100 + sameSideCount * 24 };
+        position = defaultPosition(kind, sameSideCount);
       }
 
-      const size = saved?.size;
+      const normalized = normalizeSetting({ position, ...(saved?.size ? { size: saved.size } : {}) });
 
-      return [...prev, { id, kind, position, size, zIndex: nextZIndex(prev) }];
+      return [...prev, { id, kind, position: normalized.position, size: normalized.size, zIndex: nextZIndex(prev) }];
     });
   }, [nextZIndex]);
 
@@ -111,13 +145,12 @@ export function useWindows() {
 
       let position = saved?.position;
       if (!position) {
-        const baseX = LEFT_SIDE.includes(kind.type) ? 16 : window.innerWidth - 360;
-        position = { x: baseX + sameSideCount * 24, y: 100 + sameSideCount * 24 };
+        position = defaultPosition(kind, sameSideCount);
       }
 
-      const size = saved?.size;
+      const normalized = normalizeSetting({ position, ...(saved?.size ? { size: saved.size } : {}) });
 
-      return [...prev, { id, kind, position, size, zIndex: nextZIndex(prev) }];
+      return [...prev, { id, kind, position: normalized.position, size: normalized.size, zIndex: nextZIndex(prev) }];
     });
   }, [nextZIndex]);
 
@@ -152,7 +185,38 @@ export function useWindows() {
     });
   }, []);
 
+  const resetLayout = useCallback(() => {
+    try {
+      localStorage.removeItem(SETTINGS_KEY);
+    } catch {
+      // Storage может быть недоступен; in-memory layout всё равно сбрасываем.
+    }
+    setWindows(prev => {
+      let leftCount = 0;
+      let rightCount = 0;
+      return prev.map(instance => {
+        const isLeft = LEFT_SIDE.includes(instance.kind.type);
+        const sameSideCount = isLeft ? leftCount++ : rightCount++;
+        return { ...instance, position: defaultPosition(instance.kind, sameSideCount), size: undefined };
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleViewportResize = () => {
+      setWindows(prev => prev.map(instance => {
+        const normalized = normalizeSetting({
+          position: instance.position,
+          ...(instance.size ? { size: instance.size } : {}),
+        });
+        return { ...instance, position: normalized.position, size: normalized.size };
+      }));
+    };
+    window.addEventListener("resize", handleViewportResize);
+    return () => window.removeEventListener("resize", handleViewportResize);
+  }, []);
+
   const isOpen = useCallback((kind: WindowKind) => windows.some(w => w.id === windowId(kind)), [windows]);
 
-  return { windows, openOrFocus, toggle, close, focus, move, resize, isOpen };
+  return { windows, openOrFocus, toggle, close, focus, move, resize, resetLayout, isOpen };
 }

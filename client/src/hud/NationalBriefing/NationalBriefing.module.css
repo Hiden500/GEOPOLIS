@@ -1,0 +1,76 @@
+.briefing {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 21;
+  width: clamp(320px, 27vw, 380px);
+  max-width: calc(100% - 20px);
+  background: linear-gradient(180deg, rgba(29, 39, 31, 0.97), rgba(18, 24, 19, 0.95));
+  border: 1px solid var(--hairline-2);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.48);
+  color: var(--paper);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+  align-items: baseline;
+  padding: 9px 11px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.summary::-webkit-details-marker { display: none; }
+.summary:focus-visible { outline: 2px solid var(--accent-2); outline-offset: -2px; }
+
+.eyebrow,
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.summary strong {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.power { font-family: var(--font-mono); font-size: 11px; color: var(--paper-dim); }
+
+.body {
+  min-width: 0;
+  padding: 9px 11px 11px;
+  border-top: 1px solid var(--hairline);
+  display: grid;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+
+.goals,
+.turnReport { display: grid; gap: 5px; font-size: 12px; }
+.goalText,
+.quiet { color: var(--paper-dim); }
+
+.change {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  border-top: 1px solid rgba(44, 58, 48, 0.55);
+  padding-top: 4px;
+}
+
+.changeValue { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.positive .changeValue,
+.completed { color: var(--ok); }
+.negative .changeValue { color: var(--crit); }
+.neutral .changeValue { color: var(--paper-dim); }
+
+@media (max-width: 900px) {
+  .briefing { width: min(360px, calc(100% - 20px)); }
+}
