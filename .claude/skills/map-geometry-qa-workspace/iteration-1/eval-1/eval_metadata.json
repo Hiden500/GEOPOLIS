@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "coastline-gap-triage",
+  "prompt": "Проверь, остались ли в текущих данных карты сценария 1946 года (этот репозиторий) разрывы между сушей и морем/озером. Если найдёшь кандидатов, определи, какие из них реальные видимые разрывы, а какие — шум (например, несовпадение узлов вдоль административных границ). Не нужно ничего чинить — только диагностика с чётким выводом.",
+  "assertions": [
+    "Response names at least one specific concrete gap location (region/country/coordinate), not just an aggregate count",
+    "Agent produced or explicitly consulted a visual render (image file or rendering script run), not just numeric script output",
+    "Agent explicitly re-verifies or questions a prior script's 'idempotent / 0 on rerun' claim rather than treating it as proof there are no remaining gaps",
+    "Agent distinguishes real gaps from noise using a signal beyond raw compactness alone (e.g. aspect ratio, absolute width in km, or explicit visual inspection at adequate zoom) or explicitly flags land-seam noise as a distinct risk",
+    "Agent does not conclude 'no gaps found, all clean' without citing a visual/render-based check"
+  ]
+}

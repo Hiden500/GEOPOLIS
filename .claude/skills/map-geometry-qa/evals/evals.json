@@ -1,0 +1,42 @@
+{
+  "skill_name": "map-geometry-qa",
+  "evals": [
+    {
+      "id": 1,
+      "name": "coastline-gap-triage",
+      "prompt": "Проверь, остались ли в текущих данных карты сценария 1946 года (этот репозиторий) разрывы между сушей и морем/озером. Если найдёшь кандидатов, определи, какие из них реальные видимые разрывы, а какие — шум (например, несовпадение узлов вдоль административных границ). Не нужно ничего чинить — только диагностика с чётким выводом.",
+      "expected_output": "Агент использует рендер (не только числовые diagnostics) для подтверждения находок, явно проверяет 'idempotent/0 при повторном прогоне' предыдущих скриптов вместо того, чтобы доверять им на слово, и различает реальные разрывы от шума не только через compactness, а не просто перечисляет числа из diagnose-скрипта.",
+      "expectations": [
+        "Response names at least one specific concrete gap location (region/country/coordinate), not just an aggregate count",
+        "Agent produced or explicitly consulted a visual render (image file or rendering script run), not just numeric script output",
+        "Agent explicitly re-verifies or questions a prior script's 'idempotent / 0 on rerun' claim rather than treating it as proof there are no remaining gaps",
+        "Agent distinguishes real gaps from noise using a signal beyond raw compactness alone (e.g. aspect ratio, absolute width in km, or explicit visual inspection at adequate zoom) or explicitly flags land-seam noise as a distinct risk",
+        "Agent does not conclude 'no gaps found, all clean' without citing a visual/render-based check"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "kirkuk-iraq-seam",
+      "prompt": "Между Iraq и Kirkuk (после недавнего выделения Киркука в отдельный регион в scripts/map/) образовался небольшой зазор на карте 1946 года. Как лучше всего его закрыть?",
+      "expected_output": "Агент рекомендует gap-first подход через absorb_slivers/geometry_cleanup.py, а НЕ buffer()-based заполнение зазора, объясняет почему buffer-подход плох, и советует рендер-верификацию результата.",
+      "expectations": [
+        "Recommends a gap-first approach via absorb_slivers / geometry_cleanup.py (or an existing pipeline script that uses it) as the primary method",
+        "Explicitly recommends against a buffer()-based fill, with a stated reason (not just an unexplained preference)",
+        "Grounds the recommendation in this repo's actual context (references how Kirkuk was actually carved out, e.g. EXTRA_SINGLE_FEATURES/ZONED_GEOMETRIC in build_asia_1946.py, or the specific existing script)",
+        "Recommends render-based verification of the result, not only a numeric/count-based check"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "greenland-threshold",
+      "prompt": "У восточного побережья Гренландии есть компактная (не лентовидная) ячейка, которую существующий скрипт absorb_slivers не поглощает из-за порога компактности. Стоит ли ослабить общий порог MAX_COMPACT_AREA/compactness, чтобы эту ячейку тоже закрыть?",
+      "expected_output": "Агент НЕ рекомендует слепо ослаблять общий порог, объясняет риск случайно поглотить настоящий небольшой невнесённый водоём, и предлагает более узкое решение или явно указывает на нужду в решении пользователя.",
+      "expectations": [
+        "Does not simply recommend loosening the shared/global compactness threshold without qualification",
+        "Explicitly names the risk of swallowing a real, small, not-yet-modeled lake (or an equivalent correctly-reasoned risk)",
+        "Notes that the threshold is shared across multiple calling scripts / has a broad blast radius, not scoped to just this one case",
+        "Proposes a more targeted alternative approach, or explicitly frames this as needing a user/product decision, rather than just complying or just refusing outright"
+      ]
+    }
+  ]
+}

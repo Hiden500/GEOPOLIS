@@ -11606,7 +11606,7 @@
   {
     "id": 805,
     "geoJsonId": "NAM-0009",
-    "area": 3428376.8,
+    "area": 3428309.2,
     "neighboringRegionIds": [
       804,
       806,
@@ -12468,7 +12468,7 @@
   {
     "id": 870,
     "geoJsonId": "NAM-0074",
-    "area": 2154717.5,
+    "area": 2154668.6,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "NAM-0074"
@@ -13743,7 +13743,7 @@
   {
     "id": 963,
     "geoJsonId": "NAM-0167",
-    "area": 25202.5,
+    "area": 25276.5,
     "neighboringRegionIds": [
       966
     ],
@@ -13754,7 +13754,7 @@
   {
     "id": 964,
     "geoJsonId": "NAM-0168",
-    "area": 24534.2,
+    "area": 24534.4,
     "neighboringRegionIds": [
       810,
       966,
@@ -13767,7 +13767,7 @@
   {
     "id": 965,
     "geoJsonId": "NAM-0169",
-    "area": 43566.3,
+    "area": 43989.0,
     "neighboringRegionIds": [
       810,
       1051,
@@ -13780,7 +13780,7 @@
   {
     "id": 966,
     "geoJsonId": "NAM-0170",
-    "area": 58130.3,
+    "area": 58364.3,
     "neighboringRegionIds": [
       963,
       964,
@@ -13881,7 +13881,7 @@
   {
     "id": 973,
     "geoJsonId": "NAM-0177",
-    "area": 32866.2,
+    "area": 32866.3,
     "neighboringRegionIds": [
       970,
       974,
@@ -13943,7 +13943,7 @@
   {
     "id": 977,
     "geoJsonId": "NAM-0181",
-    "area": 20386.2,
+    "area": 20500.9,
     "neighboringRegionIds": [
       810,
       973,
@@ -14195,7 +14195,7 @@
   {
     "id": 994,
     "geoJsonId": "NAM-0198",
-    "area": 1489241.6,
+    "area": 1489242.3,
     "neighboringRegionIds": [
       806,
       813
@@ -14234,7 +14234,7 @@
   {
     "id": 997,
     "geoJsonId": "NAM-0201",
-    "area": 31918.3,
+    "area": 31918.9,
     "neighboringRegionIds": [
       995,
       998,
@@ -14321,7 +14321,7 @@
   {
     "id": 1003,
     "geoJsonId": "NAM-0207",
-    "area": 58461.4,
+    "area": 58461.8,
     "neighboringRegionIds": [
       1001,
       1002,
@@ -15005,7 +15005,7 @@
   {
     "id": 1051,
     "geoJsonId": "NAM-0255",
-    "area": 37077.9,
+    "area": 37079.8,
     "neighboringRegionIds": [
       961,
       962,
@@ -15020,7 +15020,7 @@
   {
     "id": 1052,
     "geoJsonId": "NAM-0256",
-    "area": 74204.0,
+    "area": 74204.6,
     "neighboringRegionIds": [
       965,
       1050,
@@ -15419,7 +15419,7 @@
   {
     "id": 1078,
     "geoJsonId": "SAM-0013",
-    "area": 1121.0,
+    "area": 1121.2,
     "neighboringRegionIds": [
       1079
     ],
