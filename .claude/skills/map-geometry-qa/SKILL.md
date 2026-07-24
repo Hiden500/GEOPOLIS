@@ -1034,6 +1034,31 @@ do it in a post-step (`fill_palestine_egypt_gap.py`).
   always vastly bigger than the "aggressor" (a small island), so there's
   no structural risk of the water disappearing the way small islands did
   in the original direction.
+- **The "longest shared boundary wins" rule (already used for same-iso
+  overlaps and sliver absorption) applies just as well between two
+  DIFFERENT countries — a border overlap between independently-digitized
+  countries is the same "zipper" phenomenon `geometry_cleanup.py` already
+  fights for gaps, just showing up as intersections instead of holes.**
+  The last remaining overlap in the whole dataset (2026-07-23) was
+  Ponta Porã (Brazil) vs Presidente Hayes (Paraguay) — not a territorial
+  dispute, just two countries' raw ADM1 sources drawing their shared
+  ~240 km border slightly differently, producing 33 separate small
+  intersection fragments strung along its length (0.0002-44.7 km² each)
+  rather than one blob. Resolved per-fragment by comparing shared-
+  boundary length with each side and assigning the fragment to whichever
+  is longer — identical principle to `resolve_same_iso_overlaps`, just
+  applied point-in-time for a single known cross-country pair rather
+  than as a general same-iso pass (there was only one instance in the
+  entire dataset, so a small standalone script was proportionate; don't
+  generalize to "diff every country pair" without evidence more exist).
+  Side note that cost some investigation time: "Presidente Hayes" in
+  this dataset is not the Paraguayan department of that name — it's
+  ALL OF PARAGUAY merged into one region (18 raw provinces collapsed to
+  1 by the geometric clustering step, and the winning name happened to
+  be that department's). A region's display name is not proof of its
+  geographic extent when a country has been clustered down to a single
+  feature — check `source_adm1`/actual bounds before assuming a named
+  region matches its literal namesake's boundaries.
 
 ## Positional-file fragility (silent, untested)
 
