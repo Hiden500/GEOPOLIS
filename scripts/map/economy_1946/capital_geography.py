@@ -19,6 +19,20 @@ region_economy_1946.py и его тест исторически без внеш
 (см. test_validate_region_economy_1946.py, докстринг "без новых
 зависимостей"), а полный geometry-стек (Shapely/pyproj) — только
 build-пайплайн (scripts/map/AGENTS.md), не сам валидатор.
+
+Тот же принцип "заметно неработающая, а не тихо неработающая" применён и к
+geojson-стороне (2026-07-26, независимое ревью): build_region_geometries()
+фильтрует features по properties.type == "region" — если этот ключ когда-
+нибудь переименуют/переструктурируют в world_1946.geojson, фильтр молча
+вернёт {} (или почти пусто), а find_containing_regions() будет возвращать
+[] для КАЖДОГО якоря. validate_capital_geography() при пустом containing
+пишет warning, а не молчит (см. её докстринг), так что per-анкорная
+деградация видна и без этой проверки -- но ПОЛНАЯ потеря (0 регионов
+вместо ~1400) это не "у DNK нет покрытия", это "invariant 15 не работает
+вообще", и заслуживает жёсткого падения (ValueError), а не 13 строк [warn],
+которые легко пролистать глазами наравне с обычным выводом. MIN_EXPECTED_
+REGIONS ниже ловит это тем же способом, что и MIN_EXPECTED_TS_ANCHORS для
+TS-стороны.
 """
 import json
 import re
@@ -28,11 +42,14 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 GENERATE_MAP_FEATURES_TS = REPO_ROOT / "server" / "src" / "scenarios" / "generateMapFeatures.ts"
 WORLD_GEOJSON = REPO_ROOT / "client" / "public" / "world_1946.geojson"
 
-# Ниже этого числа найденных записей — считаем, что TS-файл переформатирован
-# несовместимо с регэкспом (не то, что список внезапно стал короче: он
-# описывает курированные крупные державы, урезание ниже этого порога
-# подозрительно само по себе).
-MIN_EXPECTED_TS_ANCHORS = 10
+# Текущее число реальных записей в CAPITAL_OVERRIDES (generateMapFeatures.ts) —
+# держим ТОЧНЫМ, не "с запасом": цель порога — поймать ЧАСТИЧНУЮ потерю
+# записей при рассинхроне регэкспа с форматом файла (не только полный отказ
+# парсера), см. независимое ревью 2026-07-26 (.agent/plans/capital-region-
+# invariant.md, находка 6) — порог 10 при 13 реальных записях пропустил бы
+# потерю 3 из них молча. При намеренном добавлении/удалении якоря в
+# generateMapFeatures.ts обнови и это число.
+MIN_EXPECTED_TS_ANCHORS = 13
 
 _TS_BLOCK_RE = re.compile(
     r"CAPITAL_OVERRIDES\s*:\s*Record<[^>]*>\s*=\s*\{(?P<body>.*?)\n\s*\};", re.S,
@@ -133,18 +150,34 @@ def _bbox(geometry: dict) -> tuple[float, float, float, float]:
     return (min(xs), min(ys), max(xs), max(ys))
 
 
-def load_region_geometries() -> dict[int, dict]:
-    """region numeric id -> {"geometry": GeoJSON geometry dict, "bbox": (minx,
-    miny, maxx, maxy)}, только для features с properties.type == "region"
-    (исключает "ocean"-фичи world_1946.geojson). bbox — дешёвый предфильтр
-    перед точным ray casting (полигоны побережий/архипелагов бывают на
-    тысячи точек)."""
-    if not WORLD_GEOJSON.exists():
-        raise FileNotFoundError(f"{WORLD_GEOJSON} не найден.")
-    with open(WORLD_GEOJSON, encoding="utf-8") as f:
-        gj = json.load(f)
+# Текущее ~1399-1406 (см. .agent/plans/capital-region-invariant.md). Порог
+# держим с запасом (не точным, в отличие от MIN_EXPECTED_TS_ANCHORS — число
+# регионов МЕНЯЕТСЯ легитимно почти при каждой правке геометрии, в отличие
+# от 13 курированных держав), но достаточным, чтобы поймать конкретно
+# найденный независимым ревью 2026-07-26 сценарий: properties.type
+# переименован/переструктурирован в world_1946.geojson -> фильтр ниже молча
+# возвращает {} (0 регионов) -- любой порог выше нуля уже ловит именно это.
+MIN_EXPECTED_REGIONS = 1000
+
+
+def build_region_geometries(features: list[dict]) -> dict[int, dict]:
+    """Чистая функция (список GeoJSON features -> geometries) — тестируется
+    синтетическим списком фич, без чтения реального файла. region numeric
+    id -> {"geometry": GeoJSON geometry dict, "bbox": (minx, miny, maxx,
+    maxy)}, только для features с properties.type == "region" (исключает
+    "ocean"-фичи world_1946.geojson). bbox — дешёвый предфильтр перед точным
+    ray casting (полигоны побережий/архипелагов бывают на тысячи точек).
+
+    Падает громко (ValueError), если после фильтра осталось подозрительно
+    мало регионов — см. MIN_EXPECTED_REGIONS и модульный докстринг: без
+    этой проверки find_containing_regions() тихо возвращал бы [] для
+    каждого якоря -- каждый анкор получил бы свой [warn] (validate_
+    capital_geography это уже не пропускает молча), но 13 warning вместо
+    12 честных проверок + 1 -- это фактически "invariant 15 сломан
+    целиком", а не "чуть меньше покрытия", и должно падать, а не тонуть
+    в обычном выводе."""
     out: dict[int, dict] = {}
-    for feat in gj.get("features", []):
+    for feat in features:
         props = feat.get("properties", {})
         if props.get("type") != "region":
             continue
@@ -152,7 +185,25 @@ def load_region_geometries() -> dict[int, dict]:
         if geom is None:
             continue
         out[props["id"]] = {"geometry": geom, "bbox": _bbox(geom)}
+    if len(out) < MIN_EXPECTED_REGIONS:
+        raise ValueError(
+            f"world_1946.geojson: после фильтра properties.type == 'region' "
+            f"осталось только {len(out)} регионов (ожидалось >= "
+            f"{MIN_EXPECTED_REGIONS}) -- вероятно, properties.type "
+            "переименован/переструктурирован в geojson (или файл повреждён/"
+            "пуст), а не число регионов реально упало настолько. Если "
+            "сокращение намеренное, обнови MIN_EXPECTED_REGIONS "
+            "(scripts/map/economy_1946/capital_geography.py)."
+        )
     return out
+
+
+def load_region_geometries() -> dict[int, dict]:
+    if not WORLD_GEOJSON.exists():
+        raise FileNotFoundError(f"{WORLD_GEOJSON} не найден.")
+    with open(WORLD_GEOJSON, encoding="utf-8") as f:
+        gj = json.load(f)
+    return build_region_geometries(gj.get("features", []))
 
 
 def find_containing_regions(

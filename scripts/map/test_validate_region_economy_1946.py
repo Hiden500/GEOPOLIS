@@ -18,8 +18,14 @@ from validate_region_economy_1946 import (
     validate_structural_invariants,
     validate_capital_anchor_names,
     validate_capital_geography,
+    validate_capital_override_applied,
 )
-from economy_1946.capital_geography import parse_ts_capital_overrides, point_in_geometry
+from economy_1946.capital_geography import (
+    parse_ts_capital_overrides,
+    point_in_geometry,
+    build_region_geometries,
+    MIN_EXPECTED_REGIONS,
+)
 
 CATALOG = {"resources": {"food": {"category": "agricultural", "eraIntroduced": 1836}}}
 
@@ -125,9 +131,14 @@ class ValidateStructuralInvariantsTest(unittest.TestCase):
 # (validate_capital_anchor_names) и реальная географическая точка
 # (validate_capital_geography).
 def make_capital_name_fixture():
+    # region 3 -- та же ловушка, что реальные "Northern"/"Southern"/"Eastern"
+    # (18/11/10 совпадений по имени по всему миру, см. .agent/plans/capital-
+    # region-invariant.md): регион с ПОДХОДЯЩИМ ИМЕНЕМ, но у ДРУГОЙ страны.
+    # Substring-only проверка (до 2026-07-26) прошла бы это молча.
     regions = [
         {"id": 1, "ownerCountryId": "AAA", "names": {"en": "Capital City", "ru": "Столица"}},
         {"id": 2, "ownerCountryId": "AAA", "names": {"en": "Other Province", "ru": "Другая провинция"}},
+        {"id": 3, "ownerCountryId": "ZZZ", "names": {"en": "Capital City East", "ru": "Восточная Столица"}},
     ]
     overrides = {"AAA": 1}
     anchor_names = {"AAA": "Capital City"}
@@ -135,7 +146,7 @@ def make_capital_name_fixture():
 
 
 class ValidateCapitalAnchorNamesTest(unittest.TestCase):
-    def test_no_violation_when_current_name_matches_anchor(self):
+    def test_no_violation_when_current_name_and_owner_match_anchor(self):
         regions, overrides, anchor_names = make_capital_name_fixture()
 
         violations = validate_capital_anchor_names(regions, overrides, anchor_names)
@@ -150,6 +161,19 @@ class ValidateCapitalAnchorNamesTest(unittest.TestCase):
 
         self.assertTrue(
             any("AAA" in v and "Other Province" in v and "Capital City" in v for v in violations), violations
+        )
+
+    def test_catches_id_drifted_to_a_different_countrys_region_with_a_matching_name(self):
+        # Сердце находки 1 независимого ревью: имя совпадает (region 3
+        # содержит "Capital City"), но регион принадлежит ZZZ, не AAA --
+        # это ДОЛЖНО провалиться, даже при substring-совпадении имени.
+        regions, overrides, anchor_names = make_capital_name_fixture()
+        overrides["AAA"] = 3
+
+        violations = validate_capital_anchor_names(regions, overrides, anchor_names)
+
+        self.assertTrue(
+            any("AAA" in v and "ZZZ" in v and "владелец" in v for v in violations), violations
         )
 
     def test_catches_missing_override_entry_for_known_anchor(self):
@@ -187,37 +211,79 @@ def make_capital_geometry_fixture():
 
 
 class ValidateCapitalGeographyTest(unittest.TestCase):
-    def test_no_violation_when_anchor_point_inside_capital_region(self):
+    def test_no_violation_or_warning_when_anchor_point_inside_capital_region(self):
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
 
-        violations = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
 
         self.assertEqual(violations, [])
+        self.assertEqual(warnings, [])
 
     def test_catches_capital_region_not_containing_the_real_point(self):
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
         countries[0]["capitalRegionId"] = 2  # столица страны на самом деле в регионе 1, не 2
 
-        violations = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
 
         self.assertTrue(any("AAA" in v and "[1]" in v for v in violations), violations)
+        self.assertEqual(warnings, [])
 
-    def test_silently_skips_when_point_inside_no_known_region(self):
+    def test_produces_warning_not_violation_when_point_inside_no_known_region(self):
         # Не решаемо однозначно (огрубление геометрии на границе региона,
         # см. DNK/Копенгаген в docstring validate_capital_geography) --
-        # не violation, страну всё ещё защищает validate_capital_anchor_names.
+        # не violation (страну всё ещё защищает validate_capital_anchor_names),
+        # но и не тишина (2026-07-26, независимое ревью, находка 4) --
+        # деградация покрытия должна быть видна в warnings, не молчать.
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
         capital_anchors["AAA"] = (100.0, 100.0)  # далеко от обоих квадратов
 
-        violations = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
 
         self.assertEqual(violations, [])
+        self.assertTrue(any("AAA" in w for w in warnings), warnings)
 
     def test_skips_anchor_for_country_absent_from_countries_json(self):
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
         countries.clear()
 
-        violations = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
+
+        self.assertEqual(violations, [])
+        self.assertEqual(warnings, [])
+
+
+def make_capital_override_sync_fixture():
+    countries = [{"id": "AAA", "capitalRegionId": 1}, {"id": "BBB", "capitalRegionId": 2}]
+    overrides = {"AAA": 1, "BBB": 2}
+    return countries, overrides
+
+
+class ValidateCapitalOverrideAppliedTest(unittest.TestCase):
+    def test_no_violation_when_countries_json_matches_overrides_table(self):
+        countries, overrides = make_capital_override_sync_fixture()
+
+        violations = validate_capital_override_applied(countries, overrides)
+
+        self.assertEqual(violations, [])
+
+    def test_catches_countries_json_out_of_sync_with_overrides_table(self):
+        # Сердце находки 3 независимого ревью: таблица уже поправлена (BBB
+        # ожидает id 2), но countries.json не пересобран (всё ещё хранит
+        # старое значение 999) -- ни validate_capital_anchor_names (читает
+        # только таблицу), ни validate_capital_geography (только 13 стран
+        # с координатами) сам по себе такое не поймает.
+        countries, overrides = make_capital_override_sync_fixture()
+        countries[1]["capitalRegionId"] = 999  # не пересобрано после правки таблицы
+
+        violations = validate_capital_override_applied(countries, overrides)
+
+        self.assertTrue(any("BBB" in v and "999" in v and "2" in v for v in violations), violations)
+
+    def test_skips_override_entry_for_country_absent_from_countries_json(self):
+        countries, overrides = make_capital_override_sync_fixture()
+        countries.clear()
+
+        violations = validate_capital_override_applied(countries, overrides)
 
         self.assertEqual(violations, [])
 
@@ -263,6 +329,42 @@ class CapitalGeographyHelpersTest(unittest.TestCase):
         # громко, не молча вернуть пустой словарь (тихо отключив invariant 15).
         with self.assertRaises(ValueError):
             parse_ts_capital_overrides("const SOMETHING_ELSE = {};")
+
+    def _make_region_feature(self, region_id: int) -> dict:
+        return {
+            "properties": {"id": region_id, "type": "region"},
+            "geometry": SQUARE_LOW,
+        }
+
+    def test_build_region_geometries_extracts_only_region_type_features(self):
+        features = [
+            self._make_region_feature(i) for i in range(MIN_EXPECTED_REGIONS + 5)
+        ] + [
+            {"properties": {"id": 99999, "type": "ocean"}, "geometry": SQUARE_HIGH},
+        ]
+
+        geometries = build_region_geometries(features)
+
+        self.assertEqual(len(geometries), MIN_EXPECTED_REGIONS + 5)
+        self.assertNotIn(99999, geometries)
+
+    def test_build_region_geometries_raises_loudly_when_almost_nothing_survives_the_filter(self):
+        # Находка 2 независимого ревью (2026-07-26): если properties.type
+        # переименуют/переструктурируют в world_1946.geojson, этот фильтр
+        # тихо вернул бы {} (или почти пусто) -- find_containing_regions()
+        # молчал бы для КАЖДОГО якоря, а validate_capital_geography() читал
+        # бы это как "точка не в полигоне" (warning, не violation) для
+        # каждой из 13 держав -- invariant 15 отключился бы целиком, а
+        # "Все проверки пройдены чисто" осталось бы на экране. Должно
+        # падать громко вместо этого.
+        features = [self._make_region_feature(i) for i in range(5)]
+
+        with self.assertRaises(ValueError):
+            build_region_geometries(features)
+
+    def test_build_region_geometries_raises_on_completely_empty_input(self):
+        with self.assertRaises(ValueError):
+            build_region_geometries([])
 
 
 if __name__ == "__main__":

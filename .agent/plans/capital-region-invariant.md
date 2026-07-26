@@ -104,9 +104,9 @@ lat/lon if justified, with the one hard constraint "not the positional id"):
   Cross-checked the ray-casting result against Shapely for all 13 real
   anchors (scratch script, not committed) — 100% agreement, including the
   one boundary edge case (DNK/Copenhagen, point not exactly inside any
-  polygon — handled by silently skipping rather than guessing a
-  nearest-match, see the function's docstring). Coverage: only the 13
-  countries `generateMapFeatures.ts` has coordinates for.
+  polygon — handled as a visible `[warn]` coverage note, not a silent skip,
+  see the function's docstring and the independent-review section below).
+  Coverage: only the 13 countries `generateMapFeatures.ts` has coordinates for.
 - **Name-anchor** (region's `names.en` at the override's id must contain an
   expected string, itself not tied to build order): added as a second,
   complementary mechanism (`CAPITAL_REGION_ANCHOR_NAMES` in the new
@@ -161,16 +161,31 @@ lat/lon if justified, with the one hard constraint "not the positional id"):
       via `generate_country_registry.py` (no geometry rebuild).
 - [x] 7. Tests: 13 new unit tests in `test_validate_region_economy_1946.py`
       (both new invariants + the `capital_geography` helpers), all passing;
-      full suite 22/22.
-- [x] 8. Regression smoke test: reverted `SUN` to its stale id 318 in
-      `capital_overrides.py`, confirmed `validate_capital_anchor_names`
-      caught it immediately (pre-regen); regenerated `countries.json` with
-      the bad value and confirmed `validate_capital_geography` ALSO caught
-      it independently; reverted both files back to the fixed state and
-      re-confirmed a clean 0-violation run.
+      full suite 22/22 (later 29/29, see item 11).
+- [x] 8. Regression smoke test (round 1, later found to overstate
+      independence — see item 11): reverted `SUN` to its stale id 318 in
+      `capital_overrides.py` AND regenerated `countries.json` together,
+      confirmed both new invariants failed with a clear message; reverted
+      back and re-confirmed a clean 0-violation run.
 - [x] 9. Ran full applicable verification matrix (see Validation).
 - [x] 10. Docs: this plan, dated addendum on the 2026-07-23 remap plan,
       `docs/DECISIONS.md` entry.
+- [x] 11. Independent review (2026-07-26, same day, before merge) found 6
+      issues, 2 marked required — see "Independent review" section below
+      for the full list and resolution of each. Summary: added an owner
+      check to the name-anchor invariant (generic ADM1 names like
+      "Northern" matched 18 unrelated regions worldwide without it); added
+      a loud-failure guard to the geojson region loader (mirroring the
+      existing TS-anchor guard); added a third invariant checking
+      `countries.json` against the override table directly (closes a gap
+      neither of the first two covers on its own); changed the "point not
+      in any polygon" case from silent to a visible `[warn]` line with an
+      explicit coverage count; rewrote the drift-violation message to
+      present both possible causes instead of just one; tightened
+      `MIN_EXPECTED_TS_ANCHORS` from 10 to 13. Re-ran the regression smoke
+      test honestly (each artifact reverted independently, not together)
+      and corrected the plan/`docs/DECISIONS.md` wording that had
+      overstated what it proved. Full suite now 29/29.
 
 ## Discoveries
 
@@ -277,21 +292,117 @@ unresolved finding** (see Unknowns).
   reference to the main checkout, does not modify it. Left in place
   (gitignored, does not appear in `git status`/diff).
 
+## Independent review (2026-07-26)
+
+A same-day independent reviewer (different model, per `AGENTS.md`'s
+"независимый рецензент" role) audited the diff and live data before merge.
+Verdict on the mechanism as a whole: real, not decorative; checks not
+weakened anywhere; validator diff additive; ray casting correct including
+antimeridian handling; the 9 fixed values and the 7 dead entries confirmed;
+22/22 tests reproduced. No critical findings. Six non-critical findings, two
+marked required because they changed what the checks actually catch:
+
+1. **Required — invariant 14 didn't check owner; substring match on common
+   ADM1 names proves almost nothing.** Measured on live data (independently
+   reproduced here, exact match): `"Northern"` matches 18 regions worldwide,
+   `"Southern"` 11, `"Eastern"` 10. Failure scenario: if ZMB's id drifted
+   from 1296 to any of 1201/1228/1368/1388 (Malawi/Ethiopia/France/PNG, all
+   containing "Southern" as a substring), the name-only check would pass
+   silently — exactly the drift class this whole plan exists to catch.
+   **Fix:** added `region["ownerCountryId"] == code` to the condition in
+   `validate_capital_anchor_names` (`validate_region_economy_1946.py`).
+   Verified: owner-filtering shrinks all three 18/11/10 candidate sets to
+   exactly 1 (matching the current table values, 0 regressions); all 55
+   live entries already satisfy the combined name+owner condition.
+2. **Required — `load_region_geometries` could silently disable invariant
+   15.** If `properties.type` in `world_1946.geojson` is ever renamed/
+   restructured, the `!= "region"` filter would return `{}`, every anchor's
+   `find_containing_regions` would return `[]`, and (pre-fix)
+   `validate_capital_geography` treated empty-containing as "inconclusive,
+   skip" — invariant 15 would go dark with no visible symptom. **Fix:**
+   extracted the filter into a pure `build_region_geometries(features)`
+   (`economy_1946/capital_geography.py`) that raises `ValueError` if fewer
+   than `MIN_EXPECTED_REGIONS` (1000; real count ~1399-1406) survive the
+   filter — same "fail loud, not quiet" principle already used for
+   `MIN_EXPECTED_TS_ANCHORS` on the TS side.
+3. **Gap between the two artifacts, and an overclaim about the regression
+   test.** The original regression smoke test reverted the table AND
+   regenerated `countries.json` together, then claimed "both invariants
+   catch it immediately" — true only for that combined revert, not an
+   independent double-confirmation. Reverting each artifact alone: table-
+   only revert trips invariant 14 but not 15 (untouched `countries.json`);
+   `countries.json`-only revert (hand-edited, bypassing the generator) trips
+   15 but not 14 (untouched table). Neither check alone sees a desync
+   *between* the two artifacts, and the other ~42 countries without a
+   coordinate anchor were covered only by the owner check that missed the
+   original bug. **Fix:** added `validate_capital_override_applied`
+   (new invariant 16) — checks `countries.json[code].capitalRegionId ==
+   CAPITAL_REGION_OVERRIDES[code]` for all 55 live entries. Corrected the
+   overclaiming wording in this plan and in `docs/DECISIONS.md`.
+4. **Silent skip of "point not in any polygon."** Was a true no-op (not
+   even a warning) when an anchor's point isn't contained by any known
+   region — currently 1/13 (DNK) and harmless, but a future coastline
+   simplification could push out more coastal capitals and the report text
+   would not change at all. **Fix:** `validate_capital_geography` now
+   returns `(violations, warnings)`; empty-containing produces a warning,
+   printed with a distinct `[warn]` tag plus an explicit coverage line
+   ("N/13 anchors resolved geometrically") in `main()`'s report, so
+   degradation is visible even though it's not a hard failure.
+5. **Invariant 14's message pointed at only one of two possible fixes.**
+   The old wording ("looks like positional drift, resync
+   CAPITAL_REGION_OVERRIDES") is wrong for the legitimate-rename case,
+   where the id is still correct and `CAPITAL_REGION_ANCHOR_NAMES` is what's
+   stale — following the old message in that case would move a capital to
+   the WRONG region. **Fix:** rewrote the violation message to present both
+   hypotheses explicitly and tell the reader to check `names.en.json`/git
+   history before picking one.
+6. **Minor, discretionary — TS regex strictness + threshold precision.**
+   `MIN_EXPECTED_TS_ANCHORS = 10` against 13 real entries allowed silently
+   losing up to 3 before the guard fired, contradicting the module
+   docstring's claim that an incomplete set "won't pass silently." **Fix:**
+   tightened to `13` (the current exact count; comment instructs bumping it
+   on any intentional add/remove). Left the regex itself as-is — the
+   tightened threshold now guarantees any format drift the regex can't
+   parse is caught immediately, which was judged sufficient without also
+   generalizing the pattern.
+
 ## Validation
 
 Run from `.claude/worktrees/capital-region-invariant` (cwd noted per command):
 
 - `python scripts/map/validate_region_economy_1946.py` (repo root) — exit 0,
-  "Все проверки пройдены чисто" (with the 2 new invariants active).
+  "Все проверки пройдены чисто", now printing an explicit coverage line
+  ("Географическое покрытие invariant 15: 12/13 якорей...") and one
+  `[warn]` line for DNK (visible, not silent — see review finding 4).
 - `python scripts/map/test_validate_region_economy_1946.py -v` (repo root) —
-  22/22 passed (9 pre-existing + 13 new).
-- Scripted regression smoke test (not a committed test, ad-hoc): reverting
-  `SUN` to its stale id made both new invariants fail with the expected
-  message; reverting back restored the clean run — proves the invariants
-  are load-bearing.
-- `cd server && npx tsc --noEmit -p tsconfig.json` — exit 0, no output.
-- `cd server && npm test` — 48 test files, 680 passed / 1 skipped (681) —
-  identical numbers to the 2026-07-23 remap's own baseline.
+  **29/29 passed** (22 from before the review + 7 new: owner-mismatch case
+  for invariant 14, 3 for the new invariant 16, 3 for the
+  `build_region_geometries` loud-failure guard).
+- Regression smoke test, redone honestly per the review (each artifact
+  reverted INDEPENDENTLY, not together) — exact observed matrix:
+  - Revert ONLY `capital_overrides.py` (SUN 320->318), leave `countries.json`
+    untouched: invariant 14 FAILS (table names Chukotka, expected Moscow);
+    invariant 16 FAILS (table says 318, `countries.json` says 320); **invariant
+    15 does NOT fail** (it reads `countries.json`, which is still correct).
+  - Revert ONLY `countries.json` (hand-edit SUN back to 318), leave the
+    table untouched: invariant 15 FAILS (318's polygon doesn't contain
+    Moscow's coordinates); invariant 16 FAILS (mismatch, same as above);
+    **invariant 14 does NOT fail** (it reads the table, which is still
+    correct).
+  - Reverting both together (the original, realistic "geometry shifted,
+    `countries.json` regenerated from a now-stale table" scenario):
+    invariants 14, 15, AND 16 all fail.
+  - Restored both artifacts afterward; re-confirmed a clean 0-violation run.
+  Honest conclusion: invariant 16 is the one that catches an artifact-level
+  desync regardless of which side is stale; invariants 14 and 15 each only
+  see their own respective source, exactly as their docstrings say now.
+- `cd server && npx tsc --noEmit -p tsconfig.json` — exit 0, no output
+  (re-run not needed after the review round — no `.ts`/data files changed,
+  only the three Python files above).
+- `cd server && npm test` — 48 test files, 680 passed / 1 skipped (681),
+  from the pre-review round — identical numbers to the 2026-07-23 remap's
+  own baseline; not re-run post-review since no server-consumed file
+  changed in that round.
 - NOT run: `.agent/evals/public/run_public_evals.py` — this task changed
   game data + a Python validator, not agent configuration, so the public
   eval is not mandated by `AGENTS.md`'s trigger rule; skipped given the
@@ -308,25 +419,29 @@ failure).
 
 Additive + one data regen, all within this worktree/branch:
 - New files: `scripts/map/economy_1946/capital_overrides.py`,
-  `scripts/map/economy_1946/capital_geography.py`.
+  `scripts/map/economy_1946/capital_geography.py` (incl. the
+  `build_region_geometries` loud-failure guard added post-review).
 - Modified: `scripts/map/generate_country_registry.py` (63-line inline dict
   replaced by an import), `scripts/map/validate_region_economy_1946.py`
-  (2 new invariant functions + wiring), `scripts/map/test_validate_region_economy_1946.py`
-  (new test classes), `server/data/scenarios/1946/countries.json`
+  (3 invariant functions — 14/15/16 — + wiring + `[warn]`-tagged coverage
+  reporting), `scripts/map/test_validate_region_economy_1946.py` (new test
+  classes, 29 total new+existing), `server/data/scenarios/1946/countries.json`
   (9 `capitalRegionId` values changed, nothing else).
 Revert via `git revert` of the relevant commit(s), or drop the branch — no
 effect on `main` or any other worktree until explicitly merged.
 
 ## Final outcome
 
-All progress items complete. Changed: see Rollback section file list.
-Baseline failures: 0. Introduced failures: 0 (confirmed via the full
-validation matrix above). Unresolved/deferred (see Assumptions/Unknowns):
-`AGO` capital region (needs a geometry/regrouping decision, out of bounds
-here); ~48 non-coordinate-anchored `CAPITAL_REGION_OVERRIDES` entries and
-~100 fallback-heuristic countries not individually re-verified against real
-coordinates (would need new sourced data — flagged as follow-up, not
-invented here); `ARE` (Trucial Coast) has no capital override at all.
-Fresh-session requirement: none to continue this specific plan; a *separate*
-follow-up task would be needed to source real coordinates for the
-non-covered countries if full coverage is ever wanted.
+All progress items complete, including the post-review round (item 11).
+Changed: see Rollback section file list. Baseline failures: 0. Introduced
+failures: 0 (confirmed via the full validation matrix above, including the
+honest per-artifact regression re-test). Unresolved/deferred (see
+Assumptions/Unknowns): `AGO` capital region (needs a geometry/regrouping
+decision, out of bounds here); ~48 non-coordinate-anchored
+`CAPITAL_REGION_OVERRIDES` entries and ~100 fallback-heuristic countries not
+individually re-verified against real coordinates (would need new sourced
+data — flagged as follow-up, not invented here); `ARE` (Trucial Coast) has
+no capital override at all. Fresh-session requirement: none to continue
+this specific plan; a *separate* follow-up task would be needed to source
+real coordinates for the non-covered countries if full coverage is ever
+wanted.
