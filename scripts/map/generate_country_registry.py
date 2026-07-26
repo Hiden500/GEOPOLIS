@@ -38,6 +38,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.region_files import load_regions_combined, write_regions_state
+from economy_1946.capital_overrides import CAPITAL_REGION_OVERRIDES as CAPITAL_REGION_OVERRIDES_DATA
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
@@ -697,75 +698,15 @@ def main():
 
     # region_id — ПОЗИЦИОННЫЙ хардкод (см. scripts/map/AGENTS.md "Каскад
     # region_id"): любое изменение числа регионов ЛЮБОЙ страны сдвигает
-    # нумерацию всего после неё. Проверка — validate_region_economy_1946.py.
-    # 2026-07-23: 46 из 61 записи протухли (пакеты A/B этой ветки добавили/
-    # переставили регионы) — id пересчитаны поиском текущего region_id по
-    # имени из комментария (names.en.json/names.ru.json), с проверкой
-    # владельца (regions.state.json). 0 расхождений владельца после
-    # пересчёта — см. docs/DECISIONS.md 2026-07-23.
-    CAPITAL_REGION_OVERRIDES = {
-        "SUN": 318,   # Москва
-        "USA": 990,   # Округ Колумбия (Вашингтон)
-        "GBR": 124,   # Большой Лондон
-        "FRA": 108,   # Иль-де-Франс (Париж)
-        "DNK": 67,    # Столичный регион (Копенгаген)
-        "CAN": 810,   # Онтарио (Оттава)
-        "BRA": 1079,  # Рио-де-Жанейро
-        "ITA": 175,   # Лацио (Рим)
-        "JPN": 573,   # Канто (Токио)
-        "TWN": 382,   # Цзянсу (Нанкин)
-        "AFG": 449,   # Баглан (Кабул)
-        "EGY": 1157,  # Каир
-        "NFD": 804,   # Newfoundland, содержит St. John's
-        "QWL": 847,   # Antigua, содержит St. John's — резиденцию Governor
-        "QWW": 869,   # Grenada, содержит St. George's — резиденцию Governor
-        "QND": 867,   # Curaçao, содержит Willemstad
-        "MTQ": 797,   # Martinique, содержит Fort-de-France
-        "GLP": 798,   # Guadeloupe, содержит Basse-Terre
-        "QFW": 1302,  # Louga, содержит Dakar — столицу AOF
-        "QFE": 1347,  # Pool, содержит Brazzaville — столицу AEF
-        "QRU": 1349,  # Bujumbura Rural, содержит Usumbura — административный центр
-        "QZN": 1235,  # AFR-0092 "Zanzibar South and Central", содержит Zanzibar Town/Stone Town
-        "AGO": 1247,  # Cuando Cubango source polygon, содержащий Luanda
-        "MOZ": 1251,  # Gaza source polygon, содержит Lourenço Marques
-        "MDG": 1234,  # Bongolava source polygon, содержащий Tananarive
-        "GHA": 1272,  # Eastern source polygon, содержащий Accra
-        "KEN": 1267,  # Rift Valley source polygon, содержащий Nairobi
-        "NGA": 1219,  # Benue source polygon, содержащий Lagos
-        "SLE": 1336,  # AFR-0193 "Northern" — единственный Sierra Leone polygon, содержит Freetown
-        "ZMB": 1296,  # Southern source polygon, содержащий Lusaka
-        "ZWE": 1299,  # Mashonaland West source polygon, содержащий Salisbury
-        "QTB": 418,   # Xizang polygon, содержит Lhasa
-        "QSI": 501,   # Sikkim, содержит Gangtok
-        "QJK": 514,   # Jammu and Kashmir, содержит Srinagar
-        "QPI": 521,   # Goa, административный центр Portuguese India
-        "QFI": 524,   # Puducherry
-        "HKG": 478,   # Hong Kong
-        "IND": 529,   # Delhi
-        "LKA": 637,   # Ceylon, содержит Colombo
-        "MMR": 639,   # Bago source polygon, содержащий Rangoon
-        "MYS": 658,   # Perak source polygon, содержащий Kuala Lumpur
-        "SGP": 699,   # Singapore
-        "QNB": 654,   # Sabah, содержит Jesselton
-        "QSR": 655,   # Sarawak, содержит Kuching
-        "QLB": 657,   # Labuan
-        "QDV": 772,   # Hà Nội
-        "VNM": 774,   # Hồ Chí Minh city / Saigon
-        "QRI": 498,   # ASI-0121 "Jawa Barat" (dist=0 до Yogyakarta) — Java polygon, содержит Yogyakarta
-        "IDN": 479,   # Sulawesi Selatan, Dutch eastern-administration anchor
-        "MAC": 652,   # Macau
-        "QSH": 423,   # Sharjah
-        "QRK": 424,   # Ras Al Khaimah
-        "QAB": 425,   # Abu Dhabi
-        "QUQ": 426,   # Umm Al Quwain
-        "QAJ": 427,   # Ajman
-        "QFU": 428,   # Fujairah
-        "QDU": 429,   # Dubai
-        "QAD": 795,   # Lahij source polygon, содержащий Aden
-        "QPS": 1359,  # Northern Mariana Islands, Saipan administration anchor
-        "COK": 1360,  # Cook Islands, Rarotonga
-        "NFK": 1362,  # Norfolk Island, Kingston
-    }
+    # нумерацию всего после неё. Таблица вынесена в economy_1946/
+    # capital_overrides.py (2026-07-26, .agent/plans/capital-region-
+    # invariant.md) — единственный источник и для этого генератора, и для
+    # validate_region_economy_1946.py (invariant, не зависящий от самого
+    # id — см. docstring модуля). Там же полная история правок: 2026-07-23
+    # ремап 46/61 (owner-only проверка), 2026-07-26 — ещё 8/61, включая все
+    # найденные ремапом-07-23 пропущенные (та же owner-only проверка не
+    # ловит "владелец верный, регион — нет") плюс 7 мёртвых записей UAE.
+    CAPITAL_REGION_OVERRIDES = CAPITAL_REGION_OVERRIDES_DATA
 
     countries = []
     for country_id in sorted(final_owner_ids):

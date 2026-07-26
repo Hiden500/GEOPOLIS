@@ -14,6 +14,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
+from economy_1946.capital_geography import find_containing_regions, load_region_geometries, load_ts_capital_anchors
+from economy_1946.capital_overrides import CAPITAL_REGION_ANCHOR_NAMES, CAPITAL_REGION_OVERRIDES
 from economy_1946.country_splits import CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT, AUSTRIA_SPLIT
 from economy_1946.region_files import load_regions_layers, combine_regions, load_json, SCENARIO_DIR
 from economy_1946.resource_catalog import load_resource_catalog, resources_introduced_after
@@ -89,6 +91,77 @@ def validate_structural_invariants(
         if missing:
             violations.append(f"region {r['id']} (geoJsonId={geo_id}): нет имени в локали(ях) {missing}.")
 
+    return violations
+
+
+def validate_capital_anchor_names(
+    regions: list[dict], overrides: dict[str, int], anchor_names: dict[str, str],
+) -> list[str]:
+    """capitalRegionId, назначенный через CAPITAL_REGION_OVERRIDES (economy_1946/
+    capital_overrides.py), должен резолвиться в регион с ОЖИДАЕМЫМ именем
+    (CAPITAL_REGION_ANCHOR_NAMES) -- имя источника (ADM1-топоним) не зависит
+    от build-порядка, в отличие от самого id (см. docstring capital_overrides.py).
+    Ловит именно тот класс дрейфа, который invariant 11 (capital принадлежит
+    региону страны) пропускает: id сместился на ДРУГОЙ регион ТОЙ ЖЕ страны
+    (Chukotka вместо Moscow -- оба принадлежат SUN, owner-проверка проходит,
+    имя -- нет). Отдельно от validate_structural_invariants: завязана на
+    реальную историческую таблицу 1946 года, не применима к произвольной
+    синтетической фикстуре региона/страны."""
+    violations: list[str] = []
+    by_id = {r["id"]: r for r in regions}
+    for code, expected_name in anchor_names.items():
+        rid = overrides.get(code)
+        if rid is None:
+            violations.append(
+                f"{code}: есть в CAPITAL_REGION_ANCHOR_NAMES ('{expected_name}'), "
+                f"но нет записи в CAPITAL_REGION_OVERRIDES -- таблицы рассинхронизированы."
+            )
+            continue
+        region = by_id.get(rid)
+        if region is None:
+            continue  # уже поймано invariant 11 (capitalRegionId существует)
+        actual_name = region.get("names", {}).get("en", "")
+        if expected_name not in actual_name:
+            violations.append(
+                f"{code}: CAPITAL_REGION_OVERRIDES['{code}']={rid} сейчас резолвится "
+                f"в регион '{actual_name}', ожидалось имя, содержащее '{expected_name}' "
+                f"-- похоже на позиционный дрейф id после регенерации геометрии "
+                f"(scripts/map/economy_1946/capital_overrides.py нужно пересинхронизировать)."
+            )
+    return violations
+
+
+def validate_capital_geography(
+    countries: list[dict],
+    capital_anchors: dict[str, tuple[float, float]],
+    region_geometries: dict[int, dict],
+) -> list[str]:
+    """Самый сильный доступный якорь: страна с известной реальной точкой
+    столицы (lon, lat) -- server/src/scenarios/generateMapFeatures.ts::
+    CAPITAL_OVERRIDES, см. economy_1946/capital_geography.py -- должна иметь
+    capitalRegionId, чей ПОЛИГОН СОДЕРЖИТ эту точку. Полностью не зависит от
+    id, имени региона или build-порядка -- географическая точка не может
+    "сместиться". Если точка не содержится НИ ОДНИМ регионом (например,
+    из-за огрубления береговой линии у самой границы полигона -- наблюдалось
+    для Копенгагена/DNK), это не решается однозначно (может быть верно) --
+    молча пропускается, а не репортится как violation/warning: страна всё
+    равно защищена validate_capital_anchor_names выше, если у неё есть
+    запись в CAPITAL_REGION_OVERRIDES."""
+    violations: list[str] = []
+    by_country = {c["id"]: c for c in countries}
+    for code, anchor in capital_anchors.items():
+        country = by_country.get(code)
+        if country is None:
+            continue
+        actual_id = country.get("capitalRegionId")
+        containing = find_containing_regions(anchor, region_geometries)
+        if containing and actual_id not in containing:
+            lon, lat = anchor
+            violations.append(
+                f"{code}: capitalRegionId={actual_id} не содержит географическую точку "
+                f"реальной столицы (lon={lon}, lat={lat}) -- точка находится в регионе(ах) "
+                f"{containing}, не в {actual_id}."
+            )
     return violations
 
 
@@ -206,6 +279,21 @@ def main() -> int:
         )
     else:
         warnings.append(f"Китай (CHN+TWN+QMS) сумма: {china_total:,} (не задвоен, в допуске).")
+
+    # 14. capitalRegionId резолвится в регион с ОЖИДАЕМЫМ ИМЕНЕМ (не самим id —
+    # см. docstring economy_1946/capital_overrides.py и .agent/plans/
+    # capital-region-invariant.md). Ловит позиционный дрейф id, который
+    # invariant 11 (capital принадлежит региону СТРАНЫ) пропускает, когда id
+    # после регенерации указывает на ДРУГОЙ регион ТОЙ ЖЕ страны.
+    violations.extend(validate_capital_anchor_names(regions, CAPITAL_REGION_OVERRIDES, CAPITAL_REGION_ANCHOR_NAMES))
+
+    # 15. capitalRegionId резолвится в регион, чей полигон СОДЕРЖИТ реальную
+    # географическую точку столицы — самый сильный якорь (не id, не имя),
+    # но охватывает только страны с курированными координатами в
+    # generateMapFeatures.ts (см. economy_1946/capital_geography.py).
+    capital_anchors = load_ts_capital_anchors()
+    region_geometries = load_region_geometries()
+    violations.extend(validate_capital_geography(countries, capital_anchors, region_geometries))
 
     # Отчёт
     print(f"Регионов: {len(regions)}, стран/владельцев: {len(by_owner)}")
