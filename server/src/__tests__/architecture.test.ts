@@ -261,10 +261,18 @@ describe("Fitness-функция: правило 2 — мутации через
   // budget.ts. Внутренние детерминированные тики (DiplomacyTick, WarTick и
   // т.п.) вне периметра — они продолжают вызывать сервисы напрямую, это не
   // "внешний инициатор" в терминах критерия.
+  //
+  // Движок примитивов (2026-07-26) — четвёртый такой инициатор: он применяет
+  // намерения LLM и игрока и обязан идти через server/src/commands/politics.ts.
+  // Каталогом, а не поимённым списком: новый verb в этой папке должен попадать
+  // под правило сам, без правки теста.
   const TARGET_FILES = [
     "server/src/simulation/ai/AiBehaviorTick.ts",
     "server/src/services/LLMService.ts",
     "server/src/routes/budget.ts",
+    ...collectFiles(path.join(REPO_ROOT, "server", "src", "primitives"), [".ts"])
+      .filter(f => !f.endsWith(".test.ts"))
+      .map(relRepo),
   ];
 
   // .economy./.diplomacy./.politics./.military. путь, за которым следует
@@ -272,7 +280,7 @@ describe("Fitness-функция: правило 2 — мутации через
   // "грубая проверка grep'ом" философия, что и у правила 4/5 в этом файле.
   const DIRECT_MUTATION_PATTERN = /\.(economy|diplomacy|politics|military)\.[\w[\]'".]*\s*(=[^=]|[-+*]=)/g;
 
-  it("AiBehaviorTick/LLMService/budget.ts не пишут в .economy./.diplomacy./.politics./.military. напрямую — только через server/src/commands/", () => {
+  it("AiBehaviorTick/LLMService/budget.ts/primitives не пишут в .economy./.diplomacy./.politics./.military. напрямую — только через server/src/commands/", () => {
     const violations: string[] = [];
 
     for (const relPath of TARGET_FILES) {
@@ -313,11 +321,18 @@ describe("Fitness-функция: правило 4 — баланс в defines, 
   // файле), не полноценный парсер.
   const NUMBER_IN_EXPRESSION = /(?:[*/+<>-]=?|\breturn\s)\s*(-?\d+\.\d+|-?\d{2,})(?![\w.])/g;
 
-  it("в server/src/simulation/**/*.ts (кроме *.test.ts) нет числовых литералов баланса вне const NAME = ...", () => {
-    const violations: string[] = [];
-    const dir = path.join(REPO_ROOT, "server", "src", "simulation");
+  // primitives/** добавлен 2026-07-26 вместе с движком примитивов: он считает
+  // магнитуды эффектов, то есть ровно тот баланс, ради которого правило
+  // существует. Все его коэффициенты обязаны жить в shared/src/defines/.
+  const BALANCE_DIRS = [
+    path.join(REPO_ROOT, "server", "src", "simulation"),
+    path.join(REPO_ROOT, "server", "src", "primitives"),
+  ];
 
-    for (const file of collectFiles(dir, [".ts"])) {
+  it("в server/src/{simulation,primitives}/**/*.ts (кроме *.test.ts) нет числовых литералов баланса вне const NAME = ...", () => {
+    const violations: string[] = [];
+
+    for (const file of BALANCE_DIRS.flatMap(dir => collectFiles(dir, [".ts"]))) {
       if (file.endsWith(".test.ts")) continue;
 
       const relPath = relRepo(file);

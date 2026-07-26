@@ -14,6 +14,8 @@
  * Тестовый v0 среза — пять глаголов из ~18 полного алфавита.
  */
 
+import { type PrimitiveIntensity } from "@shared/types/politics/PrimitiveIntensity";
+
 export const PRIMITIVE_VERBS = [
   "incite_unrest",
   "repress",
@@ -35,9 +37,16 @@ export function isStructural(verb: PrimitiveVerb): boolean {
   return STRUCTURAL_VERBS.includes(verb);
 }
 
-/** Качественный хинт силы. Число из него делает движок, не LLM. */
-export const PRIMITIVE_INTENSITIES = ["mild", "moderate", "severe"] as const;
-export type PrimitiveIntensity = (typeof PRIMITIVE_INTENSITIES)[number];
+/**
+ * Качественный хинт силы. Число из него делает движок, не LLM. Словарь живёт в
+ * `shared/src/types/politics/PrimitiveIntensity.ts`, потому что им типизирован
+ * `PRIMITIVE_INTENSITY_POSITION` в `shared/src/defines/discontent.ts`; здесь —
+ * реэкспорт, чтобы потребители движка импортировали всё из одного места.
+ */
+export {
+  PRIMITIVE_INTENSITIES,
+  type PrimitiveIntensity,
+} from "@shared/types/politics/PrimitiveIntensity";
 
 /** Направление реформы по экономической оси. */
 export const REFORM_ECONOMIC_DIRECTIONS = ["left", "right"] as const;

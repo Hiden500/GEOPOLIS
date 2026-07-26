@@ -55,6 +55,13 @@ region_id обязателен ExecPlan (`.agent/PLANS.md`).
 ```text
 python scripts/map/validate_region_economy_1946.py
 python scripts/map/test_validate_region_economy_1946.py
+python scripts/map/validate_demographics_1946.py
+python scripts/map/test_validate_demographics_1946.py
 ```
+
+Первая пара покрывает `regions.core.json`/`regions.state.json`/`countries.json`
+и локализацию имён, вторая — слои демографии и идеологии (`groups.json`,
+`demographics.json`, `ideology.json`). Запускать обе: слои проверяются
+разными скриптами и один другого не подменяет.
 
 Отчёт всегда разделяет validator pass и непроверенный full rebuild.

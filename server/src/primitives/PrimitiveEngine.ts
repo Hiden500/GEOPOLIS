@@ -4,23 +4,28 @@ import { type MapFeatureType } from "@shared/types/map/MapFeature";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
 import {
+  findImpactMemory,
   ideologyDistance,
   regionDiscontent,
   resolveIdeologyCoordinates,
 } from "@shared/utils/discontent";
 import {
-  PRIMITIVE_INTENSITY_MULTIPLIER,
   PRIMITIVE_DEFAULT_INTENSITY,
   INCITE_UNREST_MIN_DISTANCE,
-  INCITE_UNREST_EMBOLDENMENT_BASE,
-  REPRESS_SUPPRESSION_BASE,
-  REPRESS_ALIENATION_BASE,
-  GRANT_AUTONOMY_CONCESSION_BASE,
-  GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_BASE,
+  INCITE_UNREST_EMBOLDENMENT_MIN,
+  INCITE_UNREST_EMBOLDENMENT_MAX,
+  REPRESS_SUPPRESSION_MIN,
+  REPRESS_SUPPRESSION_MAX,
+  REPRESS_ALIENATION_MIN,
+  REPRESS_ALIENATION_MAX,
+  GRANT_AUTONOMY_CONCESSION_MIN,
+  GRANT_AUTONOMY_CONCESSION_MAX,
   SPAWN_INCIDENT_MIN_DISCONTENT,
-  SPAWN_INCIDENT_EMBOLDENMENT_BASE,
+  SPAWN_INCIDENT_EMBOLDENMENT_MIN,
+  SPAWN_INCIDENT_EMBOLDENMENT_MAX,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
-  ENACT_REFORM_COORDINATE_STEP,
+  ENACT_REFORM_COORDINATE_STEP_MIN,
+  ENACT_REFORM_COORDINATE_STEP_MAX,
   ENACT_REFORM_POLITICAL_COST,
   MAX_SOFT_PRIMITIVES_PER_BATCH,
   MAX_STRUCTURAL_PRIMITIVES_PER_BATCH,
@@ -31,11 +36,24 @@ import { type CommandResult } from "../commands/types";
 import { collectChangedPaths } from "./statePaths";
 import { findPaletteViolations } from "./palette";
 import {
+  magnitudeFromState,
+  coerciveCapacity,
+  repressSuppressionFactor,
+  repressAlienationFactor,
+  concessionFactor,
+  neighbourEmboldenment,
+  inciteFactor,
+  incidentFactor,
+  reformMandateFactor,
+  shareWeightedMean,
+} from "./magnitude";
+import {
   type AppliedPrimitive,
   type IncidentKind,
   type Primitive,
   type PrimitiveBatchResult,
   type PreconditionResult,
+  type PrimitiveIntensity,
   type RejectedPrimitive,
   isStructural,
 } from "./types";
@@ -47,6 +65,12 @@ import {
  * **Compute** (магнитуду считает движок из состояния и качественных params) →
  * **Apply** (только поля палитры, атомарно).
  *
+ * Фаза Compute вынесена в `magnitude.ts`: величина каждого эффекта — коридор
+ * `[MIN, MAX]`, потолок которого определяет состояние мира, а качественный хинт
+ * LLM выбирает лишь позицию внутри разрешённого. При «пустом» состоянии коридор
+ * схлопывается, и `severe` не отличается от `mild` (docs/PRIMITIVES.md §1 —
+ * «хинт клампится»).
+ *
  * Три защиты, которые здесь реализованы буквально:
  *   1. Reject целиком, не частично — примитив, упавший на любом шаге,
  *      откатывается к снимку до себя; «полусобытий» не бывает.
@@ -57,15 +81,16 @@ import {
  *      (palette.ts) в рантайме, а не только в тесте.
  *
  * Работа идёт на структурном клоне состояния; в настоящий `game` результат
- * попадает одним присваиванием в конце (commit). Порядок массива — порядок
+ * попадает одним переносом в конце (commit, см. `restore` — он сохраняет
+ * идентичность объектов, чтобы ссылки, взятые до вызова, оставались живыми).
+ * Порядок массива — порядок
  * исполнения (§4): каждый следующий примитив видит эффект предыдущего.
  * Структурные исполняются последними, и их reject не откатывает уже
  * применённые мягкие (§4).
  */
 
-function intensityMultiplier(primitive: Primitive): number {
-  const hint = primitive.params?.intensity ?? PRIMITIVE_DEFAULT_INTENSITY;
-  return PRIMITIVE_INTENSITY_MULTIPLIER[hint] ?? PRIMITIVE_INTENSITY_MULTIPLIER[PRIMITIVE_DEFAULT_INTENSITY]!;
+function intensityHint(primitive: Primitive): PrimitiveIntensity {
+  return primitive.params?.intensity ?? PRIMITIVE_DEFAULT_INTENSITY;
 }
 
 function findRegion(game: GameState, regionId: number | undefined): Region | undefined {
@@ -81,11 +106,20 @@ function regionLabel(region: Region): string {
  * Группы региона, на которые действует примитив: явно названная — только она,
  * иначе всё население региона (репрессии/уступки адресуются и региону тоже,
  * docs/PRIMITIVES.md §2 — target «регион/группа»).
+ *
+ * Возвращаются пары «группа + её доля»: доля — вход магнитуды, а не украшение.
+ * Один и тот же приказ по региону бьёт по 88 % доминанта и по 12 % меньшинству
+ * с разной силой, поэтому величина считается для каждой группы отдельно.
  */
-function targetedGroups(region: Region, groupId: string | undefined): string[] {
-  const present = (region.demographics ?? []).map(d => d.groupId);
-  if (groupId === undefined) return present;
-  return present.includes(groupId) ? [groupId] : [];
+function targetedGroups(
+  region: Region,
+  groupId: string | undefined
+): { groupId: string; share: number }[] {
+  const present = region.demographics ?? [];
+  if (groupId === undefined) return present.map(d => ({ groupId: d.groupId, share: d.share }));
+  return present
+    .filter(d => d.groupId === groupId)
+    .map(d => ({ groupId: d.groupId, share: d.share }));
 }
 
 const INCIDENT_FEATURE_TYPE: Record<IncidentKind, MapFeatureType> = {
@@ -224,13 +258,27 @@ function failIfCommandFailed(results: CommandResult[]): string | undefined {
 }
 
 function apply(game: GameState, primitive: Primitive): ApplyOutcome {
-  const multiplier = intensityMultiplier(primitive);
+  const hint = intensityHint(primitive);
 
   switch (primitive.verb) {
     case "incite_unrest": {
       const region = findRegion(game, primitive.target.regionId)!;
       const groupId = primitive.target.groupId!;
-      const magnitude = INCITE_UNREST_EMBOLDENMENT_BASE * multiplier;
+
+      // Горючесть материала — ширина идеологического разрыва «власть ↔ группа»
+      // сверх порога, который примитив уже прошёл на validate. У самого порога
+      // запас нулевой, и `severe` не поднимет эффект выше минимума.
+      const definition = game.ethnicGroups.find(g => g.id === groupId)!;
+      const controller = game.countries.find(c => c.id === effectiveController(region));
+      const source = game.countries.find(c => c.id === primitive.sourceCountryId)!;
+      const authority = resolveIdeologyCoordinates((controller ?? source).politics);
+      const distance = ideologyDistance(authority, definition.desiredIdeology);
+      const magnitude = magnitudeFromState(
+        INCITE_UNREST_EMBOLDENMENT_MIN,
+        INCITE_UNREST_EMBOLDENMENT_MAX,
+        inciteFactor(distance),
+        hint
+      );
 
       const error = failIfCommandFailed([
         politicsCommands.addGroupImpact(game, region.id, groupId, { emboldenment: magnitude }),
@@ -252,12 +300,36 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
     case "repress": {
       const region = findRegion(game, primitive.target.regionId)!;
       const groups = targetedGroups(region, primitive.target.groupId);
-      const suppression = REPRESS_SUPPRESSION_BASE * multiplier;
-      const alienation = REPRESS_ALIENATION_BASE * multiplier;
+
+      // Эффективность подавления — способность власти применить силу
+      // (стабильность + легитимность) против массы конкретной группы.
+      // Отчуждение, наоборот, от умелости власти не зависит и растёт с долей.
+      const capacity = coerciveCapacity(
+        game.countries.find(c => c.id === effectiveController(region))
+      );
+      const perGroup = groups.map(g => ({
+        groupId: g.groupId,
+        share: g.share,
+        suppression: magnitudeFromState(
+          REPRESS_SUPPRESSION_MIN,
+          REPRESS_SUPPRESSION_MAX,
+          repressSuppressionFactor(capacity, g.share),
+          hint
+        ),
+        alienation: magnitudeFromState(
+          REPRESS_ALIENATION_MIN,
+          REPRESS_ALIENATION_MAX,
+          repressAlienationFactor(g.share),
+          hint
+        ),
+      }));
 
       const error = failIfCommandFailed(
-        groups.map(groupId =>
-          politicsCommands.addGroupImpact(game, region.id, groupId, { suppression, alienation })
+        perGroup.map(g =>
+          politicsCommands.addGroupImpact(game, region.id, g.groupId, {
+            suppression: g.suppression,
+            alienation: g.alienation,
+          })
         )
       );
       if (error) return { ok: false, reason: error };
@@ -266,12 +338,12 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         ok: true,
         applied: {
           verb: primitive.verb,
-          magnitude: suppression,
+          magnitude: shareWeightedMean(perGroup.map(g => ({ share: g.share, value: g.suppression }))),
           regionId: region.id,
           countryId: primitive.sourceCountryId,
           summary:
             `Security forces suppressed unrest in ${regionLabel(region)} ` +
-            `(${groups.length} group(s)); resentment deepened`,
+            `(${perGroup.length} group(s)); resentment deepened`,
         },
       };
     }
@@ -279,24 +351,37 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
     case "grant_autonomy": {
       const region = findRegion(game, primitive.target.regionId)!;
       const groups = targetedGroups(region, primitive.target.groupId);
-      const concession = GRANT_AUTONOMY_CONCESSION_BASE * multiplier;
-      const neighbourEffect = GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_BASE * multiplier;
 
-      const results: CommandResult[] = groups.map(groupId =>
-        politicsCommands.addGroupImpact(game, region.id, groupId, { concession })
+      // Величина уступки — охват (доля группы) × остаток доверия: накопленное
+      // отчуждение обесценивает жест, поэтому уступка после репрессий работает
+      // слабее, чем та же уступка до них.
+      const perGroup = groups.map(g => ({
+        groupId: g.groupId,
+        share: g.share,
+        concession: magnitudeFromState(
+          GRANT_AUTONOMY_CONCESSION_MIN,
+          GRANT_AUTONOMY_CONCESSION_MAX,
+          concessionFactor(g.share, findImpactMemory(game.groupImpactMemory, region.id, g.groupId)),
+          hint
+        ),
+      }));
+
+      const results: CommandResult[] = perGroup.map(g =>
+        politicsCommands.addGroupImpact(game, region.id, g.groupId, { concession: g.concession })
       );
 
       // Цена уступки (docs/CONCEPT.md §5.2): та же группа в соседних регионах
-      // осмелела. Соседи, где этой группы нет, не затрагиваются — команда
-      // отказала бы, поэтому их просто не трогаем, а не глотаем отказ.
+      // осмелела — ровно настолько, насколько громкой была сама уступка.
+      // Соседи, где этой группы нет, не затрагиваются — команда отказала бы,
+      // поэтому их просто не трогаем, а не глотаем отказ.
       for (const neighbourId of region.neighboringRegionIds) {
         const neighbour = findRegion(game, neighbourId);
         if (!neighbour) continue;
-        for (const groupId of groups) {
-          if (!neighbour.demographics?.some(d => d.groupId === groupId)) continue;
+        for (const g of perGroup) {
+          if (!neighbour.demographics?.some(d => d.groupId === g.groupId)) continue;
           results.push(
-            politicsCommands.addGroupImpact(game, neighbour.id, groupId, {
-              emboldenment: neighbourEffect,
+            politicsCommands.addGroupImpact(game, neighbour.id, g.groupId, {
+              emboldenment: neighbourEmboldenment(g.concession),
             })
           );
         }
@@ -309,7 +394,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         ok: true,
         applied: {
           verb: primitive.verb,
-          magnitude: concession,
+          magnitude: shareWeightedMean(perGroup.map(g => ({ share: g.share, value: g.concession }))),
           regionId: region.id,
           countryId: primitive.sourceCountryId,
           summary:
@@ -323,17 +408,38 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       const countryId = primitive.target.countryId ?? primitive.sourceCountryId;
       const { economicDirection, politicalDirection } = primitive.params ?? {};
 
+      // Глубина реформы — политический мандат сверх минимума, при котором она
+      // вообще проходит: широкая поддержка продавливает больший сдвиг за ту же
+      // фиксированную цену. Мандат читается ДО списания цены.
+      const country = game.countries.find(c => c.id === countryId)!;
+      const step = magnitudeFromState(
+        ENACT_REFORM_COORDINATE_STEP_MIN,
+        ENACT_REFORM_COORDINATE_STEP_MAX,
+        reformMandateFactor(country.politics.governmentSupport),
+        hint
+      );
+
       const deltaEconomic = economicDirection === undefined
         ? 0
-        : (economicDirection === "right" ? ENACT_REFORM_COORDINATE_STEP : -ENACT_REFORM_COORDINATE_STEP);
+        : (economicDirection === "right" ? step : -step);
       const deltaPolitical = politicalDirection === undefined
         ? 0
-        : (politicalDirection === "democratic" ? ENACT_REFORM_COORDINATE_STEP : -ENACT_REFORM_COORDINATE_STEP);
+        : (politicalDirection === "democratic" ? step : -step);
 
-      // Цена списывается первой: если платить нечем, координаты не сдвинутся
-      // вовсе (примитив отклоняется целиком и откатывается вызывающим).
+      // Цена списывается первой и её результат проверяется ДО сдвига: если
+      // платить нечем, координаты не двигаются вовсе. Последовательно, а не
+      // массивом команд — иначе обе успели бы исполниться, и инвариант держался
+      // бы только на внешнем откате. Сегодня ветка отказа недостижима
+      // (ENACT_REFORM_MIN_GOVERNMENT_SUPPORT > ENACT_REFORM_POLITICAL_COST,
+      // предпосылка отсеивает раньше) — поэтому и теста на неё нет; порядок
+      // здесь стоит как страховка на случай пересмотра этих двух чисел.
+      const paid = politicsCommands.spendGovernmentSupport(
+        game, countryId, ENACT_REFORM_POLITICAL_COST
+      );
+      const paymentError = failIfCommandFailed([paid]);
+      if (paymentError) return { ok: false, reason: paymentError };
+
       const error = failIfCommandFailed([
-        politicsCommands.spendGovernmentSupport(game, countryId, ENACT_REFORM_POLITICAL_COST),
         politicsCommands.shiftCountryIdeology(game, countryId, deltaEconomic, deltaPolitical),
       ]);
       if (error) return { ok: false, reason: error };
@@ -342,7 +448,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         ok: true,
         applied: {
           verb: primitive.verb,
-          magnitude: ENACT_REFORM_COORDINATE_STEP,
+          magnitude: step,
           countryId,
           summary:
             `Reform enacted in ${countryId}: ` +
@@ -355,7 +461,16 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
     case "spawn_incident": {
       const region = findRegion(game, primitive.target.regionId)!;
       const kind = primitive.params?.incidentKind ?? DEFAULT_INCIDENT_KIND;
-      const magnitude = SPAWN_INCIDENT_EMBOLDENMENT_BASE * multiplier;
+
+      // Крупность события — запас недовольства над порогом, который примитив
+      // уже прошёл на validate: регион на самой границе даёт минимум, кипящий —
+      // максимум коридора.
+      const magnitude = magnitudeFromState(
+        SPAWN_INCIDENT_EMBOLDENMENT_MIN,
+        SPAWN_INCIDENT_EMBOLDENMENT_MAX,
+        incidentFactor(regionDiscontent(game, region) ?? 0),
+        hint
+      );
 
       const mapFeatures = new MapFeatureService(game);
       // expiresAt намеренно не выставляется: MapFeatureService.removeExpiredFeatures()
@@ -402,8 +517,12 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
 
 /**
  * Порядок исполнения: мягкие в порядке массива, структурные — последними
- * (docs/PRIMITIVES.md §4). Возвращает пары «примитив + его позиция», чтобы
- * диагностика ссылалась на исходный порядок.
+ * (docs/PRIMITIVES.md §4, «структурный валидируется/коммитится последним»).
+ * Относительный порядок внутри каждого класса сохраняется — `filter` стабилен.
+ *
+ * Это осознанное расхождение с соседним требованием той же §4 («Движок не
+ * переупорядочивает»): два требования взаимоисключающи, выбрано более
+ * операционное. Цена расхождения и решение — `docs/DECISIONS.md` 2026-07-26.
  */
 function orderForExecution(primitives: readonly Primitive[]): Primitive[] {
   const soft = primitives.filter(p => !isStructural(p.verb));
@@ -500,11 +619,14 @@ export function applyPrimitiveBatch(
     applied.push(outcome.applied);
   }
 
-  // Commit: состояние подменяется целиком одним шагом. Промежуточных
-  // «полусостояний» настоящий game не видел ни разу.
-  restore(game, working);
+  // Commit: состояние переносится целиком одним шагом. Промежуточных
+  // «полусостояний» настоящий game не видел ни разу. Пустой батч (или батч, где
+  // всё отклонено) до состояния вообще не дотрагивается — `working` в этот
+  // момент побайтно равен `game`.
+  if (applied.length > 0) restore(game, working);
 
-  // Диагностика — уже в закоммиченное состояние, поэтому переживает подмену.
+  // Диагностика пишется ПОСЛЕ commit'а, прямо в боевое состояние: факты об
+  // отказах не участвуют в откате и не должны быть перетёрты переносом.
   for (const rejection of rejected) {
     game.pendingWorldFacts.push({
       countryId: rejection.sourceCountryId,
@@ -517,11 +639,58 @@ export function applyPrimitiveBatch(
 }
 
 /**
- * Переносит содержимое `source` в `target` по верхнеуровневым ключам. Именно
- * так выглядит атомарный commit/rollback для plain-JSON состояния: ссылка на
- * сам объект `game` остаётся прежней (её держат сервисы), а всё содержимое
- * заменяется разом.
+ * Атомарный commit/rollback для plain-JSON состояния: значения `source`
+ * переносятся в `target` **на месте**, без подмены объектов и массивов.
+ *
+ * Почему не `Object.assign`, как было до 2026-07-26: он подменял каждый
+ * верхнеуровневый объект клоном, и любая ссылка, взятая до вызова
+ * (`const region = game.regions.find(...)`), после commit'а указывала на
+ * отсоединённый объект — запись в неё терялась молча, чтение отдавало
+ * устаревшее. Сессия B зовёт движок из роутов и `LLMService` посреди хода,
+ * то есть ровно в этой ситуации. Второй дефект того же места: `Object.assign`
+ * не удаляет ключи, поэтому первый же verb, лениво заводящий новое поле в
+ * `GameState`, получал бы неполный откат.
+ *
+ * Идентичность сохраняется позиционно: элемент массива с индексом i остаётся
+ * тем же объектом. Для примитивов среза этого достаточно — ни один из них не
+ * переставляет и не удаляет регионы/страны. Верб, который начнёт это делать,
+ * обязан будет пересобирать ссылки сам (и это стоит отдельной проверки).
+ *
+ * Экспортируется ради прямого теста инвариантов переноса (удаление ключей,
+ * сохранение ссылок); снаружи движка вызывать её незачем.
  */
-function restore(target: GameState, source: GameState): void {
-  Object.assign(target, source);
+export function restore(target: GameState, source: GameState): void {
+  assignInPlace(target as unknown as Record<string, unknown>, source as unknown as Record<string, unknown>);
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function assignInPlace(target: Record<string, unknown>, source: Record<string, unknown>): void {
+  for (const key of Object.keys(target)) {
+    if (!(key in source)) delete target[key];
+  }
+
+  for (const [key, sourceValue] of Object.entries(source)) {
+    target[key] = mergeValue(target[key], sourceValue);
+  }
+}
+
+function mergeValue(targetValue: unknown, sourceValue: unknown): unknown {
+  if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
+    const merged = targetValue as unknown[];
+    merged.length = sourceValue.length;
+    for (let i = 0; i < sourceValue.length; i++) {
+      merged[i] = mergeValue(merged[i], sourceValue[i]);
+    }
+    return merged;
+  }
+
+  if (isPlainObject(sourceValue) && isPlainObject(targetValue)) {
+    assignInPlace(targetValue, sourceValue);
+    return targetValue;
+  }
+
+  return sourceValue;
 }

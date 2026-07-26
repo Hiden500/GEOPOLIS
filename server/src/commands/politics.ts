@@ -47,6 +47,23 @@ export function addGroupImpact(
     return { success: false, error: `Group ${groupId} does not live in region ${regionId}` };
   }
 
+  // Дельта проверяется ДО первой записи: тип `Partial<Record<...>>` допускает
+  // `undefined` (и вызывающий на JS-границе — что угодно), а `память + undefined`
+  // даёт NaN. NaN-недовольство ядовито тихо: `clamp01(NaN) === NaN`, обе ветки
+  // кризисного латча (DiscontentTick.ts) становятся ложными, и регион перестаёт
+  // и входить в кризис, и выходить из него — без единой жалобы. Поэтому отказ
+  // команды, а не санитайзинг: испорченный вход должен быть виден.
+  const sanitized: [ImpactField, number][] = [];
+  for (const [field, delta] of Object.entries(deltas) as [ImpactField, number | undefined][]) {
+    if (typeof delta !== "number" || !Number.isFinite(delta)) {
+      return {
+        success: false,
+        error: `Impact delta for '${field}' is not a finite number: ${String(delta)}`,
+      };
+    }
+    sanitized.push([field, delta]);
+  }
+
   let memory = game.groupImpactMemory.find(m => m.regionId === regionId && m.groupId === groupId);
   if (!memory) {
     memory = {
@@ -60,7 +77,7 @@ export function addGroupImpact(
     game.groupImpactMemory.push(memory);
   }
 
-  for (const [field, delta] of Object.entries(deltas) as [ImpactField, number][]) {
+  for (const [field, delta] of sanitized) {
     memory[field] = clamp(memory[field] + delta, IMPACT_MIN, IMPACT_MAX);
   }
 

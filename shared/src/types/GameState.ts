@@ -147,7 +147,7 @@ export interface GameState {
 
 /**
  * Вид детерминированного факта, обнаруженного движком (SimulationEngine.ts,
- * DiscontentTick.ts, движок примитивов). До 2026-07-26 факт был просто
+ * DiscontentTick.ts, ObjectiveTick.ts, движок примитивов). До 2026-07-26 факт был просто
  * `{countryId, text}` — потребитель не мог отличить «пересечён тир технологий»
  * от «отклонён примитив», хотя ведёт себя с ними по-разному (первое — материал
  * нарратива, второе — сигнал «не долбись в невозможное», docs/PRIMITIVES.md §3).
@@ -161,6 +161,7 @@ export type WorldFactKind =
   | "political_crisis"
   | "debt_crisis"
   | "region_crisis"
+  | "objective_completed"
   | "primitive_rejected";
 
 export interface WorldFact {

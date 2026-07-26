@@ -97,6 +97,9 @@ Starting commit: 43d05a4
 - [x] A5 движок примитивов (validate/compute/apply, рантайм-палитра, 5 verb, `commands/politics.ts`)
 - [x] A6 тесты: формула, каждый verb, палитра, расхождение веток, campaignSmoke на реальных данных
 - [x] Docs footprint + финальная верификация
+- [x] A7 доработка по независимому ревью (2026-07-26): state-зависимая магнитуда с клампом
+      хинта; commit без подмены идентичности; `validate_demographics_1946.py` в матрицах
+      проверок + self-тест; расхождение с `PRIMITIVES.md` §4 зафиксировано; мелкие правки
 
 ## Discoveries
 
@@ -185,3 +188,42 @@ Unresolved risks / fresh-session requirements:
   на 1399 регионах это заметно, но вызывается раз в ход — оптимизация не требовалась;
 - зафиксированные в `docs/TODO.md` предсуществующие дефекты (шкала `region.stability`,
   игнор `CommandResult` в `apply*Action`, wall-clock в `removeExpiredFeatures`) не чинились.
+
+## Доработка A7 по независимому ревью (2026-07-26)
+
+Ревью (другая модель, read-only) подтвердило палитру, атомарность, reject и границы worktree
+и нашло, что **центральное требование среза выполнено не было**: магнитуда всех пяти глаголов
+считалась как `КОНСТАНТА × множитель_хинта`, состояние в расчёт не входило, а тест
+`PrimitiveEngine.test.ts` ЗАКРЕПЛЯЛ линейное масштабирование (`severe/mild === 1.5/0.5`) как
+ожидаемое поведение. То есть не «недоделано», а «зафиксировано неправильным».
+
+Что сделано (детали и мотивировка — `docs/DECISIONS.md`, поправка от 2026-07-26):
+
+| Правка | Файлы |
+|---|---|
+| Магнитуда = коридор от состояния × позиция хинта; кламп; факторы состояния на все 5 глаголов | `server/src/primitives/magnitude.ts` (новый), `PrimitiveEngine.ts`, `shared/src/defines/discontent.ts` |
+| Словарь интенсивности в `shared`, позиции типизированы `Record<PrimitiveIntensity, number>` | `shared/src/types/politics/PrimitiveIntensity.ts` (новый), `server/src/primitives/types.ts` |
+| Commit/rollback без подмены идентичности объектов + удаление исчезнувших ключей | `PrimitiveEngine.ts::restore` |
+| Отказ команды на неконечной дельте (NaN-недовольство глушило кризисный латч) | `server/src/commands/politics.ts` + новый `__tests__/politics.test.ts` |
+| `kind: "objective_completed"` у факта завершения цели | `server/src/simulation/ObjectiveTick.ts`, `shared/src/types/GameState.ts` |
+| Fitness-правила 2 и 4 распространены на `server/src/primitives/**` | `server/src/__tests__/architecture.test.ts` |
+| `validate_demographics_1946.py` в обеих матрицах проверок + self-тест (15 кейсов) | `scripts/map/AGENTS.md`, `.agents/skills/verify-change/SKILL.md` + зеркало, `scripts/map/test_validate_demographics_1946.py` (новый) |
+| Комментарии приведены к коду: `orderForExecution`, порядок цены реформы | `PrimitiveEngine.ts` |
+
+Новые тесты: «одинаковые `params`, разное состояние → разные числа» на каждый глагол;
+«без способности применить силу хинт перестаёт что-либо значить» (коридор схлопнулся);
+«commit не отрывает ссылки от состояния» + «пустой батч не трогает состояние» +
+«перенос удаляет исчезнувшие ключи».
+
+Верификация A7: `server tsc` — 0 ошибок; `server npm test` — 52 файла, **760 passed**, 1 skipped
+(baseline A6: 51 файл, 742 passed); `client tsc` — 0 ошибок; `client npm test` — 10 файлов,
+102 passed; `python scripts/map/validate_demographics_1946.py` — OK;
+`python scripts/map/test_validate_demographics_1946.py` — 15 тестов OK;
+`python scripts/map/validate_region_economy_1946.py` + его self-тест — чисто;
+`python .agent/evals/public/run_public_evals.py` — 159 passed, 0 failed.
+
+Осознанно НЕ сделано в A7 (занесено в `docs/TODO.md`, раздел «Милстоун 0 — хвосты сессии A»):
+idempotency-key; кризисный кап (факт: 9 регионов пересекают порог на первом тике при
+hard-cap ≤ ~5); калибровка коридоров магнитуды; переделка исторических долей в seed-данных
+(датасет заменяется внешним наполнением; зафиксировано, что завышенная русская доля
+**занижает** недовольство и градиент `campaignSmoke` частично держится на анахронизме).

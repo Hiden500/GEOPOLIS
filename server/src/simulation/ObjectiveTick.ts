@@ -33,6 +33,7 @@ function evaluatePlayerGoals(game: GameState): void {
       goal.completed = true;
       game.pendingWorldFacts.push({
         countryId: player.id,
+        kind: "objective_completed",
         text: `${player.name} achieved its strategic goal: ${goalLabel(goal)}`,
       });
     }

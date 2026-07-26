@@ -1,4 +1,5 @@
 import { type IdeologyCoordinates } from "../types/politics/Ideology";
+import { type PrimitiveIntensity } from "../types/politics/PrimitiveIntensity";
 
 /**
  * Баланс-константы недовольства и примитивов воздействия
@@ -109,35 +110,107 @@ export const ENACT_REFORM_MIN_GOVERNMENT_SUPPORT = 25;
 
 // --- магнитуды эффектов (движок, не LLM) ---
 
-export const REPRESS_SUPPRESSION_BASE = 0.6;
-export const REPRESS_ALIENATION_BASE = 0.15;
+/**
+ * Магнитуда живёт в **коридоре** `[MIN, MAX]`, ширину которого задаёт состояние
+ * мира, а качественный хинт LLM лишь выбирает позицию ВНУТРИ него
+ * (docs/PRIMITIVES.md §1: «величину эффекта считает движок из состояния +
+ * params, хинт клампится»; §3: «LLM не влияет на число никогда»).
+ *
+ * Формула одна на все глаголы (server/src/primitives/magnitude.ts):
+ *
+ *     magnitude = MIN + (MAX − MIN) × stateFactor × intensityPosition
+ *
+ * где `stateFactor ∈ [0,1]` выводится из состояния, а `intensityPosition` —
+ * позиция хинта. Следствие, ради которого это и сделано: при `stateFactor → 0`
+ * коридор схлопывается, и `severe` даёт ровно столько же, сколько `mild` —
+ * хинт клампится состоянием, а не умножает его. Отношение `severe/mild` больше
+ * не константа: оно меняется вместе с миром.
+ *
+ * Все числа ниже — стартовые плейсхолдеры под калибровку (docs/TODO.md).
+ */
 
-export const GRANT_AUTONOMY_CONCESSION_BASE = 0.45;
-/** Уступка в регионе X делает ту же группу смелее в соседних регионах. */
-export const GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_BASE = 0.2;
+/** `repress`: подавление недовольства. Пол коридора — «любая сила что-то даёт». */
+export const REPRESS_SUPPRESSION_MIN = 0.2;
+export const REPRESS_SUPPRESSION_MAX = 0.95;
 
-export const INCITE_UNREST_EMBOLDENMENT_BASE = 0.25;
+/** `repress`: отчуждение — цена подавления, растёт с массовостью цели. */
+export const REPRESS_ALIENATION_MIN = 0.05;
+export const REPRESS_ALIENATION_MAX = 0.3;
 
-export const SPAWN_INCIDENT_EMBOLDENMENT_BASE = 0.1;
+/** Вклад стабильности власти в способность реально применить силу. */
+export const REPRESS_COERCION_STABILITY_WEIGHT = 0.6;
+/** Вклад легитимности: у власти без мандата силовики работают хуже. */
+export const REPRESS_COERCION_LEGITIMACY_WEIGHT = 0.4;
+
+/**
+ * Насколько доля группы в регионе сопротивляется подавлению: подавить 3 %
+ * меньшинство и 80 % доминанта — разные задачи. 1.0 означало бы «сплошную
+ * группу подавить невозможно вовсе».
+ */
+export const REPRESS_MAJORITY_RESISTANCE = 0.5;
+
+/**
+ * Доля отчуждения, которая возникает независимо от массовости цели (сам факт
+ * репрессии оскорбляет), — остальное добирается долей группы.
+ */
+export const REPRESS_ALIENATION_SHARE_BASE = 0.35;
+
+/** `grant_autonomy`: уступка адресату. */
+export const GRANT_AUTONOMY_CONCESSION_MIN = 0.15;
+export const GRANT_AUTONOMY_CONCESSION_MAX = 0.8;
+
+/**
+ * Уступка в регионе X делает ту же группу смелее в соседних регионах. Коридор
+ * проходится не хинтом, а фактической громкостью самой уступки: соседи
+ * реагируют на то, что произошло, а не на прилагательное в ответе модели.
+ */
+export const GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MIN = 0.05;
+export const GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MAX = 0.3;
+
+/** Доля уступки, доходящая до группы независимо от её размера в регионе. */
+export const GRANT_AUTONOMY_SHARE_BASE = 0.25;
+
+/**
+ * Насколько накопленное отчуждение обесценивает уступку: глубоко отчуждённая
+ * группа не верит в жест. Это вторая половина петли «загнал вглубь» —
+ * репрессия не только поднимает равновесие, но и портит будущие уступки.
+ */
+export const GRANT_AUTONOMY_ALIENATION_DISCOUNT = 0.7;
+
+/** `incite_unrest`: смелость группы. */
+export const INCITE_UNREST_EMBOLDENMENT_MIN = 0.08;
+export const INCITE_UNREST_EMBOLDENMENT_MAX = 0.45;
+
+/** `spawn_incident`: толчок смелости от самого события. */
+export const SPAWN_INCIDENT_EMBOLDENMENT_MIN = 0.04;
+export const SPAWN_INCIDENT_EMBOLDENMENT_MAX = 0.22;
 
 /** Шаг сдвига координат власти за одну реформу (по каждой затронутой оси). */
-export const ENACT_REFORM_COORDINATE_STEP = 0.1;
+export const ENACT_REFORM_COORDINATE_STEP_MIN = 0.06;
+export const ENACT_REFORM_COORDINATE_STEP_MAX = 0.26;
 
 /** Списание governmentSupport (0..100) за реформу — та самая «политическая цена». */
 export const ENACT_REFORM_POLITICAL_COST = 8;
 
+/** Потолок шкалы страновой политики (stability/legitimacy/governmentSupport). */
+export const COUNTRY_POLITICS_SCALE_MAX = 100;
+
 /**
- * Качественный хинт интенсивности от LLM → множитель магнитуды. LLM задаёт
- * только направление/характер («мягко»/«жёстко»), числа считает движок
- * (docs/PRIMITIVES.md §1). Хинт отсутствует — «moderate».
+ * Позиция качественного хинта внутри коридора магнитуды. LLM задаёт только
+ * характер («мягко»/«жёстко»), ширину коридора — состояние (docs/PRIMITIVES.md
+ * §1). Хинт отсутствует — «moderate».
+ *
+ * Тип — `Record<PrimitiveIntensity, number>`, а не `Record<string, number>`:
+ * новое значение интенсивности обязано ломать компиляцию здесь, а не тихо
+ * проваливаться в дефолт.
  */
-export const PRIMITIVE_INTENSITY_MULTIPLIER: Record<string, number> = {
-  mild: 0.5,
-  moderate: 1,
-  severe: 1.5,
+export const PRIMITIVE_INTENSITY_POSITION: Record<PrimitiveIntensity, number> = {
+  mild: 0.2,
+  moderate: 0.6,
+  severe: 1,
 };
 
-export const PRIMITIVE_DEFAULT_INTENSITY = "moderate";
+export const PRIMITIVE_DEFAULT_INTENSITY: PrimitiveIntensity = "moderate";
 
 // --- капы батча примитивов (docs/PRIMITIVES.md §4) ---
 
