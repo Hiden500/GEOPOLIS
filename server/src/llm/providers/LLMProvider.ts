@@ -7,5 +7,15 @@
  * остаются в `LLMService.processResponse()`, провайдер её не дублирует.
  */
 export interface LLMProvider {
-  generateResponse(prompt: string): Promise<string>;
+  /**
+   * @param responseSchema необязательная схема ответа в диалекте провайдера
+   *   (см. `toProviderSchema` в GeminiProvider). Нужна потому, что цикл мира —
+   *   не единственный structured-output запрос: перевод свободного приказа
+   *   игрока в примитивы (docs/PRIMITIVES.md §1, гибридный интерфейс) ждёт
+   *   другую форму ответа. Без параметра пришлось бы либо заводить второй
+   *   провайдер-класс ради одной константы, либо разбирать ответ по форме
+   *   мирового цикла, которой у перевода нет. Опущена — используется схема
+   *   мирового цикла, поведение прежних вызовов не меняется.
+   */
+  generateResponse(prompt: string, responseSchema?: Record<string, unknown>): Promise<string>;
 }

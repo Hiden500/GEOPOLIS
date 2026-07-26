@@ -107,7 +107,17 @@
       "stability": "Stability",
       "development": "Development",
       "resources": "Region resources",
-      "features": "Map objects"
+      "features": "Map objects",
+      "unrest": "Discontent and impact traces",
+      "inCrisis": "Crisis",
+      "discontent": "Discontent index",
+      "placeHistory": "History of this place",
+      "impact": {
+        "suppression": "suppression",
+        "alienation": "alienation",
+        "concession": "concession",
+        "emboldenment": "emboldenment"
+      }
     },
     "country": {
       "gdp": "GDP",
@@ -116,7 +126,10 @@
       "stability": "Stability",
       "legitimacy": "Legitimacy",
       "budgetBalance": "Budget balance",
-      "relations": "Key relations"
+      "relations": "Key relations",
+      "governmentSupport": "Government support",
+      "axisEconomic": "Economic course:",
+      "axisPolitical": "Political course:"
     },
     "featureTypes": {
       "capital": "capital",

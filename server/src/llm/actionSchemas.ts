@@ -2,6 +2,7 @@ import { z } from "zod";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 import { type LLMAction as SharedLLMAction } from "@shared/types/GameState";
+import { primitiveSchema, MAX_PRIMITIVES_PER_BATCH } from "../primitives/primitiveSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
   MAX_RELATION_CHANGE,
@@ -181,6 +182,15 @@ export const LLMResponseEnvelopeSchema = z.object({
   actions: z
     .array(z.unknown(), "Missing or invalid actions field")
     .max(MAX_ACTIONS_PER_RESPONSE, `Too many actions (max ${MAX_ACTIONS_PER_RESPONSE})`),
+  // Примитивы воздействия (docs/PRIMITIVES.md) — второй, независимый от
+  // `actions` канал: старые 11 действий остаются как есть (grandfather,
+  // §"Открытые вопросы"), новый алфавит живёт рядом. Здесь — только
+  // `unknown[]`, как и у `actions`: каждый элемент разбирается по отдельности
+  // (`parsePrimitives`), чтобы один битый примитив не ронял весь ответ.
+  // Необязательный: ответ без примитивов — законный (месяц без режиссуры).
+  // Кап длины проверяет `parsePrimitives` — он же сообщает причину, а не
+  // молча отбрасывает хвост.
+  primitives: z.array(z.unknown(), "Invalid primitives field").optional(),
 });
 
 /**
@@ -196,6 +206,11 @@ export const GeminiResponseSchema = z.object({
   title: z.string(),
   descriptions: z.string(),
   actions: z.array(LLMActionSchema).max(MAX_ACTIONS_PER_RESPONSE),
+  // Примитивы направляют генерацию тем же способом, что и действия: закрытые
+  // enum'ы глаголов и качественных параметров прямо в схеме — это и есть
+  // машинная формулировка «LLM не задаёт величины» на стороне модели, а не
+  // только на стороне валидатора (docs/PRIMITIVES.md §1).
+  primitives: z.array(primitiveSchema).max(MAX_PRIMITIVES_PER_BATCH),
 });
 
 // Компайл-тайм проверка: z.infer<LLMActionSchema> обязан структурно

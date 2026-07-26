@@ -178,6 +178,28 @@
   gap: 6px;
 }
 
+/* История места (docs/CONCEPT.md §5.6). Оформление намеренно скромное:
+   визуальный дизайн панели делает пользователь отдельно, здесь — читаемость и
+   перенос длинных локализованных строк без горизонтальной прокрутки. */
+.placeHistory {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.placeHistoryDate {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
 .kpis {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -283,4 +305,16 @@
   .panel {
     width: 84vw;
   }
+}
+
+/* Координаты идеологического курса — то, что двигает реформа. Моноширинные
+   числа, чтобы сдвиг на 0.04 был заметен между ходами, а не «прыгал». */
+.ideologyAxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
 }

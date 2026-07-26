@@ -176,6 +176,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     ethnicGroups: [],
     groupImpactMemory: [],
     regionCrisisLatch: [],
+    primitiveBatchKeys: [],
     hingePointShowCount: {},
     llmRespondedThisTurn: true,
     playerStanding: { power: 0, rank: 0, total: 0 },

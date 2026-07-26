@@ -153,6 +153,9 @@ export function createGame(
     ethnicGroups: structuredClone(scenario.ethnicGroups ?? []),
     groupImpactMemory: [],
     regionCrisisLatch: [],
+    // Журнал idempotency-ключей батчей примитивов (docs/CONCEPT.md §7.2) —
+    // у новой партии применённых батчей нет.
+    primitiveBatchKeys: [],
     hingePointShowCount: {},
     llmRespondedThisTurn: false,
     // Стартовая позиция игрока в рейтинге силы (docs/OBJECTIVES.md) —

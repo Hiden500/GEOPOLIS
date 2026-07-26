@@ -25,6 +25,7 @@ import { useWindows } from "../hooks/useWindows";
 import { BudgetPanel } from "./BudgetPanel";
 import { ResearchPanel } from "./ResearchPanel";
 import { PlayerIntentPanel } from "./PlayerIntentPanel";
+import { PrimitiveOrdersPanel } from "./PrimitiveOrdersPanel";
 import { WorldRankingPanel } from "./WorldRankingPanel";
 import { TerritoriesPanel } from "./TerritoriesPanel";
 import { LLMPanel } from "./LLMPanel";
@@ -67,6 +68,14 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
   );
 
   const selectedRegionId = selection?.type === "region" ? selection.regionId : null;
+
+  // Приказы игрока (подавление/автономия) требуют контроля над регионом — этого
+  // же требует движок примитивов. Быстрые кнопки не должны предлагать заведомо
+  // отклоняемое действие, поэтому чужой регион в панель приказов не уходит.
+  const selectedOwnRegionId =
+    selectedRegionId !== null && playerRegions.some(r => r.id === selectedRegionId)
+      ? selectedRegionId
+      : null;
 
   const regionModeColors = useMemo(
     () => (playerCountry ? computeMapModeColors(mapMode, game.regions, game.countries, playerCountry.id) : null),
@@ -307,6 +316,15 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
               regions={playerRegions}
               intent={game.playerIntent}
               onSave={handleSavePlayerIntent}
+            />
+            {/* Намерение и приказ — разные контракты, поэтому разные поля:
+                намерение направляет нарратив следующего цикла LLM, приказ
+                немедленно исполняется движком примитивов с валидацией
+                предпосылок (docs/PRIMITIVES.md §1). */}
+            <PrimitiveOrdersPanel
+              playerCountryId={playerCountry.id}
+              selectedRegionId={selectedOwnRegionId}
+              onApplied={handleLlmApplied}
             />
           </OrdersBox>
 

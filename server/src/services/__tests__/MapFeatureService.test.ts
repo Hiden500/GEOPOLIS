@@ -158,6 +158,7 @@ describe('MapFeatureService', () => {
       ethnicGroups: [],
       groupImpactMemory: [],
       regionCrisisLatch: [],
+      primitiveBatchKeys: [],
       hingePointShowCount: {},
       llmRespondedThisTurn: true,
       playerStanding: { power: 0, rank: 0, total: 0 },

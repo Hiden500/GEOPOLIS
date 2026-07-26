@@ -17,8 +17,15 @@ import { type GameState } from "./GameState";
  * regionCrisisLatch (демо-состав и память воздействий, docs/CONCEPT.md §4.1).
  * Старые сейвы (v3) отклоняются: без каталога групп движок не выведет
  * недовольство ни для одного региона.
+ *
+ * v5 (2026-07-26, тот же план, сессия B): новое обязательное поле
+ * GameState.primitiveBatchKeys — журнал idempotency-ключей применённых батчей
+ * примитивов (docs/CONCEPT.md §7.2). Сейв v4 без него загрузился бы с
+ * `undefined` вместо массива, то есть с отключённой защитой от двойного
+ * применения — молча и ровно там, где она нужна. Честный отказ вместо
+ * тихой деградации.
  */
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 
 export interface SaveFile {
   version: number;

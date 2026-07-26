@@ -1,8 +1,16 @@
+import { createHash } from "node:crypto";
 import { type z } from "zod";
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
+import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
+import { activeCrises, renderCrisis, renderHiddenCrises } from "../llm/crisisDigest";
+import { MAX_PROMPT_CRISES, REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/defines/discontent";
+import { PRIMITIVE_CONTRACT, PRIMITIVE_PLAYER_AGENCY_NOTE } from "../llm/primitiveContract";
+import { parsePrimitives } from "../primitives/primitiveSchemas";
+import { applyPrimitiveTurn, isDuplicatePrimitiveBatch } from "../primitives/turnBatch";
+import { splitByAgency } from "../llm/primitiveAgency";
 import * as diplomacyCommands from "../commands/diplomacy";
 import * as warCommands from "../commands/war";
 import * as economyCommands from "../commands/economy";
@@ -77,6 +85,17 @@ export interface LlmCycleResult {
   // action: unknown, не LLMAction — точечно отклонённый элемент не
   // гарантированно валиден (мог провалиться ровно на структурной проверке).
   rejectedActions: { action: unknown; reason: string }[];
+  /**
+   * Локализуемый отклик по каждому применённому примитиву (docs/PRIMITIVES.md
+   * §4) — материал для интерфейса, построенный из ФАКТИЧЕСКИХ дельт движка.
+   */
+  primitiveOutcomes: PrimitiveOutcomeRecord[];
+  /**
+   * Отклонённые примитивы одним списком, независимо от того, где отказали:
+   * структурная схема (`verb` неизвестен — поля нет), граница агентности или
+   * предпосылки движка. Потребителю слой отказа не важен, важна причина.
+   */
+  rejectedPrimitives: { verb?: string; reason: string }[];
 }
 
 /**
@@ -104,7 +123,14 @@ export class LLMService {
     try {
       raw = JSON.parse(rawResponse);
     } catch {
-      return { success: false, error: "Invalid JSON format", appliedActions: [], rejectedActions: [] };
+      return {
+        success: false,
+        error: "Invalid JSON format",
+        appliedActions: [],
+        rejectedActions: [],
+        primitiveOutcomes: [],
+        rejectedPrimitives: [],
+      };
     }
 
     const envelope = LLMResponseEnvelopeSchema.safeParse(raw);
@@ -117,10 +143,12 @@ export class LLMService {
         error: envelope.error.issues[0]?.message ?? "Invalid response format",
         appliedActions: [],
         rejectedActions: [],
+        primitiveOutcomes: [],
+        rejectedPrimitives: [],
       };
     }
 
-    const { title, descriptions, actions } = envelope.data;
+    const { title, descriptions, actions, primitives } = envelope.data;
     const validator = new LLMResponseValidator(this.game);
     const appliedActions: LLMAction[] = [];
     const rejectedActions: { action: unknown; reason: string }[] = [];
@@ -142,6 +170,14 @@ export class LLMService {
     }
 
     this.applyLlmActions(appliedActions);
+
+    // Примитивы применяются ПОСЛЕ старых действий и отдельным контрактом:
+    // движок примитивов возвращает фактические величины и сам откатывает
+    // неудавшееся, тогда как `applyLlmActions` игнорирует `CommandResult`
+    // (предсуществующий дефект, docs/TODO.md). Смешивать их нельзя — новый
+    // канал не должен унаследовать этот разрыв.
+    const primitiveResult = this.applyResponsePrimitives(rawResponse, primitives);
+
     this.saveResponse(rawResponse);
     this.incrementLlmTurn();
     this.advanceSpotlightCursor();
@@ -164,13 +200,104 @@ export class LLMService {
       ],
     });
 
-    return { success: true, title: eventTitle, descriptions, appliedActions, rejectedActions };
+    return {
+      success: true,
+      title: eventTitle,
+      descriptions,
+      appliedActions,
+      rejectedActions,
+      primitiveOutcomes: primitiveResult.outcomes,
+      rejectedPrimitives: primitiveResult.rejected,
+    };
+  }
+
+  /**
+   * Применяет примитивы из ответа модели через границу хода.
+   *
+   * Три слоя отказа, в порядке применения:
+   *   1. структурная схема (`parsePrimitives`) — форма, закрытые enum'ы,
+   *      отсутствие числовых полей в `params`;
+   *   2. граница агентности (`splitByAgency`) — режиссёр не принимает решений
+   *      государственной политики за игрока (docs/CONCEPT.md §7.2);
+   *   3. предпосылки движка (`applyPrimitiveTurn` → `applyPrimitiveBatch`).
+   *
+   * Отказы первых двух слоёв движок не увидит, поэтому диагностические факты по
+   * ним пишутся здесь — в том же виде (`kind: "primitive_rejected"`), в каком их
+   * пишет движок: следующий промт рендерит их одной секцией и не должен знать,
+   * на каком слое отказали (docs/PRIMITIVES.md §3 — «чтобы не долбилась в
+   * невозможное»).
+   *
+   * Idempotency-ключ выводится из СОДЕРЖАНИЯ ответа и текущей игровой даты
+   * (docs/CONCEPT.md §7.2). Дата в ключе, а не номер хода: `processResponse` сам
+   * инкрементирует `llmTurn`, поэтому повторный POST того же ответа получил бы
+   * другой номер и защита не сработала бы. Дата же между двумя ответами одного
+   * месяца не меняется — повтор ловится, — а тот же текст в другом месяце
+   * законен и проходит.
+   */
+  private applyResponsePrimitives(
+    rawResponse: string,
+    raw: unknown
+  ): { outcomes: PrimitiveOutcomeRecord[]; rejected: { verb?: string; reason: string }[] } {
+    if (raw === undefined) return { outcomes: [], rejected: [] };
+
+    const digest = createHash("sha256").update(rawResponse).digest("hex").slice(0, 16);
+    const idempotencyKey = `llm:${this.game.currentDate}:${digest}`;
+
+    // Проверка дубля стоит ДО записи диагностики: иначе повторный POST того же
+    // ответа не применил бы примитивы (это ловит ключ), но второй раз наплодил
+    // бы факты об одних и тех же отказах — и следующий промт получил бы их
+    // дважды.
+    if (isDuplicatePrimitiveBatch(this.game, idempotencyKey)) {
+      return {
+        outcomes: [],
+        rejected: [
+          { reason: "This response was already applied this month; primitives were not re-applied" },
+        ],
+      };
+    }
+
+    const { primitives, invalid } = parsePrimitives(raw);
+    const { allowed, refused } = splitByAgency(primitives, this.game.playerCountryId);
+
+    const rejected: { verb?: string; reason: string }[] = [
+      ...invalid.map(i => ({
+        reason: i.index >= 0 ? `primitive #${i.index + 1}: ${i.reason}` : i.reason,
+      })),
+      ...refused.map(r => ({ verb: r.verb, reason: r.reason })),
+    ];
+
+    for (const entry of rejected) {
+      this.game.pendingWorldFacts.push({
+        countryId: this.game.playerCountryId,
+        kind: "primitive_rejected",
+        text: `Attempt rejected (${entry.verb ?? "malformed primitive"}): ${entry.reason}`,
+      });
+    }
+
+    const outcome = applyPrimitiveTurn(this.game, allowed, idempotencyKey);
+
+    return {
+      outcomes: outcome.outcomes,
+      rejected: [...rejected, ...outcome.rejected.map(r => ({ verb: r.verb, reason: r.reason }))],
+    };
   }
 
   /**
    * Генерирует промт для LLM на основе текущего состояния игры.
    */
   generatePrompt(): string {
+    // Три секции ниже МУТИРУЮТ состояние: потребляют одноразовые факты
+    // (кризисы, отказы) или считают показы подсказок. Порядок вычисления
+    // шаблонного литерала — порядок текста, поэтому секция, которой нужны
+    // факты, обязана считаться раньше той, что их вычищает
+    // (`getNotableDevelopmentsInfo` очищает `pendingWorldFacts` целиком).
+    // Вынесены в константы, чтобы этот порядок был виден и не зависел от того,
+    // куда в тексте промта попадёт новая секция.
+    const crises = this.getRegionalCrisesInfo();
+    const rejectedAttempts = this.getRejectedAttemptsInfo();
+    const notableDevelopments = this.getNotableDevelopmentsInfo();
+    const hingePoints = this.getHingePointHintsInfo();
+
     const prompt = `
 # Geopolis - World Simulation
 
@@ -199,14 +326,29 @@ ${this.getSpotlightInfo()}
 ${this.getActiveWarsInfo()}
 
 ## Notable Developments This Month
-${this.getNotableDevelopmentsInfo()}
+${notableDevelopments}
+
+## Regional Crises
+Regions whose discontent the engine has measured above the crisis threshold of
+${REGION_CRISIS_DISCONTENT_THRESHOLD.toFixed(2)}. At most ${MAX_PROMPT_CRISES} are shown in full, most acute first; the rest
+smoulder in the background and surface here later if they become more acute.
+The discontent index is a population-share-weighted 0..1 index over the
+region's groups (ideological distance from the authorities, economic lag,
+memory of past repression and concessions) — it is NOT a headcount of
+protesters, do not narrate it as a percentage of people.
+${crises}
+
+## Rejected Attempts Last Cycle
+Primitives you proposed that the engine refused, with the reason. Do not
+propose them again unchanged — the precondition has to change first.
+${rejectedAttempts}
 
 ## Historical Context
 Background continuity for this period, not mandatory scripted events —
 reflect a hint in the narrative only if the world hasn't already diverged
 from what would make it implausible. You may narrate the hinted development,
 a plausible variation, or ignore it if the story has moved elsewhere.
-${this.getHingePointHintsInfo()}
+${hingePoints}
 
 ## Chronicle
 Year-by-year memory of this campaign so far, oldest first — use it to keep
@@ -279,6 +421,9 @@ Narrative requirements (strict):
   the engine computes actual output from richness × capacity, you never
   set a production number directly.
 
+${PRIMITIVE_CONTRACT}
+${PRIMITIVE_PLAYER_AGENCY_NOTE}
+
 Return your response in JSON format with the following structure:
 {
   "title": "Short one-line headline for this cycle's single most important development",
@@ -289,6 +434,14 @@ Return your response in JSON format with the following structure:
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
+    }
+  ],
+  "primitives": [
+    {
+      "verb": "incite_unrest|repress|grant_autonomy|enact_reform|spawn_incident",
+      "sourceCountryId": "country_id",
+      "target": { "countryId": "...", "regionId": 0, "groupId": "..." },
+      "params": { "intensity": "mild|moderate|severe" }
     }
   ]
 }
@@ -666,6 +819,74 @@ Hard limits (actions violating them are rejected):
    * Очищает game.pendingWorldFacts сразу после рендера — факт одноразовый,
    * не история (для истории — Event, который сама LLM пишет по итогам хода).
    */
+  /**
+   * Секция кризисов регионов с кризисным капом (docs/CONCEPT.md §7 — «CRISES —
+   * динамический кап, hard-cap ≤ ~5 одновременно; остальное тлеет фоном»).
+   *
+   * Источник — ЛАТЧ активных кризисов (`game.regionCrisisLatch`), а не
+   * одноразовые факты. Разница принципиальная. Факт `region_crisis` движок
+   * выдаёт РОВНО ОДИН РАЗ, при пересечении порога; если бы кап отбирал среди
+   * фактов, невлезший кризис исчезал бы навсегда — регион остаётся под латчем и
+   * второго факта не получит. Хранить очередь невыведенных фактов тоже нельзя:
+   * подавленный за это время регион отдал бы в промт кризис, которого уже нет,
+   * то есть ложь. Вывод секции из латча решает обе задачи: острота считается
+   * заново каждый рендер, поэтому «невлезший» кризис всплывает сам, как только
+   * станет острее показанных, а снятый исчезает сам.
+   *
+   * Стоимость: один проход по регионам ради выборки залатченных плюс сортировка
+   * ТОЛЬКО активных кризисов. Дорогая часть — вывод недовольства с разложением
+   * по группам — считается для числа регионов в кризисе, а не для мира: при
+   * полном демо-составе Милстоуна 2 (~1399 регионов) секция не начинает
+   * сортировать мир.
+   *
+   * Одноразовые факты `region_crisis` здесь ПОТРЕБЛЯЮТСЯ — но не как источник
+   * текста, а как пометка «этот кризис новый в этом месяце». Иначе их вычистил
+   * бы `getNotableDevelopmentsInfo` (он удаляет все факты, оставляя лишь
+   * видимые страны) и информация о новизне пропала бы.
+   */
+  private getRegionalCrisesInfo(): string {
+    const newThisMonth = new Set(
+      this.game.pendingWorldFacts
+        .filter(f => f.kind === "region_crisis" && f.regionId !== undefined)
+        .map(f => f.regionId as number)
+    );
+    this.game.pendingWorldFacts = this.game.pendingWorldFacts.filter(
+      f => f.kind !== "region_crisis"
+    );
+
+    const active = activeCrises(this.game);
+    if (active.length === 0) return "No region is above the crisis threshold";
+
+    const lines = active
+      .slice(0, MAX_PROMPT_CRISES)
+      .map(crisis => renderCrisis(this.game, crisis, { isNew: newThisMonth.has(crisis.region.id) }));
+
+    const hidden = active.slice(MAX_PROMPT_CRISES);
+    if (hidden.length > 0) lines.push(renderHiddenCrises(hidden));
+
+    return lines.join("\n");
+  }
+
+  /**
+   * Диагностика отказов примитивов для следующего промта (docs/PRIMITIVES.md §3
+   * — «Reject → диагностический факт … и в следующий промт LLM, чтобы не
+   * долбилась в невозможное»).
+   *
+   * Отдельной секцией, а не внутри «Notable Developments», по двум причинам:
+   * отказ — это сигнал модели о правилах, а не материал нарратива (в события он
+   * попасть не должен), и фильтр «Notable Developments» по видимым странам
+   * молча выбросил бы отказ, чей источник в этом цикле не попал в промт.
+   */
+  private getRejectedAttemptsInfo(): string {
+    const rejected = this.game.pendingWorldFacts.filter(f => f.kind === "primitive_rejected");
+    this.game.pendingWorldFacts = this.game.pendingWorldFacts.filter(
+      f => f.kind !== "primitive_rejected"
+    );
+
+    if (rejected.length === 0) return "Nothing was rejected last cycle";
+    return rejected.map(f => `- ${f.text}`).join("\n");
+  }
+
   private getNotableDevelopmentsInfo(): string {
     const visibleIds = this.getReferencedCountries();
     const visibleFacts = this.game.pendingWorldFacts.filter(f => visibleIds.has(f.countryId));

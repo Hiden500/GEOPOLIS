@@ -1,6 +1,7 @@
 import { type GameState, type LLMAction } from "@shared/types/GameState";
 import { type ScenarioInfo } from "@shared/types/ScenarioInfo";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
+import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 
 const API = "";
 
@@ -110,5 +111,58 @@ export async function submitLlmResponse(llmResponse: string): Promise<LlmCycleRe
  * применение ответа делает сервер, ключ API никогда не уходит на клиент. */
 export async function runAutoLlmCycle(): Promise<LlmCycleResult> {
   const response = await fetch(`${API}/llm/auto`, { method: "POST" });
+  return handleResponse(response);
+}
+
+/**
+ * Путь игрока к примитивам (docs/PRIMITIVES.md §1, гибридный интерфейс).
+ *
+ * Примитив на клиенте — непрозрачная структура: интерфейс её не собирает по
+ * полям и не показывает игроку. Он получает её от перевода (или от быстрой
+ * кнопки) и возвращает на применение как есть, а человеку показывает `preview`
+ * и `outcomes` — локализуемые описания. Отсюда `unknown[]`: типизировать здесь
+ * алфавит движка значило бы завести его вторую копию в клиенте.
+ */
+export interface TranslateOrderResult {
+  primitives: unknown[];
+  /** Распознанное намерение человеческим языком — без величин, их ещё нет. */
+  preview: PrimitiveOutcomeRecord[];
+  invalid: { index: number; reason: string }[];
+}
+
+export interface ApplyPrimitivesResult {
+  /** Батч с этим ключом уже применялся — мир не тронут (docs/CONCEPT.md §7.2). */
+  duplicate: boolean;
+  outcomes: PrimitiveOutcomeRecord[];
+  rejected: { verb?: string; reason: string }[];
+}
+
+export async function translatePlayerOrder(
+  intent: string,
+  selectedRegionId?: number
+): Promise<TranslateOrderResult> {
+  const response = await fetch(`${API}/primitives/translate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(
+      selectedRegionId === undefined ? { intent } : { intent, selectedRegionId }
+    ),
+  });
+  return handleResponse(response);
+}
+
+/**
+ * @param idempotencyKey тот же ключ при повторной отправке того же приказа —
+ *   двойной клик и ретрай не должны применить батч дважды.
+ */
+export async function applyPrimitives(
+  primitives: unknown[],
+  idempotencyKey: string
+): Promise<ApplyPrimitivesResult> {
+  const response = await fetch(`${API}/primitives/apply`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ primitives, idempotencyKey }),
+  });
   return handleResponse(response);
 }

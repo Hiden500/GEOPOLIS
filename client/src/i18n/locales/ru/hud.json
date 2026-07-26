@@ -107,7 +107,17 @@
       "stability": "Стабильность",
       "development": "Развитие",
       "resources": "Ресурсы региона",
-      "features": "Объекты на карте"
+      "features": "Объекты на карте",
+      "unrest": "Недовольство и следы воздействий",
+      "inCrisis": "Кризис",
+      "discontent": "Индекс недовольства",
+      "placeHistory": "История места",
+      "impact": {
+        "suppression": "подавление",
+        "alienation": "отчуждение",
+        "concession": "уступки",
+        "emboldenment": "решимость"
+      }
     },
     "country": {
       "gdp": "ВВП",
@@ -116,7 +126,10 @@
       "stability": "Стабильность",
       "legitimacy": "Легитимность",
       "budgetBalance": "Баланс бюджета",
-      "relations": "Ключевые отношения"
+      "relations": "Ключевые отношения",
+      "governmentSupport": "Поддержка правительства",
+      "axisEconomic": "Экономический курс:",
+      "axisPolitical": "Политический курс:"
     },
     "featureTypes": {
       "capital": "столица",
