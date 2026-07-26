@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { applyPrimitiveTurn, isDuplicatePrimitiveBatch } from "../turnBatch";
-import { applyPrimitiveBatch } from "../PrimitiveEngine";
 import { type Primitive } from "../types";
 import { type GameState } from "@shared/types/GameState";
 import { getText } from "@shared/types/i18n/LocalizedText";
@@ -16,6 +15,7 @@ import {
   TEST_REGION_NATIONAL,
   TEST_REGION_NEIGHBOUR,
 } from "../../test-utils/discontentFixtures";
+import { createTestRegion } from "../../test-utils/fixtures";
 
 /**
  * Граница хода примитивов (docs/CONCEPT.md §7.2, docs/PRIMITIVES.md §4):
@@ -67,13 +67,15 @@ describe("applyPrimitiveTurn — idempotency на ход (docs/CONCEPT.md §7.2)
     expect(snapshot(state)).toBe(afterFirst);
   });
 
-  it("без ключа-дубля тот же батч применяется снова — защита ключевая, а не глухая", () => {
+  it("в СЛЕДУЮЩЕМ ходу тот же батч применяется снова — защита ключевая, а не глухая", () => {
     const state = game();
 
     applyPrimitiveTurn(state, [repressRegion], "turn-1");
     const suppressionAfterFirst = memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!
       .suppression;
 
+    // Новый месяц — новый ход: остатки прошлого законный приказ не блокируют.
+    state.currentDate = "1946-02-01";
     const second = applyPrimitiveTurn(state, [repressRegion], "turn-2");
 
     expect(second.duplicate).toBe(false);
@@ -83,23 +85,34 @@ describe("applyPrimitiveTurn — idempotency на ход (docs/CONCEPT.md §7.2)
     ).toBeGreaterThan(suppressionAfterFirst);
   });
 
-  it("цена отсутствия защиты названа числом: два прямых вызова движка складываются", () => {
-    // Тест фиксирует, ЧТО именно предотвращает ключ, — иначе «дубль не
-    // применился» доказывает лишь то, что функция что-то вернула.
-    const guarded = game();
-    applyPrimitiveTurn(guarded, [repressRegion], "same-key");
-    applyPrimitiveTurn(guarded, [repressRegion], "same-key");
+  it("ключ отличает ретрай от законной второй попытки: мир один, отчёт разный", () => {
+    // Что именно предотвращает КЛЮЧ теперь, когда мир прикрыт бюджетом хода.
+    // Мир в обоих случаях одинаков — это делает бюджет. Но повтор с новым
+    // ключом выглядит как настоящая попытка: её отказ уходит диагностикой в
+    // следующий промт («не долбись в невозможное»), и модель получила бы
+    // выговор за то, чего не делала. Ключ отвечает «это тот же запрос».
+    const retried = game();
+    applyPrimitiveTurn(retried, [repressRegion], "same-key");
+    const factsAfterFirst = retried.pendingWorldFacts.length;
+    const retry = applyPrimitiveTurn(retried, [repressRegion], "same-key");
 
-    const unguarded = game();
-    applyPrimitiveBatch(unguarded, [repressRegion]);
-    applyPrimitiveBatch(unguarded, [repressRegion]);
+    const reordered = game();
+    applyPrimitiveTurn(reordered, [repressRegion], "key-1");
+    const second = applyPrimitiveTurn(reordered, [repressRegion], "key-2");
 
-    const guardedSuppression = memoryOf(guarded, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!
-      .suppression;
-    const unguardedSuppression = memoryOf(unguarded, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!
-      .suppression;
+    expect(retry.duplicate).toBe(true);
+    expect(retry.rejected).toEqual([]);
+    expect(retried.pendingWorldFacts).toHaveLength(factsAfterFirst);
 
-    expect(unguardedSuppression).toBeGreaterThan(guardedSuppression);
+    expect(second.duplicate).toBe(false);
+    expect(second.rejected).toHaveLength(1);
+    expect(second.rejected[0]!.reason).toMatch(/per target per turn/);
+    expect(reordered.pendingWorldFacts.length).toBeGreaterThan(factsAfterFirst);
+
+    // …и при этом мир у обоих один и тот же: второй удар не лёг ни там, ни там.
+    expect(memoryOf(retried, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression).toBe(
+      memoryOf(reordered, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression
+    );
   });
 
   it("ключ пишется даже когда весь батч отклонён — повтор не плодит диагностику", () => {
@@ -129,6 +142,155 @@ describe("applyPrimitiveTurn — idempotency на ход (docs/CONCEPT.md §7.2)
     expect(state.primitiveBatchKeys).toHaveLength(MAX_PRIMITIVE_BATCH_KEYS);
     expect(isDuplicatePrimitiveBatch(state, `key-${MAX_PRIMITIVE_BATCH_KEYS + 4}`)).toBe(true);
     expect(isDuplicatePrimitiveBatch(state, "key-0")).toBe(false);
+  });
+});
+
+describe("бюджет хода общий для всех вызовов (docs/PRIMITIVES.md §4)", () => {
+  /**
+   * Дифференциальная проверка: N отдельных вызовов в одном ходу обязаны дать
+   * ТО ЖЕ состояние мира, что один батч из N примитивов.
+   *
+   * Сравнивается состояние, а не возвращённые флаги. Флаги показывают, что
+   * функция что-то ответила; вопрос же в том, разошёлся ли мир. До 2026-07-26
+   * счётчики капов жили внутри вызова, и эти две дороги расходились: батч
+   * применял один примитив и отклонял девять, а десять запросов применяли все
+   * десять и упирали поле памяти в потолок.
+   *
+   * `primitiveBatchKeys` из сравнения исключён намеренно: ключей ПО ПОСТРОЕНИЮ
+   * столько, сколько было запросов, и требовать их совпадения значило бы
+   * требовать, чтобы десять запросов притворялись одним.
+   */
+  function worldWithoutKeys(state: GameState): string {
+    return JSON.stringify({ ...state, primitiveBatchKeys: [] });
+  }
+
+  const mildRepress: Primitive = {
+    verb: "repress",
+    sourceCountryId: "SUN",
+    target: { regionId: TEST_REGION_NATIONAL },
+    params: { intensity: "mild" },
+  };
+
+  it("десять отдельных приказов = один батч из десяти, вплоть до полного снимка мира", () => {
+    const batched = game();
+    applyPrimitiveTurn(batched, Array.from({ length: 10 }, () => mildRepress), "one-batch");
+
+    const clicked = game();
+    for (let i = 0; i < 10; i++) {
+      applyPrimitiveTurn(clicked, [mildRepress], `click-${i}`);
+    }
+
+    expect(worldWithoutKeys(clicked)).toBe(worldWithoutKeys(batched));
+
+    // И величина именно та, что даёт ОДИН примитив, а не десять сложенных:
+    // иначе тест прошёл бы и на двух одинаково сломанных мирах.
+    const single = game();
+    applyPrimitiveTurn(single, [mildRepress], "single");
+    expect(memoryOf(clicked, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression).toBe(
+      memoryOf(single, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression
+    );
+  });
+
+  it("мягкий бюджет хода общий у модели и игрока — не по десять на канал", () => {
+    // Одиннадцать РАЗНЫХ целей: кап «один verb на цель» не срабатывает ни разу,
+    // режет именно бюджет хода. Регионы одноимённой группы, без соседей —
+    // чтобы в игру не вмешивался ни потолок накопления, ни отклик соседей.
+    const state = game();
+    const extraIds = Array.from({ length: 11 }, (_, i) => 800 + i);
+    for (const id of extraIds) {
+      state.regions.push(
+        createTestRegion({
+          id,
+          geoJsonId: `TEST-${id}`,
+          names: { en: `Extra region ${id}` },
+          ownerCountryId: "SUN",
+          population: 1_000_000,
+          gdp: 400_000_000,
+          neighboringRegionIds: [],
+          demographics: [{ groupId: TEST_GROUP_TITULAR, share: 1 }],
+        })
+      );
+    }
+
+    const director = applyPrimitiveTurn(
+      state,
+      extraIds.slice(0, 10).map((regionId): Primitive => ({
+        verb: "repress",
+        sourceCountryId: "SUN",
+        target: { regionId },
+        params: { intensity: "mild" },
+      })),
+      "director"
+    );
+    expect(director.applied).toHaveLength(10);
+    expect(state.primitiveTurnBudget.softUsed).toBe(10);
+
+    // Ход исчерпан — приказ игрока по НЕТРОНУТОЙ цели всё равно не проходит.
+    const player = applyPrimitiveTurn(
+      state,
+      [{ verb: "repress", sourceCountryId: "SUN", target: { regionId: extraIds[10]! } }],
+      "player"
+    );
+    expect(player.applied).toEqual([]);
+    expect(player.rejected[0]!.reason).toMatch(/At most 10 soft primitives per turn/);
+  });
+
+  it("отклонённый примитив ход не тратит — иначе один промах закрывал бы месяц", () => {
+    const state = game();
+    // Страны нет в партии — предпосылка не выполнена, отказ на фазе validate.
+    const impossible: Primitive = {
+      verb: "enact_reform",
+      sourceCountryId: "XXX",
+      target: { countryId: "XXX" },
+      params: { politicalDirection: "democratic" },
+    };
+
+    const refused = applyPrimitiveTurn(state, [impossible], "miss");
+    expect(refused.applied).toEqual([]);
+    expect(state.primitiveTurnBudget.structuralUsed).toBe(0);
+
+    // Единственный структурный слот месяца остался у законной реформы.
+    const legit = applyPrimitiveTurn(
+      state,
+      [
+        {
+          verb: "enact_reform",
+          sourceCountryId: "SUN",
+          target: { countryId: "SUN" },
+          params: { politicalDirection: "democratic" },
+        },
+      ],
+      "reform"
+    );
+    expect(legit.applied).toHaveLength(1);
+  });
+
+  it("бюджет переживает сохранение/загрузку — он в состоянии, а не в памяти процесса", () => {
+    const state = game();
+    applyPrimitiveTurn(state, [mildRepress], "before-save");
+
+    // Сейв — это JSON состояния и ничего больше (docs/plans/01_PERSISTENCE_STATE.md).
+    const loaded: GameState = JSON.parse(JSON.stringify(state));
+    const afterLoad = applyPrimitiveTurn(loaded, [mildRepress], "after-load");
+
+    expect(afterLoad.applied).toEqual([]);
+    expect(afterLoad.rejected[0]!.reason).toMatch(/per target per turn/);
+    expect(memoryOf(loaded, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression).toBe(
+      memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression
+    );
+  });
+
+  it("новый месяц обнуляет бюджет сам, без отдельного вызова reset", () => {
+    const state = game();
+    applyPrimitiveTurn(state, [mildRepress], "january");
+    expect(state.primitiveTurnBudget.softUsed).toBe(1);
+
+    state.currentDate = "1946-02-01";
+    const february = applyPrimitiveTurn(state, [mildRepress], "february");
+
+    expect(february.applied).toHaveLength(1);
+    expect(state.primitiveTurnBudget.date).toBe("1946-02-01");
+    expect(state.primitiveTurnBudget.softUsed).toBe(1);
   });
 });
 
@@ -289,7 +451,10 @@ describe("история места (docs/CONCEPT.md §5.6)", () => {
   it("история места капируется — сейв не растёт монотонно", () => {
     const state = game();
     for (let i = 0; i < PLACE_HISTORY_MAX_ENTRIES + 4; i++) {
-      // Свежее состояние памяти не нужно: важен факт записи, а не её величина.
+      // Каждая запись — свой месяц: кап «один verb на цель за ход» не даст
+      // повторить репрессию в том же ходу, и это правильно. Свежее состояние
+      // памяти не нужно — важен факт записи, а не её величина.
+      state.currentDate = `1946-${String((i % 12) + 1).padStart(2, "0")}-01`;
       applyPrimitiveTurn(state, [repressRegion], `key-${i}`);
     }
 

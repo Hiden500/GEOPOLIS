@@ -2,6 +2,7 @@ import express from "express";
 import { applyPrimitivesSchema, translateIntentSchema } from "../validation/schemas";
 import { ValidationError, GameError, LLMProviderError } from "../errors/AppError";
 import { getGame, setGame } from "../game/GameStore";
+import { effectiveController } from "@shared/utils/regionControl";
 import { GeminiProvider, toProviderSchema } from "../llm/providers/GeminiProvider";
 import {
   buildPrimitiveTranslationPrompt,
@@ -43,11 +44,28 @@ router.post("/translate", async (req, res) => {
       throw new ValidationError("Invalid intent input", parsed.error.issues);
     }
 
-    const prompt = buildPrimitiveTranslationPrompt(
-      game,
-      parsed.data.intent,
-      parsed.data.selectedRegionId
-    );
+    // Выделение проверяется ДО модели, а не после. Промт описывает выделенный
+    // регион как цель демонстративного приказа («подавить их здесь»); чужой
+    // регион там означает, что модель добросовестно соберёт примитив, который
+    // движок отклонит по предпосылке контроля, — вызов провайдера впустую и
+    // отказ, объясняющий не то, что произошло на самом деле. Клиент чужой
+    // регион в панель не пускает (`GameView.selectedOwnRegionId`), но ручка
+    // обязана держать это сама: клиент — не граница доверия.
+    const selectedRegionId = parsed.data.selectedRegionId;
+    if (selectedRegionId !== undefined) {
+      const region = game.regions.find(r => r.id === selectedRegionId);
+      if (!region) {
+        throw new ValidationError(`Region ${selectedRegionId} does not exist`);
+      }
+      if (effectiveController(region) !== game.playerCountryId) {
+        throw new ValidationError(
+          `Region ${selectedRegionId} is not controlled by ${game.playerCountryId}; ` +
+            `orders can only target the player's own regions`
+        );
+      }
+    }
+
+    const prompt = buildPrimitiveTranslationPrompt(game, parsed.data.intent, selectedRegionId);
     const raw = await geminiProvider.generateResponse(prompt, TRANSLATION_RESPONSE_SCHEMA);
     const translation = parsePrimitiveTranslation(raw, game.playerCountryId);
 

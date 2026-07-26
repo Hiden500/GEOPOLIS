@@ -6,6 +6,7 @@ import { applyPrimitiveTurn } from "../primitives/turnBatch";
 import { type GameState } from "@shared/types/GameState";
 import { regionDiscontent } from "@shared/utils/discontent";
 import { MAX_PROMPT_CRISES } from "@shared/defines/discontent";
+import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
 
 /**
  * Сквозная петля Милстоуна 0 на РЕАЛЬНЫХ данных сценария 1946 — не на фикстуре.
@@ -148,6 +149,68 @@ describe("Милстоун 0: петля замыкается на данных 
 
     const afterYear = regionDiscontent(game, game.regions.find(r => r.id === hottestId)!)!;
     expect(afterYear).toBeGreaterThan(afterAnswer);
+  });
+
+  it("десять кликов «Подавить» за месяц = один приказ: коридор не обходится частотой", () => {
+    // Сценарий независимого ревью (2026-07-26), воспроизведённый числом. Ручка
+    // `POST /primitives/apply` зовёт границу хода на КАЖДЫЙ клик игрока, и пока
+    // счётчики капов жили внутри вызова, десять кликов «Подавить» по одной паре
+    // за один месяц упирали оба поля памяти в потолок — ровно то, что коридор
+    // магнитуды запрещает делать одним примитивом.
+    const REGION = 68; // Saare
+    const GROUP = "estonians";
+
+    const order = {
+      verb: "repress" as const,
+      sourceCountryId: PLAYER,
+      target: { regionId: REGION, groupId: GROUP },
+      params: { intensity: "mild" as const },
+    };
+
+    function memory(state: GameState) {
+      return state.groupImpactMemory.find(m => m.regionId === REGION && m.groupId === GROUP);
+    }
+
+    // Предпосылка сценария: регион и группа на месте, разметка не поехала.
+    const probe = startedGame();
+    expect(probe.currentDate).toBe("1946-02-01");
+    expect(probe.regions.find(r => r.id === REGION)?.demographics?.some(d => d.groupId === GROUP))
+      .toBe(true);
+
+    // (а) один батч из десяти
+    const batched = startedGame();
+    const batchResult = applyPrimitiveTurn(
+      batched,
+      Array.from({ length: 10 }, () => order),
+      "batch"
+    );
+
+    // (б) десять отдельных запросов с РАЗНЫМИ ключами — десять кликов игрока
+    const clicked = startedGame();
+    const clickResults = Array.from({ length: 10 }, (_, i) =>
+      applyPrimitiveTurn(clicked, [order], `click-${i}`)
+    );
+
+    // (в) то же, но с бюджетом хода, обнуляемым между вызовами, — поведение ДО
+    // правки. Нужен, чтобы «одинаково» не значило «одинаково сломано».
+    const perCall = startedGame();
+    for (let i = 0; i < 10; i++) {
+      perCall.primitiveTurnBudget = emptyPrimitiveTurnBudget(perCall.currentDate);
+      applyPrimitiveTurn(perCall, [order], `legacy-${i}`);
+    }
+
+    expect(batchResult.applied).toHaveLength(1);
+    expect(batchResult.rejected).toHaveLength(9);
+    expect(clickResults.filter(r => r.applied.length > 0)).toHaveLength(1);
+    expect(clickResults.flatMap(r => r.rejected)).toHaveLength(9);
+
+    expect(memory(clicked)!.suppression).toBe(memory(batched)!.suppression);
+    expect(memory(clicked)!.alienation).toBe(memory(batched)!.alienation);
+
+    // Цена отсутствия защиты названа числом, а не словом «обход».
+    expect(memory(perCall)!.suppression).toBeGreaterThan(memory(clicked)!.suppression);
+    expect(memory(perCall)!.suppression).toBe(1);
+    expect(memory(perCall)!.alienation).toBe(1);
   });
 
   it("режиссёр не может ответить за игрока, игрок — может", () => {

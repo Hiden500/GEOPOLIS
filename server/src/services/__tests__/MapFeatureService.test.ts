@@ -5,6 +5,7 @@ import { type Country } from '@shared/types/Country';
 import { type Region } from '@shared/types/map/Region';
 import { ResourceType } from '@shared/types/resources/ResourcesType';
 import { EquipmentType } from '@shared/types/military/EquipmentType';
+import { emptyPrimitiveTurnBudget } from '@shared/types/politics/PrimitiveTurnBudget';
 
 describe('MapFeatureService', () => {
   let game: GameState;
@@ -159,6 +160,7 @@ describe('MapFeatureService', () => {
       groupImpactMemory: [],
       regionCrisisLatch: [],
       primitiveBatchKeys: [],
+      primitiveTurnBudget: emptyPrimitiveTurnBudget('1946-01-01'),
       hingePointShowCount: {},
       llmRespondedThisTurn: true,
       playerStanding: { power: 0, rank: 0, total: 0 },

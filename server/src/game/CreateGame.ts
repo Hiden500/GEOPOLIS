@@ -9,6 +9,7 @@ import { assignInitialTiers } from "../simulation/tier/TierTick";
 import { nextRandom } from "@shared/utils/rng";
 import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
 import { computePlayerStanding } from "@shared/utils/nationalPower";
+import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
 
 /**
  * Выводит денежные поля economy из economyProfile (масштаб-свободные доли,
@@ -156,6 +157,9 @@ export function createGame(
     // Журнал idempotency-ключей батчей примитивов (docs/CONCEPT.md §7.2) —
     // у новой партии применённых батчей нет.
     primitiveBatchKeys: [],
+    // Бюджет капов примитивов на первый ход (docs/PRIMITIVES.md §4) — пустой,
+    // но с датой старта: он ключуется датой, а не «первым использованием».
+    primitiveTurnBudget: emptyPrimitiveTurnBudget(scenario.startDate),
     hingePointShowCount: {},
     llmRespondedThisTurn: false,
     // Стартовая позиция игрока в рейтинге силы (docs/OBJECTIVES.md) —

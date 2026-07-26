@@ -3,8 +3,8 @@ import {
   SPAWN_INCIDENT_MIN_DISCONTENT,
   SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
-  MAX_SOFT_PRIMITIVES_PER_BATCH,
-  MAX_STRUCTURAL_PRIMITIVES_PER_BATCH,
+  MAX_SOFT_PRIMITIVES_PER_TURN,
+  MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
   MAX_PRIMITIVES_PER_TARGET_PER_TURN,
 } from "@shared/defines/discontent";
 
@@ -57,8 +57,12 @@ Rules the engine enforces, not requests:
   error that rejects the primitive.
 - Order is execution order: each primitive sees the effect of the previous one,
   so incite_unrest followed by spawn_incident is a legitimate chain.
-- At most ${MAX_SOFT_PRIMITIVES_PER_BATCH} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_BATCH} structural one (enact_reform) per
-  response, and at most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} use of the same verb against the same target.
+- At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one (enact_reform) per game
+  turn, and at most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} use of the same verb against the same target per turn.
+  These are budgets of the TURN, not of your response: the player's own orders
+  this month draw on the same budget, so a target they have already acted on is
+  spent for you too. A refusal that says the budget is spent is not a mistake to
+  retry — it is this month being over for that target.
 - Do NOT put numeric consequences of primitives in free text. You cannot know
   them: the engine computes them after your response and reports the actual
   figures back. Describe what happened qualitatively; the true numbers are

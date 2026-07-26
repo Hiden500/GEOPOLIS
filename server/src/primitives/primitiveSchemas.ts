@@ -8,8 +8,8 @@ import {
   type Primitive,
 } from "./types";
 import {
-  MAX_SOFT_PRIMITIVES_PER_BATCH,
-  MAX_STRUCTURAL_PRIMITIVES_PER_BATCH,
+  MAX_SOFT_PRIMITIVES_PER_TURN,
+  MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
 } from "@shared/defines/discontent";
 
 /**
@@ -49,9 +49,18 @@ export const primitiveSchema = z.object({
   params: primitiveParamsSchema.optional(),
 }).strict();
 
-/** Кап длины батча — сумма мягкого и структурного лимитов (docs/PRIMITIVES.md §4). */
+/**
+ * Кап длины ОДНОГО ЗАПРОСА — сумма мягкого и структурного лимитов хода
+ * (docs/PRIMITIVES.md §4).
+ *
+ * Здесь «за батч» осознанно: это transport-граница массива в теле запроса, а не
+ * бюджет хода. Больше, чем ход вообще способен потратить, в одном запросе слать
+ * незачем — но и меньше нельзя, иначе законный полный ход не влез бы в один
+ * вызов. Сам расход считает движок по `GameState.primitiveTurnBudget`, и через
+ * несколько запросов эту сумму всё равно не превысить.
+ */
 export const MAX_PRIMITIVES_PER_BATCH =
-  MAX_SOFT_PRIMITIVES_PER_BATCH + MAX_STRUCTURAL_PRIMITIVES_PER_BATCH;
+  MAX_SOFT_PRIMITIVES_PER_TURN + MAX_STRUCTURAL_PRIMITIVES_PER_TURN;
 
 export const primitiveBatchSchema = z.array(primitiveSchema).max(MAX_PRIMITIVES_PER_BATCH);
 

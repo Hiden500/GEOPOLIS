@@ -1,5 +1,4 @@
 {
-  "title": "Order",
   "description": "Describe an order in your own words — it will be recognised and shown to you for confirmation. The quick buttons below run without recognition.",
   "placeholder": "For example: crack down hard on the unrest in this region",
   "ariaLabel": "Order text",

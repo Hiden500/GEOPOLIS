@@ -10,6 +10,7 @@ import { type SanctionType } from "./DiplomacyState";
 import { type EquipmentType } from "./military/EquipmentType";
 import { type ResourceType } from "./resources/ResourcesType";
 import { type EthnicGroupDefinition, type GroupImpactMemory } from "./politics/Demographics";
+import { type PrimitiveTurnBudget } from "./politics/PrimitiveTurnBudget";
 
 export interface GameState {
   currentDate: string;
@@ -123,6 +124,25 @@ export interface GameState {
    * дублей ближайших ходов, а не вечная история.
    */
   primitiveBatchKeys: string[];
+
+  /**
+   * Бюджет примитивов текущего игрового хода — счётчики капов §4
+   * (docs/PRIMITIVES.md), общие для ответа модели и приказа игрока.
+   *
+   * Рядом с `primitiveBatchKeys`, но решает ДРУГУЮ задачу, и путать их нельзя.
+   * Ключ отвечает на «это тот же самый запрос?» (ретрай, двойной клик) —
+   * дубль не применяется вовсе. Бюджет отвечает на «сколько этот ход уже
+   * потратил?» — второй ЗАКОННЫЙ приказ того же вида приходит с другим ключом,
+   * дублем не является и обязан упереться в кап, а не сложиться с первым.
+   * Без бюджета в состоянии кап жил внутри одного вызова движка, и десять
+   * отдельных запросов в одном месяце давали то, что коридор магнитуды
+   * запрещает (см. `PrimitiveTurnBudget`).
+   *
+   * Обнуляется по смене `currentDate` (лениво, при первой записи нового
+   * месяца), поэтому переживает сохранение/загрузку и не может «протечь» в
+   * следующий ход.
+   */
+  primitiveTurnBudget: PrimitiveTurnBudget;
 
   // Сколько раз каждая историческая развилка (docs/tasks/HISTORICAL_HINGE_POINTS_1946.md,
   // реализовано 2026-07-06) уже попадала в промт как подсказка — ключ id

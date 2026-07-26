@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 import { Button } from "../primitives";
@@ -45,10 +45,16 @@ interface PendingOrder {
   primitives: unknown[];
   preview: PrimitiveOutcomeRecord[];
   /**
-   * Ключ идемпотентности рождается вместе с приказом и переживает повторные
-   * нажатия: второй клик по «Подтвердить» несёт ТОТ ЖЕ ключ, и сервер узнаёт
-   * дубль (docs/CONCEPT.md §7.2). Блокировка кнопки на время запроса от этого
-   * не избавляет — она не переживает ретрай сети.
+   * Ключ идемпотентности рождается вместе с приказом и переживает повторную
+   * ОТПРАВКУ того же приказа: второй клик по «Подтвердить» несёт ТОТ ЖЕ ключ, и
+   * сервер узнаёт дубль (docs/CONCEPT.md §7.2). Блокировка кнопки на время
+   * запроса от этого не избавляет — она не переживает ретрай сети.
+   *
+   * У свободного текста «тот же приказ» — это объект `PendingOrder`, живущий до
+   * успешной отправки. У быстрых кнопок объекта нет, приказ собирается на
+   * клике, поэтому ключ для них хранится отдельно (`quickOrderKeys`) — иначе
+   * повтор после сетевого сбоя чеканил бы новый ключ и применялся вторым
+   * приказом (найдено ревью 2026-07-26).
    */
   idempotencyKey: string;
 }
@@ -76,6 +82,13 @@ export function PrimitiveOrdersPanel({
   const [result, setResult] = useState<ApplyPrimitivesResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nothingRecognized, setNothingRecognized] = useState(false);
+
+  /**
+   * Ключи «в полёте» по быстрым кнопкам: сигнатура кнопки → ключ приказа.
+   * `useRef`, а не `useState`: значение читается и пишется внутри одного
+   * обработчика и не должно вызывать перерисовку.
+   */
+  const quickOrderKeys = useRef(new Map<string, string>());
 
   const reset = () => {
     setPending(null);
@@ -110,7 +123,8 @@ export function PrimitiveOrdersPanel({
     }
   };
 
-  const run = async (order: PendingOrder) => {
+  /** @returns дошёл ли запрос до сервера (ответ получен, каким бы он ни был). */
+  const run = async (order: PendingOrder): Promise<boolean> => {
     setBusy("apply");
     setError(null);
     try {
@@ -118,23 +132,39 @@ export function PrimitiveOrdersPanel({
       setResult(applied);
       setPending(null);
       await onApplied();
+      return true;
     } catch (err) {
       console.error(err);
       setError(t("errors.applyFailed"));
+      return false;
     } finally {
       setBusy(null);
     }
   };
 
-  /** Быстрая кнопка: примитив собирается здесь и идёт в движок без перевода. */
-  const quickOrder = (primitive: Record<string, unknown>) => {
+  /**
+   * Быстрая кнопка: примитив собирается здесь и идёт в движок без перевода.
+   *
+   * `signature` — что именно нажали (глагол, цель, характер). Пока запрос по
+   * этой сигнатуре не дошёл до сервера, ключ переиспользуется: сценарий
+   * «применилось, но ответ потерялся в сети» игрок видит как «Не удалось» и
+   * жмёт ту же кнопку снова, и с новым ключом это был бы ВТОРОЙ приказ.
+   * Дошедший запрос ключ освобождает: осознанный второй приказ того же вида —
+   * не ретрай, он обязан честно дойти до движка и упереться в кап хода
+   * (docs/PRIMITIVES.md §4), а не быть проглоченным как дубль.
+   */
+  const quickOrder = async (signature: string, primitive: Record<string, unknown>) => {
     reset();
-    void run({ primitives: [primitive], preview: [], idempotencyKey: newOrderKey() });
+    const key = quickOrderKeys.current.get(signature) ?? newOrderKey();
+    quickOrderKeys.current.set(signature, key);
+
+    const delivered = await run({ primitives: [primitive], preview: [], idempotencyKey: key });
+    if (delivered) quickOrderKeys.current.delete(signature);
   };
 
   const regionOrder = (verb: "repress" | "grant_autonomy") => {
     if (selectedRegionId === null) return;
-    quickOrder({
+    void quickOrder(`${verb}:${selectedRegionId}:${intensity}`, {
       verb,
       sourceCountryId: playerCountryId,
       target: { regionId: selectedRegionId },
@@ -143,7 +173,7 @@ export function PrimitiveOrdersPanel({
   };
 
   const reformOrder = (politicalDirection: "democratic" | "authoritarian") => {
-    quickOrder({
+    void quickOrder(`enact_reform:${politicalDirection}:${intensity}`, {
       verb: "enact_reform",
       sourceCountryId: playerCountryId,
       target: { countryId: playerCountryId },

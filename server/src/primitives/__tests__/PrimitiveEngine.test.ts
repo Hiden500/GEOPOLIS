@@ -22,8 +22,8 @@ import {
   ENACT_REFORM_COORDINATE_STEP_MAX,
   ENACT_REFORM_POLITICAL_COST,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
-  MAX_STRUCTURAL_PRIMITIVES_PER_BATCH,
-  IMPACT_FIELD_BATCH_CEILING,
+  MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
+  IMPACT_FIELD_TURN_CEILING,
   REPRESS_SUPPRESSION_MIN,
   REPRESS_SUPPRESSION_MAX,
   GRANT_AUTONOMY_CONCESSION_MIN,
@@ -627,6 +627,9 @@ describe("контракт батча", () => {
     expect(state.pendingWorldFacts).toHaveLength(1);
     expect(state.pendingWorldFacts[0]!.kind).toBe("primitive_rejected");
     state.pendingWorldFacts = [];
+    // Бюджет хода отклонённым примитивом не тратится — счётчики обязаны
+    // остаться нулевыми, а не просто «примерно теми же».
+    expect(state.primitiveTurnBudget).toEqual(snapshot.primitiveTurnBudget);
     expect(state).toEqual(snapshot);
   });
 
@@ -677,7 +680,7 @@ describe("контракт батча", () => {
     expect(result.applied.map(a => a.verb)).toEqual(["incite_unrest", "enact_reform"]);
     expect(result.rejected).toHaveLength(1);
     expect(result.rejected[0]!.reason)
-      .toMatch(new RegExp(`At most ${MAX_STRUCTURAL_PRIMITIVES_PER_BATCH} structural`));
+      .toMatch(new RegExp(`At most ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural`));
   });
 
   it("одна цель — один verb за ход: батч из десяти одинаковых применяет один", () => {
@@ -801,7 +804,7 @@ describe("контракт батча", () => {
     expect(result.rejected).toEqual([]);
     expect(result.applied.map(a => a.verb)).toEqual(["incite_unrest", "spawn_incident"]);
     expect(memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.emboldenment)
-      .toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
+      .toBeLessThanOrEqual(IMPACT_FIELD_TURN_CEILING.emboldenment);
   });
 
   it("уступки в двух соседних регионах проходят обе — побочка не запирает цель", () => {
@@ -929,12 +932,12 @@ describe("кольцо соседей: побочный эффект не обх
       );
 
       const hub = memoryOf(state, RING_HUB, TEST_GROUP_TITULAR)!;
-      expect(hub.emboldenment).toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
+      expect(hub.emboldenment).toBeLessThanOrEqual(IMPACT_FIELD_TURN_CEILING.emboldenment);
       // Хотя бы одна уступка обязана пройти: кап режет накопление, а не глагол.
       expect(result.applied.length).toBeGreaterThan(0);
       expect(result.rejected.length).toBeGreaterThan(0);
       for (const rejection of result.rejected) {
-        expect(rejection.reason).toMatch(/Batch impact ceiling/);
+        expect(rejection.reason).toMatch(/Turn impact ceiling/);
         expect(rejection.reason).toContain(`region ${RING_HUB}`);
       }
     }
@@ -968,10 +971,10 @@ describe("кольцо соседей: побочный эффект не обх
     );
 
     const memory = memoryOf(state, HUB_ID, GROUP)!;
-    expect(memory.emboldenment).toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
+    expect(memory.emboldenment).toBeLessThanOrEqual(IMPACT_FIELD_TURN_CEILING.emboldenment);
     expect(result.applied.length).toBeGreaterThan(0);
     expect(result.rejected.length).toBeGreaterThan(0);
-    expect(result.rejected[0]!.reason).toMatch(/Batch impact ceiling/);
+    expect(result.rejected[0]!.reason).toMatch(/Turn impact ceiling/);
   });
 
   it("кап накопления держится и при смягчении капа «verb на цель»", () => {
@@ -999,7 +1002,7 @@ describe("кольцо соседей: побочный эффект не обх
     // Складываются эффекты РАЗНЫХ глаголов — прямой и побочный, — и сумма всё
     // равно остаётся в коридоре поля.
     expect(memoryOf(state, RING_HUB, TEST_GROUP_TITULAR)!.emboldenment)
-      .toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
+      .toBeLessThanOrEqual(IMPACT_FIELD_TURN_CEILING.emboldenment);
   });
 });
 
@@ -1015,8 +1018,10 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
     const result = applyPrimitiveBatch(state, [primitive]);
     expect(result.applied).toHaveLength(1);
 
-    // Диагностика отказов — не эффект примитива, её палитра не описывает.
+    // Диагностика отказов и бухгалтерия хода — не эффекты примитива, палитра
+    // их не описывает (обе пишутся границей хода после commit'а).
     state.pendingWorldFacts = before.pendingWorldFacts;
+    state.primitiveTurnBudget = before.primitiveTurnBudget;
 
     const changed = collectChangedPaths(before, state);
     expect(changed.length).toBeGreaterThan(0);

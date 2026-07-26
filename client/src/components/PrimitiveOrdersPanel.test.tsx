@@ -114,7 +114,7 @@ describe("PrimitiveOrdersPanel — быстрые кнопки", () => {
     ]);
   });
 
-  it("каждый приказ несёт свой ключ идемпотентности", async () => {
+  it("разные приказы несут разные ключи идемпотентности", async () => {
     const apply = vi.spyOn(gameApi, "applyPrimitives").mockResolvedValue({
       duplicate: false,
       outcomes: [],
@@ -131,6 +131,47 @@ describe("PrimitiveOrdersPanel — быстрые кнопки", () => {
     const [, secondKey] = apply.mock.calls[1]!;
     expect(firstKey).toBeTruthy();
     expect(secondKey).not.toBe(firstKey);
+  });
+
+  it("повтор той же кнопки ПОСЛЕ СБОЯ несёт тот же ключ — сервер узнает ретрай", async () => {
+    // Сценарий, который прежний тест («каждый приказ несёт свой ключ»)
+    // закреплял как норму: приказ применился, ответ потерялся в сети, игрок
+    // видит «Не удалось» и жмёт ту же кнопку снова. С новым ключом сервер
+    // считает это вторым приказом и применяет ещё раз.
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const apply = vi
+      .spyOn(gameApi, "applyPrimitives")
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValue({ duplicate: true, outcomes: [], rejected: [] });
+    renderPanel();
+
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+    await screen.findByRole("alert");
+
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(2));
+
+    expect(apply.mock.calls[1]![1]).toBe(apply.mock.calls[0]![1]);
+  });
+
+  it("осознанный второй приказ после УСПЕХА несёт новый ключ — это не ретрай", async () => {
+    // Обратная половина: дошедший запрос ключ освобождает. Иначе второй приказ
+    // того же вида молча превращался бы в «дубль» на клиенте, и игрок не узнал
+    // бы настоящую причину отказа — кап хода (docs/PRIMITIVES.md §4).
+    const apply = vi.spyOn(gameApi, "applyPrimitives").mockResolvedValue({
+      duplicate: false,
+      outcomes: [],
+      rejected: [],
+    });
+    renderPanel();
+
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(2));
+
+    expect(apply.mock.calls[1]![1]).not.toBe(apply.mock.calls[0]![1]);
   });
 });
 

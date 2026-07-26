@@ -306,4 +306,41 @@ describe("применение примитивов из ответа модел
     // же упрёк вечно.
     expect(new LLMService(game).generatePrompt()).toContain("Nothing was rejected last cycle");
   });
+
+  it("сбой провайдера не съедает диагностику: промта никто не увидел", async () => {
+    const game = createDiscontentTestGame();
+    new LLMService(game).processResponse(
+      response([
+        { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+      ])
+    );
+    const beforeContext = game.llmContext;
+
+    await expect(
+      new LLMService(game).runAutoCycle(() => Promise.reject(new Error("provider is down")))
+    ).rejects.toThrow("provider is down");
+
+    // Отказ обязан дожить до следующего промта — он ЕДИНСТВЕННЫЙ способ
+    // сказать модели, что предпосылка невыполнима (docs/PRIMITIVES.md §3).
+    const prompt = new LLMService(game).generatePrompt();
+    expect(prompt).toContain("Attempt rejected (repress)");
+    // И промт, который никто не получил, не остался в состоянии.
+    expect(beforeContext).toBe(undefined);
+  });
+
+  it("сбой ПОСЛЕ ответа модели диагностику не возвращает — она уже доехала", async () => {
+    const game = createDiscontentTestGame();
+    new LLMService(game).processResponse(
+      response([
+        { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+      ])
+    );
+
+    // Модель ответила мусором: промт до неё доехал, отказы она видела. Второй
+    // раз показывать их значило бы упрекать за то, что уже сказано.
+    const result = await new LLMService(game).runAutoCycle(() => Promise.resolve("not json"));
+
+    expect(result.success).toBe(false);
+    expect(new LLMService(game).generatePrompt()).toContain("Nothing was rejected last cycle");
+  });
 });

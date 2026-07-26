@@ -99,6 +99,16 @@ export interface LlmCycleResult {
 }
 
 /**
+ * Одноразовые данные, которые потребляет рендер промта: их нужно уметь вернуть
+ * в состояние, если промт так никому и не достался (см. `runAutoCycle`).
+ */
+interface PromptConsumables {
+  pendingWorldFacts: GameState["pendingWorldFacts"];
+  hingePointShowCount: GameState["hingePointShowCount"];
+  llmContext: string | undefined;
+}
+
+/**
  * Сервис для работы с LLM симуляцией.
  * Управляет генерацией промтов, применением ответов LLM и валидацией действий.
  */
@@ -107,6 +117,64 @@ export class LLMService {
 
   constructor(game: GameState) {
     this.game = game;
+  }
+
+  /**
+   * Полный автоматизированный проход: промт → провайдер → применение.
+   *
+   * Здесь, а не в роуте, ровно из-за отката. `generatePrompt()` ПОТРЕБЛЯЕТ
+   * одноразовые данные: диагностику отклонённых примитивов (docs/PRIMITIVES.md
+   * §3 — «в следующий промт, чтобы не долбилась в невозможное»), пометку
+   * «кризис новый в этом месяце» и счётчик показов исторических развилок. Если
+   * провайдер упал ПОСЛЕ генерации, эти данные исчезали навсегда: до модели они
+   * не доехали, а в состоянии их уже нет. Проверено исполнением — повторный
+   * `generatePrompt` в том же месяце шёл уже без отказов.
+   *
+   * Откат сделан ровно на сбой ПРОВАЙДЕРА, а не на любую неудачу. Битый или
+   * невалидный ответ модели — это ответ: промт до неё доехал, диагностику она
+   * видела, и возвращать её обратно значило бы показать те же отказы дважды.
+   */
+  async runAutoCycle(askProvider: (prompt: string) => Promise<string>): Promise<LlmCycleResult> {
+    const consumed = this.snapshotPromptConsumables();
+    const prompt = this.generatePrompt();
+    this.savePrompt(prompt);
+
+    let rawResponse: string;
+    try {
+      rawResponse = await askProvider(prompt);
+    } catch (error) {
+      this.restorePromptConsumables(consumed);
+      throw error;
+    }
+
+    return this.processResponse(rawResponse);
+  }
+
+  /**
+   * Снимок всего, что `generatePrompt()` потребляет или инкрементирует.
+   *
+   * Клонируется, а не копируется ссылкой: секции подменяют `pendingWorldFacts`
+   * целым новым массивом, но полагаться на это как на гарантию нельзя — стоит
+   * одной секции начать править факт на месте, и «снимок» стал бы тем же
+   * объектом. `llmContext` тоже здесь: промт, который никто не увидел, не
+   * должен остаться в состоянии и показать те же одноразовые данные второй раз
+   * уже из сохранённого текста.
+   */
+  private snapshotPromptConsumables(): PromptConsumables {
+    return {
+      pendingWorldFacts: structuredClone(this.game.pendingWorldFacts),
+      hingePointShowCount: { ...this.game.hingePointShowCount },
+      llmContext: this.game.llmContext,
+    };
+  }
+
+  private restorePromptConsumables(snapshot: PromptConsumables): void {
+    this.game.pendingWorldFacts = snapshot.pendingWorldFacts;
+    this.game.hingePointShowCount = snapshot.hingePointShowCount;
+    // Промта до сбоя могло не быть вовсе — тогда поле УДАЛЯЕТСЯ, а не
+    // выставляется в `undefined`: сейв обязан вернуться к прежней форме.
+    if (snapshot.llmContext === undefined) delete this.game.llmContext;
+    else this.game.llmContext = snapshot.llmContext;
   }
 
   /**
@@ -251,7 +319,16 @@ export class LLMService {
       return {
         outcomes: [],
         rejected: [
-          { reason: "This response was already applied this month; primitives were not re-applied" },
+          {
+            // Формулировка названа точно, а не обнадёживающе: ключ прикрывает
+            // ТОЛЬКО массив `primitives`. Старый канал `actions` при повторной
+            // подаче того же ответа отработает второй раз, как и раньше
+            // (осознанный хвост, docs/TODO.md). «This response was already
+            // applied» создавало впечатление полной защиты ответа.
+            reason:
+              "The primitives of this response were already applied this month and were not " +
+              "re-applied (the legacy actions channel is not covered by this key)",
+          },
         ],
       };
     }
@@ -833,11 +910,10 @@ Hard limits (actions violating them are rejected):
    * заново каждый рендер, поэтому «невлезший» кризис всплывает сам, как только
    * станет острее показанных, а снятый исчезает сам.
    *
-   * Стоимость: один проход по регионам ради выборки залатченных плюс сортировка
-   * ТОЛЬКО активных кризисов. Дорогая часть — вывод недовольства с разложением
-   * по группам — считается для числа регионов в кризисе, а не для мира: при
-   * полном демо-составе Милстоуна 2 (~1399 регионов) секция не начинает
-   * сортировать мир.
+   * Стоимость — см. заметку в `crisisDigest.ts`: разложение по группам
+   * считается для ВСЕХ регионов в кризисе, а не для показанной пятёрки, и
+   * дёшево это сегодня по данным (14 размеченных регионов), а не по
+   * конструкции. При полной разметке Милстоуна 2 мерить заново.
    *
    * Одноразовые факты `region_crisis` здесь ПОТРЕБЛЯЮТСЯ — но не как источник
    * текста, а как пометка «этот кризис новый в этом месяце». Иначе их вычистил

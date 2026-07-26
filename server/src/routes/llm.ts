@@ -75,7 +75,8 @@ router.post("/response", (req, res) => {
  * Автоматизированный LLM-цикл: промт → Gemini API → та же валидация и
  * применение, что и в ручном /response (LLMService.processResponse) — не
  * дублирует логику, только заменяет источник сырого ответа. Ошибка
- * провайдера (нет ключа, сеть, битый формат) — 502, ход не продвигается.
+ * провайдера (нет ключа, сеть, битый формат) — 502, ход не продвигается и
+ * одноразовая диагностика возвращается в состояние (см. `runAutoCycle`).
  */
 router.post("/auto", async (req, res) => {
   try {
@@ -85,11 +86,11 @@ router.post("/auto", async (req, res) => {
     }
 
     const llmService = new LLMService(game);
-    const prompt = llmService.generatePrompt();
-    llmService.savePrompt(prompt);
-
-    const rawResponse = await geminiProvider.generateResponse(prompt);
-    const result = llmService.processResponse(rawResponse);
+    // Весь цикл — одним вызовом сервиса, а не «сгенерировать / позвать /
+    // применить» здесь: генерация промта ПОТРЕБЛЯЕТ одноразовую диагностику, и
+    // при сбое провайдера её нужно вернуть в состояние. Разложить это по роуту
+    // значило бы продублировать бизнес-правило в transport-слое.
+    const result = await llmService.runAutoCycle(prompt => geminiProvider.generateResponse(prompt));
 
     if (!result.success) {
       res.status(400).json({ error: result.error });

@@ -40,12 +40,16 @@ import {
   ENACT_REFORM_COORDINATE_STEP_MIN,
   ENACT_REFORM_COORDINATE_STEP_MAX,
   ENACT_REFORM_POLITICAL_COST,
-  MAX_SOFT_PRIMITIVES_PER_BATCH,
-  MAX_STRUCTURAL_PRIMITIVES_PER_BATCH,
+  MAX_SOFT_PRIMITIVES_PER_TURN,
+  MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
   MAX_PRIMITIVES_PER_TARGET_PER_TURN,
-  IMPACT_FIELD_BATCH_CEILING,
-  IMPACT_FIELD_BATCH_CEILING_TOLERANCE,
+  IMPACT_FIELD_TURN_CEILING,
+  IMPACT_FIELD_TURN_CEILING_TOLERANCE,
 } from "@shared/defines/discontent";
+import {
+  emptyPrimitiveTurnBudget,
+  type PrimitiveTurnBudget,
+} from "@shared/types/politics/PrimitiveTurnBudget";
 import { MapFeatureService } from "../services/MapFeatureService";
 import * as politicsCommands from "../commands/politics";
 import { type CommandResult } from "../commands/types";
@@ -113,7 +117,7 @@ import {
  *   3. Палитра эффектов — изменённые пути состояния сверяются с whitelist'ом
  *      (palette.ts) в рантайме, а не только в тесте.
  *
- * Капы батча (§4) — четыре штуки: ≤10 мягких, ≤1 структурный, «один verb на
+ * Капы ХОДА (§4) — четыре штуки: ≤10 мягких, ≤1 структурный, «один verb на
  * цель за ход» и потолок накопления следа в одной тройке (регион, группа,
  * поле). Третий закрывает обход коридора магнитуды частотой в лоб: без него
  * десять `mild`-примитивов по одной цели дают то, что один `severe` дать не
@@ -123,6 +127,17 @@ import {
  * уступок сходятся в одну пару. Он считает не примитивы, а величину, и берёт
  * её из фактического дифа памяти (`impactDeltas`), поэтому не зависит ни от
  * числа примитивов, ни от их формы.
+ *
+ * Все четыре считаются НА ИГРОВОЙ ХОД, а не на вызов: счётчики читаются из
+ * `game.primitiveTurnBudget` и дописываются туда же после commit'а. Это не
+ * деталь реализации, а сама гарантия. Пока счётчики жили в локальных `Map`,
+ * «ход» молча означал «вызов», и десять кликов игрока в одном месяце давали то,
+ * что коридор магнитуды запрещает одному примитиву (замер на данных 1946:
+ * регион 68 / `estonians`, `suppression` 0.238 одним батчем против 1.000
+ * десятью вызовами). Бюджет намеренно НЕ параметр функции: необязательный
+ * параметр со значением по умолчанию «без ограничений» — ровно тот способ
+ * потерять кап, каким он и был потерян. Новый вызывающий получает кап потому,
+ * что бюджет лежит в состоянии, а не потому, что вызывающий о нём вспомнил.
  *
  * Работа идёт на структурном клоне состояния; в настоящий `game` результат
  * попадает одним переносом в конце (commit, см. `restore` — он сохраняет
@@ -1002,7 +1017,7 @@ function orderForExecution(primitives: readonly Primitive[]): Primitive[] {
  * Отклик соседей у `grant_autonomy` в ключи НЕ входит: сосед — побочный эффект,
  * а не цель. Иначе уступка в двух соседних регионах за ход стала бы невозможной.
  * Величину, которая приходит в пару этим каналом, ограничивает не этот кап, а
- * потолок накопления следа (`IMPACT_FIELD_BATCH_CEILING`): сюда её тащить
+ * потолок накопления следа (`IMPACT_FIELD_TURN_CEILING`): сюда её тащить
  * нельзя, туда — можно, потому что тот кап считает не цели, а дельты.
  *
  * Вызывается только после успешного `validate`, поэтому регион и группы заведомо
@@ -1080,6 +1095,19 @@ function impactDeltas(before: GameState, after: GameState): ImpactDelta[] {
 /** Ключ бюджета накопления — тройка (регион, группа, поле). */
 function impactBudgetKey(impact: ImpactDelta): string {
   return `${impact.field} on region ${impact.regionId} / group ${impact.groupId}`;
+}
+
+/**
+ * Бюджет капов для ТЕКУЩЕГО игрового хода.
+ *
+ * Бюджет чужой даты читается как пустой: смена `currentDate` и есть смена хода,
+ * и никакого отдельного «обнулить счётчики» в тике не требуется. Явный reset
+ * был бы вторым источником истины о том, что такое ход, — а любой путь,
+ * двигающий дату мимо него, молча унёс бы остатки прошлого месяца в новый.
+ */
+function turnBudgetFor(game: GameState): PrimitiveTurnBudget {
+  const stored = game.primitiveTurnBudget;
+  return stored.date === game.currentDate ? stored : emptyPrimitiveTurnBudget(game.currentDate);
 }
 
 /**
@@ -1165,47 +1193,56 @@ export function applyPrimitiveBatch(
   const rejected: RejectedPrimitive[] = [];
 
   const ordered = orderForExecution(primitives);
-  let softBudget = MAX_SOFT_PRIMITIVES_PER_BATCH;
-  let structuralBudget = MAX_STRUCTURAL_PRIMITIVES_PER_BATCH;
+
+  // Счётчики продолжают счёт ХОДА, а не начинаются заново на каждом вызове:
+  // ответ модели и приказ игрока в одном месяце тратят общий бюджет. Локальные
+  // копии — чтобы отклонённый примитив не оставлял следа в состоянии до
+  // commit'а; итог дописывается обратно в `game` после переноса.
+  const budget = turnBudgetFor(game);
+  let softUsed = budget.softUsed;
+  let structuralUsed = budget.structuralUsed;
 
   // Счётчик применений на пару «глагол + сущность» — кап §4 против спама.
   // Счётчик, а не множество: `MAX_PRIMITIVES_PER_TARGET_PER_TURN` — константа
   // калибровки, и её смягчение до 2 не должно требовать переписывания движка.
-  const targetUses = new Map<string, number>();
+  const targetUses = new Map<string, number>(Object.entries(budget.targetUses));
 
   // Накопленный след по тройкам (регион, группа, поле) — второй кап, считающий
   // не примитивы, а величину. Нужен потому, что первый ключуется ПРЯМОЙ целью,
   // а часть эффектов приходит в пару побочно (отклик соседей у уступки) и в
   // ключи не входит намеренно. Каждая уступка — законная отдельная цель,
   // счётчик не срабатывает ни разу, но записи сходятся в одну пару.
-  const impactUsed = new Map<string, number>();
+  const impactUsed = new Map<string, number>(Object.entries(budget.impactAccrued));
 
   // Клон всего состояния: примитивы видят эффекты друг друга, но настоящий
   // game не меняется, пока батч не досчитан.
   const working: GameState = structuredClone(game);
 
   for (const primitive of ordered) {
+    // Бюджет ПРОВЕРЯЕТСЯ здесь, а СПИСЫВАЕТСЯ ниже — только применённым
+    // примитивом (там же, где занимается цель). До переезда счётчиков в
+    // состояние хода списание на попытке было безобидным: батч был ходом, и
+    // «десять предложений, восемь отказов» законно исчерпывали одно событие.
+    // На горизонте хода это ломает игрока: отклонённая реформа (координата уже
+    // на упоре) съедала бы ЕДИНСТВЕННЫЙ структурный слот месяца, и следующая —
+    // законная — реформа получала бы «At most 1 structural per turn» при том,
+    // что структурного в этом ходу не произошло вообще ничего.
     const structural = isStructural(primitive.verb);
-    if (structural) {
-      if (structuralBudget <= 0) {
-        rejected.push({
-          verb: primitive.verb,
-          sourceCountryId: primitive.sourceCountryId,
-          reason: `At most ${MAX_STRUCTURAL_PRIMITIVES_PER_BATCH} structural primitive(s) per response`,
-        });
-        continue;
-      }
-      structuralBudget -= 1;
-    } else {
-      if (softBudget <= 0) {
-        rejected.push({
-          verb: primitive.verb,
-          sourceCountryId: primitive.sourceCountryId,
-          reason: `At most ${MAX_SOFT_PRIMITIVES_PER_BATCH} soft primitives per response`,
-        });
-        continue;
-      }
-      softBudget -= 1;
+    if (structural && structuralUsed >= MAX_STRUCTURAL_PRIMITIVES_PER_TURN) {
+      rejected.push({
+        verb: primitive.verb,
+        sourceCountryId: primitive.sourceCountryId,
+        reason: `At most ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural primitive(s) per turn`,
+      });
+      continue;
+    }
+    if (!structural && softUsed >= MAX_SOFT_PRIMITIVES_PER_TURN) {
+      rejected.push({
+        verb: primitive.verb,
+        sourceCountryId: primitive.sourceCountryId,
+        reason: `At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives per turn`,
+      });
+      continue;
     }
 
     // Предпосылки пересчитываются на актуальном состоянии, а не на состоянии
@@ -1225,10 +1262,12 @@ export function applyPrimitiveBatch(
     // validate: примитив, невозможный по предпосылкам, должен получить
     // настоящую причину отказа, а не «дубль», и не должен занимать цель.
     //
-    // Без этого капа кламп магнитуды обходится частотой: батч из десяти
-    // `repress(mild)` по одной паре (регион, группа) проходит валидацию целиком
-    // (контроль и состав региона не меняются, палитра та же) и упирает поле
-    // памяти в потолок — ровно то, что коридор запрещает делать одним примитивом.
+    // Без этого капа кламп магнитуды обходится частотой: десять `repress(mild)`
+    // по одной паре (регион, группа) проходят валидацию целиком (контроль и
+    // состав региона не меняются, палитра та же) и упирают поле памяти в
+    // потолок — ровно то, что коридор запрещает делать одним примитивом.
+    // Счёт идёт по ходу, поэтому неважно, пришли они одним батчем или десятью
+    // отдельными запросами.
     const entities = targetEntities(working, primitive);
     const exhausted = entities.filter(
       e => (targetUses.get(targetUseKey(primitive, e)) ?? 0) >= MAX_PRIMITIVES_PER_TARGET_PER_TURN
@@ -1312,7 +1351,7 @@ export function applyPrimitiveBatch(
     const overflow = accrued.filter(
       d =>
         (impactUsed.get(impactBudgetKey(d)) ?? 0) + d.delta >
-        IMPACT_FIELD_BATCH_CEILING[d.field] + IMPACT_FIELD_BATCH_CEILING_TOLERANCE
+        IMPACT_FIELD_TURN_CEILING[d.field] + IMPACT_FIELD_TURN_CEILING_TOLERANCE
     );
     if (overflow.length > 0) {
       restore(working, before);
@@ -1320,21 +1359,24 @@ export function applyPrimitiveBatch(
         verb: primitive.verb,
         sourceCountryId: primitive.sourceCountryId,
         reason:
-          `Batch impact ceiling reached: ` +
+          `Turn impact ceiling reached: ` +
           overflow
             .map(
               d =>
                 `${impactBudgetKey(d)} would total ` +
                 `${((impactUsed.get(impactBudgetKey(d)) ?? 0) + d.delta).toFixed(3)} ` +
-                `(max ${IMPACT_FIELD_BATCH_CEILING[d.field]} per batch)`
+                `(max ${IMPACT_FIELD_TURN_CEILING[d.field]} per turn)`
             )
             .join("; "),
       });
       continue;
     }
 
-    // Цель занимается только ПРИМЕНЁННЫМ примитивом: откаченный (отказ команды
-    // или нарушение палитры) состояния не изменил, и запирать за ним цель не за что.
+    // Ход тратится только ПРИМЕНЁННЫМ примитивом: откаченный (отказ команды
+    // или нарушение палитры) состояния не изменил, и ни цель, ни слот хода за
+    // ним запирать не за что.
+    if (structural) structuralUsed += 1;
+    else softUsed += 1;
     for (const entity of entities) {
       const key = targetUseKey(primitive, entity);
       targetUses.set(key, (targetUses.get(key) ?? 0) + 1);
@@ -1351,6 +1393,21 @@ export function applyPrimitiveBatch(
   // всё отклонено) до состояния вообще не дотрагивается — `working` в этот
   // момент побайтно равен `game`.
   if (applied.length > 0) restore(game, working);
+
+  // Бюджет хода пишется ПОСЛЕ commit'а по той же причине, по какой ниже
+  // пишется диагностика: `working` — клон, снятый ДО этого вызова, и перенос
+  // вернул бы в состояние прежние счётчики, обнулив весь смысл учёта.
+  //
+  // Пишется всегда, а не только при `applied.length > 0`: дата бюджета обязана
+  // догнать текущий ход даже там, где применять было нечего, иначе состояние
+  // осталось бы помечено прошлым месяцем.
+  game.primitiveTurnBudget = {
+    date: game.currentDate,
+    softUsed,
+    structuralUsed,
+    targetUses: Object.fromEntries(targetUses),
+    impactAccrued: Object.fromEntries(impactUsed),
+  };
 
   // Диагностика пишется ПОСЛЕ commit'а, прямо в боевое состояние: факты об
   // отказах не участвуют в откате и не должны быть перетёрты переносом.

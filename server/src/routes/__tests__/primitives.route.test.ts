@@ -131,12 +131,66 @@ describe("POST /primitives/apply", () => {
 
     expect(response.status).toBe(404);
   });
+
+  it("десять кликов подряд = один приказ: кап хода живёт в состоянии, а не в вызове", async () => {
+    // Ровно тот путь, которым кап обходился: каждый клик — свой запрос со своим
+    // ключом, дублем не является, и до переезда счётчиков в состояние партии
+    // все десять применялись.
+    for (let i = 0; i < 10; i++) {
+      const response = await request(app)
+        .post("/primitives/apply")
+        .send({ primitives: [repress], idempotencyKey: `click-${i}` });
+      expect(response.status).toBe(200);
+      expect(response.body.duplicate).toBe(false);
+      if (i > 0) {
+        expect(response.body.outcomes).toEqual([]);
+        expect(response.body.rejected[0].reason).toContain("per target per turn");
+      }
+    }
+
+    const afterTen = suppressionNow();
+
+    // Сверка величиной, а не «второй запрос ответил отказом»: мир обязан быть
+    // ровно там, куда его двигает ОДИН примитив.
+    setGame(createDiscontentTestGame());
+    await request(app)
+      .post("/primitives/apply")
+      .send({ primitives: [repress], idempotencyKey: "single" });
+
+    expect(afterTen).toBe(suppressionNow());
+  });
 });
 
 describe("POST /primitives/translate", () => {
   it("пустой текст не отправляется в модель вовсе", async () => {
     const response = await request(app).post("/primitives/translate").send({ intent: "" });
     expect(response.status).toBe(400);
+  });
+
+  it("чужой регион в выделении — 400 ДО вызова модели", async () => {
+    // Регион 187 принадлежит SUN; подменяем владельца, чтобы выделение стало
+    // чужим. Ключ провайдера при этом не задан: если бы проверка стояла после
+    // вызова модели, ответ был бы 502 «нет ключа», а не 400 про регион.
+    vi.stubEnv("GEMINI_API_KEY", "");
+    const game = getGame()!;
+    game.regions.find(r => r.id === TEST_REGION_NATIONAL)!.ownerCountryId = "USA";
+
+    const response = await request(app)
+      .post("/primitives/translate")
+      .send({ intent: "подавить волнения", selectedRegionId: TEST_REGION_NATIONAL });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toContain("not controlled by SUN");
+  });
+
+  it("несуществующий регион в выделении — 400, а не выдуманная цель в промте", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "");
+    const response = await request(app)
+      .post("/primitives/translate")
+      .send({ intent: "подавить волнения", selectedRegionId: 999999 });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error).toContain("does not exist");
   });
 
   it("без ключа провайдера — честный 502, а не молчаливый пустой перевод", async () => {

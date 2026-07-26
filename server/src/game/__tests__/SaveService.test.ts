@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { saveGame, loadGame, listSaves, deleteSave } from "../SaveService";
 import { SaveNotFoundError, SaveVersionError } from "../../errors/AppError";
 import { createTestGameState } from "../../test-utils/fixtures";
+import { SAVE_VERSION } from "@shared/types/SaveFile";
+import { type GameState } from "@shared/types/GameState";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SAVES_DIR = path.resolve(__dirname, "..", "..", "..", "data", "saves");
@@ -17,6 +19,7 @@ const TEST_SLOTS = [
   "__test_transient",
   "__test_missing",
   "__test_version",
+  "__test_prev_version",
   "__test_delete",
   "__test_list_a",
   "__test_list_b",
@@ -68,6 +71,25 @@ describe("SaveService", () => {
     );
 
     expect(() => loadGame("__test_version")).toThrow(SaveVersionError);
+  });
+
+  it("сейв ПРЕДЫДУЩЕЙ версии отклоняется внятно, а не падает на недостающем поле", () => {
+    // Именно этот случай встречает игрок после бампа формата: сейв прошлой
+    // версии физически валиден, но в нём нет нового обязательного поля. Он
+    // обязан быть отклонён ПО ВЕРСИИ, с обеими версиями в тексте, — иначе
+    // загрузится состояние с отключённой защитой (docs/DECISIONS.md, 2026-07-26).
+    const legacy = createTestGameState() as Partial<GameState>;
+    delete legacy.primitiveTurnBudget;
+
+    fs.mkdirSync(SAVES_DIR, { recursive: true });
+    fs.writeFileSync(
+      path.join(SAVES_DIR, "__test_prev_version.json"),
+      JSON.stringify({ version: SAVE_VERSION - 1, savedAt: "x", game: legacy })
+    );
+
+    expect(() => loadGame("__test_prev_version")).toThrow(
+      new RegExp(`incompatible version ${SAVE_VERSION - 1}.*expects ${SAVE_VERSION}`)
+    );
   });
 
   it("deleteSave удаляет слот; бросает SaveNotFoundError на уже отсутствующий", () => {
