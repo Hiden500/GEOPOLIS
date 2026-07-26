@@ -2,9 +2,19 @@ import { describe, it, expect } from "vitest";
 import { applyPrimitiveBatch, restore } from "../PrimitiveEngine";
 import { PRIMITIVE_PALETTE } from "../palette";
 import { collectChangedPaths } from "../statePaths";
-import { PRIMITIVE_VERBS, type Primitive, type PrimitiveVerb } from "../types";
+import {
+  PRIMITIVE_VERBS,
+  impactEffectsOf,
+  type AppliedEnactReform,
+  type AppliedGrantAutonomy,
+  type AppliedPrimitive,
+  type AppliedSpawnIncident,
+  type Primitive,
+  type PrimitiveVerb,
+} from "../types";
 import { primitiveSchema, parsePrimitives } from "../primitiveSchemas";
 import { regionDiscontent } from "@shared/utils/discontent";
+import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
 import {
   ENACT_REFORM_COORDINATE_STEP_MIN,
   ENACT_REFORM_COORDINATE_STEP_MAX,
@@ -16,6 +26,7 @@ import {
   REPRESS_SUPPRESSION_MAX,
   GRANT_AUTONOMY_CONCESSION_MIN,
   GRANT_AUTONOMY_CONCESSION_MAX,
+  SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT,
 } from "@shared/defines/discontent";
 import {
   createDiscontentTestGame,
@@ -46,11 +57,81 @@ function memoryOf(state: GameState, regionId: number, groupId: string) {
   return state.groupImpactMemory.find(m => m.regionId === regionId && m.groupId === groupId);
 }
 
+/**
+ * Фактическая дельта одного поля памяти у одной группы — прямо из результата
+ * примитива, без заглядывания в состояние.
+ *
+ * Обязательно `toBeDefined`: отсутствие записи означает, что движок о своём
+ * эффекте не отчитался, и молча вернуть 0 здесь — значит спрятать ровно тот
+ * дефект, ради которого результат и переделан.
+ */
+function deltaFor(applied: AppliedPrimitive, groupId: string, field: ImpactMemoryField): number {
+  const effect = impactEffectsOf(applied).find(e => e.groupId === groupId && e.field === field);
+  expect(effect, `${field} for ${groupId} missing from ${JSON.stringify(applied)}`).toBeDefined();
+  return effect!.delta;
+}
+
+/** Сумма фактических дельт поля по всем затронутым группам. */
+function totalDelta(applied: AppliedPrimitive, field: ImpactMemoryField): number {
+  return impactEffectsOf(applied)
+    .filter(e => e.field === field)
+    .reduce((sum, e) => sum + e.delta, 0);
+}
+
+function asReform(applied: AppliedPrimitive): AppliedEnactReform {
+  expect(applied.verb).toBe("enact_reform");
+  return applied as AppliedEnactReform;
+}
+
+function asAutonomy(applied: AppliedPrimitive): AppliedGrantAutonomy {
+  expect(applied.verb).toBe("grant_autonomy");
+  return applied as AppliedGrantAutonomy;
+}
+
+function asIncident(applied: AppliedPrimitive): AppliedSpawnIncident {
+  expect(applied.verb).toBe("spawn_incident");
+  return applied as AppliedSpawnIncident;
+}
+
 const inciteTitular: Primitive = {
   verb: "incite_unrest",
   sourceCountryId: "USA",
   target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
 };
+
+/**
+ * Пары «verb → сценарий, в котором он валиден». Нужны сразу двум проверкам —
+ * палитре и полноте отчёта, — поэтому живут в модульной области: список,
+ * покрывающий весь алфавит, обязан быть один, иначе новый глагол попадёт в одну
+ * проверку и проскочит мимо второй.
+ */
+const SCENARIOS: { verb: PrimitiveVerb; primitive: Primitive }[] = [
+  { verb: "incite_unrest", primitive: inciteTitular },
+  {
+    verb: "repress",
+    primitive: { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+  },
+  {
+    verb: "grant_autonomy",
+    primitive: {
+      verb: "grant_autonomy", sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+    },
+  },
+  {
+    verb: "enact_reform",
+    primitive: {
+      verb: "enact_reform", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { politicalDirection: "democratic" },
+    },
+  },
+  {
+    verb: "spawn_incident",
+    primitive: {
+      verb: "spawn_incident", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
+    },
+  },
+];
 
 describe("incite_unrest", () => {
   it("поднимает недовольство через смелость группы", () => {
@@ -185,7 +266,21 @@ describe("enact_reform", () => {
     // коридор и совпадение с заявленной магнитудой, а не конкретное число.
     expect(step).toBeGreaterThanOrEqual(ENACT_REFORM_COORDINATE_STEP_MIN);
     expect(step).toBeLessThanOrEqual(ENACT_REFORM_COORDINATE_STEP_MAX);
-    expect(result.applied[0]!.magnitude).toBeCloseTo(step, 10);
+
+    // Результат описывает сдвиг целиком: ось, направление, было → стало.
+    const reform = asReform(result.applied[0]!);
+    expect(reform.ideologyShifts).toHaveLength(1);
+    const axis = reform.ideologyShifts[0]!;
+    expect(axis.axis).toBe("political");
+    expect(axis.direction).toBe("democratic");
+    expect(axis.before).toBeCloseTo(-0.9, 10);
+    expect(axis.after).toBeCloseTo(after.politics.ideologyCoordinates!.political, 10);
+    expect(axis.delta).toBeCloseTo(step, 10);
+
+    // И политическую цену — отдельным полем, а не растворённой в одном скаляре.
+    expect(reform.politicalCost.before).toBeCloseTo(supportBefore, 10);
+    expect(reform.politicalCost.after).toBeCloseTo(after.politics.governmentSupport, 10);
+    expect(reform.politicalCost.delta).toBeCloseTo(-ENACT_REFORM_POLITICAL_COST, 10);
     expect(after.politics.governmentSupport).toBeCloseTo(supportBefore - ENACT_REFORM_POLITICAL_COST, 10);
     expect(discontentOf(state, TEST_REGION_NATIONAL)).toBeLessThan(before);
   });
@@ -246,11 +341,92 @@ describe("enact_reform", () => {
     }]);
 
     expect(result.rejected).toEqual([]);
-    expect(result.applied[0]!.countryId).toBe("SUN");
+    expect(asReform(result.applied[0]!).countryId).toBe("SUN");
+  });
+
+  /**
+   * Достижимость сдвига (внешний аудит 2026-07-26). До правки реформа в сторону,
+   * куда координата уже не движется, ПРОХОДИЛА: списывала 8 поддержки, координату
+   * не меняла и сообщала «politics shifted authoritarian». Символическая реформа
+   * с ценой и без эффекта нигде не заявлена как механика, поэтому выбран reject —
+   * он честнее и дешевле в объяснении игроку (docs/PRIMITIVES.md §2).
+   */
+  it("отклоняется в недостижимом направлении — цена не списывается за несостоявшийся сдвиг", () => {
+    const state = game();
+    state.countries.find(c => c.id === "SUN")!.politics.ideologyCoordinates =
+      { economic: -0.95, political: -1 };
+    const supportBefore = state.countries.find(c => c.id === "SUN")!.politics.governmentSupport;
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "enact_reform", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { politicalDirection: "authoritarian" },
+    }]);
+
+    expect(result.applied).toEqual([]);
+    expect(result.rejected[0]!.reason).toMatch(/would not move anything/);
+    expect(result.rejected[0]!.reason).toMatch(/political axis is already at -1\.00/);
+
+    const after = state.countries.find(c => c.id === "SUN")!.politics;
+    expect(after.governmentSupport).toBe(supportBefore);
+    expect(after.ideologyCoordinates).toEqual({ economic: -0.95, political: -1 });
+  });
+
+  it("реформа отклоняется целиком, если недостижима хотя бы одна из двух осей", () => {
+    const state = game();
+    // Экономическая ось двигаться может, политическая — уже на краю.
+    state.countries.find(c => c.id === "SUN")!.politics.ideologyCoordinates =
+      { economic: -0.5, political: -1 };
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "enact_reform", sourceCountryId: "SUN", target: { countryId: "SUN" },
+      params: { economicDirection: "right", politicalDirection: "authoritarian" },
+    }]);
+
+    // «Полусобытий» не бывает: экономическую ось тоже не двигаем.
+    expect(result.applied).toEqual([]);
+    expect(result.rejected[0]!.reason).toMatch(/political axis is already at -1\.00/);
+    expect(state.countries.find(c => c.id === "SUN")!.politics.ideologyCoordinates)
+      .toEqual({ economic: -0.5, political: -1 });
+  });
+
+  it("противоположное направление от края спектра проходит — упёрта сторона, не ось", () => {
+    const state = game();
+    state.countries.find(c => c.id === "SUN")!.politics.ideologyCoordinates =
+      { economic: -0.95, political: -1 };
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "enact_reform", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { politicalDirection: "democratic" },
+    }]);
+
+    expect(result.rejected).toEqual([]);
+    expect(asReform(result.applied[0]!).ideologyShifts[0]!.delta).toBeGreaterThan(0);
   });
 });
 
 describe("spawn_incident", () => {
+  /** Доводит недовольство целевого региона выше порога восстания. */
+  function boiling(): GameState {
+    const state = game();
+    state.groupImpactMemory.push({
+      regionId: TEST_REGION_NATIONAL,
+      groupId: TEST_GROUP_TITULAR,
+      suppression: 0,
+      alienation: 0,
+      concession: 0,
+      emboldenment: 0.6,
+    });
+    expect(discontentOf(state, TEST_REGION_NATIONAL))
+      .toBeGreaterThanOrEqual(SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
+    return state;
+  }
+
+  /** Делает соседа региона чужой территорией — спорная граница появляется. */
+  function withForeignNeighbour(state: GameState, ownerId = "USA"): GameState {
+    state.regions.find(r => r.id === TEST_REGION_NEIGHBOUR)!.ownerCountryId = ownerId;
+    return state;
+  }
+
   it("создаёт объект на карте нужного типа в напряжённом регионе", () => {
     const state = game();
 
@@ -258,13 +434,16 @@ describe("spawn_incident", () => {
       verb: "spawn_incident",
       sourceCountryId: "SUN",
       target: { regionId: TEST_REGION_NATIONAL },
-      params: { incidentKind: "uprising" },
+      params: { incidentKind: "protest" },
     }]);
 
     expect(result.rejected).toHaveLength(0);
     expect(state.mapFeatures).toHaveLength(1);
-    expect(state.mapFeatures[0]!.type).toBe("uprising");
+    expect(state.mapFeatures[0]!.type).toBe("protest");
     expect(state.mapFeatures[0]!.regionId).toBe(TEST_REGION_NATIONAL);
+    // id созданного объекта — в результате: нарратив ссылается на него, а не ищет.
+    expect(asIncident(result.applied[0]!).mapFeatureId).toBe(state.mapFeatures[0]!.id);
+    expect(asIncident(result.applied[0]!).incidentKind).toBe("protest");
   });
 
   it("отклоняется в спокойном регионе — инцидент растёт из контекста, не из пустоты", () => {
@@ -277,6 +456,98 @@ describe("spawn_incident", () => {
     expect(result.applied).toHaveLength(0);
     expect(result.rejected[0]!.reason).toMatch(/below the .* threshold/);
     expect(state.mapFeatures).toHaveLength(0);
+  });
+
+  /**
+   * Внешний аудит 2026-07-26: `incidentKind` использовался ТОЛЬКО при создании
+   * объекта, а валидатор проверял один общий порог недовольства. На одном и том
+   * же состоянии проходили все три вида с одинаковой величиной — то есть модель
+   * качественным параметром превращала внутреннее напряжение в пограничный спор.
+   */
+  describe("вид инцидента различается предпосылками, а не только типом объекта", () => {
+    it("восстание требует большего недовольства, чем протест", () => {
+      const state = game();
+      const discontent = discontentOf(state, TEST_REGION_NATIONAL);
+      // Регион заведомо между двумя порогами — иначе тест ничего не различает.
+      expect(discontent).toBeLessThan(SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
+
+      const protest = applyPrimitiveBatch(game(), [{
+        verb: "spawn_incident", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "protest" },
+      }]);
+      const uprising = applyPrimitiveBatch(state, [{
+        verb: "spawn_incident", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "uprising" },
+      }]);
+
+      expect(protest.applied).toHaveLength(1);
+      expect(uprising.applied).toHaveLength(0);
+      expect(uprising.rejected[0]!.reason).toMatch(/an uprising needs/);
+      expect(state.mapFeatures).toHaveLength(0);
+    });
+
+    it("восстание проходит в кипящем регионе", () => {
+      const state = boiling();
+
+      const result = applyPrimitiveBatch(state, [{
+        verb: "spawn_incident", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "uprising" },
+      }]);
+
+      expect(result.rejected).toEqual([]);
+      expect(state.mapFeatures[0]!.type).toBe("uprising");
+    });
+
+    it("пограничный спор отклоняется там, где спорной границы нет", () => {
+      // Оба соседних региона фикстуры принадлежат SUN — спорить не с кем,
+      // при том что недовольства на протест хватает.
+      const state = game();
+
+      const result = applyPrimitiveBatch(state, [{
+        verb: "spawn_incident", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "border_dispute" },
+      }]);
+
+      expect(result.applied).toEqual([]);
+      expect(result.rejected[0]!.reason).toMatch(/no border a dispute could be about/);
+      expect(state.mapFeatures).toHaveLength(0);
+    });
+
+    it("пограничный спор проходит у чужой границы и называет вторую сторону", () => {
+      const state = withForeignNeighbour(game());
+
+      const result = applyPrimitiveBatch(state, [{
+        verb: "spawn_incident", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "border_dispute" },
+      }]);
+
+      expect(result.rejected).toEqual([]);
+      const incident = asIncident(result.applied[0]!);
+      expect(incident.disputedWithCountryId).toBe("USA");
+      expect(incident.summary).toContain("against USA");
+    });
+
+    it("пограничный спор с союзником отклоняется — граница есть, спор бессмысленен", () => {
+      const state = withForeignNeighbour(game());
+      state.countries.find(c => c.id === "SUN")!.diplomacy.allies.push("USA");
+
+      const result = applyPrimitiveBatch(state, [{
+        verb: "spawn_incident", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "border_dispute" },
+      }]);
+
+      expect(result.applied).toEqual([]);
+      expect(result.rejected[0]!.reason).toMatch(/by an ally/);
+    });
+
+    it("вид не заявлен — протест: самый слабый вид, а не самый удобный", () => {
+      const result = applyPrimitiveBatch(game(), [{
+        verb: "spawn_incident", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
+      }]);
+
+      expect(asIncident(result.applied[0]!).incidentKind).toBe("protest");
+      expect(asIncident(result.applied[0]!).disputedWithCountryId).toBeUndefined();
+    });
   });
 });
 
@@ -508,8 +779,13 @@ describe("контракт батча", () => {
 
     // Фактически не дали ничего — и отклик соседей обязан это отражать, а не
     // выдавать пол коридора за жест, которого не было.
-    expect(result.applied[0]!.magnitude).toBe(0);
+    const autonomy = asAutonomy(result.applied[0]!);
+    expect(deltaFor(autonomy, TEST_GROUP_TITULAR, "concession")).toBe(0);
+    expect(autonomy.neighbourEffects).toEqual([]);
     expect(memoryOf(state, TEST_REGION_NEIGHBOUR, TEST_GROUP_TITULAR)).toBeUndefined();
+    // И резюме молчит о соседях, вместо прежнего безусловного «took heart».
+    expect(autonomy.summary).not.toMatch(/took heart|responded/);
+    expect(autonomy.summary).toMatch(/no kindred community in neighbouring regions moved/);
   });
 
   it("каждое отклонение даёт диагностический факт с причиной", () => {
@@ -666,36 +942,6 @@ describe("кольцо соседей: побочный эффект не обх
 });
 
 describe("палитра эффектов (docs/PRIMITIVES.md §3, защита №3)", () => {
-  // Пары «verb → сценарий, в котором он валиден» — палитру нельзя проверить
-  // на отклонённом примитиве, он ничего не меняет.
-  const SCENARIOS: { verb: PrimitiveVerb; primitive: Primitive }[] = [
-    { verb: "incite_unrest", primitive: inciteTitular },
-    {
-      verb: "repress",
-      primitive: { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
-    },
-    {
-      verb: "grant_autonomy",
-      primitive: {
-        verb: "grant_autonomy", sourceCountryId: "SUN",
-        target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
-      },
-    },
-    {
-      verb: "enact_reform",
-      primitive: {
-        verb: "enact_reform", sourceCountryId: "SUN",
-        target: { countryId: "SUN" }, params: { politicalDirection: "democratic" },
-      },
-    },
-    {
-      verb: "spawn_incident",
-      primitive: {
-        verb: "spawn_incident", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
-      },
-    },
-  ];
-
   it("сценарий покрывает каждый verb алфавита — новый глагол не проскочит мимо проверки", () => {
     expect(SCENARIOS.map(s => s.verb).sort()).toEqual([...PRIMITIVE_VERBS].sort());
   });
@@ -768,7 +1014,7 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
       verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
     }]);
 
-    expect(result.applied[0]!.magnitude).toBeGreaterThan(0);
+    expect(totalDelta(result.applied[0]!, "suppression")).toBeGreaterThan(0);
   });
 
   /**
@@ -793,18 +1039,34 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     };
 
     const fresh = game();
-    const intended = applyPrimitiveBatch(fresh, [repressTitular]).applied[0]!.magnitude;
+    const intended = deltaFor(
+      applyPrimitiveBatch(fresh, [repressTitular]).applied[0]!, TEST_GROUP_TITULAR, "suppression"
+    );
     const result = applyPrimitiveBatch(saturated, [repressTitular]);
 
     // Компьют посчитал бы то же самое, что и на чистом поле…
     expect(intended).toBeGreaterThan(0.1);
     // …но прижилось ровно 0.02 до потолка, и отчитаться движок обязан этим.
-    expect(result.applied[0]!.magnitude).toBeCloseTo(0.02, 10);
+    const applied = result.applied[0]!;
+    expect(deltaFor(applied, TEST_GROUP_TITULAR, "suppression")).toBeCloseTo(0.02, 10);
+    // Пара «было → стало» тоже настоящая: по ней нарратив скажет «дошло до потолка».
+    const suppression = impactEffectsOf(applied).find(e => e.field === "suppression")!;
+    expect(suppression.before).toBeCloseTo(0.98, 10);
+    expect(suppression.after).toBeCloseTo(1, 10);
     expect(memoryOf(saturated, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression)
       .toBeCloseTo(1, 10);
   });
 
-  it("поле на потолке даёт магнитуду ровно ноль, а не «применил как обычно»", () => {
+  /**
+   * Скрытых эффектов не бывает (внешний аудит 2026-07-26).
+   *
+   * Прежняя формулировка этого теста ЗАКРЕПЛЯЛА дефект как ожидаемое поведение:
+   * она проверяла, что при `magnitude === 0` отчуждение всё равно набралось, —
+   * то есть что примитив изменил состояние мимо публикуемого результата. Теперь
+   * требование обратное: всё, что применилось, обязано быть в результате, и
+   * нулевой канал обязан быть назван нулевым, а не замолчан.
+   */
+  it("подавление на потолке: ноль назван нулём, а отчуждение — не спрятано", () => {
     const state = game();
     state.groupImpactMemory.push({
       regionId: TEST_REGION_NATIONAL,
@@ -822,27 +1084,84 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     }]);
 
     expect(result.rejected).toEqual([]);
-    expect(result.applied[0]!.magnitude).toBe(0);
-    // Примитив при этом НЕ пустой: отчуждение своё всё равно набрало.
-    expect(memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.alienation).toBeGreaterThan(0);
+    const applied = result.applied[0]!;
+
+    // Подавлять было уже некуда — и это сказано прямо, а не выведено из молчания.
+    expect(deltaFor(applied, TEST_GROUP_TITULAR, "suppression")).toBe(0);
+    expect(applied.summary).toContain("suppression unchanged");
+
+    // Отчуждение при этом набралось — и оно в результате, с реальными числами.
+    const alienation = deltaFor(applied, TEST_GROUP_TITULAR, "alienation");
+    expect(alienation).toBeGreaterThan(0);
+    expect(alienation)
+      .toBeCloseTo(memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.alienation, 10);
+    expect(applied.summary).toContain("alienation");
   });
 
-  it("реформа у края спектра отчитывается фактическим сдвигом, а не запрошенным шагом", () => {
+  /**
+   * Общее требование ко всем глаголам: множество фактических изменений памяти
+   * воздействий совпадает с множеством, о котором отчитался движок. Это тот же
+   * инвариант, который движок проверяет в рантайме, — но проверенный снаружи,
+   * на каждом verb, а не только на том, где о нём вспомнили.
+   */
+  it.each(PRIMITIVE_VERBS.filter(v => v !== "enact_reform"))(
+    "%s: отчёт покрывает каждое фактическое изменение памяти",
+    (verb) => {
+      const scenario = SCENARIOS.find(s => s.verb === verb)!;
+      const state = game();
+      const before = structuredClone(state.groupImpactMemory);
+
+      const result = applyPrimitiveBatch(state, [scenario.primitive]);
+      expect(result.applied).toHaveLength(1);
+
+      const actual = new Set<string>();
+      for (const memory of state.groupImpactMemory) {
+        const was = before.find(m => m.regionId === memory.regionId && m.groupId === memory.groupId);
+        for (const field of ["suppression", "alienation", "concession", "emboldenment"] as const) {
+          if (memory[field] !== (was?.[field] ?? 0)) {
+            actual.add(`${memory.regionId}/${memory.groupId}/${field}`);
+          }
+        }
+      }
+      const reported = new Set(
+        impactEffectsOf(result.applied[0]!)
+          .filter(e => e.delta !== 0)
+          .map(e => `${e.regionId}/${e.groupId}/${e.field}`)
+      );
+
+      expect(actual.size).toBeGreaterThan(0);
+      expect([...reported].sort()).toEqual([...actual].sort());
+    }
+  );
+
+  /**
+   * «По результату можно построить правдивое описание, НЕ заглядывая в
+   * состояние» — центральное требование внешнего аудита к форме результата.
+   * Проверяется буквально: каждое опубликованное `after` совпадает с тем, что
+   * реально лежит в мире после commit'а.
+   */
+  it.each(SCENARIOS)("$verb: опубликованное «стало» совпадает с состоянием мира", ({ primitive }) => {
     const state = game();
-    // Власть уже в крайнем авторитаризме — двигаться в ту же сторону некуда.
-    state.countries.find(c => c.id === "SUN")!.politics.ideologyCoordinates =
-      { economic: -0.95, political: -1 };
+    const result = applyPrimitiveBatch(state, [primitive]);
+    expect(result.applied).toHaveLength(1);
+    const applied = result.applied[0]!;
 
-    const result = applyPrimitiveBatch(state, [{
-      verb: "enact_reform", sourceCountryId: "SUN",
-      target: { countryId: "SUN" }, params: { politicalDirection: "authoritarian" },
-    }]);
+    for (const effect of impactEffectsOf(applied)) {
+      expect(memoryOf(state, effect.regionId, effect.groupId)![effect.field])
+        .toBeCloseTo(effect.after, 12);
+      expect(effect.after - effect.before).toBeCloseTo(effect.delta, 12);
+    }
 
-    expect(result.rejected).toEqual([]);
-    expect(result.applied[0]!.magnitude).toBe(0);
-    // Цена при этом списана — реформу провели, просто двигаться было некуда.
-    expect(state.countries.find(c => c.id === "SUN")!.politics.governmentSupport)
-      .toBeCloseTo(50 - ENACT_REFORM_POLITICAL_COST, 10);
+    if (applied.verb === "enact_reform") {
+      const politics = state.countries.find(c => c.id === applied.countryId)!.politics;
+      for (const shift of applied.ideologyShifts) {
+        expect(politics.ideologyCoordinates![shift.axis]).toBeCloseTo(shift.after, 12);
+      }
+      expect(politics.governmentSupport).toBeCloseTo(applied.politicalCost.after, 12);
+    }
+    if (applied.verb === "spawn_incident") {
+      expect(state.mapFeatures.some(f => f.id === applied.mapFeatureId)).toBe(true);
+    }
   });
 
   it("неконечная поддержка правительства не уезжает в координаты идеологии", () => {
@@ -872,11 +1191,27 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
  * входит, и алфавит примитивов снова «константа × слово модели».
  */
 describe("магнитуда зависит от состояния (одинаковые params → разные числа)", () => {
-  /** Величина, о которой движок отчитался после применения одного примитива. */
-  function magnitudeOf(state: GameState, primitive: Primitive): number {
+  /**
+   * Фактическая величина ОДНОГО канала, о которой движок отчитался после
+   * применения одного примитива. Канал называется явно: у `repress` их два, и
+   * прежний общий скаляр молча выбирал за тест, какой из них считать «величиной».
+   */
+  function magnitudeOf(
+    state: GameState,
+    primitive: Primitive,
+    groupId: string,
+    field: ImpactMemoryField
+  ): number {
     const result = applyPrimitiveBatch(state, [primitive]);
     expect(result.rejected, JSON.stringify(result.rejected)).toHaveLength(0);
-    return result.applied[0]!.magnitude;
+    return deltaFor(result.applied[0]!, groupId, field);
+  }
+
+  /** Фактический сдвиг оси реформы — тот же смысл, другой канал состояния. */
+  function reformShiftOf(state: GameState, primitive: Primitive): number {
+    const result = applyPrimitiveBatch(state, [primitive]);
+    expect(result.rejected, JSON.stringify(result.rejected)).toHaveLength(0);
+    return Math.abs(asReform(result.applied[0]!).ideologyShifts[0]!.delta);
   }
 
   const repressTitular: Primitive = {
@@ -892,7 +1227,8 @@ describe("магнитуда зависит от состояния (одина�
     politicsOf(weak).stability = politicsOf(strong).stability / 2;
     politicsOf(weak).legitimacy = politicsOf(strong).legitimacy / 2;
 
-    expect(magnitudeOf(weak, repressTitular)).toBeLessThan(magnitudeOf(strong, repressTitular));
+    expect(magnitudeOf(weak, repressTitular, TEST_GROUP_TITULAR, "suppression"))
+      .toBeLessThan(magnitudeOf(strong, repressTitular, TEST_GROUP_TITULAR, "suppression"));
   });
 
   it("repress: доминанта подавить труднее, чем малое меньшинство", () => {
@@ -903,7 +1239,8 @@ describe("магнитуда зависит от состояния (одина�
     demographics.find(d => d.groupId === TEST_GROUP_TITULAR)!.share = 0.1;
     demographics.find(d => d.groupId === TEST_GROUP_LOYAL)!.share = 0.9;
 
-    expect(magnitudeOf(dominant, repressTitular)).toBeLessThan(magnitudeOf(minority, repressTitular));
+    expect(magnitudeOf(dominant, repressTitular, TEST_GROUP_TITULAR, "suppression"))
+      .toBeLessThan(magnitudeOf(minority, repressTitular, TEST_GROUP_TITULAR, "suppression"));
   });
 
   it("repress: без способности применить силу хинт перестаёт что-либо значить", () => {
@@ -912,7 +1249,9 @@ describe("магнитуда зависит от состояния (одина�
       const politics = state.countries.find(c => c.id === "SUN")!.politics;
       politics.stability = 0;
       politics.legitimacy = 0;
-      return magnitudeOf(state, { ...repressTitular, params: { intensity } });
+      return magnitudeOf(
+        state, { ...repressTitular, params: { intensity } }, TEST_GROUP_TITULAR, "suppression"
+      );
     };
 
     // Коридор схлопнулся в пол — «severe» больше не даёт ничего сверх «mild».
@@ -938,7 +1277,8 @@ describe("магнитуда зависит от состояния (одина�
       emboldenment: 0,
     });
 
-    expect(magnitudeOf(alienated, grantTitular)).toBeLessThan(magnitudeOf(trusting, grantTitular));
+    expect(magnitudeOf(alienated, grantTitular, TEST_GROUP_TITULAR, "concession"))
+      .toBeLessThan(magnitudeOf(trusting, grantTitular, TEST_GROUP_TITULAR, "concession"));
   });
 
   it("grant_autonomy: уступка меньшинству мельче уступки доминанту", () => {
@@ -948,8 +1288,8 @@ describe("магнитуда зависит от состояния (одина�
     demographics.find(d => d.groupId === TEST_GROUP_TITULAR)!.share = 0.1;
     demographics.find(d => d.groupId === TEST_GROUP_LOYAL)!.share = 0.9;
 
-    const small = magnitudeOf(minority, grantTitular);
-    const large = magnitudeOf(dominant, grantTitular);
+    const small = magnitudeOf(minority, grantTitular, TEST_GROUP_TITULAR, "concession");
+    const large = magnitudeOf(dominant, grantTitular, TEST_GROUP_TITULAR, "concession");
     expect(small).toBeLessThan(large);
     expect(small).toBeGreaterThanOrEqual(GRANT_AUTONOMY_CONCESSION_MIN);
     expect(large).toBeLessThanOrEqual(GRANT_AUTONOMY_CONCESSION_MAX);
@@ -962,7 +1302,8 @@ describe("магнитуда зависит от состояния (одина�
     narrow.ethnicGroups.find(g => g.id === TEST_GROUP_TITULAR)!.desiredIdeology =
       { economic: -0.5, political: 0.1 };
 
-    expect(magnitudeOf(narrow, inciteTitular)).toBeLessThan(magnitudeOf(wide, inciteTitular));
+    expect(magnitudeOf(narrow, inciteTitular, TEST_GROUP_TITULAR, "emboldenment"))
+      .toBeLessThan(magnitudeOf(wide, inciteTitular, TEST_GROUP_TITULAR, "emboldenment"));
   });
 
   const incidentInNational: Primitive = {
@@ -983,8 +1324,8 @@ describe("магнитуда зависит от состояния (одина�
       emboldenment: 0.6,
     });
 
-    expect(magnitudeOf(calm, incidentInNational))
-      .toBeLessThan(magnitudeOf(boiling, incidentInNational));
+    expect(magnitudeOf(calm, incidentInNational, TEST_GROUP_TITULAR, "emboldenment"))
+      .toBeLessThan(magnitudeOf(boiling, incidentInNational, TEST_GROUP_TITULAR, "emboldenment"));
   });
 
   const reformDemocratic: Primitive = {
@@ -999,8 +1340,8 @@ describe("магнитуда зависит от состояния (одина�
     const strongMandate = game();
     strongMandate.countries.find(c => c.id === "SUN")!.politics.governmentSupport = 95;
 
-    const shallow = magnitudeOf(weakMandate, reformDemocratic);
-    const deep = magnitudeOf(strongMandate, reformDemocratic);
+    const shallow = reformShiftOf(weakMandate, reformDemocratic);
+    const deep = reformShiftOf(strongMandate, reformDemocratic);
     expect(shallow).toBeLessThan(deep);
     expect(shallow).toBeGreaterThanOrEqual(ENACT_REFORM_COORDINATE_STEP_MIN);
     expect(deep).toBeLessThanOrEqual(ENACT_REFORM_COORDINATE_STEP_MAX);

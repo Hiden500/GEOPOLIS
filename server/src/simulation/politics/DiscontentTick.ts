@@ -96,9 +96,17 @@ function updateCrisisLatch(game: GameState): void {
         countryId: controllerId,
         kind: "region_crisis",
         regionId: region.id,
+        // Величина названа тем, что она есть. До 2026-07-26 факт писал
+        // «N% of the local population», хотя `regionDiscontent` — не доля
+        // недовольных жителей, а взвешенный ИНДЕКС 0..1 из идеологической
+        // дистанции, экономического отставания и памяти воздействий
+        // (shared/src/utils/discontent.ts). Факт уходит прямо в промт: модель
+        // повторила бы «55 % населения» как утверждение о людях, и цифра в
+        // нарративе оказалась бы ложной (docs/PRIMITIVES.md §4).
         text:
-          `Unrest crisis in ${regionLabel(region)}: discontent ` +
-          `${(discontent * 100).toFixed(0)}% of the local population`,
+          `Unrest crisis in ${regionLabel(region)}: discontent index ` +
+          `${discontent.toFixed(2)} of 1.00 (population-share-weighted across the region's ` +
+          `groups; not a headcount of protesters)`,
       });
     } else if (wasLatched && discontent < releaseThreshold) {
       latched.delete(region.id);

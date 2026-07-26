@@ -1,4 +1,5 @@
 import { type GameState } from "@shared/types/GameState";
+import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type MapFeatureType } from "@shared/types/map/MapFeature";
 import {
@@ -6,6 +7,12 @@ import {
   type GroupImpactMemory,
   type ImpactMemoryField,
 } from "@shared/types/politics/Demographics";
+import {
+  IDEOLOGY_AXIS_MIN,
+  IDEOLOGY_AXIS_MAX,
+  type IdeologyCoordinates,
+} from "@shared/types/politics/Ideology";
+import { ALLY_RELATION_THRESHOLD } from "@shared/defines/diplomacy";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
 import {
@@ -26,6 +33,7 @@ import {
   GRANT_AUTONOMY_CONCESSION_MIN,
   GRANT_AUTONOMY_CONCESSION_MAX,
   SPAWN_INCIDENT_MIN_DISCONTENT,
+  SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT,
   SPAWN_INCIDENT_EMBOLDENMENT_MIN,
   SPAWN_INCIDENT_EMBOLDENMENT_MAX,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
@@ -53,16 +61,22 @@ import {
   inciteFactor,
   incidentFactor,
   reformMandateFactor,
-  shareWeightedMean,
 } from "./magnitude";
 import {
   type AppliedPrimitive,
+  type GroupImpactEffect,
+  type IdeologyAxis,
+  type IdeologyShiftEffect,
   type IncidentKind,
+  type PoliticalCostEffect,
   type Primitive,
   type PrimitiveBatchResult,
   type PreconditionResult,
   type PrimitiveIntensity,
+  type ReformEconomicDirection,
+  type ReformPoliticalDirection,
   type RejectedPrimitive,
+  impactEffectsOf,
   isStructural,
 } from "./types";
 
@@ -84,9 +98,14 @@ import {
  *      откатывается к снимку до себя; «полусобытий» не бывает.
  *   2. Нарратив только после commit — движок возвращает `applied[]` с
  *      фактическими величинами; текст пишет вызывающий по этому списку, а не
- *      по своим намерениям. «Фактическими» здесь буквально: `magnitude` — это
+ *      по своим намерениям. «Фактическими» здесь буквально: в результате лежит
  *      то, что вернула команда ПОСЛЕ клампов, а не то, что посчитала фаза
  *      Compute. У насыщенного поля памяти эти два числа расходятся в разы.
+ *      Форма результата — discriminated union по глаголу (types.ts): по каждому
+ *      затронутому полю и каждой цели «было → стало → дельта», отдельно
+ *      политическая цена, отдельно эффекты на соседей, отдельно id созданного
+ *      объекта карты. Скрытых эффектов не бывает — сверяется рантайм-проверкой
+ *      (см. «Отчёт полон» в батче).
  *   3. Палитра эффектов — изменённые пути состояния сверяются с whitelist'ом
  *      (palette.ts) в рантайме, а не только в тесте.
  *
@@ -150,6 +169,110 @@ const INCIDENT_FEATURE_TYPE: Record<IncidentKind, MapFeatureType> = {
 };
 
 const DEFAULT_INCIDENT_KIND: IncidentKind = "protest";
+
+function incidentKindOf(primitive: Primitive): IncidentKind {
+  return primitive.params?.incidentKind ?? DEFAULT_INCIDENT_KIND;
+}
+
+/**
+ * Союзник ли — в смысле, при котором пограничный спор перестаёт быть осмысленным.
+ *
+ * Читается односторонне, глазами контролёра региона: спор поднимают на его
+ * стороне границы, и значение имеет то, как ОН относится к соседу. Формальный
+ * союз (`diplomacy.allies`) и «отношения не хуже союзнических» — два входа,
+ * потому что сценарные данные заполняют их независимо: 1946 не задаёт
+ * `relations` вовсе, а списки блоков — задаёт.
+ */
+function alliedWith(controller: Country | undefined, otherId: string): boolean {
+  if (!controller) return false;
+  if (controller.diplomacy.allies.includes(otherId)) return true;
+  return (controller.diplomacy.relations[otherId] ?? 0) >= ALLY_RELATION_THRESHOLD;
+}
+
+/**
+ * Страна по ту сторону границы, спор с которой осмыслен, — опора предпосылки
+ * `spawn_incident(border_dispute)`.
+ *
+ * «Осмыслен» операционно: (1) у региона есть сосед под ЧУЖИМ фактическим
+ * контролем — то есть спорная граница вообще существует; (2) этот контролёр не
+ * союзник. Второе — узкий фильтр намеренно: спор между холодными соседями и
+ * даже между нейтралами историчен, а вот пограничный кризис с формальным
+ * союзником — нет, и именно его модель могла бы поставить, назвав внутреннее
+ * напряжение «border_dispute».
+ *
+ * Выбор детерминирован (сортировка по id): результат попадает в факт применения
+ * и в текст резюме, поэтому обязан быть воспроизводим.
+ */
+function disputedNeighbourCountry(game: GameState, region: Region): string | undefined {
+  const controllerId = effectiveController(region);
+  const controller = game.countries.find(c => c.id === controllerId);
+
+  const foreign = new Set<string>();
+  for (const neighbourId of region.neighboringRegionIds) {
+    const neighbour = findRegion(game, neighbourId);
+    if (!neighbour) continue;
+    const other = effectiveController(neighbour);
+    if (other !== controllerId) foreign.add(other);
+  }
+
+  return [...foreign].sort().find(id => !alliedWith(controller, id));
+}
+
+function clampAxis(value: number): number {
+  return Math.max(IDEOLOGY_AXIS_MIN, Math.min(IDEOLOGY_AXIS_MAX, value));
+}
+
+/**
+ * Глубина реформы по каждой затронутой оси — мандат правительства сверх
+ * минимума, позиция внутри коридора — от качественного хинта.
+ *
+ * Считается ОДНОЙ функцией для validate и apply: предпосылка «сдвиг достижим»
+ * проверяет ровно тот шаг, который потом и применится. Два независимых расчёта
+ * разъехались бы молча, и реформа снова начала бы списывать цену за ничто.
+ */
+function reformStep(country: Country, hint: PrimitiveIntensity): number {
+  return magnitudeFromState(
+    ENACT_REFORM_COORDINATE_STEP_MIN,
+    ENACT_REFORM_COORDINATE_STEP_MAX,
+    reformMandateFactor(country.politics.governmentSupport),
+    hint
+  );
+}
+
+/** Ось, которую реформа просит двигать, с её знаковой дельтой. */
+interface ReformAxisRequest {
+  axis: IdeologyAxis;
+  direction: ReformEconomicDirection | ReformPoliticalDirection;
+  delta: number;
+}
+
+function reformAxes(primitive: Primitive, step: number): ReformAxisRequest[] {
+  const { economicDirection, politicalDirection } = primitive.params ?? {};
+  const axes: ReformAxisRequest[] = [];
+  if (economicDirection !== undefined) {
+    axes.push({
+      axis: "economic",
+      direction: economicDirection,
+      delta: economicDirection === "right" ? step : -step,
+    });
+  }
+  if (politicalDirection !== undefined) {
+    axes.push({
+      axis: "political",
+      direction: politicalDirection,
+      delta: politicalDirection === "democratic" ? step : -step,
+    });
+  }
+  return axes;
+}
+
+/** Оси, по которым сдвиг недостижим: координата уже упёрта в край спектра. */
+function unreachableAxes(
+  current: IdeologyCoordinates,
+  axes: readonly ReformAxisRequest[]
+): ReformAxisRequest[] {
+  return axes.filter(a => clampAxis(current[a.axis] + a.delta) === current[a.axis]);
+}
 
 // --------------------------------------------------------------------------
 // Фаза 1 — Validate
@@ -255,6 +378,36 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
             `${ENACT_REFORM_MIN_GOVERNMENT_SUPPORT} needed to push a reform through`,
         };
       }
+
+      // Достижимость сдвига (добавлено 2026-07-26 по внешнему аудиту). До этого
+      // реформа в сторону, куда координата уже не движется (`political = -1` и
+      // направление `authoritarian`), проходила: цена списывалась, состояние не
+      // менялось, а результат сообщал «politics shifted authoritarian». Проверка
+      // стоит ДО списания цены — платить за сдвиг, которого не будет, незачем.
+      //
+      // Отклоняется весь примитив, даже если вторая ось сдвинуться могла бы:
+      // «полусобытий» не бывает (§3, защита №1), а «реформа прошла наполовину»
+      // — это ровно полусобытие.
+      const current = resolveIdeologyCoordinates(country.politics);
+      const stuck = unreachableAxes(
+        current,
+        reformAxes(primitive, reformStep(country, intensityHint(primitive)))
+      );
+      if (stuck.length > 0) {
+        return {
+          valid: false,
+          reason:
+            `Reform in ${countryId} would not move anything: ` +
+            stuck
+              .map(
+                a =>
+                  `the ${a.axis} axis is already at ${current[a.axis].toFixed(2)}, the ` +
+                  `${a.delta < 0 ? IDEOLOGY_AXIS_MIN : IDEOLOGY_AXIS_MAX} bound of the spectrum ` +
+                  `in the ${a.direction} direction`
+              )
+              .join("; "),
+        };
+      }
       return { valid: true };
     }
 
@@ -274,6 +427,32 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
           reason:
             `Discontent ${discontent.toFixed(2)} in ${regionLabel(region)} is below the ` +
             `${SPAWN_INCIDENT_MIN_DISCONTENT} threshold for an incident`,
+        };
+      }
+
+      // Предпосылки ПО ВИДУ инцидента (добавлено 2026-07-26 по внешнему аудиту).
+      // До этого `incidentKind` не участвовал в валидации вовсе: на одном и том
+      // же состоянии проходили и `protest`, и `uprising`, и `border_dispute` — с
+      // одинаковой величиной. Качественный параметр превращал бытовое
+      // недовольство в пограничный спор, а движок не возражал.
+      const kind = incidentKindOf(primitive);
+
+      if (kind === "uprising" && discontent < SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT) {
+        return {
+          valid: false,
+          reason:
+            `Discontent ${discontent.toFixed(2)} in ${regionLabel(region)} is enough for a ` +
+            `protest (${SPAWN_INCIDENT_MIN_DISCONTENT}) but below the ` +
+            `${SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT} an uprising needs`,
+        };
+      }
+
+      if (kind === "border_dispute" && disputedNeighbourCountry(game, region) === undefined) {
+        return {
+          valid: false,
+          reason:
+            `${regionLabel(region)} has no border a dispute could be about: every neighbouring ` +
+            `region is held by ${effectiveController(region)} itself or by an ally`,
         };
       }
       return { valid: true };
@@ -300,21 +479,80 @@ function failIfCommandFailed(results: readonly CommandResult<unknown>[]): string
 }
 
 /**
- * Средняя по долям ФАКТИЧЕСКАЯ дельта поля памяти.
+ * ФАКТИЧЕСКИЕ эффекты одного вызова `addGroupImpact` в форме отчёта.
  *
- * Именно фактическая, а не запрошенная: `addGroupImpact` клампит поле в 0..1, и
- * у насыщенной группы из запрошенных 0.41 приживается 0.02. Отчитаться
- * намерением — значит отдать сессии B выдуманное число для нарратива, ровно
- * против docs/PRIMITIVES.md §4 («цифры правдивые, не выдуманные»).
+ * Именно фактические, а не запрошенные: команда клампит поле в 0..1, и у
+ * насыщенной группы из запрошенных 0.41 приживается 0.02. Отчитаться намерением
+ * — значит отдать сессии B выдуманное число для нарратива, ровно против
+ * docs/PRIMITIVES.md §4 («цифры правдивые, не выдуманные»).
+ *
+ * `after` читается из состояния ПОСЛЕ команды, `before` восстанавливается
+ * вычитанием принятой дельты — команда возвращает разницу после клампа, поэтому
+ * пара точна, а не приблизительна.
+ *
+ * В список попадает КАЖДОЕ поле, которое команда пыталась изменить, включая
+ * поля с нулевой дельтой: «попытались подавить, но подавлять уже некуда» — тоже
+ * факт, и нарратив обязан его видеть, а не додумывать.
  */
-function actualMean(
-  perGroup: readonly { share: number }[],
-  results: readonly CommandResult<politicsCommands.AppliedImpact>[],
-  field: politicsCommands.ImpactField
-): number {
-  return shareWeightedMean(
-    perGroup.map((g, i) => ({ share: g.share, value: results[i]?.applied?.[field] ?? 0 }))
-  );
+function impactEffects(
+  game: GameState,
+  regionId: number,
+  groupId: string,
+  result: CommandResult<politicsCommands.AppliedImpact>
+): GroupImpactEffect[] {
+  const memory = findImpactMemory(game.groupImpactMemory, regionId, groupId);
+  const effects: GroupImpactEffect[] = [];
+  for (const field of IMPACT_MEMORY_FIELDS) {
+    const delta = result.applied?.[field];
+    if (delta === undefined) continue;
+    const after = memory?.[field] ?? 0;
+    effects.push({ regionId, groupId, field, before: after - delta, after, delta });
+  }
+  return effects;
+}
+
+function signed(value: number): string {
+  return `${value >= 0 ? "+" : "−"}${Math.abs(value).toFixed(3)}`;
+}
+
+/**
+ * Человеческое описание фактических следов — по полю: кто и насколько сдвинулся.
+ *
+ * Поле, у которого не сдвинулось НИЧЕГО, называется несдвинувшимся, а не
+ * замалчивается: резюме обязано выводиться из дельт, а не утверждать заранее
+ * заготовленное (docs/PRIMITIVES.md §4).
+ */
+function describeImpacts(
+  effects: readonly GroupImpactEffect[],
+  options: { withRegion?: boolean } = {}
+): string[] {
+  const parts: string[] = [];
+  for (const field of IMPACT_MEMORY_FIELDS) {
+    const ofField = effects.filter(e => e.field === field);
+    if (ofField.length === 0) continue;
+
+    const moved = ofField.filter(e => e.delta !== 0);
+    if (moved.length === 0) {
+      parts.push(`${field} unchanged`);
+      continue;
+    }
+    parts.push(
+      `${field} ` +
+      moved
+        .map(e =>
+          `${signed(e.delta)} for ${e.groupId}` +
+          (options.withRegion ? ` in region ${e.regionId}` : "") +
+          ` (${e.before.toFixed(3)} → ${e.after.toFixed(3)})`
+        )
+        .join(", ")
+    );
+  }
+  return parts;
+}
+
+/** Сшивка резюме: заголовок + перечисление фактов; пустой список не даёт хвоста. */
+function joinSummary(head: string, details: readonly string[]): string {
+  return details.length > 0 ? `${head}: ${details.join("; ")}` : head;
 }
 
 function apply(game: GameState, primitive: Primitive): ApplyOutcome {
@@ -346,14 +584,19 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       const error = failIfCommandFailed([impact]);
       if (error) return { ok: false, reason: error };
 
+      const targetEffects = impactEffects(game, region.id, groupId, impact);
       return {
         ok: true,
         applied: {
-          verb: primitive.verb,
-          magnitude: impact.applied?.emboldenment ?? 0,
+          verb: "incite_unrest",
+          sourceCountryId: primitive.sourceCountryId,
           regionId: region.id,
-          countryId: primitive.sourceCountryId,
-          summary: `Agitators emboldened ${groupId} in ${regionLabel(region)}`,
+          groupId,
+          targetEffects,
+          summary: joinSummary(
+            `Agitators worked on ${groupId} in ${regionLabel(region)}`,
+            describeImpacts(targetEffects)
+          ),
         },
       };
     }
@@ -395,16 +638,20 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       const error = failIfCommandFailed(results);
       if (error) return { ok: false, reason: error };
 
+      const targetEffects = perGroup.flatMap((g, i) =>
+        impactEffects(game, region.id, g.groupId, results[i]!)
+      );
       return {
         ok: true,
         applied: {
-          verb: primitive.verb,
-          magnitude: actualMean(perGroup, results, "suppression"),
+          verb: "repress",
+          sourceCountryId: primitive.sourceCountryId,
           regionId: region.id,
-          countryId: primitive.sourceCountryId,
-          summary:
-            `Security forces suppressed unrest in ${regionLabel(region)} ` +
-            `(${perGroup.length} group(s)); resentment deepened`,
+          targetEffects,
+          summary: joinSummary(
+            `Security forces moved against ${perGroup.length} group(s) in ${regionLabel(region)}`,
+            describeImpacts(targetEffects)
+          ),
         },
       };
     }
@@ -447,6 +694,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       // Соседи, где этой группы нет, не затрагиваются — команда отказала бы,
       // поэтому их просто не трогаем, а не глотаем отказ.
       const spillover: CommandResult<politicsCommands.AppliedImpact>[] = [];
+      const neighbourEffects: GroupImpactEffect[] = [];
       for (const neighbourId of region.neighboringRegionIds) {
         const neighbour = findRegion(game, neighbourId);
         if (!neighbour) continue;
@@ -457,50 +705,60 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
           // Нулевой отклик не пишется вовсе: иначе у соседа заводилась бы
           // пустая запись памяти на жест, которого не было.
           if (echo <= 0) continue;
-          spillover.push(
-            politicsCommands.addGroupImpact(game, neighbour.id, g.groupId, { emboldenment: echo })
+          const result = politicsCommands.addGroupImpact(
+            game, neighbour.id, g.groupId, { emboldenment: echo }
           );
+          spillover.push(result);
+          if (result.success) {
+            neighbourEffects.push(...impactEffects(game, neighbour.id, g.groupId, result));
+          }
         }
       }
 
       const error = failIfCommandFailed(spillover);
       if (error) return { ok: false, reason: error };
 
+      const targetEffects = perGroup.flatMap((g, i) =>
+        impactEffects(game, region.id, g.groupId, grants[i]!)
+      );
+      // Про соседей резюме говорит ровно то, что произошло. До 2026-07-26 здесь
+      // стояло безусловное «kindred communities took heart» — фраза уходила
+      // наружу и при нулевом отклике, то есть при жесте, которого не было.
+      const neighbourNote = neighbourEffects.some(e => e.delta !== 0)
+        ? describeImpacts(neighbourEffects, { withRegion: true }).map(
+            part => `kindred communities responded — ${part}`
+          )
+        : ["no kindred community in neighbouring regions moved"];
+
       return {
         ok: true,
         applied: {
-          verb: primitive.verb,
-          magnitude: actualMean(perGroup, grants, "concession"),
+          verb: "grant_autonomy",
+          sourceCountryId: primitive.sourceCountryId,
           regionId: region.id,
-          countryId: primitive.sourceCountryId,
-          summary:
-            `Autonomy granted in ${regionLabel(region)}; kindred communities ` +
-            `in neighbouring regions took heart`,
+          targetEffects,
+          neighbourEffects,
+          summary: joinSummary(`Autonomy granted in ${regionLabel(region)}`, [
+            ...describeImpacts(targetEffects),
+            ...neighbourNote,
+          ]),
         },
       };
     }
 
     case "enact_reform": {
       const countryId = primitive.target.countryId ?? primitive.sourceCountryId;
-      const { economicDirection, politicalDirection } = primitive.params ?? {};
 
       // Глубина реформы — политический мандат сверх минимума, при котором она
       // вообще проходит: широкая поддержка продавливает больший сдвиг за ту же
       // фиксированную цену. Мандат читается ДО списания цены.
       const country = game.countries.find(c => c.id === countryId)!;
-      const step = magnitudeFromState(
-        ENACT_REFORM_COORDINATE_STEP_MIN,
-        ENACT_REFORM_COORDINATE_STEP_MAX,
-        reformMandateFactor(country.politics.governmentSupport),
-        hint
-      );
+      const axes = reformAxes(primitive, reformStep(country, hint));
 
-      const deltaEconomic = economicDirection === undefined
-        ? 0
-        : (economicDirection === "right" ? step : -step);
-      const deltaPolitical = politicalDirection === undefined
-        ? 0
-        : (politicalDirection === "democratic" ? step : -step);
+      // Читаются ДО команд: координаты могут материализоваться из ярлыка, а
+      // поддержка — списаться, и «было» после этого уже не узнать.
+      const coordinatesBefore = resolveIdeologyCoordinates(country.politics);
+      const supportBefore = country.politics.governmentSupport;
 
       // Цена списывается первой и её результат проверяется ДО сдвига: если
       // платить нечем, координаты не двигаются вовсе. Последовательно, а не
@@ -516,37 +774,68 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       if (paymentError) return { ok: false, reason: paymentError };
 
       const shift = politicsCommands.shiftCountryIdeology(
-        game, countryId, deltaEconomic, deltaPolitical
+        game,
+        countryId,
+        axes.find(a => a.axis === "economic")?.delta ?? 0,
+        axes.find(a => a.axis === "political")?.delta ?? 0
       );
       const error = failIfCommandFailed([shift]);
       if (error) return { ok: false, reason: error };
 
-      // Фактическая глубина реформы — среднее ФАКТИЧЕСКИХ сдвигов по тем осям,
-      // которые реформа просила двигать. Ось у края спектра (`political = -1`
-      // при авторитарном направлении) не сдвинется вовсе, и отчёт запрошенным
-      // шагом был бы про неё выдумкой.
-      const actualShifts: number[] = [];
-      if (economicDirection !== undefined) actualShifts.push(Math.abs(shift.applied?.economic ?? 0));
-      if (politicalDirection !== undefined) actualShifts.push(Math.abs(shift.applied?.political ?? 0));
+      // Отчёт — ФАКТИЧЕСКИЕ сдвиги по тем осям, которые реформа просила двигать.
+      // Недостижимую ось сюда не пропускает предпосылка (validate), поэтому
+      // каждая запись здесь — реально состоявшееся движение; но формулируется
+      // она всё равно от дельты, а не от направления в params.
+      const ideologyShifts: IdeologyShiftEffect[] = axes.map(a => {
+        const delta = shift.applied?.[a.axis] ?? 0;
+        return {
+          countryId,
+          axis: a.axis,
+          direction: a.direction,
+          before: coordinatesBefore[a.axis],
+          after: coordinatesBefore[a.axis] + delta,
+          delta,
+        };
+      });
+      const politicalCost: PoliticalCostEffect = {
+        countryId,
+        field: "governmentSupport",
+        before: supportBefore,
+        after: country.politics.governmentSupport,
+        delta: country.politics.governmentSupport - supportBefore,
+      };
 
+      const shiftNotes = ideologyShifts.map(s =>
+        s.delta === 0
+          ? `${s.axis} axis did not move (${s.before.toFixed(2)})`
+          : `${s.axis} axis shifted ${s.direction} by ${Math.abs(s.delta).toFixed(3)} ` +
+            `(${s.before.toFixed(2)} → ${s.after.toFixed(2)})`
+      );
       return {
         ok: true,
         applied: {
-          verb: primitive.verb,
-          magnitude:
-            actualShifts.reduce((sum, v) => sum + v, 0) / Math.max(1, actualShifts.length),
+          verb: "enact_reform",
+          sourceCountryId: primitive.sourceCountryId,
           countryId,
-          summary:
-            `Reform enacted in ${countryId}: ` +
-            `${economicDirection ? `economy shifted ${economicDirection}` : "economy unchanged"}, ` +
-            `${politicalDirection ? `politics shifted ${politicalDirection}` : "politics unchanged"}`,
+          ideologyShifts,
+          politicalCost,
+          summary: joinSummary(`Reform enacted in ${countryId}`, [
+            ...shiftNotes,
+            `political cost ${Math.abs(politicalCost.delta).toFixed(1)} government support ` +
+            `(${politicalCost.before.toFixed(1)} → ${politicalCost.after.toFixed(1)})`,
+          ]),
         },
       };
     }
 
     case "spawn_incident": {
       const region = findRegion(game, primitive.target.regionId)!;
-      const kind = primitive.params?.incidentKind ?? DEFAULT_INCIDENT_KIND;
+      const kind = incidentKindOf(primitive);
+      // Тот же расчёт, что и в предпосылке: у `border_dispute` он уже гарантированно
+      // даёт страну, у остальных видов — не вызывается на результат.
+      const disputedWith = kind === "border_dispute"
+        ? disputedNeighbourCountry(game, region)
+        : undefined;
 
       // Крупность события — запас недовольства над порогом, который примитив
       // уже прошёл на validate: регион на самой границе даёт минимум, кипящий —
@@ -563,7 +852,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       // сравнивает его с wall-clock (`new Date()`), поэтому игровая дата 1946
       // была бы «просрочена» немедленно. Предсуществующий дефект, зафиксирован
       // в docs/TODO.md; чинить его — не в этом срезе.
-      mapFeatures.createMapFeature({
+      const feature = mapFeatures.createMapFeature({
         type: INCIDENT_FEATURE_TYPE[kind],
         regionId: region.id,
         ownerId: effectiveController(region),
@@ -574,24 +863,31 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       // Инцидент подогревает недовольство самой массовой группы региона —
       // событие меняет предпосылки, а не только украшает карту.
       const dominant = [...(region.demographics ?? [])].sort((a, b) => b.share - a.share)[0];
-      let actualEmboldenment = 0;
+      const targetEffects: GroupImpactEffect[] = [];
       if (dominant) {
         const impact = politicsCommands.addGroupImpact(game, region.id, dominant.groupId, {
           emboldenment: magnitude,
         });
         const error = failIfCommandFailed([impact]);
         if (error) return { ok: false, reason: error };
-        actualEmboldenment = impact.applied?.emboldenment ?? 0;
+        targetEffects.push(...impactEffects(game, region.id, dominant.groupId, impact));
       }
 
       return {
         ok: true,
         applied: {
-          verb: primitive.verb,
-          magnitude: actualEmboldenment,
+          verb: "spawn_incident",
+          sourceCountryId: primitive.sourceCountryId,
           regionId: region.id,
-          countryId: primitive.sourceCountryId,
-          summary: `A ${kind} broke out in ${regionLabel(region)}`,
+          incidentKind: kind,
+          mapFeatureId: feature.id,
+          ...(disputedWith === undefined ? {} : { disputedWithCountryId: disputedWith }),
+          targetEffects,
+          summary: joinSummary(
+            `A ${kind} broke out in ${regionLabel(region)}` +
+            (disputedWith === undefined ? "" : ` against ${disputedWith}`),
+            describeImpacts(targetEffects)
+          ),
         },
       };
     }
@@ -688,10 +984,9 @@ interface ImpactDelta {
  * клампы команды (у насыщенного поля запрошенные 0.41 превращаются в 0.02), и
  * новый verb попадает под кап без единой правки этого места.
  *
- * Учитываются только положительные дельты. Убыль в бюджет не возвращается: ни
- * один verb сегодня память не уменьшает, а если такой появится, «сначала
- * сбить поле, потом накачать заново» не должно становиться способом обойти
- * потолок.
+ * Возвращаются ВСЕ ненулевые дельты, включая отрицательные: диф служит двум
+ * потребителям сразу — бюджету накопления (тот берёт только прирост, см. ниже)
+ * и проверке полноты отчёта, которой убыль важна ровно так же, как прирост.
  */
 function impactDeltas(before: GameState, after: GameState): ImpactDelta[] {
   const pairKey = (regionId: number, groupId: string): string => `${regionId}/${groupId}`;
@@ -705,7 +1000,7 @@ function impactDeltas(before: GameState, after: GameState): ImpactDelta[] {
     const was = previous.get(pairKey(memory.regionId, memory.groupId));
     for (const field of IMPACT_MEMORY_FIELDS) {
       const delta = memory[field] - (was?.[field] ?? 0);
-      if (delta > 0) {
+      if (delta !== 0) {
         deltas.push({ regionId: memory.regionId, groupId: memory.groupId, field, delta });
       }
     }
@@ -839,13 +1134,44 @@ export function applyPrimitiveBatch(
       continue;
     }
 
+    const deltas = impactDeltas(before, working);
+
+    // Отчёт полон: всё, что примитив реально записал в память воздействий,
+    // обязано присутствовать в его результате. Сверяется с ФАКТИЧЕСКИМ дифом
+    // состояния, а не с намерением обработчика, — то есть тем же способом, что
+    // и палитра: обработчик, забывший внести свой канал в `applied`, отдал бы
+    // сессии B состояние мира, о котором она не знает, и нарратив разошёлся бы
+    // с миром молча. Ключ строится ОДНОЙ функцией с обеих сторон, иначе
+    // проверка тихо перестала бы срабатывать, оставаясь на вид реализованной.
+    const reported = new Set(
+      impactEffectsOf(outcome.applied)
+        .filter(e => e.delta !== 0)
+        .map(e => impactBudgetKey(e))
+    );
+    const unreported = deltas.filter(d => !reported.has(impactBudgetKey(d)));
+    if (unreported.length > 0) {
+      restore(working, before);
+      rejected.push({
+        verb: primitive.verb,
+        sourceCountryId: primitive.sourceCountryId,
+        reason:
+          `Effect not reported by ${primitive.verb}: ` +
+          unreported.map(d => `${impactBudgetKey(d)} moved by ${d.delta.toFixed(3)}`).join("; "),
+      });
+      continue;
+    }
+
     // Кап накопления следа. Считается по ФАКТИЧЕСКОМУ дифу, поэтому ловит и
     // прямые записи, и побочные (соседи), и любой будущий verb. Проверяется
     // после apply — раньше фактической дельты просто не существует, — и при
     // переполнении примитив откатывается ЦЕЛИКОМ (§3, защита №1), а не
     // подрезается до остатка бюджета: «полусобытий» не бывает.
-    const deltas = impactDeltas(before, working);
-    const overflow = deltas.filter(
+    //
+    // В бюджет идёт только ПРИРОСТ. Убыль не возвращается: ни один verb сегодня
+    // память не уменьшает, а если такой появится, «сначала сбить поле, потом
+    // накачать заново» не должно становиться способом обойти потолок.
+    const accrued = deltas.filter(d => d.delta > 0);
+    const overflow = accrued.filter(
       d =>
         (impactUsed.get(impactBudgetKey(d)) ?? 0) + d.delta >
         IMPACT_FIELD_BATCH_CEILING[d.field] + IMPACT_FIELD_BATCH_CEILING_TOLERANCE
@@ -875,7 +1201,7 @@ export function applyPrimitiveBatch(
       const key = targetUseKey(primitive, entity);
       targetUses.set(key, (targetUses.get(key) ?? 0) + 1);
     }
-    for (const impact of deltas) {
+    for (const impact of accrued) {
       const key = impactBudgetKey(impact);
       impactUsed.set(key, (impactUsed.get(key) ?? 0) + impact.delta);
     }

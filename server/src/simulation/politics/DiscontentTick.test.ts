@@ -184,6 +184,28 @@ describe("discontentTick — кризисный факт", () => {
     expect(game.pendingWorldFacts.filter(f => f.kind === "region_crisis")).toHaveLength(0);
   });
 
+  /**
+   * Внешний аудит 2026-07-26: факт писал «N% of the local population», хотя
+   * `regionDiscontent` — взвешенный ИНДЕКС, а не доля недовольных жителей.
+   * Неправдивая цифра стоит на прямом входе будущего LLM-нарратива: модель
+   * повторила бы её как факт о людях.
+   */
+  it("называет недовольство индексом, а не долей населения", () => {
+    const game = createDiscontentTestGame();
+    const region = game.regions.find(r => r.id === TEST_REGION_NATIONAL)!;
+    const index = regionDiscontent(game, region)!;
+
+    discontentTick(game);
+    const fact = game.pendingWorldFacts.find(
+      f => f.kind === "region_crisis" && f.regionId === TEST_REGION_NATIONAL
+    )!;
+
+    // Число в тексте — само значение индекса, а не оно же в процентах.
+    expect(fact.text).toContain(`discontent index ${index.toFixed(2)} of 1.00`);
+    expect(fact.text).not.toMatch(/of the local population/);
+    expect(fact.text).not.toMatch(/\d+%/);
+  });
+
   it("контрольный регион не даёт кризиса ни разу", () => {
     const game = createDiscontentTestGame();
 

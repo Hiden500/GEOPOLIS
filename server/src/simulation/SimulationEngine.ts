@@ -2,6 +2,7 @@ import { type GameState } from "@shared/types/GameState";
 import { resourceTick } from "./resources/ResourceTick";
 import { researchTick } from "./research/ResearchTick";
 import { getDomainTier } from "@shared/utils/technology";
+import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { economyTick } from "./economy/EconomyTick";
 import { populationTick } from "./population/PopulationTick";
 import { militaryTick } from "./military/MilitaryTick";
@@ -66,7 +67,7 @@ export function simulateMonth(
                 game.pendingWorldFacts.push({
                     countryId: country.id,
                     kind: "technology_tier",
-                    text: `${country.name} technology reached tier ${tierAfter} in ${domain}`,
+                    text: `${getText(country.name, LLM_LOCALE)} technology reached tier ${tierAfter} in ${domain}`,
                 });
             }
         }
@@ -88,7 +89,7 @@ export function simulateMonth(
             game.pendingWorldFacts.push({
                 countryId: country.id,
                 kind: "economic_crisis",
-                text: `${country.name} inflation surged past crisis levels (${country.economy.inflation.toFixed(1)})`,
+                text: `${getText(country.name, LLM_LOCALE)} inflation surged past crisis levels (${country.economy.inflation.toFixed(1)})`,
             });
         }
 
@@ -103,7 +104,7 @@ export function simulateMonth(
             game.pendingWorldFacts.push({
                 countryId: country.id,
                 kind: "political_crisis",
-                text: `${country.name} stability collapsed to crisis levels (${country.politics.stability.toFixed(1)}) — unrest, possible upheaval`,
+                text: `${getText(country.name, LLM_LOCALE)} stability collapsed to crisis levels (${country.politics.stability.toFixed(1)}) — unrest, possible upheaval`,
             });
         }
 
@@ -122,7 +123,7 @@ export function simulateMonth(
             game.pendingWorldFacts.push({
                 countryId: country.id,
                 kind: "debt_crisis",
-                text: `${country.name} is on the brink of default (debt ${(debtBurdenAfter * 100).toFixed(0)}% of GDP)`,
+                text: `${getText(country.name, LLM_LOCALE)} is on the brink of default (debt ${(debtBurdenAfter * 100).toFixed(0)}% of GDP)`,
             });
         }
     }
