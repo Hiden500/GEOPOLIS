@@ -42,12 +42,13 @@ tags: string[], visibleAtZoom?, createdAt?, expiresAt?
 | Населённые пункты | `capital`, `megacity`, `city`, `town`, `port` |
 | Промышленность | `factory`, `steel_mill`, `refinery`, `shipyard`, `mine`, `power_plant` |
 | Военные | `battalion`, `fleet`, `airbase`, `naval_base` |
-| Инфраструктура | `railway`, `canal`, `airport`, `highway` |
+| Инфраструктура | `railway`, `canal`, `pipeline`, `airport`, `highway` |
 | Политические | `protest`, `uprising`, `government`, `border_dispute` |
 
-**Пробел:** `pipeline` (трубопровод) значился минимальным типом инфраструктуры
-(прежний `PROJECT.md`), но **отсутствует** в `MapFeatureType` — технический
-долг, не дизайн-вопрос (см. `TRADE.md`).
+`pipeline` (трубопровод) значился минимальным типом инфраструктуры (прежний
+`PROJECT.md`) и **добавлен** в `MapFeatureType` (2026-07-08, попутно с
+торговлей v1) — генерация и игровое поведение коннектора по-прежнему не
+реализованы, см. `TRADE.md`.
 
 Обязательное правило (`AGENTS.md`): все наземные военные соединения несут
 тег `battalion`, независимо от фактического масштаба формирования.
