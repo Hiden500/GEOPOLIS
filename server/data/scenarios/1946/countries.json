@@ -452,7 +452,7 @@
       "ru": "Бразилия"
     },
     "color": "#4CA860",
-    "capitalRegionId": 1079,
+    "capitalRegionId": 1078,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -662,7 +662,7 @@
       "ru": "Китай"
     },
     "color": "#c0d92e",
-    "capitalRegionId": 415,
+    "capitalRegionId": 397,
     "economyType": "planned",
     "economyProfile": {
       "taxRate": 0.2,
@@ -1211,7 +1211,7 @@
       "ru": "Франция"
     },
     "color": "#3FA0A0",
-    "capitalRegionId": 108,
+    "capitalRegionId": 109,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1282,7 +1282,7 @@
       "ru": "Великобритания"
     },
     "color": "#C25B7C",
-    "capitalRegionId": 124,
+    "capitalRegionId": 125,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1723,7 +1723,7 @@
       "ru": "Голландская Восточная Ин"
     },
     "color": "#df60c8",
-    "capitalRegionId": 479,
+    "capitalRegionId": 495,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1933,7 +1933,7 @@
       "ru": "Италия"
     },
     "color": "#4CA86A",
-    "capitalRegionId": 175,
+    "capitalRegionId": 178,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4930,7 +4930,7 @@
       "ru": "Советский Союз"
     },
     "color": "#C13A3A",
-    "capitalRegionId": 318,
+    "capitalRegionId": 320,
     "economyType": "planned",
     "economyProfile": {
       "taxRate": 0.2,
@@ -5220,7 +5220,7 @@
       "ru": "Китайская Республика (Го"
     },
     "color": "#2E5FA6",
-    "capitalRegionId": 382,
+    "capitalRegionId": 420,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5360,7 +5360,7 @@
       "ru": "Соединённые Штаты Америк"
     },
     "color": "#3D6FB4",
-    "capitalRegionId": 990,
+    "capitalRegionId": 1015,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,

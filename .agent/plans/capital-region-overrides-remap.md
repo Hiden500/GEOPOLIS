@@ -133,3 +133,32 @@ order) remains — any FUTURE region-count change can re-stale these same
 scope — see Alternatives).
 
 Fresh-session requirements: none.
+
+## Addendum (2026-07-26)
+
+The "Unresolved risks" prediction above was right, but not in the way it
+implied. A follow-up audit (`.agent/plans/capital-region-invariant.md`)
+found the validator this remap made green (`validate_region_economy_1946.py`,
+owner-only capital check) was itself blind to a whole bug class: capital id
+pointing at the WRONG region of the CORRECT country (e.g. SUN's capital
+resolving to Chukotka AO, which IS owned by SUN). That check-blind-spot, not
+a fresh geometry-driven renumbering, turned out to be why SUN/USA/GBR/FRA/
+ITA/TWN were wrong — comparing this remap's own commit (`5344317`) against
+HEAD showed **zero** of the 61 entries here had actually changed which
+region name their id resolves to since this remap landed. Those six were
+simply never touched by this remap in the first place (their owner already
+matched by coincidence, so the owner-mismatch detection method used here
+never looked at them) — meaning they were already wrong on 2026-07-23, this
+remap's own verification pass (owner-match only) could not have caught them,
+and the "0 расхождений владельца" success criterion recorded above was true
+but insufficient. `capital-region-invariant.md` adds two invariants that
+check the actual region identity (geographic point-in-polygon for 13
+countries with real coordinates, expected-region-name for all 55 live
+`CAPITAL_REGION_OVERRIDES` entries) instead of just ownership, and fixes the
+9 confirmed-wrong entries found this way (including one, IDN, that also
+predates this remap and was missed by it for the same reason). The general
+fragility named above is still real for the ~48 entries without a
+coordinate anchor and the ~100 countries with no override entry at all
+(untouched, flagged as follow-up there) — this remap's table-value work
+itself is not reverted or further edited by that follow-up beyond the 9
+corrected/1 added/7 removed entries it documents.

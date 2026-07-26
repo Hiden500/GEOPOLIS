@@ -14,6 +14,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.anchors import COUNTRY_POPULATION_1946, MULTI_FRAGMENT_TOTALS
+from economy_1946.capital_geography import find_containing_regions, load_region_geometries, load_ts_capital_anchors
+from economy_1946.capital_overrides import CAPITAL_REGION_ANCHOR_NAMES, CAPITAL_REGION_OVERRIDES
 from economy_1946.country_splits import CHINA_SPLIT, GERMANY_SPLIT, KOREA_SPLIT, AUSTRIA_SPLIT
 from economy_1946.region_files import load_regions_layers, combine_regions, load_json, SCENARIO_DIR
 from economy_1946.resource_catalog import load_resource_catalog, resources_introduced_after
@@ -89,6 +91,160 @@ def validate_structural_invariants(
         if missing:
             violations.append(f"region {r['id']} (geoJsonId={geo_id}): нет имени в локали(ях) {missing}.")
 
+    return violations
+
+
+def validate_capital_anchor_names(
+    regions: list[dict], overrides: dict[str, int], anchor_names: dict[str, str],
+) -> list[str]:
+    """capitalRegionId, назначенный через CAPITAL_REGION_OVERRIDES (economy_1946/
+    capital_overrides.py), должен резолвиться в регион с ОЖИДАЕМЫМ именем
+    (CAPITAL_REGION_ANCHOR_NAMES) И с ОЖИДАЕМЫМ владельцем (сам code) --
+    имя источника (ADM1-топоним) не зависит от build-порядка, в отличие от
+    самого id (см. docstring capital_overrides.py). Ловит именно тот класс
+    дрейфа, который invariant 11 (capital принадлежит региону страны)
+    пропускает: id сместился на ДРУГОЙ регион ТОЙ ЖЕ страны (Chukotka вместо
+    Moscow -- оба принадлежат SUN, owner-проверка invariant 11 проходит,
+    имя -- нет).
+
+    Владелец проверяется здесь ЖЕ, не полагаясь на invariant 11 отдельно
+    (2026-07-26, независимое ревью): без этого substring-имя вроде "Northern"/
+    "Southern"/"Eastern" (реально встречается в 18/11/10 регионах по всему
+    миру, см. .agent/plans/capital-region-invariant.md) почти ничего не
+    подтверждает само по себе -- если бы id ZMB сместился с 1296 на ЛЮБОЙ
+    другой "Southern"-регион чужой страны, проверка только по имени прошла
+    бы молча. Фильтр по владельцу сжимает 18/11/10 кандидатов до ровно
+    одного для каждой из текущих 55 записей (проверено).
+
+    Отдельно от validate_structural_invariants: завязана на реальную
+    историческую таблицу 1946 года, не применима к произвольной
+    синтетической фикстуре региона/страны."""
+    violations: list[str] = []
+    by_id = {r["id"]: r for r in regions}
+    for code, expected_name in anchor_names.items():
+        rid = overrides.get(code)
+        if rid is None:
+            violations.append(
+                f"{code}: есть в CAPITAL_REGION_ANCHOR_NAMES ('{expected_name}'), "
+                f"но нет записи в CAPITAL_REGION_OVERRIDES -- таблицы рассинхронизированы."
+            )
+            continue
+        region = by_id.get(rid)
+        if region is None:
+            continue  # уже поймано invariant 11 (capitalRegionId существует)
+        actual_name = region.get("names", {}).get("en", "")
+        actual_owner = region.get("ownerCountryId")
+        name_ok = expected_name in actual_name
+        owner_ok = actual_owner == code
+        if not (name_ok and owner_ok):
+            problems = []
+            if not owner_ok:
+                problems.append(f"владелец '{actual_owner}' вместо '{code}'")
+            if not name_ok:
+                problems.append(f"имя '{actual_name}' не содержит ожидаемое '{expected_name}'")
+            violations.append(
+                f"{code}: CAPITAL_REGION_OVERRIDES['{code}']={rid} сейчас резолвится "
+                f"в регион '{actual_name}' ({', '.join(problems)}). Две возможные причины, "
+                f"не подразумевай без проверки: (а) id позиционно сместился после "
+                f"регенерации геометрии -- пересинхронизировать CAPITAL_REGION_OVERRIDES "
+                f"на новый id; (б) регион был легитимно переименован/владелец сменился по "
+                f"историческому решению, а id всё ещё указывает верно -- тогда чинить нужно "
+                f"CAPITAL_REGION_ANCHOR_NAMES, а не id. Проверь names.en.json и git history "
+                f"региона перед правкой любого из двух."
+            )
+    return violations
+
+
+def validate_capital_geography(
+    countries: list[dict],
+    capital_anchors: dict[str, tuple[float, float]],
+    region_geometries: dict[int, dict],
+) -> tuple[list[str], list[str], int]:
+    """Самый сильный доступный якорь: страна с известной реальной точкой
+    столицы (lon, lat) -- server/src/scenarios/generateMapFeatures.ts::
+    CAPITAL_OVERRIDES, см. economy_1946/capital_geography.py -- должна иметь
+    capitalRegionId, чей ПОЛИГОН СОДЕРЖИТ эту точку. Полностью не зависит от
+    id, имени региона или build-порядка -- географическая точка не может
+    "сместиться".
+
+    Возвращает (violations, warnings, checked). Если точка не содержится НИ
+    ОДНИМ регионом (например, из-за огрубления береговой линии у самой
+    границы полигона -- наблюдалось для Копенгагена/DNK), это не решается
+    однозначно (может быть верно) -- не violation (страна всё равно
+    защищена validate_capital_anchor_names выше, если у неё есть запись в
+    CAPITAL_REGION_OVERRIDES), но и не тишина: попадает в warnings, чтобы
+    падение покрытия было видно в выводе.
+
+    checked -- явный счётчик якорей, для которых страна реально нашлась в
+    countries.json и проверка была фактически выполнена (2026-07-26,
+    независимое ревью, находка 1): страна, отсутствующая в countries.json
+    (`continue` ниже), не даёт ни violation, ни warning -- если бы покрытие
+    в main() считалось как len(capital_anchors) - len(warnings), такой якорь
+    молча засчитался бы в "covered", хотя для него вообще не было проверки
+    (воспроизведено: убрать TWN/DNK/EGY из countries.json -> печатает
+    "13/13", хотя реально проверено 10). Не может замаскировать НЕВЕРНУЮ
+    столицу (нет страны -- нет и её capitalRegionId, чтобы быть неверным),
+    но счётчик, единственная задача которого -- честно отчитываться о
+    покрытии, обязан быть точным независимо от вреда конкретного сценария."""
+    violations: list[str] = []
+    warnings: list[str] = []
+    checked = 0
+    by_country = {c["id"]: c for c in countries}
+    for code, anchor in capital_anchors.items():
+        country = by_country.get(code)
+        if country is None:
+            continue
+        checked += 1
+        actual_id = country.get("capitalRegionId")
+        containing = find_containing_regions(anchor, region_geometries)
+        lon, lat = anchor
+        if not containing:
+            warnings.append(
+                f"{code}: точка реальной столицы (lon={lon}, lat={lat}) не содержится "
+                f"НИ ОДНИМ известным регионом -- не нарушение (может быть огрубление "
+                f"геометрии у границы полигона), но географическая проверка для этой "
+                f"страны сейчас неопределима (нет покрытия)."
+            )
+        elif actual_id not in containing:
+            violations.append(
+                f"{code}: capitalRegionId={actual_id} не содержит географическую точку "
+                f"реальной столицы (lon={lon}, lat={lat}) -- точка находится в регионе(ах) "
+                f"{containing}, не в {actual_id}."
+            )
+    return violations, warnings, checked
+
+
+def validate_capital_override_applied(countries: list[dict], overrides: dict[str, int]) -> list[str]:
+    """countries.json -- сгенерированный артефакт: generate_country_registry.py
+    читает CAPITAL_REGION_OVERRIDES.get(country_id) напрямую и пишет его как
+    capitalRegionId. Эта проверка -- по САМОМУ countries.json (не по таблице),
+    для ВСЕХ живых записей CAPITAL_REGION_OVERRIDES, а не только 13 с
+    географическим якорем.
+
+    Нужна отдельно от validate_capital_anchor_names (проверяет ТАБЛИЦУ) и
+    validate_capital_geography (проверяет countries.json, но только для 13
+    держав): без неё разрыв между "таблица верна" и "countries.json верен"
+    не ловится НИКЕМ для остальных ~42 стран -- если countries.json
+    отредактирован вручную мимо генератора или просто не пересобран после
+    правки таблицы, обе остальные проверки могут молчать одновременно
+    (2026-07-26, независимое ревью: откат только одного из двух артефактов
+    показал, что ни valid_capital_anchor_names, ни validate_capital_geography
+    не видят рассинхрон МЕЖДУ ними, только каждая свой собственный источник)."""
+    violations: list[str] = []
+    by_country = {c["id"]: c for c in countries}
+    for code, expected_id in overrides.items():
+        country = by_country.get(code)
+        if country is None:
+            continue  # страна не активна в этом сценарии (напр. дрейф региона к нулю) -- не ошибка этой проверки
+        actual_id = country.get("capitalRegionId")
+        if actual_id != expected_id:
+            violations.append(
+                f"{code}: countries.json capitalRegionId={actual_id}, но "
+                f"CAPITAL_REGION_OVERRIDES['{code}']={expected_id} -- countries.json "
+                f"не пересобран после правки таблицы (прогони "
+                f"scripts/map/generate_country_registry.py) или отредактирован "
+                f"мимо генератора."
+            )
     return violations
 
 
@@ -207,10 +363,54 @@ def main() -> int:
     else:
         warnings.append(f"Китай (CHN+TWN+QMS) сумма: {china_total:,} (не задвоен, в допуске).")
 
+    # 14. capitalRegionId резолвится в регион с ОЖИДАЕМЫМ ИМЕНЕМ И владельцем
+    # (не самим id — см. docstring economy_1946/capital_overrides.py и
+    # .agent/plans/capital-region-invariant.md). Ловит позиционный дрейф id,
+    # который invariant 11 (capital принадлежит региону СТРАНЫ) пропускает,
+    # когда id после регенерации указывает на ДРУГОЙ регион ТОЙ ЖЕ страны.
+    violations.extend(validate_capital_anchor_names(regions, CAPITAL_REGION_OVERRIDES, CAPITAL_REGION_ANCHOR_NAMES))
+
+    # 15. capitalRegionId резолвится в регион, чей полигон СОДЕРЖИТ реальную
+    # географическую точку столицы — самый сильный якорь (не id, не имя),
+    # но охватывает только страны с курированными координатами в
+    # generateMapFeatures.ts (см. economy_1946/capital_geography.py).
+    # Возвращает (violations, warnings, checked) — "точка не в полигоне"
+    # не нарушение, но и не тишина (см. docstring validate_capital_geography).
+    # checked — ЯВНЫЙ счётчик фактически проверенных якорей (не арифметика
+    # по разности len(capital_anchors) - len(warnings): страна, отсутствующая
+    # в countries.json, не даёт ни violation, ни warning и при вычитании
+    # молча засчиталась бы в "covered", хотя проверки для неё не было —
+    # 2026-07-26, независимое ревью, находка 1).
+    capital_anchors = load_ts_capital_anchors()
+    region_geometries = load_region_geometries()
+    geo_violations, geo_warnings, geo_checked = validate_capital_geography(
+        countries, capital_anchors, region_geometries
+    )
+    violations.extend(geo_violations)
+
+    # 16. countries.json (сгенерированный артефакт) в синхроне с CAPITAL_REGION_
+    # OVERRIDES (источник) — для ВСЕХ живых записей, не только 13 с
+    # географическим якорем. Без неё invariant 14 (проверяет таблицу) и
+    # invariant 15 (проверяет countries.json, но только 13 стран) могут оба
+    # молчать, если countries.json не пересобран после правки таблицы.
+    violations.extend(validate_capital_override_applied(countries, CAPITAL_REGION_OVERRIDES))
+
     # Отчёт
     print(f"Регионов: {len(regions)}, стран/владельцев: {len(by_owner)}")
     for w in warnings:
         print(f"  [ok] {w}")
+    covered = geo_checked - len(geo_warnings)
+    skipped_note = ""
+    if geo_checked < len(capital_anchors):
+        skipped_note = (
+            f" ({len(capital_anchors) - geo_checked} якорь(я) пропущено — страна отсутствует "
+            f"в countries.json, см. invariant 10/11 выше на причину)"
+        )
+    print(f"  [ok] Географическое покрытие invariant 15: {covered}/{geo_checked} фактически "
+          f"проверенных якорей попали в известный полигон{skipped_note} "
+          f"(остальные см. [warn] ниже).")
+    for w in geo_warnings:
+        print(f"  [warn] {w}")
 
     if violations:
         print(f"\nНАРУШЕНИЯ ({len(violations)}):")
