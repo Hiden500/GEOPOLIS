@@ -7,7 +7,7 @@
         "ru": "Литовцы"
       },
       "desiredIdeology": {
-        "economic": -0.1,
+        "economic": 0.2,
         "political": 0.45
       }
     },
@@ -18,8 +18,8 @@
         "ru": "Латыши"
       },
       "desiredIdeology": {
-        "economic": -0.05,
-        "political": 0.5
+        "economic": 0.15,
+        "political": 0.35
       }
     },
     {
@@ -29,8 +29,8 @@
         "ru": "Эстонцы"
       },
       "desiredIdeology": {
-        "economic": -0.05,
-        "political": 0.55
+        "economic": 0.2,
+        "political": 0.45
       }
     },
     {
@@ -45,25 +45,36 @@
       }
     },
     {
-      "id": "belarusians",
-      "names": {
-        "en": "Belarusians",
-        "ru": "Белорусы"
-      },
-      "desiredIdeology": {
-        "economic": -0.65,
-        "political": -0.45
-      }
-    },
-    {
       "id": "poles",
       "names": {
         "en": "Poles",
         "ru": "Поляки"
       },
       "desiredIdeology": {
-        "economic": -0.2,
-        "political": 0.2
+        "economic": 0.25,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "belarusians",
+      "names": {
+        "en": "Belarusians",
+        "ru": "Белорусы"
+      },
+      "desiredIdeology": {
+        "economic": -0.45,
+        "political": -0.25
+      }
+    },
+    {
+      "id": "ukrainians",
+      "names": {
+        "en": "Ukrainians",
+        "ru": "Украинцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.35,
+        "political": -0.2
       }
     },
     {
@@ -73,8 +84,8 @@
         "ru": "Евреи"
       },
       "desiredIdeology": {
-        "economic": -0.3,
-        "political": 0.3
+        "economic": -0.15,
+        "political": 0.35
       }
     },
     {
@@ -84,8 +95,8 @@
         "ru": "Немцы"
       },
       "desiredIdeology": {
-        "economic": -0.15,
-        "political": 0.15
+        "economic": 0.35,
+        "political": 0.05
       }
     }
   ]

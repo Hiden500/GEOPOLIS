@@ -1,19 +1,39 @@
 {
   "countries": [
     {
+      "countryId": "CHN",
+      "economic": 0.1,
+      "political": -0.4
+    },
+    {
+      "countryId": "FRA",
+      "economic": -0.3,
+      "political": 0.85
+    },
+    {
+      "countryId": "GBR",
+      "economic": -0.25,
+      "political": 0.9
+    },
+    {
       "countryId": "POL",
-      "economic": -0.8,
-      "political": -0.75
+      "economic": -0.72,
+      "political": -0.68
     },
     {
       "countryId": "SUN",
-      "economic": -0.95,
-      "political": -0.9
+      "economic": -0.96,
+      "political": -0.95
     },
     {
       "countryId": "USA",
-      "economic": 0.55,
-      "political": 0.75
+      "economic": 0.7,
+      "political": 0.78
+    },
+    {
+      "countryId": "YUG",
+      "economic": -0.88,
+      "political": -0.86
     }
   ]
 }
