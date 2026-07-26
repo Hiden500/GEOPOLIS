@@ -540,6 +540,52 @@ describe("spawn_incident", () => {
       expect(result.rejected[0]!.reason).toMatch(/by an ally/);
     });
 
+    /**
+     * Порог восстания обязан быть ДОСТИЖИМ в реальном сценарии, иначе вид
+     * `uprising` просто мёртв. На данных 1946 самый напряжённый размеченный
+     * регион (187) стоит на 0.632, то есть НИЖЕ порога 0.65 с первого месяца:
+     * восстание не выдаётся «за так», к нему надо подвести мир. Документированная
+     * §4 цепочка `incite_unrest → spawn_incident` это и делает — предпосылка
+     * второго примитива считается по состоянию ПОСЛЕ первого.
+     *
+     * Тест на реальных данных, а не на фикстуре, именно ради этого: он падает и
+     * если калибровка загонит порог выше достижимого, и если разметка датасета
+     * уедет так, что подводить станет не к чему.
+     */
+    it("на данных 1946 восстание недоступно сразу, но достижимо цепочкой", () => {
+      const region = (state: GameState) => state.regions.find(r => r.id === 187)!;
+      const groupOf = (state: GameState) =>
+        [...region(state).demographics!].sort((a, b) => b.share - a.share)[0]!.groupId;
+
+      const alone = createGame("1946", "SUN", "ru", 1);
+      expect(regionDiscontent(alone, region(alone))!).toBeLessThan(
+        SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT
+      );
+      const straight = applyPrimitiveBatch(alone, [{
+        verb: "spawn_incident", sourceCountryId: "USA",
+        target: { regionId: 187 }, params: { incidentKind: "uprising" },
+      }]);
+      expect(straight.applied).toEqual([]);
+      expect(straight.rejected[0]!.reason).toMatch(/an uprising needs/);
+
+      const chained = createGame("1946", "SUN", "ru", 1);
+      const result = applyPrimitiveBatch(chained, [
+        {
+          verb: "incite_unrest", sourceCountryId: "USA",
+          target: { regionId: 187, groupId: groupOf(chained) }, params: { intensity: "severe" },
+        },
+        {
+          verb: "spawn_incident", sourceCountryId: "USA",
+          target: { regionId: 187 }, params: { incidentKind: "uprising" },
+        },
+      ]);
+
+      expect(result.rejected).toEqual([]);
+      expect(result.applied.map(a => a.verb)).toEqual(["incite_unrest", "spawn_incident"]);
+      expect(regionDiscontent(chained, region(chained))!)
+        .toBeGreaterThanOrEqual(SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
+    });
+
     it("вид не заявлен — протест: самый слабый вид, а не самый удобный", () => {
       const result = applyPrimitiveBatch(game(), [{
         verb: "spawn_incident", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
