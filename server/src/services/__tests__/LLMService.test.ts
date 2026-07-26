@@ -739,6 +739,69 @@ describe("LLMService", () => {
       expect(game.eventHistory[0]!.title).toBe(`Мировые события (LLM, ход ${game.llmTurn})`);
     });
 
+    /**
+     * Legacy-действия без реализации не дают ложного «применено» (2026-07-26,
+     * повторная верификация внешнего аудита).
+     *
+     * До правки `annex` проходил схему и applicability, попадал в
+     * `appliedActions`, и `appliedChange === true` канонизировал текст, хотя мир
+     * не менялся ни на байт: `applyLlmActions` только логировал «not yet
+     * implemented». Дыра сидела ровно в защите, построенной от этого же
+     * (docs/PRIMITIVES.md §3, защита №2).
+     */
+    describe("annex/puppet: предложение без реализации — не «применено»", () => {
+      const annexOnly = JSON.stringify({
+        title: "Эльзас присоединён к Франции",
+        descriptions: "Франция объявила о присоединении Эльзаса.",
+        actions: [{ type: "annex", sourceCountryId: "USA", targetCountryId: "USSR" }],
+      });
+
+      it("ответ только из annex: события нет, ничего не применено, причина названа", () => {
+        const result = service.processResponse(annexOnly);
+
+        expect(result.success).toBe(true);
+        expect(result.appliedActions).toEqual([]);
+        expect(result.narrativeCanonized).toBe(false);
+        // Текст, описывающий несостоявшееся присоединение, наружу не уходит
+        // вовсе — поля, которого нет, нельзя отрисовать по ошибке.
+        expect(result.title).toBeUndefined();
+        expect(result.descriptions).toBeUndefined();
+        expect(game.eventHistory).toHaveLength(0);
+
+        expect(result.rejectedActions).toHaveLength(1);
+        expect(result.rejectedActions[0]!.reason).toContain("no apply logic");
+      });
+
+      it("повтор того же ответа тоже не канонизируется (не остаётся лазейкой на второй заход)", () => {
+        service.processResponse(annexOnly);
+        const second = new LLMService(game).processResponse(annexOnly);
+
+        expect(second.narrativeCanonized).toBe(false);
+        expect(game.eventHistory).toHaveLength(0);
+      });
+
+      it("puppet рядом с РАБОТАЮЩИМ действием: событие есть, но в применённых только работающее", () => {
+        const result = service.processResponse(JSON.stringify({
+          descriptions: "d",
+          actions: [
+            { type: "puppet", sourceCountryId: "USA", targetCountryId: "USSR" },
+            { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 5 } },
+          ],
+        }));
+
+        expect(result.narrativeCanonized).toBe(true);
+        expect(result.appliedActions.map(a => a.type)).toEqual(["diplomacy"]);
+        expect(result.rejectedActions).toHaveLength(1);
+        expect(usa().diplomacy.relations["USSR"]).toBe(5);
+      });
+
+      it("промт называет эти два глагола неработающими — модель узнаёт правило до попытки", () => {
+        const prompt = service.generatePrompt();
+        expect(prompt).toContain('"annex" and "puppet" exist in the type list');
+        expect(prompt).toContain("always rejected and never");
+      });
+    });
+
     it("невалидный ответ: НЕ очищает playerIntent (ничего не применено)", () => {
       game.playerIntent = "построить укрепления на границе";
       service.processResponse("это не JSON");

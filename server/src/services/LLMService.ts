@@ -239,10 +239,21 @@ export class LLMService {
     );
     // Слияние двух хвостов способно переполнить кап диагностики, поэтому итог
     // ПЕРЕСОБИРАЕТСЯ тем же правилом, что и обычная запись, а не склеивается.
+    //
+    // Источник факта передаётся ЯВНО (исправлено 2026-07-26 повторной верификацией
+    // внешнего аудита — регрессия правки, которая ввела это слияние). Умолчание
+    // `pushPrimitiveRejectionFact` — `"player"`, и оно же перезаписывает `source` в
+    // самом факте, поэтому пересборка без аргумента переклассифицировала ЧУЖИЕ
+    // факты в игрока: возвращённый факт режиссёра считался против переполненной
+    // квоты игрока и молча исчезал. Сценарий целиком воспроизводим: игрок выбрал
+    // свою квоту, точная причина отказа модели легла отдельной корзиной, следующий
+    // автоцикл потерял провайдера — и откат, задуманный как СПАСЕНИЕ диагностики,
+    // уничтожал ровно ту запись, ради которой разделяли корзины.
     this.game.pendingWorldFacts = [];
     for (const fact of [...beforeRender.pendingWorldFacts, ...addedWhileWaiting]) {
-      if (fact.kind === "primitive_rejected") pushPrimitiveRejectionFact(this.game, fact);
-      else this.game.pendingWorldFacts.push(fact);
+      if (fact.kind === "primitive_rejected") {
+        pushPrimitiveRejectionFact(this.game, fact, fact.source ?? "player");
+      } else this.game.pendingWorldFacts.push(fact);
     }
 
     // Счётчики показов развилок: возвращаем свои инкременты, чужие оставляем.
@@ -484,6 +495,12 @@ export class LLMService {
    * пишет движок: следующий промт рендерит их одной секцией и не должен знать,
    * на каком слое отказали (docs/PRIMITIVES.md §3 — «чтобы не долбилась в
    * невозможное»).
+   *
+   * Правило «отказ структурного отклоняет весь батч» действует на слое 3 и НЕ
+   * распространяется на слои 1–2: до движка доезжает уже отфильтрованный список,
+   * поэтому запрещённый границей агентности структурный уносит с собой только
+   * себя. Это решение, а не недосмотр, — обоснование целиком в JSDoc
+   * `splitByAgency` (`llm/primitiveAgency.ts`) и в docs/PRIMITIVES.md §3.
    *
    * Idempotency-ключ выводится из СОДЕРЖАНИЯ ответа и текущей игровой даты
    * (docs/CONCEPT.md §7.2). Дата в ключе, а не номер хода: `processResponse` сам
@@ -728,6 +745,10 @@ Return your response in JSON format with the following structure:
 }
 
 Hard limits (actions violating them are rejected):
+- "annex" and "puppet" exist in the type list for contract compatibility only:
+  the engine has NO logic for them, so they are always rejected and never
+  change the world. Do not propose them — narrate the annexation or the
+  installed government instead, or use "war"/"peace", which do change it.
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
 - data.relationChange: number within ±${MAX_RELATION_CHANGE}.
 - data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
@@ -783,8 +804,14 @@ Hard limits (actions violating them are rejected):
           break;
         case 'annex':
         case 'puppet':
-          // Эти действия требуют дополнительной логики
-          console.log(`Action ${action.type} not yet implemented`);
+          // Реализации нет — и с 2026-07-26 сюда не приходит ни одно действие
+          // ответа модели: `LLMResponseValidator` отклоняет эти два глагола как
+          // нереализованные, поэтому в `appliedActions` они не попадают и ответ,
+          // состоящий только из них, не канонизируется. Ветка остаётся ровно
+          // потому, что `applyLlmActions` — публичный метод (прямые вызовы в
+          // тестах и потенциально в ИИ-путях), и пустой глагол не должен ронять
+          // весь батч.
+          console.log(`Action ${action.type} has no apply logic (rejected earlier on the LLM path)`);
           break;
       }
     }

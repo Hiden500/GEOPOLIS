@@ -9,6 +9,7 @@ import {
   REGION_CRISIS_DISCONTENT_THRESHOLD,
 } from "@shared/defines/discontent";
 import { applyPrimitiveTurn } from "../../primitives/turnBatch";
+import { chronicleTick } from "../../simulation/chronicle/ChronicleTick";
 import { createTestRegion } from "../../test-utils/fixtures";
 import {
   createDiscontentTestGame,
@@ -485,6 +486,66 @@ describe("применение примитивов из ответа модел
     expect(game.hingePointShowCount["seen-by-the-other-cycle"]).toBe(1);
   });
 
+  /**
+   * Регрессия правки B8 (найдена повторной верификацией внешнего аудита
+   * 2026-07-26): восстановление снимка теряло ИСТОЧНИК факта.
+   *
+   * `restorePromptConsumables` пересобирал диагностику через
+   * `pushPrimitiveRejectionFact(game, fact)` без третьего аргумента. Умолчание —
+   * `"player"`, и оно же перезаписывает `source` в самом факте, поэтому факт
+   * режиссёра при возврате считался против квоты игрока. Разделение корзин,
+   * введённое чтобы точная причина модели не вытеснялась кликами игрока, на
+   * этом пути отменялось само.
+   *
+   * Сценарий воспроизводится целиком, а не через прямой вызов отката: игрок
+   * выбирает свою квоту → приходит ТОЧНАЯ причина отказа модели → следующий
+   * автоцикл теряет провайдера → откат, задуманный как спасение диагностики,
+   * уничтожает ровно её.
+   */
+  it("откат сохраняет ИСТОЧНИК факта: диагностика режиссёра не проваливается в переполненную корзину игрока", async () => {
+    const game = createDiscontentTestGame();
+
+    // 1. Игрок выбирает свою квоту с запасом: 11 подробных + агрегат.
+    for (let i = 0; i < MAX_PENDING_REJECTION_FACTS_PER_SOURCE * 2; i++) {
+      applyPrimitiveTurn(
+        game,
+        [{ verb: "repress", sourceCountryId: "USA", target: { regionId: TEST_REGION_NATIONAL } }],
+        `player-spam-${i}`
+      );
+    }
+    expect(rejectionFacts(game)).toHaveLength(MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1);
+
+    // 2. Приходит ответ модели с невозможным примитивом — точная причина ложится
+    //    в СВОЮ корзину и обязана дожить до следующего промта.
+    new LLMService(game).processResponse(
+      response([
+        { verb: "incite_unrest", sourceCountryId: "USA", target: { regionId: MISSING_REGION } },
+      ])
+    );
+    expect(rejectionFacts(game).filter(f => f.source === "director")).toHaveLength(1);
+
+    // 3. Следующий автоцикл теряет провайдера: промт собран (диагностика
+    //    потреблена) и до модели не доехал — откат обязан вернуть всё.
+    await expect(
+      new LLMService(game).runAutoCycle(() => Promise.reject(new Error("provider is down")))
+    ).rejects.toThrow("provider is down");
+
+    const director = rejectionFacts(game).filter(f => f.source === "director");
+    expect(director).toHaveLength(1);
+    expect(director[0]!.text).toContain("Attempt rejected (incite_unrest)");
+    expect(director[0]!.text).toContain(String(MISSING_REGION));
+
+    // Квота игрока при этом не раздулась: пересборка идёт тем же правилом.
+    expect(rejectionFacts(game).filter(f => (f.source ?? "player") === "player")).toHaveLength(
+      MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1
+    );
+
+    // И до модели причина реально доезжает — подробной, а не агрегатом.
+    const prompt = new LLMService(game).generatePrompt();
+    expect(prompt).toContain("Attempt rejected (incite_unrest)");
+    expect(prompt).toContain(String(MISSING_REGION));
+  });
+
   it("сбой ПОСЛЕ ответа модели диагностику не возвращает — она уже доехала", async () => {
     const game = createDiscontentTestGame();
     new LLMService(game).processResponse(
@@ -499,5 +560,215 @@ describe("применение примитивов из ответа модел
 
     expect(result.success).toBe(false);
     expect(new LLMService(game).generatePrompt()).toContain("Nothing was rejected last cycle");
+  });
+});
+
+/**
+ * Область действия правила «отказ структурного отклоняет весь ответ»
+ * (docs/PRIMITIVES.md §3–§4, уточнено 2026-07-26 повторной верификацией внешнего
+ * аудита).
+ *
+ * Аудит показал, что на главном пути правило не выполнялось: `splitByAgency`
+ * снимает запрещённый структурный ДО движка, и мягкие уходят туда отдельным
+ * батчем. Решено оставить поведение и привести правило к нему — отказ по
+ * АВТОРУ («это не твоё решение») не то же, что отказ по ПРЕДПОСЫЛКЕ («так не
+ * бывает»): первый и задуман как «давление применилось, ответ выбирает игрок».
+ *
+ * Тесты пинят обе половины решения: разное обращение с двумя видами отказа И
+ * отсутствие обхода — единственное, ради чего разницу вообще можно было бы
+ * использовать.
+ */
+describe("граница агентности против правила «структурный отказ отклоняет весь ответ»", () => {
+  /** Мягкий примитив режиссёра, заведомо применимый: давление извне на игрока. */
+  const SOFT_PRESSURE = {
+    verb: "incite_unrest",
+    sourceCountryId: "USA",
+    target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+    params: { intensity: "severe" },
+  };
+
+  function directorResponse(primitives: unknown[], title = "t"): string {
+    return JSON.stringify({ title, descriptions: "d", actions: [], primitives });
+  }
+
+  function emboldenment(game: GameState): number {
+    return (
+      game.groupImpactMemory.find(
+        m => m.regionId === TEST_REGION_NATIONAL && m.groupId === TEST_GROUP_TITULAR
+      )?.emboldenment ?? 0
+    );
+  }
+
+  it("структурный, снятый ГРАНИЦЕЙ АГЕНТНОСТИ, уносит только себя — мягкое давление применяется", () => {
+    const game = createDiscontentTestGame(); // playerCountryId: SUN
+    const result = new LLMService(game).processResponse(
+      directorResponse([
+        SOFT_PRESSURE,
+        {
+          // Реформа за страну ИГРОКА — решение, которое режиссёр принимать не вправе.
+          verb: "enact_reform",
+          sourceCountryId: "SUN",
+          target: { countryId: "SUN" },
+          params: { politicalDirection: "democratic" },
+        },
+      ])
+    );
+
+    expect(result.primitiveOutcomes.map(o => o.verb)).toEqual(["incite_unrest"]);
+    expect(emboldenment(game)).toBeGreaterThan(0);
+    expect(result.rejectedPrimitives.map(r => r.verb)).toEqual(["enact_reform"]);
+    expect(result.rejectedPrimitives[0]!.reason).toContain("policy decision of SUN");
+  });
+
+  it("а предложение доходит до игрока: событие есть, и отказ лежит в нём машиночитаемо", () => {
+    // Вторая причина решения (docs/PRIMITIVES.md §4): откат батча оставил бы
+    // ответ без единого применённого примитива, событие бы не создалось, и текст,
+    // которым режиссёр ПРЕДЛАГАЕТ игроку уступку, до игрока не дошёл бы вовсе.
+    const game = createDiscontentTestGame();
+    const result = new LLMService(game).processResponse(
+      directorResponse([
+        SOFT_PRESSURE,
+        {
+          verb: "enact_reform",
+          sourceCountryId: "SUN",
+          target: { countryId: "SUN" },
+          params: { politicalDirection: "democratic" },
+        },
+      ])
+    );
+
+    expect(result.narrativeCanonized).toBe(true);
+    expect(game.eventHistory).toHaveLength(1);
+
+    const event = game.eventHistory[0]!;
+    expect(event.rejectedPrimitives?.map(r => r.verb)).toEqual(["enact_reform"]);
+    expect(event.primitiveOutcomes?.map(o => o.verb)).toEqual(["incite_unrest"]);
+  });
+
+  it("но отказ ДВИЖКА по структурному по-прежнему откатывает весь ответ", () => {
+    const game = createDiscontentTestGame();
+    const result = new LLMService(game).processResponse(
+      directorResponse([
+        SOFT_PRESSURE,
+        {
+          // Чужая страна — границу агентности проходит, до движка доезжает и
+          // падает на предпосылке (страны нет).
+          verb: "enact_reform",
+          sourceCountryId: "XXX",
+          target: { countryId: "XXX" },
+          params: { politicalDirection: "democratic" },
+        },
+      ])
+    );
+
+    expect(result.primitiveOutcomes).toEqual([]);
+    expect(emboldenment(game)).toBe(0);
+    expect(result.narrativeCanonized).toBe(false);
+    expect(game.eventHistory).toHaveLength(0);
+  });
+
+  it("обхода нет: запрещённый структурный ничего не ДОБАВЛЯЕТ к тому же ответу без него", () => {
+    // Третья причина решения: фильтр умеет только УДАЛЯТЬ. Если добавление
+    // запрещённого структурного открывает хоть одно новое состояние мира,
+    // решение неверно. Сравниваются полные снимки двух миров.
+    const withForbidden = createDiscontentTestGame();
+    new LLMService(withForbidden).processResponse(
+      directorResponse([
+        SOFT_PRESSURE,
+        {
+          verb: "enact_reform",
+          sourceCountryId: "SUN",
+          target: { countryId: "SUN" },
+          params: { politicalDirection: "democratic" },
+        },
+      ])
+    );
+
+    const withoutIt = createDiscontentTestGame();
+    new LLMService(withoutIt).processResponse(directorResponse([SOFT_PRESSURE]));
+
+    // Поля, заведомо различные не по смыслу правила: ключи батчей выводятся из
+    // ТЕКСТА ответа, а диагностика отказов у второго мира просто отсутствует.
+    const comparable = (game: GameState) => ({
+      ...game,
+      primitiveBatchKeys: [],
+      primitiveNoopBatchKeys: [],
+      pendingWorldFacts: [],
+      llmResponse: "",
+      eventHistory: game.eventHistory.map(e => ({ ...e, rejectedPrimitives: undefined })),
+    });
+
+    expect(comparable(withForbidden)).toEqual(comparable(withoutIt));
+  });
+});
+
+/**
+ * Цена, названная в документе, проверяется как поведение (2026-07-26).
+ *
+ * `docs/PRIMITIVES.md` §3 и `docs/LLM_RULES.md` больше не утверждают, что
+ * «память страны» и летопись читают только подтверждённые заголовки: при
+ * ЧАСТИЧНОМ применении сырой заголовок модели доходит до них как есть и вправе
+ * описывать отклонённую часть. Тест пинит именно это — чтобы будущая правка,
+ * которая начнёт сверять текст с фактом, была обязана переписать и документ.
+ */
+describe("правдивость летописи: граница названа по факту, а не по замыслу", () => {
+  it("частично применённый ответ доносит СЫРОЙ заголовок до летописи, не сверяя его с фактом", () => {
+    const game = createDiscontentTestGame();
+    game.currentDate = "1946-02-01";
+
+    const result = new LLMService(game).processResponse(
+      JSON.stringify({
+        // Заголовок описывает ровно ту половину, которую движок отклонит.
+        title: "Москва пошла на уступки и провела реформу",
+        descriptions: "d",
+        actions: [],
+        primitives: [
+          {
+            verb: "incite_unrest",
+            sourceCountryId: "USA",
+            target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+            params: { intensity: "severe" },
+          },
+          {
+            verb: "enact_reform",
+            sourceCountryId: "SUN",
+            target: { countryId: "SUN" },
+            params: { politicalDirection: "democratic" },
+          },
+        ],
+      })
+    );
+
+    // Применилось частично — событие законно, и рядом с текстом лежит факт.
+    expect(result.narrativeCanonized).toBe(true);
+    expect(game.eventHistory[0]!.rejectedPrimitives).toHaveLength(1);
+
+    game.currentDate = "1947-01-01";
+    chronicleTick(game);
+
+    // Вот она, честная граница: летопись взяла заголовок ДОСЛОВНО и о реформе,
+    // которой не было, теперь помнит наравне с настоящим.
+    expect(game.chronicle[0]!.summary).toContain("Москва пошла на уступки и провела реформу");
+  });
+
+  it("а полностью неприменённый ответ до летописи не доходит — единственная гарантия, которую даёт код", () => {
+    const game = createDiscontentTestGame();
+    game.currentDate = "1946-02-01";
+
+    new LLMService(game).processResponse(
+      JSON.stringify({
+        title: "Восстание подавлено",
+        descriptions: "d",
+        actions: [],
+        primitives: [
+          { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+        ],
+      })
+    );
+
+    game.currentDate = "1947-01-01";
+    chronicleTick(game);
+
+    expect(game.chronicle).toEqual([]);
   });
 });
