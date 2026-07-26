@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import request from "supertest";
 import { createApp } from "../../app";
 import { getGame, setGame } from "../../game/GameStore";
+import { MAX_PRIMITIVE_ID_LENGTH } from "@shared/defines/discontent";
 import {
   createDiscontentTestGame,
   TEST_GROUP_TITULAR,
@@ -114,6 +115,36 @@ describe("POST /primitives/apply", () => {
 
     expect(response.status).toBe(400);
     expect(suppressionNow()).toBe(0);
+  });
+
+  it("длинный идентификатор — 400 от схемы, и в диагностику он не попадает", async () => {
+    // Сценарий ревью 2026-07-26: `groupId` из 500 символов проходил схему
+    // (`.min(1)` без `.max()`), падал на предпосылке движка и уезжал в
+    // диагностический факт ДОСЛОВНО — то есть тело запроса попадало в следующий
+    // промт. Замер: 50 таких приказов раздували промт с 13 118 до 41 086
+    // символов при бюджете docs/CONCEPT.md §7 «PROMPT < ~8–10k токенов».
+    const response = await request(app)
+      .post("/primitives/apply")
+      .send({
+        primitives: [{ ...repress, target: { ...repress.target, groupId: "x".repeat(500) } }],
+        idempotencyKey: "order-1",
+      });
+
+    expect(response.status).toBe(400);
+    // Ни применения, ни следа в диагностике: отказ произошёл до движка.
+    expect(suppressionNow()).toBe(0);
+    expect(getGame()!.pendingWorldFacts.filter(f => f.kind === "primitive_rejected")).toEqual([]);
+  });
+
+  it("идентификаторы реального сценария границу проходят с запасом", async () => {
+    // Обратная половина: граница обязана быть выше любых живых данных, иначе
+    // она отклоняла бы законный приказ. Самый длинный id 1946 — `lithuanians`.
+    const response = await request(app)
+      .post("/primitives/apply")
+      .send({ primitives: [repress], idempotencyKey: "order-real-id" });
+
+    expect(response.status).toBe(200);
+    expect(TEST_GROUP_TITULAR.length).toBeLessThan(MAX_PRIMITIVE_ID_LENGTH);
   });
 
   it("без ключа идемпотентности запрос не принимается", async () => {

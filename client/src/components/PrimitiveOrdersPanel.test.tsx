@@ -39,16 +39,29 @@ const applied: ApplyPrimitivesResult = {
   rejected: [],
 };
 
+const FIRST_TURN = "1946-02-01";
+
 function renderPanel(selectedRegionId: number | null = 187) {
   const onApplied = vi.fn();
-  render(
+  const { rerender } = render(
     <PrimitiveOrdersPanel
       playerCountryId="SUN"
       selectedRegionId={selectedRegionId}
+      currentDate={FIRST_TURN}
       onApplied={onApplied}
     />
   );
-  return { onApplied };
+  /** Смена игрового месяца без перемонтирования — как в живом интерфейсе. */
+  const advanceTo = (currentDate: string) =>
+    rerender(
+      <PrimitiveOrdersPanel
+        playerCountryId="SUN"
+        selectedRegionId={selectedRegionId}
+        currentDate={currentDate}
+        onApplied={onApplied}
+      />
+    );
+  return { onApplied, advanceTo };
 }
 
 beforeEach(() => {
@@ -172,6 +185,51 @@ describe("PrimitiveOrdersPanel — быстрые кнопки", () => {
     await waitFor(() => expect(apply).toHaveBeenCalledTimes(2));
 
     expect(apply.mock.calls[1]![1]).not.toBe(apply.mock.calls[0]![1]);
+  });
+
+  it("ключ не переезжает в следующий ход — иначе законный приказ месяца проглотят как дубль", async () => {
+    // Найдено ревью 2026-07-26. Панель не перемонтируется при смене месяца,
+    // поэтому ключ, удержанный после сетевого сбоя в феврале, переиспользовался
+    // в марте. Журнал ключей на сервере кольцевой (32 записи), февральский ключ
+    // там ещё лежит — и мартовский приказ, законный по бюджету хода, вернулся бы
+    // как «уже отдан».
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const apply = vi
+      .spyOn(gameApi, "applyPrimitives")
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValue({ duplicate: false, outcomes: [], rejected: [] });
+    const { advanceTo } = renderPanel();
+
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+    await screen.findByRole("alert");
+
+    advanceTo("1946-03-01");
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(2));
+
+    expect(apply.mock.calls[1]![1]).not.toBe(apply.mock.calls[0]![1]);
+  });
+
+  it("в ПРЕДЕЛАХ хода ключ по-прежнему держится: перерисовка — не новый ход", async () => {
+    // Обратная половина: чистка привязана к дате, а не к любому обновлению
+    // пропсов, иначе она снимала бы защиту от ретрая на каждой перерисовке.
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const apply = vi
+      .spyOn(gameApi, "applyPrimitives")
+      .mockRejectedValueOnce(new Error("network"))
+      .mockResolvedValue({ duplicate: true, outcomes: [], rejected: [] });
+    const { advanceTo } = renderPanel();
+
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(1));
+    await screen.findByRole("alert");
+
+    advanceTo(FIRST_TURN);
+    fireEvent.click(screen.getByRole("button", { name: "Подавить" }));
+    await waitFor(() => expect(apply).toHaveBeenCalledTimes(2));
+
+    expect(apply.mock.calls[1]![1]).toBe(apply.mock.calls[0]![1]);
   });
 });
 

@@ -5,8 +5,10 @@ import { type Region } from "@shared/types/map/Region";
 import { regionDiscontent } from "@shared/utils/discontent";
 import {
   MAX_PROMPT_CRISES,
+  MAX_PENDING_REJECTION_FACTS,
   REGION_CRISIS_DISCONTENT_THRESHOLD,
 } from "@shared/defines/discontent";
+import { applyPrimitiveTurn } from "../../primitives/turnBatch";
 import { createTestRegion } from "../../test-utils/fixtures";
 import {
   createDiscontentTestGame,
@@ -22,6 +24,14 @@ import {
  */
 
 const REGION_POPULATION = 1_000_000;
+
+/** Заведомо отсутствующий регион — приказ по нему отклоняется с внятной причиной. */
+const MISSING_REGION = 999998;
+
+/** Диагностические факты об отказах примитивов, накопленные в состоянии. */
+function rejectionFacts(game: GameState) {
+  return game.pendingWorldFacts.filter(f => f.kind === "primitive_rejected");
+}
 
 /**
  * Мир с произвольным числом кризисных регионов. Недовольство разводится по
@@ -326,6 +336,99 @@ describe("применение примитивов из ответа модел
     expect(prompt).toContain("Attempt rejected (repress)");
     // И промт, который никто не получил, не остался в состоянии.
     expect(beforeContext).toBe(undefined);
+  });
+
+  it("серия отказов не раздувает секцию промта — работает кап, а не удача", () => {
+    // 50 отклонённых приказов в одном месяце: ровно замер ревью 2026-07-26,
+    // где секция отказов вырастала до 28 144 символов при бюджете
+    // docs/CONCEPT.md §7 «PROMPT < ~8–10k токенов».
+    const game = createDiscontentTestGame();
+    for (let i = 0; i < 50; i++) {
+      applyPrimitiveTurn(
+        game,
+        [{ verb: "repress", sourceCountryId: "USA", target: { regionId: TEST_REGION_NATIONAL } }],
+        `spam-${i}`
+      );
+    }
+
+    const prompt = new LLMService(game).generatePrompt();
+    const section = prompt.split("## Rejected Attempts Last Cycle")[1]!.split("\n## ")[0]!;
+    const lines = section.split("\n").filter(line => line.startsWith("- "));
+
+    expect(lines).toHaveLength(MAX_PENDING_REJECTION_FACTS + 1);
+    expect(section).toContain("further rejected attempts are not listed");
+    // Абсолютная граница, а не только число строк: строку тоже нельзя раздуть
+    // содержимым запроса (идентификаторы ограничены схемой).
+    expect(section.length).toBeLessThan(3000);
+  });
+
+  it("откат не стирает диагностику, дописанную ПОКА цикл ждал провайдера", async () => {
+    // Гонка воспроизводится, а не имитируется вызовом отката: приказ игрока
+    // отдаётся ВНУТРИ ожидания провайдера — ровно там, где его отдаёт живой
+    // игрок (автоцикл ждёт Gemini секундами, индикатор занятости панели LLM
+    // кнопки панели приказов не гасит). Найдено ревью 2026-07-26: откат
+    // безусловно писал доцикловый снимок и уничтожал всё, что дописали за это
+    // время.
+    const game = createDiscontentTestGame();
+    new LLMService(game).processResponse(
+      response([
+        { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+      ])
+    );
+    expect(rejectionFacts(game)).toHaveLength(1);
+
+    let seenWhileWaiting = -1;
+    await expect(
+      new LLMService(game).runAutoCycle(() => {
+        // Промт уже собран и доцикловую диагностику потребил — гонка настоящая.
+        seenWhileWaiting = rejectionFacts(game).length;
+        applyPrimitiveTurn(
+          game,
+          [{ verb: "repress", sourceCountryId: "SUN", target: { regionId: MISSING_REGION } }],
+          "player-order-while-waiting"
+        );
+        return Promise.reject(new Error("provider is down"));
+      })
+    ).rejects.toThrow("provider is down");
+
+    expect(seenWhileWaiting).toBe(0);
+
+    // Оба факта на месте и ровно по одному разу: снимок вернулся ПОВЕРХ, а не
+    // ВМЕСТО, и при этом ничего не задвоил.
+    const facts = rejectionFacts(game);
+    expect(facts).toHaveLength(2);
+    expect(facts.filter(f => f.text.includes("policy decision of SUN"))).toHaveLength(1);
+    expect(facts.filter(f => f.text.includes(`Unknown region: ${MISSING_REGION}`))).toHaveLength(1);
+
+    const prompt = new LLMService(game).generatePrompt();
+    expect(prompt).toContain("policy decision of SUN");
+    expect(prompt).toContain(`Unknown region: ${MISSING_REGION}`);
+  });
+
+  it("откат не отменяет чужой промт и чужие показы развилок", async () => {
+    // Та же гонка на остальных одноразовых данных промта: параллельный цикл
+    // успел сохранить СВОЙ промт и увеличить счётчики показов, пока наш ждал
+    // провайдера. Безусловный откат вернул бы состояние к нашему доцикловому,
+    // то есть подменил бы живой промт прошлым и отменил чужие показы.
+    const game = createDiscontentTestGame();
+    game.hingePointShowCount = { "shown-before": 2 };
+
+    await expect(
+      new LLMService(game).runAutoCycle(() => {
+        game.llmContext = "промт параллельного цикла";
+        // Инкремент, а не присваивание: параллельный рендер делает именно это,
+        // и от него не зависит, успел ли наш рендер посчитать ту же развилку.
+        game.hingePointShowCount["shown-before"] =
+          (game.hingePointShowCount["shown-before"] ?? 0) + 1;
+        game.hingePointShowCount["seen-by-the-other-cycle"] = 1;
+        return Promise.reject(new Error("provider is down"));
+      })
+    ).rejects.toThrow("provider is down");
+
+    expect(game.llmContext).toBe("промт параллельного цикла");
+    // Наш собственный показ откачен, чужой инкремент сохранён: 2 + 1, а не 4.
+    expect(game.hingePointShowCount["shown-before"]).toBe(3);
+    expect(game.hingePointShowCount["seen-by-the-other-cycle"]).toBe(1);
   });
 
   it("сбой ПОСЛЕ ответа модели диагностику не возвращает — она уже доехала", async () => {

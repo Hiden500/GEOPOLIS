@@ -23,6 +23,8 @@ import {
   ENACT_REFORM_POLITICAL_COST,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
+  MAX_PENDING_REJECTION_FACTS,
+  MAX_PRIMITIVE_ID_LENGTH,
   IMPACT_FIELD_TURN_CEILING,
   REPRESS_SUPPRESSION_MIN,
   REPRESS_SUPPRESSION_MAX,
@@ -1049,6 +1051,70 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
     } finally {
       (PRIMITIVE_PALETTE as Record<PrimitiveVerb, readonly string[]>).repress = original;
     }
+  });
+});
+
+describe("диагностика отказов ограничена сверху (docs/PRIMITIVES.md §4)", () => {
+  /** Отказ на предпосылке: USA регионом не владеет. */
+  const impossible: Primitive = {
+    verb: "repress",
+    sourceCountryId: "USA",
+    target: { regionId: TEST_REGION_NATIONAL },
+  };
+
+  function rejectionFacts(state: GameState) {
+    return state.pendingWorldFacts.filter(f => f.kind === "primitive_rejected");
+  }
+
+  it("подробных записей не больше капа, а хвост назван одной строкой", () => {
+    // Факты вычищаются только генерацией промта, а пишутся на каждый отказ:
+    // без капа 50 отклонённых приказов раздували следующий промт с 13 118 до
+    // 41 086 символов (замер ревью 2026-07-26).
+    const state = game();
+    for (let i = 0; i < MAX_PENDING_REJECTION_FACTS + 9; i++) {
+      applyPrimitiveBatch(state, [impossible]);
+    }
+
+    const facts = rejectionFacts(state);
+    expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS + 1);
+    expect(
+      facts.slice(0, MAX_PENDING_REJECTION_FACTS).every(f => f.text.startsWith("Attempt rejected"))
+    ).toBe(true);
+    // Хвост не замалчивается (иначе читалось бы как «отказов ровно столько»),
+    // но и не копится: одна строка на любое число сверх капа.
+    expect(facts.at(-1)!.text).toContain("further rejected attempts are not listed");
+  });
+
+  it("полный законный ход помещается в подробные записи целиком", () => {
+    // Кап выведен из капов хода, а не выбран: столько отказов даёт один ход,
+    // отклонённый до последнего примитива. Резать диагностику здесь нечего.
+    const state = game();
+    applyPrimitiveBatch(
+      state,
+      Array.from({ length: MAX_PENDING_REJECTION_FACTS }, () => impossible)
+    );
+
+    const facts = rejectionFacts(state);
+    expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS);
+    expect(facts.every(f => f.text.startsWith("Attempt rejected"))).toBe(true);
+  });
+
+  it("идентификатор сверх границы длины схему не проходит", () => {
+    const overLong = {
+      verb: "repress",
+      sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL, groupId: "x".repeat(MAX_PRIMITIVE_ID_LENGTH + 1) },
+    };
+    expect(primitiveSchema.safeParse(overLong).success).toBe(false);
+
+    // …а живой идентификатор сценария проходит: граница выше данных, а не под них.
+    expect(
+      primitiveSchema.safeParse({
+        verb: "repress",
+        sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+      }).success
+    ).toBe(true);
   });
 });
 

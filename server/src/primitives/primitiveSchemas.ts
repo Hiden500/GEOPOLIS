@@ -10,6 +10,7 @@ import {
 import {
   MAX_SOFT_PRIMITIVES_PER_TURN,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
+  MAX_PRIMITIVE_ID_LENGTH,
 } from "@shared/defines/discontent";
 
 /**
@@ -24,10 +25,23 @@ import {
  * величины считает движок и только движок (docs/PRIMITIVES.md §1).
  */
 
+/**
+ * Идентификатор внутри примитива: непустой и ОГРАНИЧЕННЫЙ СВЕРХУ.
+ *
+ * Верхняя граница здесь не про «влезет ли в поле», а про то, куда строка
+ * уезжает дальше. Несуществующий идентификатор отклоняет фаза validate движка,
+ * и её причина несёт исходную строку дословно («`Unknown ethnic group: <id>`»);
+ * причина уходит диагностическим фактом в следующий промт. Без `.max()` тело
+ * запроса попадало в промт целиком — замер ревью 2026-07-26: 50 приказов с
+ * `groupId` из 500 символов давали секцию отказов на 28 144 символа
+ * (`MAX_PRIMITIVE_ID_LENGTH`).
+ */
+const primitiveIdSchema = z.string().min(1).max(MAX_PRIMITIVE_ID_LENGTH);
+
 export const primitiveTargetSchema = z.object({
-  countryId: z.string().min(1).optional(),
+  countryId: primitiveIdSchema.optional(),
   regionId: z.number().int().positive().optional(),
-  groupId: z.string().min(1).optional(),
+  groupId: primitiveIdSchema.optional(),
 }).strict();
 
 /**
@@ -44,7 +58,7 @@ export const primitiveParamsSchema = z.object({
 
 export const primitiveSchema = z.object({
   verb: z.enum(PRIMITIVE_VERBS),
-  sourceCountryId: z.string().min(1),
+  sourceCountryId: primitiveIdSchema,
   target: primitiveTargetSchema,
   params: primitiveParamsSchema.optional(),
 }).strict();

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { type z } from "zod";
 import { type GameState } from "@shared/types/GameState";
-import { type LLMAction } from "@shared/types/GameState";
+import { type LLMAction, type WorldFact } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
@@ -9,6 +9,7 @@ import { activeCrises, renderCrisis, renderHiddenCrises } from "../llm/crisisDig
 import { MAX_PROMPT_CRISES, REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/defines/discontent";
 import { PRIMITIVE_CONTRACT, PRIMITIVE_PLAYER_AGENCY_NOTE } from "../llm/primitiveContract";
 import { parsePrimitives } from "../primitives/primitiveSchemas";
+import { pushPrimitiveRejectionFact } from "../primitives/PrimitiveEngine";
 import { applyPrimitiveTurn, isDuplicatePrimitiveBatch } from "../primitives/turnBatch";
 import { splitByAgency } from "../llm/primitiveAgency";
 import * as diplomacyCommands from "../commands/diplomacy";
@@ -101,9 +102,21 @@ export interface LlmCycleResult {
 /**
  * Одноразовые данные, которые потребляет рендер промта: их нужно уметь вернуть
  * в состояние, если промт так никому и не достался (см. `runAutoCycle`).
+ *
+ * Снимок хранит факты ДВАЖДЫ — значениями и ссылками, — и обе половины нужны,
+ * потому что снимок снимается в двух точках времени. Снятый ДО рендера работает
+ * значениями (это и есть то, что возвращаем), снятый ПОСЛЕ — ссылками (это
+ * точка отсчёта: всё, чего в ней нет, дописал не наш цикл).
  */
 interface PromptConsumables {
   pendingWorldFacts: GameState["pendingWorldFacts"];
+  /**
+   * Те же факты ПО ССЫЛКЕ. Идентичность объекта здесь единственный работающий
+   * признак: два отказа одного глагола дают побайтно равные факты, и сравнение
+   * по содержимому не отличило бы «этот факт был в снимке» от «такой же
+   * появился, пока мы ждали провайдера».
+   */
+  factIdentities: ReadonlySet<WorldFact>;
   hingePointShowCount: GameState["hingePointShowCount"];
   llmContext: string | undefined;
 }
@@ -135,15 +148,19 @@ export class LLMService {
    * видела, и возвращать её обратно значило бы показать те же отказы дважды.
    */
   async runAutoCycle(askProvider: (prompt: string) => Promise<string>): Promise<LlmCycleResult> {
-    const consumed = this.snapshotPromptConsumables();
+    const beforeRender = this.snapshotPromptConsumables();
     const prompt = this.generatePrompt();
     this.savePrompt(prompt);
+    // Второй снимок — не дубль, а точка отсчёта для отката: он фиксирует, каким
+    // рендер оставил состояние, и потому отделяет наши правки от чужих (см.
+    // `restorePromptConsumables`).
+    const afterRender = this.snapshotPromptConsumables();
 
     let rawResponse: string;
     try {
       rawResponse = await askProvider(prompt);
     } catch (error) {
-      this.restorePromptConsumables(consumed);
+      this.restorePromptConsumables(beforeRender, afterRender);
       throw error;
     }
 
@@ -163,18 +180,64 @@ export class LLMService {
   private snapshotPromptConsumables(): PromptConsumables {
     return {
       pendingWorldFacts: structuredClone(this.game.pendingWorldFacts),
+      factIdentities: new Set(this.game.pendingWorldFacts),
       hingePointShowCount: { ...this.game.hingePointShowCount },
       llmContext: this.game.llmContext,
     };
   }
 
-  private restorePromptConsumables(snapshot: PromptConsumables): void {
-    this.game.pendingWorldFacts = snapshot.pendingWorldFacts;
-    this.game.hingePointShowCount = snapshot.hingePointShowCount;
+  /**
+   * Возвращает одноразовые данные ПОВЕРХ текущего состояния, а не вместо него.
+   *
+   * Безусловная запись доциклового снимка была бы классическим lost update:
+   * между рендером промта и отказом провайдера состояние живёт дальше. Ревью
+   * 2026-07-26 воспроизвело это в обычной игре, без curl: автоцикл ждёт Gemini
+   * секундами, индикатор занятости панели LLM гасит только её собственные кнопки
+   * (у панели приказов свой флаг), игрок за это время отдаёт приказ — его
+   * диагностика уходит в `pendingWorldFacts` — и откат стирал её начисто. Два
+   * параллельных автоцикла дают ту же форму.
+   *
+   * Правило слияния одно на все три поля: **вернуть своё, сохранить чужое**.
+   * Чужое опознаётся сравнением с состоянием СРАЗУ ПОСЛЕ нашего рендера
+   * (`afterRender`), а не с доцикловым: всё, что отличается от него, появилось,
+   * пока мы ждали, и к потреблённому промтом отношения не имеет.
+   */
+  private restorePromptConsumables(
+    beforeRender: PromptConsumables,
+    afterRender: PromptConsumables
+  ): void {
+    // Факты: потреблённые рендером возвращаются, дописанные во время ожидания
+    // остаются. Пережившие рендер не задваиваются — они в `factIdentities`,
+    // поэтому в «дописанные» не попадают, а из снимка приходят ровно один раз.
+    const addedWhileWaiting = this.game.pendingWorldFacts.filter(
+      fact => !afterRender.factIdentities.has(fact)
+    );
+    // Слияние двух хвостов способно переполнить кап диагностики, поэтому итог
+    // ПЕРЕСОБИРАЕТСЯ тем же правилом, что и обычная запись, а не склеивается.
+    this.game.pendingWorldFacts = [];
+    for (const fact of [...beforeRender.pendingWorldFacts, ...addedWhileWaiting]) {
+      if (fact.kind === "primitive_rejected") pushPrimitiveRejectionFact(this.game, fact);
+      else this.game.pendingWorldFacts.push(fact);
+    }
+
+    // Счётчики показов развилок: возвращаем свои инкременты, чужие оставляем.
+    // Ключ, которого не было до рендера и который с тех пор никто не трогал,
+    // исчезает вовсе — его завёл наш собственный, никем не увиденный промт.
+    const hingePointShowCount = { ...beforeRender.hingePointShowCount };
+    for (const [id, current] of Object.entries(this.game.hingePointShowCount)) {
+      const byOthers = current - (afterRender.hingePointShowCount[id] ?? 0);
+      if (byOthers > 0) hingePointShowCount[id] = (hingePointShowCount[id] ?? 0) + byOthers;
+    }
+    this.game.hingePointShowCount = hingePointShowCount;
+
+    // Промт возвращается, только если в состоянии всё ещё лежит НАШ: параллельный
+    // цикл, успевший сохранить свой, перезаписывать нельзя — иначе откат одного
+    // цикла подменял бы живой промт другого прошлогодним текстом.
+    if (this.game.llmContext !== afterRender.llmContext) return;
     // Промта до сбоя могло не быть вовсе — тогда поле УДАЛЯЕТСЯ, а не
     // выставляется в `undefined`: сейв обязан вернуться к прежней форме.
-    if (snapshot.llmContext === undefined) delete this.game.llmContext;
-    else this.game.llmContext = snapshot.llmContext;
+    if (beforeRender.llmContext === undefined) delete this.game.llmContext;
+    else this.game.llmContext = beforeRender.llmContext;
   }
 
   /**
@@ -343,10 +406,11 @@ export class LLMService {
       ...refused.map(r => ({ verb: r.verb, reason: r.reason })),
     ];
 
+    // Через ту же функцию, что и отказы движка: кап на число подробных записей
+    // обязан считать оба канала вместе, иначе его снимал бы любой второй канал.
     for (const entry of rejected) {
-      this.game.pendingWorldFacts.push({
+      pushPrimitiveRejectionFact(this.game, {
         countryId: this.game.playerCountryId,
-        kind: "primitive_rejected",
         text: `Attempt rejected (${entry.verb ?? "malformed primitive"}): ${entry.reason}`,
       });
     }

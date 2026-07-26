@@ -324,6 +324,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             <PrimitiveOrdersPanel
               playerCountryId={playerCountry.id}
               selectedRegionId={selectedOwnRegionId}
+              currentDate={game.currentDate}
               onApplied={handleLlmApplied}
             />
           </OrdersBox>

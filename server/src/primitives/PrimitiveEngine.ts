@@ -45,6 +45,7 @@ import {
   MAX_PRIMITIVES_PER_TARGET_PER_TURN,
   IMPACT_FIELD_TURN_CEILING,
   IMPACT_FIELD_TURN_CEILING_TOLERANCE,
+  MAX_PENDING_REJECTION_FACTS,
 } from "@shared/defines/discontent";
 import {
   emptyPrimitiveTurnBudget,
@@ -1104,10 +1105,70 @@ function impactBudgetKey(impact: ImpactDelta): string {
  * и никакого отдельного «обнулить счётчики» в тике не требуется. Явный reset
  * был бы вторым источником истины о том, что такое ход, — а любой путь,
  * двигающий дату мимо него, молча унёс бы остатки прошлого месяца в новый.
+ *
+ * ОТСУТСТВИЕ поля — единственный случай, когда движок бросает исключение, и это
+ * сделано намеренно. Тип объявляет поле обязательным, поэтому состояние без
+ * него — не «старый сейв» (те отклоняются по `SAVE_VERSION`), а собранный мимо
+ * `CreateGame` объект. Фолбэк «нет поля — считаем бюджет пустым» выглядел бы
+ * дружелюбнее, но означал бы, что каждый вызов начинает счёт заново, — ровно тот
+ * обход капов «за вызов вместо за ход», ради закрытия которого бюджет и переехал
+ * в состояние. Громкий отказ лучше тихо снятой защиты; сообщение называет
+ * причину, чтобы это не выглядело случайным `TypeError`.
  */
 function turnBudgetFor(game: GameState): PrimitiveTurnBudget {
-  const stored = game.primitiveTurnBudget;
+  // Приведение осознанное: тип обещает поле, но состояние приходит из JSON и
+  // из тестовых фикстур, где обещание может не выполняться.
+  const stored = game.primitiveTurnBudget as PrimitiveTurnBudget | undefined;
+  if (!stored) {
+    throw new Error(
+      "GameState.primitiveTurnBudget is missing: per-turn primitive caps have no counters to " +
+        "read. Refusing to fall back to an empty budget — that would silently restore the " +
+        "per-call bypass the turn budget exists to prevent (docs/PRIMITIVES.md §4)."
+    );
+  }
   return stored.date === game.currentDate ? stored : emptyPrimitiveTurnBudget(game.currentDate);
+}
+
+/**
+ * Дописывает диагностический факт об отказе с КАПОМ на число подробных записей.
+ *
+ * Единственная точка записи `primitive_rejected` — и движка, и LLM-пути: два
+ * места с одинаковым правилом разъехались бы, а кап, который держит только один
+ * канал, не кап вовсе.
+ *
+ * Почему кап нужен. Факты вычищаются ТОЛЬКО генерацией промта, а пишутся на
+ * каждый отказ; между двумя промтами движок зовут сколько угодно раз (каждый
+ * клик игрока — отдельный вызов). Замер ревью 2026-07-26: 50 отклонённых
+ * приказов раздували следующий промт с 13 118 до 41 086 символов при бюджете
+ * `docs/CONCEPT.md` §7 «PROMPT < ~8–10k токенов».
+ *
+ * Хвост не замалчивается: на первой записи сверх капа вместо подробностей
+ * кладётся одна агрегатная строка — тот же приём, что `renderHiddenCrises` для
+ * кризисов, и по той же причине (молчание о хвосте читалось бы как «отказов
+ * ровно столько»). Дальнейшие отказы уже ничего не добавляют: агрегат сам
+ * занимает слот `MAX_PENDING_REJECTION_FACTS + 1`, поэтому счётчик подробных
+ * записей больше не совпадёт с капом ни разу и второго агрегата не появится —
+ * отдельного признака «агрегат уже есть» для этого не требуется.
+ */
+export function pushPrimitiveRejectionFact(
+  game: GameState,
+  fact: { countryId: string; text: string; regionId?: number | undefined }
+): void {
+  const listed = game.pendingWorldFacts.filter(f => f.kind === "primitive_rejected").length;
+  if (listed > MAX_PENDING_REJECTION_FACTS) return;
+
+  if (listed === MAX_PENDING_REJECTION_FACTS) {
+    game.pendingWorldFacts.push({
+      countryId: fact.countryId,
+      kind: "primitive_rejected",
+      text:
+        `(further rejected attempts are not listed this cycle: the diagnostic cap of ` +
+        `${MAX_PENDING_REJECTION_FACTS} entries was reached)`,
+    });
+    return;
+  }
+
+  game.pendingWorldFacts.push({ ...fact, kind: "primitive_rejected" });
 }
 
 /**
@@ -1180,10 +1241,16 @@ function findMisreportedImpacts(
  * Применяет батч примитивов к состоянию партии.
  *
  * Единственная точка входа для любого источника примитивов — LLM-путь, кнопка
- * игрока, тест. Ничего не мутирует до финального commit'а и никогда не бросает
- * исключений: всё, что не прошло, возвращается в `rejected` с причиной и
- * дополнительно попадает в `pendingWorldFacts` как диагностический факт
- * (docs/PRIMITIVES.md §3 — «чтобы не долбилась в невозможное»).
+ * игрока, тест. Ничего не мутирует до финального commit'а. Ни один примитив не
+ * способен уронить вызов: всё, что не прошло, возвращается в `rejected` с
+ * причиной и дополнительно попадает в `pendingWorldFacts` как диагностический
+ * факт (docs/PRIMITIVES.md §3 — «чтобы не долбилась в невозможное»).
+ *
+ * Исключение ровно одно и не про примитивы, а про состояние: `GameState` без
+ * `primitiveTurnBudget` отклоняется громко (см. `turnBudgetFor`), потому что
+ * тихий фолбэк на пустой бюджет снял бы капы хода. Прежняя формулировка
+ * «никогда не бросает исключений» была сильнее кода: такое состояние роняло
+ * вызов `TypeError`'ом ещё до первого примитива.
  */
 export function applyPrimitiveBatch(
   game: GameState,
@@ -1410,11 +1477,11 @@ export function applyPrimitiveBatch(
   };
 
   // Диагностика пишется ПОСЛЕ commit'а, прямо в боевое состояние: факты об
-  // отказах не участвуют в откате и не должны быть перетёрты переносом.
+  // отказах не участвуют в откате и не должны быть перетёрты переносом. Кап на
+  // число подробных записей держит `pushPrimitiveRejectionFact`.
   for (const rejection of rejected) {
-    game.pendingWorldFacts.push({
+    pushPrimitiveRejectionFact(game, {
       countryId: rejection.sourceCountryId,
-      kind: "primitive_rejected",
       text: `Attempt rejected (${rejection.verb}): ${rejection.reason}`,
     });
   }

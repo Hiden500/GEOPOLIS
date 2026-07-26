@@ -199,6 +199,15 @@ describe("Милстоун 0: петля замыкается на данных 
       applyPrimitiveTurn(perCall, [order], `legacy-${i}`);
     }
 
+    // (г) ОДИН приказ — абсолютный якорь величины. Без него тест держался бы
+    // только на равенстве «клики = батч», то есть прошёл бы и на двух одинаково
+    // сломанных мирах, а магнитуда могла бы уехать молча. Тот же приём, что в
+    // соседнем `server/src/primitives/__tests__/turnBatch.test.ts` («десять
+    // отдельных приказов = один батч из десяти»), — продублирован здесь
+    // намеренно: milestone-тест обязан ловить сдвиг сам, а не через соседа.
+    const single = startedGame();
+    applyPrimitiveTurn(single, [order], "single");
+
     expect(batchResult.applied).toHaveLength(1);
     expect(batchResult.rejected).toHaveLength(9);
     expect(clickResults.filter(r => r.applied.length > 0)).toHaveLength(1);
@@ -206,6 +215,12 @@ describe("Милстоун 0: петля замыкается на данных 
 
     expect(memory(clicked)!.suppression).toBe(memory(batched)!.suppression);
     expect(memory(clicked)!.alienation).toBe(memory(batched)!.alienation);
+
+    // Десять кликов оставляют ровно след ОДНОГО примитива, а не десяти сложенных.
+    expect(memory(clicked)!.suppression).toBe(memory(single)!.suppression);
+    expect(memory(clicked)!.alienation).toBe(memory(single)!.alienation);
+    // …и это след настоящий, а не «ничего не произошло у всех троих».
+    expect(memory(single)!.suppression).toBeGreaterThan(0);
 
     // Цена отсутствия защиты названа числом, а не словом «обход».
     expect(memory(perCall)!.suppression).toBeGreaterThan(memory(clicked)!.suppression);
