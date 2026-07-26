@@ -24,6 +24,7 @@ from economy_1946.capital_geography import (
     parse_ts_capital_overrides,
     point_in_geometry,
     build_region_geometries,
+    check_anchor_count,
     MIN_EXPECTED_REGIONS,
 )
 
@@ -214,19 +215,21 @@ class ValidateCapitalGeographyTest(unittest.TestCase):
     def test_no_violation_or_warning_when_anchor_point_inside_capital_region(self):
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
 
-        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings, checked = validate_capital_geography(countries, capital_anchors, region_geometries)
 
         self.assertEqual(violations, [])
         self.assertEqual(warnings, [])
+        self.assertEqual(checked, 1)
 
     def test_catches_capital_region_not_containing_the_real_point(self):
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
         countries[0]["capitalRegionId"] = 2  # столица страны на самом деле в регионе 1, не 2
 
-        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings, checked = validate_capital_geography(countries, capital_anchors, region_geometries)
 
         self.assertTrue(any("AAA" in v and "[1]" in v for v in violations), violations)
         self.assertEqual(warnings, [])
+        self.assertEqual(checked, 1)
 
     def test_produces_warning_not_violation_when_point_inside_no_known_region(self):
         # Не решаемо однозначно (огрубление геометрии на границе региона,
@@ -237,19 +240,50 @@ class ValidateCapitalGeographyTest(unittest.TestCase):
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
         capital_anchors["AAA"] = (100.0, 100.0)  # далеко от обоих квадратов
 
-        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings, checked = validate_capital_geography(countries, capital_anchors, region_geometries)
 
         self.assertEqual(violations, [])
         self.assertTrue(any("AAA" in w for w in warnings), warnings)
+        self.assertEqual(checked, 1)  # страна найдена и проверена, просто исход "неопределимо"
 
     def test_skips_anchor_for_country_absent_from_countries_json(self):
         countries, capital_anchors, region_geometries = make_capital_geometry_fixture()
         countries.clear()
 
-        violations, warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
+        violations, warnings, checked = validate_capital_geography(countries, capital_anchors, region_geometries)
 
         self.assertEqual(violations, [])
         self.assertEqual(warnings, [])
+        self.assertEqual(checked, 0)
+
+    def test_checked_excludes_absent_countries_so_coverage_ratio_cannot_lie(self):
+        # Находка 1 независимого ревью (2026-07-26): main() раньше считал
+        # покрытие как len(capital_anchors) - len(warnings) -- страна,
+        # отсутствующая в countries.json, не даёт ни violation, ни warning,
+        # поэтому такой якорь молча засчитывался бы в "covered". Воспроизведено
+        # на реальных данных: убрать TWN/DNK/EGY из countries.json -> печатает
+        # "13/13", хотя реально проверено 10. checked -- явный счётчик, ratio
+        # должен считаться как checked - len(warnings), а не через total.
+        countries = [
+            {"id": "AAA", "capitalRegionId": 1},
+            {"id": "BBB", "capitalRegionId": 999},  # BBB есть, но всё равно ничего не найдёт (999 не в геометрии)
+        ]
+        capital_anchors = {
+            "AAA": (5.0, 5.0),  # верно, в регионе 1
+            "BBB": (25.0, 25.0),  # у BBB нет геометрии на этот id -- но проверка всё равно ПРОШЛА, просто не совпала
+            "CCC": (5.0, 5.0),  # страны CCC вообще нет в countries.json
+        }
+        region_geometries = {1: {"geometry": SQUARE_LOW, "bbox": (0, 0, 10, 10)}}
+
+        violations, warnings, checked = validate_capital_geography(countries, capital_anchors, region_geometries)
+
+        # CCC не проверялась вообще -- не должна попадать ни в checked, ни
+        # маскироваться под "covered" при len(capital_anchors)=3.
+        self.assertEqual(checked, 2)
+        self.assertTrue(any("BBB" in w for w in warnings), warnings)  # 25,25 не в известном полигоне
+        covered = checked - len(warnings)
+        self.assertEqual(covered, 1)  # только AAA реально подтверждён
+        self.assertNotEqual(covered, len(capital_anchors) - len(warnings))  # старая (неверная) формула дала бы 2
 
 
 def make_capital_override_sync_fixture():
@@ -329,6 +363,30 @@ class CapitalGeographyHelpersTest(unittest.TestCase):
         # громко, не молча вернуть пустой словарь (тихо отключив invariant 15).
         with self.assertRaises(ValueError):
             parse_ts_capital_overrides("const SOMETHING_ELSE = {};")
+
+    def test_check_anchor_count_accepts_exact_match(self):
+        check_anchor_count(13, 13)  # не должно бросить исключение
+
+    def test_check_anchor_count_raises_when_fewer_than_expected(self):
+        # Регэксп потерял запись (или формат файла подрос неожиданно) --
+        # находка 6 независимого ревью: раньше порог был "не меньше 10" при
+        # 13 реальных, пропуская потерю 3 молча. Теперь сравнение точное.
+        with self.assertRaises(ValueError) as ctx:
+            check_anchor_count(10, 13)
+        self.assertIn("меньше", str(ctx.exception))
+
+    def test_check_anchor_count_raises_when_more_than_expected(self):
+        # Находка 2 (второй раунд независимого ревью, 2026-07-26): сравнение
+        # "< expected" пропустило бы ПОЯВЛЕНИЕ нового легитимного якоря молча,
+        # оставляя константу устаревшей навсегда. С "!=" это тоже громкая
+        # ошибка -- сообщение должно объяснять, что делать (обновить константу
+        # на актуальное число), не только "меньше -- чини регэксп".
+        with self.assertRaises(ValueError) as ctx:
+            check_anchor_count(14, 13)
+        message = str(ctx.exception)
+        self.assertIn("больше", message)
+        self.assertIn("MIN_EXPECTED_TS_ANCHORS", message)
+        self.assertIn("14", message)  # подсказывает конкретное новое значение
 
     def _make_region_feature(self, region_id: int) -> dict:
         return {

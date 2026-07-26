@@ -159,7 +159,7 @@ def validate_capital_geography(
     countries: list[dict],
     capital_anchors: dict[str, tuple[float, float]],
     region_geometries: dict[int, dict],
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], int]:
     """Самый сильный доступный якорь: страна с известной реальной точкой
     столицы (lon, lat) -- server/src/scenarios/generateMapFeatures.ts::
     CAPITAL_OVERRIDES, см. economy_1946/capital_geography.py -- должна иметь
@@ -167,22 +167,34 @@ def validate_capital_geography(
     id, имени региона или build-порядка -- географическая точка не может
     "сместиться".
 
-    Возвращает (violations, warnings) -- РАЗДЕЛЬНО (2026-07-26, независимое
-    ревью). Если точка не содержится НИ ОДНИМ регионом (например, из-за
-    огрубления береговой линии у самой границы полигона -- наблюдалось для
-    Копенгагена/DNK), это не решается однозначно (может быть верно) -- не
-    violation (страна всё равно защищена validate_capital_anchor_names выше,
-    если у неё есть запись в CAPITAL_REGION_OVERRIDES), но и не тишина:
-    попадает в warnings, чтобы падение покрытия (если завтра огрубление
-    вытолкнет из полигонов ещё несколько приморских столиц) было видно в
-    выводе, а не маскировалось отсутствием изменений в тексте отчёта."""
+    Возвращает (violations, warnings, checked). Если точка не содержится НИ
+    ОДНИМ регионом (например, из-за огрубления береговой линии у самой
+    границы полигона -- наблюдалось для Копенгагена/DNK), это не решается
+    однозначно (может быть верно) -- не violation (страна всё равно
+    защищена validate_capital_anchor_names выше, если у неё есть запись в
+    CAPITAL_REGION_OVERRIDES), но и не тишина: попадает в warnings, чтобы
+    падение покрытия было видно в выводе.
+
+    checked -- явный счётчик якорей, для которых страна реально нашлась в
+    countries.json и проверка была фактически выполнена (2026-07-26,
+    независимое ревью, находка 1): страна, отсутствующая в countries.json
+    (`continue` ниже), не даёт ни violation, ни warning -- если бы покрытие
+    в main() считалось как len(capital_anchors) - len(warnings), такой якорь
+    молча засчитался бы в "covered", хотя для него вообще не было проверки
+    (воспроизведено: убрать TWN/DNK/EGY из countries.json -> печатает
+    "13/13", хотя реально проверено 10). Не может замаскировать НЕВЕРНУЮ
+    столицу (нет страны -- нет и её capitalRegionId, чтобы быть неверным),
+    но счётчик, единственная задача которого -- честно отчитываться о
+    покрытии, обязан быть точным независимо от вреда конкретного сценария."""
     violations: list[str] = []
     warnings: list[str] = []
+    checked = 0
     by_country = {c["id"]: c for c in countries}
     for code, anchor in capital_anchors.items():
         country = by_country.get(code)
         if country is None:
             continue
+        checked += 1
         actual_id = country.get("capitalRegionId")
         containing = find_containing_regions(anchor, region_geometries)
         lon, lat = anchor
@@ -199,7 +211,7 @@ def validate_capital_geography(
                 f"реальной столицы (lon={lon}, lat={lat}) -- точка находится в регионе(ах) "
                 f"{containing}, не в {actual_id}."
             )
-    return violations, warnings
+    return violations, warnings, checked
 
 
 def validate_capital_override_applied(countries: list[dict], overrides: dict[str, int]) -> list[str]:
@@ -362,11 +374,18 @@ def main() -> int:
     # географическую точку столицы — самый сильный якорь (не id, не имя),
     # но охватывает только страны с курированными координатами в
     # generateMapFeatures.ts (см. economy_1946/capital_geography.py).
-    # Возвращает (violations, warnings) раздельно — "точка не в полигоне"
+    # Возвращает (violations, warnings, checked) — "точка не в полигоне"
     # не нарушение, но и не тишина (см. docstring validate_capital_geography).
+    # checked — ЯВНЫЙ счётчик фактически проверенных якорей (не арифметика
+    # по разности len(capital_anchors) - len(warnings): страна, отсутствующая
+    # в countries.json, не даёт ни violation, ни warning и при вычитании
+    # молча засчиталась бы в "covered", хотя проверки для неё не было —
+    # 2026-07-26, независимое ревью, находка 1).
     capital_anchors = load_ts_capital_anchors()
     region_geometries = load_region_geometries()
-    geo_violations, geo_warnings = validate_capital_geography(countries, capital_anchors, region_geometries)
+    geo_violations, geo_warnings, geo_checked = validate_capital_geography(
+        countries, capital_anchors, region_geometries
+    )
     violations.extend(geo_violations)
 
     # 16. countries.json (сгенерированный артефакт) в синхроне с CAPITAL_REGION_
@@ -380,9 +399,16 @@ def main() -> int:
     print(f"Регионов: {len(regions)}, стран/владельцев: {len(by_owner)}")
     for w in warnings:
         print(f"  [ok] {w}")
-    covered = len(capital_anchors) - len(geo_warnings)
-    print(f"  [ok] Географическое покрытие invariant 15: {covered}/{len(capital_anchors)} якорей "
-          f"попали в известный полигон (остальные см. [warn] ниже).")
+    covered = geo_checked - len(geo_warnings)
+    skipped_note = ""
+    if geo_checked < len(capital_anchors):
+        skipped_note = (
+            f" ({len(capital_anchors) - geo_checked} якорь(я) пропущено — страна отсутствует "
+            f"в countries.json, см. invariant 10/11 выше на причину)"
+        )
+    print(f"  [ok] Географическое покрытие invariant 15: {covered}/{geo_checked} фактически "
+          f"проверенных якорей попали в известный полигон{skipped_note} "
+          f"(остальные см. [warn] ниже).")
     for w in geo_warnings:
         print(f"  [warn] {w}")
 

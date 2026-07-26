@@ -43,12 +43,13 @@ GENERATE_MAP_FEATURES_TS = REPO_ROOT / "server" / "src" / "scenarios" / "generat
 WORLD_GEOJSON = REPO_ROOT / "client" / "public" / "world_1946.geojson"
 
 # Текущее число реальных записей в CAPITAL_OVERRIDES (generateMapFeatures.ts) —
-# держим ТОЧНЫМ, не "с запасом": цель порога — поймать ЧАСТИЧНУЮ потерю
-# записей при рассинхроне регэкспа с форматом файла (не только полный отказ
-# парсера), см. независимое ревью 2026-07-26 (.agent/plans/capital-region-
-# invariant.md, находка 6) — порог 10 при 13 реальных записях пропустил бы
-# потерю 3 из них молча. При намеренном добавлении/удалении якоря в
-# generateMapFeatures.ts обнови и это число.
+# сверяется РОВНО (см. load_ts_capital_anchors: != , не < ), не "не меньше":
+# порог-минимум пропускал бы молча ПОЯВЛЕНИЕ новой записи (константа осталась
+# бы прежней, дырка в проверке на одну запись тихо вернулась бы) — находка 2
+# независимого ревью 2026-07-26 (.agent/plans/capital-region-invariant.md).
+# Раньше порог 10 при 13 реальных записях уже проходил мимо потери 3 из них
+# молча (находка 6 того же ревью) — с точным сравнением оба направления
+# (пропажа записи И появление новой) требуют явно обновить эту константу.
 MIN_EXPECTED_TS_ANCHORS = 13
 
 _TS_BLOCK_RE = re.compile(
@@ -76,16 +77,37 @@ def parse_ts_capital_overrides(ts_source: str) -> dict[str, tuple[float, float]]
     return anchors
 
 
+def check_anchor_count(actual: int, expected: int) -> None:
+    """Чистая функция -- сверяет РОВНО (!=), не "не меньше" (<): порог-минимум
+    пропускал бы молча ПОЯВЛЕНИЕ новой записи, оставляя константу устаревшей
+    (находка 2 независимого ревью 2026-07-26, .agent/plans/capital-region-
+    invariant.md). Тестируется напрямую целыми числами, без парсинга TS и без
+    чтения файла. Сообщение объясняет оба направления расхождения — сам факт
+    "меньше/больше" не говорит, что чинить."""
+    if actual == expected:
+        return
+    if actual < expected:
+        direction = (
+            f"меньше — вероятно, регэксп рассинхронизировался с форматом файла "
+            f"(например, порядок полей/тип кавычек поменялся у одной из записей), "
+            f"а не список реально сократился; почини регэксп в capital_geography.py"
+        )
+    else:
+        direction = (
+            f"больше — вероятно, в CAPITAL_OVERRIDES добавили новый легитимный "
+            f"якорь; если так, обнови MIN_EXPECTED_TS_ANCHORS здесь на {actual}"
+        )
+    raise ValueError(
+        f"Из generateMapFeatures.ts извлечено {actual} координатных якорей, "
+        f"ожидалось ровно {expected} ({direction})."
+    )
+
+
 def load_ts_capital_anchors() -> dict[str, tuple[float, float]]:
     if not GENERATE_MAP_FEATURES_TS.exists():
         raise FileNotFoundError(f"{GENERATE_MAP_FEATURES_TS} не найден.")
     anchors = parse_ts_capital_overrides(GENERATE_MAP_FEATURES_TS.read_text(encoding="utf-8"))
-    if len(anchors) < MIN_EXPECTED_TS_ANCHORS:
-        raise ValueError(
-            f"Из generateMapFeatures.ts извлечено только {len(anchors)} координатных "
-            f"якорей (ожидалось >= {MIN_EXPECTED_TS_ANCHORS}) — вероятно, регэксп "
-            "рассинхронизировался с форматом файла, а не список реально сократился."
-        )
+    check_anchor_count(len(anchors), MIN_EXPECTED_TS_ANCHORS)
     return anchors
 
 
