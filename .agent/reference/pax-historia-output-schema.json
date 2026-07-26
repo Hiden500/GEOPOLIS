@@ -1,0 +1,537 @@
+{
+  "name": "events",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "title": "FlashForwardOutput",
+    "description": "Top-level container for all simulated historical events in a Flash Forward phase.",
+    "properties": {
+      "events": {
+        "type": "array",
+        "description": "Chronological list of every event that happened between the start and end dates, without omissions.",
+        "items": {
+          "type": "object",
+          "title": "FlashForwardEvent",
+          "description": "A single news-worthy event and the map changes it causes.",
+          "properties": {
+            "date": {
+              "type": "string",
+              "description": "Date of the event. Use 'YYYY-MM-DD' for AD dates. For BC dates, output 'YYYY-MM-DD BC' (always add the trailing ' BC'; do not use negative years, 'BCE', or include 'AD')."
+            },
+            "title": {
+              "type": "string",
+              "description": "Optional title for the event."
+            },
+            "description": {
+              "type": "string",
+              "description": "Markdown text: A narrative that describes the contents and specifics of the event with bolded sections at text with emphasis. Most events will have a description that is between 30 and 75 words, in some cases the description can be even longer. For events that might be affiliated with a well known quote, include a block quote paragraph for that specific quote. Use > at the start of lines for block quotes. Output quotes at the end. Format quotes as: '> \"quote text\" - speaker name'. Example: '> \"We will prevail!\" - General Patton'"
+            },
+            "mapChanges": {
+              "type": "array",
+              "description": "Map modifications. Each item MUST use one of the allowed map-change formats.",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "title": "CreatePolity",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "createPolity"
+                        ]
+                      },
+                      "polity": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "additionalNames": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "CSS-compatible color value."
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Optional tags for the polity"
+                          },
+                          "flagQuery": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "Optional flag query to use to find the proper flag for the polity. Include the flag name, and how it was/would/could be used (year, country, circumstances) if applicable. If not provided, the flag is not changed."
+                          }
+                        },
+                        "propertyOrdering": [
+                          "name",
+                          "additionalNames",
+                          "color",
+                          "tags",
+                          "flagQuery"
+                        ],
+                        "required": [
+                          "name",
+                          "additionalNames",
+                          "color",
+                          "tags"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "propertyOrdering": [
+                      "type",
+                      "polity"
+                    ],
+                    "required": [
+                      "type",
+                      "polity"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "DissolvePolity",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "dissolvePolity"
+                        ]
+                      },
+                      "polityName": {
+                        "type": "string"
+                      }
+                    },
+                    "propertyOrdering": [
+                      "type",
+                      "polityName"
+                    ],
+                    "required": [
+                      "type",
+                      "polityName"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "UpdatePolity",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "updatePolity"
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "newName": {
+                        "type": "string",
+                        "description": "New name for the polity (if provided)."
+                      },
+                      "color": {
+                        "type": "string",
+                        "description": "New color for the polity (if provided)."
+                      },
+                      "setAdditionalNamesTo": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "Replace the polity's additional names with this array (if provided)."
+                      },
+                      "newFlagQuery": {
+                        "type": "string",
+                        "description": "Describes the new flag to use for the polity. Describe the flag to use for the polity, what it looks like, colors, and what context it was used in in real life or alternate history. If not provided, the flag is not changed."
+                      }
+                    },
+                    "propertyOrdering": [
+                      "type",
+                      "name",
+                      "newName",
+                      "color",
+                      "setAdditionalNamesTo",
+                      "newFlagQuery"
+                    ],
+                    "required": [
+                      "type",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "CreateMapFeature",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "createMapFeature"
+                        ]
+                      },
+                      "feature": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "title": "CentroidFeature",
+                            "description": "Centroid features mark armies as circles on the map. Recommended to include 'battalion' tag. Only include non-required fields if absolutely necessary to override defaults.",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "centroid"
+                                ]
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "displaySymbol": {
+                                "type": "string",
+                                "enum": [
+                                  "circle",
+                                  "star",
+                                  "diamond",
+                                  "square",
+                                  "triangle",
+                                  "cross",
+                                  "x",
+                                  "rectangle",
+                                  "pentagon",
+                                  "hexagon",
+                                  "octagon",
+                                  "flag",
+                                  "full-flag"
+                                ],
+                                "description": "The shape of the feature on the map. Default for batallions is 'circle'."
+                              },
+                              "location": {
+                                "type": "object",
+                                "properties": {
+                                  "regionID": {
+                                    "type": "string"
+                                  }
+                                },
+                                "propertyOrdering": [
+                                  "regionID"
+                                ],
+                                "required": [
+                                  "regionID"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "placement": {
+                                "type": "string",
+                                "description": "Optional placement hint within the region. Use '[lng, lat]' for specific coordinates, 'random' for a random point, 'coastal' for coastal regions (places near ocean border), 'west'/'east'/'north'/'south' for directional placement within a region, or 'target X'/'near X' (where X is a map feature, region, or country name) to place nearest to a target (target implies offensive targeting, near has no special meaning besides placement). If null or omitted, uses region centroid."
+                              },
+                              "color": {
+                                "type": "string",
+                                "description": "The color of the feature on the map (owner's color may be used by default)."
+                              },
+                              "ownerName": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "The name of the polity that owns the feature. If null, the feature is made as unowned. If not included, the feature is owned by whomever owns the region it is in (this is recommended for physical places and constructions)."
+                              },
+                              "description": {
+                                "type": "string"
+                              },
+                              "scale": {
+                                "type": "number",
+                                "description": "Size multiplier for the feature (default 1.0)"
+                              },
+                              "labelPlacement": {
+                                "type": "string",
+                                "enum": [
+                                  "above",
+                                  "below",
+                                  "left",
+                                  "right",
+                                  "center",
+                                  "noLabel"
+                                ],
+                                "description": "Where to place the feature label relative to the symbol. Default is 'noLabel'."
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                },
+                                "description": "Tags that describe the feature (e.g., 'battalion', 'city', 'fortress')"
+                              }
+                            },
+                            "propertyOrdering": [
+                              "type",
+                              "name",
+                              "displaySymbol",
+                              "location",
+                              "placement",
+                              "color",
+                              "ownerName",
+                              "description",
+                              "scale",
+                              "labelPlacement",
+                              "tags"
+                            ],
+                            "required": [
+                              "type",
+                              "name",
+                              "displaySymbol",
+                              "location",
+                              "placement",
+                              "color",
+                              "ownerName",
+                              "description",
+                              "scale",
+                              "labelPlacement",
+                              "tags"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "propertyOrdering": [
+                      "type",
+                      "feature"
+                    ],
+                    "required": [
+                      "type",
+                      "feature"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "UpdateMapFeature",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "updateMapFeature"
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "properties": {
+                        "type": "object",
+                        "properties": {
+                          "displaySymbol": {
+                            "type": "string",
+                            "enum": [
+                              "circle",
+                              "star",
+                              "diamond",
+                              "square",
+                              "triangle",
+                              "cross",
+                              "x",
+                              "rectangle",
+                              "pentagon",
+                              "hexagon",
+                              "octagon",
+                              "flag",
+                              "full-flag"
+                            ]
+                          },
+                          "location": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "regionID": {
+                                    "type": "string"
+                                  }
+                                },
+                                "propertyOrdering": [
+                                  "regionID"
+                                ],
+                                "required": [
+                                  "regionID"
+                                ],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "description": "Represents a null or no-change value. The AI should output an empty object.",
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "placement": {
+                            "type": "string",
+                            "description": "Optional placement hint within the region. Use '[lng, lat]' for specific coordinates, 'random' for a random point, 'coastal' for coastal regions (places near ocean border), 'west'/'east'/'north'/'south' for directional placement within a region, or 'target X'/'near X' (where X is a map feature, region, or country name) to place nearest to a target (target implies offensive targeting, near has no special meaning besides placement). If null or omitted, placement is not changed."
+                          },
+                          "color": {
+                            "type": "string",
+                            "description": "The color of the feature on the map. If not provided, the feature's color is not changed."
+                          },
+                          "ownerName": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "The name of the polity that owns the feature. If null, the feature is made unowned. If not included, the feature's owner is not changed."
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "scale": {
+                            "type": "number",
+                            "description": "New size multiplier for the feature (default 1.0). If not provided, the size is not changed."
+                          },
+                          "labelPlacement": {
+                            "type": "string",
+                            "enum": [
+                              "above",
+                              "below",
+                              "left",
+                              "right",
+                              "center",
+                              "noLabel"
+                            ],
+                            "description": "Where to place the feature label relative to the symbol. If not provided, the label placement is not changed."
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Tags that describe the feature (e.g., 'battalion', 'city', 'fortress'). If not provided, the tags are not changed."
+                          }
+                        },
+                        "propertyOrdering": [
+                          "displaySymbol",
+                          "location",
+                          "placement",
+                          "color",
+                          "ownerName",
+                          "description",
+                          "scale",
+                          "labelPlacement",
+                          "tags"
+                        ],
+                        "required": [],
+                        "additionalProperties": false
+                      }
+                    },
+                    "propertyOrdering": [
+                      "type",
+                      "name",
+                      "properties"
+                    ],
+                    "required": [
+                      "type",
+                      "name",
+                      "properties"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "RemoveMapFeature",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "removeMapFeature"
+                        ]
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "propertyOrdering": [
+                      "type",
+                      "name"
+                    ],
+                    "required": [
+                      "type",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "title": "TransferRegionOwnership",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "transferRegionOwnership"
+                        ]
+                      },
+                      "transfers": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "toPolity": {
+                              "type": "string",
+                              "nullable": true,
+                              "description": "Polity gaining the regions or null if they become unowned."
+                            },
+                            "regionIDs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "propertyOrdering": [
+                            "toPolity",
+                            "regionIDs"
+                          ],
+                          "required": [
+                            "toPolity",
+                            "regionIDs"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "propertyOrdering": [
+                      "type",
+                      "transfers"
+                    ],
+                    "required": [
+                      "type",
+                      "transfers"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "propertyOrdering": [
+            "date",
+            "title",
+            "description",
+            "mapChanges"
+          ],
+          "required": [
+            "date",
+            "title",
+            "description",
+            "mapChanges"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "propertyOrdering": [
+      "events"
+    ],
+    "required": [
+      "events"
+    ],
+    "additionalProperties": false
+  }
+}
