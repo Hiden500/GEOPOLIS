@@ -8,8 +8,10 @@ import {
   REPRESS_COERCION_LEGITIMACY_WEIGHT,
   REPRESS_MAJORITY_RESISTANCE,
   REPRESS_ALIENATION_SHARE_BASE,
+  REPRESS_ALIENATION_LEGITIMACY_RELIEF,
   GRANT_AUTONOMY_SHARE_BASE,
   GRANT_AUTONOMY_ALIENATION_DISCOUNT,
+  GRANT_AUTONOMY_LEGITIMACY_WEIGHT,
   GRANT_AUTONOMY_CONCESSION_MAX,
   GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MIN,
   GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MAX,
@@ -39,6 +41,28 @@ import {
  *   - при `stateFactor → 0` коридор схлопывается в `MIN`, и `severe` перестаёт
  *     отличаться от `mild` — хинт клампится состоянием буквально, а не на
  *     словах. Отношение `severe/mild` перестаёт быть константой.
+ *
+ * Последнее свойство — не риторика: оно обязано быть ДОСТИЖИМО у каждого
+ * канала, иначе модель в любом мире гарантированно владеет фиксированной долей
+ * коридора. Условия схлопывания поканально (все шесть проверяет
+ * `__tests__/magnitude.test.ts`):
+ *
+ *   | канал                     | `stateFactor = 0` при                        |
+ *   |---------------------------|----------------------------------------------|
+ *   | repress · suppression     | `stability = legitimacy = 0`                 |
+ *   | repress · alienation      | `legitimacy = COUNTRY_POLITICS_SCALE_MAX`    |
+ *   | grant_autonomy·concession | `legitimacy = 0` либо `alienation = 1`       |
+ *   | incite_unrest             | дистанция ровно на пороге предпосылки        |
+ *   | spawn_incident            | недовольство ровно на пороге предпосылки     |
+ *   | enact_reform              | поддержка ровно на пороге предпосылки        |
+ *
+ * До калибровки 2026-07-26 таблица была неполной: у канала отчуждения
+ * `stateFactor` был функцией одной только доли группы с жёстким полом 0.35, а
+ * `share = 0` схема демографии не допускает — то есть схлопывание было
+ * недостижимо ни в каком мире, и утверждение выше для него было ложным.
+ * Легитимность власти введена как второй вход именно поэтому (и заодно потому,
+ * что размеченные регионы среза — сплошь титульные доминанты, на которых
+ * множитель доли не отличим от константы).
  *
  * Числовые коэффициенты здесь не живут — только в `shared/src/defines/`
  * (fitness-правило 4, server/src/__tests__/architecture.test.ts).
@@ -74,12 +98,21 @@ export function magnitudeFromState(
  */
 export function coerciveCapacity(country: Country | undefined): number {
   if (!country) return 0;
-  const stability = clamp01(country.politics.stability / COUNTRY_POLITICS_SCALE_MAX);
-  const legitimacy = clamp01(country.politics.legitimacy / COUNTRY_POLITICS_SCALE_MAX);
+  const stability = politicsShare(country.politics.stability);
+  const legitimacy = politicsShare(country.politics.legitimacy);
   return clamp01(
     REPRESS_COERCION_STABILITY_WEIGHT * stability +
     REPRESS_COERCION_LEGITIMACY_WEIGHT * legitimacy
   );
+}
+
+/**
+ * Значение страновой политики (0..100) как доля 0..1. Факторы ниже принимают
+ * сырое значение шкалы, а не `Country`: так их можно проверить на достижимость
+ * схлопывания напрямую, без сборки мира вокруг одного числа.
+ */
+function politicsShare(value: number): number {
+  return clamp01(value / COUNTRY_POLITICS_SCALE_MAX);
 }
 
 /**
@@ -91,24 +124,47 @@ export function repressSuppressionFactor(capacity: number, share: number): numbe
 }
 
 /**
- * `repress`, отчуждение: растёт с массовостью цели и НЕ зависит от умелости
- * власти — обидеть получается и у слабого государства.
+ * `repress`, отчуждение: охват (доля группы) × дефицит мандата у власти.
+ *
+ * Умелость силовиков сюда НЕ входит (обидеть получается и у слабого
+ * государства), а вот право приказывать — входит: репрессия от легитимного
+ * режима читается как применение закона, от режима без мандата — как насилие
+ * чужаков. Легитимность работает в этом канале ПРОТИВОПОЛОЖНО тому, как она
+ * работает в `coerciveCapacity`: мандат делает подавление и сильнее, и дешевле
+ * по долгосрочной цене. Это и есть развилка, ради которой два канала одного
+ * глагола считаются раздельно.
  */
-export function repressAlienationFactor(share: number): number {
-  return clamp01(
-    REPRESS_ALIENATION_SHARE_BASE + (1 - REPRESS_ALIENATION_SHARE_BASE) * clamp01(share)
+export function repressAlienationFactor(share: number, legitimacy: number): number {
+  const reach = REPRESS_ALIENATION_SHARE_BASE + (1 - REPRESS_ALIENATION_SHARE_BASE) * clamp01(share);
+  const mandateDeficit = clamp01(
+    1 - REPRESS_ALIENATION_LEGITIMACY_RELIEF * politicsShare(legitimacy)
   );
+  return clamp01(reach * mandateDeficit);
 }
 
 /**
- * `grant_autonomy`: охват уступки (доля группы в регионе) × остаток доверия.
+ * `grant_autonomy`: охват уступки (доля группы в регионе) × остаток доверия ×
+ * правдоподобность обещания.
+ *
  * Накопленное отчуждение обесценивает жест — уступка глубоко отчуждённой группе
- * работает слабее, чем той же группе до репрессий.
+ * работает слабее, чем той же группе до репрессий. Легитимность добавлена
+ * третьим множителем 2026-07-26: в свежем мире `alienation` равна нулю везде,
+ * поэтому без неё фактор был чистой функцией доли группы, а срез размечен
+ * титульными доминантами — «состояние», не отличимое от константы. Смысл: обещание
+ * автономии стоит ровно столько, сколько шансов, что дающий его режим доживёт
+ * до исполнения.
  */
-export function concessionFactor(share: number, memory: GroupImpactMemory | undefined): number {
+export function concessionFactor(
+  share: number,
+  memory: GroupImpactMemory | undefined,
+  legitimacy: number
+): number {
   const reach = GRANT_AUTONOMY_SHARE_BASE + (1 - GRANT_AUTONOMY_SHARE_BASE) * clamp01(share);
   const trust = clamp01(1 - GRANT_AUTONOMY_ALIENATION_DISCOUNT * clamp01(memory?.alienation ?? 0));
-  return clamp01(reach * trust);
+  const credibility = clamp01(
+    1 - GRANT_AUTONOMY_LEGITIMACY_WEIGHT * (1 - politicsShare(legitimacy))
+  );
+  return clamp01(reach * trust * credibility);
 }
 
 /**

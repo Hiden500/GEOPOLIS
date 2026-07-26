@@ -308,6 +308,95 @@ describe("контракт батча", () => {
       .toMatch(new RegExp(`At most ${MAX_STRUCTURAL_PRIMITIVES_PER_BATCH} structural`));
   });
 
+  it("одна цель — один verb за ход: батч из десяти одинаковых применяет один", () => {
+    const state = game();
+    const spam: Primitive[] = Array.from({ length: 10 }, () => ({
+      verb: "repress",
+      sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+      params: { intensity: "mild" },
+    }));
+
+    const result = applyPrimitiveBatch(state, spam);
+
+    // Бюджет мягких примитивов (10) батч не превышает — значит, отсекает именно
+    // кап на цель, а не общий лимит.
+    expect(result.applied).toHaveLength(1);
+    expect(result.rejected).toHaveLength(9);
+    for (const rejection of result.rejected) {
+      expect(rejection.reason).toMatch(/per target per turn/);
+      // Диагностика называет саму цель, а не только факт дубля.
+      expect(rejection.reason).toContain(`region ${TEST_REGION_NATIONAL}`);
+      expect(rejection.reason).toContain(TEST_GROUP_TITULAR);
+    }
+
+    // И главное: поле памяти получило ровно один удар, а не десять. Именно так
+    // обходился коридор магнитуды — не величиной, а частотой.
+    const single = game();
+    applyPrimitiveBatch(single, [spam[0]!]);
+    expect(memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression)
+      .toBeCloseTo(memoryOf(single, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression, 12);
+  });
+
+  it("тот же verb по РАЗНЫМ целям проходит целиком — кап не запрещает законное", () => {
+    const state = game();
+
+    const result = applyPrimitiveBatch(state, [
+      // Разные группы в одном регионе — разные цели.
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_LOYAL } },
+      // Та же группа в соседнем регионе — тоже другая цель.
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NEIGHBOUR, groupId: TEST_GROUP_TITULAR } },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied).toHaveLength(3);
+  });
+
+  it("РАЗНЫЕ глаголы по одной цели проходят — кап считает пары «глагол + цель»", () => {
+    const state = game();
+
+    const result = applyPrimitiveBatch(state, [
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+      { verb: "grant_autonomy", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+      { ...inciteTitular },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied).toHaveLength(3);
+  });
+
+  it("приказ по региону занимает цели всех его групп — точечный дубль следом отклоняется", () => {
+    const state = game();
+
+    const result = applyPrimitiveBatch(state, [
+      // Без названной группы repress бьёт по ВСЕМ группам региона…
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+      // …поэтому точечный удар по одной из них — второй удар по той же паре.
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+    ]);
+
+    expect(result.applied).toHaveLength(1);
+    expect(result.rejected).toHaveLength(1);
+    expect(result.rejected[0]!.reason).toContain(TEST_GROUP_TITULAR);
+  });
+
+  it("цель занимает только ПРИМЕНЁННЫЙ примитив — откаченный её не запирает", () => {
+    const state = game();
+
+    const result = applyPrimitiveBatch(state, [
+      // Первый отклоняется на предпосылке (нет контроля) — цель остаётся свободной.
+      { verb: "repress", sourceCountryId: "USA", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+    ]);
+
+    expect(result.applied).toHaveLength(1);
+    expect(result.rejected).toHaveLength(1);
+    // Причина — настоящая (нет контроля), а не «дубль»: невозможный примитив не
+    // должен маскировать свою диагностику капом.
+    expect(result.rejected[0]!.reason).toMatch(/does not control/);
+  });
+
   it("каждое отклонение даёт диагностический факт с причиной", () => {
     const state = game();
 
@@ -425,6 +514,97 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     }]);
 
     expect(result.applied[0]!.magnitude).toBeGreaterThan(0);
+  });
+
+  /**
+   * «Числа правдивые, не выдуманные» (docs/PRIMITIVES.md §4) — в том числе на
+   * насыщенном поле. Движок обязан отчитываться тем, что ЛЕГЛО, а не тем, что
+   * посчитала фаза Compute: по этому числу сессия B будет писать нарратив.
+   */
+  it("на насыщенном поле магнитуда — фактическая дельта, а не посчитанная", () => {
+    const saturated = game();
+    saturated.groupImpactMemory.push({
+      regionId: TEST_REGION_NATIONAL,
+      groupId: TEST_GROUP_TITULAR,
+      suppression: 0.98,
+      alienation: 0,
+      concession: 0,
+      emboldenment: 0,
+    });
+    const repressTitular: Primitive = {
+      verb: "repress",
+      sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+    };
+
+    const fresh = game();
+    const intended = applyPrimitiveBatch(fresh, [repressTitular]).applied[0]!.magnitude;
+    const result = applyPrimitiveBatch(saturated, [repressTitular]);
+
+    // Компьют посчитал бы то же самое, что и на чистом поле…
+    expect(intended).toBeGreaterThan(0.1);
+    // …но прижилось ровно 0.02 до потолка, и отчитаться движок обязан этим.
+    expect(result.applied[0]!.magnitude).toBeCloseTo(0.02, 10);
+    expect(memoryOf(saturated, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression)
+      .toBeCloseTo(1, 10);
+  });
+
+  it("поле на потолке даёт магнитуду ровно ноль, а не «применил как обычно»", () => {
+    const state = game();
+    state.groupImpactMemory.push({
+      regionId: TEST_REGION_NATIONAL,
+      groupId: TEST_GROUP_TITULAR,
+      suppression: 1,
+      alienation: 0,
+      concession: 0,
+      emboldenment: 0,
+    });
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "repress",
+      sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+    }]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied[0]!.magnitude).toBe(0);
+    // Примитив при этом НЕ пустой: отчуждение своё всё равно набрало.
+    expect(memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.alienation).toBeGreaterThan(0);
+  });
+
+  it("реформа у края спектра отчитывается фактическим сдвигом, а не запрошенным шагом", () => {
+    const state = game();
+    // Власть уже в крайнем авторитаризме — двигаться в ту же сторону некуда.
+    state.countries.find(c => c.id === "SUN")!.politics.ideologyCoordinates =
+      { economic: -0.95, political: -1 };
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "enact_reform", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { politicalDirection: "authoritarian" },
+    }]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied[0]!.magnitude).toBe(0);
+    // Цена при этом списана — реформу провели, просто двигаться было некуда.
+    expect(state.countries.find(c => c.id === "SUN")!.politics.governmentSupport)
+      .toBeCloseTo(50 - ENACT_REFORM_POLITICAL_COST, 10);
+  });
+
+  it("неконечная поддержка правительства не уезжает в координаты идеологии", () => {
+    const state = game();
+    state.countries.find(c => c.id === "SUN")!.politics.governmentSupport = Number.NaN;
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "enact_reform", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { politicalDirection: "democratic" },
+    }]);
+
+    // Предпосылка `NaN < 25` ложна и примитив её проходит — ловит его командный
+    // слой, а не валидатор. Без этой ловушки NaN-шаг уехал бы в координаты, и
+    // недовольство всех регионов SUN стало бы NaN.
+    expect(result.applied).toHaveLength(0);
+    expect(result.rejected[0]!.reason).toMatch(/finite/i);
+    expect(Number.isNaN(discontentOf(state, TEST_REGION_NATIONAL))).toBe(false);
   });
 });
 

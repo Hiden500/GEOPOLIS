@@ -19,6 +19,9 @@ import { type CommandResult } from "./types";
 /** Виды следа в памяти воздействий — те же поля, что у GroupImpactMemory. */
 export type ImpactField = "suppression" | "alienation" | "concession" | "emboldenment";
 
+/** Фактически принятые полем дельты — по полю на каждую запрошенную дельту. */
+export type AppliedImpact = Partial<Record<ImpactField, number>>;
+
 const IMPACT_MIN = 0;
 const IMPACT_MAX = 1;
 
@@ -33,13 +36,17 @@ function clamp(value: number, min: number, max: number): number {
  *
  * Требует, чтобы группа реально жила в этом регионе — иначе движок молча
  * копил бы память для несуществующего населения.
+ *
+ * Возвращает ФАКТИЧЕСКИ принятую дельту по каждому полю. У насыщенного поля она
+ * меньше запрошенной (а на потолке — ноль), и именно это число обязано уйти в
+ * нарратив: движок не вправе отчитываться намерением.
  */
 export function addGroupImpact(
   game: GameState,
   regionId: number,
   groupId: string,
   deltas: Partial<Record<ImpactField, number>>
-): CommandResult {
+): CommandResult<AppliedImpact> {
   const region = game.regions.find(r => r.id === regionId);
   if (!region) return { success: false, error: `Unknown region: ${regionId}` };
 
@@ -77,11 +84,22 @@ export function addGroupImpact(
     game.groupImpactMemory.push(memory);
   }
 
+  // Фактическая дельта — разница ПОСЛЕ клампа, а не запрошенное число. У поля
+  // на 0.98 запрос 0.41 принимается ровно на 0.02, а на потолке — на ноль.
+  const applied: AppliedImpact = {};
   for (const [field, delta] of sanitized) {
-    memory[field] = clamp(memory[field] + delta, IMPACT_MIN, IMPACT_MAX);
+    const before = memory[field];
+    memory[field] = clamp(before + delta, IMPACT_MIN, IMPACT_MAX);
+    applied[field] = memory[field] - before;
   }
 
-  return { success: true };
+  return { success: true, applied };
+}
+
+/** Фактически принятый сдвиг по каждой оси идеологии (после клампа в [-1, +1]). */
+export interface AppliedIdeologyShift {
+  economic: number;
+  political: number;
 }
 
 /**
@@ -91,23 +109,55 @@ export function addGroupImpact(
  * уже использовал в расчёте недовольства, иначе реформа дала бы разрыв.
  * Ярлык `politics.ideology` при этом не переписывается — зоны спектра поверх
  * координат вводятся отдельно, вне этого среза.
+ *
+ * Возвращает ФАКТИЧЕСКИЙ сдвиг по каждой оси: у власти на краю спектра
+ * (`political = -1`) авторитарная реформа не двигает ничего, и отчитываться она
+ * обязана нулём, а не запрошенным шагом.
  */
 export function shiftCountryIdeology(
   game: GameState,
   countryId: string,
   deltaEconomic: number,
   deltaPolitical: number
-): CommandResult {
+): CommandResult<AppliedIdeologyShift> {
   const country = game.countries.find(c => c.id === countryId);
   if (!country) return { success: false, error: `Unknown country: ${countryId}` };
 
+  // Тот же санитарный контроль, что и у памяти воздействий, и по той же
+  // причине: NaN-координата власти делает NaN дистанцию «власть ↔ группа», то
+  // есть недовольство ВСЕХ регионов страны, и кризисный латч глохнет молча
+  // (обе его ветки сравнивают с NaN и обе ложны). Живой путь сюда —
+  // `governmentSupport = NaN`: предпосылка реформы (`NaN < 25` → false) его
+  // пропускает, и NaN доезжает до координат через шаг реформы.
+  for (const [axis, delta] of [["economic", deltaEconomic], ["political", deltaPolitical]] as const) {
+    if (!Number.isFinite(delta)) {
+      return { success: false, error: `Ideology shift for '${axis}' is not a finite number: ${String(delta)}` };
+    }
+  }
+
   const current = resolveIdeologyCoordinates(country.politics);
-  country.politics.ideologyCoordinates = {
+  if (!Number.isFinite(current.economic) || !Number.isFinite(current.political)) {
+    return {
+      success: false,
+      error:
+        `Ideology coordinates of ${countryId} are already non-finite ` +
+        `(economic: ${String(current.economic)}, political: ${String(current.political)})`,
+    };
+  }
+
+  const shifted = {
     economic: clamp(current.economic + deltaEconomic, IDEOLOGY_AXIS_MIN, IDEOLOGY_AXIS_MAX),
     political: clamp(current.political + deltaPolitical, IDEOLOGY_AXIS_MIN, IDEOLOGY_AXIS_MAX),
   };
+  country.politics.ideologyCoordinates = shifted;
 
-  return { success: true };
+  return {
+    success: true,
+    applied: {
+      economic: shifted.economic - current.economic,
+      political: shifted.political - current.political,
+    },
+  };
 }
 
 const GOVERNMENT_SUPPORT_MIN = 0;
@@ -117,14 +167,32 @@ const GOVERNMENT_SUPPORT_MAX = 100;
  * Списывает политическую цену с поддержки правительства (шкала 0..100, как и
  * остальная политика страны). Отказывает, если платить нечем — цена реформы
  * должна быть настоящей, а не уходить в минус с клампом.
+ *
+ * Возвращает ФАКТИЧЕСКИ списанное. Сегодня оно равно запрошенному (иначе
+ * команда отказывает), но вызывающий не обязан это знать: правило «отчитываться
+ * применённым, а не намеренным» одно на весь командный слой.
  */
 export function spendGovernmentSupport(
   game: GameState,
   countryId: string,
   amount: number
-): CommandResult {
+): CommandResult<number> {
   const country = game.countries.find(c => c.id === countryId);
   if (!country) return { success: false, error: `Unknown country: ${countryId}` };
+
+  // Отрицательная «цена» тихо ДОБАВИЛА бы поддержку, а неконечная — отравила бы
+  // шкалу: `NaN < amount` ложно, проверка платёжеспособности ниже пропустила бы
+  // NaN, и `reformMandateFactor(NaN)` увёз бы NaN в координаты идеологии, а
+  // оттуда — в недовольство каждого региона страны.
+  if (!Number.isFinite(amount) || amount < 0) {
+    return { success: false, error: `Political cost must be a finite non-negative number: ${String(amount)}` };
+  }
+  if (!Number.isFinite(country.politics.governmentSupport)) {
+    return {
+      success: false,
+      error: `Government support of ${countryId} is not a finite number: ${String(country.politics.governmentSupport)}`,
+    };
+  }
 
   if (country.politics.governmentSupport < amount) {
     return {
@@ -133,11 +201,12 @@ export function spendGovernmentSupport(
     };
   }
 
+  const before = country.politics.governmentSupport;
   country.politics.governmentSupport = clamp(
-    country.politics.governmentSupport - amount,
+    before - amount,
     GOVERNMENT_SUPPORT_MIN,
     GOVERNMENT_SUPPORT_MAX
   );
 
-  return { success: true };
+  return { success: true, applied: before - country.politics.governmentSupport };
 }

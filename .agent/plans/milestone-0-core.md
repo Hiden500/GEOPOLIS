@@ -100,6 +100,10 @@ Starting commit: 43d05a4
 - [x] A7 доработка по независимому ревью (2026-07-26): state-зависимая магнитуда с клампом
       хинта; commit без подмены идентичности; `validate_demographics_1946.py` в матрицах
       проверок + self-тест; расхождение с `PRIMITIVES.md` §4 зафиксировано; мелкие правки
+- [x] A8 доработка по второму независимому ревью (2026-07-26): кап «один verb на цель за
+      ход»; фактические дельты вместо посчитанных; калибровка двух каналов до достижимого
+      схлопывания; NaN-guard на двух оставшихся командах; тест пар `MIN`/`MAX`; полярность
+      теста пересечения
 
 ## Discoveries
 
@@ -227,3 +231,41 @@ idempotency-key; кризисный кап (факт: 9 регионов пер�
 hard-cap ≤ ~5); калибровка коридоров магнитуды; переделка исторических долей в seed-данных
 (датасет заменяется внешним наполнением; зафиксировано, что завышенная русская доля
 **занижает** недовольство и градиент `campaignSmoke` частично держится на анахронизме).
+
+## Доработка A8 по второму независимому ревью (2026-07-26)
+
+Ревью проверило коридор магнитуды на живых данных: архитектура коридора признана верной, но
+обходимой. Мотивировка каждой правки — `docs/DECISIONS.md`, «Поправка 2 (2026-07-26)».
+
+| Правка | Файлы |
+|---|---|
+| Кап «один verb на цель за ход» (§4): счётчик по паре «глагол + сущность», ключи целей | `PrimitiveEngine.ts` (`targetEntities`, `targetUseKey`), `shared/src/defines/discontent.ts` |
+| Фактические дельты: `CommandResult<TApplied>`, `applied` у трёх команд, движок отчитывается ими | `commands/types.ts`, `commands/politics.ts`, `PrimitiveEngine.ts` |
+| Легитимность вторым входом каналов отчуждения и уступки; базы и веса под достижимое схлопывание | `primitives/magnitude.ts`, `shared/src/defines/discontent.ts` |
+| NaN-guard на `spendGovernmentSupport` и `shiftCountryIdeology` | `commands/politics.ts` |
+| Тест достижимости схлопывания по всем шести каналам + согласованность пар `MIN`/`MAX` | `primitives/__tests__/magnitude.test.ts` (новый) |
+| Пересечение веток на 36-м месяце: утверждение → наблюдение с печатью зазора | `primitives/__tests__/branchDivergence.test.ts` |
+
+`stateFactor` на сидовых данных (регион 187, титульная группа, SUN: stability/legitimacy/
+governmentSupport = 50) — до и после калибровки:
+
+| канал | было | стало |
+|---|---|---|
+| repress · suppression | 0.28 | 0.280 |
+| repress · alienation | 0.92 | 0.449 |
+| grant_autonomy · concession | 0.91 | 0.446 |
+| incite_unrest | 0.33 | 0.329 |
+| spawn_incident | 0.24 | 0.239 |
+| enact_reform | 0.33 | 0.333 |
+
+Разброс по всем 14 размеченным регионам: `alienation` 0.313…0.492 (было 0.71…0.99),
+`concession` 0.302…0.491 (было 0.67…0.985), `suppression` 0.255…0.360.
+
+Верификация A8: `server tsc` — 0 ошибок; `server npm test` — 53 файла, **816 passed**, 1 skipped,
+0 failed (baseline A7: 52 файла, 760 passed); `client tsc` — 0 ошибок; `client npm test` —
+10 файлов, 102 passed; `python scripts/map/validate_demographics_1946.py` — OK;
+`python scripts/map/test_validate_demographics_1946.py` — 15 тестов OK.
+
+Осознанно НЕ сделано в A8: idempotency-key и кризисный кап (по-прежнему сессия B); балансовая
+калибровка коридоров (структурная правка каналов её не заменяет — см. `docs/TODO.md`);
+значение `MAX_PRIMITIVES_PER_TARGET_PER_TURN = 1` остаётся плейсхолдером.
