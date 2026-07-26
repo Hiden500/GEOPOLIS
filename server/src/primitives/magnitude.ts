@@ -170,9 +170,17 @@ export function concessionFactor(
 /**
  * Отклик соседей на уступку. Считается от ФАКТИЧЕСКОЙ величины уступки, а не от
  * хинта: соседи видят, что реально дали, а не каким прилагательным это назвали.
+ *
+ * Нулевая уступка даёт нулевой отклик, а не пол коридора. Это не косметика:
+ * группе, у которой `concession` уже на потолке, фактически не дали ничего
+ * (команда приняла дельту 0, движок отчитался магнитудой 0) — а соседи до
+ * 2026-07-26 всё равно получали `GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MIN`.
+ * То есть жест, которого не было, имел цену. Разрыв в нуле осознанный: пол
+ * коридора описывает «уступку заметили», а не «уступки не было».
  */
 export function neighbourEmboldenment(concession: number): number {
   const signal = clamp01(concession / GRANT_AUTONOMY_CONCESSION_MAX);
+  if (signal <= 0) return 0;
   return (
     GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MIN +
     (GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MAX - GRANT_AUTONOMY_NEIGHBOR_EMBOLDENMENT_MIN) * signal

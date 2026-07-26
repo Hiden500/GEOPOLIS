@@ -11,6 +11,7 @@ import {
   ENACT_REFORM_POLITICAL_COST,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
   MAX_STRUCTURAL_PRIMITIVES_PER_BATCH,
+  IMPACT_FIELD_BATCH_CEILING,
   REPRESS_SUPPRESSION_MIN,
   REPRESS_SUPPRESSION_MAX,
   GRANT_AUTONOMY_CONCESSION_MIN,
@@ -24,6 +25,8 @@ import {
   TEST_REGION_NEIGHBOUR,
   TEST_REGION_CONTROL,
 } from "../../test-utils/discontentFixtures";
+import { createTestRegion } from "../../test-utils/fixtures";
+import { createGame } from "../../game/CreateGame";
 import { type GameState } from "@shared/types/GameState";
 
 /**
@@ -208,6 +211,42 @@ describe("enact_reform", () => {
       verb: "enact_reform", sourceCountryId: "SUN", target: { countryId: "SUN" },
     }]);
     expect(result.rejected[0]!.reason).toMatch(/at least one direction/);
+  });
+
+  /**
+   * Реформа — внутриполитический акт (docs/PRIMITIVES.md §2). До 2026-07-26
+   * предпосылка отношение к цели не проверяла вовсе: `SUN` проводил реформу в
+   * `USA`, координаты идеологии США уезжали, а политическая цена списывалась
+   * у НИХ — то есть платил не тот, кто действует.
+   */
+  it("отклоняется в чужой стране — реформу нельзя провести извне", () => {
+    const state = game();
+    const usaBefore = structuredClone(state.countries.find(c => c.id === "USA")!.politics);
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "enact_reform",
+      sourceCountryId: "SUN",
+      target: { countryId: "USA" },
+      params: { politicalDirection: "authoritarian" },
+    }]);
+
+    expect(result.applied).toHaveLength(0);
+    expect(result.rejected[0]!.reason).toMatch(/cannot enact a reform in USA/);
+    // Ни координат, ни списанной поддержки — reject целиком.
+    expect(state.countries.find(c => c.id === "USA")!.politics).toEqual(usaBefore);
+  });
+
+  it("цель по умолчанию — сама страна-источник", () => {
+    const state = game();
+    const result = applyPrimitiveBatch(state, [{
+      verb: "enact_reform",
+      sourceCountryId: "SUN",
+      target: {},
+      params: { politicalDirection: "democratic" },
+    }]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied[0]!.countryId).toBe("SUN");
   });
 });
 
@@ -397,6 +436,82 @@ describe("контракт батча", () => {
     expect(result.rejected[0]!.reason).toMatch(/does not control/);
   });
 
+  it("кап накопления не мешает законным комбинациям по разным полям и парам", () => {
+    const state = game();
+
+    const result = applyPrimitiveBatch(state, [
+      // Разные поля одной пары: подавление+отчуждение, уступка, смелость.
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+      { verb: "grant_autonomy", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_LOYAL } },
+      { ...inciteTitular },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied).toHaveLength(3);
+  });
+
+  /**
+   * Документированная §4 цепочка «`incite_unrest` → `spawn_incident`»: два
+   * РАЗНЫХ глагола пишут в одно поле одной пары (инцидент бьёт по доминанту
+   * региона, а он же и подстрекаемый). Кап накопления считает величину, а не
+   * число примитивов, поэтому цепочка проходит целиком — сумма помещается в
+   * коридор поля. Кап, ключуемый парой «цель + поле», отсекал бы её.
+   */
+  it("цепочка incite_unrest → spawn_incident по одной группе остаётся законной", () => {
+    const state = game();
+
+    const result = applyPrimitiveBatch(state, [
+      { ...inciteTitular, params: { intensity: "severe" } },
+      { verb: "spawn_incident", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied.map(a => a.verb)).toEqual(["incite_unrest", "spawn_incident"]);
+    expect(memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.emboldenment)
+      .toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
+  });
+
+  it("уступки в двух соседних регионах проходят обе — побочка не запирает цель", () => {
+    const state = game();
+
+    const result = applyPrimitiveBatch(state, [
+      { verb: "grant_autonomy", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR } },
+      { verb: "grant_autonomy", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NEIGHBOUR, groupId: TEST_GROUP_TITULAR } },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(result.applied).toHaveLength(2);
+    // Каждый регион получил и свою уступку, и отклик на уступку соседа.
+    for (const regionId of [TEST_REGION_NATIONAL, TEST_REGION_NEIGHBOUR]) {
+      const memory = memoryOf(state, regionId, TEST_GROUP_TITULAR)!;
+      expect(memory.concession).toBeGreaterThan(0);
+      expect(memory.emboldenment).toBeGreaterThan(0);
+    }
+  });
+
+  it("уступка группе с полем на потолке не поднимает соседей вовсе", () => {
+    const state = game();
+    state.groupImpactMemory.push({
+      regionId: TEST_REGION_NATIONAL,
+      groupId: TEST_GROUP_TITULAR,
+      suppression: 0,
+      alienation: 0,
+      concession: 1,
+      emboldenment: 0,
+    });
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "grant_autonomy",
+      sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+    }]);
+
+    // Фактически не дали ничего — и отклик соседей обязан это отражать, а не
+    // выдавать пол коридора за жест, которого не было.
+    expect(result.applied[0]!.magnitude).toBe(0);
+    expect(memoryOf(state, TEST_REGION_NEIGHBOUR, TEST_GROUP_TITULAR)).toBeUndefined();
+  });
+
   it("каждое отклонение даёт диагностический факт с причиной", () => {
     const state = game();
 
@@ -407,6 +522,146 @@ describe("контракт батча", () => {
     const fact = state.pendingWorldFacts.find(f => f.kind === "primitive_rejected")!;
     expect(fact.countryId).toBe("USA");
     expect(fact.text).toContain("repress");
+  });
+});
+
+/**
+ * Третий обход коридора магнитуды (найден ревью 2026-07-26): не величиной и не
+ * повтором одного примитива по одной цели, а СХОДИМОСТЬЮ побочных эффектов.
+ *
+ * Отклик соседей у `grant_autonomy` намеренно не входит в ключи капа «один verb
+ * на цель за ход» — иначе уступка в двух соседних регионах стала бы
+ * невозможной. Но на кольце «хаб + N со-этнических соседей» каждая уступка —
+ * отдельная законная цель, счётчик не срабатывает ни разу, а все записи
+ * сходятся в ОДНУ пару (регион, группа) и упирают её в потолок 1.0.
+ *
+ * До правки: синтетическое кольцо давало ровно 1.0 и на 5 × `severe`, и на
+ * 10 × `mild` (хинт переставал влиять — канал соседей его не принимает);
+ * реальное кольцо вокруг региона 192 сценария 1946 — 0.738 при `severe` и
+ * 0.613 при `mild`, тогда как сильнейший ОДИНОЧНЫЙ примитив по этому полю
+ * (`incite_unrest(severe)`) даёт там 0.20.
+ */
+describe("кольцо соседей: побочный эффект не обходит коридор частотой", () => {
+  const RING_HUB = 900;
+  const RING_SHARE = 0.88;
+
+  function ringRegion(id: number, neighbours: number[]): ReturnType<typeof createTestRegion> {
+    return createTestRegion({
+      id,
+      geoJsonId: `TEST-${id}`,
+      names: { en: `Ring region ${id}` },
+      ownerCountryId: "SUN",
+      population: 1_000_000,
+      gdp: 400_000_000,
+      neighboringRegionIds: neighbours,
+      demographics: [
+        { groupId: TEST_GROUP_TITULAR, share: RING_SHARE },
+        { groupId: TEST_GROUP_LOYAL, share: 1 - RING_SHARE },
+      ],
+    });
+  }
+
+  /** Хаб и `spokes` соседей: каждая уступка соседу отзывается в хабе. */
+  function ringGame(spokes: number): { state: GameState; spokeIds: number[] } {
+    const state = game();
+    const spokeIds = Array.from({ length: spokes }, (_, i) => RING_HUB + 1 + i);
+    state.regions.push(ringRegion(RING_HUB, spokeIds));
+    for (const id of spokeIds) state.regions.push(ringRegion(id, [RING_HUB]));
+    return { state, spokeIds };
+  }
+
+  const RINGS = [
+    { spokes: 5, intensity: "severe" as const },
+    { spokes: 10, intensity: "mild" as const },
+  ];
+
+  it.each(RINGS)(
+    "синтетическое кольцо: $spokes × grant_autonomy($intensity) не доводит хаб до потолка",
+    ({ spokes, intensity }) => {
+      const { state, spokeIds } = ringGame(spokes);
+
+      const result = applyPrimitiveBatch(
+        state,
+        spokeIds.map((regionId): Primitive => ({
+          verb: "grant_autonomy",
+          sourceCountryId: "SUN",
+          target: { regionId, groupId: TEST_GROUP_TITULAR },
+          params: { intensity },
+        }))
+      );
+
+      const hub = memoryOf(state, RING_HUB, TEST_GROUP_TITULAR)!;
+      expect(hub.emboldenment).toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
+      // Хотя бы одна уступка обязана пройти: кап режет накопление, а не глагол.
+      expect(result.applied.length).toBeGreaterThan(0);
+      expect(result.rejected.length).toBeGreaterThan(0);
+      for (const rejection of result.rejected) {
+        expect(rejection.reason).toMatch(/Batch impact ceiling/);
+        expect(rejection.reason).toContain(`region ${RING_HUB}`);
+      }
+    }
+  );
+
+  /**
+   * То же кольцо, но не синтетическое: регион 192 сценария 1946 граничит с
+   * шестью регионами, и во всех шести живут `russians` (все семь — СССР).
+   */
+  it("реальное кольцо вокруг региона 192 (сценарий 1946) не доводит хаб до потолка", () => {
+    const HUB_ID = 192;
+    const GROUP = "russians";
+    const state = createGame("1946", "SUN", "ru", 1);
+
+    const hub = state.regions.find(r => r.id === HUB_ID)!;
+    const ring = hub.neighboringRegionIds.filter(id =>
+      state.regions.find(r => r.id === id)?.demographics?.some(d => d.groupId === GROUP)
+    );
+    // Если разметка датасета поедет, тест обязан сказать об этом, а не тихо
+    // проверять пустой батч.
+    expect(ring.length).toBeGreaterThanOrEqual(5);
+
+    const result = applyPrimitiveBatch(
+      state,
+      ring.map((regionId): Primitive => ({
+        verb: "grant_autonomy",
+        sourceCountryId: "SUN",
+        target: { regionId, groupId: GROUP },
+        params: { intensity: "severe" },
+      }))
+    );
+
+    const memory = memoryOf(state, HUB_ID, GROUP)!;
+    expect(memory.emboldenment).toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
+    expect(result.applied.length).toBeGreaterThan(0);
+    expect(result.rejected.length).toBeGreaterThan(0);
+    expect(result.rejected[0]!.reason).toMatch(/Batch impact ceiling/);
+  });
+
+  it("кап накопления держится и при смягчении капа «verb на цель»", () => {
+    // Тот же обход в другой форме: один и тот же глагол по одной паре, но
+    // счётчик целей не тронут — режет только накопление. Проверяется прямым
+    // вызовом бюджета через ДВА разных глагола, пишущих одно поле одной пары.
+    const { state, spokeIds } = ringGame(3);
+    const batch: Primitive[] = [
+      ...spokeIds.map((regionId): Primitive => ({
+        verb: "grant_autonomy",
+        sourceCountryId: "SUN",
+        target: { regionId, groupId: TEST_GROUP_TITULAR },
+        params: { intensity: "severe" },
+      })),
+      {
+        verb: "incite_unrest",
+        sourceCountryId: "USA",
+        target: { regionId: RING_HUB, groupId: TEST_GROUP_TITULAR },
+        params: { intensity: "severe" },
+      },
+    ];
+
+    applyPrimitiveBatch(state, batch);
+
+    // Складываются эффекты РАЗНЫХ глаголов — прямой и побочный, — и сумма всё
+    // равно остаётся в коридоре поля.
+    expect(memoryOf(state, RING_HUB, TEST_GROUP_TITULAR)!.emboldenment)
+      .toBeLessThanOrEqual(IMPACT_FIELD_BATCH_CEILING.emboldenment);
   });
 });
 

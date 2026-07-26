@@ -1,5 +1,8 @@
 import { type GameState } from "@shared/types/GameState";
-import { type GroupImpactMemory } from "@shared/types/politics/Demographics";
+import {
+  type GroupImpactMemory,
+  type ImpactMemoryField,
+} from "@shared/types/politics/Demographics";
 import { IDEOLOGY_AXIS_MIN, IDEOLOGY_AXIS_MAX } from "@shared/types/politics/Ideology";
 import { resolveIdeologyCoordinates } from "@shared/utils/discontent";
 import { type CommandResult } from "./types";
@@ -16,8 +19,13 @@ import { type CommandResult } from "./types";
  * PrimitiveEngine валит примитив целиком, если команда вернула success: false.
  */
 
-/** Виды следа в памяти воздействий — те же поля, что у GroupImpactMemory. */
-export type ImpactField = "suppression" | "alienation" | "concession" | "emboldenment";
+/**
+ * Виды следа в памяти воздействий — те же поля, что у `GroupImpactMemory`.
+ * Список один на проект (`shared/src/types/politics/Demographics.ts`): движок
+ * обходит те же поля, считая бюджет накопления за батч, и два независимых
+ * перечисления разъехались бы молча.
+ */
+export type ImpactField = ImpactMemoryField;
 
 /** Фактически принятые полем дельты — по полю на каждую запрошенную дельту. */
 export type AppliedImpact = Partial<Record<ImpactField, number>>;

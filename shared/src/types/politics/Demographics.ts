@@ -60,3 +60,29 @@ export interface GroupImpactMemory {
   /** «Осмелели»: подстрекательство извне или уступка соседям — надбавка вверх. */
   emboldenment: number;
 }
+
+/**
+ * Поля следа (всё, что не идентификаторы пары) — рантайм-список для обходов
+ * памяти воздействий. Нужен движку примитивов: бюджет накопления за батч
+ * считается по КАЖДОМУ полю, и обходить их приходится значением, а не типом.
+ */
+export const IMPACT_MEMORY_FIELDS = [
+  "suppression",
+  "alienation",
+  "concession",
+  "emboldenment",
+] as const satisfies readonly (keyof GroupImpactMemory)[];
+
+export type ImpactMemoryField = (typeof IMPACT_MEMORY_FIELDS)[number];
+
+/**
+ * Полнота списка — на уровне типа, а не на честном слове: `T extends never`
+ * выполнимо только для пустого union. Новое поле в `GroupImpactMemory`, не
+ * попавшее в `IMPACT_MEMORY_FIELDS`, ломает компиляцию здесь — иначе оно тихо
+ * осталось бы без потолка накопления и вне капа батча.
+ */
+type NoUnlistedImpactField<T extends never> = T;
+
+export type ImpactMemoryFieldsAreComplete = NoUnlistedImpactField<
+  Exclude<keyof GroupImpactMemory, "regionId" | "groupId" | ImpactMemoryField>
+>;

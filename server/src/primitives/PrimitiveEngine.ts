@@ -1,6 +1,11 @@
 import { type GameState } from "@shared/types/GameState";
 import { type Region } from "@shared/types/map/Region";
 import { type MapFeatureType } from "@shared/types/map/MapFeature";
+import {
+  IMPACT_MEMORY_FIELDS,
+  type GroupImpactMemory,
+  type ImpactMemoryField,
+} from "@shared/types/politics/Demographics";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
 import {
@@ -30,6 +35,8 @@ import {
   MAX_SOFT_PRIMITIVES_PER_BATCH,
   MAX_STRUCTURAL_PRIMITIVES_PER_BATCH,
   MAX_PRIMITIVES_PER_TARGET_PER_TURN,
+  IMPACT_FIELD_BATCH_CEILING,
+  IMPACT_FIELD_BATCH_CEILING_TOLERANCE,
 } from "@shared/defines/discontent";
 import { MapFeatureService } from "../services/MapFeatureService";
 import * as politicsCommands from "../commands/politics";
@@ -83,10 +90,16 @@ import {
  *   3. Палитра эффектов — изменённые пути состояния сверяются с whitelist'ом
  *      (palette.ts) в рантайме, а не только в тесте.
  *
- * Капы батча (§4) — три штуки: ≤10 мягких, ≤1 структурный и «один verb на цель
- * за ход». Последний закрывает обход коридора магнитуды частотой: без него
+ * Капы батча (§4) — четыре штуки: ≤10 мягких, ≤1 структурный, «один verb на
+ * цель за ход» и потолок накопления следа в одной тройке (регион, группа,
+ * поле). Третий закрывает обход коридора магнитуды частотой в лоб: без него
  * десять `mild`-примитивов по одной цели дают то, что один `severe` дать не
- * может. Ключи целей — `targetEntities`.
+ * может (ключи целей — `targetEntities`). Четвёртый закрывает тот же обход
+ * через побочный эффект: у `grant_autonomy` отклик соседей в ключи целей не
+ * входит намеренно, каждая уступка — законная отдельная цель, но записи всех
+ * уступок сходятся в одну пару. Он считает не примитивы, а величину, и берёт
+ * её из фактического дифа памяти (`impactDeltas`), поэтому не зависит ни от
+ * числа примитивов, ни от их формы.
  *
  * Работа идёт на структурном клоне состояния; в настоящий `game` результат
  * попадает одним переносом в конце (commit, см. `restore` — он сохраняет
@@ -211,6 +224,21 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       const countryId = primitive.target.countryId ?? primitive.sourceCountryId;
       const country = game.countries.find(c => c.id === countryId);
       if (!country) return { valid: false, reason: `Unknown country: ${countryId}` };
+
+      // Реформа — внутриполитический акт (docs/PRIMITIVES.md §2: «страна;
+      // политическая цена»). Без этой предпосылки SUN проводил реформу в USA:
+      // координаты идеологии США уезжали, а `governmentSupport` списывался у
+      // НИХ, то есть цену платил не тот, кто действует. Сменить курс чужой
+      // страны алфавит позволяет иначе — через `stage_coup`, `support_proxy`,
+      // давление на предпосылки, — но не приказом извне.
+      if (countryId !== primitive.sourceCountryId) {
+        return {
+          valid: false,
+          reason:
+            `${primitive.sourceCountryId} cannot enact a reform in ${countryId}: ` +
+            `a reform is a domestic act of the country that pays for it`,
+        };
+      }
 
       const { economicDirection, politicalDirection } = primitive.params ?? {};
       if (!economicDirection && !politicalDirection) {
@@ -425,10 +453,12 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         for (let i = 0; i < perGroup.length; i++) {
           const g = perGroup[i]!;
           if (!neighbour.demographics?.some(d => d.groupId === g.groupId)) continue;
+          const echo = neighbourEmboldenment(grants[i]?.applied?.concession ?? 0);
+          // Нулевой отклик не пишется вовсе: иначе у соседа заводилась бы
+          // пустая запись памяти на жест, которого не было.
+          if (echo <= 0) continue;
           spillover.push(
-            politicsCommands.addGroupImpact(game, neighbour.id, g.groupId, {
-              emboldenment: neighbourEmboldenment(grants[i]?.applied?.concession ?? 0),
-            })
+            politicsCommands.addGroupImpact(game, neighbour.id, g.groupId, { emboldenment: echo })
           );
         }
       }
@@ -606,6 +636,9 @@ function orderForExecution(primitives: readonly Primitive[]): Primitive[] {
  *
  * Отклик соседей у `grant_autonomy` в ключи НЕ входит: сосед — побочный эффект,
  * а не цель. Иначе уступка в двух соседних регионах за ход стала бы невозможной.
+ * Величину, которая приходит в пару этим каналом, ограничивает не этот кап, а
+ * потолок накопления следа (`IMPACT_FIELD_BATCH_CEILING`): сюда её тащить
+ * нельзя, туда — можно, потому что тот кап считает не цели, а дельты.
  *
  * Вызывается только после успешного `validate`, поэтому регион и группы заведомо
  * существуют.
@@ -638,6 +671,53 @@ function targetUseKey(primitive: Primitive, entity: string): string {
   return `${primitive.verb} -> ${entity}`;
 }
 
+/** Фактический след примитива в одной тройке (регион, группа, поле памяти). */
+interface ImpactDelta {
+  regionId: number;
+  groupId: string;
+  field: ImpactMemoryField;
+  delta: number;
+}
+
+/**
+ * Что примитив РЕАЛЬНО дописал в память воздействий — разница снимков «до» и
+ * «после», а не то, что он собирался записать.
+ *
+ * Дифом, а не суммой намерений глагола, по трём причинам: сюда сами собой
+ * попадают побочные записи (отклик соседей у `grant_autonomy`), учитываются
+ * клампы команды (у насыщенного поля запрошенные 0.41 превращаются в 0.02), и
+ * новый verb попадает под кап без единой правки этого места.
+ *
+ * Учитываются только положительные дельты. Убыль в бюджет не возвращается: ни
+ * один verb сегодня память не уменьшает, а если такой появится, «сначала
+ * сбить поле, потом накачать заново» не должно становиться способом обойти
+ * потолок.
+ */
+function impactDeltas(before: GameState, after: GameState): ImpactDelta[] {
+  const pairKey = (regionId: number, groupId: string): string => `${regionId}/${groupId}`;
+  const previous = new Map<string, GroupImpactMemory>();
+  for (const memory of before.groupImpactMemory) {
+    previous.set(pairKey(memory.regionId, memory.groupId), memory);
+  }
+
+  const deltas: ImpactDelta[] = [];
+  for (const memory of after.groupImpactMemory) {
+    const was = previous.get(pairKey(memory.regionId, memory.groupId));
+    for (const field of IMPACT_MEMORY_FIELDS) {
+      const delta = memory[field] - (was?.[field] ?? 0);
+      if (delta > 0) {
+        deltas.push({ regionId: memory.regionId, groupId: memory.groupId, field, delta });
+      }
+    }
+  }
+  return deltas;
+}
+
+/** Ключ бюджета накопления — тройка (регион, группа, поле). */
+function impactBudgetKey(impact: ImpactDelta): string {
+  return `${impact.field} on region ${impact.regionId} / group ${impact.groupId}`;
+}
+
 /**
  * Применяет батч примитивов к состоянию партии.
  *
@@ -662,6 +742,13 @@ export function applyPrimitiveBatch(
   // Счётчик, а не множество: `MAX_PRIMITIVES_PER_TARGET_PER_TURN` — константа
   // калибровки, и её смягчение до 2 не должно требовать переписывания движка.
   const targetUses = new Map<string, number>();
+
+  // Накопленный след по тройкам (регион, группа, поле) — второй кап, считающий
+  // не примитивы, а величину. Нужен потому, что первый ключуется ПРЯМОЙ целью,
+  // а часть эффектов приходит в пару побочно (отклик соседей у уступки) и в
+  // ключи не входит намеренно. Каждая уступка — законная отдельная цель,
+  // счётчик не срабатывает ни разу, но записи сходятся в одну пару.
+  const impactUsed = new Map<string, number>();
 
   // Клон всего состояния: примитивы видят эффекты друг друга, но настоящий
   // game не меняется, пока батч не досчитан.
@@ -752,11 +839,45 @@ export function applyPrimitiveBatch(
       continue;
     }
 
+    // Кап накопления следа. Считается по ФАКТИЧЕСКОМУ дифу, поэтому ловит и
+    // прямые записи, и побочные (соседи), и любой будущий verb. Проверяется
+    // после apply — раньше фактической дельты просто не существует, — и при
+    // переполнении примитив откатывается ЦЕЛИКОМ (§3, защита №1), а не
+    // подрезается до остатка бюджета: «полусобытий» не бывает.
+    const deltas = impactDeltas(before, working);
+    const overflow = deltas.filter(
+      d =>
+        (impactUsed.get(impactBudgetKey(d)) ?? 0) + d.delta >
+        IMPACT_FIELD_BATCH_CEILING[d.field] + IMPACT_FIELD_BATCH_CEILING_TOLERANCE
+    );
+    if (overflow.length > 0) {
+      restore(working, before);
+      rejected.push({
+        verb: primitive.verb,
+        sourceCountryId: primitive.sourceCountryId,
+        reason:
+          `Batch impact ceiling reached: ` +
+          overflow
+            .map(
+              d =>
+                `${impactBudgetKey(d)} would total ` +
+                `${((impactUsed.get(impactBudgetKey(d)) ?? 0) + d.delta).toFixed(3)} ` +
+                `(max ${IMPACT_FIELD_BATCH_CEILING[d.field]} per batch)`
+            )
+            .join("; "),
+      });
+      continue;
+    }
+
     // Цель занимается только ПРИМЕНЁННЫМ примитивом: откаченный (отказ команды
     // или нарушение палитры) состояния не изменил, и запирать за ним цель не за что.
     for (const entity of entities) {
       const key = targetUseKey(primitive, entity);
       targetUses.set(key, (targetUses.get(key) ?? 0) + 1);
+    }
+    for (const impact of deltas) {
+      const key = impactBudgetKey(impact);
+      impactUsed.set(key, (impactUsed.get(key) ?? 0) + impact.delta);
     }
     applied.push(outcome.applied);
   }
