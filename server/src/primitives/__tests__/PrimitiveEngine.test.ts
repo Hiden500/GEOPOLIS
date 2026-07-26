@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { applyPrimitiveBatch, restore } from "../PrimitiveEngine";
+import * as politicsCommands from "../../commands/politics";
 import { PRIMITIVE_PALETTE } from "../palette";
 import { collectChangedPaths } from "../statePaths";
 import {
@@ -14,6 +15,7 @@ import {
 } from "../types";
 import { primitiveSchema, parsePrimitives } from "../primitiveSchemas";
 import { regionDiscontent } from "@shared/utils/discontent";
+import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
 import {
   ENACT_REFORM_COORDINATE_STEP_MIN,
@@ -542,47 +544,61 @@ describe("spawn_incident", () => {
 
     /**
      * Порог восстания обязан быть ДОСТИЖИМ в реальном сценарии, иначе вид
-     * `uprising` просто мёртв. На данных 1946 самый напряжённый размеченный
-     * регион (187) стоит на 0.632, то есть НИЖЕ порога 0.65 с первого месяца:
-     * восстание не выдаётся «за так», к нему надо подвести мир. Документированная
-     * §4 цепочка `incite_unrest → spawn_incident` это и делает — предпосылка
-     * второго примитива считается по состоянию ПОСЛЕ первого.
+     * `uprising` просто мёртв, — но недоступен с первого месяца, иначе он
+     * выдаётся «за так».
+     *
+     * Проверяемое свойство — про МАКСИМУМ по всем размеченным регионам, а не про
+     * один регион (внешнее ревью 2026-07-26). До правки тест смотрел только на
+     * 187 (0.6320), а следом за ним идут 68 и 69 на 0.6243: точечная правка их
+     * разметки открыла бы `uprising` на первом ходу молча, не уронив ни одной
+     * проверки. Теперь порог сравнивается с пиком, и «самый напряжённый регион»
+     * не зашит числом — он вычисляется, и цепочка строится по нему же.
      *
      * Тест на реальных данных, а не на фикстуре, именно ради этого: он падает и
      * если калибровка загонит порог выше достижимого, и если разметка датасета
      * уедет так, что подводить станет не к чему.
      */
-    it("на данных 1946 восстание недоступно сразу, но достижимо цепочкой", () => {
-      const region = (state: GameState) => state.regions.find(r => r.id === 187)!;
-      const groupOf = (state: GameState) =>
-        [...region(state).demographics!].sort((a, b) => b.share - a.share)[0]!.groupId;
+    it("на данных 1946 восстание недоступно сразу ни в одном регионе, но достижимо цепочкой", () => {
+      /** Все регионы, у которых недовольство вообще определено (есть демо-разметка). */
+      const scored = (state: GameState) =>
+        state.regions
+          .map(r => ({ id: r.id, discontent: regionDiscontent(state, r) }))
+          .filter((r): r is { id: number; discontent: number } => r.discontent !== undefined);
 
       const alone = createGame("1946", "SUN", "ru", 1);
-      expect(regionDiscontent(alone, region(alone))!).toBeLessThan(
-        SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT
-      );
+      const annotated = scored(alone);
+      // Пустой список молча выполнил бы любое утверждение о максимуме.
+      expect(annotated.length).toBeGreaterThan(0);
+
+      const peak = annotated.reduce((a, b) => (b.discontent > a.discontent ? b : a));
+      expect(Math.max(...annotated.map(r => r.discontent)))
+        .toBeLessThan(SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
+
       const straight = applyPrimitiveBatch(alone, [{
         verb: "spawn_incident", sourceCountryId: "USA",
-        target: { regionId: 187 }, params: { incidentKind: "uprising" },
+        target: { regionId: peak.id }, params: { incidentKind: "uprising" },
       }]);
       expect(straight.applied).toEqual([]);
       expect(straight.rejected[0]!.reason).toMatch(/an uprising needs/);
 
+      // Цепочка §4 подводит мир к восстанию там же, где он к нему ближе всего.
       const chained = createGame("1946", "SUN", "ru", 1);
+      const peakRegion = chained.regions.find(r => r.id === peak.id)!;
+      const dominant = [...peakRegion.demographics!].sort((a, b) => b.share - a.share)[0]!.groupId;
       const result = applyPrimitiveBatch(chained, [
         {
           verb: "incite_unrest", sourceCountryId: "USA",
-          target: { regionId: 187, groupId: groupOf(chained) }, params: { intensity: "severe" },
+          target: { regionId: peak.id, groupId: dominant }, params: { intensity: "severe" },
         },
         {
           verb: "spawn_incident", sourceCountryId: "USA",
-          target: { regionId: 187 }, params: { incidentKind: "uprising" },
+          target: { regionId: peak.id }, params: { incidentKind: "uprising" },
         },
       ]);
 
       expect(result.rejected).toEqual([]);
       expect(result.applied.map(a => a.verb)).toEqual(["incite_unrest", "spawn_incident"]);
-      expect(regionDiscontent(chained, region(chained))!)
+      expect(regionDiscontent(chained, peakRegion)!)
         .toBeGreaterThanOrEqual(SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
     });
 
@@ -1181,6 +1197,93 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
   );
 
   /**
+   * Рантайм-сверка отчёта с дифом памяти обязана КУСАТЬСЯ, а не выглядеть
+   * реализованной (внешнее ревью 2026-07-26: у палитры такой тест есть, у сверки
+   * не было — механизм работал только на честном слове).
+   *
+   * Ломается командный слой, а не движок: команда применяет ровно то же, но
+   * возвращает искажённый `applied`. Так дефект и выглядел бы в жизни —
+   * обработчик движка честно перекладывает в результат то, что ему вернули, и
+   * недоотчёта не замечает. Палитра такой случай не ловит вовсе: изменённые пути
+   * состояния остаются законными.
+   */
+  function withDistortedImpactReport(
+    distort: (applied: politicsCommands.AppliedImpact) => politicsCommands.AppliedImpact,
+    body: () => void
+  ): void {
+    const original = politicsCommands.addGroupImpact;
+    const spy = vi
+      .spyOn(politicsCommands, "addGroupImpact")
+      .mockImplementation((...args: Parameters<typeof politicsCommands.addGroupImpact>) => {
+        const result = original(...args);
+        return result.success ? { ...result, applied: distort(result.applied ?? {}) } : result;
+      });
+    try {
+      body();
+    } finally {
+      spy.mockRestore();
+    }
+  }
+
+  const repressRegion: Primitive = {
+    verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
+  };
+
+  it("сверка кусается: скрытый эффект откатывает примитив целиком", () => {
+    const state = game();
+
+    withDistortedImpactReport(
+      // Отчуждение применилось, но из отчёта команды выпало.
+      ({ alienation: _hidden, ...rest }) => rest,
+      () => {
+        const result = applyPrimitiveBatch(state, [repressRegion]);
+
+        expect(result.applied).toEqual([]);
+        expect(result.rejected[0]!.reason).toMatch(/disagrees with what it changed/);
+        expect(result.rejected[0]!.reason).toMatch(/alienation on region 187/);
+        expect(result.rejected[0]!.reason).toMatch(/reported 0\.000, actually 0\.1/);
+        // Откат целиком: применённого следа в мире не осталось.
+        expect(state.groupImpactMemory).toHaveLength(0);
+      }
+    );
+  });
+
+  it("сверка кусается: выдуманный эффект тоже откатывает примитив целиком", () => {
+    const state = game();
+
+    withDistortedImpactReport(
+      // Канал, которого команда не трогала: опубликован, но не произошёл.
+      // Палитра его пропускает — `concession` у `repress` в состоянии не менялся.
+      applied => ({ ...applied, concession: 0.5 }),
+      () => {
+        const result = applyPrimitiveBatch(state, [repressRegion]);
+
+        expect(result.applied).toEqual([]);
+        expect(result.rejected[0]!.reason).toMatch(/concession on region 187/);
+        expect(result.rejected[0]!.reason).toMatch(/reported 0\.500, actually 0\.000/);
+        expect(state.groupImpactMemory).toHaveLength(0);
+      }
+    );
+  });
+
+  it("сверка кусается: подменённая величина при верном наборе ключей", () => {
+    const state = game();
+
+    withDistortedImpactReport(
+      // Ключи те же, число другое — ровно та ложь, которую набор ключей не ловит.
+      applied => ({ ...applied, suppression: 0.001 }),
+      () => {
+        const result = applyPrimitiveBatch(state, [repressRegion]);
+
+        expect(result.applied).toEqual([]);
+        expect(result.rejected[0]!.reason).toMatch(/suppression on region 187/);
+        expect(result.rejected[0]!.reason).toMatch(/reported 0\.001, actually 0\.[1-9]/);
+        expect(state.groupImpactMemory).toHaveLength(0);
+      }
+    );
+  });
+
+  /**
    * «По результату можно построить правдивое описание, НЕ заглядывая в
    * состояние» — центральное требование внешнего аудита к форме результата.
    * Проверяется буквально: каждое опубликованное `after` совпадает с тем, что
@@ -1208,6 +1311,81 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     if (applied.verb === "spawn_incident") {
       expect(state.mapFeatures.some(f => f.id === applied.mapFeatureId)).toBe(true);
     }
+  });
+
+  /**
+   * Резюме не вправе УМОЛЧАТЬ о цели, по которой эффекта не было (внешнее ревью
+   * 2026-07-26). Гранулярность правдивости — пара (цель, поле), а не поле:
+   * прежний текст называл ноль нулём только тогда, когда поле не сдвинулось ни у
+   * кого, и достаточно было сдвинуться одному, чтобы остальные исчезли из текста.
+   *
+   * Проверяется структурно и на всех глаголах сразу: каждый факт из результата
+   * даёт ровно одно «for <цель>» в тексте. Пропажа любой цели роняет счёт.
+   */
+  it.each(SCENARIOS)("$verb: резюме называет каждую пару (цель, поле) из результата", ({ primitive }) => {
+    const state = game();
+    // Насыщаются ровно те два канала, которые недовольство ПОДНИМАЮТ: тогда у
+    // каждого глагола появляется хотя бы одна нулевая пара (у `repress` —
+    // отчуждение, у `grant_autonomy` — отклик соседа), и при этом ни одна
+    // предпосылка по недовольству не отсекает примитив. Насыщать заодно
+    // `suppression`/`concession` нельзя: они недовольство давят, и
+    // `spawn_incident` перестал бы проходить порог.
+    for (const region of state.regions) {
+      for (const share of region.demographics ?? []) {
+        state.groupImpactMemory.push({
+          regionId: region.id, groupId: share.groupId,
+          suppression: 0, alienation: 1, concession: 0, emboldenment: 1,
+        });
+      }
+    }
+
+    const result = applyPrimitiveBatch(state, [primitive]);
+    expect(result.rejected).toEqual([]);
+    const applied = result.applied[0]!;
+
+    const mentions = (applied.summary.match(/ for /g) ?? []).length;
+    expect(mentions).toBe(impactEffectsOf(applied).length);
+  });
+
+  /**
+   * Тот же инвариант на боевых данных и в той форме, в которой его нашёл
+   * рецензент: `repress` по региону 187 целиком, где доминант (`lithuanians`,
+   * доля 0.94) стоит на потолке обоих полей. Прежний текст не упоминал его
+   * ВООБЩЕ — «suppression +0.420 for russians, +0.424 for latvians, +0.424 for
+   * jews», — и сессия, пишущая по нему нарратив, сказала бы, что репрессия
+   * обрушилась на литовцев.
+   */
+  it("на данных 1946 резюме называет доминанта, по которому удар не прошёл", () => {
+    const state = createGame("1946", "SUN", "ru", 1);
+    const region = state.regions.find(r => r.id === 187)!;
+    const dominant = [...region.demographics!].sort((a, b) => b.share - a.share)[0]!;
+    expect(dominant.share).toBeGreaterThan(0.5);
+    state.groupImpactMemory.push({
+      regionId: region.id, groupId: dominant.groupId,
+      suppression: 1, alienation: 1, concession: 0, emboldenment: 0,
+    });
+
+    const result = applyPrimitiveBatch(state, [{
+      verb: "repress", sourceCountryId: region.ownerCountryId, target: { regionId: region.id },
+    }]);
+    expect(result.rejected).toEqual([]);
+    const applied = result.applied[0]!;
+
+    // Оба канала доминанта — фактические нули…
+    expect(deltaFor(applied, dominant.groupId, "suppression")).toBe(0);
+    expect(deltaFor(applied, dominant.groupId, "alienation")).toBe(0);
+
+    // …и текст называет их обоих, а не выбрасывает вслед за нулём.
+    const label = getText(
+      state.ethnicGroups.find(g => g.id === dominant.groupId)!.names, LLM_LOCALE
+    );
+    expect(applied.summary).toContain(`suppression unchanged for ${label}`);
+    expect(applied.summary).toContain(`alienation unchanged for ${label}`);
+    // Заголовок тоже считается от дельт, а не от состава региона.
+    expect(applied.summary).toContain("(1 unaffected)");
+    // Сырой идентификатор группы наружу не уходит — рядом локализованный регион.
+    expect(label).not.toBe(dominant.groupId);
+    expect(applied.summary).not.toContain(dominant.groupId);
   });
 
   it("неконечная поддержка правительства не уезжает в координаты идеологии", () => {

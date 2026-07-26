@@ -104,8 +104,12 @@ import {
  *      Форма результата — discriminated union по глаголу (types.ts): по каждому
  *      затронутому полю и каждой цели «было → стало → дельта», отдельно
  *      политическая цена, отдельно эффекты на соседей, отдельно id созданного
- *      объекта карты. Скрытых эффектов не бывает — сверяется рантайм-проверкой
- *      (см. «Отчёт полон» в батче).
+ *      объекта карты. В КАНАЛЕ ПАМЯТИ ВОЗДЕЙСТВИЙ скрытых и выдуманных эффектов
+ *      не бывает: отчёт сверяется с фактическим дифом памяти по ключам и по
+ *      величине, в обе стороны (см. `findMisreportedImpacts`). Остальные каналы
+ *      — координаты идеологии, поддержка правительства, объекты карты и
+ *      `nextFeatureId` — под эту сверку НЕ попадают: там правдивость держат
+ *      палитра и дисциплина обработчика, проверяемые внешними тестами.
  *   3. Палитра эффектов — изменённые пути состояния сверяются с whitelist'ом
  *      (palette.ts) в рантайме, а не только в тесте.
  *
@@ -140,6 +144,29 @@ function findRegion(game: GameState, regionId: number | undefined): Region | und
 
 function regionLabel(region: Region): string {
   return getText(region.names, LLM_LOCALE) || `region ${region.id}`;
+}
+
+/**
+ * Локализованное имя региона по id — для фактов о СОСЕДНИХ регионах, ссылки на
+ * которые у места вызова нет. Сырой `region 187` в резюме — такой же
+ * необработанный идентификатор кода, как сырой `groupId` (см. `groupLabel`).
+ */
+function regionLabelById(game: GameState, regionId: number): string {
+  const region = findRegion(game, regionId);
+  return region ? regionLabel(region) : `region ${regionId}`;
+}
+
+/**
+ * Локализованное имя демо-группы для резюме.
+ *
+ * Резюме уходит в промт, и «for lithuanians» рядом с локализованным «in
+ * Šiauliai» в одном предложении выдаёт идентификатор кода за человеческое имя.
+ * У групп есть `names: LocalizedText` (docs/LOCALIZATION.md) — берём оттуда;
+ * фолбэк на id остаётся, чтобы группа без имени не превращала факт в пустоту.
+ */
+function groupLabel(game: GameState, groupId: string): string {
+  const definition = game.ethnicGroups.find(g => g.id === groupId);
+  return getText(definition?.names, LLM_LOCALE) || groupId;
 }
 
 /**
@@ -180,8 +207,15 @@ function incidentKindOf(primitive: Primitive): IncidentKind {
  * Читается односторонне, глазами контролёра региона: спор поднимают на его
  * стороне границы, и значение имеет то, как ОН относится к соседу. Формальный
  * союз (`diplomacy.allies`) и «отношения не хуже союзнических» — два входа,
- * потому что сценарные данные заполняют их независимо: 1946 не задаёт
- * `relations` вовсе, а списки блоков — задаёт.
+ * потому что заполняться они могут независимо.
+ *
+ * Фактическое состояние данных 1946 (прямой подсчёт, 2026-07-26): из 157 стран
+ * НИ ОДНА не имеет ни непустого `diplomacy.allies`, ни непустого `relations`;
+ * заполнены только `puppets` и `sphereOfInfluence` (по 14 стран), а их
+ * `alliedWith` не читает. Значит, на единственном поставляемом сценарии этот
+ * фильтр не срабатывает никогда, и пограничный кризис СССР — Польша в январе
+ * 1946 проходит. Код при этом верен; недостаёт стартовой дипломатии в данных —
+ * зафиксировано в `docs/TODO.md`. Живёт ветка сегодня только на фикстуре.
  */
 function alliedWith(controller: Country | undefined, otherId: string): boolean {
   if (!controller) return false;
@@ -516,13 +550,27 @@ function signed(value: number): string {
 }
 
 /**
- * Человеческое описание фактических следов — по полю: кто и насколько сдвинулся.
+ * Человеческое описание фактических следов: по каждому полю — каждая цель и то,
+ * насколько она сдвинулась (или что не сдвинулась вовсе).
  *
- * Поле, у которого не сдвинулось НИЧЕГО, называется несдвинувшимся, а не
- * замалчивается: резюме обязано выводиться из дельт, а не утверждать заранее
- * заготовленное (docs/PRIMITIVES.md §4).
+ * Гранулярность — ПАРА (цель, поле), а не поле. До 2026-07-26 нулевую дельту
+ * называли нулём только тогда, когда поле не сдвинулось ни у одной цели; стоило
+ * сдвинуться хоть у кого-то — цели с нулём молча выпадали из текста. На боевых
+ * данных это давало ложь ровно того класса, ради которого результат и
+ * переделывался: `repress` по региону 187, где доминант (`lithuanians`, доля
+ * 0.94) стоял на потолке обоих полей, печатал «moved against 4 group(s) …
+ * suppression +0.420 for Russians, +0.424 for Latvians, +0.424 for Jews» — и
+ * доминанта, по которому удар не прошёл, в тексте не было ВООБЩЕ. Сессия,
+ * пишущая нарратив по такому тексту, сказала бы, что репрессия обрушилась на
+ * литовцев.
+ *
+ * Поэтому правило без исключений: каждая пара (цель, поле), попавшая в
+ * `effects`, попадает и в текст — сдвинувшаяся с дельтой, несдвинувшаяся со
+ * словом `unchanged` и текущим значением. Умолчать о цели текст не может
+ * (docs/PRIMITIVES.md §4).
  */
 function describeImpacts(
+  game: GameState,
   effects: readonly GroupImpactEffect[],
   options: { withRegion?: boolean } = {}
 ): string[] {
@@ -531,23 +579,34 @@ function describeImpacts(
     const ofField = effects.filter(e => e.field === field);
     if (ofField.length === 0) continue;
 
-    const moved = ofField.filter(e => e.delta !== 0);
-    if (moved.length === 0) {
-      parts.push(`${field} unchanged`);
-      continue;
-    }
     parts.push(
       `${field} ` +
-      moved
+      ofField
         .map(e =>
-          `${signed(e.delta)} for ${e.groupId}` +
-          (options.withRegion ? ` in region ${e.regionId}` : "") +
-          ` (${e.before.toFixed(3)} → ${e.after.toFixed(3)})`
+          (e.delta === 0 ? "unchanged" : signed(e.delta)) +
+          ` for ${groupLabel(game, e.groupId)}` +
+          (options.withRegion ? ` in ${regionLabelById(game, e.regionId)}` : "") +
+          (e.delta === 0
+            ? ` (${e.after.toFixed(3)})`
+            : ` (${e.before.toFixed(3)} → ${e.after.toFixed(3)})`)
         )
         .join(", ")
     );
   }
   return parts;
+}
+
+/**
+ * Хвост заголовка «сколько адресатов осталось нетронутыми» — из ДЕЛЬТ, а не из
+ * числа адресатов.
+ *
+ * Без него заголовок `repress` («moved against 4 group(s)») считался по составу
+ * региона и утверждал воздействие там, где его не было. Пустая строка, когда
+ * сдвинулись все: в обычном случае хвост — шум.
+ */
+function untouchedNote(effects: readonly GroupImpactEffect[], addressed: number): string {
+  const moved = new Set(effects.filter(e => e.delta !== 0).map(e => e.groupId)).size;
+  return moved === addressed ? "" : ` (${addressed - moved} unaffected)`;
 }
 
 /** Сшивка резюме: заголовок + перечисление фактов; пустой список не даёт хвоста. */
@@ -594,8 +653,8 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
           groupId,
           targetEffects,
           summary: joinSummary(
-            `Agitators worked on ${groupId} in ${regionLabel(region)}`,
-            describeImpacts(targetEffects)
+            `Agitators worked on ${groupLabel(game, groupId)} in ${regionLabel(region)}`,
+            describeImpacts(game, targetEffects)
           ),
         },
       };
@@ -649,8 +708,9 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
           regionId: region.id,
           targetEffects,
           summary: joinSummary(
-            `Security forces moved against ${perGroup.length} group(s) in ${regionLabel(region)}`,
-            describeImpacts(targetEffects)
+            `Security forces moved against ${perGroup.length} group(s) in ` +
+            `${regionLabel(region)}${untouchedNote(targetEffects, perGroup.length)}`,
+            describeImpacts(game, targetEffects)
           ),
         },
       };
@@ -724,9 +784,13 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       // Про соседей резюме говорит ровно то, что произошло. До 2026-07-26 здесь
       // стояло безусловное «kindred communities took heart» — фраза уходила
       // наружу и при нулевом отклике, то есть при жесте, которого не было.
-      const neighbourNote = neighbourEffects.some(e => e.delta !== 0)
-        ? describeImpacts(neighbourEffects, { withRegion: true }).map(
-            part => `kindred communities responded — ${part}`
+      //
+      // Шапка нарочно нейтральная («in neighbouring regions», не «responded»):
+      // список теперь содержит и соседей с нулевой дельтой (сосед, чьё поле уже
+      // на потолке), и утверждать отклик за всех перечисленных она не вправе.
+      const neighbourNote = neighbourEffects.length > 0
+        ? describeImpacts(game, neighbourEffects, { withRegion: true }).map(
+            part => `kindred communities in neighbouring regions — ${part}`
           )
         : ["no kindred community in neighbouring regions moved"];
 
@@ -739,7 +803,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
           targetEffects,
           neighbourEffects,
           summary: joinSummary(`Autonomy granted in ${regionLabel(region)}`, [
-            ...describeImpacts(targetEffects),
+            ...describeImpacts(game, targetEffects),
             ...neighbourNote,
           ]),
         },
@@ -763,10 +827,15 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       // Цена списывается первой и её результат проверяется ДО сдвига: если
       // платить нечем, координаты не двигаются вовсе. Последовательно, а не
       // массивом команд — иначе обе успели бы исполниться, и инвариант держался
-      // бы только на внешнем откате. Сегодня ветка отказа недостижима
-      // (ENACT_REFORM_MIN_GOVERNMENT_SUPPORT > ENACT_REFORM_POLITICAL_COST,
-      // предпосылка отсеивает раньше) — поэтому и теста на неё нет; порядок
-      // здесь стоит как страховка на случай пересмотра этих двух чисел.
+      // бы только на внешнем откате.
+      //
+      // Ветка отказа платежа ДОСТИЖИМА, вопреки арифметике порогов
+      // (ENACT_REFORM_MIN_GOVERNMENT_SUPPORT > ENACT_REFORM_POLITICAL_COST): при
+      // неконечном `governmentSupport` предпосылка `NaN < 25` ложна и примитив
+      // её проходит, а команда отказывает по проверке конечности. Тест —
+      // «неконечная поддержка правительства не уезжает в координаты идеологии»
+      // (PrimitiveEngine.test.ts); порядок здесь и есть то, что не даёт NaN
+      // доехать до координат.
       const paid = politicsCommands.spendGovernmentSupport(
         game, countryId, ENACT_REFORM_POLITICAL_COST
       );
@@ -886,7 +955,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
           summary: joinSummary(
             `A ${kind} broke out in ${regionLabel(region)}` +
             (disputedWith === undefined ? "" : ` against ${disputedWith}`),
-            describeImpacts(targetEffects)
+            describeImpacts(game, targetEffects)
           ),
         },
       };
@@ -1014,6 +1083,72 @@ function impactBudgetKey(impact: ImpactDelta): string {
 }
 
 /**
+ * Допуск сверки отчёта с дифом — на ошибку представления double, а не на
+ * «примерно совпало».
+ *
+ * Обе стороны считают дельту вычитанием одних и тех же чисел, поэтому в
+ * типичном случае они совпадают побитово. Разойтись на единицы ulp (~2e-16 при
+ * значениях ≤ 1) они могут там, где примитив пишет в одну тройку несколько раз:
+ * отчёт складывает шаги, а диф берёт разность концов. 1e-9 покрывает такое
+ * накопление с запасом в миллионы раз и при этом на семь порядков меньше
+ * минимальной величины любого коридора магнитуды — подменить эффект «в пределах
+ * допуска» нельзя.
+ */
+const IMPACT_REPORT_EPSILON = 1e-9;
+
+/** Суммарная дельта по каждой тройке (регион, группа, поле). */
+function totalsByKey(
+  entries: readonly { regionId: number; groupId: string; field: ImpactMemoryField; delta: number }[]
+): Map<string, number> {
+  const totals = new Map<string, number>();
+  for (const entry of entries) {
+    const key = impactBudgetKey(entry);
+    totals.set(key, (totals.get(key) ?? 0) + entry.delta);
+  }
+  return totals;
+}
+
+/** Расхождение отчёта примитива с тем, что он реально сделал с памятью. */
+interface MisreportedImpact {
+  key: string;
+  reported: number;
+  actual: number;
+}
+
+/**
+ * Сверка отчёта с фактическим дифом памяти воздействий — в ОБЕ стороны и по
+ * величине, а не по одному лишь набору ключей.
+ *
+ * Три вида лжи, которые она ловит:
+ *   1. **скрытый эффект** — примитив изменил память и не сказал об этом
+ *      (`reported` пуст, `actual` нет). Сессия B получила бы мир, о котором не
+ *      знает, и нарратив разошёлся бы с состоянием молча;
+ *   2. **выдуманный эффект** — примитив отчитался о сдвиге, которого не было
+ *      (`actual` пуст, `reported` нет). Симметричная половина того же
+ *      требования; до 2026-07-26 её не закрывал ни рантайм, ни палитра;
+ *   3. **подменённая величина** — ключ тот, число другое (отчитался 0.001 там,
+ *      где легло 0.4). Именно число уходит в нарратив, поэтому совпадения
+ *      ключей мало.
+ *
+ * Отчёт с нулевой дельтой законен и совпадает с отсутствием ключа в дифе:
+ * `impactDeltas` не выдаёт нулей, и обе стороны дают 0.
+ */
+function findMisreportedImpacts(
+  reported: readonly GroupImpactEffect[],
+  actual: readonly ImpactDelta[]
+): MisreportedImpact[] {
+  const reportedTotals = totalsByKey(reported);
+  const actualTotals = totalsByKey(actual);
+  return [...new Set([...reportedTotals.keys(), ...actualTotals.keys()])]
+    .map(key => ({
+      key,
+      reported: reportedTotals.get(key) ?? 0,
+      actual: actualTotals.get(key) ?? 0,
+    }))
+    .filter(m => Math.abs(m.reported - m.actual) > IMPACT_REPORT_EPSILON);
+}
+
+/**
  * Применяет батч примитивов к состоянию партии.
  *
  * Единственная точка входа для любого источника примитивов — LLM-путь, кнопка
@@ -1136,27 +1271,30 @@ export function applyPrimitiveBatch(
 
     const deltas = impactDeltas(before, working);
 
-    // Отчёт полон: всё, что примитив реально записал в память воздействий,
-    // обязано присутствовать в его результате. Сверяется с ФАКТИЧЕСКИМ дифом
-    // состояния, а не с намерением обработчика, — то есть тем же способом, что
-    // и палитра: обработчик, забывший внести свой канал в `applied`, отдал бы
-    // сессии B состояние мира, о котором она не знает, и нарратив разошёлся бы
-    // с миром молча. Ключ строится ОДНОЙ функцией с обеих сторон, иначе
-    // проверка тихо перестала бы срабатывать, оставаясь на вид реализованной.
-    const reported = new Set(
-      impactEffectsOf(outcome.applied)
-        .filter(e => e.delta !== 0)
-        .map(e => impactBudgetKey(e))
-    );
-    const unreported = deltas.filter(d => !reported.has(impactBudgetKey(d)));
-    if (unreported.length > 0) {
+    // Отчёт правдив: то, что примитив записал в память воздействий, и то, о чём
+    // он отчитался, совпадают — по набору ключей И по величине, в обе стороны
+    // (см. `findMisreportedImpacts`). Сверяется с ФАКТИЧЕСКИМ дифом памяти, а не
+    // с намерением обработчика, — то есть тем же способом, что и палитра.
+    // Ключ строится ОДНОЙ функцией с обеих сторон, иначе проверка тихо
+    // перестала бы срабатывать, оставаясь на вид реализованной.
+    //
+    // Граница гарантии названа явно: сверяется КАНАЛ ПАМЯТИ ВОЗДЕЙСТВИЙ. Сдвиг
+    // координат идеологии, списанная поддержка правительства, объект карты и
+    // `nextFeatureId` под неё не попадают — там правдивость отчёта держат
+    // палитра (что вообще разрешено трогать) и внешние тесты «опубликованное
+    // „стало“ = состояние мира». Расширять сверку на них — отдельная работа
+    // (docs/PRIMITIVES.md §4, docs/TODO.md).
+    const misreported = findMisreportedImpacts(impactEffectsOf(outcome.applied), deltas);
+    if (misreported.length > 0) {
       restore(working, before);
       rejected.push({
         verb: primitive.verb,
         sourceCountryId: primitive.sourceCountryId,
         reason:
-          `Effect not reported by ${primitive.verb}: ` +
-          unreported.map(d => `${impactBudgetKey(d)} moved by ${d.delta.toFixed(3)}`).join("; "),
+          `Result of ${primitive.verb} disagrees with what it changed: ` +
+          misreported
+            .map(m => `${m.key} reported ${m.reported.toFixed(3)}, actually ${m.actual.toFixed(3)}`)
+            .join("; "),
       });
       continue;
     }
