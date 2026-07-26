@@ -92,7 +92,7 @@ point-in-polygon — для 13 держав с реальными координ
 дополнение к истории — `.agent/plans/capital-region-overrides-remap.md`.
 Проверено: `validate_region_economy_1946.py` (0 нарушений; печатает явное
 покрытие invariant 15 — "12/13 якорей", DNK помечен `[warn]`, не молчит),
-`test_validate_region_economy_1946.py` (29/29), server `tsc --noEmit` чист,
+`test_validate_region_economy_1946.py` (33/33), server `tsc --noEmit` чист,
 server vitest 680 passed/1 skipped.
 
 ## 2026-07-24 — Дизайн-цикл: концепт-редизайн (алфавит примитивов)

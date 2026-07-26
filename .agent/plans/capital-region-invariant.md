@@ -185,7 +185,8 @@ lat/lon if justified, with the one hard constraint "not the positional id"):
       `MIN_EXPECTED_TS_ANCHORS` from 10 to 13. Re-ran the regression smoke
       test honestly (each artifact reverted independently, not together)
       and corrected the plan/`docs/DECISIONS.md` wording that had
-      overstated what it proved. Full suite now 29/29.
+      overstated what it proved. Full suite 29/29 at that point; a follow-up
+      round (coverage counter, `!=` anchor threshold) brought it to 33/33.
 
 ## Discoveries
 
@@ -375,9 +376,11 @@ Run from `.claude/worktrees/capital-region-invariant` (cwd noted per command):
   ("Географическое покрытие invariant 15: 12/13 якорей...") and one
   `[warn]` line for DNK (visible, not silent — see review finding 4).
 - `python scripts/map/test_validate_region_economy_1946.py -v` (repo root) —
-  **29/29 passed** (22 from before the review + 7 new: owner-mismatch case
-  for invariant 14, 3 for the new invariant 16, 3 for the
-  `build_region_geometries` loud-failure guard).
+  **33/33 passed** (22 from before the review + 7 added in the review round:
+  owner-mismatch case for invariant 14, 3 for the new invariant 16, 3 for the
+  `build_region_geometries` loud-failure guard; + 4 in the follow-up round:
+  3 for `check_anchor_count`, 1 proving the coverage counter cannot overstate
+  what was actually checked).
 - Regression smoke test, redone honestly per the review (each artifact
   reverted INDEPENDENTLY, not together) — exact observed matrix:
   - Revert ONLY `capital_overrides.py` (SUN 320->318), leave `countries.json`
