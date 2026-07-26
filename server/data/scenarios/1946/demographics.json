@@ -1,0 +1,250 @@
+{
+  "regions": [
+    {
+      "regionId": 26,
+      "groups": [
+        {
+          "groupId": "belarusians",
+          "share": 0.8
+        },
+        {
+          "groupId": "russians",
+          "share": 0.16
+        },
+        {
+          "groupId": "poles",
+          "share": 0.03
+        },
+        {
+          "groupId": "jews",
+          "share": 0.01
+        }
+      ]
+    },
+    {
+      "regionId": 27,
+      "groups": [
+        {
+          "groupId": "belarusians",
+          "share": 0.63
+        },
+        {
+          "groupId": "poles",
+          "share": 0.24
+        },
+        {
+          "groupId": "russians",
+          "share": 0.12
+        },
+        {
+          "groupId": "jews",
+          "share": 0.01
+        }
+      ]
+    },
+    {
+      "regionId": 68,
+      "groups": [
+        {
+          "groupId": "estonians",
+          "share": 0.97
+        },
+        {
+          "groupId": "russians",
+          "share": 0.03
+        }
+      ]
+    },
+    {
+      "regionId": 69,
+      "groups": [
+        {
+          "groupId": "estonians",
+          "share": 0.98
+        },
+        {
+          "groupId": "russians",
+          "share": 0.02
+        }
+      ]
+    },
+    {
+      "regionId": 70,
+      "groups": [
+        {
+          "groupId": "estonians",
+          "share": 0.89
+        },
+        {
+          "groupId": "russians",
+          "share": 0.11
+        }
+      ]
+    },
+    {
+      "regionId": 185,
+      "groups": [
+        {
+          "groupId": "lithuanians",
+          "share": 0.9
+        },
+        {
+          "groupId": "russians",
+          "share": 0.08
+        },
+        {
+          "groupId": "poles",
+          "share": 0.02
+        }
+      ]
+    },
+    {
+      "regionId": 186,
+      "groups": [
+        {
+          "groupId": "lithuanians",
+          "share": 0.87
+        },
+        {
+          "groupId": "poles",
+          "share": 0.08
+        },
+        {
+          "groupId": "russians",
+          "share": 0.05
+        }
+      ]
+    },
+    {
+      "regionId": 187,
+      "groups": [
+        {
+          "groupId": "lithuanians",
+          "share": 0.88
+        },
+        {
+          "groupId": "russians",
+          "share": 0.09
+        },
+        {
+          "groupId": "poles",
+          "share": 0.03
+        }
+      ]
+    },
+    {
+      "regionId": 189,
+      "groups": [
+        {
+          "groupId": "latvians",
+          "share": 0.85
+        },
+        {
+          "groupId": "russians",
+          "share": 0.13
+        },
+        {
+          "groupId": "poles",
+          "share": 0.02
+        }
+      ]
+    },
+    {
+      "regionId": 190,
+      "groups": [
+        {
+          "groupId": "latvians",
+          "share": 0.64
+        },
+        {
+          "groupId": "russians",
+          "share": 0.3
+        },
+        {
+          "groupId": "poles",
+          "share": 0.04
+        },
+        {
+          "groupId": "jews",
+          "share": 0.02
+        }
+      ]
+    },
+    {
+      "regionId": 191,
+      "groups": [
+        {
+          "groupId": "latvians",
+          "share": 0.56
+        },
+        {
+          "groupId": "russians",
+          "share": 0.35
+        },
+        {
+          "groupId": "poles",
+          "share": 0.07
+        },
+        {
+          "groupId": "belarusians",
+          "share": 0.02
+        }
+      ]
+    },
+    {
+      "regionId": 192,
+      "groups": [
+        {
+          "groupId": "latvians",
+          "share": 0.86
+        },
+        {
+          "groupId": "russians",
+          "share": 0.12
+        },
+        {
+          "groupId": "poles",
+          "share": 0.02
+        }
+      ]
+    },
+    {
+      "regionId": 193,
+      "groups": [
+        {
+          "groupId": "latvians",
+          "share": 0.88
+        },
+        {
+          "groupId": "russians",
+          "share": 0.1
+        },
+        {
+          "groupId": "poles",
+          "share": 0.02
+        }
+      ]
+    },
+    {
+      "regionId": 274,
+      "groups": [
+        {
+          "groupId": "russians",
+          "share": 0.6
+        },
+        {
+          "groupId": "germans",
+          "share": 0.28
+        },
+        {
+          "groupId": "belarusians",
+          "share": 0.07
+        },
+        {
+          "groupId": "poles",
+          "share": 0.05
+        }
+      ]
+    }
+  ]
+}

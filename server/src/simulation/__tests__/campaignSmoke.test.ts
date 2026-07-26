@@ -4,6 +4,8 @@ import { createGame } from "../../game/CreateGame";
 import { type Country } from "@shared/types/Country";
 import { type GameState } from "@shared/types/GameState";
 import { getDomainTier } from "@shared/utils/technology";
+import { regionDiscontent } from "@shared/utils/discontent";
+import { REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/defines/discontent";
 
 /**
  * Smoke-тест N-летней кампании (docs/TODO.md, "БАГ" — население тихо
@@ -34,6 +36,25 @@ import { getDomainTier } from "@shared/utils/technology";
 const MONTHS_TO_SIMULATE = 60; // 5 лет — тот же горизонт, что живой прогон, нашедший баг популяции.
 const SNAPSHOT_INTERVAL_MONTHS = 12;
 const EXPECTED_COUNTRY_COUNT = 157; // Все континенты завершены (2026-07-17); 2026-07-18: Алжир→FRA (-1), Занзибар отделён (+1), Питкерн→GBR и Токелау→NZL (-2), 39 небольших колоний/морских баз без своей государственности свёрнуты в прямое владение метрополий (-39, игровое упрощение по решению пользователя); 2026-07-19: Австрия распущена на 4 зоны оккупации (-1 AUT, +4 QOS/QOA/QOB/QOF, как и Германия — по запросу пользователя); Палестина пересобрана исторически 8→15 подрайонов (+7), Ливан на реальные 5 мухафаз (+1), ОАЭ/Договорной Оман консолидирован обратно в 1 страну (-6, разворот решения от 2026-06-28 — см. docs/DECISIONS.md).
+
+// Прибалтика СССР с подавляющим титульным большинством (≥85%): три уезда
+// Литвы, три региона Латвии, три Эстонии. Титульные нации и сталинский режим
+// разделяет большая идеологическая дистанция — на ней держится кризис среза.
+const TITULAR_MAJORITY_REGION_IDS = [185, 186, 187, 189, 192, 193, 68, 69, 70];
+
+// Смешанные регионы Прибалтики: Рига (30% русских) и Латгале (35%). Ниже
+// кризисного порога — и это не недоработка разметки, а работающая механика:
+// недовольство региона взвешено по долям, поэтому смешанный регион не бывает
+// единодушен. Порог занижать под них нельзя — проверяется градиент.
+const MIXED_BALTIC_REGION_IDS = [190, 191];
+
+// Контрольная группа: славянское большинство, малая дистанция до власти.
+const CONTROL_REGION_IDS = [26, 27, 274];
+
+// Всего размеченных регионов. Покрытие частичное по замыслу; число обновляется
+// вместе с demographics.json.
+const MARKED_REGION_COUNT =
+  TITULAR_MAJORITY_REGION_IDS.length + MIXED_BALTIC_REGION_IDS.length + CONTROL_REGION_IDS.length;
 
 // Десять держав tier "major" сценария 1946 (server/src/simulation/tier/TierTick.ts,
 // HISTORICAL_TIERS_1946) — реальные id из датасета, не выдуманные.
@@ -281,5 +302,86 @@ describe("campaign smoke test — многолетний прогон сцена
       console.log(`\nВремя выполнения: ${elapsedMs}ms для ${MONTHS_TO_SIMULATE} месяцев × ${EXPECTED_COUNTRY_COUNT} стран.`);
     },
     120_000 // 5-летний прогон полного сценария — даём тесту до 2 минут, чтобы не флапал на медленных машинах.
+  );
+
+  /**
+   * Региональный слой недовольства на РЕАЛЬНЫХ данных сценария, а не на
+   * фикстуре (docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
+   * DiscontentTick.test.ts гоняет формулу на трёх синтетических регионах — здесь
+   * проверяется, что связка «файлы данных → загрузка → тик» реально даёт
+   * заявленную картину и держит её многолетним прогоном.
+   */
+  it(
+    `держит недовольство прибалтийских регионов СССР выше кризисного порога ${MONTHS_TO_SIMULATE} месяцев`,
+    () => {
+      const game = createGame("1946", "SUN");
+
+      // Разметка доехала из файлов данных до состояния партии.
+      expect(game.ethnicGroups.length).toBeGreaterThan(0);
+      const marked = game.regions.filter((r) => r.demographics && r.demographics.length > 0);
+      expect(marked.length).toBe(MARKED_REGION_COUNT);
+
+      const discontentOf = (id: number): number => {
+        const region = game.regions.find((r) => r.id === id);
+        if (!region) throw new Error(`Регион ${id} не найден — датасет 1946 изменился?`);
+        const value = regionDiscontent(game, region);
+        if (value === undefined) throw new Error(`Регион ${id} не размечен демографией`);
+        return value;
+      };
+
+      for (let i = 0; i < MONTHS_TO_SIMULATE; i++) simulateMonth(game);
+
+      for (const id of TITULAR_MAJORITY_REGION_IDS) {
+        expect(
+          discontentOf(id),
+          `Регион ${id} (титульное большинство, СССР): недовольство ${discontentOf(id).toFixed(3)} — ` +
+            `ожидается не ниже кризисного порога ${REGION_CRISIS_DISCONTENT_THRESHOLD}. ` +
+            `Изменились коэффициенты (shared/src/defines/discontent.ts) или разметка ` +
+            `demographics.json/ideology.json — это осознанная калибровка или регресс?`
+        ).toBeGreaterThanOrEqual(REGION_CRISIS_DISCONTENT_THRESHOLD);
+        expect(game.regionCrisisLatch).toContain(id);
+      }
+
+      // Градиент, а не бинарный ярлык: смешанные регионы Прибалтики спокойнее
+      // моноэтничных, но напряжённее славянской контрольной группы. Именно это
+      // и утверждает модель «недовольство = доля-взвешенная геометрия», и
+      // именно это сломается первым, если разметку или коэффициенты подкрутят
+      // «чтобы сошлось».
+      const maxControl = Math.max(...CONTROL_REGION_IDS.map(discontentOf));
+      for (const id of MIXED_BALTIC_REGION_IDS) {
+        expect(
+          discontentOf(id),
+          `Смешанный регион ${id}: недовольство ${discontentOf(id).toFixed(3)} — ожидается ` +
+            `ВЫШЕ самого напряжённого контрольного региона (${maxControl.toFixed(3)})`
+        ).toBeGreaterThan(maxControl);
+        expect(discontentOf(id)).toBeLessThan(REGION_CRISIS_DISCONTENT_THRESHOLD);
+      }
+
+      for (const id of CONTROL_REGION_IDS) {
+        expect(
+          discontentOf(id),
+          `Контрольный регион ${id} (славянское большинство, малая идеологическая ` +
+            `дистанция): недовольство ${discontentOf(id).toFixed(3)} — ожидается НИЖЕ порога ` +
+            `${REGION_CRISIS_DISCONTENT_THRESHOLD}. Иначе «высокое недовольство» перестаёт ` +
+            `быть свойством конкретных регионов и становится свойством всей страны.`
+        ).toBeLessThan(REGION_CRISIS_DISCONTENT_THRESHOLD);
+        expect(game.regionCrisisLatch).not.toContain(id);
+      }
+
+      // Кризисный факт по каждому кризисному региону выдан ровно один раз за
+      // весь прогон, а не каждый месяц — латч работает.
+      for (const id of TITULAR_MAJORITY_REGION_IDS) {
+        const facts = game.pendingWorldFacts.filter(
+          (f) => f.kind === "region_crisis" && f.regionId === id
+        );
+        expect(facts, `Регион ${id}: кризисных фактов ${facts.length}, ожидается ровно 1`)
+          .toHaveLength(1);
+      }
+
+      // Без примитивов память воздействий не заводится вовсе: тик не копит
+      // пустых записей (бюджет SAVE, docs/CONCEPT.md §7.5).
+      expect(game.groupImpactMemory).toHaveLength(0);
+    },
+    120_000
   );
 });

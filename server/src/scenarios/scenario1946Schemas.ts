@@ -48,6 +48,72 @@ export const regionStateSchema = z.object({
 export type RegionStateEntry = z.infer<typeof regionStateSchema>;
 export const regionStateFileSchema = z.array(regionStateSchema);
 
+/**
+ * Демо-состав и координаты идеологии (docs/CONCEPT.md §4.1/§4.2) — три файла,
+ * генерируемые scripts/map/generate_demographics_1946.py. Отдельными слоями, а
+ * не полями в countries.json/regions.state.json: тот же принцип расслоения
+ * (docs/plans/05_DATA_LAYOUT.md), безопасное параллельное наполнение и
+ * СОЗНАТЕЛЬНО частичное покрытие — регион без записи считается неразмеченным,
+ * страна без координат читает фолбэк по ярлыку politics.ideology.
+ *
+ * Инварианты дублируют scripts/map/validate_demographics_1946.py намеренно:
+ * там — до запуска игры, здесь — на загрузке сейва/сценария.
+ */
+const ideologyAxisSchema = z.number().min(-1).max(1);
+
+const ideologyCoordinatesSchema = z.object({
+  economic: ideologyAxisSchema,
+  political: ideologyAxisSchema,
+});
+
+export const ethnicGroupSchema = z.object({
+  id: z.string().min(1),
+  names: localizedTextSchema,
+  desiredIdeology: ideologyCoordinatesSchema,
+});
+export const groupsFileSchema = z.object({
+  groups: z.array(ethnicGroupSchema).nonempty(),
+});
+export type GroupsFile = z.infer<typeof groupsFileSchema>;
+
+/** Доминант + до 3 меньшинств (§4.1), сумма долей = 1.0 ± 0.001. */
+const SHARE_SUM_TOLERANCE = 0.001;
+export const MAX_GROUPS_PER_REGION = 4;
+
+export const regionDemographicsSchema = z.object({
+  regionId: z.number().int().positive(),
+  groups: z
+    .array(z.object({
+      groupId: z.string().min(1),
+      share: z.number().gt(0).max(1),
+    }))
+    .nonempty()
+    .max(MAX_GROUPS_PER_REGION)
+    .refine(
+      (groups) => Math.abs(groups.reduce((sum, g) => sum + g.share, 0) - 1) <= SHARE_SUM_TOLERANCE,
+      { message: `Сумма долей групп региона должна быть 1.0 ± ${SHARE_SUM_TOLERANCE}` }
+    )
+    .refine(
+      (groups) => new Set(groups.map(g => g.groupId)).size === groups.length,
+      { message: "Группа не может встречаться в регионе дважды" }
+    ),
+});
+export type RegionDemographicsEntry = z.infer<typeof regionDemographicsSchema>;
+export const demographicsFileSchema = z.object({
+  regions: z.array(regionDemographicsSchema),
+});
+export type DemographicsFile = z.infer<typeof demographicsFileSchema>;
+
+export const countryIdeologySchema = z.object({
+  countryId: z.string().min(1),
+  economic: ideologyAxisSchema,
+  political: ideologyAxisSchema,
+});
+export const ideologyFileSchema = z.object({
+  countries: z.array(countryIdeologySchema),
+});
+export type IdeologyFile = z.infer<typeof ideologyFileSchema>;
+
 /** region_id (geoJsonId) → имя. Частичное покрытие допустимо (см. getText fallback). */
 export const namesFileSchema = z.record(z.string(), z.string());
 export type NamesFile = z.infer<typeof namesFileSchema>;

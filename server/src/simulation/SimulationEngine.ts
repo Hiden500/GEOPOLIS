@@ -12,6 +12,7 @@ import { warTick } from "./war/WarTick";
 import { aiBehaviorTick } from "./ai/AiBehaviorTick";
 import { tierTick } from "./tier/TierTick";
 import { politicsTick } from "./politics/PoliticsTick";
+import { discontentTick } from "./politics/DiscontentTick";
 import { tradeTick } from "./trade/TradeTick";
 import { chronicleTick } from "./chronicle/ChronicleTick";
 import { removeExpiredModifiers } from "../commands/modifiers";
@@ -64,6 +65,7 @@ export function simulateMonth(
             if (tierAfter > tierBefore) {
                 game.pendingWorldFacts.push({
                     countryId: country.id,
+                    kind: "technology_tier",
                     text: `${country.name} technology reached tier ${tierAfter} in ${domain}`,
                 });
             }
@@ -85,6 +87,7 @@ export function simulateMonth(
         ) {
             game.pendingWorldFacts.push({
                 countryId: country.id,
+                kind: "economic_crisis",
                 text: `${country.name} inflation surged past crisis levels (${country.economy.inflation.toFixed(1)})`,
             });
         }
@@ -99,6 +102,7 @@ export function simulateMonth(
         ) {
             game.pendingWorldFacts.push({
                 countryId: country.id,
+                kind: "political_crisis",
                 text: `${country.name} stability collapsed to crisis levels (${country.politics.stability.toFixed(1)}) — unrest, possible upheaval`,
             });
         }
@@ -117,6 +121,7 @@ export function simulateMonth(
         ) {
             game.pendingWorldFacts.push({
                 countryId: country.id,
+                kind: "debt_crisis",
                 text: `${country.name} is on the brink of default (debt ${(debtBurdenAfter * 100).toFixed(0)}% of GDP)`,
             });
         }
@@ -126,6 +131,13 @@ export function simulateMonth(
     // region.gdp — иначе стирался бы рост, который EconomyTick только что
     // применил (см. shared/src/utils/aggregateCountryData.ts).
     aggregateAllCountries(game.countries, game.regions);
+
+    // Недовольство регионов (docs/CONCEPT.md §4.1/§4.2) — после агрегации:
+    // относительное благосостояние региона считается против ВВП на душу его
+    // страны, а тот становится актуальным только здесь. Само недовольство не
+    // хранится; тик гасит память воздействий и ловит пересечение кризисного
+    // порога.
+    discontentTick(game);
 
     // Дипломатические изменения
     diplomacyTick(game.countries);

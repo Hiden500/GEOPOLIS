@@ -147,6 +147,12 @@ export function createGame(
     wars: [],
     modifiers: [],
     pendingWorldFacts: [],
+    // Фундамент недовольства (docs/CONCEPT.md §4.1): каталог групп приходит из
+    // сценария (у 1836/2000 его нет — пустой, и это не ошибка), память
+    // воздействий и латч кризисов стартуют пустыми — прошлого у новой партии нет.
+    ethnicGroups: structuredClone(scenario.ethnicGroups ?? []),
+    groupImpactMemory: [],
+    regionCrisisLatch: [],
     hingePointShowCount: {},
     llmRespondedThisTurn: false,
     // Стартовая позиция игрока в рейтинге силы (docs/OBJECTIVES.md) —

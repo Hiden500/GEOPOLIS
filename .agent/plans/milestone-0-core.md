@@ -1,0 +1,187 @@
+# Милстоун 0, сессия A — ядро недовольства и движок примитивов
+
+Status: complete
+Owner: Claude (Opus) — worktree `.claude/worktrees/milestone-0-core`, ветка `claude/milestone-0-core`
+Starting commit: 43d05a4
+
+## Objective and observable outcome
+
+Реализовать ядро вертикального среза (`docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md`):
+недовольство национального региона СССР выводится движком из геометрии
+«идеология власти ↔ желаемая позиция демо-группы» + экономики региона + памяти
+воздействий; порог даёт типизированный факт «кризис в регионе X»; пять примитивов
+(`incite_unrest` / `repress` / `grant_autonomy` / `enact_reform` / `spawn_incident`)
+проходят движковый контракт `validate → compute → apply` с декларативной палитрой
+полей.
+
+Наблюдаемый результат:
+
+- `npx tsc --noEmit -p tsconfig.json` и `npm test` в `server/` зелёные;
+- новый tick растит/снижает недовольство прибалтийских регионов SUN и не трогает
+  контрольные славянские регионы сопоставимо;
+- параметризованный тест: `repress` / `grant_autonomy` / `enact_reform` через N ходов
+  дают попарно различимые состояния (ветки не схлопываются);
+- тест палитры: применение каждого verb меняет только задекларированные пути состояния.
+
+## Scope and constraints
+
+**Что меняю**
+
+- `shared/src/types/`: `GameState.ts`, `PoliticsState.ts`, `map/Region.ts`, `SaveFile.ts`,
+  новые `types/politics/*`.
+- `shared/src/defines/discontent.ts` (новый), `shared/src/utils/discontent.ts` (новый).
+- `server/data/scenarios/1946/`: новые `groups.json`, `demographics.json`, `ideology.json`.
+- `server/src/scenarios/`: `scenario1946Schemas.ts`, `Scenario1946.ts`, `types/Scenario.ts`.
+- `server/src/game/CreateGame.ts`, `server/src/test-utils/fixtures.ts`.
+- `server/src/simulation/politics/DiscontentTick.ts` (новый) + регистрация в
+  `SimulationEngine.ts`; типизация `pendingWorldFacts` там же.
+- `server/src/commands/politics.ts` (новый) — слой мутации.
+- `server/src/primitives/**` (новый) — движок примитивов, палитра, Zod-схемы.
+- Тесты рядом с новым кодом + региональные проверки в `campaignSmoke.test.ts`.
+- Docs: `docs/DECISIONS.md`, `docs/TODO.md`, `docs/POLITICS.md`,
+  `docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md`.
+
+**Что не трогаю**
+
+- `client/**` целиком (сессия B; `client/src/map/**` заморожен решением пользователя).
+- LLM-контракт: `server/src/llm/actionSchemas.ts`, `LLMResponseValidator.ts`,
+  `LLMService.generatePrompt` — подключение примитивов к LLM-пути делает сессия B.
+- Lifecycle §7.1 (создание/раскол/исчезновение стран).
+- Предсуществующие дефекты: шкала `region.stability` (данные 0..1, `PopulationTick.ts:68,76`
+  делит на 100) и игнор `CommandResult` в `apply*Action` (`LLMService.ts:362-454`) —
+  фиксирую в `docs/TODO.md`, не чиню.
+- `scripts/map/validate_region_economy_1946.py`, `scripts/map/generate_country_registry.py`,
+  `server/src/scenarios/generateMapFeatures.ts`, `server/data/scenarios/1946/countries.json`.
+
+**С чем могу конфликтовать**
+
+- Worktree `capital-region-invariant` (ветка `claude/capital-region-invariant`) правит
+  ровно те четыре файла из списка выше. Пересечения нет: демографию/идеологию веду
+  тремя новыми файлами данных, валидацию — через Zod на загрузке, без нового
+  python-валидатора и без правки существующих скриптов.
+- `shared/src/types/` — правило «не менять параллельно в нескольких ветках». На момент
+  старта ни один активный ExecPlan (`.agent/plans/*.md`) не заявляет правок в
+  `shared/src/types/`; `capital-region-invariant` работает в `scripts/map` + `server/src/scenarios`.
+- Сессия B будет править `server/src/llm/**` и `client/**` — стык описан в разделе
+  «Стык для сессии B» ниже; ядро спроектировано так, чтобы B подключалась без переделки.
+
+## Assumptions and unknowns
+
+- Демо-состав и координаты идеологии — плейсхолдеры для калибровки, не исторический
+  канон. Покрытие частичное (14 регионов, 3 страны) — это штатное состояние, а не баг.
+- UNKNOWN: реальные коэффициенты формулы. Стартовые значения выбраны так, чтобы
+  прибалтийские регионы SUN устойчиво стояли выше кризисного порога, а контрольные
+  славянские — устойчиво ниже. Калибровка — после сессии B, на живых прогонах.
+- UNKNOWN: конфликт внутри `docs/PRIMITIVES.md` — §3 говорит «структурный → весь ответ
+  reject», §4 говорит «его reject не откатывает уже применённые мягкие». Следую §4
+  (операционно конкретнее), фиксирую расхождение.
+
+## Alternatives and selected decision
+
+| Развилка | Альтернативы | Выбрано | Почему |
+|---|---|---|---|
+| Хранение `discontent` | (а) поле в `Region`; (б) полностью выводить каждый раз | (б) + хранимая память воздействий | §4.1 «настроение не хранится»; fitness-правило 9 (производное не хранится). Память воздействий хранится — иначе «подавил → загнал вглубь» не с чего считать |
+| Хранение демо-состава | (а) отдельный индекс в `GameState`; (б) поле `Region.demographics` | (б) | §4.1 буквально: «регион хранит доминантную группу + меньшинства»; нет второго индекса и рассинхрона |
+| Детекция порога | (а) сравнение before/after внутри тика; (б) латч пересечённых регионов | (б) `GameState.regionCrisisLatch` | before/after не сработает: регион уже стартует выше порога, пересечения не будет никогда. Латч + гистерезис даёт повторный кризис после спада |
+| Атомарность применения | (а) применить и откатывать при ошибке; (б) прогон на клоне + commit подменой | (б) | §7.2 «plan → клон → пост-инварианты → commit»; откат по месту потребовал бы обратных операций на каждый эффект |
+| Проверка палитры | (а) только тест; (б) рантайм-диф путей состояния + тест | (б) | «Палитра — декларативный whitelist (проверяем тестом)» + рантайм делает её реальной границей, а не документацией |
+| «Благосостояние региона» | (а) `region.development` (статичен); (б) относительный ВВП на душу к стране-владельцу | (б) | (а) никогда не меняется тиком → член формулы мёртвый. (б) дышит от `EconomyTick`, масштаб-свободен |
+
+## Progress
+
+- [x] Worktree + baseline (tsc чистый; 680 passed / 1 skipped, 0 failures)
+- [x] A1 состояние + Zod-схемы + `SAVE_VERSION` 3→4
+- [x] A2 seed-данные (генератор + валидатор + три файла: 8 групп, 14 регионов, 3 страны)
+- [x] A3 расчёт `discontent` + `DiscontentTick`, зарегистрирован после `aggregateAllCountries`
+- [x] A4 типизированные `pendingWorldFacts` (`WorldFactKind`) + факт «кризис в регионе»
+- [x] A5 движок примитивов (validate/compute/apply, рантайм-палитра, 5 verb, `commands/politics.ts`)
+- [x] A6 тесты: формула, каждый verb, палитра, расхождение веток, campaignSmoke на реальных данных
+- [x] Docs footprint + финальная верификация
+
+## Discoveries
+
+- В worktree нет `node_modules`, сеть из песочницы недоступна (`npm install` → `EAI_AGAIN`,
+  `--offline` → `ENOTCACHED`). Обход: junction `server/node_modules` →
+  `D:\Pax Historia LOCAL\server\node_modules` (чтение чужого дерева, основной checkout
+  не изменяется). Junction не коммитится.
+- `campaignSmoke.test.ts` на baseline зелёный, хотя его комментарий утверждает, что тест
+  «ОБЯЗАН падать на известном баге популяции» — комментарий устарел относительно кода.
+- Guard-хук (`scripts/hooks/guard.mjs`) блокирует ручную запись в
+  `server/data/scenarios/**`. Три новых слоя данных заведены через генератор
+  `scripts/map/generate_demographics_1946.py` + валидатор `validate_demographics_1946.py` —
+  это и есть предписанный хуком путь, обходить его не пришлось.
+- Смешанные регионы Прибалтики (Рига 30 % русских, Латгале 35 %) дают недовольство ~0.43-0.46
+  против ~0.55 у моноэтничных уездов, то есть НИЖЕ кризисного порога 0.5. Это работающая
+  механика (доля-взвешенная сумма), а не пробел разметки; порог под них не занижался,
+  `campaignSmoke` проверяет градиент.
+- `grant_autonomy` и `enact_reform` пересекаются по недовольству целевого региона около
+  36-го месяца: уступка затухает, реформа постоянна. Ветки при этом остаются разными
+  состояниями мира. Зафиксировано явным тестом.
+
+## Decision log
+
+Перенесён в `docs/DECISIONS.md` (запись 2026-07-26): имя `discontent` и выбор
+`incite_unrest`; гибридное хранение (значение выводится, память воздействий хранится);
+диапазон осей `[-1, +1]` и нормировка на 2√2; шкала 0..1 у новых полей и отказ опираться на
+`region.stability`; латч кризисов; три слоя данных отдельными файлами через генератор;
+рантайм-проверка палитры; следование §4 в конфликте §3/§4 `PRIMITIVES.md`; отказ от
+`fast-check`; `SAVE_VERSION` 3→4.
+
+## Validation
+
+```text
+cwd: D:/Pax Historia LOCAL/.claude/worktrees/milestone-0-core/server
+npx tsc --noEmit -p tsconfig.json
+npm test
+```
+
+Baseline (43d05a4, до правок): tsc — 0 ошибок; vitest — 48 файлов, 680 passed, 1 skipped,
+0 failed. Предсуществующих failure в затронутом scope не было.
+
+Фактически выполнено после правок:
+
+| Проверка | Результат |
+|---|---|
+| `server: npx tsc --noEmit -p tsconfig.json` | 0 ошибок |
+| `server: npm test` | 51 файл, 742 passed, 1 skipped, 0 failed |
+| `client: npx tsc --noEmit -p tsconfig.app.json` | 0 ошибок (затронут `shared/`) |
+| `client: npm test` | 10 файлов, 102 passed |
+| `python scripts/map/validate_demographics_1946.py` | OK (8 групп, 14/1399 регионов, 3/157 стран) |
+| `python scripts/map/validate_region_economy_1946.py` | все проверки чисто |
+| `python scripts/map/test_validate_region_economy_1946.py` | 9 тестов, OK |
+| `python .agent/evals/public/run_public_evals.py` | 159 passed, 0 failed |
+
+## Rollback / containment
+
+Вся работа — в ветке `claude/milestone-0-core`, отдельном worktree. Откат: удалить ветку
+и worktree (`git worktree remove`), основной checkout и чужие ветки не затронуты. Новые
+файлы данных не читаются никем, кроме `Scenario1946.ts`; новые поля `GameState`
+инициализируются в `CreateGame.ts`, поэтому частичный откат = снятие коммита, миграции
+данных не требуется (сейвы старых версий и так отклоняются по `SAVE_VERSION`).
+
+## Final outcome
+
+Реализовано ядро вертикального среза: демо-состав регионов и координаты идеологии как слои
+данных; вывод недовольства из геометрии дистанции «власть ↔ группа» + относительного
+благосостояния + памяти воздействий; `DiscontentTick` с затуханием памяти и латчем кризисов;
+типизированные `pendingWorldFacts`; движок пяти примитивов с контрактом
+`validate → compute → apply`, рантайм-палитрой и слоем команд.
+
+Доказательства — таблица проверок выше плюс целевые тесты: `DiscontentTick.test.ts` (формула,
+фолбэки, затухание, латч), `PrimitiveEngine.test.ts` (каждый verb, атомарность, палитра,
+«числа — движок»), `branchDivergence.test.ts` (ветки не схлопываются),
+`campaignSmoke.test.ts` (60 месяцев на реальных данных 1946: градиент недовольства,
+ровно один кризисный факт на регион, память не растёт без примитивов).
+
+Baseline failures: нет.
+
+Unresolved risks / fresh-session requirements:
+- все коэффициенты — плейсхолдеры, калибровка после сессии B на живых прогонах;
+- конфликт §3/§4 `PRIMITIVES.md` по поведению структурного reject требует решения при
+  финализации алфавита;
+- idempotency-key на ход (§7.2) не реализован — примитивы применяются столько раз, сколько
+  вызван `applyPrimitiveBatch`; защита от двойного применения — на вызывающем (сессия B);
+- `applyPrimitiveBatch` делает `structuredClone` состояния на батч и ещё один на примитив;
+  на 1399 регионах это заметно, но вызывается раз в ход — оптимизация не требовалась;
+- зафиксированные в `docs/TODO.md` предсуществующие дефекты (шкала `region.stability`,
+  игнор `CommandResult` в `apply*Action`, wall-clock в `removeExpiredFeatures`) не чинились.

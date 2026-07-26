@@ -1,0 +1,92 @@
+{
+  "groups": [
+    {
+      "id": "lithuanians",
+      "names": {
+        "en": "Lithuanians",
+        "ru": "Литовцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "latvians",
+      "names": {
+        "en": "Latvians",
+        "ru": "Латыши"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "estonians",
+      "names": {
+        "en": "Estonians",
+        "ru": "Эстонцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "russians",
+      "names": {
+        "en": "Russians",
+        "ru": "Русские"
+      },
+      "desiredIdeology": {
+        "economic": -0.7,
+        "political": -0.55
+      }
+    },
+    {
+      "id": "belarusians",
+      "names": {
+        "en": "Belarusians",
+        "ru": "Белорусы"
+      },
+      "desiredIdeology": {
+        "economic": -0.65,
+        "political": -0.45
+      }
+    },
+    {
+      "id": "poles",
+      "names": {
+        "en": "Poles",
+        "ru": "Поляки"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.2
+      }
+    },
+    {
+      "id": "jews",
+      "names": {
+        "en": "Jews",
+        "ru": "Евреи"
+      },
+      "desiredIdeology": {
+        "economic": -0.3,
+        "political": 0.3
+      }
+    },
+    {
+      "id": "germans",
+      "names": {
+        "en": "Germans",
+        "ru": "Немцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.15
+      }
+    }
+  ]
+}

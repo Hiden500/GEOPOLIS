@@ -1,0 +1,19 @@
+{
+  "countries": [
+    {
+      "countryId": "POL",
+      "economic": -0.8,
+      "political": -0.75
+    },
+    {
+      "countryId": "SUN",
+      "economic": -0.95,
+      "political": -0.9
+    },
+    {
+      "countryId": "USA",
+      "economic": 0.55,
+      "political": 0.75
+    }
+  ]
+}
