@@ -7,7 +7,7 @@
 ## Проблемы (текущее состояние)
 
 1. **regions.json смешивает 4 слоя** (`server/data/scenarios/1946/regions.json`,
-   771 КБ, 1366 регионов): географию (id, geoJsonId, area, neighbors,
+   771 КБ, 1399 регионов): географию (id, geoJsonId, area, neighbors,
    sourceAdm1Codes), локализацию (names), стартовое состояние сценария
    (owner, population, экономика) — и всё это потом ещё и мутирует в GameState.
    Для 1836 география/имена общие, состояние другое → дублирование = дрейф.
