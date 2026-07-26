@@ -1,4 +1,4 @@
-import { type GameState } from "@shared/types/GameState";
+import { type GameState, type WorldFactSource } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type MapFeatureType } from "@shared/types/map/MapFeature";
@@ -45,7 +45,7 @@ import {
   MAX_PRIMITIVES_PER_TARGET_PER_TURN,
   IMPACT_FIELD_TURN_CEILING,
   IMPACT_FIELD_TURN_CEILING_TOLERANCE,
-  MAX_PENDING_REJECTION_FACTS,
+  MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
 } from "@shared/defines/discontent";
 import {
   emptyPrimitiveTurnBudget,
@@ -1146,29 +1146,46 @@ function turnBudgetFor(game: GameState): PrimitiveTurnBudget {
  * кладётся одна агрегатная строка — тот же приём, что `renderHiddenCrises` для
  * кризисов, и по той же причине (молчание о хвосте читалось бы как «отказов
  * ровно столько»). Дальнейшие отказы уже ничего не добавляют: агрегат сам
- * занимает слот `MAX_PENDING_REJECTION_FACTS + 1`, поэтому счётчик подробных
- * записей больше не совпадёт с капом ни разу и второго агрегата не появится —
- * отдельного признака «агрегат уже есть» для этого не требуется.
+ * занимает слот `MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1`, поэтому счётчик
+ * подробных записей больше не совпадёт с капом ни разу и второго агрегата не
+ * появится — отдельного признака «агрегат уже есть» для этого не требуется.
+ *
+ * Считается кап ПО ИСТОЧНИКУ (2026-07-26, внешний аудит). Общая куча делала
+ * точную диагностику вытесняемым ресурсом: игрок, отдавший одиннадцать заведомо
+ * невозможных приказов до обработки ответа модели, занимал все подробные слоты,
+ * и причина отказа примитива МОДЕЛИ приходила к ней агрегатом «хвост есть» —
+ * то есть без глагола и предпосылки, из-за которых отказ и произошёл. Модель
+ * после этого повторяет ту же попытку. Разделение источников делает эту
+ * подмену невозможной в обе стороны: ни один канал не тратит слоты другого.
+ *
+ * `source` по умолчанию `"player"` намеренно: прямой вызов движка — это путь
+ * приказа игрока (`routes/primitives.ts`) и тесты, а единственный канал, чья
+ * диагностика защищается, обязан назвать себя явно. Новый канал, забывший
+ * параметр, попадает в НЕзарезервированную корзину — безопасная сторона ошибки.
  */
 export function pushPrimitiveRejectionFact(
   game: GameState,
-  fact: { countryId: string; text: string; regionId?: number | undefined }
+  fact: { countryId: string; text: string; regionId?: number | undefined },
+  source: WorldFactSource = "player"
 ): void {
-  const listed = game.pendingWorldFacts.filter(f => f.kind === "primitive_rejected").length;
-  if (listed > MAX_PENDING_REJECTION_FACTS) return;
+  const listed = game.pendingWorldFacts.filter(
+    f => f.kind === "primitive_rejected" && (f.source ?? "player") === source
+  ).length;
+  if (listed > MAX_PENDING_REJECTION_FACTS_PER_SOURCE) return;
 
-  if (listed === MAX_PENDING_REJECTION_FACTS) {
+  if (listed === MAX_PENDING_REJECTION_FACTS_PER_SOURCE) {
     game.pendingWorldFacts.push({
       countryId: fact.countryId,
       kind: "primitive_rejected",
+      source,
       text:
-        `(further rejected attempts are not listed this cycle: the diagnostic cap of ` +
-        `${MAX_PENDING_REJECTION_FACTS} entries was reached)`,
+        `(further rejected ${source} attempts are not listed this cycle: the diagnostic cap of ` +
+        `${MAX_PENDING_REJECTION_FACTS_PER_SOURCE} entries was reached)`,
     });
     return;
   }
 
-  game.pendingWorldFacts.push({ ...fact, kind: "primitive_rejected" });
+  game.pendingWorldFacts.push({ ...fact, kind: "primitive_rejected", source });
 }
 
 /**
@@ -1251,10 +1268,17 @@ function findMisreportedImpacts(
  * тихий фолбэк на пустой бюджет снял бы капы хода. Прежняя формулировка
  * «никогда не бросает исключений» была сильнее кода: такое состояние роняло
  * вызов `TypeError`'ом ещё до первого примитива.
+ *
+ * **Отказ структурного примитива отклоняет ВЕСЬ батч** (2026-07-26, внешний
+ * аудит) — см. `structuralRejection` ниже.
+ *
+ * @param source канал, отдавший батч. Влияет только на учёт диагностики
+ *   (`pushPrimitiveRejectionFact`), не на применение.
  */
 export function applyPrimitiveBatch(
   game: GameState,
-  primitives: readonly Primitive[]
+  primitives: readonly Primitive[],
+  source: WorldFactSource = "player"
 ): PrimitiveBatchResult {
   const applied: AppliedPrimitive[] = [];
   const rejected: RejectedPrimitive[] = [];
@@ -1455,10 +1479,48 @@ export function applyPrimitiveBatch(
     applied.push(outcome.applied);
   }
 
+  // Отказ СТРУКТУРНОГО примитива отклоняет весь батч (docs/PRIMITIVES.md §3,
+  // «структурные — весь ответ reject»; исправлено 2026-07-26 по внешнему
+  // аудиту).
+  //
+  // Почему нельзя было оставить как было. Структурный валидируется последним,
+  // поэтому к моменту его отказа мягкие примитивы того же ответа уже лежат на
+  // `working` — и коммитились вместе с ним. Ответ «поднять волнения + провести
+  // реформу» применял волнения, отклонял реформу и оставлял мир в состоянии,
+  // которого модель не предлагала: реформа была ЦЕНОЙ волнений в её замысле, а
+  // получилась только цена без реформы. Это то же «полусобытие», которое §3
+  // запрещает защитой №1, только собранное из двух примитивов вместо одного.
+  //
+  // Найденное здесь расходится с фразой §4 «его reject не откатывает уже
+  // применённые мягкие». Две фразы одного документа взаимоисключающи; выбрана
+  // §3, потому что она формулирует ПРАВИЛО класса, а §4 описывала порядок
+  // исполнения и лишь мимоходом его продолжала. Текст §4 приведён к §3.
+  //
+  // Цена решения названа прямо: структурный, отклонённый по капу хода (слот уже
+  // потратил игрок), уносит с собой мягкие примитивы того же ответа. Это
+  // осознанно — «весь ответ reject» без исключений проще объяснить и модели, и
+  // игроку, чем набор оговорок, а модель получает причину диагностическим
+  // фактом и следующий ход предлагает уже без структурного.
+  const structuralRejection = rejected.find(r => isStructural(r.verb));
+
+  if (structuralRejection) {
+    for (const rolledBack of applied) {
+      rejected.push({
+        verb: rolledBack.verb,
+        sourceCountryId: rolledBack.sourceCountryId,
+        reason:
+          `Rolled back: the structural ${structuralRejection.verb} in the same batch was ` +
+          `rejected (${structuralRejection.reason}), and a rejected structural primitive ` +
+          `rejects the whole batch`,
+      });
+    }
+    applied.length = 0;
+  }
+
   // Commit: состояние переносится целиком одним шагом. Промежуточных
   // «полусостояний» настоящий game не видел ни разу. Пустой батч (или батч, где
-  // всё отклонено) до состояния вообще не дотрагивается — `working` в этот
-  // момент побайтно равен `game`.
+  // всё отклонено, в том числе откаченный структурным отказом) до состояния
+  // вообще не дотрагивается.
   if (applied.length > 0) restore(game, working);
 
   // Бюджет хода пишется ПОСЛЕ commit'а по той же причине, по какой ниже
@@ -1468,22 +1530,33 @@ export function applyPrimitiveBatch(
   // Пишется всегда, а не только при `applied.length > 0`: дата бюджета обязана
   // догнать текущий ход даже там, где применять было нечего, иначе состояние
   // осталось бы помечено прошлым месяцем.
-  game.primitiveTurnBudget = {
-    date: game.currentDate,
-    softUsed,
-    structuralUsed,
-    targetUses: Object.fromEntries(targetUses),
-    impactAccrued: Object.fromEntries(impactUsed),
-  };
+  //
+  // При откате структурным отказом возвращаются счётчики НАЧАЛА вызова: ход
+  // тратит только применённый примитив, а после отката применённых нет ни
+  // одного (то же правило, что и для отдельного отклонённого примитива, просто
+  // на весь батч).
+  game.primitiveTurnBudget = structuralRejection
+    ? { ...budget, date: game.currentDate }
+    : {
+        date: game.currentDate,
+        softUsed,
+        structuralUsed,
+        targetUses: Object.fromEntries(targetUses),
+        impactAccrued: Object.fromEntries(impactUsed),
+      };
 
   // Диагностика пишется ПОСЛЕ commit'а, прямо в боевое состояние: факты об
   // отказах не участвуют в откате и не должны быть перетёрты переносом. Кап на
   // число подробных записей держит `pushPrimitiveRejectionFact`.
   for (const rejection of rejected) {
-    pushPrimitiveRejectionFact(game, {
-      countryId: rejection.sourceCountryId,
-      text: `Attempt rejected (${rejection.verb}): ${rejection.reason}`,
-    });
+    pushPrimitiveRejectionFact(
+      game,
+      {
+        countryId: rejection.sourceCountryId,
+        text: `Attempt rejected (${rejection.verb}): ${rejection.reason}`,
+      },
+      source
+    );
   }
 
   return { applied, rejected };

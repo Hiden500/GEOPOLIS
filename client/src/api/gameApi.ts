@@ -85,12 +85,30 @@ export interface LlmPromptResult {
 export interface LlmCycleResult {
   success: boolean;
   error?: string;
+  /**
+   * Текст модели — приходит ТОЛЬКО когда он стал каноном (событие записано на
+   * сервере). При полном отказе полей нет вовсе: сервер не отдаёт прозу,
+   * описывающую то, чего не произошло (docs/CONCEPT.md §7.2).
+   */
   title?: string;
   descriptions?: string;
+  /**
+   * Стал ли ответ каноном. `false` означает «режиссёр предложил невозможное»:
+   * мир не изменился, события нет, показывать нужно диагностику, а не нарратив.
+   */
+  narrativeCanonized: boolean;
   appliedActions: LLMAction[];
   // action: unknown, не LLMAction — точечно отклонённый элемент не
   // гарантированно валиден (docs/plans/02_LLM_CONTRACT.md, Шаг 3).
   rejectedActions: { action: unknown; reason: string }[];
+  /**
+   * Фактический результат примитивов ответа — то же, что видит игрок в панели
+   * приказов. Появился 2026-07-26: до этого клиент получал только текст и
+   * физически не мог отличить «так и произошло» от «модель это предложила, а
+   * движок отказал» (внешний аудит).
+   */
+  primitiveOutcomes: PrimitiveOutcomeRecord[];
+  rejectedPrimitives: { verb?: string; reason: string }[];
 }
 
 export async function getLlmPrompt(): Promise<LlmPromptResult> {

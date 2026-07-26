@@ -65,8 +65,12 @@ describe("Милстоун 0: петля замыкается на данных 
     const discontentBefore = regionDiscontent(game, hottest)!;
 
     // --- 3. Режиссура: модель поднимает давление цепочкой §4 ---------------
+    // Текст УТВЕРЖДАЕТ конкретное изменение мира, а не «три абзаца нарратива»:
+    // именно такой заголовок и становился ложным каноном, когда примитив под
+    // ним отклонялся (внешний аудит 2026-07-26). Здесь он законен — примитивы
+    // применяются, — и тест обязан показать, что канон подтверждён фактами.
     const directorResponse = JSON.stringify({
-      title: "Волнения",
+      title: "Волнения вспыхнули и вылились на улицы",
       descriptions: "Три абзаца нарратива.",
       actions: [],
       primitives: [
@@ -89,6 +93,23 @@ describe("Милстоун 0: петля замыкается на данных 
     expect(cycle.success).toBe(true);
     expect(cycle.rejectedPrimitives).toEqual([]);
     expect(cycle.primitiveOutcomes).toHaveLength(2);
+    expect(cycle.narrativeCanonized).toBe(true);
+
+    // Событие записано — и несёт рядом с текстом ФАКТИЧЕСКИЙ результат, а не
+    // одну прозу: по нему потребитель проверяет заголовок, не заглядывая в мир.
+    const event = game.eventHistory.at(-1)!;
+    expect(event.title).toBe("Волнения вспыхнули и вылились на улицы");
+    expect(event.primitiveOutcomes).toHaveLength(2);
+    expect(event.rejectedPrimitives).toBeUndefined();
+    // `countries` считается из применённых примитивов, а не из старого канала
+    // `actions` (его здесь нет вовсе): без этого чистое primitive-событие
+    // получало `countries: []` и выпадало из памяти собственной страны.
+    const owner = game.regions.find(r => r.id === hottestId)!.ownerCountryId;
+    expect(event.countries).toContain(owner);
+    expect(event.countries).toContain("USA");
+    expect(new LLMService(game).generatePrompt()).toContain(
+      "Волнения вспыхнули и вылились на улицы"
+    );
 
     const afterDirector = regionDiscontent(game, game.regions.find(r => r.id === hottestId)!)!;
     expect(afterDirector).toBeGreaterThan(discontentBefore);
@@ -251,5 +272,133 @@ describe("Милстоун 0: петля замыкается на данных 
       "player-1"
     );
     expect(allowed.applied).toHaveLength(1);
+  });
+
+  /**
+   * Нарратив пишется ТОЛЬКО после commit и по фактически применённому
+   * результату (docs/CONCEPT.md §7.2). Найдено внешним аудитом 2026-07-26:
+   * `title`/`descriptions` уходили в `eventHistory` безусловно, поэтому
+   * отклонённое предложение модели становилось каноном наравне с настоящим
+   * событием — та самая боль Pax Historia «событие осталось, а мир не
+   * изменился».
+   */
+  describe("неприменённый ответ не становится каноном", () => {
+    it("полный отказ: события нет, а диагностика есть", () => {
+      const game = startedGame();
+      const regionId = game.regionCrisisLatch[0]!;
+      const eventsBefore = game.eventHistory.length;
+
+      // Сценарий аудита дословно: модель объявляет восстание подавленным и
+      // предлагает `repress` ОТ ИМЕНИ страны игрока. Граница агентности
+      // примитив правильно отклоняет — и текст под ним обязан отправиться в
+      // диагностику, а не в летопись.
+      const cycle = new LLMService(game).processResponse(
+        JSON.stringify({
+          title: "Восстание подавлено",
+          descriptions: "Войска вошли в город, порядок восстановлен.",
+          actions: [],
+          primitives: [{ verb: "repress", sourceCountryId: PLAYER, target: { regionId } }],
+        })
+      );
+
+      // Ответ обработан (это не ошибка формата) — но каноном не стал.
+      expect(cycle.success).toBe(true);
+      expect(cycle.narrativeCanonized).toBe(false);
+      // Сервер не отдаёт прозу, описывающую то, чего не произошло: отличить
+      // «так и было» от «предложено и отклонено» иначе было бы нечем.
+      expect(cycle.title).toBeUndefined();
+      expect(cycle.descriptions).toBeUndefined();
+      expect(cycle.rejectedPrimitives).toHaveLength(1);
+
+      expect(game.eventHistory).toHaveLength(eventsBefore);
+      expect(game.eventHistory.some(e => e.title === "Восстание подавлено")).toBe(false);
+
+      // Диагностика на месте в обе стороны: игроку — причина в ответе (выше),
+      // модели — та же причина в следующем промте.
+      expect(new LLMService(game).generatePrompt()).toContain("Attempt rejected (repress)");
+
+      // И ложный заголовок не может добраться до летописи: она склеивает
+      // заголовки событий, а события нет.
+      for (let i = 0; i < 12; i++) simulateMonth(game);
+      expect(game.chronicle.some(c => c.summary.includes("Восстание подавлено"))).toBe(false);
+    });
+
+    it("чистый нарратив без предложений остаётся законным событием", () => {
+      // Граница проведена по «предложила и не применилось», а не по «ничего не
+      // применилось»: ответ без единого примитива и действия — фоновый слой
+      // (docs/PRIMITIVES.md §4), он о мире ничего не утверждает. Иначе правка
+      // молча снесла бы весь нарративный слой игры.
+      const game = startedGame();
+      const eventsBefore = game.eventHistory.length;
+
+      const cycle = new LLMService(game).processResponse(
+        JSON.stringify({
+          title: "Мир замер в ожидании",
+          descriptions: "Три абзаца нарратива без единого предложения к движку.",
+          actions: [],
+          primitives: [],
+        })
+      );
+
+      expect(cycle.narrativeCanonized).toBe(true);
+      expect(game.eventHistory).toHaveLength(eventsBefore + 1);
+      expect(game.eventHistory.at(-1)!.title).toBe("Мир замер в ожидании");
+    });
+
+    it("устаревший ответ: игрок потратил ход, пока провайдер отвечал", async () => {
+      // Самый реальный вариант той же болезни. Модель пишет текст под состояние
+      // мира, которого к моменту применения уже нет: пока провайдер отвечает,
+      // игрок расходует структурный слот месяца. Примитив модели корректно
+      // отклоняется ПОВТОРНОЙ валидацией — и её текст, описывающий несбывшееся,
+      // не должен стать событием.
+      //
+      // Гонка воспроизводится, а не имитируется: приказ игрока отдаётся ВНУТРИ
+      // ожидания провайдера — ровно там, где его отдаёт живой игрок.
+      const game = startedGame();
+      const eventsBefore = game.eventHistory.length;
+
+      const staleResponse = JSON.stringify({
+        title: "Вашингтон объявил о демократической реформе",
+        descriptions: "Реформа проведена, курс страны сдвинулся.",
+        actions: [],
+        primitives: [
+          {
+            verb: "enact_reform",
+            sourceCountryId: "USA",
+            target: { countryId: "USA" },
+            params: { politicalDirection: "democratic" },
+          },
+        ],
+      });
+
+      const cycle = await new LLMService(game).runAutoCycle(() => {
+        const playerReform = applyPrimitiveTurn(
+          game,
+          [
+            {
+              verb: "enact_reform",
+              sourceCountryId: PLAYER,
+              target: { countryId: PLAYER },
+              params: { politicalDirection: "democratic" },
+            },
+          ],
+          "player-reform"
+        );
+        // Предпосылка сценария: игрок реально занял единственный структурный
+        // слот хода, а не просто «попробовал».
+        expect(playerReform.applied).toHaveLength(1);
+        return Promise.resolve(staleResponse);
+      });
+
+      expect(cycle.success).toBe(true);
+      expect(cycle.narrativeCanonized).toBe(false);
+      expect(cycle.rejectedPrimitives).toHaveLength(1);
+      expect(cycle.rejectedPrimitives[0]!.reason).toMatch(/structural/);
+
+      expect(game.eventHistory).toHaveLength(eventsBefore);
+      expect(
+        game.eventHistory.some(e => e.title.includes("демократической реформе"))
+      ).toBe(false);
+    });
   });
 });

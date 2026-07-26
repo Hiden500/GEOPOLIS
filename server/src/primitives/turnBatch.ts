@@ -1,4 +1,4 @@
-import { type GameState } from "@shared/types/GameState";
+import { type GameState, type WorldFactSource } from "@shared/types/GameState";
 import {
   type PlaceHistoryEntry,
   type PrimitiveOutcomeRecord,
@@ -117,9 +117,46 @@ function appendPlaceHistory(
  * диагностических фактов об отказах структурной схемы и границы агентности.
  * Без раннего вопроса повтор запроса не применил бы ничего (это ловит ключ
  * внутри `applyPrimitiveTurn`), но продублировал бы диагностику.
+ *
+ * Смотрит в ОБА кольца — и применённых батчей, и пустых: вопрос «этот запрос уже
+ * приходил?» одинаков для тех и других, различается только цена вытеснения
+ * ключа, и именно поэтому кольца разные (см. `rememberBatchKey`).
  */
 export function isDuplicatePrimitiveBatch(game: GameState, idempotencyKey: string): boolean {
-  return game.primitiveBatchKeys.includes(idempotencyKey);
+  return (
+    game.primitiveBatchKeys.includes(idempotencyKey) ||
+    game.primitiveNoopBatchKeys.includes(idempotencyKey)
+  );
+}
+
+/**
+ * Кладёт ключ в кольцо — своё для применившего батча и своё для пустого.
+ *
+ * Ключ нужен обоим: без него повтор ОТКЛОНЁННОГО батча второй раз наплодил бы
+ * диагностические факты об одних и тех же отказах. Но кольцо у них раздельное
+ * (2026-07-26, внешний аудит), потому что цена вытеснения несимметрична:
+ *
+ *   - вытеснили ключ применённого батча → его сетевой ретрай перестал
+ *     опознаваться как дубль и применился ВТОРЫМ приказом: мир изменился молча,
+ *     ровно то, против чего ключ и заведён (docs/CONCEPT.md §7.2);
+ *   - вытеснили ключ пустого → его повтор второй раз записал диагностику.
+ *
+ * В общем кольце на 32 записи дешёвое вытесняло дорогое: 32 заведомо
+ * невозможных приказа игрока (или 32 пустых батча — это ловил и прежний тест,
+ * фиксируя вытеснение `key-0` как норму) стирали ключ настоящего ответа модели.
+ * Раздельные кольца делают эту подмену невозможной: пустые вытесняют только
+ * пустых.
+ */
+function rememberBatchKey(game: GameState, idempotencyKey: string, changedWorld: boolean): void {
+  if (changedWorld) {
+    game.primitiveBatchKeys = [...game.primitiveBatchKeys, idempotencyKey].slice(
+      -MAX_PRIMITIVE_BATCH_KEYS
+    );
+    return;
+  }
+  game.primitiveNoopBatchKeys = [...game.primitiveNoopBatchKeys, idempotencyKey].slice(
+    -MAX_PRIMITIVE_BATCH_KEYS
+  );
 }
 
 /**
@@ -132,27 +169,29 @@ export function isDuplicatePrimitiveBatch(game: GameState, idempotencyKey: strin
  * @param idempotencyKey стабильный ключ запроса. Для ответа модели выводится из
  *   его содержания (повторно вставленный ответ даёт тот же ключ), для действия
  *   игрока приходит от клиента (второй клик по той же кнопке — тот же ключ).
+ * @param source канал запроса — влияет только на учёт диагностики отказов
+ *   (у игрока и режиссёра свои квоты подробных записей, docs/PRIMITIVES.md §3).
  */
 export function applyPrimitiveTurn(
   game: GameState,
   primitives: readonly Primitive[],
-  idempotencyKey: string
+  idempotencyKey: string,
+  source: WorldFactSource = "player"
 ): PrimitiveTurnResult {
   if (isDuplicatePrimitiveBatch(game, idempotencyKey)) {
     return { duplicate: true, applied: [], outcomes: [], rejected: [] };
   }
 
-  const result = applyPrimitiveBatch(game, primitives);
+  const result = applyPrimitiveBatch(game, primitives, source);
 
   // Всё, что читает состояние, — строго после движка (см. заметку о ссылках).
   const outcomes = buildPrimitiveOutcomes(game, result.applied);
   appendPlaceHistory(game, result.applied, outcomes);
 
-  // Ключ записывается и тогда, когда всё было отклонено: повтор запроса не
-  // должен второй раз наплодить диагностические факты об одних и тех же отказах.
-  game.primitiveBatchKeys = [...game.primitiveBatchKeys, idempotencyKey].slice(
-    -MAX_PRIMITIVE_BATCH_KEYS
-  );
+  // Ключ записывается и тогда, когда всё было отклонено (повтор запроса не
+  // должен второй раз наплодить диагностику), но в СВОЁ кольцо — пустые батчи
+  // не вытесняют ключи применённых.
+  rememberBatchKey(game, idempotencyKey, result.applied.length > 0);
 
   return { duplicate: false, applied: result.applied, outcomes, rejected: result.rejected };
 }

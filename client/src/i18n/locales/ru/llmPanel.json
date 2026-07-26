@@ -25,6 +25,10 @@
   "result": {
     "defaultTitle": "Результат",
     "appliedActionsCount": "Применено действий: {{count}}",
-    "rejectedActionsSuffix": ", отклонено: {{count}}"
+    "rejectedActionsSuffix": ", отклонено: {{count}}",
+    "notCanonizedTitle": "Режиссёр предложил невозможное",
+    "notCanonized": "Ни одно предложение режиссёра не применилось, поэтому событие не записано: мир не изменился, и рассказывать о нём нечего. Причины ниже уйдут модели в следующий промт.",
+    "primitivesApplied": "Что произошло на самом деле",
+    "primitivesRejected": "Отклонено движком"
   }
 }

@@ -160,6 +160,7 @@ describe('MapFeatureService', () => {
       groupImpactMemory: [],
       regionCrisisLatch: [],
       primitiveBatchKeys: [],
+      primitiveNoopBatchKeys: [],
       primitiveTurnBudget: emptyPrimitiveTurnBudget('1946-01-01'),
       hingePointShowCount: {},
       llmRespondedThisTurn: true,

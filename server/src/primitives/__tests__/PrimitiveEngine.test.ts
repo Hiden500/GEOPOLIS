@@ -23,7 +23,7 @@ import {
   ENACT_REFORM_POLITICAL_COST,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
-  MAX_PENDING_REJECTION_FACTS,
+  MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
   MAX_PRIMITIVE_ID_LENGTH,
   IMPACT_FIELD_TURN_CEILING,
   REPRESS_SUPPRESSION_MIN,
@@ -670,19 +670,90 @@ describe("контракт батча", () => {
     expect(afterConcession.mapFeatures).toHaveLength(0);
   });
 
-  it("структурный примитив исполняется последним и не более одного за ответ", () => {
+  it("структурный примитив исполняется последним, каким бы ни был порядок в ответе", () => {
     const state = game();
 
     const result = applyPrimitiveBatch(state, [
       { verb: "enact_reform", sourceCountryId: "SUN", target: { countryId: "SUN" }, params: { politicalDirection: "democratic" } },
-      { verb: "enact_reform", sourceCountryId: "SUN", target: { countryId: "SUN" }, params: { economicDirection: "right" } },
       inciteTitular,
     ]);
 
+    expect(result.rejected).toEqual([]);
     expect(result.applied.map(a => a.verb)).toEqual(["incite_unrest", "enact_reform"]);
-    expect(result.rejected).toHaveLength(1);
-    expect(result.rejected[0]!.reason)
-      .toMatch(new RegExp(`At most ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural`));
+  });
+
+  /**
+   * Отказ структурного примитива отклоняет ВЕСЬ батч (docs/PRIMITIVES.md §3,
+   * «структурные — весь ответ reject»; найдено внешним аудитом 2026-07-26).
+   *
+   * До правки движок делал ровно обратное: структурный валидируется последним,
+   * поэтому мягкие того же ответа уже лежали на клоне и коммитились вместе с
+   * ним. Ответ «поднять волнения + провести реформу» применял волнения и
+   * оставлял мир в состоянии, которого модель не предлагала.
+   */
+  describe("отказ структурного примитива отклоняет весь батч", () => {
+    /** Реформа без направления — отказ на предпосылке, а не на капе. */
+    const invalidReform: Primitive = {
+      verb: "enact_reform",
+      sourceCountryId: "SUN",
+      target: { countryId: "SUN" },
+    };
+
+    it("валидный мягкий примитив рядом с невалидным структурным не применяется", () => {
+      const state = game();
+      const before = structuredClone(state);
+
+      const result = applyPrimitiveBatch(state, [inciteTitular, invalidReform]);
+
+      expect(result.applied).toEqual([]);
+      // Мир не тронут ВООБЩЕ: сравнение по полному снимку, а не по одному полю,
+      // — «полусобытия» не бывает ни в одном канале состояния.
+      expect({ ...state, pendingWorldFacts: [], primitiveTurnBudget: before.primitiveTurnBudget })
+        .toEqual({ ...before, pendingWorldFacts: [] });
+
+      // Причина отказа мягкого называет виновника, а не выглядит его
+      // собственной ошибкой: модель обязана чинить структурный, а не волнения.
+      const rolledBack = result.rejected.find(r => r.verb === "incite_unrest")!;
+      expect(rolledBack.reason).toMatch(/Rolled back: the structural enact_reform/);
+      expect(result.rejected.find(r => r.verb === "enact_reform")!.reason)
+        .toMatch(/at least one direction/);
+    });
+
+    it("ход не списан: слот структурного и цель мягкого свободны после отката", () => {
+      const state = game();
+      applyPrimitiveBatch(state, [inciteTitular, invalidReform]);
+
+      // Бюджет остался пустым — тратит только ПРИМЕНЁННЫЙ примитив, а после
+      // отката применённых нет ни одного.
+      expect(state.primitiveTurnBudget.softUsed).toBe(0);
+      expect(state.primitiveTurnBudget.structuralUsed).toBe(0);
+      expect(state.primitiveTurnBudget.targetUses).toEqual({});
+
+      // И это проверяемо поведением, а не только числом: тот же мягкий
+      // примитив следом проходит, хотя цель «уже была занята» в откаченном батче.
+      const retry = applyPrimitiveBatch(state, [inciteTitular]);
+      expect(retry.applied).toHaveLength(1);
+    });
+
+    it("второй структурный, отклонённый капом хода, уносит батч так же", () => {
+      // Цена решения, названная тестом: отказ по КАПУ — не ошибка формы, но
+      // «весь ответ reject» действует и здесь, без оговорок.
+      const state = game();
+
+      const result = applyPrimitiveBatch(state, [
+        { verb: "enact_reform", sourceCountryId: "SUN", target: { countryId: "SUN" }, params: { politicalDirection: "democratic" } },
+        { verb: "enact_reform", sourceCountryId: "SUN", target: { countryId: "SUN" }, params: { economicDirection: "right" } },
+        inciteTitular,
+      ]);
+
+      expect(result.applied).toEqual([]);
+      expect(result.rejected.some(r =>
+        new RegExp(`At most ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural`).test(r.reason)
+      )).toBe(true);
+      // Откачены обе половины уже применённого: и мягкий, и первый структурный.
+      expect(result.rejected.filter(r => /^Rolled back/.test(r.reason)).map(r => r.verb).sort())
+        .toEqual(["enact_reform", "incite_unrest"]);
+    });
   });
 
   it("одна цель — один verb за ход: батч из десяти одинаковых применяет один", () => {
@@ -1071,18 +1142,18 @@ describe("диагностика отказов ограничена сверх�
     // без капа 50 отклонённых приказов раздували следующий промт с 13 118 до
     // 41 086 символов (замер ревью 2026-07-26).
     const state = game();
-    for (let i = 0; i < MAX_PENDING_REJECTION_FACTS + 9; i++) {
+    for (let i = 0; i < MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 9; i++) {
       applyPrimitiveBatch(state, [impossible]);
     }
 
     const facts = rejectionFacts(state);
-    expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS + 1);
+    expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1);
     expect(
-      facts.slice(0, MAX_PENDING_REJECTION_FACTS).every(f => f.text.startsWith("Attempt rejected"))
+      facts.slice(0, MAX_PENDING_REJECTION_FACTS_PER_SOURCE).every(f => f.text.startsWith("Attempt rejected"))
     ).toBe(true);
     // Хвост не замалчивается (иначе читалось бы как «отказов ровно столько»),
     // но и не копится: одна строка на любое число сверх капа.
-    expect(facts.at(-1)!.text).toContain("further rejected attempts are not listed");
+    expect(facts.at(-1)!.text).toContain("further rejected player attempts are not listed");
   });
 
   it("полный законный ход помещается в подробные записи целиком", () => {
@@ -1091,11 +1162,11 @@ describe("диагностика отказов ограничена сверх�
     const state = game();
     applyPrimitiveBatch(
       state,
-      Array.from({ length: MAX_PENDING_REJECTION_FACTS }, () => impossible)
+      Array.from({ length: MAX_PENDING_REJECTION_FACTS_PER_SOURCE }, () => impossible)
     );
 
     const facts = rejectionFacts(state);
-    expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS);
+    expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS_PER_SOURCE);
     expect(facts.every(f => f.text.startsWith("Attempt rejected"))).toBe(true);
   });
 

@@ -139,9 +139,45 @@ describe("applyPrimitiveTurn — idempotency на ход (docs/CONCEPT.md §7.2)
       applyPrimitiveTurn(state, [], `key-${i}`);
     }
 
-    expect(state.primitiveBatchKeys).toHaveLength(MAX_PRIMITIVE_BATCH_KEYS);
+    // Пустые батчи копятся в СВОЁМ кольце (см. следующий тест) — оно кольцевое
+    // ровно так же, а кольцо применённых при этом не тронуто.
+    expect(state.primitiveNoopBatchKeys).toHaveLength(MAX_PRIMITIVE_BATCH_KEYS);
+    expect(state.primitiveBatchKeys).toEqual([]);
     expect(isDuplicatePrimitiveBatch(state, `key-${MAX_PRIMITIVE_BATCH_KEYS + 4}`)).toBe(true);
     expect(isDuplicatePrimitiveBatch(state, "key-0")).toBe(false);
+  });
+
+  /**
+   * Пустые и целиком отклонённые батчи не вытесняют ключи применённых
+   * (разделение колец, 2026-07-26, внешний аудит).
+   *
+   * Прежний тест фиксировал вытеснение `key-0` пустыми батчами как норму — а
+   * это и был дефект: цена вытеснения несимметрична. Потерянный ключ ПУСТОГО
+   * батча стоит одной лишней записи диагностики при повторе; потерянный ключ
+   * ПРИМЕНЁННОГО означает, что сетевой ретрай применится вторым приказом и мир
+   * изменится молча — ровно то, против чего ключ и заведён.
+   */
+  it("мусорные батчи не вытесняют ключ применённого запроса", () => {
+    const state = game();
+
+    const applied = applyPrimitiveTurn(state, [repressRegion], "the-real-order");
+    expect(applied.applied).toHaveLength(1);
+
+    // Заведомо невозможные приказы: столько же, сколько вмещает всё кольцо, и
+    // ещё немного сверху.
+    const impossible: Primitive = {
+      verb: "repress",
+      sourceCountryId: "USA",
+      target: { regionId: TEST_REGION_NATIONAL },
+    };
+    for (let i = 0; i < MAX_PRIMITIVE_BATCH_KEYS + 5; i++) {
+      const spam = applyPrimitiveTurn(state, [impossible], `spam-${i}`);
+      expect(spam.applied).toEqual([]);
+    }
+
+    expect(isDuplicatePrimitiveBatch(state, "the-real-order")).toBe(true);
+    expect(state.primitiveBatchKeys).toEqual(["the-real-order"]);
+    expect(state.primitiveNoopBatchKeys).toHaveLength(MAX_PRIMITIVE_BATCH_KEYS);
   });
 });
 
@@ -156,12 +192,12 @@ describe("бюджет хода общий для всех вызовов (docs/
    * применял один примитив и отклонял девять, а десять запросов применяли все
    * десять и упирали поле памяти в потолок.
    *
-   * `primitiveBatchKeys` из сравнения исключён намеренно: ключей ПО ПОСТРОЕНИЮ
+   * Оба кольца ключей из сравнения исключены намеренно: ключей ПО ПОСТРОЕНИЮ
    * столько, сколько было запросов, и требовать их совпадения значило бы
    * требовать, чтобы десять запросов притворялись одним.
    */
   function worldWithoutKeys(state: GameState): string {
-    return JSON.stringify({ ...state, primitiveBatchKeys: [] });
+    return JSON.stringify({ ...state, primitiveBatchKeys: [], primitiveNoopBatchKeys: [] });
   }
 
   const mildRepress: Primitive = {

@@ -25,6 +25,10 @@
   "result": {
     "defaultTitle": "Result",
     "appliedActionsCount": "Actions applied: {{count}}",
-    "rejectedActionsSuffix": ", rejected: {{count}}"
+    "rejectedActionsSuffix": ", rejected: {{count}}",
+    "notCanonizedTitle": "The director proposed the impossible",
+    "notCanonized": "Nothing the director proposed was applied, so no event was recorded: the world did not change and there is nothing to narrate. The reasons below go to the model in the next prompt.",
+    "primitivesApplied": "What actually happened",
+    "primitivesRejected": "Rejected by the engine"
   }
 }

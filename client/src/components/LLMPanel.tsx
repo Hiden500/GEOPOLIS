@@ -6,6 +6,7 @@ import {
   runAutoLlmCycle,
   type LlmCycleResult,
 } from "../api/gameApi";
+import { usePrimitiveOutcomeText } from "./primitiveOutcomeText";
 
 interface Props {
   llmTurn: number;
@@ -148,31 +149,95 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
 
       {error && <p className="llm-error">{error}</p>}
 
-      {result && result.success && (
-        <section className="panel-section llm-result">
+      {result && result.success && <CycleResult result={result} />}
+    </div>
+  );
+}
+
+/**
+ * Итог цикла режиссёра.
+ *
+ * Ключевое различие — `narrativeCanonized` (добавлено 2026-07-26 по внешнему
+ * аудиту). Пока панель рисовала `title`/`descriptions` безусловно, «Восстание
+ * подавлено» при отклонённом примитиве выглядело для игрока ровно как настоящее
+ * событие. Теперь текста при полном отказе нет вовсе (сервер его не отдаёт), а
+ * на его месте — человеческое сообщение о том, что режиссёр предложил
+ * невозможное, и список причин.
+ *
+ * Фактический результат примитивов показывается рядом с текстом и при частичном
+ * применении: канон строится по нему, а не по прозе (docs/CONCEPT.md §7.2).
+ */
+function CycleResult({ result }: { result: LlmCycleResult }) {
+  const { t } = useTranslation("llmPanel");
+  const outcomeText = usePrimitiveOutcomeText();
+
+  return (
+    <section className="panel-section llm-result">
+      {result.narrativeCanonized ? (
+        <>
           <h3>{result.title || t("result.defaultTitle")}</h3>
-          {result.descriptions && (
-            <p className="llm-descriptions">{result.descriptions}</p>
-          )}
-          <p>
-            {t("result.appliedActionsCount", { count: result.appliedActions.length })}
-            {result.rejectedActions.length > 0 &&
-              t("result.rejectedActionsSuffix", { count: result.rejectedActions.length })}
-          </p>
-          {result.rejectedActions.length > 0 && (
-            <ul className="llm-rejected">
-              {result.rejectedActions.map((r, i) => (
-                <li key={i}>
-                  {rejectedActionField(r.action, "type") ?? "?"} {rejectedActionField(r.action, "sourceCountryId") ?? "?"}
-                  {rejectedActionField(r.action, "targetCountryId")
-                    ? ` → ${rejectedActionField(r.action, "targetCountryId")}`
-                    : ""}: {r.reason}
-                </li>
-              ))}
-            </ul>
-          )}
+          {result.descriptions && <p className="llm-descriptions">{result.descriptions}</p>}
+        </>
+      ) : (
+        <>
+          <h3>{t("result.notCanonizedTitle")}</h3>
+          <p role="status">{t("result.notCanonized")}</p>
+        </>
+      )}
+
+      <p>
+        {t("result.appliedActionsCount", { count: result.appliedActions.length })}
+        {result.rejectedActions.length > 0 &&
+          t("result.rejectedActionsSuffix", { count: result.rejectedActions.length })}
+      </p>
+
+      {result.primitiveOutcomes.length > 0 && (
+        <section aria-label={t("result.primitivesApplied")}>
+          <h4>{t("result.primitivesApplied")}</h4>
+          <ul className="llm-outcomes">
+            {result.primitiveOutcomes.map((record, index) => (
+              <li key={index}>
+                {outcomeText(record.headline)}
+                <ul>
+                  {record.details.map((line, i) => (
+                    <li key={i}>{outcomeText(line)}</li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
-    </div>
+
+      {result.rejectedPrimitives.length > 0 && (
+        <section aria-label={t("result.primitivesRejected")}>
+          <h4>{t("result.primitivesRejected")}</h4>
+          {/* Причина приходит с движка сырым английским — тот же осознанный
+              хвост, что в панели приказов (docs/TODO.md): одна строка обслуживает
+              и игрока, и диагностику модели, разделить их можно только
+              структурным кодом отказа в ядре. */}
+          <ul className="llm-rejected">
+            {result.rejectedPrimitives.map((rejection, index) => (
+              <li key={index}>
+                {rejection.verb ?? "?"}: <small>{rejection.reason}</small>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {result.rejectedActions.length > 0 && (
+        <ul className="llm-rejected">
+          {result.rejectedActions.map((r, i) => (
+            <li key={i}>
+              {rejectedActionField(r.action, "type") ?? "?"} {rejectedActionField(r.action, "sourceCountryId") ?? "?"}
+              {rejectedActionField(r.action, "targetCountryId")
+                ? ` → ${rejectedActionField(r.action, "targetCountryId")}`
+                : ""}: {r.reason}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

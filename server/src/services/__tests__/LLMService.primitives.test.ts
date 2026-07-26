@@ -5,7 +5,7 @@ import { type Region } from "@shared/types/map/Region";
 import { regionDiscontent } from "@shared/utils/discontent";
 import {
   MAX_PROMPT_CRISES,
-  MAX_PENDING_REJECTION_FACTS,
+  MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
   REGION_CRISIS_DISCONTENT_THRESHOLD,
 } from "@shared/defines/discontent";
 import { applyPrimitiveTurn } from "../../primitives/turnBatch";
@@ -355,11 +355,65 @@ describe("применение примитивов из ответа модел
     const section = prompt.split("## Rejected Attempts Last Cycle")[1]!.split("\n## ")[0]!;
     const lines = section.split("\n").filter(line => line.startsWith("- "));
 
-    expect(lines).toHaveLength(MAX_PENDING_REJECTION_FACTS + 1);
-    expect(section).toContain("further rejected attempts are not listed");
+    expect(lines).toHaveLength(MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1);
+    expect(section).toContain("further rejected player attempts are not listed");
     // Абсолютная граница, а не только число строк: строку тоже нельзя раздуть
     // содержимым запроса (идентификаторы ограничены схемой).
     expect(section.length).toBeLessThan(3000);
+  });
+
+  /**
+   * Точная диагностика режиссёра зарезервирована от приказов игрока (внешний
+   * аудит 2026-07-26).
+   *
+   * Дефект: кап подробных записей считался общей кучей, поэтому игрок мог
+   * заполнить его заведомо отклоняемыми приказами ДО обработки ответа модели —
+   * и точная причина отказа ЕЁ примитива заменялась агрегатной строкой. Модель
+   * не узнавала, какой её глагол или предпосылка неверны, то есть повторяла ту
+   * же попытку — ровно против чего диагностика и заведена.
+   */
+  it("приказы игрока не вытесняют точную причину отказа режиссёра", () => {
+    const game = createDiscontentTestGame();
+
+    // Игрок забивает свою квоту с запасом — вдвое больше капа.
+    for (let i = 0; i < MAX_PENDING_REJECTION_FACTS_PER_SOURCE * 2; i++) {
+      applyPrimitiveTurn(
+        game,
+        [{ verb: "repress", sourceCountryId: "USA", target: { regionId: TEST_REGION_NATIONAL } }],
+        `player-spam-${i}`
+      );
+    }
+
+    // И только теперь приходит ответ модели с невозможным примитивом.
+    new LLMService(game).processResponse(
+      response([
+        { verb: "incite_unrest", sourceCountryId: "USA", target: { regionId: MISSING_REGION } },
+      ])
+    );
+
+    // Учёт по источнику — до рендера промта: он факты ПОТРЕБЛЯЕТ.
+    const facts = rejectionFacts(game);
+    expect(facts.filter(f => f.source === "director")).toHaveLength(1);
+    expect(facts.filter(f => (f.source ?? "player") === "player")).toHaveLength(
+      MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1
+    );
+
+    const prompt = new LLMService(game).generatePrompt();
+    const section = prompt.split("## Rejected Attempts Last Cycle")[1]!.split("\n## ")[0]!;
+
+    // Причина отказа модели — ПОДРОБНАЯ, с глаголом и предпосылкой, а не
+    // «дальше не показываем».
+    expect(section).toContain("Attempt rejected (incite_unrest)");
+    expect(section).toContain(String(MISSING_REGION));
+
+    // Хвост игрока назван своим агрегатом — и не замалчивается, и не выдаёт
+    // себя за диагностику режиссёра.
+    expect(section).toContain("further rejected player attempts are not listed");
+    expect(section).not.toContain("further rejected director attempts are not listed");
+
+    // Цена разделения названа числом: даже при переполненной квоте игрока
+    // секция остаётся в тех же рамках, что и раньше.
+    expect(section.length).toBeLessThan(4000);
   });
 
   it("откат не стирает диагностику, дописанную ПОКА цикл ждал провайдера", async () => {

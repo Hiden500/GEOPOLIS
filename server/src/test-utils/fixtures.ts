@@ -178,6 +178,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     groupImpactMemory: [],
     regionCrisisLatch: [],
     primitiveBatchKeys: [],
+    primitiveNoopBatchKeys: [],
     primitiveTurnBudget: emptyPrimitiveTurnBudget("1946-01-01"),
     hingePointShowCount: {},
     llmRespondedThisTurn: true,

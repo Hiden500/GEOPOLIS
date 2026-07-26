@@ -5,6 +5,8 @@ import { type LLMAction, type WorldFact } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
+import { effectiveController } from "@shared/utils/regionControl";
+import { type AppliedPrimitive } from "../primitives/types";
 import { activeCrises, renderCrisis, renderHiddenCrises } from "../llm/crisisDigest";
 import { MAX_PROMPT_CRISES, REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/defines/discontent";
 import { PRIMITIVE_CONTRACT, PRIMITIVE_PLAYER_AGENCY_NOTE } from "../llm/primitiveContract";
@@ -80,8 +82,31 @@ const SPOTLIGHT_RECENT_TITLES_COUNT = 2;
 export interface LlmCycleResult {
   success: boolean;
   error?: string;
+  /**
+   * Текст модели — ТОЛЬКО если он стал каноном (событие записано).
+   *
+   * Поля пустые при полном отказе, и это не экономия, а граница
+   * (docs/CONCEPT.md §7.2 — «Нарратив пишется только после commit и по
+   * фактически применённому результату»). Пока они возвращались всегда,
+   * потребитель не мог отличить «так и произошло» от «модель это предложила, а
+   * движок отказал»: интерфейс рисовал заголовок «Восстание подавлено» ровно
+   * так же, как настоящий. Отсутствие поля делает эту ошибку невозможной,
+   * вместо того чтобы полагаться на дисциплину читающего.
+   *
+   * Сырой ответ модели при этом не теряется — он лежит в `game.llmResponse`,
+   * то есть остаётся доступен для диагностики, но не как канон.
+   */
   title?: string;
   descriptions?: string;
+  /**
+   * Стал ли текст этого ответа каноном (записан ли `Event`).
+   *
+   * Отдельный флаг, а не вывод из пустого `title`: «модель не прислала
+   * заголовок» и «заголовок не стал каноном» — разные вещи, и интерфейсу нужно
+   * различать их, чтобы во втором случае показать человеку, что режиссёр
+   * предложил невозможное, а не молча ничего.
+   */
+  narrativeCanonized: boolean;
   appliedActions: LLMAction[];
   // action: unknown, не LLMAction — точечно отклонённый элемент не
   // гарантированно валиден (мог провалиться ровно на структурной проверке).
@@ -257,6 +282,7 @@ export class LLMService {
       return {
         success: false,
         error: "Invalid JSON format",
+        narrativeCanonized: false,
         appliedActions: [],
         rejectedActions: [],
         primitiveOutcomes: [],
@@ -272,6 +298,7 @@ export class LLMService {
       return {
         success: false,
         error: envelope.error.issues[0]?.message ?? "Invalid response format",
+        narrativeCanonized: false,
         appliedActions: [],
         rejectedActions: [],
         primitiveOutcomes: [],
@@ -315,6 +342,43 @@ export class LLMService {
     this.game.playerIntent = "";
     this.game.llmRespondedThisTurn = true;
 
+    // Предложила ли модель вообще изменить мир. Отличать это от «ничего не
+    // применилось» обязательно: ответ без единого примитива и действия — это
+    // ЧИСТЫЙ НАРРАТИВ (фоновый слой, docs/PRIMITIVES.md §4), он ничего о мире не
+    // утверждает и остаётся законным событием. Ложь возникает там, где модель
+    // что-то предложила, описала это как случившееся, а движок отказал.
+    const proposedChange = actions.length > 0 || (primitives?.length ?? 0) > 0;
+    const appliedChange = appliedActions.length > 0 || primitiveResult.outcomes.length > 0;
+
+    /**
+     * Канон пишется ТОЛЬКО после commit (docs/CONCEPT.md §7.2, исправлено
+     * 2026-07-26 по внешнему аудиту).
+     *
+     * Сценарий, который это закрывает: модель пишет «Восстание подавлено» и
+     * предлагает `repress` от имени страны игрока; граница агентности примитив
+     * правильно отклоняет; мир не меняется — а заголовок всё равно уходил в
+     * `eventHistory`, оттуда в «память страны», в летопись и в следующий промт.
+     * Это и есть боль Pax Historia «событие осталось, а мир не изменился», ради
+     * лечения которой строился весь редизайн.
+     *
+     * Особенно реален вариант с устаревшим ответом: пока провайдер отвечает,
+     * игрок расходует бюджет хода; примитив модели корректно отклоняется при
+     * повторной валидации — а её текст, написанный под другое состояние мира,
+     * до этой правки всё равно становился событием.
+     */
+    const canonized = !proposedChange || appliedChange;
+
+    if (!canonized) {
+      return {
+        success: true,
+        narrativeCanonized: false,
+        appliedActions,
+        rejectedActions,
+        primitiveOutcomes: primitiveResult.outcomes,
+        rejectedPrimitives: primitiveResult.rejected,
+      };
+    }
+
     const eventTitle = title?.trim() || `Мировые события (LLM, ход ${this.game.llmTurn})`;
 
     this.game.eventHistory.push({
@@ -322,24 +386,87 @@ export class LLMService {
       date: this.game.currentDate,
       title: eventTitle,
       description: descriptions,
-      countries: [
-        ...new Set(
-          appliedActions.flatMap(a =>
-            'targetCountryId' in a ? [a.sourceCountryId, a.targetCountryId] : [a.sourceCountryId]
-          )
-        ),
-      ],
+      countries: this.eventCountries(appliedActions, primitiveResult.applied),
+      // Машиночитаемый результат рядом с текстом: при частичном применении
+      // потребитель обязан уметь отличить заявленное от случившегося, не
+      // разбирая прозу. Пустые списки не пишем — событие чистого нарратива не
+      // должно нести два пустых массива в каждом сейве.
+      ...(primitiveResult.outcomes.length > 0
+        ? { primitiveOutcomes: primitiveResult.outcomes }
+        : {}),
+      ...(primitiveResult.rejected.length > 0
+        ? { rejectedPrimitives: primitiveResult.rejected }
+        : {}),
     });
 
     return {
       success: true,
       title: eventTitle,
       descriptions,
+      narrativeCanonized: true,
       appliedActions,
       rejectedActions,
       primitiveOutcomes: primitiveResult.outcomes,
       rejectedPrimitives: primitiveResult.rejected,
     };
+  }
+
+  /**
+   * Страны, которых событие реально касается, — из ФАКТИЧЕСКИ применённого.
+   *
+   * Раньше считалось только из старого канала `appliedActions`, поэтому чистое
+   * primitive-событие получало `countries: []` и выпадало из «памяти страны»
+   * (`getRecentTitlesLine` фильтрует события по этому массиву): подавление
+   * восстания в своей стране не попадало в её же историю. Найдено внешним
+   * аудитом 2026-07-26.
+   *
+   * Владелец региона берётся через `effectiveController`, а не через
+   * `ownerCountryId`: примитив действует над регионом там же, где движок
+   * проверял право на него, и при оккупации это разные страны.
+   */
+  private eventCountries(
+    appliedActions: readonly LLMAction[],
+    appliedPrimitives: readonly AppliedPrimitive[]
+  ): string[] {
+    const countries = new Set<string>();
+
+    for (const action of appliedActions) {
+      countries.add(action.sourceCountryId);
+      if ("targetCountryId" in action) countries.add(action.targetCountryId);
+    }
+
+    const addRegionController = (regionId: number): void => {
+      const region = this.game.regions.find(r => r.id === regionId);
+      if (region) countries.add(effectiveController(region));
+    };
+
+    for (const primitive of appliedPrimitives) {
+      countries.add(primitive.sourceCountryId);
+
+      switch (primitive.verb) {
+        case "enact_reform":
+          countries.add(primitive.countryId);
+          break;
+        case "grant_autonomy":
+          addRegionController(primitive.regionId);
+          // Соседи — не «побочный шум»: уступка отозвалась в их регионах, и
+          // событие касается их владельцев так же фактически.
+          for (const effect of primitive.neighbourEffects) addRegionController(effect.regionId);
+          break;
+        case "spawn_incident":
+          addRegionController(primitive.regionId);
+          if (primitive.disputedWithCountryId !== undefined) {
+            countries.add(primitive.disputedWithCountryId);
+          }
+          break;
+        case "incite_unrest":
+        case "repress":
+          addRegionController(primitive.regionId);
+          break;
+      }
+    }
+
+    return [...countries];
   }
 
   /**
@@ -368,8 +495,12 @@ export class LLMService {
   private applyResponsePrimitives(
     rawResponse: string,
     raw: unknown
-  ): { outcomes: PrimitiveOutcomeRecord[]; rejected: { verb?: string; reason: string }[] } {
-    if (raw === undefined) return { outcomes: [], rejected: [] };
+  ): {
+    applied: AppliedPrimitive[];
+    outcomes: PrimitiveOutcomeRecord[];
+    rejected: { verb?: string; reason: string }[];
+  } {
+    if (raw === undefined) return { applied: [], outcomes: [], rejected: [] };
 
     const digest = createHash("sha256").update(rawResponse).digest("hex").slice(0, 16);
     const idempotencyKey = `llm:${this.game.currentDate}:${digest}`;
@@ -380,6 +511,7 @@ export class LLMService {
     // дважды.
     if (isDuplicatePrimitiveBatch(this.game, idempotencyKey)) {
       return {
+        applied: [],
         outcomes: [],
         rejected: [
           {
@@ -407,17 +539,25 @@ export class LLMService {
     ];
 
     // Через ту же функцию, что и отказы движка: кап на число подробных записей
-    // обязан считать оба канала вместе, иначе его снимал бы любой второй канал.
+    // обязан считать оба слоя отказа этого канала вместе, иначе его снимал бы
+    // любой второй слой. Источник назван явно (`"director"`) — у режиссёра своя
+    // квота подробных записей, которую приказы игрока не расходуют
+    // (docs/PRIMITIVES.md §3).
     for (const entry of rejected) {
-      pushPrimitiveRejectionFact(this.game, {
-        countryId: this.game.playerCountryId,
-        text: `Attempt rejected (${entry.verb ?? "malformed primitive"}): ${entry.reason}`,
-      });
+      pushPrimitiveRejectionFact(
+        this.game,
+        {
+          countryId: this.game.playerCountryId,
+          text: `Attempt rejected (${entry.verb ?? "malformed primitive"}): ${entry.reason}`,
+        },
+        "director"
+      );
     }
 
-    const outcome = applyPrimitiveTurn(this.game, allowed, idempotencyKey);
+    const outcome = applyPrimitiveTurn(this.game, allowed, idempotencyKey, "director");
 
     return {
+      applied: outcome.applied,
       outcomes: outcome.outcomes,
       rejected: [...rejected, ...outcome.rejected.map(r => ({ verb: r.verb, reason: r.reason }))],
     };

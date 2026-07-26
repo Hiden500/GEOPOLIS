@@ -154,9 +154,11 @@ export function createGame(
     ethnicGroups: structuredClone(scenario.ethnicGroups ?? []),
     groupImpactMemory: [],
     regionCrisisLatch: [],
-    // Журнал idempotency-ключей батчей примитивов (docs/CONCEPT.md §7.2) —
-    // у новой партии применённых батчей нет.
+    // Журналы idempotency-ключей батчей примитивов (docs/CONCEPT.md §7.2) — у
+    // новой партии батчей нет ни применённых, ни пустых. Кольца раздельные,
+    // чтобы пустые не вытесняли ключи применённых (docs/PRIMITIVES.md §3).
     primitiveBatchKeys: [],
+    primitiveNoopBatchKeys: [],
     // Бюджет капов примитивов на первый ход (docs/PRIMITIVES.md §4) — пустой,
     // но с датой старта: он ключуется датой, а не «первым использованием».
     primitiveTurnBudget: emptyPrimitiveTurnBudget(scenario.startDate),
