@@ -1,5 +1,6 @@
 import { ResourceType } from "../resources/ResourcesType";
 import { type LocalizedText } from "../i18n/LocalizedText";
+import { type RegionGroupShare } from "../politics/Demographics";
 
 export interface Region {
 
@@ -43,6 +44,14 @@ export interface Region {
   extraction: Partial<Record<ResourceType, number>>;
 
   neighboringRegionIds: number[];
+
+  /**
+   * Демо-состав (docs/CONCEPT.md §4.1): доминантная группа + до 3 меньшинств,
+   * сумма долей = 1. Опционально — покрытие сценарных данных частичное
+   * (server/data/scenarios/1946/demographics.json), регион без записи считается
+   * НЕразмеченным (движок не выводит для него недовольство), а не «пустым».
+   */
+  demographics?: RegionGroupShare[] | undefined;
 
   sourceAdm1Codes?: string[];
 

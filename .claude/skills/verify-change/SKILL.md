@@ -30,7 +30,10 @@ acceptance criteria. Preserve unrelated user changes.
    `npx tsc --noEmit -p tsconfig.json`, `npm test`.
 4. scenario/map data:
    `python scripts/map/validate_region_economy_1946.py` and
-   `python scripts/map/test_validate_region_economy_1946.py`.
+   `python scripts/map/test_validate_region_economy_1946.py`; for
+   `groups.json`/`demographics.json`/`ideology.json` also
+   `python scripts/map/validate_demographics_1946.py` and
+   `python scripts/map/test_validate_demographics_1946.py`.
 5. instructions, skills, `.agent/`, `.codex/`, provider adapters, or docs:
    `python .agent/evals/public/run_public_evals.py`.
 6. Run targeted tests before full workspace checks. Capture exit codes and

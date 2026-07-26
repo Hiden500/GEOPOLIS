@@ -73,6 +73,14 @@ savegames/
 !/server/data/scenarios/1946/names.en.json
 !/server/data/scenarios/1946/names.ru.json
 !/server/data/scenarios/1946/countries.json
+# Слои фундамента недовольства (2026-07-26, docs/CONCEPT.md §4.1/§4.2) —
+# генерируются scripts/map/generate_demographics_1946.py. Без явного
+# отрицания правило выше тихо роняло бы их из git (тот же класс бага, что
+# описан в комментарии в начале блока), и на свежем клоне демо-состав
+# отсутствовал бы целиком.
+!/server/data/scenarios/1946/groups.json
+!/server/data/scenarios/1946/demographics.json
+!/server/data/scenarios/1946/ideology.json
 /client/data/
 logs/
 

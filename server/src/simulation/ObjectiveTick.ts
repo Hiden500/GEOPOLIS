@@ -3,6 +3,7 @@ import { type Country } from "@shared/types/Country";
 import { type StrategicGoal } from "@shared/types/GrandStrategy";
 import { computePlayerStanding } from "@shared/utils/nationalPower";
 import { getDomainTier } from "@shared/utils/technology";
+import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 
 /**
  * Целевой слой (docs/OBJECTIVES.md, план 11 категория B). Вызывается в конце
@@ -33,7 +34,8 @@ function evaluatePlayerGoals(game: GameState): void {
       goal.completed = true;
       game.pendingWorldFacts.push({
         countryId: player.id,
-        text: `${player.name} achieved its strategic goal: ${goalLabel(goal)}`,
+        kind: "objective_completed",
+        text: `${getText(player.name, LLM_LOCALE)} achieved its strategic goal: ${goalLabel(goal)}`,
       });
     }
   }

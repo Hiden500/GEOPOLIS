@@ -194,4 +194,125 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
       expect(() => buildScenario1946(dir)).toThrow(ScenarioDataError);
     });
   });
+
+  /**
+   * Фундамент недовольства (docs/CONCEPT.md §4.1/§4.2): три слоя поверх
+   * основной разметки. Ключевое свойство — покрытие частичное по замыслу, и
+   * «слоя нет» отличается от «слой испорчен».
+   */
+  describe("groups/demographics/ideology (срез, сессия A)", () => {
+    const GROUPS = {
+      groups: [
+        { id: "andorrans", names: { en: "Andorrans", ru: "Андоррцы" }, desiredIdeology: { economic: 0.2, political: 0.6 } },
+        { id: "french", names: { en: "French" }, desiredIdeology: { economic: 0.1, political: 0.7 } },
+      ],
+    };
+    const COUNTRIES = [{
+      id: "AND", name: { en: "Andorra" }, shortName: { en: "Andorra" }, color: "#123456",
+      capitalRegionId: 1, economyType: "mixed", politics: { ideology: "Liberal Democracy" },
+    }];
+
+    function writeLayers(dir: string, layers: { groups?: unknown; demographics?: unknown; ideology?: unknown }): void {
+      if (layers.groups !== undefined) {
+        fs.writeFileSync(path.join(dir, "groups.json"), JSON.stringify(layers.groups));
+      }
+      if (layers.demographics !== undefined) {
+        fs.writeFileSync(path.join(dir, "demographics.json"), JSON.stringify(layers.demographics));
+      }
+      if (layers.ideology !== undefined) {
+        fs.writeFileSync(path.join(dir, "ideology.json"), JSON.stringify(layers.ideology));
+      }
+    }
+
+    it("раскладывает демо-состав по регионам и координаты по странам", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: COUNTRIES });
+      writeLayers(dir, {
+        groups: GROUPS,
+        demographics: { regions: [{ regionId: 1, groups: [{ groupId: "andorrans", share: 0.7 }, { groupId: "french", share: 0.3 }] }] },
+        ideology: { countries: [{ countryId: "AND", economic: 0.15, political: 0.65 }] },
+      });
+
+      const scenario = buildScenario1946(dir);
+
+      expect(scenario.ethnicGroups).toHaveLength(2);
+      expect(scenario.regions.find(r => r.id === 1)!.demographics).toEqual([
+        { groupId: "andorrans", share: 0.7 },
+        { groupId: "french", share: 0.3 },
+      ]);
+      // Регион без записи остаётся неразмеченным — это штатное состояние.
+      expect(scenario.regions.find(r => r.id === 2)!.demographics).toBeUndefined();
+      expect(scenario.countries.find(c => c.id === "AND")!.politics.ideologyCoordinates)
+        .toEqual({ economic: 0.15, political: 0.65 });
+    });
+
+    it("отсутствие всех трёх файлов — не ошибка (сценарии-заглушки без демо-состава)", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: COUNTRIES });
+
+      const scenario = buildScenario1946(dir);
+
+      expect(scenario.ethnicGroups).toEqual([]);
+      expect(scenario.regions.every(r => r.demographics === undefined)).toBe(true);
+    });
+
+    it("демография без каталога групп — рассыпавшийся набор, честная ошибка", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: COUNTRIES });
+      writeLayers(dir, { demographics: { regions: [] } });
+
+      expect(() => buildScenario1946(dir)).toThrow(/groups\.json отсутствует/);
+    });
+
+    it("сумма долей региона обязана быть 1.0", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: COUNTRIES });
+      writeLayers(dir, {
+        groups: GROUPS,
+        demographics: { regions: [{ regionId: 1, groups: [{ groupId: "andorrans", share: 0.5 }] }] },
+      });
+
+      expect(() => buildScenario1946(dir)).toThrow(ScenarioDataError);
+    });
+
+    it("ссылка на несуществующую группу — ошибка, а не тихо мёртвая разметка", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: COUNTRIES });
+      writeLayers(dir, {
+        groups: GROUPS,
+        demographics: { regions: [{ regionId: 1, groups: [{ groupId: "martians", share: 1 }] }] },
+      });
+
+      expect(() => buildScenario1946(dir)).toThrow(/неизвестную группу/);
+    });
+
+    it("ссылка на несуществующий регион/страну — ошибка", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: COUNTRIES });
+      writeLayers(dir, {
+        groups: GROUPS,
+        demographics: { regions: [{ regionId: 4242, groups: [{ groupId: "andorrans", share: 1 }] }] },
+      });
+      expect(() => buildScenario1946(dir)).toThrow(/нет региона id=4242/);
+
+      const dir2 = makeTmpDir();
+      writeFixture(dir2, { countries: COUNTRIES });
+      writeLayers(dir2, {
+        groups: GROUPS,
+        ideology: { countries: [{ countryId: "ZZZ", economic: 0, political: 0 }] },
+      });
+      expect(() => buildScenario1946(dir2)).toThrow(/нет страны id="ZZZ"/);
+    });
+
+    it("координата вне диапазона [-1, 1] не проходит схему", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: COUNTRIES });
+      writeLayers(dir, {
+        groups: GROUPS,
+        ideology: { countries: [{ countryId: "AND", economic: 1.5, political: 0 }] },
+      });
+
+      expect(() => buildScenario1946(dir)).toThrow(/ideology\.json/);
+    });
+  });
 });

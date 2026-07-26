@@ -11,9 +11,13 @@ import {
   regionStateFileSchema,
   namesFileSchema,
   authoredCountryFileSchema,
+  groupsFileSchema,
+  demographicsFileSchema,
+  ideologyFileSchema,
   type RegionCoreEntry,
   type RegionStateEntry,
 } from "./scenario1946Schemas";
+import { type EthnicGroupDefinition } from "@shared/types/politics/Demographics";
 
 /**
  * Регионы и страны сценария 1946 генерируются из датасета d:/MAP пайплайном
@@ -53,6 +57,21 @@ function readJsonFile<T>(fullPath: string, schema: ZodType<T>, label: string): T
     throw new ScenarioDataError(`${label} (${fullPath}) не прошёл валидацию схемы: ${result.error.message}`);
   }
   return result.data;
+}
+
+/**
+ * Как readJsonFile, но отсутствие файла — не ошибка, а «слоя нет». Применимо
+ * только к слоям фундамента (groups/demographics/ideology): их покрытие
+ * частичное по замыслу, а сценарии-заглушки и тестовые фикстуры их вовсе не
+ * содержат. Битый JSON или несовпадение схемы по-прежнему падают — «файла нет»
+ * и «файл испорчен» это разные вещи.
+ *
+ * Реальный датасет 1946 при этом не может тихо потерять разметку: её наличие
+ * проверяет campaignSmoke.test.ts (MARKED_REGION_COUNT) и тест ниже.
+ */
+function readOptionalJsonFile<T>(fullPath: string, schema: ZodType<T>, label: string): T | undefined {
+  if (!fs.existsSync(fullPath)) return undefined;
+  return readJsonFile(fullPath, schema, label);
 }
 
 function buildCountries(baseDir: string): Country[] {
@@ -115,12 +134,98 @@ function buildRegions(baseDir: string): Region[] {
   });
 }
 
+/**
+ * Досыпает три слоя «фундамента» (docs/CONCEPT.md §4.1/§4.2) в уже собранные
+ * регионы и страны: каталог демо-групп, доли групп по регионам, координаты
+ * идеологии. Zod проверяет форму каждого файла по отдельности; ссылочную
+ * целостность МЕЖДУ файлами (группа существует, регион существует, страна
+ * существует) схема выразить не может — она проверяется здесь и падает
+ * ScenarioDataError, а не превращается в тихо неработающую разметку.
+ *
+ * Покрытие частичное по замыслу: регион без записи остаётся без demographics
+ * (движок не выводит для него недовольство), страна без координат читает
+ * фолбэк по ярлыку politics.ideology. Отсутствие записи — не ошибка; ошибка —
+ * запись, ссылающаяся в пустоту.
+ */
+function applyDemographicLayers(
+  baseDir: string,
+  regions: Region[],
+  countries: Country[]
+): EthnicGroupDefinition[] {
+  const groupsFile = readOptionalJsonFile(
+    path.join(baseDir, 'groups.json'), groupsFileSchema, 'groups.json'
+  );
+  const demographicsFile = readOptionalJsonFile(
+    path.join(baseDir, 'demographics.json'), demographicsFileSchema, 'demographics.json'
+  );
+  const ideologyFile = readOptionalJsonFile(
+    path.join(baseDir, 'ideology.json'), ideologyFileSchema, 'ideology.json'
+  );
+
+  if (!groupsFile) {
+    // Без каталога групп разметка регионов не с чем сверяться. Если файла нет,
+    // а demographics/ideology есть — это рассыпавшийся набор, а не «слоя нет».
+    if (demographicsFile || ideologyFile) {
+      throw new ScenarioDataError(
+        'groups.json отсутствует, но demographics.json/ideology.json присутствуют — неполный набор слоёв'
+      );
+    }
+    return [];
+  }
+
+  const groups: EthnicGroupDefinition[] = groupsFile.groups.map(g => {
+    // Ключи LocalizedText опциональны, а под exactOptionalPropertyTypes явный
+    // undefined — не то же, что отсутствие ключа (тот же приём, что в
+    // buildRegions выше).
+    const names: EthnicGroupDefinition["names"] = { en: g.names.en };
+    if (g.names.ru !== undefined) names.ru = g.names.ru;
+    return { id: g.id, names, desiredIdeology: g.desiredIdeology };
+  });
+
+  const groupIds = new Set(groups.map(g => g.id));
+  if (groupIds.size !== groups.length) {
+    throw new ScenarioDataError('groups.json: дублирующиеся id демо-групп');
+  }
+
+  const regionById = new Map<number, Region>(regions.map(r => [r.id, r]));
+  for (const entry of demographicsFile?.regions ?? []) {
+    const region = regionById.get(entry.regionId);
+    if (!region) {
+      throw new ScenarioDataError(`demographics.json: нет региона id=${entry.regionId} в сценарии`);
+    }
+    for (const share of entry.groups) {
+      if (!groupIds.has(share.groupId)) {
+        throw new ScenarioDataError(
+          `demographics.json: регион ${entry.regionId} ссылается на неизвестную группу "${share.groupId}"`
+        );
+      }
+    }
+    region.demographics = entry.groups.map(g => ({ groupId: g.groupId, share: g.share }));
+  }
+
+  const countryById = new Map<string, Country>(countries.map(c => [c.id, c]));
+  for (const entry of ideologyFile?.countries ?? []) {
+    const country = countryById.get(entry.countryId);
+    if (!country) {
+      throw new ScenarioDataError(`ideology.json: нет страны id="${entry.countryId}" в сценарии`);
+    }
+    country.politics.ideologyCoordinates = {
+      economic: entry.economic,
+      political: entry.political,
+    };
+  }
+
+  return groups;
+}
+
 export function buildScenario1946(baseDir: string): Scenario {
   const regions = buildRegions(baseDir);
   const countries = buildCountries(baseDir);
+  const ethnicGroups = applyDemographicLayers(baseDir, regions, countries);
 
   return {
     id: "1946",
+    ethnicGroups,
     name: "Холодная война",
     startDate: "1946-01-01",
     endDate: "2000-12-31",

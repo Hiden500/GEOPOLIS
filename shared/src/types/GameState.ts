@@ -9,6 +9,7 @@ import { type Modifier } from "./Modifier";
 import { type SanctionType } from "./DiplomacyState";
 import { type EquipmentType } from "./military/EquipmentType";
 import { type ResourceType } from "./resources/ResourcesType";
+import { type EthnicGroupDefinition, type GroupImpactMemory } from "./politics/Demographics";
 
 export interface GameState {
   currentDate: string;
@@ -78,7 +79,32 @@ export interface GameState {
   // на добрую волю LLM каждый цикл. Одноразовое: очищается сразу после
   // рендера в LLMService.generatePrompt(), не история (для истории — Event
   // в eventHistory, который сама LLM пишет по итогам хода).
-  pendingWorldFacts: { countryId: string; text: string }[];
+  pendingWorldFacts: WorldFact[];
+
+  /**
+   * Каталог демо-групп сценария (docs/CONCEPT.md §4.1) — id, локализованное имя
+   * и желаемая позиция на спектре. Живёт в состоянии партии, а не только в
+   * сценарии: примитивы могут в будущем двигать `desiredIdeology` группы
+   * (`shift_mood`/`enact_reform`), и сейв обязан это пережить.
+   */
+  ethnicGroups: EthnicGroupDefinition[];
+
+  /**
+   * Разреженная память воздействий по парам (регион, группа) — см.
+   * GroupImpactMemory. Записи создаются примитивами и удаляются
+   * DiscontentTick, когда все следы затухли: пустых записей не копится.
+   */
+  groupImpactMemory: GroupImpactMemory[];
+
+  /**
+   * Регионы, по которым кризисный факт уже выдан и ещё не «снят» (id по
+   * возрастанию). Не производное состояние, а бухгалтерия событий — тот же
+   * класс, что hingePointShowCount: без латча факт «кризис в регионе X» либо
+   * не выстрелит ни разу (регион уже стартует выше порога, пересечения нет),
+   * либо будет спамить каждый месяц. Снимается ниже порога с гистерезисом,
+   * поэтому подавленный и снова вскипевший регион даёт новый кризис.
+   */
+  regionCrisisLatch: number[];
 
   // Сколько раз каждая историческая развилка (docs/tasks/HISTORICAL_HINGE_POINTS_1946.md,
   // реализовано 2026-07-06) уже попадала в промт как подсказка — ключ id
@@ -117,6 +143,36 @@ export interface GameState {
   // Поле опционально для совместимости со старыми save-файлами; это не
   // event log и не накапливаемая история (docs/OBJECTIVES.md).
   lastTurnReport?: LastTurnReport;
+}
+
+/**
+ * Вид детерминированного факта, обнаруженного движком (SimulationEngine.ts,
+ * DiscontentTick.ts, ObjectiveTick.ts, движок примитивов). До 2026-07-26 факт был просто
+ * `{countryId, text}` — потребитель не мог отличить «пересечён тир технологий»
+ * от «отклонён примитив», хотя ведёт себя с ними по-разному (первое — материал
+ * нарратива, второе — сигнал «не долбись в невозможное», docs/PRIMITIVES.md §3).
+ *
+ * Поле `kind` опционально: старые сейвы и любой будущий продюсер, которому
+ * классификация не нужна, остаются валидными.
+ */
+export type WorldFactKind =
+  | "technology_tier"
+  | "economic_crisis"
+  | "political_crisis"
+  | "debt_crisis"
+  | "region_crisis"
+  | "objective_completed"
+  | "primitive_rejected";
+
+export interface WorldFact {
+  countryId: string;
+
+  text: string;
+
+  kind?: WorldFactKind | undefined;
+
+  /** Регион, к которому привязан факт (region_crisis и региональные примитивы). */
+  regionId?: number | undefined;
 }
 
 /** Позиция страны игрока в мировом рейтинге силы (docs/OBJECTIVES.md). */

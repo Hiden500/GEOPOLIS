@@ -1,0 +1,88 @@
+import { type LocalizedText } from "../i18n/LocalizedText";
+import { type IdeologyCoordinates } from "./Ideology";
+
+/**
+ * Лёгкий демографический состав региона (docs/CONCEPT.md §4.1) — не
+ * Victoria-pops: регион хранит доминантную группу + 1-3 меньшинства с долями,
+ * а настроение/недовольство НЕ хранится, а выводится движком
+ * (shared/src/utils/discontent.ts). Фундамент, а не фича: на демо-состав
+ * опираются сепаратизм, распад, сферы влияния и любой примитив, адресующий
+ * население.
+ */
+
+/** Определение демо-группы: id + локализованное имя + желаемая позиция на спектре. */
+export interface EthnicGroupDefinition {
+  id: string;
+
+  names: LocalizedText;
+
+  /**
+   * Позиция на спектре, к которой группа тяготеет. Недовольство группы растёт
+   * с дистанцией между этой точкой и координатами власти (docs/CONCEPT.md §4.2).
+   */
+  desiredIdeology: IdeologyCoordinates;
+}
+
+/** Доля группы в населении региона (0..1). Сумма долей региона = 1. */
+export interface RegionGroupShare {
+  groupId: string;
+
+  share: number;
+}
+
+/**
+ * Память воздействий на конкретную группу в конкретном регионе — единственное,
+ * что хранится из «настроения» (docs/CONCEPT.md §4.1 требует выводить само
+ * недовольство, но «подавил → загнал вглубь» не с чего считать без следа
+ * прошлых репрессий/уступок).
+ *
+ * Все поля 0..1, затухают каждый месяц с разной скоростью
+ * (shared/src/defines/discontent.ts) — в этом и разница характеров:
+ * `suppression` гаснет быстро, `alienation` почти не гаснет.
+ *
+ * Записи разреженные: существуют только для пар (регион, группа), которых
+ * реально коснулся примитив; полностью затухшие удаляются тиком.
+ */
+export interface GroupImpactMemory {
+  regionId: number;
+
+  groupId: string;
+
+  /** След репрессий: краткосрочно давит недовольство вниз. */
+  suppression: number;
+
+  /** Отчуждение от власти: почти постоянная надбавка к идеологической дистанции. */
+  alienation: number;
+
+  /** След уступок/автономии: среднесрочно давит недовольство вниз. */
+  concession: number;
+
+  /** «Осмелели»: подстрекательство извне или уступка соседям — надбавка вверх. */
+  emboldenment: number;
+}
+
+/**
+ * Поля следа (всё, что не идентификаторы пары) — рантайм-список для обходов
+ * памяти воздействий. Нужен движку примитивов: бюджет накопления за батч
+ * считается по КАЖДОМУ полю, и обходить их приходится значением, а не типом.
+ */
+export const IMPACT_MEMORY_FIELDS = [
+  "suppression",
+  "alienation",
+  "concession",
+  "emboldenment",
+] as const satisfies readonly (keyof GroupImpactMemory)[];
+
+export type ImpactMemoryField = (typeof IMPACT_MEMORY_FIELDS)[number];
+
+/**
+ * Полнота списка — на уровне типа, а не на честном слове: `T extends never`
+ * выполнимо только для пустого union. Новое поле в `GroupImpactMemory`, не
+ * попавшее в `IMPACT_MEMORY_FIELDS`, ломает компиляцию здесь — иначе оно тихо
+ * осталось бы без потолка накопления и вне капа батча.
+ */
+type NoUnlistedImpactField<T extends never> = T;
+
+export type ImpactMemoryFieldsAreComplete = NoUnlistedImpactField<
+  Exclude<keyof GroupImpactMemory, "regionId" | "groupId" | ImpactMemoryField>
+>;

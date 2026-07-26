@@ -1,9 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { simulateMonth } from "../SimulationEngine";
+import { discontentTick } from "../politics/DiscontentTick";
 import { createGame } from "../../game/CreateGame";
 import { type Country } from "@shared/types/Country";
 import { type GameState } from "@shared/types/GameState";
+import { type Region } from "@shared/types/map/Region";
+import { type EthnicGroupDefinition } from "@shared/types/politics/Demographics";
 import { getDomainTier } from "@shared/utils/technology";
+import {
+  ideologyDistance,
+  regionAuthority,
+  regionDiscontent,
+  regionWelfare,
+  resolveIdeologyCoordinates,
+} from "@shared/utils/discontent";
+import {
+  REGION_CRISIS_DISCONTENT_THRESHOLD,
+  REGION_CRISIS_RELEASE_HYSTERESIS,
+} from "@shared/defines/discontent";
 
 /**
  * Smoke-тест N-летней кампании (docs/TODO.md, "БАГ" — население тихо
@@ -34,6 +48,10 @@ import { getDomainTier } from "@shared/utils/technology";
 const MONTHS_TO_SIMULATE = 60; // 5 лет — тот же горизонт, что живой прогон, нашедший баг популяции.
 const SNAPSHOT_INTERVAL_MONTHS = 12;
 const EXPECTED_COUNTRY_COUNT = 157; // Все континенты завершены (2026-07-17); 2026-07-18: Алжир→FRA (-1), Занзибар отделён (+1), Питкерн→GBR и Токелау→NZL (-2), 39 небольших колоний/морских баз без своей государственности свёрнуты в прямое владение метрополий (-39, игровое упрощение по решению пользователя); 2026-07-19: Австрия распущена на 4 зоны оккупации (-1 AUT, +4 QOS/QOA/QOB/QOF, как и Германия — по запросу пользователя); Палестина пересобрана исторически 8→15 подрайонов (+7), Ливан на реальные 5 мухафаз (+1), ОАЭ/Договорной Оман консолидирован обратно в 1 страну (-6, разворот решения от 2026-06-28 — см. docs/DECISIONS.md).
+
+// Допуск сравнений над недовольством: числа собираются сложением и умножением
+// дробей, поэтому «равно» на границе кламп-диапазона надо читать с эпсилоном.
+const DISCONTENT_EPSILON = 1e-9;
 
 // Десять держав tier "major" сценария 1946 (server/src/simulation/tier/TierTick.ts,
 // HISTORICAL_TIERS_1946) — реальные id из датасета, не выдуманные.
@@ -281,5 +299,323 @@ describe("campaign smoke test — многолетний прогон сцена
       console.log(`\nВремя выполнения: ${elapsedMs}ms для ${MONTHS_TO_SIMULATE} месяцев × ${EXPECTED_COUNTRY_COUNT} стран.`);
     },
     120_000 // 5-летний прогон полного сценария — даём тесту до 2 минут, чтобы не флапал на медленных машинах.
+  );
+
+  /**
+   * Региональный слой недовольства на РЕАЛЬНЫХ данных сценария, а не на
+   * фикстуре (docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
+   * DiscontentTick.test.ts гоняет формулу на трёх синтетических регионах — здесь
+   * проверяется, что связка «файлы данных → загрузка → тик» реально даёт
+   * заявленную механику и держит её многолетним прогоном.
+   *
+   * ПЕРЕПИСАН 2026-07-26 — прежнюю форму не возвращать. До этого тест утверждал
+   * РАССТАНОВКУ: три захардкоженных списка region_id («титульные» /
+   * «смешанные» / «контрольные») плюс порядок между ними — «регион 190
+   * недовольнее самого напряжённого из 26/27/274». Списки были сняты с грубого
+   * seed'а, и первое же более точное наполнение demographics.json их
+   * опровергло: в Гродно (27) 34 % поляков, в Калининграде (274) 65 % немцев,
+   * и «контрольный» 274 оказался напряжённее «смешанной» Риги (0.545 против
+   * 0.505). Упал не механизм и не данные — упала предпосылка теста. Такие же
+   * списки нельзя вводить заново под другими номерами: region_id позиционные и
+   * переезжают при каждой пересборке геометрии (scripts/map/AGENTS.md, «Каскад
+   * region_id»), а доли меняются с каждым наполнением.
+   *
+   * Проверяется СВОЙСТВО механики: недовольство монотонно растёт с
+   * долей-взвешенной идеологической дистанцией «власть ↔ группа» и с
+   * экономическим отставанием региона. Оба входа проверяются контролируемым
+   * контрфактом — реальный регион сценария клонируется с изменением РОВНО
+   * одного входа, — плюс тем же порядком на реальных парах регионов. Ни один
+   * region_id, ни одна доля и ни один числовой порог здесь не захардкожены,
+   * поэтому следующее наполнение датасета (полный демо-состав ~1399 регионов,
+   * Milestone 2) тест не сломает.
+   */
+  it(
+    `выводит недовольство монотонно по идеологической дистанции и экономике региона (${MONTHS_TO_SIMULATE} месяцев реального сценария)`,
+    () => {
+      const game = createGame("1946", "SUN");
+
+      // ---- Разметка доехала из файлов данных до состояния партии ----
+      expect(game.ethnicGroups.length).toBeGreaterThan(0);
+      const groupsById = new Map<string, EthnicGroupDefinition>(
+        game.ethnicGroups.map((g) => [g.id, g])
+      );
+
+      const marked = game.regions.filter((r) => r.demographics && r.demographics.length > 0);
+      // Число размеченных регионов не фиксируем — оно меняется с наполнением, а
+      // загрузчик и так падает ScenarioDataError на записи в несуществующий
+      // регион (server/src/scenarios/Scenario1946.ts). Фиксируем целостность:
+      // разметка есть, доли складываются в единицу, каждая группа объявлена.
+      expect(marked.length).toBeGreaterThan(0);
+      for (const region of marked) {
+        const shares = region.demographics ?? [];
+        for (const entry of shares) {
+          expect(
+            groupsById.has(entry.groupId),
+            `Регион ${region.id}: группа "${entry.groupId}" не объявлена в groups.json`
+          ).toBe(true);
+        }
+        const total = shares.reduce((sum, entry) => sum + entry.share, 0);
+        expect(total, `Регион ${region.id}: сумма долей ${total}, ожидается 1`).toBeCloseTo(1, 6);
+      }
+
+      // ---- Два входа механики, читаемые из состояния тем же способом, что и тиком ----
+      const authorityOf = (region: Region) => {
+        const country = regionAuthority(game, region);
+        if (!country) {
+          throw new Error(`Регион ${region.id}: контролёр не найден среди стран партии`);
+        }
+        return resolveIdeologyCoordinates(country.politics);
+      };
+
+      /** Доля-взвешенная идеологическая дистанция «власть ↔ группы региона». */
+      const weightedDistance = (region: Region): number => {
+        const authority = authorityOf(region);
+        let weighted = 0;
+        let totalShare = 0;
+        for (const entry of region.demographics ?? []) {
+          const definition = groupsById.get(entry.groupId);
+          if (!definition) continue;
+          totalShare += entry.share;
+          weighted += entry.share * ideologyDistance(authority, definition.desiredIdeology);
+        }
+        return totalShare > 0 ? weighted / totalShare : 0;
+      };
+
+      const welfareOf = (region: Region): number => regionWelfare(region, regionAuthority(game, region));
+      const discontentOf = (region: Region): number => {
+        const value = regionDiscontent(game, region);
+        if (value === undefined) throw new Error(`Регион ${region.id}: недовольство не выведено`);
+        return value;
+      };
+
+      /**
+       * Клон региона с изменённым входом. Состояние партии не мутируется:
+       * regionDiscontent — чистая функция, ей достаточно объекта региона.
+       */
+      const variantOf = (region: Region, patch: Partial<Region>): Region => ({ ...region, ...patch });
+
+      for (let i = 0; i < MONTHS_TO_SIMULATE; i++) simulateMonth(game);
+
+      // Тики после discontentTick (война, ИИ, цели) могут сдвинуть экономику уже
+      // ПОСЛЕ оценки недовольства, поэтому латч синхронизируем с тем состоянием,
+      // которое замеряем ниже. Это вызов движка, а не подмена его логики.
+      discontentTick(game);
+
+      const profile = marked.map((region) => ({
+        id: region.id,
+        region,
+        distance: weightedDistance(region),
+        welfare: welfareOf(region),
+        discontent: discontentOf(region),
+      }));
+
+      // Диагностическая печать — тест существует и ради того, чтобы видеть картину.
+      console.log(`\n=== Недовольство размеченных регионов (${game.currentDate}) ===`);
+      console.log("region | discontent | взв. дистанция | благосостояние | состав");
+      for (const p of [...profile].sort((a, b) => b.discontent - a.discontent)) {
+        const composition = (p.region.demographics ?? [])
+          .map((e) => `${e.groupId} ${(e.share * 100).toFixed(0)}%`)
+          .join(", ");
+        console.log(
+          `${String(p.id).padStart(6)} | ${p.discontent.toFixed(4)}     | ` +
+            `${p.distance.toFixed(4)}         | ${p.welfare.toFixed(4)}         | ${composition}`
+        );
+      }
+
+      // ---- Инвариант 1: контрфакт по идеологической дистанции ----
+      // Реальный регион клонируется так, что вся его доля отходит самой далёкой
+      // от власти группе (и, отдельно, самой близкой). Меняется РОВНО один вход
+      // формулы — значит любое изменение результата вызвано именно им.
+      for (const { region, discontent: base } of profile) {
+        const ranked = (region.demographics ?? [])
+          .map((entry) => ({
+            groupId: entry.groupId,
+            distance: ideologyDistance(
+              authorityOf(region),
+              groupsById.get(entry.groupId)!.desiredIdeology
+            ),
+          }))
+          .sort((a, b) => a.distance - b.distance);
+        const nearest = ranked[0]!;
+        const furthest = ranked[ranked.length - 1]!;
+
+        const towardsFurthest = variantOf(region, {
+          demographics: [{ groupId: furthest.groupId, share: 1 }],
+        });
+        const towardsNearest = variantOf(region, {
+          demographics: [{ groupId: nearest.groupId, share: 1 }],
+        });
+        const dFurthest = discontentOf(towardsFurthest);
+        const dNearest = discontentOf(towardsNearest);
+
+        expect(
+          dFurthest,
+          `Регион ${region.id}: состав целиком из самой ДАЛЁКОЙ от власти группы ` +
+            `("${furthest.groupId}", дистанция ${furthest.distance.toFixed(3)}) даёт недовольство ` +
+            `${dFurthest.toFixed(4)} — ниже фактического состава (${base.toFixed(4)}). ` +
+            `Недовольство обязано расти с идеологической дистанцией «власть ↔ группа» ` +
+            `(shared/src/utils/discontent.ts, DISCONTENT_DISTANCE_WEIGHT).`
+        ).toBeGreaterThanOrEqual(base - DISCONTENT_EPSILON);
+        expect(
+          dNearest,
+          `Регион ${region.id}: состав целиком из самой БЛИЗКОЙ к власти группы ` +
+            `("${nearest.groupId}", дистанция ${nearest.distance.toFixed(3)}) даёт недовольство ` +
+            `${dNearest.toFixed(4)} — выше фактического состава (${base.toFixed(4)}).`
+        ).toBeLessThanOrEqual(base + DISCONTENT_EPSILON);
+
+        // Строгость требуем только там, где вход реально сдвинулся и результат
+        // не упёрся в кламп 0..1 — иначе тест ловил бы не механику, а границы.
+        if (weightedDistance(towardsFurthest) > weightedDistance(region) + DISCONTENT_EPSILON) {
+          if (dFurthest < 1) {
+            expect(
+              dFurthest,
+              `Регион ${region.id}: сдвиг состава к более далёкой группе не изменил недовольство ` +
+                `вовсе (${base.toFixed(6)} → ${dFurthest.toFixed(6)}). Дистанция перестала влиять.`
+            ).toBeGreaterThan(base);
+          }
+        }
+        if (weightedDistance(towardsNearest) < weightedDistance(region) - DISCONTENT_EPSILON) {
+          if (dNearest > 0) {
+            expect(
+              dNearest,
+              `Регион ${region.id}: сдвиг состава к более близкой группе не изменил недовольство ` +
+                `вовсе (${base.toFixed(6)} → ${dNearest.toFixed(6)}).`
+            ).toBeLessThan(base);
+          }
+        }
+      }
+
+      // ---- Инвариант 2: контрфакт по экономике региона ----
+      // Тот же приём по второму входу: региону меняется только ВРП.
+      for (const { region, discontent: base, welfare } of profile) {
+        const poorer = variantOf(region, { gdp: region.gdp * 0.01 });
+        const richer = variantOf(region, { gdp: region.gdp * 100 });
+        const dPoorer = discontentOf(poorer);
+        const dRicher = discontentOf(richer);
+
+        expect(
+          dPoorer,
+          `Регион ${region.id}: обеднение (ВРП ×0.01, благосостояние ` +
+            `${welfare.toFixed(4)} → ${welfareOf(poorer).toFixed(4)}) СНИЗИЛО недовольство ` +
+            `${base.toFixed(4)} → ${dPoorer.toFixed(4)}. Недовольство обязано расти с ` +
+            `экономическим отставанием региона (DISCONTENT_WELFARE_WEIGHT).`
+        ).toBeGreaterThanOrEqual(base - DISCONTENT_EPSILON);
+        expect(
+          dRicher,
+          `Регион ${region.id}: обогащение (ВРП ×100) ПОВЫСИЛО недовольство ` +
+            `${base.toFixed(4)} → ${dRicher.toFixed(4)}.`
+        ).toBeLessThanOrEqual(base + DISCONTENT_EPSILON);
+
+        if (welfareOf(poorer) < welfare - DISCONTENT_EPSILON && dPoorer < 1) {
+          expect(
+            dPoorer,
+            `Регион ${region.id}: благосостояние упало, а недовольство не сдвинулось ` +
+              `(${base.toFixed(6)} → ${dPoorer.toFixed(6)}). Экономика перестала влиять.`
+          ).toBeGreaterThan(base);
+        }
+        if (welfareOf(richer) > welfare + DISCONTENT_EPSILON && dRicher > 0) {
+          expect(
+            dRicher,
+            `Регион ${region.id}: благосостояние выросло, а недовольство не сдвинулось ` +
+              `(${base.toFixed(6)} → ${dRicher.toFixed(6)}).`
+          ).toBeLessThan(base);
+        }
+      }
+
+      // ---- Инвариант 3: тот же порядок на реальных парах регионов ----
+      // Регион, который не ближе к власти И не богаче другого, не может быть
+      // спокойнее его. Это прежняя мысль «градиент, а не бинарный ярлык», но
+      // сформулированная через входы механики, а не через конкретные номера.
+      for (const a of profile) {
+        for (const b of profile) {
+          if (a.distance < b.distance - DISCONTENT_EPSILON) continue;
+          if (a.welfare > b.welfare + DISCONTENT_EPSILON) continue;
+          expect(
+            a.discontent,
+            `Регион ${a.id} не ближе к власти (дистанция ${a.distance.toFixed(4)} против ` +
+              `${b.distance.toFixed(4)}) и не богаче (благосостояние ${a.welfare.toFixed(4)} против ` +
+              `${b.welfare.toFixed(4)}), но спокойнее региона ${b.id}: ` +
+              `${a.discontent.toFixed(4)} < ${b.discontent.toFixed(4)}. Монотонность нарушена.`
+          ).toBeGreaterThanOrEqual(b.discontent - DISCONTENT_EPSILON);
+        }
+      }
+
+      // ---- Инвариант 4: недовольство — свойство региона, а не страны ----
+      const distances = profile.map((p) => p.distance);
+      const discontents = profile.map((p) => p.discontent);
+      const distanceSpread = Math.max(...distances) - Math.min(...distances);
+      const discontentSpread = Math.max(...discontents) - Math.min(...discontents);
+      if (distanceSpread > DISCONTENT_EPSILON) {
+        expect(
+          discontentSpread,
+          `Размеченные регионы различаются идеологической дистанцией (разброс ` +
+            `${distanceSpread.toFixed(4)}), но недовольство у всех одинаковое. Тогда «высокое ` +
+            `недовольство» — свойство страны, а не региона: проверь ` +
+            `DISCONTENT_DISTANCE_WEIGHT (shared/src/defines/discontent.ts).`
+        ).toBeGreaterThan(0);
+      }
+
+      // Единственное, что здесь осталось от калибровки констант под сценарий
+      // 1946 (shared/src/defines/discontent.ts, шапка файла): срез обязан
+      // содержать И кризисные, И спокойные регионы. Утверждение о наборе, а не
+      // о том, какой именно регион в какую половину попал.
+      const releaseThreshold = REGION_CRISIS_DISCONTENT_THRESHOLD - REGION_CRISIS_RELEASE_HYSTERESIS;
+      const inCrisis = profile.filter((p) => p.discontent >= REGION_CRISIS_DISCONTENT_THRESHOLD);
+      const calm = profile.filter((p) => p.discontent < releaseThreshold);
+      expect(
+        inCrisis.length,
+        `Ни один размеченный регион не дошёл до кризисного порога ` +
+          `${REGION_CRISIS_DISCONTENT_THRESHOLD} за ${MONTHS_TO_SIMULATE} месяцев. Константы ` +
+          `недовольства калибровались под обратное — это осознанная перекалибровка или регресс?`
+      ).toBeGreaterThan(0);
+      expect(
+        calm.length,
+        `Все размеченные регионы стоят выше порога снятия кризиса ${releaseThreshold.toFixed(2)} — ` +
+          `кризис перестал быть свойством отдельных регионов.`
+      ).toBeGreaterThan(0);
+
+      // ---- Инвариант 5: латч согласован с порогом в обе стороны ----
+      for (const p of profile) {
+        if (p.discontent >= REGION_CRISIS_DISCONTENT_THRESHOLD) {
+          expect(
+            game.regionCrisisLatch,
+            `Регион ${p.id}: недовольство ${p.discontent.toFixed(4)} не ниже порога, но латча нет`
+          ).toContain(p.id);
+        }
+        if (game.regionCrisisLatch.includes(p.id)) {
+          expect(
+            p.discontent,
+            `Регион ${p.id} латчен, но недовольство ${p.discontent.toFixed(4)} ниже порога снятия ` +
+              `${releaseThreshold.toFixed(2)} — гистерезис не отпустил латч`
+          ).toBeGreaterThanOrEqual(releaseThreshold);
+        }
+      }
+
+      // ---- Инвариант 6: латч не выдаёт факт повторно ----
+      for (const id of game.regionCrisisLatch) {
+        const facts = game.pendingWorldFacts.filter(
+          (f) => f.kind === "region_crisis" && f.regionId === id
+        );
+        expect(
+          facts.length,
+          `Регион ${id} латчен как кризисный, но факта «region_crisis» за прогон не было ни одного`
+        ).toBeGreaterThan(0);
+      }
+      // discontentTick не меняет ни экономику, ни состав — значит недовольство
+      // между этими тремя вызовами постоянно, и НИ ОДИН новый кризисный факт
+      // появиться не может. Если появится — латч не держит и факт выдаётся
+      // каждый месяц.
+      game.pendingWorldFacts = [];
+      for (let i = 0; i < 3; i++) discontentTick(game);
+      expect(
+        game.pendingWorldFacts.filter((f) => f.kind === "region_crisis"),
+        `Латч не сдержал повтор: тик выдал кризисные факты по регионам, которые уже в кризисе`
+      ).toHaveLength(0);
+
+      // Без примитивов память воздействий не заводится вовсе: тик не копит
+      // пустых записей (бюджет SAVE, docs/CONCEPT.md §7.5).
+      expect(game.groupImpactMemory).toHaveLength(0);
+    },
+    120_000
   );
 });

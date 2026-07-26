@@ -11,8 +11,14 @@ import { type GameState } from "./GameState";
  * v3 (2026-07-11, docs/plans/03_MODIFIERS_COMMANDS.md, Шаг 2): новое
  * обязательное поле GameState.modifiers — та же логика честного отказа,
  * старые сейвы (v2) отклоняются.
+ *
+ * v4 (2026-07-26, docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A): три
+ * новых обязательных поля GameState — ethnicGroups, groupImpactMemory,
+ * regionCrisisLatch (демо-состав и память воздействий, docs/CONCEPT.md §4.1).
+ * Старые сейвы (v3) отклоняются: без каталога групп движок не выведет
+ * недовольство ни для одного региона.
  */
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 
 export interface SaveFile {
   version: number;
