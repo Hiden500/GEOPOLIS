@@ -34,11 +34,13 @@ SERVER_DIR = REPO_ROOT / "server"
 # Порядок — docs/plans/README.md/scripts/map/README.md "Порядок запуска".
 FULL_REBUILD_STEPS = [
     "build/build_europe_1946.py",
+    "build/merge_kiel_canal_zone.py",
     "build/build_china_1946_v2.py",
     "build/build_asia_1946.py",
     "build/build_namerica_1946.py",
     "build/build_us_states_split_1946.py",
     "build/fill_us_border_gaps.py",
+    "build/restore_panama_canal_zone.py",
     "build/build_brazil_1946.py",
     "build/build_southamerica_1946.py",
     "build/build_africa_1946.py",
@@ -50,6 +52,7 @@ FULL_REBUILD_STEPS = [
     "build/clip_land_by_water.py",
     "build/clip_sea_by_land.py",
     "build/resolve_brazil_paraguay_overlap.py",
+    "build/fix_ponta_pora_matogrosso_gap.py",
     "build/merge_world_1946.py",
     "build/build_neighbor_graph.py",
     "build/translate_world.py",

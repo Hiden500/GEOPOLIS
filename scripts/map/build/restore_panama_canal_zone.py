@@ -22,10 +22,15 @@ vetted, don't reshape it back" principle as the sea-gluing finalize step in
 geometry_cleanup.py); the modern-source Panama provinces are the imprecise
 side and get clipped, not the other way around.
 
-Run once. Not part of FULL_REBUILD_STEPS — the Canal Zone still isn't
-reproducible from any raw source, so if namerica_1946.geojson is ever
-regenerated wholesale again, this script must be re-run afterward (same
-caveat as before; no automated guard exists yet for this class of loss).
+Added to FULL_REBUILD_STEPS (after build_namerica_1946.py, since it must
+run before any step that assumes Panama's final shape) so a future full
+rebuild can't silently drop the Zone a third time - it now reads its
+geometry from a tracked repo file, not a session scratchpad, specifically
+so this script survives across sessions/machines.
+
+Idempotent: if Panama Canal Zone already exists in namerica_1946.geojson
+(e.g. because this step already ran earlier in the same build), it skips
+without duplicating the feature.
 """
 import json
 import sys
@@ -36,13 +41,18 @@ from paths import out  # noqa: E402
 from geometry_cleanup import area_km2  # noqa: E402
 from shapely.geometry import shape, mapping
 
-BACKUP_PATH = r"C:\Users\yurew\AppData\Local\Temp\claude\D--Pax-Historia-LOCAL\1c565c22-6966-40c4-b9ce-70b22efe94d2\scratchpad\panama_canal_zone_backup.json"
+BACKUP_PATH = str(Path(__file__).resolve().parents[1] / "config" / "manual_patches" / "panama_canal_zone_1946.json")
 NAMERICA_PATH = out("namerica_1946.geojson")
 
 
 def main():
     with open(NAMERICA_PATH, encoding="utf-8") as f:
         data = json.load(f)
+
+    if any(ft["properties"].get("iso_a2") == "PA_CZ" for ft in data["features"]):
+        print("Panama Canal Zone already present - nothing to do (idempotent).")
+        return
+
     with open(BACKUP_PATH, encoding="utf-8") as f:
         old_feature = json.load(f)
 
@@ -90,6 +100,11 @@ def main():
 
     print(f"Restored Panama Canal Zone, clipped {clipped_count} overlapping Panama province(s), "
           f"wrote {NAMERICA_PATH}")
+    print("REMINDER: after merge_world_1946.py assigns this feature its final region_id, "
+          "manually add {region_id: {'owner': 'USA'}} to ownership_1946.json and a "
+          "{region_id, name_en: 'Panama Canal Zone', name_ru: 'Зона Панамского канала', ...} "
+          "entry to names_ru.json - remap_region_ids.py only tracks already-existing "
+          "entities, it will not create these for a brand-new feature.")
 
 
 if __name__ == "__main__":
