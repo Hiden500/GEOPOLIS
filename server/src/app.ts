@@ -7,6 +7,7 @@ import budgetRoutes from "./routes/budget";
 import researchRoutes from "./routes/research";
 import llmRoutes from "./routes/llm";
 import objectiveRoutes from "./routes/objective";
+import primitiveRoutes from "./routes/primitives";
 
 /**
  * Собирает Express-приложение без запуска listen() — index.ts зовёт listen()
@@ -24,5 +25,6 @@ export function createApp(): Express {
   app.use("/research", researchRoutes);
   app.use("/llm", llmRoutes);
   app.use("/objective", objectiveRoutes);
+  app.use("/primitives", primitiveRoutes);
   return app;
 }

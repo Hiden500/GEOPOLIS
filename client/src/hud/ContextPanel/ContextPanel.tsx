@@ -2,7 +2,16 @@ import { type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
+import { type Region } from "@shared/types/map/Region";
+import { IMPACT_MEMORY_FIELDS } from "@shared/types/politics/Demographics";
+import {
+  findImpactMemory,
+  regionDiscontent,
+  regionGroupDiscontent,
+  resolveIdeologyCoordinates,
+} from "@shared/utils/discontent";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
+import { usePrimitiveOutcomeText } from "../../components/primitiveOutcomeText";
 import { RESOURCE_CODES, RESOURCE_ICONS, formatResourceAmount } from "../../utils/resourceDisplay";
 import { Meter, Tag } from "../../primitives";
 import { type Selection } from "../types";
@@ -154,9 +163,112 @@ function RegionContext({
           </Section>
         )}
 
+        <RegionUnrest region={region} game={game} />
+        <RegionPlaceHistory region={region} />
+
         <Actions onCompare={onCompare} compareLabel={t("context.compare")} />
       </div>
     </>
+  );
+}
+
+/**
+ * Недовольство региона и СЛЕДЫ воздействий по группам (docs/CONCEPT.md §4.1).
+ *
+ * Почему не одно число. Три ответа на кризис — подавить, уступить,
+ * реформировать — механически ведут в разные состояния мира, но по одному лишь
+ * индексу недовольства целевого региона они выглядят почти одинаково: индекс у
+ * всех трёх падает. Различает их то, ЧЕМ он сбит и что осталось после:
+ * подавление оставляет отчуждение (гаснет годами), уступка — уступку (гаснет
+ * месяцами) и решимость у соседей, реформа не оставляет следа здесь вовсе,
+ * потому что двигает координаты страны. Панель показывает эти каналы, иначе
+ * доказанное расхождение веток игрок увидит как косметику.
+ *
+ * Значения выводятся тем же кодом, что и на сервере (`shared/utils/discontent`),
+ * а не пересчитываются клиентом по своей формуле.
+ */
+function RegionUnrest({ region, game }: { region: Region; game: GameState }) {
+  const { t, i18n } = useTranslation("hud");
+  const locale = i18n.language as Locale;
+
+  const breakdown = regionGroupDiscontent(game, region);
+  if (breakdown.length === 0) return null;
+
+  const discontent = regionDiscontent(game, region);
+  if (discontent === undefined) return null;
+
+  const inCrisis = game.regionCrisisLatch.includes(region.id);
+
+  return (
+    <Section title={t("context.region.unrest")}>
+      {inCrisis && <Tag tone="crit" variant="stamp">{t("context.region.inCrisis")}</Tag>}
+      <Stat2
+        label={t("context.region.discontent")}
+        value={discontent.toFixed(2)}
+        pct={discontent * 100}
+        tone={discontent >= 0.5 ? "crit" : discontent >= 0.35 ? "warn" : "ok"}
+      />
+      {[...breakdown]
+        .sort((a, b) => b.share - a.share)
+        .map(group => {
+          const memory = findImpactMemory(game.groupImpactMemory, region.id, group.groupId);
+          const traces = memory
+            ? IMPACT_MEMORY_FIELDS.filter(field => memory[field] > 0).map(field => ({
+                field,
+                value: memory[field],
+              }))
+            : [];
+
+          return (
+            <div key={group.groupId} className={styles.stat2}>
+              <div className={styles.stat2Top}>
+                <span className={styles.stat2Label}>
+                  {getText(
+                    game.ethnicGroups.find(g => g.id === group.groupId)?.names,
+                    locale
+                  ) || group.groupId}{" "}
+                  · {Math.round(group.share * 100)}%
+                </span>
+                <span className={styles.stat2Value}>{group.discontent.toFixed(2)}</span>
+              </div>
+              {traces.length > 0 && (
+                <div className={styles.tags}>
+                  {traces.map(trace => (
+                    <Tag key={trace.field} variant="pill">
+                      {t(`context.region.impact.${trace.field}`)} {trace.value.toFixed(2)}
+                    </Tag>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+    </Section>
+  );
+}
+
+/**
+ * История места (docs/CONCEPT.md §5.6): что здесь происходило, свежее сверху.
+ * Записи хранятся ключом и параметрами, поэтому переводятся локалью
+ * интерфейса, а не языком, на котором их когда-то записал сервер.
+ */
+function RegionPlaceHistory({ region }: { region: Region }) {
+  const { t } = useTranslation("hud");
+  const outcomeText = usePrimitiveOutcomeText();
+
+  const history = region.placeHistory ?? [];
+  if (history.length === 0) return null;
+
+  return (
+    <Section title={t("context.region.placeHistory")}>
+      <ol className={styles.placeHistory}>
+        {[...history].reverse().map((entry, index) => (
+          <li key={`${entry.date}-${index}`}>
+            <span className={styles.placeHistoryDate}>{entry.date}</span> {outcomeText(entry.line)}
+          </li>
+        ))}
+      </ol>
+    </Section>
   );
 }
 
@@ -207,6 +319,26 @@ function CountryContext({
           tone={country.politics.stability < 40 ? "crit" : country.politics.stability < 60 ? "warn" : "ok"}
         />
         <Stat2 label={t("context.country.legitimacy")} value={`${Math.round(country.politics.legitimacy)}%`} pct={country.politics.legitimacy} tone="neutral" />
+        {/* Поддержка правительства и координаты курса — то, что двигает реформа
+            (docs/CONCEPT.md §4.2). Без них ветка «провести реформу» не видна
+            игроку нигде: недовольство региона она меняет косвенно и медленно, а
+            прямой её след — сдвиг координаты и уплаченная политическая цена. */}
+        <Stat2
+          label={t("context.country.governmentSupport")}
+          value={`${Math.round(country.politics.governmentSupport)}%`}
+          pct={country.politics.governmentSupport}
+          tone={country.politics.governmentSupport < 25 ? "warn" : "neutral"}
+        />
+        <div className={styles.ideologyAxes}>
+          <span>
+            {t("context.country.axisEconomic")}{" "}
+            {resolveIdeologyCoordinates(country.politics).economic.toFixed(2)}
+          </span>
+          <span>
+            {t("context.country.axisPolitical")}{" "}
+            {resolveIdeologyCoordinates(country.politics).political.toFixed(2)}
+          </span>
+        </div>
 
         {relationEntries.length > 0 && (
           <Section title={t("context.country.relations")}>

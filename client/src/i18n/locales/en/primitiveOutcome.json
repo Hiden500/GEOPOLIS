@@ -1,0 +1,109 @@
+{
+  "inciteUnrest": {
+    "headline": "Agitators worked on {{group}} — {{region}}"
+  },
+  "repress": {
+    "headline": "Security forces moved in {{region}}: {{addressed}} group(s) addressed, {{unaffected}} unaffected"
+  },
+  "grantAutonomy": {
+    "headline": "Autonomy granted — {{region}}",
+    "noNeighbourResponse": "No kindred community in neighbouring regions moved",
+    "echoInPlace": "Echo of the concession granted in {{region}}"
+  },
+  "enactReform": {
+    "headline": "Reform enacted — {{country}}"
+  },
+  "spawnIncident": {
+    "headline": {
+      "protest": "A protest broke out — {{region}}",
+      "uprising": "An uprising broke out — {{region}}",
+      "border_dispute": "A border dispute flared up — {{region}}"
+    }
+  },
+  "incident": {
+    "disputedWith": "Disputed with {{country}}"
+  },
+  "impact": {
+    "suppression": {
+      "changed": "Suppression: {{delta}} for {{group}} ({{before}} → {{after}})",
+      "unchanged": "Suppression: unchanged for {{group}} ({{value}})"
+    },
+    "alienation": {
+      "changed": "Alienation: {{delta}} for {{group}} ({{before}} → {{after}})",
+      "unchanged": "Alienation: unchanged for {{group}} ({{value}})"
+    },
+    "concession": {
+      "changed": "Concession: {{delta}} for {{group}} ({{before}} → {{after}})",
+      "unchanged": "Concession: unchanged for {{group}} ({{value}})"
+    },
+    "emboldenment": {
+      "changed": "Emboldenment: {{delta}} for {{group}} ({{before}} → {{after}})",
+      "unchanged": "Emboldenment: unchanged for {{group}} ({{value}})"
+    }
+  },
+  "impactNeighbour": {
+    "suppression": {
+      "changed": "Suppression: {{delta}} for {{group}} in {{region}} ({{before}} → {{after}})",
+      "unchanged": "Suppression: unchanged for {{group}} in {{region}} ({{value}})"
+    },
+    "alienation": {
+      "changed": "Alienation: {{delta}} for {{group}} in {{region}} ({{before}} → {{after}})",
+      "unchanged": "Alienation: unchanged for {{group}} in {{region}} ({{value}})"
+    },
+    "concession": {
+      "changed": "Concession: {{delta}} for {{group}} in {{region}} ({{before}} → {{after}})",
+      "unchanged": "Concession: unchanged for {{group}} in {{region}} ({{value}})"
+    },
+    "emboldenment": {
+      "changed": "Emboldenment: {{delta}} for {{group}} in {{region}} ({{before}} → {{after}})",
+      "unchanged": "Emboldenment: unchanged for {{group}} in {{region}} ({{value}})"
+    }
+  },
+  "reform": {
+    "left": {
+      "changed": "Economic course shifted left by {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Economic course did not move ({{value}})"
+    },
+    "right": {
+      "changed": "Economic course shifted right by {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Economic course did not move ({{value}})"
+    },
+    "authoritarian": {
+      "changed": "Political course tightened by {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Political course did not move ({{value}})"
+    },
+    "democratic": {
+      "changed": "Political course loosened by {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Political course did not move ({{value}})"
+    },
+    "cost": "Political cost: {{delta}} government support ({{before}} → {{after}})"
+  },
+  "preview": {
+    "incite_unrest": "Stir up {{group}} — {{region}}",
+    "repress": {
+      "region": "Repress unrest across {{region}}",
+      "group": "Repress {{group}} — {{region}}"
+    },
+    "grant_autonomy": {
+      "region": "Grant autonomy across {{region}}",
+      "group": "Grant autonomy to {{group}} — {{region}}"
+    },
+    "enact_reform": "Enact a reform — {{country}}",
+    "spawn_incident": {
+      "protest": "Spark a protest — {{region}}",
+      "uprising": "Spark an uprising — {{region}}",
+      "border_dispute": "Raise a border dispute — {{region}}"
+    },
+    "direction": {
+      "left": "direction: further left",
+      "right": "direction: further right",
+      "authoritarian": "direction: tighten",
+      "democratic": "direction: loosen"
+    },
+    "intensity": {
+      "mild": "manner: mild",
+      "moderate": "manner: moderate",
+      "severe": "manner: severe"
+    }
+  }
+}

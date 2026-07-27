@@ -46,6 +46,44 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
     expect(result.error).toBe("Target country not found");
   });
 
+  /**
+   * Действие без apply-логики не может считаться применённым (2026-07-26,
+   * повторная верификация внешнего аудита).
+   *
+   * `annex`/`puppet` типизированы контрактом, но их apply — пустая ветка с логом.
+   * Проходя валидацию, они попадали в `appliedActions`, и одного этого хватало,
+   * чтобы `processResponse` признал ответ применившим изменение и канонизировал
+   * текст при полностью неизменившемся мире.
+   */
+  describe("annex/puppet — контракт типизирован, реализации нет", () => {
+    it.each(["annex", "puppet"] as const)("%s отклоняется с причиной «нет apply-логики»", type => {
+      const validator = new LLMResponseValidator(makeGame());
+      const result = validator.validateActionApplicability({
+        type,
+        sourceCountryId: "USA",
+        targetCountryId: "USSR",
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("no apply logic");
+      expect(result.error).toContain(type);
+    });
+
+    it("причина не зависит от состояния мира: она про движок, а не про партию", () => {
+      // Страны-источника нет вовсе — прежний порядок проверок дал бы «Source
+      // country not found», то есть увёл бы читателя от настоящей причины.
+      const validator = new LLMResponseValidator(makeGame());
+      const result = validator.validateActionApplicability({
+        type: "annex",
+        sourceCountryId: "ATLANTIS",
+        targetCountryId: "USA",
+      });
+
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("no apply logic");
+    });
+  });
+
   it("отклоняет повторные санкции, если они уже наложены", () => {
     const game = makeGame();
     const validator = new LLMResponseValidator(game);

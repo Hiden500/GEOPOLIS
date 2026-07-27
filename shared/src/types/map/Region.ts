@@ -1,6 +1,7 @@
 import { ResourceType } from "../resources/ResourcesType";
 import { type LocalizedText } from "../i18n/LocalizedText";
 import { type RegionGroupShare } from "../politics/Demographics";
+import { type PlaceHistoryEntry } from "../politics/PrimitiveOutcome";
 
 export interface Region {
 
@@ -52,6 +53,17 @@ export interface Region {
    * НЕразмеченным (движок не выводит для него недовольство), а не «пустым».
    */
   demographics?: RegionGroupShare[] | undefined;
+
+  /**
+   * История места (docs/CONCEPT.md §5.6) — локализуемая хроника того, что здесь
+   * происходило: применённые примитивы с фактическими величинами. Опционально и
+   * разрежено: у подавляющего большинства регионов её не существует вовсе, и
+   * заводить пустой массив на 1399 записей ради формы незачем.
+   *
+   * Капируется при записи (`PLACE_HISTORY_MAX_ENTRIES`) — §5.6 ставит кап
+   * условием, безграничная хроника уже была болью прошлого проекта.
+   */
+  placeHistory?: PlaceHistoryEntry[] | undefined;
 
   sourceAdm1Codes?: string[];
 

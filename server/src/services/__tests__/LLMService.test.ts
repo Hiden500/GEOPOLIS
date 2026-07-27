@@ -269,8 +269,8 @@ describe("LLMService", () => {
 
     it("Память страны: показывает последние заголовки eventHistory по стране игрока, самые свежие первыми (2026-07-05, вопрос 7)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"] },
-        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", countries: ["USA"] },
+        { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"], factuality: "confirmed" },
+        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", countries: ["USA"], factuality: "confirmed" },
       ];
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
@@ -285,10 +285,10 @@ describe("LLMService", () => {
 
     it("Память страны: у Major Powers окно ограничено MAJOR_RECENT_TITLES_COUNT (3)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", countries: ["USSR"] },
-        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", countries: ["USSR"] },
-        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", countries: ["USSR"] },
-        { id: "e4", date: "1946-04-01", title: "Newest", description: "", countries: ["USSR"] },
+        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", countries: ["USSR"], factuality: "confirmed" },
+        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", countries: ["USSR"], factuality: "confirmed" },
+        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", countries: ["USSR"], factuality: "confirmed" },
+        { id: "e4", date: "1946-04-01", title: "Newest", description: "", countries: ["USSR"], factuality: "confirmed" },
       ];
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
@@ -304,9 +304,9 @@ describe("LLMService", () => {
           createTestCountry({ id: "AAA", name: { en: "Alpha" } }),
         ],
         eventHistory: [
-          { id: "e1", date: "1946-01-01", title: "Old", description: "", countries: ["AAA"] },
-          { id: "e2", date: "1946-02-01", title: "Mid", description: "", countries: ["AAA"] },
-          { id: "e3", date: "1946-03-01", title: "New", description: "", countries: ["AAA"] },
+          { id: "e1", date: "1946-01-01", title: "Old", description: "", countries: ["AAA"], factuality: "confirmed" },
+          { id: "e2", date: "1946-02-01", title: "Mid", description: "", countries: ["AAA"], factuality: "confirmed" },
+          { id: "e3", date: "1946-03-01", title: "New", description: "", countries: ["AAA"], factuality: "confirmed" },
         ],
       });
       const svc = new LLMService(g);
@@ -413,6 +413,10 @@ describe("LLMService", () => {
             title: `Event at month ${month}`,
             description: "x",
             countries: ["USA"],
+            // Летопись берёт только подтверждённое (ChronicleTick.ts), поэтому
+            // накопление за 3 года проверяется на событиях, чьи предложения
+            // движок применил целиком.
+            factuality: "confirmed",
           });
         }
         simulateMonth(g);
@@ -737,6 +741,69 @@ describe("LLMService", () => {
       const result = service.processResponse(validResponse);
       expect(result.title).toBe(`Мировые события (LLM, ход ${game.llmTurn})`);
       expect(game.eventHistory[0]!.title).toBe(`Мировые события (LLM, ход ${game.llmTurn})`);
+    });
+
+    /**
+     * Legacy-действия без реализации не дают ложного «применено» (2026-07-26,
+     * повторная верификация внешнего аудита).
+     *
+     * До правки `annex` проходил схему и applicability, попадал в
+     * `appliedActions`, и `appliedChange === true` канонизировал текст, хотя мир
+     * не менялся ни на байт: `applyLlmActions` только логировал «not yet
+     * implemented». Дыра сидела ровно в защите, построенной от этого же
+     * (docs/PRIMITIVES.md §3, защита №2).
+     */
+    describe("annex/puppet: предложение без реализации — не «применено»", () => {
+      const annexOnly = JSON.stringify({
+        title: "Эльзас присоединён к Франции",
+        descriptions: "Франция объявила о присоединении Эльзаса.",
+        actions: [{ type: "annex", sourceCountryId: "USA", targetCountryId: "USSR" }],
+      });
+
+      it("ответ только из annex: события нет, ничего не применено, причина названа", () => {
+        const result = service.processResponse(annexOnly);
+
+        expect(result.success).toBe(true);
+        expect(result.appliedActions).toEqual([]);
+        expect(result.narrativeCanonized).toBe(false);
+        // Текст, описывающий несостоявшееся присоединение, наружу не уходит
+        // вовсе — поля, которого нет, нельзя отрисовать по ошибке.
+        expect(result.title).toBeUndefined();
+        expect(result.descriptions).toBeUndefined();
+        expect(game.eventHistory).toHaveLength(0);
+
+        expect(result.rejectedActions).toHaveLength(1);
+        expect(result.rejectedActions[0]!.reason).toContain("no apply logic");
+      });
+
+      it("повтор того же ответа тоже не канонизируется (не остаётся лазейкой на второй заход)", () => {
+        service.processResponse(annexOnly);
+        const second = new LLMService(game).processResponse(annexOnly);
+
+        expect(second.narrativeCanonized).toBe(false);
+        expect(game.eventHistory).toHaveLength(0);
+      });
+
+      it("puppet рядом с РАБОТАЮЩИМ действием: событие есть, но в применённых только работающее", () => {
+        const result = service.processResponse(JSON.stringify({
+          descriptions: "d",
+          actions: [
+            { type: "puppet", sourceCountryId: "USA", targetCountryId: "USSR" },
+            { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 5 } },
+          ],
+        }));
+
+        expect(result.narrativeCanonized).toBe(true);
+        expect(result.appliedActions.map(a => a.type)).toEqual(["diplomacy"]);
+        expect(result.rejectedActions).toHaveLength(1);
+        expect(usa().diplomacy.relations["USSR"]).toBe(5);
+      });
+
+      it("промт называет эти два глагола неработающими — модель узнаёт правило до попытки", () => {
+        const prompt = service.generatePrompt();
+        expect(prompt).toContain('"annex" and "puppet" exist in the type list');
+        expect(prompt).toContain("always rejected and never");
+      });
     });
 
     it("невалидный ответ: НЕ очищает playerIntent (ничего не применено)", () => {

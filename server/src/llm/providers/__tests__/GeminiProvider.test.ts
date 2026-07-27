@@ -46,7 +46,12 @@ describe("GeminiProvider", () => {
     const body = JSON.parse((options as RequestInit).body as string);
     expect(body.contents[0].parts[0].text).toBe("Simulate the world");
     expect(body.generationConfig.responseMimeType).toBe("application/json");
-    expect(body.generationConfig.responseSchema.required).toEqual(["title", "descriptions", "actions"]);
+    expect(body.generationConfig.responseSchema.required).toEqual([
+      "title",
+      "descriptions",
+      "actions",
+      "primitives",
+    ]);
     expect(body.generationConfig.thinkingConfig).toEqual({ thinkingLevel: "high" });
   });
 
@@ -122,7 +127,7 @@ describe("GeminiProvider", () => {
 
     it("propertyOrdering расставлен на корне и на каждой ветке actions", async () => {
       const schema = await captureResponseSchema();
-      expect(schema.propertyOrdering).toEqual(["title", "descriptions", "actions"]);
+      expect(schema.propertyOrdering).toEqual(["title", "descriptions", "actions", "primitives"]);
 
       const branches = schema.properties.actions.items.anyOf;
       for (const branch of branches) {

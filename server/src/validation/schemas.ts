@@ -2,6 +2,7 @@ import { z } from "zod";
 import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/defines/budgetSpendingShareCaps";
 import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { SAVE_SLOT_PATTERN } from "../game/SaveService";
+import { primitiveBatchSchema } from "../primitives/primitiveSchemas";
 
 /**
  * Схема для создания игры. locale — язык генерируемого LLM-текста на весь
@@ -42,6 +43,30 @@ export const updateBudgetSchema = z.object({
  */
 export const playerIntentSchema = z.object({
   intent: z.string().max(2000, "Intent is too long (max 2000 chars)")
+});
+
+/**
+ * Перевод свободного приказа игрока в примитивы (docs/PRIMITIVES.md §1).
+ * `selectedRegionId` — регион, на который игрок смотрит: без него приказ
+ * «подавить здесь» перевести не во что, а угадывать регион за игрока сервер
+ * не должен.
+ */
+export const translateIntentSchema = z.object({
+  intent: z.string().min(1, "Intent is empty").max(2000, "Intent is too long (max 2000 chars)"),
+  selectedRegionId: z.number().int().positive().optional(),
+});
+
+/**
+ * Применение подтверждённого игроком батча примитивов.
+ *
+ * `idempotencyKey` обязателен и приходит от клиента (docs/CONCEPT.md §7.2):
+ * второй клик по той же кнопке и ретрай запроса обязаны нести ТОТ ЖЕ ключ,
+ * иначе батч применится дважды. Сервер не может вывести его сам — с его стороны
+ * два одинаковых запроса неотличимы от двух намеренно одинаковых приказов.
+ */
+export const applyPrimitivesSchema = z.object({
+  primitives: primitiveBatchSchema,
+  idempotencyKey: z.string().min(1).max(128),
 });
 
 /**

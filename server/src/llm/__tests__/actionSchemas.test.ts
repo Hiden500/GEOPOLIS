@@ -413,7 +413,52 @@ describe("GeminiResponseSchema", () => {
       title: "t",
       descriptions: "x",
       actions: [{ type: "peace", sourceCountryId: "USA", targetCountryId: "SUN" }],
+      // `primitives` обязателен в схеме ГЕНЕРАЦИИ (2026-07-26, сессия B): пустой
+      // массив — законный ответ «в этом месяце режиссуре нечего применять», но
+      // само поле модель обязана вернуть, иначе новый канал остаётся невидимым
+      // для structured output. Валидация ВХОДЯЩЕГО ответа мягче
+      // (LLMResponseEnvelopeSchema: `.optional()`), и это намеренно —
+      // отсутствие поля не должно браковать весь ответ.
+      primitives: [],
     });
     expect(result.success).toBe(true);
+  });
+
+  it("принимает примитив с качественными params и отвергает числовую величину", () => {
+    const base = {
+      title: "t",
+      descriptions: "x",
+      actions: [],
+    };
+
+    expect(
+      GeminiResponseSchema.safeParse({
+        ...base,
+        primitives: [
+          {
+            verb: "repress",
+            sourceCountryId: "SUN",
+            target: { regionId: 187 },
+            params: { intensity: "severe" },
+          },
+        ],
+      }).success
+    ).toBe(true);
+
+    // «LLM не задаёт величины» (docs/PRIMITIVES.md §1) обязано держаться и в
+    // схеме, которой направляется ГЕНЕРАЦИЯ, а не только во входной валидации.
+    expect(
+      GeminiResponseSchema.safeParse({
+        ...base,
+        primitives: [
+          {
+            verb: "repress",
+            sourceCountryId: "SUN",
+            target: { regionId: 187 },
+            params: { intensity: "severe", magnitude: 0.8 },
+          },
+        ],
+      }).success
+    ).toBe(false);
   });
 });

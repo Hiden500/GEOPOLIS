@@ -50,6 +50,24 @@ export function EventTimelinePanel({ events, countries, onSelectCountry }: Props
 
               <h3 className="timeline-title">{event.title}</h3>
 
+              {/*
+                Пометка «это заявление режиссёра, а не установленный факт»
+                (решение пользователя 2026-07-27, docs/PRIMITIVES.md §3).
+                Текст события пишется ДО применения и вправе описывать то, что
+                движок отклонил, — без пометки игрок отличить это от настоящего
+                события не может ничем.
+
+                Помечается только НЕподтверждённое: у подтверждённого события
+                метка была бы шумом на каждой карточке. Отсутствие пометки —
+                утверждение, а не молчание: значит, всё предложенное движку
+                применилось.
+              */}
+              {event.factuality !== "confirmed" && (
+                <p className="timeline-factuality" role="note">
+                  {t(`factuality.${event.factuality}`)}
+                </p>
+              )}
+
               {event.description.split(/\n{2,}/).map((paragraph, i) => (
                 <p key={i} className="timeline-paragraph">{paragraph.trim()}</p>
               ))}

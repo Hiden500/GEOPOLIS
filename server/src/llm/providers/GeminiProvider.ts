@@ -149,13 +149,20 @@ function enrichForGemini(node: unknown): unknown {
  * серверной валидацией входящего ответа, не второй ручной литерал
  * (docs/plans/02_LLM_CONTRACT.md, Шаг 4).
  */
-function buildResponseSchema(): Record<string, unknown> {
-  const jsonSchema = z.toJSONSchema(GeminiResponseSchema) as Record<string, unknown>;
+export function toProviderSchema(schema: z.ZodType): Record<string, unknown> {
+  const jsonSchema = z.toJSONSchema(schema) as Record<string, unknown>;
   delete jsonSchema.$schema; // Gemini не ожидает этот ключ — исходная ручная схема его не содержала.
   return enrichForGemini(jsonSchema) as Record<string, unknown>;
 }
 
-const RESPONSE_SCHEMA = buildResponseSchema();
+/**
+ * Экспортируется, потому что structured-output запрос у нас теперь не один:
+ * перевод свободного приказа игрока в примитивы (docs/PRIMITIVES.md §1) требует
+ * своей формы ответа и должен проходить ровно те же поправки диалекта, что
+ * задокументированы выше. Второй ручной конвертер разъехался бы с этим при
+ * первой же правке.
+ */
+const RESPONSE_SCHEMA = toProviderSchema(GeminiResponseSchema);
 
 /**
  * Автоматизированный провайдер через Gemini API (generateContent).
@@ -164,7 +171,10 @@ const RESPONSE_SCHEMA = buildResponseSchema();
  * живым тестом gemini-3.1-flash-lite.
  */
 export class GeminiProvider implements LLMProvider {
-  async generateResponse(prompt: string): Promise<string> {
+  async generateResponse(
+    prompt: string,
+    responseSchema: Record<string, unknown> = RESPONSE_SCHEMA
+  ): Promise<string> {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new LLMProviderError(
@@ -184,7 +194,7 @@ export class GeminiProvider implements LLMProvider {
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             responseMimeType: "application/json",
-            responseSchema: RESPONSE_SCHEMA,
+            responseSchema,
             // "high" — максимальная глубина рассуждения (docs/ai.google.dev/
             // gemini-api/docs/generate-content/thinking), ценой задержки —
             // приемлемо для помесячного, не real-time цикла.

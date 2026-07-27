@@ -1,0 +1,44 @@
+{
+  "description": "Describe an order in your own words — it will be recognised and shown to you for confirmation. The quick buttons below run without recognition.",
+  "placeholder": "For example: crack down hard on the unrest in this region",
+  "ariaLabel": "Order text",
+  "recognize": "Recognise the order",
+  "recognizing": "Recognising…",
+  "recognized": "Recognised — please confirm:",
+  "confirm": "Confirm and carry out",
+  "applying": "Carrying out…",
+  "cancel": "Cancel",
+  "nothingRecognized": "No order the engine can carry out was found in the text. Rephrase it or use a button.",
+  "quick": {
+    "title": "Quick actions",
+    "needRegion": "Select one of your own regions on the map to order something there",
+    "intensity": "Manner",
+    "repress": "Repress",
+    "grantAutonomy": "Grant autonomy",
+    "reformDemocratic": "Reform: loosen the course",
+    "reformAuthoritarian": "Reform: tighten the course"
+  },
+  "intensity": {
+    "mild": "mild",
+    "moderate": "moderate",
+    "severe": "severe"
+  },
+  "result": {
+    "applied": "Done",
+    "rejected": "Refused",
+    "duplicate": "This order has already been carried out — it is not applied twice.",
+    "nothingHappened": "Nothing was carried out."
+  },
+  "verb": {
+    "incite_unrest": "incitement",
+    "repress": "repression",
+    "grant_autonomy": "autonomy",
+    "enact_reform": "reform",
+    "spawn_incident": "incident",
+    "unknown": "order"
+  },
+  "errors": {
+    "translateFailed": "The order could not be recognised. Check that model access is configured.",
+    "applyFailed": "The order could not be carried out."
+  }
+}

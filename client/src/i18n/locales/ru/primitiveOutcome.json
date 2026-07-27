@@ -1,0 +1,109 @@
+{
+  "inciteUnrest": {
+    "headline": "Агитаторы работали среди группы «{{group}}» — {{region}}"
+  },
+  "repress": {
+    "headline": "Силовое подавление в регионе {{region}}: адресатов — {{addressed}}, без последствий — {{unaffected}}"
+  },
+  "grantAutonomy": {
+    "headline": "Автономия предоставлена — {{region}}",
+    "noNeighbourResponse": "Родственные общины в соседних регионах не отозвались",
+    "echoInPlace": "Отголосок уступки, данной в регионе {{region}}"
+  },
+  "enactReform": {
+    "headline": "Реформа проведена — {{country}}"
+  },
+  "spawnIncident": {
+    "headline": {
+      "protest": "Протест вспыхнул — {{region}}",
+      "uprising": "Восстание вспыхнуло — {{region}}",
+      "border_dispute": "Пограничный спор разгорелся — {{region}}"
+    }
+  },
+  "incident": {
+    "disputedWith": "Спор со страной {{country}}"
+  },
+  "impact": {
+    "suppression": {
+      "changed": "Подавление: {{delta}} у группы «{{group}}» ({{before}} → {{after}})",
+      "unchanged": "Подавление: без изменений у группы «{{group}}» ({{value}})"
+    },
+    "alienation": {
+      "changed": "Отчуждение: {{delta}} у группы «{{group}}» ({{before}} → {{after}})",
+      "unchanged": "Отчуждение: без изменений у группы «{{group}}» ({{value}})"
+    },
+    "concession": {
+      "changed": "Уступки: {{delta}} у группы «{{group}}» ({{before}} → {{after}})",
+      "unchanged": "Уступки: без изменений у группы «{{group}}» ({{value}})"
+    },
+    "emboldenment": {
+      "changed": "Решимость: {{delta}} у группы «{{group}}» ({{before}} → {{after}})",
+      "unchanged": "Решимость: без изменений у группы «{{group}}» ({{value}})"
+    }
+  },
+  "impactNeighbour": {
+    "suppression": {
+      "changed": "Подавление: {{delta}} у группы «{{group}}» в регионе {{region}} ({{before}} → {{after}})",
+      "unchanged": "Подавление: без изменений у группы «{{group}}» в регионе {{region}} ({{value}})"
+    },
+    "alienation": {
+      "changed": "Отчуждение: {{delta}} у группы «{{group}}» в регионе {{region}} ({{before}} → {{after}})",
+      "unchanged": "Отчуждение: без изменений у группы «{{group}}» в регионе {{region}} ({{value}})"
+    },
+    "concession": {
+      "changed": "Уступки: {{delta}} у группы «{{group}}» в регионе {{region}} ({{before}} → {{after}})",
+      "unchanged": "Уступки: без изменений у группы «{{group}}» в регионе {{region}} ({{value}})"
+    },
+    "emboldenment": {
+      "changed": "Решимость: {{delta}} у группы «{{group}}» в регионе {{region}} ({{before}} → {{after}})",
+      "unchanged": "Решимость: без изменений у группы «{{group}}» в регионе {{region}} ({{value}})"
+    }
+  },
+  "reform": {
+    "left": {
+      "changed": "Экономический курс сдвинут влево на {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Экономический курс не сдвинулся ({{value}})"
+    },
+    "right": {
+      "changed": "Экономический курс сдвинут вправо на {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Экономический курс не сдвинулся ({{value}})"
+    },
+    "authoritarian": {
+      "changed": "Политический курс ужесточён на {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Политический курс не сдвинулся ({{value}})"
+    },
+    "democratic": {
+      "changed": "Политический курс смягчён на {{delta}} ({{before}} → {{after}})",
+      "unchanged": "Политический курс не сдвинулся ({{value}})"
+    },
+    "cost": "Политическая цена: {{delta}} поддержки правительства ({{before}} → {{after}})"
+  },
+  "preview": {
+    "incite_unrest": "Подстрекать группу «{{group}}» — {{region}}",
+    "repress": {
+      "region": "Подавить волнения во всём регионе {{region}}",
+      "group": "Подавить группу «{{group}}» — {{region}}"
+    },
+    "grant_autonomy": {
+      "region": "Дать автономию всему региону {{region}}",
+      "group": "Дать автономию группе «{{group}}» — {{region}}"
+    },
+    "enact_reform": "Провести реформу — {{country}}",
+    "spawn_incident": {
+      "protest": "Вызвать протест — {{region}}",
+      "uprising": "Вызвать восстание — {{region}}",
+      "border_dispute": "Поднять пограничный спор — {{region}}"
+    },
+    "direction": {
+      "left": "направление: левее",
+      "right": "направление: правее",
+      "authoritarian": "направление: ужесточение",
+      "democratic": "направление: смягчение"
+    },
+    "intensity": {
+      "mild": "характер: мягко",
+      "moderate": "характер: умеренно",
+      "severe": "характер: жёстко"
+    }
+  }
+}

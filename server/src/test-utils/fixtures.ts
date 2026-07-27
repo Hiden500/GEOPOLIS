@@ -5,6 +5,7 @@ import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
+import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
 
 export function createTestCountry(overrides: Partial<Country> = {}): Country {
   return {
@@ -176,6 +177,9 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     ethnicGroups: [],
     groupImpactMemory: [],
     regionCrisisLatch: [],
+    primitiveBatchKeys: [],
+    primitiveNoopBatchKeys: [],
+    primitiveTurnBudget: emptyPrimitiveTurnBudget("1946-01-01"),
     hingePointShowCount: {},
     llmRespondedThisTurn: true,
     playerStanding: { power: 0, rank: 0, total: 0 },
