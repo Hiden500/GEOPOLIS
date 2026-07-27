@@ -1,0 +1,34 @@
+{
+  "unknownSourceCountry": "Страна-источник {{countryId}} не найдена",
+  "unknownCountry": "Страна {{countryId}} не найдена",
+  "unknownRegion": "Регион {{regionId}} не найден",
+  "unknownGroup": "Группа {{groupId}} не найдена",
+  "groupNotInRegion": "{{group}} не живёт в регионе {{region}}",
+  "regionHasNoDemographics": "В регионе {{region}} нет размеченного населения",
+
+  "regionNotControlled": "{{source}} не контролирует регион {{region}}",
+  "ideologicalDistanceTooLow": "Разрыв с группой {{group}} слишком мал: {{distance}} при пороге {{threshold}}",
+  "reformNotDomestic": "{{source}} не может провести реформу в стране {{country}}: реформа — внутреннее дело того, кто за неё платит",
+  "reformNoDirection": "Реформа в стране {{country}} не указывает ни одного направления",
+  "reformSupportTooLow": "Поддержки правительства не хватает: {{support}} при необходимых {{threshold}}",
+  "reformAxisAtSpectrumEdge": "Курс {{country}} уже на краю спектра — сдвигать нечего ({{count}} ось/оси)",
+  "incidentDiscontentTooLow": "Недовольство в регионе {{region}} ниже порога: {{discontent}} при {{threshold}}",
+  "uprisingDiscontentTooLow": "Недовольства в регионе {{region}} хватает на протест, но не на восстание: {{discontent}} при {{threshold}}",
+  "noDisputableBorder": "У региона {{region}} нет спорной границы: соседи под контролем {{controller}} либо союзников",
+
+  "softTurnCapReached": "Мягких воздействий в этом месяце уже {{cap}} — предел хода",
+  "structuralTurnCapReached": "Структурное решение в этом месяце уже принято (предел — {{cap}})",
+  "targetTurnCapReached": "По этой цели в этом месяце уже действовали (предел — {{cap}}; целей: {{count}})",
+  "impactCeilingReached": "Предел воздействия за месяц исчерпан: {{field}}, {{group}} в регионе {{region}} (не более {{ceiling}} за ход)",
+
+  "commandFailed": "Приказ не удалось исполнить — внутренний отказ движка",
+  "paletteViolation": "Приказ затронул бы то, что этому действию не положено, — отменён целиком",
+  "resultMisreported": "Результат приказа разошёлся с тем, что он изменил, — отменён целиком",
+  "structuralRollback": "Отменено вместе со всем ответом: структурное решение ({{structuralVerb}}) не прошло",
+  "postInvariantViolated": "Ответ отменён целиком: мир после него оказался непригодным",
+
+  "agencyPlayerDecision": "Это решение принимает {{player}}, а не режиссёр мира",
+  "schemaInvalid": "Приказ №{{position}} собран неверно и не разобран",
+  "malformedBatch": "Список приказов собран неверно",
+  "duplicateResponse": "Этот ответ уже был применён в этом месяце"
+}

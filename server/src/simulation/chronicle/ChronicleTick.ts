@@ -28,7 +28,7 @@ const CHRONICLE_TITLES_PER_YEAR = 5;
  *     означает, что каждое предложение заголовка истинно, — только что
  *     отклонённой части, которую он мог бы описывать, не существует;
  *   - `partial` — заголовок НЕ берётся вовсе, вместо него идут фактические
- *     следы применённых примитивов (`Event.primitiveOutcomes` через
+ *     следы применённых примитивов (`Event.receipt.primitives.applied` через
  *     `describeOutcomesForPrompt`). Именно здесь жил разрыв: сырой текст вправе
  *     описывать отклонённую половину, и через год он сворачивался в
  *     многолетнюю память кампании как факт. Частично применённое событие
@@ -48,14 +48,14 @@ const CHRONICLE_TITLES_PER_YEAR = 5;
  * (docs/TODO.md).
  */
 function chronicleLine(event: Event): string | undefined {
-  switch (event.factuality) {
+  switch (event.receipt.factuality) {
     case "confirmed":
       return event.title;
     case "partial": {
       // У частично применённого события следы могут быть только в старом канале
       // `actions` — машиночитаемого результата у него нет, и выдумывать его
       // здесь не из чего. Тогда год не получает от этого события ничего.
-      const applied = describeOutcomesForPrompt(event.primitiveOutcomes ?? []);
+      const applied = describeOutcomesForPrompt(event.receipt.primitives.applied);
       return applied.length > 0 ? `applied: ${applied}` : undefined;
     }
     case "unconfirmed":

@@ -73,7 +73,7 @@ function crisisLines(prompt: string): string[] {
 describe("секция кризисов в промте (кризисный кап, docs/CONCEPT.md §7)", () => {
   it("развёрнуто показывает не больше капа, сколько бы регионов ни кипело", () => {
     const game = gameWithCrises(11);
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
 
     expect(crisisLines(prompt)).toHaveLength(MAX_PROMPT_CRISES);
   });
@@ -89,7 +89,7 @@ describe("секция кризисов в промте (кризисный ка
       .slice(0, MAX_PROMPT_CRISES)
       .map(r => r.id);
 
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
     const shown = crisisLines(prompt).map(line => Number(line.match(/^- region (\d+)/)![1]));
 
     expect(shown).toEqual(expected);
@@ -97,7 +97,7 @@ describe("секция кризисов в промте (кризисный ка
 
   it("хвост не замалчивается: агрегат называет ИСТИННОЕ число оставшихся", () => {
     const game = gameWithCrises(11);
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
 
     expect(prompt).toContain(`(${11 - MAX_PROMPT_CRISES} more region(s) are above the threshold`);
   });
@@ -108,7 +108,7 @@ describe("секция кризисов в промте (кризисный ка
     // (в `gameWithCrises` ВВП убывает с индексом, поэтому нулевой — богатейший
     // и наименее острый).
     const tail = game.regions[0]!;
-    expect(crisisLines(new LLMService(game).generatePrompt()).join()).not.toContain(
+    expect(crisisLines(new LLMService(game).generatePrompt().prompt).join()).not.toContain(
       `- region ${tail.id}`
     );
 
@@ -124,15 +124,15 @@ describe("секция кризисов в промте (кризисный ка
       emboldenment: 1,
     });
 
-    expect(crisisLines(new LLMService(game).generatePrompt())[0]).toContain(`- region ${tail.id}`);
+    expect(crisisLines(new LLMService(game).generatePrompt().prompt)[0]).toContain(`- region ${tail.id}`);
   });
 
   it("снятый кризис исчезает из секции — секция не тащит устаревший факт", () => {
     const game = gameWithCrises(3);
-    expect(crisisLines(new LLMService(game).generatePrompt())).toHaveLength(3);
+    expect(crisisLines(new LLMService(game).generatePrompt().prompt)).toHaveLength(3);
 
     game.regionCrisisLatch = [];
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
     expect(prompt).toContain("No region is above the crisis threshold");
   });
 
@@ -146,26 +146,35 @@ describe("секция кризисов в промте (кризисный ка
       text: "Unrest crisis somewhere",
     });
 
-    const prompt = new LLMService(game).generatePrompt();
+    const service = new LLMService(game);
+    const { prompt, consumption } = service.generatePrompt();
     expect(crisisLines(prompt).find(l => l.startsWith(`- region ${fresh.id}`))).toContain(
       "NEW this month"
     );
-    // Факт одноразовый: второй промт того же месяца новизны уже не утверждает.
+
+    // Факт одноразовый, но списывается он не рендером, а ОТВЕТОМ (Милстоун 1):
+    // промт, который никто не увидел, новизну не израсходовал.
+    expect(consumption.facts.some(f => f.kind === "region_crisis")).toBe(true);
+    expect(game.pendingWorldFacts.some(f => f.kind === "region_crisis")).toBe(true);
+
+    game.pendingPromptConsumption = consumption;
+    service.processResponse(JSON.stringify({ title: "t", descriptions: "d", actions: [] }));
+
     expect(game.pendingWorldFacts.some(f => f.kind === "region_crisis")).toBe(false);
-    expect(crisisLines(new LLMService(game).generatePrompt()).join()).not.toContain(
+    expect(crisisLines(new LLMService(game).generatePrompt().prompt).join()).not.toContain(
       "NEW this month"
     );
   });
 
   it("порог в тексте секции — тот же, что у движка", () => {
-    const prompt = new LLMService(gameWithCrises(1)).generatePrompt();
+    const prompt = new LLMService(gameWithCrises(1)).generatePrompt().prompt;
     expect(prompt).toContain(REGION_CRISIS_DISCONTENT_THRESHOLD.toFixed(2));
   });
 });
 
 describe("контракт примитивов в промте", () => {
   it("перечисляет глаголы, запрещает величины и повторяет реальные пороги движка", () => {
-    const prompt = new LLMService(gameWithCrises(1)).generatePrompt();
+    const prompt = new LLMService(gameWithCrises(1)).generatePrompt().prompt;
 
     expect(prompt).toContain('"primitives"');
     for (const verb of ["incite_unrest", "repress", "grant_autonomy", "enact_reform", "spawn_incident"]) {
@@ -177,7 +186,7 @@ describe("контракт примитивов в промте", () => {
   });
 
   it("запрещает модели называть числа последствий примитивов", () => {
-    const prompt = new LLMService(gameWithCrises(1)).generatePrompt();
+    const prompt = new LLMService(gameWithCrises(1)).generatePrompt().prompt;
     expect(prompt).toContain("Do NOT put numeric consequences of primitives");
   });
 });
@@ -207,8 +216,8 @@ describe("применение примитивов из ответа модел
     );
 
     expect(result.success).toBe(true);
-    expect(result.primitiveOutcomes).toHaveLength(1);
-    expect(result.primitiveOutcomes[0]!.verb).toBe("incite_unrest");
+    expect(result.receipt.primitives.applied).toHaveLength(1);
+    expect(result.receipt.primitives.applied[0]!.verb).toBe("incite_unrest");
 
     const memory = game.groupImpactMemory.find(
       m => m.regionId === TEST_REGION_NATIONAL && m.groupId === TEST_GROUP_TITULAR
@@ -223,8 +232,8 @@ describe("применение примитивов из ответа модел
     );
 
     expect(result.success).toBe(true);
-    expect(result.primitiveOutcomes).toEqual([]);
-    expect(result.rejectedPrimitives).toEqual([]);
+    expect(result.receipt.primitives.applied).toEqual([]);
+    expect(result.receipt.primitives.rejected).toEqual([]);
   });
 
   it("числовая величина в params отклоняется схемой, а не молча отбрасывается", () => {
@@ -240,8 +249,8 @@ describe("применение примитивов из ответа модел
       ])
     );
 
-    expect(result.primitiveOutcomes).toEqual([]);
-    expect(result.rejectedPrimitives).toHaveLength(1);
+    expect(result.receipt.primitives.applied).toEqual([]);
+    expect(result.receipt.primitives.rejected).toHaveLength(1);
     expect(game.groupImpactMemory).toHaveLength(0);
   });
 
@@ -253,8 +262,8 @@ describe("применение примитивов из ответа модел
       ])
     );
 
-    expect(result.primitiveOutcomes).toEqual([]);
-    expect(result.rejectedPrimitives[0]!.verb).toBe("repress");
+    expect(result.receipt.primitives.applied).toEqual([]);
+    expect(result.receipt.primitives.rejected[0]!.verb).toBe("repress");
     expect(game.groupImpactMemory).toHaveLength(0);
   });
 
@@ -271,8 +280,8 @@ describe("применение примитивов из ответа модел
       ])
     );
 
-    expect(result.rejectedPrimitives).toEqual([]);
-    expect(result.primitiveOutcomes).toHaveLength(1);
+    expect(result.receipt.primitives.rejected).toEqual([]);
+    expect(result.receipt.primitives.applied).toHaveLength(1);
     expect(game.mapFeatures.some(f => f.type === "protest")).toBe(true);
   });
 
@@ -295,7 +304,7 @@ describe("применение примитивов из ответа модел
     const second = new LLMService(game).processResponse(raw);
 
     expect(second.success).toBe(true);
-    expect(second.primitiveOutcomes).toEqual([]);
+    expect(second.receipt.primitives.applied).toEqual([]);
     expect(
       game.groupImpactMemory.find(m => m.regionId === TEST_REGION_NATIONAL)!.emboldenment
     ).toBe(afterFirst);
@@ -309,13 +318,20 @@ describe("применение примитивов из ответа модел
       ])
     );
 
-    const prompt = new LLMService(game).generatePrompt();
+    const service = new LLMService(game);
+    const { prompt, consumption } = service.generatePrompt();
     expect(prompt).toContain("## Rejected Attempts Last Cycle");
     expect(prompt).toContain("Attempt rejected (repress)");
 
-    // Одноразовая: второй промт уже чист, иначе модель получала бы один и тот
-    // же упрёк вечно.
-    expect(new LLMService(game).generatePrompt()).toContain("Nothing was rejected last cycle");
+    // Одноразовая — но списывается ОТВЕТОМ, а не рендером: пока ответа нет,
+    // отказ обязан дожить до следующего промта (Милстоун 1, ручной цикл).
+    expect(new LLMService(game).generatePrompt().prompt).toContain("Attempt rejected (repress)");
+
+    game.pendingPromptConsumption = consumption;
+    service.processResponse(JSON.stringify({ title: "t", descriptions: "d", actions: [] }));
+
+    // А после ответа — чисто, иначе модель получала бы один и тот же упрёк вечно.
+    expect(new LLMService(game).generatePrompt().prompt).toContain("Nothing was rejected last cycle");
   });
 
   it("сбой провайдера не съедает диагностику: промта никто не увидел", async () => {
@@ -333,7 +349,7 @@ describe("применение примитивов из ответа модел
 
     // Отказ обязан дожить до следующего промта — он ЕДИНСТВЕННЫЙ способ
     // сказать модели, что предпосылка невыполнима (docs/PRIMITIVES.md §3).
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
     expect(prompt).toContain("Attempt rejected (repress)");
     // И промт, который никто не получил, не остался в состоянии.
     expect(beforeContext).toBe(undefined);
@@ -352,7 +368,7 @@ describe("применение примитивов из ответа модел
       );
     }
 
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
     const section = prompt.split("## Rejected Attempts Last Cycle")[1]!.split("\n## ")[0]!;
     const lines = section.split("\n").filter(line => line.startsWith("- "));
 
@@ -388,7 +404,11 @@ describe("применение примитивов из ответа модел
     // И только теперь приходит ответ модели с невозможным примитивом.
     new LLMService(game).processResponse(
       response([
-        { verb: "incite_unrest", sourceCountryId: "USA", target: { regionId: MISSING_REGION } },
+        {
+          verb: "incite_unrest",
+          sourceCountryId: "USA",
+          target: { regionId: MISSING_REGION, groupId: TEST_GROUP_TITULAR },
+        },
       ])
     );
 
@@ -399,7 +419,7 @@ describe("применение примитивов из ответа модел
       MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1
     );
 
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
     const section = prompt.split("## Rejected Attempts Last Cycle")[1]!.split("\n## ")[0]!;
 
     // Причина отказа модели — ПОДРОБНАЯ, с глаголом и предпосылкой, а не
@@ -435,7 +455,10 @@ describe("применение примитивов из ответа модел
     let seenWhileWaiting = -1;
     await expect(
       new LLMService(game).runAutoCycle(() => {
-        // Промт уже собран и доцикловую диагностику потребил — гонка настоящая.
+        // Промт уже собран. С Милстоуна 1 он диагностику НЕ списывает —
+        // списание отложено до ответа, — поэтому факт виден и во время
+        // ожидания. Гонка от этого не исчезает: приказ игрока дописывает свой
+        // факт ровно здесь.
         seenWhileWaiting = rejectionFacts(game).length;
         applyPrimitiveTurn(
           game,
@@ -446,17 +469,17 @@ describe("применение примитивов из ответа модел
       })
     ).rejects.toThrow("provider is down");
 
-    expect(seenWhileWaiting).toBe(0);
+    expect(seenWhileWaiting).toBe(1);
 
-    // Оба факта на месте и ровно по одному разу: снимок вернулся ПОВЕРХ, а не
-    // ВМЕСТО, и при этом ничего не задвоил.
+    // Оба факта на месте и ровно по одному разу. Раньше это держалось на
+    // слиянии снимков; теперь — на том, что отнимать нечего.
     const facts = rejectionFacts(game);
     expect(facts).toHaveLength(2);
-    expect(facts.filter(f => f.text.includes("policy decision of SUN"))).toHaveLength(1);
+    expect(facts.filter(f => f.text.includes("policy decision of"))).toHaveLength(1);
     expect(facts.filter(f => f.text.includes(`Unknown region: ${MISSING_REGION}`))).toHaveLength(1);
 
-    const prompt = new LLMService(game).generatePrompt();
-    expect(prompt).toContain("policy decision of SUN");
+    const prompt = new LLMService(game).generatePrompt().prompt;
+    expect(prompt).toContain("policy decision of");
     expect(prompt).toContain(`Unknown region: ${MISSING_REGION}`);
   });
 
@@ -490,8 +513,9 @@ describe("применение примитивов из ответа модел
    * Регрессия правки B8 (найдена повторной верификацией внешнего аудита
    * 2026-07-26): восстановление снимка теряло ИСТОЧНИК факта.
    *
-   * `restorePromptConsumables` пересобирал диагностику через
-   * `pushPrimitiveRejectionFact(game, fact)` без третьего аргумента. Умолчание —
+   * `restorePromptConsumables` (удалён Милстоуном 1 вместе со всей логикой
+   * отката) пересобирал диагностику через `pushRejectionFact` без явного
+   * источника. Умолчание —
    * `"player"`, и оно же перезаписывает `source` в самом факте, поэтому факт
    * режиссёра при возврате считался против квоты игрока. Разделение корзин,
    * введённое чтобы точная причина модели не вытеснялась кликами игрока, на
@@ -502,7 +526,7 @@ describe("применение примитивов из ответа модел
    * автоцикл теряет провайдера → откат, задуманный как спасение диагностики,
    * уничтожает ровно её.
    */
-  it("откат сохраняет ИСТОЧНИК факта: диагностика режиссёра не проваливается в переполненную корзину игрока", async () => {
+  it("сбой провайдера не топит диагностику режиссёра в переполненной корзине игрока", async () => {
     const game = createDiscontentTestGame();
 
     // 1. Игрок выбирает свою квоту с запасом: 11 подробных + агрегат.
@@ -519,13 +543,17 @@ describe("применение примитивов из ответа модел
     //    в СВОЮ корзину и обязана дожить до следующего промта.
     new LLMService(game).processResponse(
       response([
-        { verb: "incite_unrest", sourceCountryId: "USA", target: { regionId: MISSING_REGION } },
+        {
+          verb: "incite_unrest",
+          sourceCountryId: "USA",
+          target: { regionId: MISSING_REGION, groupId: TEST_GROUP_TITULAR },
+        },
       ])
     );
     expect(rejectionFacts(game).filter(f => f.source === "director")).toHaveLength(1);
 
-    // 3. Следующий автоцикл теряет провайдера: промт собран (диагностика
-    //    потреблена) и до модели не доехал — откат обязан вернуть всё.
+    // 3. Следующий автоцикл теряет провайдера: промт собран и до модели не
+    //    доехал — значит, ничего не списано, и обе корзины целы.
     await expect(
       new LLMService(game).runAutoCycle(() => Promise.reject(new Error("provider is down")))
     ).rejects.toThrow("provider is down");
@@ -535,13 +563,13 @@ describe("применение примитивов из ответа модел
     expect(director[0]!.text).toContain("Attempt rejected (incite_unrest)");
     expect(director[0]!.text).toContain(String(MISSING_REGION));
 
-    // Квота игрока при этом не раздулась: пересборка идёт тем же правилом.
+    // Квота игрока при этом не раздулась.
     expect(rejectionFacts(game).filter(f => (f.source ?? "player") === "player")).toHaveLength(
       MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1
     );
 
     // И до модели причина реально доезжает — подробной, а не агрегатом.
-    const prompt = new LLMService(game).generatePrompt();
+    const prompt = new LLMService(game).generatePrompt().prompt;
     expect(prompt).toContain("Attempt rejected (incite_unrest)");
     expect(prompt).toContain(String(MISSING_REGION));
   });
@@ -559,7 +587,7 @@ describe("применение примитивов из ответа модел
     const result = await new LLMService(game).runAutoCycle(() => Promise.resolve("not json"));
 
     expect(result.success).toBe(false);
-    expect(new LLMService(game).generatePrompt()).toContain("Nothing was rejected last cycle");
+    expect(new LLMService(game).generatePrompt().prompt).toContain("Nothing was rejected last cycle");
   });
 });
 
@@ -614,10 +642,10 @@ describe("граница агентности против правила «ст
       ])
     );
 
-    expect(result.primitiveOutcomes.map(o => o.verb)).toEqual(["incite_unrest"]);
+    expect(result.receipt.primitives.applied.map(o => o.verb)).toEqual(["incite_unrest"]);
     expect(emboldenment(game)).toBeGreaterThan(0);
-    expect(result.rejectedPrimitives.map(r => r.verb)).toEqual(["enact_reform"]);
-    expect(result.rejectedPrimitives[0]!.reason).toContain("policy decision of SUN");
+    expect(result.receipt.primitives.rejected.map(r => r.verb)).toEqual(["enact_reform"]);
+    expect(result.receipt.primitives.rejected[0]!.code).toBe("agencyPlayerDecision");
   });
 
   it("а предложение доходит до игрока: событие есть, и отказ лежит в нём машиночитаемо", () => {
@@ -641,8 +669,8 @@ describe("граница агентности против правила «ст
     expect(game.eventHistory).toHaveLength(1);
 
     const event = game.eventHistory[0]!;
-    expect(event.rejectedPrimitives?.map(r => r.verb)).toEqual(["enact_reform"]);
-    expect(event.primitiveOutcomes?.map(o => o.verb)).toEqual(["incite_unrest"]);
+    expect(event.receipt.primitives.rejected?.map(r => r.verb)).toEqual(["enact_reform"]);
+    expect(event.receipt.primitives.applied?.map(o => o.verb)).toEqual(["incite_unrest"]);
   });
 
   it("но отказ ДВИЖКА по структурному по-прежнему откатывает весь ответ", () => {
@@ -661,7 +689,7 @@ describe("граница агентности против правила «ст
       ])
     );
 
-    expect(result.primitiveOutcomes).toEqual([]);
+    expect(result.receipt.primitives.applied).toEqual([]);
     expect(emboldenment(game)).toBe(0);
     expect(result.narrativeCanonized).toBe(false);
     expect(game.eventHistory).toHaveLength(0);
@@ -703,8 +731,11 @@ describe("граница агентности против правила «ст
       llmResponse: "",
       eventHistory: game.eventHistory.map(e => ({
         ...e,
-        rejectedPrimitives: undefined,
-        factuality: undefined,
+        receipt: {
+          ...e.receipt,
+          factuality: "confirmed" as const,
+          primitives: { ...e.receipt.primitives, rejected: [] },
+        },
       })),
     });
 
@@ -757,9 +788,9 @@ describe("правдивость летописи: в долгую память 
     // Применилось частично — событие законно, помечено, и рядом с текстом
     // лежит факт.
     expect(result.narrativeCanonized).toBe(true);
-    expect(result.factuality).toBe("partial");
-    expect(game.eventHistory[0]!.factuality).toBe("partial");
-    expect(game.eventHistory[0]!.rejectedPrimitives).toHaveLength(1);
+    expect(result.receipt.factuality).toBe("partial");
+    expect(game.eventHistory[0]!.receipt.factuality).toBe("partial");
+    expect(game.eventHistory[0]!.receipt.primitives.rejected).toHaveLength(1);
 
     // В ЛЕНТЕ событие остаётся целиком, вместе со своим заголовком: игрок
     // читает заявление режиссёра, а не пустоту.

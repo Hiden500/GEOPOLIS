@@ -101,7 +101,9 @@ describe("POST /primitives/apply", () => {
     expect(response.body.outcomes).toEqual([]);
     expect(response.body.rejected).toHaveLength(1);
     expect(response.body.rejected[0].verb).toBe("spawn_incident");
-    expect(response.body.rejected[0].reason).toContain("uprising");
+    // Причина приходит КОДОМ, а не английской строкой: её локализует клиент
+    // (docs/PRIMITIVES.md §3, Милстоун 1).
+    expect(response.body.rejected[0].code).toBe("uprisingDiscontentTooLow");
     expect(getGame()!.mapFeatures).toHaveLength(0);
   });
 
@@ -175,7 +177,7 @@ describe("POST /primitives/apply", () => {
       expect(response.body.duplicate).toBe(false);
       if (i > 0) {
         expect(response.body.outcomes).toEqual([]);
-        expect(response.body.rejected[0].reason).toContain("per target per turn");
+        expect(response.body.rejected[0].code).toBe("targetTurnCapReached");
       }
     }
 

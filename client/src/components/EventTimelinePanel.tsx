@@ -30,9 +30,9 @@ export function EventTimelinePanel({ events, countries, onSelectCountry }: Props
             <li key={event.id} className="timeline-card">
               <div className="timeline-date">{formatDate(event.date, i18n.language)}</div>
 
-              {event.countries.length > 0 && (
+              {event.receipt.countries.length > 0 && (
                 <div className="timeline-tags">
-                  {event.countries.map(countryId => {
+                  {event.receipt.countries.map((countryId: string) => {
                     const country = countryById.get(countryId);
                     return (
                       <button
@@ -62,9 +62,9 @@ export function EventTimelinePanel({ events, countries, onSelectCountry }: Props
                 утверждение, а не молчание: значит, всё предложенное движку
                 применилось.
               */}
-              {event.factuality !== "confirmed" && (
+              {event.receipt.factuality !== "confirmed" && (
                 <p className="timeline-factuality" role="note">
-                  {t(`factuality.${event.factuality}`)}
+                  {t(`factuality.${event.receipt.factuality}`)}
                 </p>
               )}
 

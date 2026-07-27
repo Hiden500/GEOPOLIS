@@ -5,6 +5,7 @@ import {
   type PrimitiveOutcomeRecord,
 } from "@shared/types/politics/PrimitiveOutcome";
 import { type AppliedPrimitive, type GroupImpactEffect, type Primitive } from "./types";
+import { countryNames, groupNames, regionNames } from "./entityNames";
 
 /**
  * Перевод результата примитива в локализуемый отклик игроку
@@ -45,22 +46,8 @@ function coordinate(value: number): string {
   return value.toFixed(2);
 }
 
-function regionNames(game: GameState, regionId: number): LocalizedText {
-  const region = game.regions.find(r => r.id === regionId);
-  // Фолбэк — не выдуманное имя, а честный идентификатор: регион без имени не
-  // должен превращать строку отклика в пустоту.
-  return region?.names ?? { en: `region ${regionId}`, ru: `регион ${regionId}` };
-}
-
-function groupNames(game: GameState, groupId: string): LocalizedText {
-  const definition = game.ethnicGroups.find(g => g.id === groupId);
-  return definition?.names ?? { en: groupId, ru: groupId };
-}
-
-function countryNames(game: GameState, countryId: string): LocalizedText {
-  const country = game.countries.find(c => c.id === countryId);
-  return country?.name ?? { en: countryId, ru: countryId };
-}
+// Резолверы имён живут в `entityNames.ts`: их использует не только отклик, но и
+// структурная причина отказа в движке.
 
 /**
  * Строки по фактическим следам в памяти воздействий.
@@ -286,20 +273,12 @@ export function buildPrimitivePreview(
     const details: PrimitiveOutcomeLine[] = [];
     const names: Record<string, LocalizedText> = {};
 
-    if (primitive.target.regionId !== undefined) {
-      names.region = regionNames(game, primitive.target.regionId);
-    }
-    if (primitive.target.groupId !== undefined) {
-      names.group = groupNames(game, primitive.target.groupId);
-    }
-
+    // Имена берутся ПО ВЕТКЕ union'а, а не по «если поле есть»: у каждого
+    // глагола своя цель, и общего мешка полей больше не существует.
     let key: string;
     switch (primitive.verb) {
       case "enact_reform": {
-        names.country = countryNames(
-          game,
-          primitive.target.countryId ?? primitive.sourceCountryId
-        );
+        names.country = countryNames(game, primitive.target.countryId);
         key = "preview.enact_reform";
         if (primitive.params?.economicDirection) {
           details.push({ key: `preview.direction.${primitive.params.economicDirection}` });
@@ -310,15 +289,24 @@ export function buildPrimitivePreview(
         break;
       }
       case "spawn_incident":
+        names.region = regionNames(game, primitive.target.regionId);
         key = `preview.spawn_incident.${primitive.params?.incidentKind ?? "protest"}`;
         break;
       case "incite_unrest":
+        names.region = regionNames(game, primitive.target.regionId);
+        names.group = groupNames(game, primitive.target.groupId);
         key = "preview.incite_unrest";
         break;
-      default:
-        // repress / grant_autonomy адресуются либо группе, либо региону целиком,
-        // и разница для игрока существенная — приказ по региону бьёт по всем.
+      case "repress":
+      case "grant_autonomy":
+        // Адресуются либо группе, либо региону целиком, и разница для игрока
+        // существенная — приказ по региону бьёт по всем его группам.
+        names.region = regionNames(game, primitive.target.regionId);
+        if (primitive.target.groupId !== undefined) {
+          names.group = groupNames(game, primitive.target.groupId);
+        }
         key = `preview.${primitive.verb}.${primitive.target.groupId ? "group" : "region"}`;
+        break;
     }
 
     // Интенсивность — качественный хинт, а не сила: подписывается словом и

@@ -16,6 +16,12 @@ import {
   TEST_REGION_NEIGHBOUR,
 } from "../../test-utils/discontentFixtures";
 import { createTestRegion } from "../../test-utils/fixtures";
+import { rejectionPromptText } from "../rejections";
+import { type RejectedPrimitive } from "../types";
+
+/** Английский рендер причины — тот, что уходит в промт (см. `rejections.ts`). */
+const promptTextOf = (rejected: RejectedPrimitive): string =>
+  rejectionPromptText(rejected.rejection);
 
 /**
  * Граница хода примитивов (docs/CONCEPT.md §7.2, docs/PRIMITIVES.md §4):
@@ -106,7 +112,7 @@ describe("applyPrimitiveTurn — idempotency на ход (docs/CONCEPT.md §7.2)
 
     expect(second.duplicate).toBe(false);
     expect(second.rejected).toHaveLength(1);
-    expect(second.rejected[0]!.reason).toMatch(/per target per turn/);
+    expect(promptTextOf(second.rejected[0]!)).toMatch(/per target per turn/);
     expect(reordered.pendingWorldFacts.length).toBeGreaterThan(factsAfterFirst);
 
     // …и при этом мир у обоих один и тот же: второй удар не лёг ни там, ни там.
@@ -268,7 +274,7 @@ describe("бюджет хода общий для всех вызовов (docs/
       "player"
     );
     expect(player.applied).toEqual([]);
-    expect(player.rejected[0]!.reason).toMatch(/At most 10 soft primitives per turn/);
+    expect(promptTextOf(player.rejected[0]!)).toMatch(/At most 10 soft primitives per turn/);
   });
 
   it("отклонённый примитив ход не тратит — иначе один промах закрывал бы месяц", () => {
@@ -310,7 +316,7 @@ describe("бюджет хода общий для всех вызовов (docs/
     const afterLoad = applyPrimitiveTurn(loaded, [mildRepress], "after-load");
 
     expect(afterLoad.applied).toEqual([]);
-    expect(afterLoad.rejected[0]!.reason).toMatch(/per target per turn/);
+    expect(promptTextOf(afterLoad.rejected[0]!)).toMatch(/per target per turn/);
     expect(memoryOf(loaded, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression).toBe(
       memoryOf(state, TEST_REGION_NATIONAL, TEST_GROUP_TITULAR)!.suppression
     );

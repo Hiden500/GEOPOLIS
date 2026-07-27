@@ -1,4 +1,8 @@
-import { type GameState, type WorldFactSource } from "@shared/types/GameState";
+import {
+  type GameState,
+  type RejectionFactKind,
+  type WorldFactSource,
+} from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type MapFeatureType } from "@shared/types/map/MapFeature";
@@ -57,6 +61,17 @@ import { type CommandResult } from "../commands/types";
 import { collectChangedPaths } from "./statePaths";
 import { findPaletteViolations } from "./palette";
 import {
+  countryNames as countryNamesOf,
+  groupNames as groupNamesOf,
+  regionNames as regionNamesOf,
+} from "./entityNames";
+import { findMisreportedChanges } from "./reconciliation";
+import {
+  type ExhaustedTarget,
+  type PrimitiveRejection,
+  rejectionPromptText,
+} from "./rejections";
+import {
   magnitudeFromState,
   coerciveCapacity,
   repressSuppressionFactor,
@@ -75,9 +90,11 @@ import {
   type IncidentKind,
   type PoliticalCostEffect,
   type Primitive,
+  type PrimitiveOf,
   type PrimitiveBatchResult,
   type PreconditionResult,
   type PrimitiveIntensity,
+  type PrimitiveVerb,
   type ReformEconomicDirection,
   type ReformPoliticalDirection,
   type RejectedPrimitive,
@@ -109,12 +126,13 @@ import {
  *      Форма результата — discriminated union по глаголу (types.ts): по каждому
  *      затронутому полю и каждой цели «было → стало → дельта», отдельно
  *      политическая цена, отдельно эффекты на соседей, отдельно id созданного
- *      объекта карты. В КАНАЛЕ ПАМЯТИ ВОЗДЕЙСТВИЙ скрытых и выдуманных эффектов
- *      не бывает: отчёт сверяется с фактическим дифом памяти по ключам и по
- *      величине, в обе стороны (см. `findMisreportedImpacts`). Остальные каналы
- *      — координаты идеологии, поддержка правительства, объекты карты и
- *      `nextFeatureId` — под эту сверку НЕ попадают: там правдивость держат
- *      палитра и дисциплина обработчика, проверяемые внешними тестами.
+ *      объекта карты. Скрытых и выдуманных эффектов не бывает НИ В ОДНОМ
+ *      числовом канале алфавита: отчёт сверяется с фактическим дифом состояния
+ *      по ключам и по величине, в обе стороны (`reconciliation.ts` —
+ *      `findMisreportedChanges`). С Милстоуна 1 сверка покрывает память
+ *      воздействий, координаты идеологии, поддержку правительства и факт
+ *      создания объекта карты. Вне её остался `nextFeatureId` — счётчик, а не
+ *      заявление о мире; его держит палитра.
  *   3. Палитра эффектов — изменённые пути состояния сверяются с whitelist'ом
  *      (palette.ts) в рантайме, а не только в тесте.
  *
@@ -181,8 +199,7 @@ function regionLabelById(game: GameState, regionId: number): string {
  * фолбэк на id остаётся, чтобы группа без имени не превращала факт в пустоту.
  */
 function groupLabel(game: GameState, groupId: string): string {
-  const definition = game.ethnicGroups.find(g => g.id === groupId);
-  return getText(definition?.names, LLM_LOCALE) || groupId;
+  return getText(groupNamesOf(game, groupId), LLM_LOCALE) || groupId;
 }
 
 /**
@@ -213,7 +230,7 @@ const INCIDENT_FEATURE_TYPE: Record<IncidentKind, MapFeatureType> = {
 
 const DEFAULT_INCIDENT_KIND: IncidentKind = "protest";
 
-function incidentKindOf(primitive: Primitive): IncidentKind {
+function incidentKindOf(primitive: PrimitiveOf<"spawn_incident">): IncidentKind {
   return primitive.params?.incidentKind ?? DEFAULT_INCIDENT_KIND;
 }
 
@@ -296,7 +313,7 @@ interface ReformAxisRequest {
   delta: number;
 }
 
-function reformAxes(primitive: Primitive, step: number): ReformAxisRequest[] {
+function reformAxes(primitive: PrimitiveOf<"enact_reform">, step: number): ReformAxisRequest[] {
   const { economicDirection, politicalDirection } = primitive.params ?? {};
   const axes: ReformAxisRequest[] = [];
   if (economicDirection !== undefined) {
@@ -330,24 +347,32 @@ function unreachableAxes(
 
 function validate(game: GameState, primitive: Primitive): PreconditionResult {
   const source = game.countries.find(c => c.id === primitive.sourceCountryId);
-  if (!source) return { valid: false, reason: `Unknown source country: ${primitive.sourceCountryId}` };
+  if (!source) {
+    return {
+      valid: false,
+      rejection: { code: "unknownSourceCountry", countryId: primitive.sourceCountryId },
+    };
+  }
 
   switch (primitive.verb) {
     case "incite_unrest": {
       const region = findRegion(game, primitive.target.regionId);
-      if (!region) return { valid: false, reason: `Unknown region: ${primitive.target.regionId}` };
-      if (!primitive.target.groupId) {
-        return { valid: false, reason: "incite_unrest requires a target group" };
+      if (!region) {
+        return { valid: false, rejection: { code: "unknownRegion", regionId: primitive.target.regionId } };
+      }
+      const definition = game.ethnicGroups.find(g => g.id === primitive.target.groupId);
+      if (!definition) {
+        return { valid: false, rejection: { code: "unknownGroup", groupId: primitive.target.groupId } };
       }
       if (!region.demographics?.some(d => d.groupId === primitive.target.groupId)) {
         return {
           valid: false,
-          reason: `Group ${primitive.target.groupId} does not live in ${regionLabel(region)}`,
+          rejection: {
+            code: "groupNotInRegion",
+            group: definition.names,
+            region: region.names,
+          },
         };
-      }
-      const definition = game.ethnicGroups.find(g => g.id === primitive.target.groupId);
-      if (!definition) {
-        return { valid: false, reason: `Unknown ethnic group: ${primitive.target.groupId}` };
       }
 
       // Единственная предпосылка глагола по docs/PRIMITIVES.md §2: разжечь
@@ -361,9 +386,12 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       if (distance < INCITE_UNREST_MIN_DISTANCE) {
         return {
           valid: false,
-          reason:
-            `Ideological distance ${distance.toFixed(2)} between the authorities and ` +
-            `${primitive.target.groupId} is below the ${INCITE_UNREST_MIN_DISTANCE} threshold`,
+          rejection: {
+            code: "ideologicalDistanceTooLow",
+            group: definition.names,
+            distance,
+            threshold: INCITE_UNREST_MIN_DISTANCE,
+          },
         };
       }
       return { valid: true };
@@ -372,31 +400,34 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
     case "repress":
     case "grant_autonomy": {
       const region = findRegion(game, primitive.target.regionId);
-      if (!region) return { valid: false, reason: `Unknown region: ${primitive.target.regionId}` };
+      if (!region) {
+        return { valid: false, rejection: { code: "unknownRegion", regionId: primitive.target.regionId } };
+      }
 
       // Предпосылка обоих глаголов — контроль над регионом: нельзя ни
       // подавлять, ни давать автономию там, где ты не власть.
       if (effectiveController(region) !== primitive.sourceCountryId) {
         return {
           valid: false,
-          reason: `${primitive.sourceCountryId} does not control ${regionLabel(region)}`,
+          rejection: { code: "regionNotControlled", source: source.name, region: region.names },
         };
       }
-      if (targetedGroups(region, primitive.target.groupId).length === 0) {
+      const groupId = primitive.target.groupId;
+      if (targetedGroups(region, groupId).length === 0) {
         return {
           valid: false,
-          reason: primitive.target.groupId
-            ? `Group ${primitive.target.groupId} does not live in ${regionLabel(region)}`
-            : `${regionLabel(region)} has no mapped demographics`,
+          rejection: groupId
+            ? { code: "groupNotInRegion", group: groupNamesOf(game, groupId), region: region.names }
+            : { code: "regionHasNoDemographics", region: region.names },
         };
       }
       return { valid: true };
     }
 
     case "enact_reform": {
-      const countryId = primitive.target.countryId ?? primitive.sourceCountryId;
+      const countryId = primitive.target.countryId;
       const country = game.countries.find(c => c.id === countryId);
-      if (!country) return { valid: false, reason: `Unknown country: ${countryId}` };
+      if (!country) return { valid: false, rejection: { code: "unknownCountry", countryId } };
 
       // Реформа — внутриполитический акт (docs/PRIMITIVES.md §2: «страна;
       // политическая цена»). Без этой предпосылки SUN проводил реформу в USA:
@@ -407,15 +438,13 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       if (countryId !== primitive.sourceCountryId) {
         return {
           valid: false,
-          reason:
-            `${primitive.sourceCountryId} cannot enact a reform in ${countryId}: ` +
-            `a reform is a domestic act of the country that pays for it`,
+          rejection: { code: "reformNotDomestic", source: source.name, country: country.name },
         };
       }
 
       const { economicDirection, politicalDirection } = primitive.params ?? {};
       if (!economicDirection && !politicalDirection) {
-        return { valid: false, reason: "enact_reform requires at least one direction" };
+        return { valid: false, rejection: { code: "reformNoDirection", country: country.name } };
       }
 
       // Политическая цена (docs/PRIMITIVES.md §2): реформа не проходит на
@@ -423,9 +452,12 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       if (country.politics.governmentSupport < ENACT_REFORM_MIN_GOVERNMENT_SUPPORT) {
         return {
           valid: false,
-          reason:
-            `Government support ${country.politics.governmentSupport.toFixed(1)} is below the ` +
-            `${ENACT_REFORM_MIN_GOVERNMENT_SUPPORT} needed to push a reform through`,
+          rejection: {
+            code: "reformSupportTooLow",
+            country: country.name,
+            support: country.politics.governmentSupport,
+            threshold: ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
+          },
         };
       }
 
@@ -446,16 +478,16 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       if (stuck.length > 0) {
         return {
           valid: false,
-          reason:
-            `Reform in ${countryId} would not move anything: ` +
-            stuck
-              .map(
-                a =>
-                  `the ${a.axis} axis is already at ${current[a.axis].toFixed(2)}, the ` +
-                  `${a.delta < 0 ? IDEOLOGY_AXIS_MIN : IDEOLOGY_AXIS_MAX} bound of the spectrum ` +
-                  `in the ${a.direction} direction`
-              )
-              .join("; "),
+          rejection: {
+            code: "reformAxisAtSpectrumEdge",
+            country: country.name,
+            axes: stuck.map(a => ({
+              axis: a.axis,
+              direction: a.direction,
+              value: current[a.axis],
+              bound: a.delta < 0 ? IDEOLOGY_AXIS_MIN : IDEOLOGY_AXIS_MAX,
+            })),
+          },
         };
       }
       return { valid: true };
@@ -463,20 +495,25 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
 
     case "spawn_incident": {
       const region = findRegion(game, primitive.target.regionId);
-      if (!region) return { valid: false, reason: `Unknown region: ${primitive.target.regionId}` };
+      if (!region) {
+        return { valid: false, rejection: { code: "unknownRegion", regionId: primitive.target.regionId } };
+      }
 
       // Предпосылка — контекст (docs/PRIMITIVES.md §2): инцидент вырастает из
       // уже существующего напряжения, а не из пустого места.
       const discontent = regionDiscontent(game, region);
       if (discontent === undefined) {
-        return { valid: false, reason: `${regionLabel(region)} has no mapped demographics` };
+        return { valid: false, rejection: { code: "regionHasNoDemographics", region: region.names } };
       }
       if (discontent < SPAWN_INCIDENT_MIN_DISCONTENT) {
         return {
           valid: false,
-          reason:
-            `Discontent ${discontent.toFixed(2)} in ${regionLabel(region)} is below the ` +
-            `${SPAWN_INCIDENT_MIN_DISCONTENT} threshold for an incident`,
+          rejection: {
+            code: "incidentDiscontentTooLow",
+            region: region.names,
+            discontent,
+            threshold: SPAWN_INCIDENT_MIN_DISCONTENT,
+          },
         };
       }
 
@@ -490,19 +527,24 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       if (kind === "uprising" && discontent < SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT) {
         return {
           valid: false,
-          reason:
-            `Discontent ${discontent.toFixed(2)} in ${regionLabel(region)} is enough for a ` +
-            `protest (${SPAWN_INCIDENT_MIN_DISCONTENT}) but below the ` +
-            `${SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT} an uprising needs`,
+          rejection: {
+            code: "uprisingDiscontentTooLow",
+            region: region.names,
+            discontent,
+            protestThreshold: SPAWN_INCIDENT_MIN_DISCONTENT,
+            uprisingThreshold: SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT,
+          },
         };
       }
 
       if (kind === "border_dispute" && disputedNeighbourCountry(game, region) === undefined) {
         return {
           valid: false,
-          reason:
-            `${regionLabel(region)} has no border a dispute could be about: every neighbouring ` +
-            `region is held by ${effectiveController(region)} itself or by an ally`,
+          rejection: {
+            code: "noDisputableBorder",
+            region: region.names,
+            controller: countryNamesOf(game, effectiveController(region)),
+          },
         };
       }
       return { valid: true };
@@ -514,8 +556,10 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
 // Фазы 2-3 — Compute + Apply
 // --------------------------------------------------------------------------
 
-/** Результат применения: либо факт с величиной, либо причина отказа команды. */
-type ApplyOutcome = { ok: true; applied: AppliedPrimitive } | { ok: false; reason: string };
+/** Результат применения: либо факт с величиной, либо структурная причина отказа. */
+type ApplyOutcome =
+  | { ok: true; applied: AppliedPrimitive }
+  | { ok: false; rejection: PrimitiveRejection };
 
 /**
  * Параметризация — `unknown`: движку здесь важен только флаг успеха, а полезная
@@ -526,6 +570,17 @@ type ApplyOutcome = { ok: true; applied: AppliedPrimitive } | { ok: false; reaso
 function failIfCommandFailed(results: readonly CommandResult<unknown>[]): string | undefined {
   const failed = results.find(r => !r.success);
   return failed?.error ?? (failed ? "command rejected" : undefined);
+}
+
+/**
+ * Отказ КОМАНДЫ — внутренний сбой применения, а не невыполненная предпосылка.
+ *
+ * Текст команды сохраняется как есть и уходит только в промт: он написан для
+ * разработчика («governmentSupport is not finite»), и переводить его игроку
+ * незачем — игрок получает код `commandFailed` и общую формулировку.
+ */
+function commandFailure(verb: PrimitiveVerb, error: string): ApplyOutcome {
+  return { ok: false, rejection: { code: "commandFailed", verb, error } };
 }
 
 /**
@@ -657,7 +712,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         emboldenment: magnitude,
       });
       const error = failIfCommandFailed([impact]);
-      if (error) return { ok: false, reason: error };
+      if (error) return commandFailure(primitive.verb, error);
 
       const targetEffects = impactEffects(game, region.id, groupId, impact);
       return {
@@ -711,7 +766,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         })
       );
       const error = failIfCommandFailed(results);
-      if (error) return { ok: false, reason: error };
+      if (error) return commandFailure(primitive.verb, error);
 
       const targetEffects = perGroup.flatMap((g, i) =>
         impactEffects(game, region.id, g.groupId, results[i]!)
@@ -760,7 +815,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         politicsCommands.addGroupImpact(game, region.id, g.groupId, { concession: g.concession })
       );
       const grantError = failIfCommandFailed(grants);
-      if (grantError) return { ok: false, reason: grantError };
+      if (grantError) return commandFailure(primitive.verb, grantError);
 
       // Цена уступки (docs/CONCEPT.md §5.2): та же группа в соседних регионах
       // осмелела — ровно настолько, насколько громкой была сама уступка.
@@ -792,7 +847,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       }
 
       const error = failIfCommandFailed(spillover);
-      if (error) return { ok: false, reason: error };
+      if (error) return commandFailure(primitive.verb, error);
 
       const targetEffects = perGroup.flatMap((g, i) =>
         impactEffects(game, region.id, g.groupId, grants[i]!)
@@ -856,7 +911,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         game, countryId, ENACT_REFORM_POLITICAL_COST
       );
       const paymentError = failIfCommandFailed([paid]);
-      if (paymentError) return { ok: false, reason: paymentError };
+      if (paymentError) return commandFailure(primitive.verb, paymentError);
 
       const shift = politicsCommands.shiftCountryIdeology(
         game,
@@ -865,7 +920,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         axes.find(a => a.axis === "political")?.delta ?? 0
       );
       const error = failIfCommandFailed([shift]);
-      if (error) return { ok: false, reason: error };
+      if (error) return commandFailure(primitive.verb, error);
 
       // Отчёт — ФАКТИЧЕСКИЕ сдвиги по тем осям, которые реформа просила двигать.
       // Недостижимую ось сюда не пропускает предпосылка (validate), поэтому
@@ -954,7 +1009,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
           emboldenment: magnitude,
         });
         const error = failIfCommandFailed([impact]);
-        if (error) return { ok: false, reason: error };
+        if (error) return commandFailure(primitive.verb, error);
         targetEffects.push(...impactEffects(game, region.id, dominant.groupId, impact));
       }
 
@@ -1024,21 +1079,56 @@ function orderForExecution(primitives: readonly Primitive[]): Primitive[] {
  * Вызывается только после успешного `validate`, поэтому регион и группы заведомо
  * существуют.
  */
-function targetEntities(game: GameState, primitive: Primitive): string[] {
+/**
+ * Цель капа — машинный КЛЮЧ счётчика плюс её локализованное ИМЯ.
+ *
+ * Вместе, а не двумя функциями: ключ живёт в сейве (`primitiveTurnBudget`) и
+ * обязан быть стабильным независимо от языка и переименований, а причина
+ * отказа обязана называть цель по-человечески — до Милстоуна 1 игрок читал в
+ * ней сырое `region 68 / group estonians`. Две функции разъехались бы, и
+ * отказ называл бы не ту цель, чей счётчик исчерпан.
+ */
+interface PrimitiveTarget {
+  key: string;
+  label: ExhaustedTarget;
+}
+
+function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
   switch (primitive.verb) {
     case "enact_reform":
-      return [`country ${primitive.target.countryId ?? primitive.sourceCountryId}`];
+      return [
+        {
+          key: `country ${primitive.target.countryId}`,
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
 
     case "spawn_incident":
-      return [`region ${primitive.target.regionId}`];
+      return [
+        {
+          key: `region ${primitive.target.regionId}`,
+          label: { region: regionNamesOf(game, primitive.target.regionId) },
+        },
+      ];
 
     case "incite_unrest":
+      return [
+        {
+          key: `region ${primitive.target.regionId} / group ${primitive.target.groupId}`,
+          label: {
+            region: regionNamesOf(game, primitive.target.regionId),
+            group: groupNamesOf(game, primitive.target.groupId),
+          },
+        },
+      ];
+
     case "repress":
     case "grant_autonomy": {
       const region = findRegion(game, primitive.target.regionId)!;
-      return targetedGroups(region, primitive.target.groupId).map(
-        g => `region ${region.id} / group ${g.groupId}`
-      );
+      return targetedGroups(region, primitive.target.groupId).map(g => ({
+        key: `region ${region.id} / group ${g.groupId}`,
+        label: { region: region.names, group: groupNamesOf(game, g.groupId) },
+      }));
     }
   }
 }
@@ -1163,20 +1253,21 @@ function turnBudgetFor(game: GameState): PrimitiveTurnBudget {
  * диагностика защищается, обязан назвать себя явно. Новый канал, забывший
  * параметр, попадает в НЕзарезервированную корзину — безопасная сторона ошибки.
  */
-export function pushPrimitiveRejectionFact(
+export function pushRejectionFact(
   game: GameState,
+  kind: RejectionFactKind,
   fact: { countryId: string; text: string; regionId?: number | undefined },
   source: WorldFactSource = "player"
 ): void {
   const listed = game.pendingWorldFacts.filter(
-    f => f.kind === "primitive_rejected" && (f.source ?? "player") === source
+    f => f.kind === kind && (f.source ?? "player") === source
   ).length;
   if (listed > MAX_PENDING_REJECTION_FACTS_PER_SOURCE) return;
 
   if (listed === MAX_PENDING_REJECTION_FACTS_PER_SOURCE) {
     game.pendingWorldFacts.push({
       countryId: fact.countryId,
-      kind: "primitive_rejected",
+      kind,
       source,
       text:
         `(further rejected ${source} attempts are not listed this cycle: the diagnostic cap of ` +
@@ -1185,74 +1276,15 @@ export function pushPrimitiveRejectionFact(
     return;
   }
 
-  game.pendingWorldFacts.push({ ...fact, kind: "primitive_rejected", source });
+  game.pendingWorldFacts.push({ ...fact, kind, source });
 }
 
 /**
- * Допуск сверки отчёта с дифом — на ошибку представления double, а не на
- * «примерно совпало».
- *
- * Обе стороны считают дельту вычитанием одних и тех же чисел, поэтому в
- * типичном случае они совпадают побитово. Разойтись на единицы ulp (~2e-16 при
- * значениях ≤ 1) они могут там, где примитив пишет в одну тройку несколько раз:
- * отчёт складывает шаги, а диф берёт разность концов. 1e-9 покрывает такое
- * накопление с запасом в миллионы раз и при этом на семь порядков меньше
- * минимальной величины любого коридора магнитуды — подменить эффект «в пределах
- * допуска» нельзя.
+ * Сверка отчёта примитива с фактическим дифом состояния переехала в
+ * `reconciliation.ts` и с Милстоуна 1 покрывает не только память воздействий,
+ * а все числовые каналы, которые алфавит вправе менять, плюс созданные объекты
+ * карты. Здесь остаётся только вызов — `findMisreportedChanges`.
  */
-const IMPACT_REPORT_EPSILON = 1e-9;
-
-/** Суммарная дельта по каждой тройке (регион, группа, поле). */
-function totalsByKey(
-  entries: readonly { regionId: number; groupId: string; field: ImpactMemoryField; delta: number }[]
-): Map<string, number> {
-  const totals = new Map<string, number>();
-  for (const entry of entries) {
-    const key = impactBudgetKey(entry);
-    totals.set(key, (totals.get(key) ?? 0) + entry.delta);
-  }
-  return totals;
-}
-
-/** Расхождение отчёта примитива с тем, что он реально сделал с памятью. */
-interface MisreportedImpact {
-  key: string;
-  reported: number;
-  actual: number;
-}
-
-/**
- * Сверка отчёта с фактическим дифом памяти воздействий — в ОБЕ стороны и по
- * величине, а не по одному лишь набору ключей.
- *
- * Три вида лжи, которые она ловит:
- *   1. **скрытый эффект** — примитив изменил память и не сказал об этом
- *      (`reported` пуст, `actual` нет). Сессия B получила бы мир, о котором не
- *      знает, и нарратив разошёлся бы с состоянием молча;
- *   2. **выдуманный эффект** — примитив отчитался о сдвиге, которого не было
- *      (`actual` пуст, `reported` нет). Симметричная половина того же
- *      требования; до 2026-07-26 её не закрывал ни рантайм, ни палитра;
- *   3. **подменённая величина** — ключ тот, число другое (отчитался 0.001 там,
- *      где легло 0.4). Именно число уходит в нарратив, поэтому совпадения
- *      ключей мало.
- *
- * Отчёт с нулевой дельтой законен и совпадает с отсутствием ключа в дифе:
- * `impactDeltas` не выдаёт нулей, и обе стороны дают 0.
- */
-function findMisreportedImpacts(
-  reported: readonly GroupImpactEffect[],
-  actual: readonly ImpactDelta[]
-): MisreportedImpact[] {
-  const reportedTotals = totalsByKey(reported);
-  const actualTotals = totalsByKey(actual);
-  return [...new Set([...reportedTotals.keys(), ...actualTotals.keys()])]
-    .map(key => ({
-      key,
-      reported: reportedTotals.get(key) ?? 0,
-      actual: actualTotals.get(key) ?? 0,
-    }))
-    .filter(m => Math.abs(m.reported - m.actual) > IMPACT_REPORT_EPSILON);
-}
 
 /**
  * Применяет батч примитивов к состоянию партии.
@@ -1273,7 +1305,7 @@ function findMisreportedImpacts(
  * аудит) — см. `structuralRejection` ниже.
  *
  * @param source канал, отдавший батч. Влияет только на учёт диагностики
- *   (`pushPrimitiveRejectionFact`), не на применение.
+ *   (`pushRejectionFact`), не на применение.
  */
 export function applyPrimitiveBatch(
   game: GameState,
@@ -1282,6 +1314,19 @@ export function applyPrimitiveBatch(
 ): PrimitiveBatchResult {
   const applied: AppliedPrimitive[] = [];
   const rejected: RejectedPrimitive[] = [];
+
+  /**
+   * Одна точка записи отказа: глагол и источник берутся из самого примитива,
+   * а не переписываются на каждом из десяти мест. Пока их переписывали руками,
+   * достаточно было опечатки, чтобы отказ пришёл с чужим глаголом.
+   */
+  const reject = (primitive: Primitive, rejection: PrimitiveRejection): void => {
+    rejected.push({
+      verb: primitive.verb,
+      sourceCountryId: primitive.sourceCountryId,
+      rejection,
+    });
+  };
 
   const ordered = orderForExecution(primitives);
 
@@ -1320,19 +1365,11 @@ export function applyPrimitiveBatch(
     // что структурного в этом ходу не произошло вообще ничего.
     const structural = isStructural(primitive.verb);
     if (structural && structuralUsed >= MAX_STRUCTURAL_PRIMITIVES_PER_TURN) {
-      rejected.push({
-        verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason: `At most ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural primitive(s) per turn`,
-      });
+      reject(primitive, { code: "structuralTurnCapReached", cap: MAX_STRUCTURAL_PRIMITIVES_PER_TURN });
       continue;
     }
     if (!structural && softUsed >= MAX_SOFT_PRIMITIVES_PER_TURN) {
-      rejected.push({
-        verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason: `At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives per turn`,
-      });
+      reject(primitive, { code: "softTurnCapReached", cap: MAX_SOFT_PRIMITIVES_PER_TURN });
       continue;
     }
 
@@ -1341,11 +1378,7 @@ export function applyPrimitiveBatch(
     // устаревшим данным (TOCTOU, docs/PRIMITIVES.md §3).
     const verdict = validate(working, primitive);
     if (!verdict.valid) {
-      rejected.push({
-        verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason: verdict.reason,
-      });
+      reject(primitive, verdict.rejection);
       continue;
     }
 
@@ -1359,17 +1392,16 @@ export function applyPrimitiveBatch(
     // потолок — ровно то, что коридор запрещает делать одним примитивом.
     // Счёт идёт по ходу, поэтому неважно, пришли они одним батчем или десятью
     // отдельными запросами.
-    const entities = targetEntities(working, primitive);
-    const exhausted = entities.filter(
-      e => (targetUses.get(targetUseKey(primitive, e)) ?? 0) >= MAX_PRIMITIVES_PER_TARGET_PER_TURN
+    const targets = targetsOf(working, primitive);
+    const exhausted = targets.filter(
+      t => (targetUses.get(targetUseKey(primitive, t.key)) ?? 0) >= MAX_PRIMITIVES_PER_TARGET_PER_TURN
     );
     if (exhausted.length > 0) {
-      rejected.push({
+      reject(primitive, {
+        code: "targetTurnCapReached",
         verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason:
-          `At most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} ${primitive.verb} per target per turn; ` +
-          `already acted on this turn: ${exhausted.join(", ")}`,
+        cap: MAX_PRIMITIVES_PER_TARGET_PER_TURN,
+        targets: exhausted.map(t => t.label),
       });
       continue;
     }
@@ -1380,51 +1412,36 @@ export function applyPrimitiveBatch(
 
     if (!outcome.ok) {
       restore(working, before);
-      rejected.push({
-        verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason: outcome.reason,
-      });
+      reject(primitive, outcome.rejection);
       continue;
     }
 
     const violations = findPaletteViolations(primitive.verb, collectChangedPaths(before, working));
     if (violations.length > 0) {
       restore(working, before);
-      rejected.push({
-        verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason: `Effect outside the ${primitive.verb} palette: ${violations.join(", ")}`,
-      });
+      reject(primitive, { code: "paletteViolation", verb: primitive.verb, paths: violations });
       continue;
     }
 
     const deltas = impactDeltas(before, working);
 
-    // Отчёт правдив: то, что примитив записал в память воздействий, и то, о чём
-    // он отчитался, совпадают — по набору ключей И по величине, в обе стороны
-    // (см. `findMisreportedImpacts`). Сверяется с ФАКТИЧЕСКИМ дифом памяти, а не
-    // с намерением обработчика, — то есть тем же способом, что и палитра.
-    // Ключ строится ОДНОЙ функцией с обеих сторон, иначе проверка тихо
-    // перестала бы срабатывать, оставаясь на вид реализованной.
+    // Отчёт правдив: то, о чём примитив отчитался, и то, что он реально
+    // изменил, совпадают — по набору ключей И по величине, в обе стороны
+    // (`reconciliation.ts`). Сверяется с ФАКТИЧЕСКИМ дифом состояния, а не с
+    // намерением обработчика, — то есть тем же способом, что и палитра.
     //
-    // Граница гарантии названа явно: сверяется КАНАЛ ПАМЯТИ ВОЗДЕЙСТВИЙ. Сдвиг
-    // координат идеологии, списанная поддержка правительства, объект карты и
-    // `nextFeatureId` под неё не попадают — там правдивость отчёта держат
-    // палитра (что вообще разрешено трогать) и внешние тесты «опубликованное
-    // „стало“ = состояние мира». Расширять сверку на них — отдельная работа
-    // (docs/PRIMITIVES.md §4, docs/TODO.md).
-    const misreported = findMisreportedImpacts(impactEffectsOf(outcome.applied), deltas);
+    // С Милстоуна 1 сверка покрывает ВСЕ числовые каналы алфавита, а не только
+    // память воздействий: координаты идеологии, поддержка правительства и факт
+    // создания объекта карты входят в неё наравне. До этого обработчик, соврав
+    // о сдвиге координат, ловился внешним тестом, но не откатом. Вне сверки
+    // остаётся `nextFeatureId` — счётчик, а не заявление о мире.
+    const misreported = findMisreportedChanges(outcome.applied, before, working);
     if (misreported.length > 0) {
       restore(working, before);
-      rejected.push({
+      reject(primitive, {
+        code: "resultMisreported",
         verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason:
-          `Result of ${primitive.verb} disagrees with what it changed: ` +
-          misreported
-            .map(m => `${m.key} reported ${m.reported.toFixed(3)}, actually ${m.actual.toFixed(3)}`)
-            .join("; "),
+        mismatches: misreported,
       });
       continue;
     }
@@ -1446,19 +1463,17 @@ export function applyPrimitiveBatch(
     );
     if (overflow.length > 0) {
       restore(working, before);
-      rejected.push({
-        verb: primitive.verb,
-        sourceCountryId: primitive.sourceCountryId,
-        reason:
-          `Turn impact ceiling reached: ` +
-          overflow
-            .map(
-              d =>
-                `${impactBudgetKey(d)} would total ` +
-                `${((impactUsed.get(impactBudgetKey(d)) ?? 0) + d.delta).toFixed(3)} ` +
-                `(max ${IMPACT_FIELD_TURN_CEILING[d.field]} per turn)`
-            )
-            .join("; "),
+      // Названа ОДНА переполнившаяся тройка, а не все: причина уходит и
+      // игроку, и в промт, а перечисление десятка ключей раздувает секцию
+      // отказов ровно тем, ради ограничения чего заведены капы длины.
+      const worst = overflow[0]!;
+      reject(primitive, {
+        code: "impactCeilingReached",
+        field: worst.field,
+        region: regionNamesOf(working, worst.regionId),
+        group: groupNamesOf(working, worst.groupId),
+        ceiling: IMPACT_FIELD_TURN_CEILING[worst.field],
+        wouldTotal: (impactUsed.get(impactBudgetKey(worst)) ?? 0) + worst.delta,
       });
       continue;
     }
@@ -1468,8 +1483,8 @@ export function applyPrimitiveBatch(
     // ним запирать не за что.
     if (structural) structuralUsed += 1;
     else softUsed += 1;
-    for (const entity of entities) {
-      const key = targetUseKey(primitive, entity);
+    for (const target of targets) {
+      const key = targetUseKey(primitive, target.key);
       targetUses.set(key, (targetUses.get(key) ?? 0) + 1);
     }
     for (const impact of accrued) {
@@ -1501,17 +1516,19 @@ export function applyPrimitiveBatch(
   // осознанно — «весь ответ reject» без исключений проще объяснить и модели, и
   // игроку, чем набор оговорок, а модель получает причину диагностическим
   // фактом и следующий ход предлагает уже без структурного.
-  const structuralRejection = rejected.find(r => isStructural(r.verb));
+  const structuralRejection = rejected.find(r => r.verb !== undefined && isStructural(r.verb));
+  const structuralVerb = structuralRejection?.verb;
 
-  if (structuralRejection) {
+  if (structuralVerb !== undefined) {
+    // Причина отката ССЫЛАЕТСЯ на отказавший структурный, но не пересказывает
+    // его причину: сама эта причина уже лежит в том же списке отдельной
+    // записью, и дублировать её значило бы показать один отказ дважды — и
+    // игроку, и в промте, где место считано.
     for (const rolledBack of applied) {
       rejected.push({
         verb: rolledBack.verb,
         sourceCountryId: rolledBack.sourceCountryId,
-        reason:
-          `Rolled back: the structural ${structuralRejection.verb} in the same batch was ` +
-          `rejected (${structuralRejection.reason}), and a rejected structural primitive ` +
-          `rejects the whole batch`,
+        rejection: { code: "structuralRollback", structuralVerb },
       });
     }
     applied.length = 0;
@@ -1547,19 +1564,34 @@ export function applyPrimitiveBatch(
 
   // Диагностика пишется ПОСЛЕ commit'а, прямо в боевое состояние: факты об
   // отказах не участвуют в откате и не должны быть перетёрты переносом. Кап на
-  // число подробных записей держит `pushPrimitiveRejectionFact`.
+  // число подробных записей держит `pushRejectionFact`.
   for (const rejection of rejected) {
-    pushPrimitiveRejectionFact(
+    pushRejectionFact(
       game,
+      "primitive_rejected",
       {
-        countryId: rejection.sourceCountryId,
-        text: `Attempt rejected (${rejection.verb}): ${rejection.reason}`,
+        countryId: rejection.sourceCountryId ?? game.playerCountryId,
+        text: rejectionFactText(rejection),
       },
       source
     );
   }
 
   return { applied, rejected };
+}
+
+/**
+ * Строка диагностического факта об отказе — ОДНА для всех слоёв.
+ *
+ * Отказ схемы, границы агентности и предпосылки движка приходят в промт одной
+ * секцией и не должны отличаться формой: модель узнаёт правило из текста, а не
+ * из того, кто его написал (docs/PRIMITIVES.md §3). Английский рендер берётся
+ * из `rejections.ts` — там же, где живёт русский для игрока, чтобы у кода
+ * отказа не завелось третьего представления.
+ */
+export function rejectionFactText(rejected: RejectedPrimitive): string {
+  const verb = rejected.verb ?? "malformed primitive";
+  return `Attempt rejected (${verb}): ${rejectionPromptText(rejected.rejection)}`;
 }
 
 /**

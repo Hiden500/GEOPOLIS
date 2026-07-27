@@ -268,7 +268,7 @@ LLM только принимает решения:
 паттерну, что объявление войны. Полный список реализованных action-типов
 на сегодня (типизирован Zod-контрактом, `server/src/llm/actionSchemas.ts`,
 docs/plans/02_LLM_CONTRACT.md):
-`diplomacy | war | peace | annex | puppet | sanction | guarantee | influence
+`diplomacy | war | peace | sanction | guarantee | influence
 | research_shift | production_shift | build_extraction`. Не смешивать эти
 два статуса — целевой список экономики и фактически реализованные экшены —
 как единое актуальное правило.

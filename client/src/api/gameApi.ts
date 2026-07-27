@@ -1,8 +1,9 @@
-import { type GameState, type LLMAction } from "@shared/types/GameState";
-import { type EventFactuality } from "@shared/types/Event";
+import { type GameState } from "@shared/types/GameState";
 import { type ScenarioInfo } from "@shared/types/ScenarioInfo";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
+import { type PrimitiveRejectionRecord } from "@shared/types/politics/PrimitiveRejection";
+import { type ResponseReceipt } from "@shared/types/ResponseReceipt";
 
 const API = "";
 
@@ -99,23 +100,15 @@ export interface LlmCycleResult {
    */
   narrativeCanonized: boolean;
   /**
-   * Насколько текст ответа подтверждён фактическим результатом
-   * (`shared/types/Event.ts`). Приходит только вместе с каноном: события нет —
-   * аттестовать нечего.
+   * ЧТО НА САМОМ ДЕЛЕ произошло — одна квитанция вместо пяти параллельных
+   * полей (`shared/types/ResponseReceipt.ts`, Милстоун 1).
+   *
+   * До этого клиент получал степень подтверждённости, применённые действия,
+   * отклонённые действия, отклик примитивов и отказы примитивов по
+   * отдельности и собирал из них картину сам — второй раз после того, как её
+   * собрал сервер. Теперь источник один и тот же, что лёг в событие.
    */
-  factuality?: EventFactuality;
-  appliedActions: LLMAction[];
-  // action: unknown, не LLMAction — точечно отклонённый элемент не
-  // гарантированно валиден (docs/plans/02_LLM_CONTRACT.md, Шаг 3).
-  rejectedActions: { action: unknown; reason: string }[];
-  /**
-   * Фактический результат примитивов ответа — то же, что видит игрок в панели
-   * приказов. Появился 2026-07-26: до этого клиент получал только текст и
-   * физически не мог отличить «так и произошло» от «модель это предложила, а
-   * движок отказал» (внешний аудит).
-   */
-  primitiveOutcomes: PrimitiveOutcomeRecord[];
-  rejectedPrimitives: { verb?: string; reason: string }[];
+  receipt: ResponseReceipt;
 }
 
 export async function getLlmPrompt(): Promise<LlmPromptResult> {
@@ -159,7 +152,12 @@ export interface ApplyPrimitivesResult {
   /** Батч с этим ключом уже применялся — мир не тронут (docs/CONCEPT.md §7.2). */
   duplicate: boolean;
   outcomes: PrimitiveOutcomeRecord[];
-  rejected: { verb?: string; reason: string }[];
+  /**
+   * Причина отказа — код + параметры, а не готовая строка (Милстоун 1).
+   * Локализуется на клиенте (`usePrimitiveRejectionText`); величин
+   * несостоявшегося действия в ней нет по построению.
+   */
+  rejected: PrimitiveRejectionRecord[];
 }
 
 export async function translatePlayerOrder(

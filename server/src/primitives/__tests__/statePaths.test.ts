@@ -97,6 +97,10 @@ describe("collectChangedPaths — структурные нули новой з�
       "groupImpactMemory[*].groupId",
       "groupImpactMemory[*].regionId",
       "groupImpactMemory[*].suppression",
+      // Маркер укоротившегося массива (Милстоун 1): позиционное сравнение после
+      // удаления перестаёт быть надёжным, и глагол, удаляющий элементы, обязан
+      // объявить это в палитре явно — иначе отказ выглядел бы россыпью полей.
+      "groupImpactMemory[-]",
     ]);
   });
 });

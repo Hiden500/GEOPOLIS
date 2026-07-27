@@ -1,3 +1,4 @@
+import { type LocalizedText } from "@shared/types/i18n/LocalizedText";
 import { type Primitive, type PrimitiveVerb, type RejectedPrimitive } from "../primitives/types";
 
 /**
@@ -69,9 +70,9 @@ export interface AgencySplit {
  *
  * Цена названа прямо: событие всё-таки записывается, и его СЫРОЙ текст может
  * утверждать реформу, которой не было. Машиночитаемо это видно —
- * `Event.rejectedPrimitives` несёт отказ этого фильтра наравне с отказами
- * движка, — но текст по факту не переписывается (второй вызов модели, Милстоун 1,
- * docs/TODO.md).
+ * квитанция события (`Event.receipt.primitives.rejected`) несёт отказ этого
+ * фильтра наравне с отказами движка, — но текст по факту не переписывается
+ * (второй вызов модели, docs/TODO.md).
  */
 
 /**
@@ -81,7 +82,8 @@ export interface AgencySplit {
  */
 export function splitByAgency(
   primitives: readonly Primitive[],
-  playerCountryId: string
+  playerCountryId: string,
+  playerName: LocalizedText = { en: playerCountryId, ru: playerCountryId }
 ): AgencySplit {
   const allowed: Primitive[] = [];
   const refused: RejectedPrimitive[] = [];
@@ -91,10 +93,11 @@ export function splitByAgency(
       refused.push({
         verb: primitive.verb,
         sourceCountryId: primitive.sourceCountryId,
-        reason:
-          `${primitive.verb} is a policy decision of ${playerCountryId}, the player's own ` +
-          `country: the director may create the pressure, but never chooses the answer for ` +
-          `the player. Offer it in the narrative instead.`,
+        rejection: {
+          code: "agencyPlayerDecision",
+          verb: primitive.verb,
+          player: playerName,
+        },
       });
       continue;
     }

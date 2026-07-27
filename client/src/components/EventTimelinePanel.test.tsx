@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import "../i18n";
 import { type Event, type EventFactuality } from "@shared/types/Event";
+import { emptyResponseReceipt } from "@shared/types/ResponseReceipt";
 import { EventTimelinePanel } from "./EventTimelinePanel";
 
 /**
@@ -19,8 +20,7 @@ function event(factuality: EventFactuality, title: string): Event {
     date: "1946-03-01",
     title,
     description: "Войска вошли в город.",
-    countries: [],
-    factuality,
+    receipt: { ...emptyResponseReceipt("1946-03-01"), factuality },
   };
 }
 

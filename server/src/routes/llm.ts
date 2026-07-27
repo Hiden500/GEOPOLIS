@@ -21,8 +21,12 @@ router.get("/prompt", (req, res) => {
     }
 
     const llmService = new LLMService(game);
-    const prompt = llmService.generatePrompt();
+    // Рендер ничего не списывает; НАМЕРЕНИЕ списать кладётся в состояние и
+    // исполняется при первом ответе на этот промт. Игрок, закрывший вкладку,
+    // диагностику больше не теряет (docs/TODO.md, закрыто Милстоуном 1).
+    const { prompt, consumption } = llmService.generatePrompt();
     llmService.savePrompt(prompt);
+    game.pendingPromptConsumption = consumption;
 
     res.json({ prompt, llmTurn: game.llmTurn ?? 0 });
   } catch (error) {

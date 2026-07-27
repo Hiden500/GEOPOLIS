@@ -1,9 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { z } from "zod";
 import { type GameState } from "@shared/types/GameState";
 import { SAVE_VERSION, type SaveFile } from "@shared/types/SaveFile";
-import { SaveNotFoundError, SaveVersionError } from "../errors/AppError";
+import { SaveNotFoundError, SaveVersionError, SaveCorruptedError } from "../errors/AppError";
+import { findStateViolations } from "../primitives/invariants";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -65,8 +67,88 @@ export function loadGame(slot: string): GameState {
     );
   }
 
-  return file.game;
+  return validateLoadedGame(slot, file.game);
 }
+
+/**
+ * Проверка СОДЕРЖИМОГО сейва, а не только номера версии (Милстоун 1).
+ *
+ * До этого совпадения версии было достаточно, а само состояние принималось
+ * приведением типа. Порча вроде `primitiveTurnBudget.softUsed = -100` проходила
+ * молча и снимала капы хода: счётчик, начинающийся с −100, разрешает сто
+ * лишних примитивов в месяц — то есть чужой файл отключал защиту, ради которой
+ * бюджет и переехал в состояние (docs/PRIMITIVES.md §4). Ломалось это поздно и
+ * не там, где причина.
+ *
+ * Две проверки, разные по природе:
+ *   1. **каркас** — обязательные поля состояния на месте и нужного рода
+ *      (массив там, где массив; объект там, где объект). Ловит обрезанный или
+ *      собранный руками файл. Намеренно НЕ полная схема мира: валидировать
+ *      геометрию 1399 регионов на каждой загрузке дорого, а её порча ломает
+ *      карту, а не защиты алфавита;
+ *   2. **инварианты** — те же, что движок проверяет пост-фазой транзакции
+ *      (`findStateViolations`). Одно определение на оба входа: «состояние,
+ *      которое движок готов принять» обязано означать одно и то же на входе из
+ *      файла и на выходе из применения ответа, иначе загрузка принимала бы то,
+ *      что транзакция откатывает.
+ */
+export function validateLoadedGame(slot: string, game: GameState): GameState {
+  const parsed = saveGameShapeSchema.safeParse(game);
+  if (!parsed.success) {
+    throw new SaveCorruptedError(
+      `Save "${slot}" is malformed: ` +
+        parsed.error.issues
+          .slice(0, MAX_REPORTED_SAVE_ISSUES)
+          .map(issue => `${issue.path.join(".") || "<root>"}: ${issue.message}`)
+          .join("; ")
+    );
+  }
+
+  const violations = findStateViolations(game);
+  if (violations.length > 0) {
+    throw new SaveCorruptedError(
+      `Save "${slot}" violates engine invariants: ` +
+        violations.slice(0, MAX_REPORTED_SAVE_ISSUES).join("; ")
+    );
+  }
+
+  return game;
+}
+
+/**
+ * Сколько нарушений называется в сообщении. Битый файл способен дать их
+ * тысячами (по записи на регион), а сообщение читает человек.
+ */
+const MAX_REPORTED_SAVE_ISSUES = 5;
+
+/**
+ * Каркас состояния: обязательные поля и их род.
+ *
+ * `.passthrough()` внутри вложенных сущностей намеренно — см. `validateLoadedGame`
+ * о границе. Здесь проверяется, что состояние вообще является состоянием, а не
+ * что каждая страна корректна.
+ */
+const saveGameShapeSchema = z.object({
+  currentDate: z.string().min(1),
+  playerCountryId: z.string().min(1),
+  countries: z.array(z.unknown()),
+  regions: z.array(z.unknown()),
+  eventHistory: z.array(z.unknown()),
+  chronicle: z.array(z.unknown()),
+  mapFeatures: z.array(z.unknown()),
+  wars: z.array(z.unknown()),
+  modifiers: z.array(z.unknown()),
+  pendingWorldFacts: z.array(z.unknown()),
+  ethnicGroups: z.array(z.unknown()),
+  groupImpactMemory: z.array(z.unknown()),
+  regionCrisisLatch: z.array(z.number()),
+  primitiveBatchKeys: z.array(z.string()),
+  primitiveNoopBatchKeys: z.array(z.string()),
+  primitiveTurnBudget: z.object({}).loose(),
+  hingePointShowCount: z.object({}).loose(),
+  rngState: z.number(),
+  nextFeatureId: z.number(),
+}).loose();
 
 export interface SaveSlotMeta {
   slot: string;

@@ -17,6 +17,34 @@ export interface IdeologyCoordinates {
   political: number;
 }
 
+/**
+ * Оси координат — перечнем, а не только полями интерфейса.
+ *
+ * Нужен там, где по осям надо ПРОЙТИ, а не обратиться к известной: сверка
+ * результата примитива с состоянием (`server/src/primitives/reconciliation.ts`)
+ * раскладывает координаты в плоские ячейки. Перечень типизирован ключами
+ * `IdeologyCoordinates`, поэтому третья ось, добавленная в интерфейс и забытая
+ * здесь, не скомпилируется.
+ */
+export const IDEOLOGY_AXES = ["economic", "political"] as const satisfies readonly (keyof IdeologyCoordinates)[];
+
+/**
+ * Компайл-тайм проверка ПОЛНОТЫ перечня: `satisfies` выше запрещает лишнее, а
+ * это — пропуск. Ось, добавленная в `IdeologyCoordinates` и забытая в
+ * `IDEOLOGY_AXES`, делает тип `never`, и присваивание `true` не компилируется.
+ *
+ * ПРИСВАИВАНИЕ обязательно: один псевдоним типа сборку не валит — TypeScript
+ * вычисляет его лениво, и до Милстоуна 1 этот страж молчал (найдено
+ * независимым ревью 2026-07-27, проверено добавлением третьей оси). Образец —
+ * `_AssertSchemaMatchesSharedType` в `server/src/llm/actionSchemas.ts`.
+ *
+ * Константа ЭКСПОРТИРУЕТСЯ, а не остаётся локальной: `client/tsconfig.app.json`
+ * включает `noUnusedLocals`, и неиспользуемая локальная переменная в файле,
+ * который клиент импортирует, провалила бы его же typecheck.
+ */
+type MissingIdeologyAxis = Exclude<keyof IdeologyCoordinates, (typeof IDEOLOGY_AXES)[number]>;
+export const _allIdeologyAxesListed: [MissingIdeologyAxis] extends [never] ? true : never = true;
+
 /** Минимум/максимум любой оси координат идеологии. */
 export const IDEOLOGY_AXIS_MIN = -1;
 export const IDEOLOGY_AXIS_MAX = 1;

@@ -25,7 +25,7 @@ describe("LLMActionSchema", () => {
       expect(result.success).toBe(false);
     });
 
-    it.each(["diplomacy", "war", "peace", "annex", "puppet", "sanction", "guarantee", "influence"] as const)(
+    it.each(["diplomacy", "war", "peace", "sanction", "guarantee", "influence"] as const)(
       "%s: отклоняет sourceCountryId === targetCountryId",
       (type) => {
         const result = LLMActionSchema.safeParse({
@@ -38,7 +38,7 @@ describe("LLMActionSchema", () => {
       }
     );
 
-    it.each(["diplomacy", "war", "peace", "annex", "puppet", "sanction", "guarantee", "influence"] as const)(
+    it.each(["diplomacy", "war", "peace", "sanction", "guarantee", "influence"] as const)(
       "%s: отклоняет отсутствующий targetCountryId",
       (type) => {
         const result = LLMActionSchema.safeParse({
@@ -147,8 +147,8 @@ describe("LLMActionSchema", () => {
     });
   });
 
-  describe("peace / annex / puppet / guarantee — без data", () => {
-    it.each(["peace", "annex", "puppet", "guarantee"] as const)("%s: валиден с только source/target", (type) => {
+  describe("peace / guarantee — без data", () => {
+    it.each(["peace", "guarantee"] as const)("%s: валиден с только source/target", (type) => {
       const result = LLMActionSchema.safeParse({ type, sourceCountryId: "USA", targetCountryId: "SUN" });
       expect(result.success).toBe(true);
     });

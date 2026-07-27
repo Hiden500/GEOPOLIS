@@ -307,7 +307,9 @@ describe("PrimitiveOrdersPanel — отказы и повторы", () => {
       rejected: [
         {
           verb: "spawn_incident",
-          reason: "Discontent 0.41 in Šiauliai is enough for a protest but below the 0.65",
+          code: "uprisingDiscontentTooLow",
+          values: { discontent: "0.41", threshold: 0.65 },
+          names: { region: { ru: "Шяуляй", en: "Šiauliai" } },
         },
       ],
     });

@@ -170,6 +170,22 @@ export interface GameState {
   // MAX_HINGE_POINT_SHOWS). Инкрементируется в LLMService.generatePrompt().
   hingePointShowCount: Record<string, number>;
 
+  /**
+   * Что ПОКАЗАЛ последний выданный промт, но состояние ещё не списало
+   * (`LLMService.PromptConsumption`).
+   *
+   * Одноразовые данные промта — диагностика отказов, пометка «кризис новый» и
+   * счётчик показов развилок — списываются не при рендере, а при обработке
+   * ответа: только там известно, что промт до модели ДОЕХАЛ. В ручном цикле
+   * между `GET /llm/prompt` и `POST /llm/response` проходит произвольное время,
+   * игрок вправе сохраниться и выйти, поэтому намерение списать живёт в
+   * состоянии, а не в памяти процесса.
+   *
+   * Необязательное: партия без выданного промта его не несёт, и это законное
+   * состояние, а не «старый сейв».
+   */
+  pendingPromptConsumption?: PromptConsumption | undefined;
+
   // LLM Simulation fields
   llmContext?: string; // контекст для LLM (промт)
   llmResponse?: string; // последний ответ LLM
@@ -219,7 +235,18 @@ export type WorldFactKind =
   | "debt_crisis"
   | "region_crisis"
   | "objective_completed"
-  | "primitive_rejected";
+  | "primitive_rejected"
+  | "action_rejected";
+
+/**
+ * Виды факта, к которым применяется кап подробных записей об отказах.
+ *
+ * Два, а не один (добавлено Милстоуном 1): отказы старого канала `actions`
+ * теперь тоже доезжают до промта, и квота у них СВОЯ. Общая означала бы, что
+ * десять невалидных действий вытесняют точную причину отказа примитива —
+ * ровно ту, ради которой диагностика и существует (docs/PRIMITIVES.md §3).
+ */
+export type RejectionFactKind = "primitive_rejected" | "action_rejected";
 
 /**
  * Канал, породивший факт об отказе примитива (`kind: "primitive_rejected"`).
@@ -249,6 +276,20 @@ export interface WorldFact {
    * источник один (движок) и поле не имеет смысла.
    */
   source?: WorldFactSource | undefined;
+}
+
+/**
+ * Что промт ПОКАЗАЛ, но состояние ещё не списало (docs/PRIMITIVES.md §3).
+ *
+ * Живёт в `shared`, а не рядом с рендером в `server`, ровно потому, что лежит
+ * в состоянии партии и переживает сохранение: ручной цикл разносит выдачу
+ * промта и ответ на неопределённое время.
+ */
+export interface PromptConsumption {
+  /** Одноразовые факты, показанные промтом. */
+  facts: WorldFact[];
+  /** Исторические развилки, попавшие в промт: их счётчик показов растёт. */
+  hingePointIds: string[];
 }
 
 /** Позиция страны игрока в мировом рейтинге силы (docs/OBJECTIVES.md). */
@@ -301,8 +342,6 @@ export type LLMAction =
   | { type: "diplomacy"; sourceCountryId: string; targetCountryId: string; data: { relationChange: number } }
   | { type: "war"; sourceCountryId: string; targetCountryId: string; data?: { warGoal?: string | undefined } | undefined }
   | { type: "peace"; sourceCountryId: string; targetCountryId: string }
-  | { type: "annex"; sourceCountryId: string; targetCountryId: string }
-  | { type: "puppet"; sourceCountryId: string; targetCountryId: string }
   | { type: "sanction"; sourceCountryId: string; targetCountryId: string; data?: { sanctionType?: SanctionType | undefined } | undefined }
   | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
   | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number | undefined } | undefined }
