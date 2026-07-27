@@ -15340,7 +15340,7 @@
   {
     "id": 1073,
     "geoJsonId": "SAM-0007",
-    "area": 48813.2,
+    "area": 48909.9,
     "neighboringRegionIds": [
       1074,
       1143
@@ -15352,7 +15352,7 @@
   {
     "id": 1074,
     "geoJsonId": "SAM-0008",
-    "area": 1210260.6,
+    "area": 1210289.9,
     "neighboringRegionIds": [
       1070,
       1073,
