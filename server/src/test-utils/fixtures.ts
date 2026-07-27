@@ -6,6 +6,7 @@ import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
+import { activeCampaign } from "@shared/types/Campaign";
 
 export function createTestCountry(overrides: Partial<Country> = {}): Country {
   return {
@@ -151,11 +152,27 @@ export function createTestRegion(overrides: Partial<Region> = {}): Region {
   };
 }
 
+/**
+ * Мир для теста. По умолчанию — МИНИМАЛЬНО ВАЛИДНЫЙ, а не пустой.
+ *
+ * До Милстоуна 1 (сессия жизненного цикла) умолчанием было `countries: []` при
+ * `playerCountryId: "TEST"`, то есть партия за страну, которой в мире нет. Пока
+ * ссылочную целостность никто не проверял, это было безобидно; с инвариантом
+ * «ноль висячих ссылок» (`CONCEPT.md` §7.1) такой сейв не грузится — и
+ * правильно делает. Поэтому ростер по умолчанию содержит страну игрока: тест,
+ * которому она мешает, передаёт свой `countries` явно, как и раньше.
+ */
 export function createTestGameState(overrides: Partial<GameState> = {}): GameState {
+  // Страна игрока по умолчанию — первая из переданного ростера, а не константа
+  // "TEST": тест, который перечислил страны и не назвал игрока, почти всегда
+  // имеет в виду первую из них, а не четвёртую несуществующую.
+  const playerCountryId =
+    overrides.playerCountryId ?? overrides.countries?.[0]?.id ?? "TEST";
   return {
     currentDate: "1946-01-01",
-    playerCountryId: "TEST",
-    countries: [],
+    playerCountryId,
+    campaign: activeCampaign(),
+    countries: [createTestCountry({ id: playerCountryId })],
     era: {
       id: "1946",
       name: "Test Era",

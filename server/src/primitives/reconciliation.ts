@@ -155,6 +155,10 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
     case "repress":
     case "grant_autonomy":
     case "spawn_incident":
+    // Раскол не заявляет числовых ячеек: он меняет состав государств, а не
+    // значения полей, разложенных `enumerateCells`. Ветка ЕСТЬ, и это
+    // существенно — страж `never` требует решения, а не умолчания.
+    case "split_country":
       break;
     default:
       assertNeverVerb(applied);
@@ -185,6 +189,7 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     case "repress":
     case "grant_autonomy":
     case "enact_reform":
+    case "split_country":
       return [];
   }
 }
@@ -214,7 +219,31 @@ export function findMisreportedChanges(
   before: GameState,
   after: GameState
 ): string[] {
-  const actual = totalsByKey(cellChanges(enumerateCells(before), enumerateCells(after)));
+  // Сверяются только страны, существующие ПО ОБЕ стороны (Милстоун 1, сессия
+  // жизненного цикла).
+  //
+  // Почему нельзя иначе. `cellChanges` считает отсутствующую ячейку нулём, и для
+  // памяти воздействий это ВЕРНО: она разрежена, «следа нет» и «след нулевой» —
+  // одно утверждение о мире. Для страны это неверно: у несуществующего
+  // государства нет координат идеологии, и ноль не является их значением.
+  // Появление страны читалось бы как «кто-то сдвинул её координаты с нуля до
+  // −0.10», и структурный глагол, честно не заявивший ни одной ячейки,
+  // откатывался бы за ложь о том, чего он не делал.
+  //
+  // Изменение СОСТАВА мира проверяется не здесь, а суммами и висячими ссылками
+  // (`polityLifecycle.ts`, `invariants.ts`) — механизмами, которые знают смысл
+  // `countries`, в отличие от плоской карты числовых ячеек.
+  const common = new Set(
+    after.countries.map(c => c.id).filter(id => before.countries.some(c => c.id === id))
+  );
+  const onlyCommon = (game: GameState): GameState => ({
+    ...game,
+    countries: game.countries.filter(c => common.has(c.id)),
+  });
+
+  const actual = totalsByKey(
+    cellChanges(enumerateCells(onlyCommon(before)), enumerateCells(onlyCommon(after)))
+  );
   const reported = totalsByKey(reportedCells(applied));
 
   const mismatches = [...new Set([...actual.keys(), ...reported.keys()])]

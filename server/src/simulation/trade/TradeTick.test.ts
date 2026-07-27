@@ -183,7 +183,12 @@ describe("tradeTick — валютные зоны (docs/plans/10_CURRENCY_ZONES.
       currencyZoneAnchor: "ANCHOR",
     });
     const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independent] });
-    const gameMember = createTestGameState({ currentDate: "1946-01-01", countries: [member] });
+    // Якорь ЖИВОЙ и стоит в ростере: с Милстоуна 1 членство в зоне требует
+    // существующего якоря — ссылка на распавшееся государство зоной не является.
+    const gameMember = createTestGameState({
+      currentDate: "1946-01-01",
+      countries: [member, createTestCountry({ id: "ANCHOR" })],
+    });
 
     tradeTick(gameIndependent, independent);
     tradeTick(gameMember, member);
@@ -204,7 +209,10 @@ describe("tradeTick — валютные зоны (docs/plans/10_CURRENCY_ZONES.
       currencyZoneAnchor: "ANCHOR",
     });
     const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independent] });
-    const gameMember = createTestGameState({ currentDate: "1946-01-01", countries: [member] });
+    const gameMember = createTestGameState({
+      currentDate: "1946-01-01",
+      countries: [member, createTestCountry({ id: "ANCHOR" })],
+    });
 
     tradeTick(gameIndependent, independent);
     tradeTick(gameMember, member);
@@ -245,7 +253,10 @@ describe("tradeTick — валютные зоны (docs/plans/10_CURRENCY_ZONES.
     outsiderVsMember.diplomacy.sanctions["MEM"] = ["trade_embargo"];
 
     const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independentTarget, outsiderVsIndependent] });
-    const gameMember = createTestGameState({ currentDate: "1946-01-01", countries: [memberTarget, outsiderVsMember] });
+    const gameMember = createTestGameState({
+      currentDate: "1946-01-01",
+      countries: [memberTarget, outsiderVsMember, createTestCountry({ id: "ANCHOR" })],
+    });
 
     tradeTick(gameIndependent, independentTarget);
     tradeTick(gameMember, memberTarget);
@@ -280,6 +291,31 @@ describe("tradeTick — валютные зоны (docs/plans/10_CURRENCY_ZONES.
     // доход-до-бонуса (защита не сработала — эмбарго от собственного якоря); у члена
     // зоны сверху всё равно накручивается +5% экспортный бонус членства (независимый эффект).
     expect(member.economy.exportIncome).toBeCloseTo(independentTarget.economy.exportIncome * 1.05);
+  });
+
+  it("якорь, которого больше НЕТ в мире, зоной не является (тихая поломка жизненного цикла)", () => {
+    // Милстоун 1, сессия жизненного цикла. До правки зона выводилась ИЗ ПОЛЯ:
+    // вопрос «а якорь-то существует?» не задавался нигде, поэтому после
+    // роспуска якорной страны её бывшие члены продолжали получать бонус
+    // экспорта и защиту от санкций от государства, которого нет. Ломалось это
+    // не падением, а правдоподобными числами.
+    const independent = createTestCountry({
+      id: "IND",
+      stockpile: { ...atReserveStockpile(), oil: 200_000 },
+    });
+    const orphan = createTestCountry({
+      id: "ORP",
+      stockpile: { ...atReserveStockpile(), oil: 200_000 },
+      currencyZoneAnchor: "GHOST",
+    });
+    const gameIndependent = createTestGameState({ currentDate: "1946-01-01", countries: [independent] });
+    // Ростер БЕЗ якоря "GHOST" — ровно состояние после его роспуска.
+    const gameOrphan = createTestGameState({ currentDate: "1946-01-01", countries: [orphan] });
+
+    tradeTick(gameIndependent, independent);
+    tradeTick(gameOrphan, orphan);
+
+    expect(orphan.economy.exportIncome).toBeCloseTo(independent.economy.exportIncome);
   });
 
   it("страна без currencyZoneAnchor ведёт себя как раньше — никаких сюрпризов для существующих тестов", () => {

@@ -1,0 +1,14 @@
+{
+  "succession": {
+    "title": "Choose a successor",
+    "lead": "{{predecessor}} broke apart on {{date}}. Choose the shard you will continue as.",
+    "choose": "{{country}} — regions: {{regions}}",
+    "failed": "Could not choose a successor: {{error}}"
+  },
+  "defeat": {
+    "title": "Campaign over",
+    "absorbed": "The state was absorbed by {{country}}.",
+    "dissolvedWithoutSuccessor": "The state ceased to exist, and no successor remained to continue as.",
+    "since": "Date: {{date}}"
+  }
+}

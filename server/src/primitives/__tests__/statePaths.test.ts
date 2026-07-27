@@ -48,25 +48,23 @@ describe("collectChangedPaths — структурные нули новой з�
    * verb, объявивший только `emboldenment`, «менял» бы и остальные три, и
    * палитра перестала бы различать что-либо вовсе.
    */
-  it("нули свежесозданной записи в диф не попадают, ненулевые поля — попадают", () => {
+  it("создание записи — ОДНО заявление (маркер), а не поля нового объекта", () => {
+    // Милстоун 1, сессия жизненного цикла: появление элемента массива со
+    // стабильным ключом отмечается маркером `[+]`, и внутрь него диф не
+    // заходит. Палитра защищает СУЩЕСТВУЮЩЕЕ состояние от побочных эффектов;
+    // форму объекта, который глагол вправе создать, whitelist описывать не
+    // должен — иначе он превращается в копию определения типа.
     const changed = collectChangedPaths(
       { groupImpactMemory: [] },
       {
         groupImpactMemory: [
           { regionId: 187, groupId: "lithuanians",
-            suppression: 0, alienation: 0, concession: 0, emboldenment: 0.2 },
+            suppression: 0.3, alienation: 0, concession: 0, emboldenment: 0 },
         ],
       }
     );
 
-    expect(changed).toEqual([
-      "groupImpactMemory[*].emboldenment",
-      "groupImpactMemory[*].groupId",
-      "groupImpactMemory[*].regionId",
-    ]);
-    expect(findPaletteViolations("incite_unrest", changed)).toEqual([]);
-    // Именно эти три пути палитра `incite_unrest` и объявляет.
-    expect([...PRIMITIVE_PALETTE.incite_unrest].sort()).toEqual(changed);
+    expect(changed).toEqual(["groupImpactMemory[+]"]);
   });
 
   it("в СУЩЕСТВУЮЩЕЙ записи сдвиг поля с нуля виден как раньше", () => {
@@ -82,7 +80,7 @@ describe("collectChangedPaths — структурные нули новой з�
     expect(collectChangedPaths(before, after)).toEqual(["groupImpactMemory[*].alienation"]);
   });
 
-  it("удаление записи целиком видно, а её нулевые поля шума не добавляют", () => {
+  it("удаление записи — ОДНО заявление (маркер), а не россыпь её полей", () => {
     const changed = collectChangedPaths(
       {
         groupImpactMemory: [
@@ -93,14 +91,39 @@ describe("collectChangedPaths — структурные нули новой з�
       { groupImpactMemory: [] }
     );
 
-    expect(changed).toEqual([
-      "groupImpactMemory[*].groupId",
-      "groupImpactMemory[*].regionId",
-      "groupImpactMemory[*].suppression",
-      // Маркер укоротившегося массива (Милстоун 1): позиционное сравнение после
-      // удаления перестаёт быть надёжным, и глагол, удаляющий элементы, обязан
-      // объявить это в палитре явно — иначе отказ выглядел бы россыпью полей.
-      "groupImpactMemory[-]",
-    ]);
+    // Милстоун 1, сессия жизненного цикла: элементы сопоставляются по
+    // стабильному ключу, поэтому пропавший элемент опознан как пропавший и
+    // внутрь него диф не заходит. До этого маркер ДОБАВЛЯЛСЯ к полям
+    // удалённой записи, и отказ палитры перечислял пути, которые не менялись.
+    expect(changed).toEqual(["groupImpactMemory[-]"]);
+  });
+
+  it("перестановка элементов изменением НЕ считается", () => {
+    // Прямое следствие сопоставления по ключу: до него обмен местами двух
+    // записей метил изменёнными все поля обеих.
+    const a = { regionId: 187, groupId: "lithuanians",
+      suppression: 0.3, alienation: 0, concession: 0, emboldenment: 0 };
+    const b = { regionId: 68, groupId: "estonians",
+      suppression: 0, alienation: 0.2, concession: 0, emboldenment: 0 };
+
+    expect(
+      collectChangedPaths({ groupImpactMemory: [a, b] }, { groupImpactMemory: [b, a] })
+    ).toEqual([]);
+  });
+
+  it("удаление из СЕРЕДИНЫ не метит изменённым хвост", () => {
+    const first = { id: "mf-1", type: "protest", tags: ["a"] };
+    const second = { id: "mf-2", type: "uprising", tags: ["b"] };
+    const third = { id: "mf-3", type: "border_dispute", tags: ["c"] };
+
+    // Хвост (`mf-3`) не менялся ни одним полем — и в дифе его быть не должно.
+    // Позиционное сравнение метило бы `type` и `tags[*]`, а на массиве тегов
+    // выставляло бы ещё и ложный маркер удаления.
+    expect(
+      collectChangedPaths(
+        { mapFeatures: [first, second, third] },
+        { mapFeatures: [first, third] }
+      )
+    ).toEqual(["mapFeatures[-]"]);
   });
 });
