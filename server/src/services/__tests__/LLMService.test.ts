@@ -489,7 +489,7 @@ describe("LLMService", () => {
       const svc = new LLMService(g);
       svc.generatePrompt().prompt;
       svc.generatePrompt().prompt;
-      expect(g.llmSpotlightCursor ?? 0).toBe(0);
+      expect(g.llmSpotlightCountryId).toBeUndefined();
     });
 
     it("курсор двигается только после успешного processResponse, с оборачиванием пула", () => {
@@ -502,21 +502,58 @@ describe("LLMService", () => {
       const secondResponse = JSON.stringify({ descriptions: "y", actions: [] });
 
       svc.processResponse(response);
-      // Пул из 6 стран, шаг 5 → курсор 5
-      expect(g.llmSpotlightCursor).toBe(5);
+      // Пул по id: AAA..FFF, шаг 5 → последняя показанная EEE
+      expect(g.llmSpotlightCountryId).toBe("EEE");
 
       const promptAfter = svc.generatePrompt().prompt;
       const section = promptAfter.slice(
         promptAfter.indexOf("## Spotlight Countries"),
         promptAfter.indexOf("## Active Wars")
       );
-      // От курсора 5 в пуле из 6 (AAA..FFF): FFF, затем оборот на AAA..DDD
+      // За EEE в пуле из 6 идёт FFF, затем оборот на AAA..DDD
       expect(section).toContain("Foxtrot");
       expect(section).toContain("Alpha");
 
       svc.processResponse(secondResponse);
-      // (5 + 5) % 6 = 4
-      expect(g.llmSpotlightCursor).toBe(4);
+      // FFF, AAA, BBB, CCC, DDD — последняя показанная DDD
+      expect(g.llmSpotlightCountryId).toBe("DDD");
+    });
+
+    it("курсор ПЕРЕЖИВАЕТ изменение состава стран: продолжает за той же страной", () => {
+      // Свойство, ради которого курсор перестал быть индексом (Милстоун 1):
+      // пул пересобирается из состава, поэтому позиция в нём — ссылка на
+      // страну, замаскированная под число.
+      const g = gameWithRoster();
+      const svc = new LLMService(g);
+      svc.processResponse(JSON.stringify({ descriptions: "x", actions: [] }));
+      expect(g.llmSpotlightCountryId).toBe("EEE");
+
+      // Страна, стоящая в пуле РАНЬШЕ запомненной, исчезает — позиция
+      // запомненной сдвигается, идентификатор нет.
+      g.countries = g.countries.filter(c => c.id !== "AAA");
+
+      const prompt = svc.generatePrompt().prompt;
+      const section = prompt.slice(
+        prompt.indexOf("## Spotlight Countries"),
+        prompt.indexOf("## Active Wars")
+      );
+      // Продолжаем строго ЗА EEE: первой идёт FFF, дальше оборот на BBB…
+      // Позиционный курсор (5) в пуле, ужавшемся до пяти стран, дал бы BBB.
+      expect(section.indexOf("Foxtrot")).toBeGreaterThan(-1);
+      expect(section.indexOf("Foxtrot")).toBeLessThan(section.indexOf("Bravo"));
+    });
+
+    it("исчезнувшая запомненная страна даёт начало пула, а не случайную позицию", () => {
+      const g = gameWithRoster();
+      g.llmSpotlightCountryId = "ZZZ";
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt().prompt;
+      const section = prompt.slice(
+        prompt.indexOf("## Spotlight Countries"),
+        prompt.indexOf("## Active Wars")
+      );
+      expect(section).toContain("Alpha");
+      expect(section).not.toContain("Foxtrot");
     });
 
     it("майоры никогда не попадают в пул ротации", () => {

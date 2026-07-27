@@ -23,6 +23,7 @@ export const PRIMITIVE_VERBS = [
   "grant_autonomy",
   "enact_reform",
   "spawn_incident",
+  "split_country",
 ] as const;
 
 export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
@@ -32,7 +33,7 @@ export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
  * свободно комбинируются; структурные — меняют устройство сущности, максимум
  * 1 на ответ, валидируются и коммитятся последними.
  */
-export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = ["enact_reform"];
+export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = ["enact_reform", "split_country"];
 
 export function isStructural(verb: PrimitiveVerb): boolean {
   return STRUCTURAL_VERBS.includes(verb);
@@ -183,6 +184,32 @@ export interface AppliedSpawnIncident extends AppliedPrimitiveBase {
 }
 
 /**
+ * Факт применения раскола (docs/CONCEPT.md §7.1 — `PolityLifecycleResult`).
+ *
+ * Числовых каналов памяти воздействий у него нет вовсе: раскол меняет не
+ * настроение, а состав государств. Поэтому в сверке результата с состоянием
+ * (`reconciliation.ts`) он не заявляет ни одной ячейки — а факт создания стран
+ * проверяют пост-инварианты, которым про смысл `countries` известно больше, чем
+ * плоской карте числовых ячеек.
+ */
+export interface AppliedSplitCountry extends AppliedPrimitiveBase {
+  verb: "split_country";
+  /** Расколотая страна. */
+  countryId: string;
+  /** Возникшие государства: id, группа-сепаратист и забранные регионы. */
+  shards: { countryId: string; groupId: string; regionIds: number[] }[];
+  /**
+   * Метрополия не пережила раскол (территории не осталось) — и кто принял её
+   * ссылки. Отсутствие поля означает «метрополия жива», а не «неизвестно».
+   */
+  dissolved?: { countryId: string; successorCountryId: string } | undefined;
+  /** Столица метрополии переехала: прежний регион ушёл с осколком. */
+  capitalMoved?: { countryId: string; from: number; to: number } | undefined;
+  /** Войны, потерявшие сторону и потому закрытые движком. */
+  closedWarIds: string[];
+}
+
+/**
  * Discriminated union по глаголу: у каждого verb своя форма фактов, и лишнего
  * поля в ней нет. Общего скаляра «магнитуда» тут намеренно нет — один усреднённый
  * канал не описывает примитив, у которого их несколько (repress пишет и
@@ -193,7 +220,8 @@ export type AppliedPrimitive =
   | AppliedRepress
   | AppliedGrantAutonomy
   | AppliedEnactReform
-  | AppliedSpawnIncident;
+  | AppliedSpawnIncident
+  | AppliedSplitCountry;
 
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
@@ -210,6 +238,7 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
     case "grant_autonomy":
       return [...applied.targetEffects, ...applied.neighbourEffects];
     case "enact_reform":
+    case "split_country":
       return [];
     case "incite_unrest":
     case "repress":

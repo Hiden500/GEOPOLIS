@@ -24,6 +24,8 @@ import {
   ideologyDistance,
   regionDiscontent,
   resolveIdeologyCoordinates,
+  groupDiscontent,
+  regionWelfare,
 } from "@shared/utils/discontent";
 import {
   PRIMITIVE_DEFAULT_INTENSITY,
@@ -66,6 +68,11 @@ import {
   regionNames as regionNamesOf,
 } from "./entityNames";
 import { findMisreportedChanges } from "./reconciliation";
+import { elementIdentity, identityIndex } from "./elementIdentity";
+import { planSplit, splitCountry, splitDiscontentThreshold } from "./polityLifecycle";
+import { pruneTurnBudgetTargets } from "./countryRefs";
+import { SPLIT_MIN_GROUP_SHARE, SPLIT_MIN_REGIONS } from "@shared/defines/discontent";
+import { applyLifecycleToCampaign } from "./campaign";
 import {
   type ExhaustedTarget,
   type PrimitiveRejection,
@@ -544,6 +551,75 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
             code: "noDisputableBorder",
             region: region.names,
             controller: countryNamesOf(game, effectiveController(region)),
+          },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "split_country": {
+      const target = game.countries.find(c => c.id === primitive.target.countryId);
+      if (!target) {
+        return {
+          valid: false,
+          rejection: { code: "unknownCountry", countryId: primitive.target.countryId },
+        };
+      }
+
+      // Государство распадается ИЗНУТРИ. Раскол чужой страны извне — это
+      // аннексия или война, у них свои глаголы и своя цена; разрешить его здесь
+      // значило бы дать бесплатный способ разбирать соседей на части
+      // (docs/CONCEPT.md §5.5).
+      if (target.id !== primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "splitNotSelf", source: source.name, country: target.name },
+        };
+      }
+
+      const owned = game.regions.filter(r => r.ownerCountryId === target.id);
+      if (owned.length < SPLIT_MIN_REGIONS) {
+        return {
+          valid: false,
+          rejection: {
+            code: "splitTooFewRegions",
+            country: target.name,
+            regions: owned.length,
+            required: SPLIT_MIN_REGIONS,
+          },
+        };
+      }
+
+      // Нетривиальная предпосылка: должен существовать хотя бы один регион, где
+      // группа-БОЛЬШИНСТВО перешла порог недовольства. Это то же «сердце
+      // сложности», что у `incite_unrest`, но на уровне государства: раскол
+      // выводится из демо-геометрии, а не объявляется моделью.
+      const threshold = splitDiscontentThreshold(intensityHint(primitive));
+      if (planSplit(game, target.id, intensityHint(primitive)).length === 0) {
+        // Причина называет, НАСКОЛЬКО не хватило: без числа модель повторит ту
+        // же попытку вслепую (docs/PRIMITIVES.md §3).
+        let best = 0;
+        for (const region of owned) {
+          for (const candidate of region.demographics ?? []) {
+            if (candidate.share < SPLIT_MIN_GROUP_SHARE) continue;
+            const definition = game.ethnicGroups.find(g => g.id === candidate.groupId);
+            if (!definition) continue;
+            const discontent = groupDiscontent(
+              resolveIdeologyCoordinates(target.politics),
+              definition.desiredIdeology,
+              regionWelfare(region, target),
+              findImpactMemory(game.groupImpactMemory, region.id, candidate.groupId)
+            );
+            if (discontent > best) best = discontent;
+          }
+        }
+        return {
+          valid: false,
+          rejection: {
+            code: "splitNoSeparatistRegion",
+            country: target.name,
+            threshold,
+            best,
           },
         };
       }
@@ -1031,6 +1107,59 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         },
       };
     }
+
+    case "split_country": {
+      const target = game.countries.find(c => c.id === primitive.target.countryId)!;
+      const name = getText(target.name, LLM_LOCALE);
+
+      // Вся работа со ссылками, суммами и войнами живёт в `polityLifecycle.ts`,
+      // а не здесь: обработчик глагола обязан оставаться переводом «примитив →
+      // операция», иначе жизненный цикл размажется по switch'у и второй его
+      // потребитель (`merge_countries`) получит собственную копию правил.
+      const result = splitCountry(game, {
+        countryId: target.id,
+        intensity: intensityHint(primitive),
+      });
+
+      // Состояние КАМПАНИИ пересчитывается тем же ходом, а не следующим тиком:
+      // «за кого играет человек» не должно ни на мгновение указывать в пустоту,
+      // а решение о преемнике §7.1 привязывает именно к моменту распада.
+      applyLifecycleToCampaign(game, result);
+
+      const shardSummary = result.shards
+        .map(s => `${s.countryId} (${s.regionIds.length} region(s))`)
+        .join(", ");
+
+      return {
+        ok: true,
+        applied: {
+          verb: "split_country",
+          sourceCountryId: primitive.sourceCountryId,
+          countryId: target.id,
+          shards: result.shards,
+          ...(result.dissolvedCountryId === undefined || result.successorCountryId === undefined
+            ? {}
+            : {
+                dissolved: {
+                  countryId: result.dissolvedCountryId,
+                  successorCountryId: result.successorCountryId,
+                },
+              }),
+          ...(result.capitalReassignments[0] === undefined
+            ? {}
+            : { capitalMoved: result.capitalReassignments[0] }),
+          closedWarIds: result.closedWarIds,
+          summary: joinSummary(
+            result.dissolvedCountryId === undefined
+              ? `${name} split: ${shardSummary} seceded`
+              : `${name} fell apart into ${shardSummary}`,
+            result.closedWarIds.length > 0
+              ? [`wars closed: ${result.closedWarIds.join(", ")}`]
+              : []
+          ),
+        },
+      };
+    }
   }
 }
 
@@ -1096,6 +1225,7 @@ interface PrimitiveTarget {
 function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
   switch (primitive.verb) {
     case "enact_reform":
+    case "split_country":
       return [
         {
           key: `country ${primitive.target.countryId}`,
@@ -1562,6 +1692,11 @@ export function applyPrimitiveBatch(
         impactAccrued: Object.fromEntries(impactUsed),
       };
 
+  // Счётчики целей, ключуемые исчезнувшей страной, снимаются здесь: бюджет
+  // пишется после commit'а из локальных копий, снятых ДО применения, и общий
+  // перенос ссылок до него не достаёт (см. `pruneTurnBudgetTargets`).
+  pruneTurnBudgetTargets(game);
+
   // Диагностика пишется ПОСЛЕ commit'а, прямо в боевое состояние: факты об
   // отказах не участвуют в откате и не должны быть перетёрты переносом. Кап на
   // число подробных записей держит `pushRejectionFact`.
@@ -1570,7 +1705,16 @@ export function applyPrimitiveBatch(
       game,
       "primitive_rejected",
       {
-        countryId: rejection.sourceCountryId ?? game.playerCountryId,
+        // Только СУЩЕСТВУЮЩАЯ страна: источник примитива приходит от модели и
+        // вполне может не существовать — ровно за это отказ `unknownSourceCountry`
+        // и выдан. Висячая ссылка в диагностике уронила бы пост-инварианты
+        // (§7.1) и откатила весь ответ, а сам факт всё равно не доехал бы до
+        // промта: секции у несуществующей страны нет.
+        countryId:
+          rejection.sourceCountryId !== undefined &&
+          game.countries.some(c => c.id === rejection.sourceCountryId)
+            ? rejection.sourceCountryId
+            : game.playerCountryId,
         text: rejectionFactText(rejection),
       },
       source
@@ -1607,10 +1751,20 @@ export function rejectionFactText(rejected: RejectedPrimitive): string {
  * не удаляет ключи, поэтому первый же verb, лениво заводящий новое поле в
  * `GameState`, получал бы неполный откат.
  *
- * Идентичность сохраняется позиционно: элемент массива с индексом i остаётся
- * тем же объектом. Для примитивов среза этого достаточно — ни один из них не
- * переставляет и не удаляет регионы/страны. Верб, который начнёт это делать,
- * обязан будет пересобирать ссылки сам (и это стоит отдельной проверки).
+ * Идентичность элементов массивов сохраняется ПО СТАБИЛЬНОМУ КЛЮЧУ, а не по
+ * позиции (Милстоун 1, сессия жизненного цикла — `elementIdentity.ts`). До
+ * этого элемент с индексом i считался тем же объектом, что элемент с индексом
+ * i, и глагол, вставляющий страну в середину ростера или удаляющий её оттуда,
+ * молча переселял бы взятые ранее ссылки на СОСЕДНЮЮ страну. Прежний JSDoc
+ * честно называл это ограничением и требовал от такого глагола пересобирать
+ * ссылки самому; жизненный цикл делает такие глаголы штатными, и требование
+ * «каждый автор помнит сам» перестаёт быть выполнимым.
+ *
+ * Теперь: элемент, найденный по ключу в обоих снимках, переносится НА МЕСТЕ
+ * (ссылка на него остаётся живой, где бы он ни оказался в массиве); элемент,
+ * которого в цели нет, берётся из источника как есть; элемент, которого нет в
+ * источнике, исчезает. Массивы без идентичности (`string[]`, `number[]`)
+ * остаются позиционными — у их элементов идентичности действительно нет.
  *
  * Экспортируется ради прямого теста инвариантов переноса (удаление ключей,
  * сохранение ссылок); снаружи движка вызывать её незачем.
@@ -1636,10 +1790,28 @@ function assignInPlace(target: Record<string, unknown>, source: Record<string, u
 function mergeValue(targetValue: unknown, sourceValue: unknown): unknown {
   if (Array.isArray(sourceValue) && Array.isArray(targetValue)) {
     const merged = targetValue as unknown[];
-    merged.length = sourceValue.length;
-    for (let i = 0; i < sourceValue.length; i++) {
-      merged[i] = mergeValue(merged[i], sourceValue[i]);
+    const index = identityIndex(merged);
+
+    // Массив без идентичности элементов (`string[]`, `number[]`) — позиционно:
+    // это не уступка, а верное сравнение для значений без ключа.
+    if (!index) {
+      merged.length = sourceValue.length;
+      for (let i = 0; i < sourceValue.length; i++) {
+        merged[i] = mergeValue(merged[i], sourceValue[i]);
+      }
+      return merged;
     }
+
+    const next: unknown[] = [];
+    for (const item of sourceValue) {
+      const key = elementIdentity(item);
+      const existing = key === undefined ? undefined : index.get(key);
+      // Найденный по ключу элемент переносится НА МЕСТЕ: внешняя ссылка на
+      // него остаётся живой, куда бы он ни переехал в массиве.
+      next.push(existing === undefined ? item : mergeValue(existing, item));
+    }
+    merged.length = 0;
+    merged.push(...next);
     return merged;
   }
 

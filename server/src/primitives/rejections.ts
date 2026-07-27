@@ -86,6 +86,15 @@ export type PrimitiveRejection =
       uprisingThreshold: number;
     }
   | { code: "noDisputableBorder"; region: LocalizedText; controller: LocalizedText }
+  | { code: "splitNotSelf"; source: LocalizedText; country: LocalizedText }
+  | { code: "splitTooFewRegions"; country: LocalizedText; regions: number; required: number }
+  | {
+      code: "splitNoSeparatistRegion";
+      country: LocalizedText;
+      threshold: number;
+      /** Наибольшее недовольство группы-большинства в стране — насколько не хватило. */
+      best: number;
+    }
 
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
@@ -203,6 +212,23 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
       return (
         `${name(rejection.region)} has no border a dispute could be about: every neighbouring ` +
         `region is held by ${name(rejection.controller)} itself or by an ally`
+      );
+
+    case "splitNotSelf":
+      return (
+        `${name(rejection.source)} cannot split ${name(rejection.country)}: a state falls apart ` +
+        `from within, it is not split from outside (that is annexation or war)`
+      );
+    case "splitTooFewRegions":
+      return (
+        `${name(rejection.country)} holds ${rejection.regions} region(s) and cannot be split: ` +
+        `at least ${rejection.required} are required`
+      );
+    case "splitNoSeparatistRegion":
+      return (
+        `No region of ${name(rejection.country)} is held by a discontented majority: the highest ` +
+        `such discontent is ${rejection.best.toFixed(2)}, below the ` +
+        `${rejection.threshold.toFixed(2)} secession threshold`
       );
 
     case "softTurnCapReached":
@@ -334,6 +360,21 @@ export function rejectionRecord(
       );
     case "noDisputableBorder":
       return of(undefined, { region: rejection.region, controller: rejection.controller });
+
+    case "splitNotSelf":
+      return of(undefined, { source: rejection.source, country: rejection.country });
+    case "splitTooFewRegions":
+      return of(
+        { regions: rejection.regions, required: rejection.required },
+        { country: rejection.country }
+      );
+    case "splitNoSeparatistRegion":
+      // Порог и текущее недовольство — свойства МИРА и ПРАВИЛ, игрок их видит
+      // и в интерфейсе (см. шапку модуля); магнитуды здесь нет вовсе.
+      return of(
+        { threshold: rejection.threshold.toFixed(2), best: rejection.best.toFixed(2) },
+        { country: rejection.country }
+      );
 
     case "softTurnCapReached":
     case "structuralTurnCapReached":

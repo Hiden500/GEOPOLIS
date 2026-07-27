@@ -1955,18 +1955,6 @@
     },
     "politics": {
       "ideology": "Liberal Democracy"
-    },
-    "diplomacy": {
-      "puppets": [
-        "SOM",
-        "ERI",
-        "LBY"
-      ],
-      "sphereOfInfluence": [
-        "SOM",
-        "ERI",
-        "LBY"
-      ]
     }
   },
   {

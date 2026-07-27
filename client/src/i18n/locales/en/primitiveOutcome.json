@@ -104,6 +104,16 @@
       "mild": "manner: mild",
       "moderate": "manner: moderate",
       "severe": "manner: severe"
-    }
+    },
+    "split_country": "Break-up of {{country}}"
+  },
+  "splitCountry": {
+    "headline": "{{country}} broke apart into {{shards}} new state(s)"
+  },
+  "split": {
+    "shard": "Seceded: {{country}} ({{group}}), {{regions}} region(s)",
+    "dissolved": "The metropole ceased to exist; successor: {{country}}",
+    "capitalMoved": "The capital moved to region {{region}}",
+    "warsClosed": "Wars closed: {{count}}"
   }
 }

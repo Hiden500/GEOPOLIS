@@ -156,6 +156,7 @@ export const PRIMITIVE_SCHEMAS = {
   grant_autonomy: primitiveOf("grant_autonomy", regionOrGroupTargetSchema, intensityOnlyParamsSchema),
   enact_reform: primitiveOf("enact_reform", countryTargetSchema, reformParamsSchema),
   spawn_incident: primitiveOf("spawn_incident", regionTargetSchema, incidentParamsSchema),
+  split_country: primitiveOf("split_country", countryTargetSchema, intensityOnlyParamsSchema),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -164,6 +165,7 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.grant_autonomy,
   PRIMITIVE_SCHEMAS.enact_reform,
   PRIMITIVE_SCHEMAS.spawn_incident,
+  PRIMITIVE_SCHEMAS.split_country,
 ]);
 
 /**

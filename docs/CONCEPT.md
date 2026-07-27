@@ -640,7 +640,12 @@ LLM. Мир устойчив и драматичен — падение прох
 **контрактов** — работу реализации, без которой свобода алфавита разрушит состояние мира. Здесь они
 как контракт, не как готовый код.
 
-**1. State machine кампании + lifecycle государства.** `campaignStatus`: active →
+**1. State machine кампании + lifecycle государства.** *(Реализовано Милстоуном 1,
+сессия «Жизненный цикл государств»: `GameState.campaign`,
+`server/src/primitives/{countryRefs,polityLifecycle,campaign}.ts`, глагол
+`split_country`. Границы реализации названы в `docs/PRIMITIVES.md` §2 и в
+`DECISIONS.md`; `create_country`/`merge_countries`/`annex`/`puppet` — вне её.)*
+`campaignStatus`: active →
 succession_choice_pending → active (выбранный осколок) | defeated (причина). При создании/роспуске/
 расколе/объединении страны — `PolityLifecycleResult`: явный перенос ВСЕХ ссылок (регионы, капитал,
 вся дипломатия у всех ссылающихся, стороны и потери войн, цели, техника, долги, модификаторы,

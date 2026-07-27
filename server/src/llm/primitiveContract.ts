@@ -6,6 +6,9 @@ import {
   MAX_SOFT_PRIMITIVES_PER_TURN,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
   MAX_PRIMITIVES_PER_TARGET_PER_TURN,
+  SPLIT_MIN_GROUP_SHARE,
+  SPLIT_MIN_DISCONTENT_LOOSE,
+  SPLIT_MIN_DISCONTENT_STRICT,
 } from "@shared/defines/discontent";
 
 /**
@@ -58,6 +61,18 @@ required target field is missing.
   additionally needs ${SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT} (a region in
   crisis is not yet a region in revolt); "border_dispute" additionally needs a
   neighbouring region held by someone who is not an ally.
+- split_country — target {countryId}, required and MUST equal sourceCountryId:
+  a state falls apart from WITHIN. Breaking up someone else's country is
+  conquest or war, not this verb. params {intensity}. The engine decides
+  entirely on its own WHICH regions leave and HOW MANY states appear: a region
+  secedes when a group holding at least ${SPLIT_MIN_GROUP_SHARE} of it has
+  passed the secession threshold, and every seceding region joins the state of
+  its own group. You name the event; you do not draw the map. intensity moves
+  the THRESHOLD inside a hard corridor (${SPLIT_MIN_DISCONTENT_LOOSE} at
+  "severe", ${SPLIT_MIN_DISCONTENT_STRICT} at "mild"), so a calm country cannot
+  be broken apart by calling the split severe. That threshold sits ABOVE the one
+  an uprising needs: a region ready to revolt is not yet a region leaving the
+  country.
 
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —
@@ -65,14 +80,15 @@ Rules the engine enforces, not requests:
   inside a corridor whose width the world state decides. Where the state gives
   no room, "severe" equals "mild". Any numeric field inside params is a schema
   error that rejects the primitive.
-- A structural primitive (enact_reform) rejected by the ENGINE — on the schema,
+- A structural primitive (enact_reform, split_country) rejected by the ENGINE — on the schema,
   on the preconditions, or on the turn budget — rejects the WHOLE response,
   including the soft primitives you sent with it. Send a structural one only
   when the rest of the response is meant to happen together with it.
 - Order is execution order: each primitive sees the effect of the previous one,
   so incite_unrest followed by spawn_incident is a legitimate chain.
-- At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one (enact_reform) per game
-  turn, and at most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} use of the same verb against the same target per turn.
+- At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one per game
+  turn (enact_reform and split_country share that one structural slot), and at
+  most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} use of the same verb against the same target per turn.
   These are budgets of the TURN, not of your response: the player's own orders
   this month draw on the same budget, so a target they have already acted on is
   spent for you too. A refusal that says the budget is spent is not a mistake to
