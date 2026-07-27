@@ -39,6 +39,7 @@ import {
   TEST_REGION_NATIONAL,
   TEST_REGION_NEIGHBOUR,
   TEST_REGION_CONTROL,
+  seedSeparatistDiscontent,
 } from "../../test-utils/discontentFixtures";
 import { createTestRegion } from "../../test-utils/fixtures";
 import { createGame } from "../../game/CreateGame";
@@ -115,7 +116,20 @@ const inciteTitular: Primitive = {
  * покрывающий весь алфавит, обязан быть один, иначе новый глагол попадёт в одну
  * проверку и проскочит мимо второй.
  */
-const SCENARIOS: { verb: PrimitiveVerb; primitive: Primitive }[] = [
+/**
+ * Сценарий палитры: глагол, примитив и — при необходимости — подготовка мира.
+ *
+ * `setup` добавлен Милстоуном 1 (сессия жизненного цикла). Структурный
+ * `split_country` по построению недостижим на спокойном мире: порог отделения
+ * выше порога восстания, и дойти до него можно только накопленным следом
+ * воздействий. Это не неудобство теста, а сама механика §6 — распад стоит в
+ * КОНЦЕ драматургической дуги, а не доступен с первого хода.
+ */
+const SCENARIOS: {
+  verb: PrimitiveVerb;
+  primitive: Primitive;
+  setup?: (state: GameState) => void;
+}[] = [
   { verb: "incite_unrest", primitive: inciteTitular },
   {
     verb: "repress",
@@ -140,6 +154,14 @@ const SCENARIOS: { verb: PrimitiveVerb; primitive: Primitive }[] = [
     primitive: {
       verb: "spawn_incident", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
     },
+  },
+  {
+    verb: "split_country",
+    primitive: {
+      verb: "split_country", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { intensity: "severe" },
+    },
+    setup: seedSeparatistDiscontent,
   },
 ];
 
@@ -1103,8 +1125,9 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
     expect(SCENARIOS.map(s => s.verb).sort()).toEqual([...PRIMITIVE_VERBS].sort());
   });
 
-  it.each(SCENARIOS)("$verb меняет только задекларированные пути состояния", ({ verb, primitive }) => {
+  it.each(SCENARIOS)("$verb меняет только задекларированные пути состояния", ({ verb, primitive, setup }) => {
     const state = game();
+    setup?.(state);
     const before = structuredClone(state);
 
     const result = applyPrimitiveBatch(state, [primitive]);
@@ -1125,10 +1148,9 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
     const original = PRIMITIVE_PALETTE.repress;
     // Сужаем палитру так, что законный эффект перестаёт быть законным —
     // движок обязан откатить примитив, а не применить его «почти».
-    (PRIMITIVE_PALETTE as Record<PrimitiveVerb, readonly string[]>).repress = [
-      "groupImpactMemory[*].regionId",
-      "groupImpactMemory[*].groupId",
-    ];
+    // Пустая палитра: законный эффект перестаёт быть законным целиком, включая
+    // само появление записи памяти.
+    (PRIMITIVE_PALETTE as Record<PrimitiveVerb, readonly string[]>).repress = [];
 
     try {
       const result = applyPrimitiveBatch(state, [{
@@ -1327,11 +1349,20 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
    * инвариант, который движок проверяет в рантайме, — но проверенный снаружи,
    * на каждом verb, а не только на том, где о нём вспомнили.
    */
-  it.each(PRIMITIVE_VERBS.filter(v => v !== "enact_reform"))(
+  // Список глаголов ВЫВОДИТСЯ из палитры, а не перечисляется руками: глагол,
+  // который пишет в память воздействий, попадает под проверку сам, а тот, что
+  // не пишет (реформа, раскол), не заставляет её ждать изменений, которых по
+  // контракту не будет.
+  it.each(
+    PRIMITIVE_VERBS.filter(v =>
+      PRIMITIVE_PALETTE[v].some(path => path.startsWith("groupImpactMemory"))
+    )
+  )(
     "%s: отчёт покрывает каждое фактическое изменение памяти",
     (verb) => {
       const scenario = SCENARIOS.find(s => s.verb === verb)!;
       const state = game();
+      scenario.setup?.(state);
       const before = structuredClone(state.groupImpactMemory);
 
       const result = applyPrimitiveBatch(state, [scenario.primitive]);
@@ -1450,8 +1481,9 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
    * Проверяется буквально: каждое опубликованное `after` совпадает с тем, что
    * реально лежит в мире после commit'а.
    */
-  it.each(SCENARIOS)("$verb: опубликованное «стало» совпадает с состоянием мира", ({ primitive }) => {
+  it.each(SCENARIOS)("$verb: опубликованное «стало» совпадает с состоянием мира", ({ primitive, setup }) => {
     const state = game();
+    setup?.(state);
     const result = applyPrimitiveBatch(state, [primitive]);
     expect(result.applied).toHaveLength(1);
     const applied = result.applied[0]!;
@@ -1788,5 +1820,42 @@ describe("commit не отрывает ссылки от состояния", ()
     restore(target, source);
 
     expect("lastTurnReport" in target).toBe(false);
+  });
+
+  it("перенос сохраняет идентичность элемента, ПЕРЕЕХАВШЕГО в другую позицию", () => {
+    // Милстоун 1, сессия жизненного цикла. Раньше идентичность держалась
+    // позиционно, и глагол, вставивший страну в середину ростера, молча
+    // переселял бы взятую ранее ссылку на СОСЕДНЮЮ страну: запись через неё
+    // уходила бы не туда, а чтение отдавало бы чужие числа.
+    const target = game();
+    const sun = target.countries.find(c => c.id === "SUN")!;
+    const usa = target.countries.find(c => c.id === "USA")!;
+
+    const source = structuredClone(target);
+    // Источник: тот же состав в ДРУГОМ порядке — ровно то, что делает вставка
+    // осколка в отсортированный ростер.
+    source.countries.reverse();
+    source.countries.find(c => c.id === "SUN")!.politics.stability = 11;
+    expect(source.countries[0]!.id).not.toBe(target.countries[0]!.id);
+
+    restore(target, source);
+
+    // Тот же объект, хотя его индекс изменился, — и он несёт новое значение.
+    expect(target.countries.find(c => c.id === "SUN")).toBe(sun);
+    expect(sun.politics.stability).toBe(11);
+    expect(target.countries.find(c => c.id === "USA")).toBe(usa);
+  });
+
+  it("перенос удаляет элемент, которого в источнике нет, не трогая соседей", () => {
+    const target = game();
+    const sun = target.countries.find(c => c.id === "SUN")!;
+
+    const source = structuredClone(target);
+    source.countries = source.countries.filter(c => c.id !== "USA");
+
+    restore(target, source);
+
+    expect(target.countries.map(c => c.id)).toEqual(["SUN"]);
+    expect(target.countries[0]).toBe(sun);
   });
 });

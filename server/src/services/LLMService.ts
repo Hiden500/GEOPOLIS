@@ -604,11 +604,25 @@ export class LLMService {
     rejectedActions: readonly RejectedAction[]
   ): void {
     for (const rejection of rejectedActions) {
+      // Факт приписывается СУЩЕСТВУЮЩЕЙ стране (уточнено Милстоуном 1, сессия
+      // жизненного цикла). Источник отклонённого действия — то, что назвала
+      // модель, и он вполне может не существовать вовсе: именно за это
+      // действие и отклонили. Приписывать диагностику галлюцинации значило
+      // сразу две вещи, обе плохие: висячая ссылка в состоянии (её теперь
+      // ловит инвариант §7.1 и откатывает ВЕСЬ ответ) и потерянная
+      // диагностика — секции промта у несуществующей страны нет, то есть
+      // объяснение отказа не доезжает до модели, ради чего факт и пишется.
+      const source = rejection.sourceCountryId;
+      const attributedTo =
+        source !== undefined && target.countries.some(c => c.id === source)
+          ? source
+          : target.playerCountryId;
+
       pushRejectionFact(
         target,
         "action_rejected",
         {
-          countryId: rejection.sourceCountryId ?? target.playerCountryId,
+          countryId: attributedTo,
           text: `Action rejected (${rejection.type ?? "malformed action"}): ${rejection.reason}`,
         },
         "director"
@@ -715,6 +729,16 @@ export class LLMService {
         case "incite_unrest":
         case "repress":
           addRegion(primitive.regionId);
+          break;
+        case "split_country":
+          // Раскол касается и метрополии, и каждого осколка, и каждого
+          // отделившегося региона: «память страны» осколка обязана начинаться
+          // с собственного рождения.
+          countries.add(primitive.countryId);
+          for (const shard of primitive.shards) {
+            countries.add(shard.countryId);
+            for (const regionId of shard.regionIds) addRegion(regionId);
+          }
           break;
         default:
           // Явная проверка на недостижимость: ветки здесь заканчиваются
@@ -1292,27 +1316,43 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
-   * Следующие LLM_SPOTLIGHT_COUNT стран пула начиная с llmSpotlightCursor
-   * (round-robin с оборачиванием). Не двигает курсор — генерация промта
-   * должна быть идемпотентной; курсор двигает только advanceSpotlightCursor
+   * Позиция курсора в ТЕКУЩЕМ пуле: индекс страны, следующей за последней
+   * показанной.
+   *
+   * Курсор хранится идентификатором, а не индексом (Милстоун 1, сессия
+   * жизненного цикла): пул пересобирается из состава стран каждый цикл, и
+   * индекс молча указывал бы на другую страну после любого раскола или
+   * объединения. Страна, которой в пуле больше нет (распалась либо выросла до
+   * major), даёт начало пула — это честное «продолжить с начала», а не
+   * попадание в случайную позицию.
+   */
+  private spotlightStart(pool: readonly Country[]): number {
+    const last = this.game.llmSpotlightCountryId;
+    if (last === undefined) return 0;
+    const index = pool.findIndex(c => c.id === last);
+    return index < 0 ? 0 : (index + 1) % pool.length;
+  }
+
+  /**
+   * Следующие LLM_SPOTLIGHT_COUNT стран пула, начиная за последней показанной
+   * (round-robin с оборачиванием). Не двигает курсор — генерация промта должна
+   * быть идемпотентной; курсор двигает только advanceSpotlightCursor
    * (вызывается из processResponse при успешном проходе цикла).
    */
   private getSpotlightCountries(): Country[] {
     const pool = this.getSpotlightPool();
     if (pool.length === 0) return [];
 
-    const cursor = (this.game.llmSpotlightCursor ?? 0) % pool.length;
+    const start = this.spotlightStart(pool);
     const count = Math.min(LLM_SPOTLIGHT_COUNT, pool.length);
-    return Array.from({ length: count }, (_, i) => pool[(cursor + i) % pool.length]!);
+    return Array.from({ length: count }, (_, i) => pool[(start + i) % pool.length]!);
   }
 
-  /** Продвигает курсор ротации на LLM_SPOTLIGHT_COUNT, с оборачиванием. */
+  /** Запоминает последнюю показанную страну цикла — с неё продолжится счёт. */
   private advanceSpotlightCursor(): void {
-    const pool = this.getSpotlightPool();
-    if (pool.length === 0) return;
-
-    const cursor = (this.game.llmSpotlightCursor ?? 0) % pool.length;
-    this.game.llmSpotlightCursor = (cursor + LLM_SPOTLIGHT_COUNT) % pool.length;
+    const shown = this.getSpotlightCountries();
+    const last = shown[shown.length - 1];
+    if (last) this.game.llmSpotlightCountryId = last.id;
   }
 
   /**

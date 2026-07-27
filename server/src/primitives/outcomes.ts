@@ -205,6 +205,51 @@ export function buildPrimitiveOutcome(
         details,
       };
     }
+
+    case "split_country": {
+      // Отклик перечисляет ФАКТ, а не оценку: сколько государств возникло,
+      // сколько регионов каждое забрало, пережила ли метрополия раскол.
+      const details: PrimitiveOutcomeLine[] = applied.shards.map(shard => ({
+        key: "split.shard",
+        values: { regions: shard.regionIds.length },
+        names: {
+          country: countryNames(game, shard.countryId),
+          group: groupNames(game, shard.groupId),
+        },
+      }));
+
+      if (applied.dissolved) {
+        details.push({
+          key: "split.dissolved",
+          names: { country: countryNames(game, applied.dissolved.successorCountryId) },
+        });
+      }
+      if (applied.capitalMoved) {
+        details.push({
+          key: "split.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoved.to) },
+        });
+      }
+      if (applied.closedWarIds.length > 0) {
+        details.push({
+          key: "split.warsClosed",
+          values: { count: applied.closedWarIds.length },
+        });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "splitCountry.headline",
+          values: { shards: applied.shards.length },
+          // Имя расколотой страны берётся из состояния, а распустившейся —
+          // из результата: в состоянии её уже нет, и резолвер имён вернул бы
+          // сырой идентификатор.
+          names: { country: countryNames(game, applied.countryId) },
+        },
+        details,
+      };
+    }
   }
 }
 
@@ -306,6 +351,13 @@ export function buildPrimitivePreview(
           names.group = groupNames(game, primitive.target.groupId);
         }
         key = `preview.${primitive.verb}.${primitive.target.groupId ? "group" : "region"}`;
+        break;
+      case "split_country":
+        // В показе распознанного НЕТ ни числа осколков, ни их состава: их
+        // выведет движок из состояния в момент применения, и обещать их заранее
+        // значило бы соврать при первом же изменении недовольства.
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.split_country";
         break;
     }
 

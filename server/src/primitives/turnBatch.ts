@@ -55,8 +55,11 @@ function placeHistoryEntries(
   const entries: { regionId: number; entry: PlaceHistoryEntry }[] = [];
 
   // Реформа — общегосударственный акт без места: приписывать её произвольному
-  // региону значило бы выдумать факт, которого в результате нет.
-  if (applied.verb === "enact_reform") return entries;
+  // региону значило бы выдумать факт, которого в результате нет. Раскол
+  // затрагивает МНОГО мест сразу, и «история места» о нём сказать нечего,
+  // кроме смены флага: она уже выражена владением региона, а запись в каждый
+  // отделившийся регион дублировала бы её десятками строк, не добавляя факта.
+  if (applied.verb === "enact_reform" || applied.verb === "split_country") return entries;
 
   entries.push({
     regionId: applied.regionId,

@@ -45,6 +45,9 @@ export function createSovietTestCountry(overrides: Partial<Country> = {}): Count
   const base = createTestCountry({ id: "SUN" });
   return {
     ...base,
+    // Столица — среди СВОИХ регионов: инвариант состояния (`invariants.ts`)
+    // требует этого от каждой страны, владеющей хотя бы одним регионом.
+    capitalRegionId: TEST_REGION_CONTROL,
     population: REGION_POPULATION * 3,
     economy: { ...base.economy, gdp: REGION_GDP * 3 },
     politics: {
@@ -96,3 +99,38 @@ export function createDiscontentTestGame(overrides: Partial<GameState> = {}): Ga
     ...overrides,
   });
 }
+
+/**
+ * Накопленный след, доводящий титульную группу национальных регионов до порога
+ * ОТДЕЛЕНИЯ (`split_country`, docs/CONCEPT.md §5.5).
+ *
+ * Зачем отдельная подготовка. Распад стоит в КОНЦЕ драматургической дуги §6
+ * («экономика → нестабильность → переворот ИЛИ распад»), и порог отделения
+ * намеренно выше порога восстания. На спокойном мире `split_country`
+ * отклоняется — это свойство механики, а не неудобство теста, и подделывать
+ * его подкруткой порога значило бы проверять другую игру.
+ *
+ * Пишется ПАМЯТЬ ВОЗДЕЙСТВИЙ, а не само недовольство: недовольство не
+ * хранится, движок выводит его (`CONCEPT.md` §4.1). Значение не подобрано «чтоб
+ * прошло»: это тот же канал `emboldenment`, который наполняют `incite_unrest` и
+ * `spawn_incident`, то есть путь, достижимый в настоящей партии.
+ */
+export function seedSeparatistDiscontent(game: GameState): void {
+  for (const region of game.regions) {
+    if (!region.demographics?.some(d => d.groupId === TEST_GROUP_TITULAR)) continue;
+    game.groupImpactMemory.push({
+      regionId: region.id,
+      groupId: TEST_GROUP_TITULAR,
+      suppression: 0,
+      alienation: 0,
+      concession: 0,
+      emboldenment: SEPARATIST_EMBOLDENMENT,
+    });
+  }
+}
+
+/**
+ * След, при котором недовольство титульной группы фикстуры переходит самый
+ * мягкий порог отделения с запасом, но не упирается в потолок поля.
+ */
+const SEPARATIST_EMBOLDENMENT = 0.6;
