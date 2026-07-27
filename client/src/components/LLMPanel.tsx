@@ -176,6 +176,18 @@ function CycleResult({ result }: { result: LlmCycleResult }) {
       {result.narrativeCanonized ? (
         <>
           <h3>{result.title || t("result.defaultTitle")}</h3>
+          {/*
+            Та же пометка, что в ленте событий (EventTimelinePanel): текст
+            написан ДО применения, и при частичном применении он вправе
+            описывать отклонённую часть. Панель — место, где игрок читает его
+            ПЕРВЫМ, поэтому оставить её здесь без пометки значило бы отложить
+            правду на один экран.
+          */}
+          {result.factuality && result.factuality !== "confirmed" && (
+            <p className="llm-factuality" role="note">
+              {t(`result.factuality.${result.factuality}`)}
+            </p>
+          )}
           {result.descriptions && <p className="llm-descriptions">{result.descriptions}</p>}
         </>
       ) : (

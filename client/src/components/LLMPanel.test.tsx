@@ -94,6 +94,7 @@ describe("LLMPanel — канон отделён от предложенного
         ...BASE,
         title: "Двойной ход",
         descriptions: "Нарратив.",
+        factuality: "partial",
         primitiveOutcomes: [outcome],
         rejectedPrimitives: [{ verb: "enact_reform", reason: "at least one direction" }],
       },
@@ -103,5 +104,33 @@ describe("LLMPanel — канон отделён от предложенного
     expect(screen.getByRole("heading", { name: /Что произошло на самом деле/ })).toBeTruthy();
     expect(screen.getByRole("heading", { name: /Отклонено движком/ })).toBeTruthy();
     expect(screen.getByText(/at least one direction/)).toBeTruthy();
+    // Пометка стоит у самого текста: игрок читает его здесь первым, до ленты.
+    expect(screen.getByRole("note").textContent).toMatch(/Подтверждено частично/);
+  });
+
+  it("чистый нарратив показан как заявление, а не как факт", async () => {
+    // Ответ, ничего не предлагавший движку, — законное событие (§4), но
+    // подтверждать в нём нечего (решение пользователя 2026-07-27).
+    await runAuto(
+      { ...BASE, title: "Мир замер", descriptions: "Нарратив.", factuality: "unconfirmed" },
+      /Мир замер/
+    );
+
+    expect(screen.getByRole("note").textContent).toMatch(/Фактами не подтверждено/);
+  });
+
+  it("полностью подтверждённый ответ пометки не несёт", async () => {
+    await runAuto(
+      {
+        ...BASE,
+        title: "Волнения вспыхнули",
+        descriptions: "Нарратив.",
+        factuality: "confirmed",
+        primitiveOutcomes: [outcome],
+      },
+      /Волнения вспыхнули/
+    );
+
+    expect(screen.queryByRole("note")).toBeNull();
   });
 });

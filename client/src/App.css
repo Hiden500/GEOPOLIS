@@ -1527,6 +1527,23 @@ button.small.danger:hover {
   white-space: pre-wrap;
 }
 
+/*
+  Пометка «текст не подтверждён фактами» — функциональный минимум на
+  существующих токенах (решение 2026-07-27). Никакого нового визуального
+  паттерна: приглушённый мелкий текст с левой линейкой, как у остальной
+  диагностики панели. Оформление — за пользователем, отдельным заходом.
+*/
+.llm-factuality,
+.timeline-factuality {
+  margin: 0 0 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--color-hairline);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  color: var(--color-paper-dim);
+}
+
 .llm-rejected {
   list-style: none;
   display: flex;

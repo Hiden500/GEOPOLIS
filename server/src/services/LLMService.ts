@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { type z } from "zod";
 import { type GameState } from "@shared/types/GameState";
 import { type LLMAction, type WorldFact } from "@shared/types/GameState";
+import { type EventFactuality } from "@shared/types/Event";
 import { type Country } from "@shared/types/Country";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
@@ -24,6 +25,7 @@ import { getEligibleHingePoints } from "@shared/utils/hingePoints";
 import { HISTORICAL_HINGE_POINTS_1946 } from "@shared/data/historicalHingePoints1946";
 import { computeWarScore, warScoreLabel, sumSideCasualties } from "../simulation/war/warScore";
 import { LLMResponseValidator } from "../llm/LLMResponseValidator";
+import { deriveEventFactuality } from "../llm/eventFactuality";
 import { LLMActionSchema, LLMResponseEnvelopeSchema } from "../llm/actionSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
@@ -107,6 +109,13 @@ export interface LlmCycleResult {
    * предложил невозможное, а не молча ничего.
    */
   narrativeCanonized: boolean;
+  /**
+   * Степень подтверждённости записанного события фактическим результатом
+   * (`shared/types/Event.ts`). Приходит ТОЛЬКО вместе с каноном: события нет —
+   * аттестовать нечего, и в этом случае у интерфейса уже есть более сильный
+   * сигнал (`narrativeCanonized: false`).
+   */
+  factuality?: EventFactuality;
   appliedActions: LLMAction[];
   // action: unknown, не LLMAction — точечно отклонённый элемент не
   // гарантированно валиден (мог провалиться ровно на структурной проверке).
@@ -353,12 +362,23 @@ export class LLMService {
     this.game.playerIntent = "";
     this.game.llmRespondedThisTurn = true;
 
-    // Предложила ли модель вообще изменить мир. Отличать это от «ничего не
-    // применилось» обязательно: ответ без единого примитива и действия — это
-    // ЧИСТЫЙ НАРРАТИВ (фоновый слой, docs/PRIMITIVES.md §4), он ничего о мире не
-    // утверждает и остаётся законным событием. Ложь возникает там, где модель
-    // что-то предложила, описала это как случившееся, а движок отказал.
-    const proposedChange = actions.length > 0 || (primitives?.length ?? 0) > 0;
+    /**
+     * Степень подтверждённости текста — из ЧИСЕЛ применённого и отклонённого
+     * по обоим каналам, а не из смысла текста (docs/PRIMITIVES.md §3, решение
+     * пользователя 2026-07-27). Три состояния: `confirmed` (всё предложенное
+     * применено), `partial` (часть отклонена — текст вправе описывать именно
+     * её), `unconfirmed` (ответ не предлагал движку ничего — чистый нарратив,
+     * фоновый слой §4).
+     */
+    const factuality = deriveEventFactuality({
+      proposedActions: actions.length,
+      appliedActions: appliedActions.length,
+      rejectedActions: rejectedActions.length,
+      proposedPrimitives: primitives?.length ?? 0,
+      appliedPrimitives: primitiveResult.outcomes.length,
+      rejectedPrimitives: primitiveResult.rejected.length,
+    });
+
     const appliedChange = appliedActions.length > 0 || primitiveResult.outcomes.length > 0;
 
     /**
@@ -376,8 +396,13 @@ export class LLMService {
      * игрок расходует бюджет хода; примитив модели корректно отклоняется при
      * повторной валидации — а её текст, написанный под другое состояние мира,
      * до этой правки всё равно становился событием.
+     *
+     * Условие выражено через `factuality`, а не через второй счёт
+     * предложенного: `unconfirmed` — это ровно и только «модель ничего не
+     * предлагала». Двух независимых определений одной границы быть не должно,
+     * иначе они разъедутся.
      */
-    const canonized = !proposedChange || appliedChange;
+    const canonized = factuality === "unconfirmed" || appliedChange;
 
     if (!canonized) {
       return {
@@ -398,6 +423,11 @@ export class LLMService {
       title: eventTitle,
       description: descriptions,
       countries: this.eventCountries(appliedActions, primitiveResult.applied),
+      // Пометка едет ВМЕСТЕ с текстом и хранится в событии, а не считается
+      // потребителем заново: `Event` не несёт числа предложенного, поэтому по
+      // самому событию отличить «применилось всё» от «применилось частично»
+      // задним числом уже нельзя.
+      factuality,
       // Машиночитаемый результат рядом с текстом: при частичном применении
       // потребитель обязан уметь отличить заявленное от случившегося, не
       // разбирая прозу. Пустые списки не пишем — событие чистого нарратива не
@@ -415,6 +445,7 @@ export class LLMService {
       title: eventTitle,
       descriptions,
       narrativeCanonized: true,
+      factuality,
       appliedActions,
       rejectedActions,
       primitiveOutcomes: primitiveResult.outcomes,

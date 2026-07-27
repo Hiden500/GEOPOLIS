@@ -1,4 +1,5 @@
 import { type GameState, type LLMAction } from "@shared/types/GameState";
+import { type EventFactuality } from "@shared/types/Event";
 import { type ScenarioInfo } from "@shared/types/ScenarioInfo";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
@@ -97,6 +98,12 @@ export interface LlmCycleResult {
    * мир не изменился, события нет, показывать нужно диагностику, а не нарратив.
    */
   narrativeCanonized: boolean;
+  /**
+   * Насколько текст ответа подтверждён фактическим результатом
+   * (`shared/types/Event.ts`). Приходит только вместе с каноном: события нет —
+   * аттестовать нечего.
+   */
+  factuality?: EventFactuality;
   appliedActions: LLMAction[];
   // action: unknown, не LLMAction — точечно отклонённый элемент не
   // гарантированно валиден (docs/plans/02_LLM_CONTRACT.md, Шаг 3).

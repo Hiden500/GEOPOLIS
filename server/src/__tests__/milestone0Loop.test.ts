@@ -4,6 +4,7 @@ import { simulateMonth } from "../simulation/SimulationEngine";
 import { LLMService } from "../services/LLMService";
 import { applyPrimitiveTurn } from "../primitives/turnBatch";
 import { type GameState } from "@shared/types/GameState";
+import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { regionDiscontent } from "@shared/utils/discontent";
 import { MAX_PROMPT_CRISES } from "@shared/defines/discontent";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
@@ -343,6 +344,104 @@ describe("Милстоун 0: петля замыкается на данных 
       expect(cycle.narrativeCanonized).toBe(true);
       expect(game.eventHistory).toHaveLength(eventsBefore + 1);
       expect(game.eventHistory.at(-1)!.title).toBe("Мир замер в ожидании");
+      // …но законное событие ≠ установленный факт: подтверждать в нём нечего,
+      // и в ленте игрок увидит его помеченным (решение 2026-07-27).
+      expect(cycle.factuality).toBe("unconfirmed");
+      expect(game.eventHistory.at(-1)!.factuality).toBe("unconfirmed");
+    });
+
+    it("частично применённый ответ помечен, а не выдан за факт", () => {
+      // Средний путь, выбранный пользователем 2026-07-27: событие остаётся (в
+      // нём есть реально применённая часть), но несёт степень
+      // подтверждённости — игрок видит заявление режиссёра, а не факт.
+      const game = startedGame();
+      const regionId = game.regionCrisisLatch[0]!;
+      const region = game.regions.find(r => r.id === regionId)!;
+      const groupId = [...region.demographics!].sort((a, b) => b.share - a.share)[0]!.groupId;
+
+      const cycle = new LLMService(game).processResponse(
+        JSON.stringify({
+          title: "Волнения вспыхнули, и войска их подавили",
+          descriptions: "Агитаторы вышли на улицы; порядок восстановлен к вечеру.",
+          actions: [],
+          primitives: [
+            // Применится: мир действует на игрока — это разрешено.
+            {
+              verb: "incite_unrest",
+              sourceCountryId: "USA",
+              target: { regionId, groupId },
+              params: { intensity: "severe" },
+            },
+            // Не применится: подавление в своей стране выбирает игрок, а не
+            // режиссёр (граница агентности). Вторая половина заголовка — про
+            // это, и она ложна.
+            { verb: "repress", sourceCountryId: PLAYER, target: { regionId } },
+          ],
+        })
+      );
+
+      expect(cycle.narrativeCanonized).toBe(true);
+      expect(cycle.factuality).toBe("partial");
+      expect(cycle.primitiveOutcomes).toHaveLength(1);
+      expect(cycle.rejectedPrimitives).toHaveLength(1);
+
+      const event = game.eventHistory.at(-1)!;
+      expect(event.title).toBe("Волнения вспыхнули, и войска их подавили");
+      expect(event.factuality).toBe("partial");
+    });
+
+    it("летопись доносит применённое, а не заявленное", () => {
+      // Заголовок частично применённого ответа вправе описывать отклонённую
+      // половину; до 2026-07-27 он через год сворачивался в летопись — долгую
+      // память кампании, которая целиком уходит в КАЖДЫЙ следующий промт.
+      const game = startedGame();
+      const regionId = game.regionCrisisLatch[0]!;
+      const region = game.regions.find(r => r.id === regionId)!;
+      const groupId = [...region.demographics!].sort((a, b) => b.share - a.share)[0]!.groupId;
+
+      new LLMService(game).processResponse(
+        JSON.stringify({
+          title: "Волнения вспыхнули, и войска их подавили",
+          descriptions: "Агитаторы вышли на улицы; порядок восстановлен к вечеру.",
+          actions: [],
+          primitives: [
+            {
+              verb: "incite_unrest",
+              sourceCountryId: "USA",
+              target: { regionId, groupId },
+              params: { intensity: "severe" },
+            },
+            { verb: "repress", sourceCountryId: PLAYER, target: { regionId } },
+          ],
+        })
+      );
+
+      // Второй ответ того же года — чистый нарратив. Он ничего не предлагал,
+      // подтверждать нечего: в ленте он есть, в многолетней памяти его нет.
+      new LLMService(game).processResponse(
+        JSON.stringify({
+          title: "По Европе поползли слухи о новом союзе",
+          descriptions: "Три абзаца нарратива без единого предложения к движку.",
+          actions: [],
+          primitives: [],
+        })
+      );
+
+      for (let i = 0; i < 12; i++) simulateMonth(game);
+
+      const year1946 = game.chronicle.find(c => c.year === 1946)!;
+      expect(year1946).toBeDefined();
+      // Ни одно из двух заявлений в летопись не попало…
+      expect(year1946.summary).not.toContain("подавили");
+      expect(year1946.summary).not.toContain("слухи");
+      // …а применённое — попало, с местом, взятым из фактического результата.
+      const regionName = getText(region.names, LLM_LOCALE);
+      expect(year1946.summary).toBe(`applied: incite_unrest in ${regionName}`);
+
+      // И та же строка — то, что увидит модель в следующем промте.
+      expect(new LLMService(game).generatePrompt()).toContain(
+        `- 1946: applied: incite_unrest in ${regionName}`
+      );
     });
 
     it("устаревший ответ: игрок потратил ход, пока провайдер отвечал", async () => {

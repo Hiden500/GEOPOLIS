@@ -1,4 +1,8 @@
 {
   "title": "Chronicle",
-  "noEvents": "No events yet"
+  "noEvents": "No events yet",
+  "factuality": {
+    "partial": "Partly confirmed: the engine refused some of what the director proposed — the text may describe it anyway",
+    "unconfirmed": "Not confirmed by facts: the director's claim, nothing was proposed to the engine"
+  }
 }

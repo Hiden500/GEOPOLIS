@@ -269,8 +269,8 @@ describe("LLMService", () => {
 
     it("Память страны: показывает последние заголовки eventHistory по стране игрока, самые свежие первыми (2026-07-05, вопрос 7)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"] },
-        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", countries: ["USA"] },
+        { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"], factuality: "confirmed" },
+        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", countries: ["USA"], factuality: "confirmed" },
       ];
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
@@ -285,10 +285,10 @@ describe("LLMService", () => {
 
     it("Память страны: у Major Powers окно ограничено MAJOR_RECENT_TITLES_COUNT (3)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", countries: ["USSR"] },
-        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", countries: ["USSR"] },
-        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", countries: ["USSR"] },
-        { id: "e4", date: "1946-04-01", title: "Newest", description: "", countries: ["USSR"] },
+        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", countries: ["USSR"], factuality: "confirmed" },
+        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", countries: ["USSR"], factuality: "confirmed" },
+        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", countries: ["USSR"], factuality: "confirmed" },
+        { id: "e4", date: "1946-04-01", title: "Newest", description: "", countries: ["USSR"], factuality: "confirmed" },
       ];
       const prompt = service.generatePrompt();
       const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
@@ -304,9 +304,9 @@ describe("LLMService", () => {
           createTestCountry({ id: "AAA", name: { en: "Alpha" } }),
         ],
         eventHistory: [
-          { id: "e1", date: "1946-01-01", title: "Old", description: "", countries: ["AAA"] },
-          { id: "e2", date: "1946-02-01", title: "Mid", description: "", countries: ["AAA"] },
-          { id: "e3", date: "1946-03-01", title: "New", description: "", countries: ["AAA"] },
+          { id: "e1", date: "1946-01-01", title: "Old", description: "", countries: ["AAA"], factuality: "confirmed" },
+          { id: "e2", date: "1946-02-01", title: "Mid", description: "", countries: ["AAA"], factuality: "confirmed" },
+          { id: "e3", date: "1946-03-01", title: "New", description: "", countries: ["AAA"], factuality: "confirmed" },
         ],
       });
       const svc = new LLMService(g);
@@ -413,6 +413,10 @@ describe("LLMService", () => {
             title: `Event at month ${month}`,
             description: "x",
             countries: ["USA"],
+            // Летопись берёт только подтверждённое (ChronicleTick.ts), поэтому
+            // накопление за 3 года проверяется на событиях, чьи предложения
+            // движок применил целиком.
+            factuality: "confirmed",
           });
         }
         simulateMonth(g);

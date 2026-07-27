@@ -1,5 +1,5 @@
 import { type GameState } from "@shared/types/GameState";
-import { type LocalizedText } from "@shared/types/i18n/LocalizedText";
+import { getText, LLM_LOCALE, type LocalizedText } from "@shared/types/i18n/LocalizedText";
 import {
   type PrimitiveOutcomeLine,
   type PrimitiveOutcomeRecord,
@@ -226,6 +226,40 @@ export function buildPrimitiveOutcomes(
   applied: readonly AppliedPrimitive[]
 ): PrimitiveOutcomeRecord[] {
   return applied.map(a => buildPrimitiveOutcome(game, a));
+}
+
+/**
+ * Тот же результат — одной строкой для ПРОМТА (летопись, `ChronicleTick`).
+ *
+ * Читает готовые записи выше и ничего не строит из состояния заново: второй
+ * построитель «факты → текст» означал бы второе мнение о том, что произошло.
+ * Отсюда и форма: глагол движка + место, взятое из имён самой записи. Ничего,
+ * чего в записи нет, строка сказать не может — а именно это от неё и нужно,
+ * потому что в летопись она попадает вместо заголовка, которому доверия нет
+ * (docs/PRIMITIVES.md §3).
+ *
+ * Словарь намеренно машинный, а не художественный. Во-первых, глаголы алфавита
+ * промт уже знает — контракт примитивов и секция отказов говорят ими же
+ * («Attempt rejected (repress)»), так что читателю строки объяснять нечего.
+ * Во-вторых, художественная фраза потребовала бы английского каталога фраз на
+ * сервере — копии клиентского словаря `primitiveOutcome`, которая разошлась бы
+ * с ним при первой же правке.
+ *
+ * Имена разрешаются `LLM_LOCALE`, как и остальные имена мира в промте, —
+ * независимо от локали партии.
+ */
+export function describeOutcomesForPrompt(
+  records: readonly PrimitiveOutcomeRecord[]
+): string {
+  return records
+    .map(record => {
+      const names = record.headline.names ?? {};
+      // Место события: регион для четырёх глаголов, страна для реформы —
+      // общегосударственного акта без места (см. `placeHistoryEntries`).
+      const where = names.region ?? names.country;
+      return where ? `${record.verb} in ${getText(where, LLM_LOCALE)}` : record.verb;
+    })
+    .join(", ");
 }
 
 // --------------------------------------------------------------------------
