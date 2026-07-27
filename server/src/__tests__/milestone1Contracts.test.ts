@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { type GameState } from "@shared/types/GameState";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { MAX_PENDING_REJECTION_FACTS_PER_SOURCE } from "@shared/defines/discontent";
+import { IMPACT_MEMORY_FIELDS } from "@shared/types/politics/Demographics";
+import { IDEOLOGY_AXES } from "@shared/types/politics/Ideology";
 import { LLMService } from "../services/LLMService";
 import { parsePrimitives, PRIMITIVE_SCHEMAS } from "../primitives/primitiveSchemas";
 import { PRIMITIVE_PALETTE, pathMatchesPaletteEntry } from "../primitives/palette";
@@ -40,6 +42,39 @@ function relation(game: GameState, from: string, to: string): number {
 
 function llmResponse(body: Record<string, unknown>): string {
   return JSON.stringify({ title: "t", descriptions: "d", actions: [], ...body });
+}
+
+/**
+ * Значения, в которые путь палитры разрешается на реальном состоянии.
+ *
+ * `[*]` — элементы массива, `{*}` — значения словаря, остальное — поле. Пустой
+ * результат означает «в этой партии след пути ещё не материализован», а не
+ * «пути не существует»: память воздействий разрежена по построению.
+ */
+function resolveStatePath(state: unknown, path: string): unknown[] {
+  let values: unknown[] = [state];
+
+  for (const segment of path.split(".")) {
+    const next: unknown[] = [];
+    for (const value of values) {
+      if (typeof value !== "object" || value === null) continue;
+      if (segment === "{*}") {
+        next.push(...Object.values(value as Record<string, unknown>));
+        continue;
+      }
+      const isArray = segment.endsWith("[*]");
+      const field = (value as Record<string, unknown>)[isArray ? segment.slice(0, -3) : segment];
+      if (field === undefined) continue;
+      if (isArray) {
+        if (Array.isArray(field)) next.push(...field);
+      } else {
+        next.push(field);
+      }
+    }
+    values = next;
+  }
+
+  return values;
 }
 
 /** Ответ, двигающий отношения старым каналом, — самый дешёвый видимый эффект. */
@@ -240,29 +275,127 @@ describe("транзакция ответа: старый канал и прим
 // --------------------------------------------------------------------------
 
 describe("idempotency покрывает ВЕСЬ ответ, а не только примитивы", () => {
-  it("повторно поданный ответ не двигает отношения второй раз", () => {
+  /**
+   * Ответ БЕЗ примитивов законен: поле необязательное (`actionSchemas.ts`),
+   * месяц без режиссуры — обычное дело. До 2026-07-27 ключ такого ответа не
+   * запоминался ВООБЩЕ: его писал только движок примитивов, а его в этом
+   * случае не звали. Повтор того же текста (ретрай, двойной клик — запрос
+   * идёт без клиентского ключа) применял старый канал второй раз, и отношения
+   * шли 20 → 40. Прежний тест этого не видел: его фикстура всегда клала
+   * примитивы. Поэтому случаи перечислены явно, а не выбраны одним.
+   */
+  const repeatedResponses: readonly { readonly name: string; readonly body: Record<string, unknown> }[] = [
+    {
+      name: "с примитивами",
+      body: {
+        actions: [relationAction(20)],
+        primitives: [
+          {
+            verb: "incite_unrest",
+            sourceCountryId: "USA",
+            target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+          },
+        ],
+      },
+    },
+    { name: "БЕЗ поля primitives вовсе", body: { actions: [relationAction(20)] } },
+    { name: "с пустым массивом примитивов", body: { actions: [relationAction(20)], primitives: [] } },
+  ];
+
+  for (const { name, body } of repeatedResponses) {
+    it(`повторно поданный ответ (${name}) не двигает отношения второй раз`, () => {
+      const game = createDiscontentTestGame();
+      const raw = llmResponse(body);
+
+      new LLMService(game).processResponse(raw);
+      const afterFirst = relation(game, "SUN", "USA");
+      // Первый ответ действительно что-то сделал — иначе «не двинулось второй
+      // раз» выполнялось бы по построению.
+      expect(afterFirst).not.toBe(0);
+
+      const second = new LLMService(game).processResponse(raw);
+
+      expect(relation(game, "SUN", "USA")).toBe(afterFirst);
+      expect(second.receipt.duplicate).toBe(true);
+      expect(second.receipt.primitives.rejected.map(r => r.code)).toEqual(["duplicateResponse"]);
+    });
+  }
+
+  it("ОТКАЧЕННЫЙ ответ тоже запоминается: повтор не пишет диагностику дважды", () => {
+    // Ключ движка живёт на клоне и при откате уходит вместе с ним, поэтому
+    // повтор откаченного ответа заново писал диагностику, инкрементировал
+    // счётчик хода модели и врал признаком дубля в квитанции.
     const game = createDiscontentTestGame();
     const raw = llmResponse({
-      actions: [relationAction(20)],
       primitives: [
+        // Реформа в ЧУЖОЙ стране: отказ предпосылки движка откатывает ответ
+        // целиком. Источник не игрок — иначе сработала бы граница агентности,
+        // которая отката намеренно не вызывает.
         {
-          verb: "incite_unrest",
+          verb: "enact_reform",
           sourceCountryId: "USA",
-          target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
+          target: { countryId: "SUN" },
+          params: { politicalDirection: "democratic" },
         },
       ],
     });
 
-    new LLMService(game).processResponse(raw);
-    const afterFirst = relation(game, "SUN", "USA");
+    const first = new LLMService(game).processResponse(raw);
+    expect(first.receipt.primitives.applied).toEqual([]);
+    const factsAfterFirst = game.pendingWorldFacts.length;
+    const turnAfterFirst = game.llmTurn;
+    expect(factsAfterFirst).toBeGreaterThan(0);
 
     const second = new LLMService(game).processResponse(raw);
 
-    // Раньше ключ прикрывал только массив `primitives`, и старый канал
-    // отрабатывал второй раз — молча.
-    expect(relation(game, "SUN", "USA")).toBe(afterFirst);
     expect(second.receipt.duplicate).toBe(true);
-    expect(second.receipt.primitives.rejected.map(r => r.code)).toEqual(["duplicateResponse"]);
+    expect(game.pendingWorldFacts.length).toBe(factsAfterFirst);
+    expect(game.llmTurn).toBe(turnAfterFirst);
+  });
+
+  it("причина отката уходит в промт ОБЪЯСНЕНИЕМ, а не голым кодом отказа", () => {
+    // На пути отката union причины уже смаплен в запись игрока, и до
+    // 2026-07-27 в промт подставлялся `record.code`: модель читала
+    // «Attempt rejected (enact_reform): reformNotDomestic» — код без правила,
+    // то есть ровно то, чего механизм «чтобы не долбилась в невозможное»
+    // избегает.
+    const game = createDiscontentTestGame();
+    new LLMService(game).processResponse(
+      llmResponse({
+        // Битое действие старого канала: его причина тоже теряется при откате.
+        actions: [
+          {
+            type: "diplomacy",
+            sourceCountryId: "SUN",
+            targetCountryId: "NOWHERE",
+            data: { relationChange: 5 },
+          },
+        ],
+        primitives: [
+          {
+            verb: "enact_reform",
+            sourceCountryId: "USA",
+            target: { countryId: "SUN" },
+            params: { politicalDirection: "democratic" },
+          },
+        ],
+      })
+    );
+
+    const section = new LLMService(game)
+      .generatePrompt()
+      .prompt.split("## Rejected Attempts Last Cycle")[1]!
+      .split("\n## ")[0]!;
+
+    const code = "reformNotDomestic";
+    const promptLine = section
+      .split("\n")
+      .find(line => line.includes("Attempt rejected (enact_reform)"))!;
+    // Текст не сводится к коду: он длиннее кода и самого кода не содержит.
+    expect(promptLine).not.toContain(code);
+    expect(promptLine.length).toBeGreaterThan(`Attempt rejected (enact_reform): ${code}`.length);
+    // Отказ СТАРОГО канала на пути отката тоже доезжает.
+    expect(section).toContain("Action rejected (diplomacy)");
   });
 
   it("тот же текст в ДРУГОМ месяце — законный ответ, а не дубль", () => {
@@ -363,6 +496,13 @@ describe("сверка результата покрывает все число
     // Числовой путь, разрешённый палитрой хоть одному глаголу, обязан иметь
     // ячейку в разложении состояния — иначе палитра разрешает менять то, о чём
     // сверка не спросит.
+    //
+    // КЛАССИФИКАЦИЯ, А НЕ ФИЛЬТР (переписано 2026-07-27 по независимому ревью).
+    // Прежняя версия оставляла от палитры только пути, уже перечисленные в
+    // локальной карте, — то есть НОВЫЙ путь, ровно тот случай, ради которого
+    // тест и существует, молча отфильтровывался, и тест оставался зелёным.
+    // Теперь каждый путь палитры обязан попасть либо в числовой канал, либо в
+    // явное исключение с причиной; неклассифицированный валит тест.
     const game = createDiscontentTestGame();
     // Память воздействий разрежена: её ячейки существуют там, где примитив уже
     // оставил след. Засеваем след, а не подставляем ожидание.
@@ -375,22 +515,48 @@ describe("сверка результата покрывает все число
       [...enumerateCells(game).keys()].map(key => key.split(":")[0]!)
     );
 
-    const pathToChannel: Record<string, string> = {
-      "groupImpactMemory[*].suppression": "impact",
-      "groupImpactMemory[*].alienation": "impact",
-      "groupImpactMemory[*].concession": "impact",
-      "groupImpactMemory[*].emboldenment": "impact",
-      "countries[*].politics.ideologyCoordinates.economic": "ideology",
-      "countries[*].politics.ideologyCoordinates.political": "ideology",
+    // Отображение выводится из ТЕХ ЖЕ констант, по которым `enumerateCells`
+    // строит ключи: новое поле памяти или новая ось идеологии попадают сюда
+    // сами, а не ждут, пока их впишут руками.
+    const numericPathChannel: Record<string, string> = {
+      ...Object.fromEntries(
+        IMPACT_MEMORY_FIELDS.map(field => [`groupImpactMemory[*].${field}`, "impact"])
+      ),
+      ...Object.fromEntries(
+        IDEOLOGY_AXES.map(axis => [`countries[*].politics.ideologyCoordinates.${axis}`, "ideology"])
+      ),
       "countries[*].politics.governmentSupport": "support",
     };
 
-    const numericPaths = Object.values(PRIMITIVE_PALETTE)
-      .flat()
-      .filter(path => path in pathToChannel);
-    expect(numericPaths.length).toBeGreaterThan(0);
-    for (const path of numericPaths) {
-      expect(cellPrefixes).toContain(pathToChannel[path]!);
+    /** Пути вне разложения на ячейки — каждый с причиной, а не общей корзиной. */
+    const outsideCellReconciliation = (path: string): boolean =>
+      // Объекты карты сверяются фактом создания («заявленный создан, созданный
+      // заявлен»), а не числовыми ячейками — включая числовой `regionId`.
+      path.startsWith("mapFeatures[") ||
+      // Счётчик, а не заявление о мире: его правдивость держит палитра
+      // (JSDoc `reconciliation.ts`).
+      path === "nextFeatureId" ||
+      // Идентификаторы записи памяти воздействий — АДРЕС ячейки, а не величина
+      // в ней; сами величины перечислены выше.
+      path === "groupImpactMemory[*].regionId" ||
+      path === "groupImpactMemory[*].groupId";
+
+    const palettePaths = [...new Set(Object.values(PRIMITIVE_PALETTE).flat())];
+    expect(palettePaths.length).toBeGreaterThan(0);
+
+    // 1. Классификация полная: путь, которого нет ни в одном канале и ни в
+    //    одном исключении, обязан уронить тест — это и есть «канал объявлен
+    //    палитрой, но сверке неизвестен».
+    expect(
+      palettePaths.filter(path => !(path in numericPathChannel) && !outsideCellReconciliation(path))
+    ).toEqual([]);
+
+    for (const [path, channel] of Object.entries(numericPathChannel)) {
+      // 2. Канал существует в разложении состояния.
+      expect(cellPrefixes).toContain(channel);
+      // 3. Отображение не фиктивное: путь действительно разрешается в число на
+      //    боевой фикстуре, а не назван числовым на словах.
+      expect(resolveStatePath(game, path).some(value => typeof value === "number")).toBe(true);
     }
   });
 

@@ -25,7 +25,11 @@ import { MAX_PROMPT_CRISES, REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/d
 import { PRIMITIVE_CONTRACT, PRIMITIVE_PLAYER_AGENCY_NOTE } from "../llm/primitiveContract";
 import { parsePrimitives } from "../primitives/primitiveSchemas";
 import { pushRejectionFact, rejectionFactText, restore } from "../primitives/PrimitiveEngine";
-import { applyPrimitiveTurn, isDuplicatePrimitiveBatch } from "../primitives/turnBatch";
+import {
+  applyPrimitiveTurn,
+  isDuplicatePrimitiveBatch,
+  rememberResponseBatchKey,
+} from "../primitives/turnBatch";
 import { splitByAgency } from "../llm/primitiveAgency";
 import * as diplomacyCommands from "../commands/diplomacy";
 import * as warCommands from "../commands/war";
@@ -56,6 +60,15 @@ function formatZodError(error: z.ZodError): string {
   return error.issues
     .map(issue => (issue.path.length > 0 ? `${issue.path.join(".")}: ${issue.message}` : issue.message))
     .join("; ");
+}
+
+/**
+ * Страж полноты `switch` по глаголу для веток, заканчивающихся `break`.
+ * Параметр типа `never` не принимает неразобранный глагол — компиляция падает
+ * там, где иначе новый глагол молча выпал бы из результата.
+ */
+function assertPrimitiveHandled(primitive: never): never {
+  throw new Error(`Primitive verb is not handled by the receipt: ${JSON.stringify(primitive)}`);
 }
 
 /**
@@ -294,6 +307,17 @@ export class LLMService {
    * примитивы дважды, но `applyLlmActions` отрабатывал второй раз и двигал
    * отношения ещё раз — молча.
    *
+   * **Ключ ЗАПОМИНАЕТСЯ на любом исходе** (исправлено 2026-07-27 по
+   * независимому ревью). Проверять ключ и не записывать его — не защита: до
+   * правки его писал только движок примитивов, на клоне и только когда его
+   * позвали, поэтому ответ БЕЗ примитивов (законный — поле необязательное) не
+   * запоминался вовсе, а откаченный терял ключ вместе с клоном. Оба случая
+   * ловились повтором: в первом отношения двигались второй раз, во втором
+   * второй раз писалась диагностика и рос счётчик хода модели. Теперь ключ
+   * переписывается в боевое состояние после решения commit/rollback
+   * (`rememberResponseBatchKey`), в кольцо по факту изменения МИРА обоими
+   * каналами.
+   *
    * **Пост-инварианты — отдельная фаза.** Мир после применения проверяется
    * целиком (`findStateViolations`): бюджет хода, диапазоны памяти воздействий,
    * координаты и поддержка, висячие ссылки объектов карты. Нарушение
@@ -391,21 +415,21 @@ export class LLMService {
     // канал не должен унаследовать этот разрыв.
     const primitiveResult = this.applyResponsePrimitives(working, primitives, idempotencyKey);
 
+    // Отказы примитивов хранятся СЫРЫМИ (`RejectedPrimitive` — код + параметры)
+    // и в запись игрока превращаются здесь. Причина: на пути отката тот же
+    // отказ надо отрендерить ещё и по-английски для промта, а из записи игрока
+    // этого уже не сделать — union кода к тому моменту смаплен, и в промт
+    // уходил голый `record.code` («reformNotDomestic» вместо объяснения
+    // правила). Найдено независимым ревью 2026-07-27.
+    const rejectedPrimitiveRecords: PrimitiveRejectionRecord[] = primitiveResult.rejected.map(
+      entry => rejectionRecord(entry.rejection, entry.verb)
+    );
+
     // Отказы СТАРОГО канала тоже уходят в следующий промт (docs/TODO.md,
     // закрыто Милстоуном 1). Своей квотой: общая с примитивами означала бы,
     // что десять невалидных `actions` вытесняют точную причину отказа
     // примитива — ровно ту, ради которой диагностика и существует.
-    for (const rejection of rejectedActions) {
-      pushRejectionFact(
-        working,
-        "action_rejected",
-        {
-          countryId: rejection.sourceCountryId ?? working.playerCountryId,
-          text: `Action rejected (${rejection.type ?? "malformed action"}): ${rejection.reason}`,
-        },
-        "director"
-      );
-    }
+    this.pushActionRejectionFacts(working, rejectedActions);
 
     // --- ФАЗА POST-INVARIANTS ---
     const violations = findStateViolations(working);
@@ -430,6 +454,17 @@ export class LLMService {
       restore(this.game, working);
     }
 
+    // Мир изменился — значит ключ дорогой (кольцо применённых): его вытеснение
+    // означало бы, что сетевой ретрай применится вторым приказом. Считается по
+    // ОБОИМ каналам: примитивов может не быть вовсе, а отношения сдвинуться.
+    const appliedChange =
+      committed && (appliedActions.length > 0 || primitiveResult.outcomes.length > 0);
+
+    // Ключ пишется в БОЕВОЕ состояние и на любом исходе — иначе проверка выше
+    // (`isDuplicatePrimitiveBatch`) держалась бы на записи, которой при ответе
+    // без примитивов не делает никто, а при откате уносит клон.
+    rememberResponseBatchKey(this.game, idempotencyKey, appliedChange);
+
     // Бухгалтерия цикла живёт ВНЕ мировой транзакции и намеренно: ответ модели
     // состоялся независимо от того, принял ли мир его содержимое. Оставить
     // `llmRespondedThisTurn` false при откате значило бы запереть партию —
@@ -441,27 +476,14 @@ export class LLMService {
     this.game.llmRespondedThisTurn = true;
 
     if (rolledBackByStructural && violations.length === 0) {
-      // Диагностика отката живёт на клоне и уходит вместе с ним, поэтому
-      // причины переписываются в боевое состояние. Ими же модель узнаёт, что
-      // ответ не прошёл целиком.
-      for (const record of primitiveResult.rejected) {
-        pushRejectionFact(
-          this.game,
-          "primitive_rejected",
-          {
-            countryId: this.game.playerCountryId,
-            text: `Attempt rejected (${record.verb ?? "primitive"}): ${record.code}`,
-          },
-          "director"
-        );
-      }
+      this.rewriteRolledBackDiagnostics(primitiveResult.rejected, rejectedActions);
       return {
         success: true,
         narrativeCanonized: false,
         receipt: {
           ...emptyResponseReceipt(this.game.currentDate),
           factuality: "partial",
-          primitives: { applied: [], rejected: primitiveResult.rejected },
+          primitives: { applied: [], rejected: rejectedPrimitiveRecords },
           actions: { applied: [], rejected: rejectedActions },
         },
       };
@@ -475,6 +497,7 @@ export class LLMService {
         code: "postInvariantViolated",
         details: violations,
       });
+      this.rewriteRolledBackDiagnostics(primitiveResult.rejected, rejectedActions);
       pushRejectionFact(
         this.game,
         "primitive_rejected",
@@ -492,7 +515,7 @@ export class LLMService {
         receipt: {
           ...emptyResponseReceipt(this.game.currentDate),
           factuality: "partial",
-          primitives: { applied: [], rejected: [rolledBack] },
+          primitives: { applied: [], rejected: [...rejectedPrimitiveRecords, rolledBack] },
           actions: { applied: [], rejected: rejectedActions },
         },
       };
@@ -515,8 +538,6 @@ export class LLMService {
       rejectedPrimitives: primitiveResult.rejected.length,
     });
 
-    const appliedChange = appliedActions.length > 0 || primitiveResult.outcomes.length > 0;
-
     const receipt: ResponseReceipt = {
       date: this.game.currentDate,
       duplicate: false,
@@ -524,7 +545,7 @@ export class LLMService {
       ...this.touchedByResponse(appliedActions, primitiveResult.applied),
       primitives: {
         applied: primitiveResult.outcomes,
-        rejected: primitiveResult.rejected,
+        rejected: rejectedPrimitiveRecords,
       },
       actions: { applied: appliedActions, rejected: rejectedActions },
     };
@@ -571,6 +592,58 @@ export class LLMService {
       narrativeCanonized: true,
       receipt,
     };
+  }
+
+  /**
+   * Диагностика отказов СТАРОГО канала — одной функцией, потому что писать её
+   * приходится в два разных состояния: на клон (обычный путь, коммитится
+   * вместе с ним) и в боевое (путь отката, где клон выбрасывается).
+   */
+  private pushActionRejectionFacts(
+    target: GameState,
+    rejectedActions: readonly RejectedAction[]
+  ): void {
+    for (const rejection of rejectedActions) {
+      pushRejectionFact(
+        target,
+        "action_rejected",
+        {
+          countryId: rejection.sourceCountryId ?? target.playerCountryId,
+          text: `Action rejected (${rejection.type ?? "malformed action"}): ${rejection.reason}`,
+        },
+        "director"
+      );
+    }
+  }
+
+  /**
+   * Переписывает диагностику отката в БОЕВОЕ состояние — по обоим каналам.
+   *
+   * Всё, что написано во время применения, лежит на клоне и уходит вместе с
+   * ним. Без этой перезаписи откат невидим: модель не узнаёт, ПОЧЕМУ ответ не
+   * прошёл, и повторяет ту же попытку — ровно против чего диагностика и
+   * заведена (docs/PRIMITIVES.md §3).
+   *
+   * Текст примитивов рендерится из СЫРОГО отказа (`rejectionFactText`), а не из
+   * записи игрока: последняя несёт код без объяснения правила. Отказы старого
+   * канала до 2026-07-27 на этом пути терялись целиком.
+   */
+  private rewriteRolledBackDiagnostics(
+    rejectedPrimitives: readonly RejectedPrimitive[],
+    rejectedActions: readonly RejectedAction[]
+  ): void {
+    for (const entry of rejectedPrimitives) {
+      pushRejectionFact(
+        this.game,
+        "primitive_rejected",
+        {
+          countryId: entry.sourceCountryId ?? this.game.playerCountryId,
+          text: rejectionFactText(entry),
+        },
+        "director"
+      );
+    }
+    this.pushActionRejectionFacts(this.game, rejectedActions);
   }
 
   /** Ответ, отвергнутый до транзакции: состояние не тронуто ничем. */
@@ -643,6 +716,12 @@ export class LLMService {
         case "repress":
           addRegion(primitive.regionId);
           break;
+        default:
+          // Явная проверка на недостижимость: ветки здесь заканчиваются
+          // `break`, а не `return`, и без неё TypeScript полноту `switch` не
+          // проверяет — новый глагол молча выпадал бы из квитанции, то есть из
+          // «памяти страны» и истории места (найдено ревью 2026-07-27).
+          assertPrimitiveHandled(primitive);
       }
     }
 
@@ -684,7 +763,12 @@ export class LLMService {
   ): {
     applied: AppliedPrimitive[];
     outcomes: PrimitiveOutcomeRecord[];
-    rejected: PrimitiveRejectionRecord[];
+    /**
+     * Отказы СЫРЫМИ — код плюс типизированные параметры. Запись игрока
+     * (`rejectionRecord`) и английский текст промта (`rejectionFactText`)
+     * строятся из них у вызывающего: обратного пути от записи к union нет.
+     */
+    rejected: RejectedPrimitive[];
     /**
      * Структурный примитив отказал на схеме или в движке — весь ответ
      * откатывается, включая старый канал `actions` (docs/PRIMITIVES.md §3).
@@ -692,6 +776,12 @@ export class LLMService {
      */
     structuralRejected: boolean;
   } {
+    // Поля `primitives` нет — движок не зовём: `parsePrimitives(undefined)`
+    // отчитался бы «payload is not an array», то есть выдумал бы отказ там, где
+    // модель ничего не предлагала. Idempotency-ключ этот ранний выход НЕ
+    // теряет: он принадлежит уровню ответа (`processResponse`) и пишется после
+    // commit/rollback. До 2026-07-27 писал его только движок — и ровно поэтому
+    // повтор такого ответа применял старый канал второй раз.
     if (raw === undefined) {
       return { applied: [], outcomes: [], rejected: [], structuralRejected: false };
     }
@@ -752,9 +842,7 @@ export class LLMService {
     return {
       applied: outcome.applied,
       outcomes: outcome.outcomes,
-      rejected: [...rejected, ...outcome.rejected].map(entry =>
-        rejectionRecord(entry.rejection, entry.verb)
-      ),
+      rejected: [...rejected, ...outcome.rejected],
       structuralRejected:
         brokenStructural !== undefined ||
         outcome.rejected.some(entry => entry.verb !== undefined && isStructural(entry.verb)),

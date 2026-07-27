@@ -495,7 +495,11 @@ describe("LLMService", () => {
     it("курсор двигается только после успешного processResponse, с оборачиванием пула", () => {
       const g = gameWithRoster();
       const svc = new LLMService(g);
+      // Два РАЗНЫХ ответа: побайтно тот же ответ в том же игровом месяце —
+      // дубль по контракту idempotency (docs/PRIMITIVES.md §3), и курсор он
+      // двигать не должен.
       const response = JSON.stringify({ descriptions: "x", actions: [] });
+      const secondResponse = JSON.stringify({ descriptions: "y", actions: [] });
 
       svc.processResponse(response);
       // Пул из 6 стран, шаг 5 → курсор 5
@@ -510,7 +514,7 @@ describe("LLMService", () => {
       expect(section).toContain("Foxtrot");
       expect(section).toContain("Alpha");
 
-      svc.processResponse(response);
+      svc.processResponse(secondResponse);
       // (5 + 5) % 6 = 4
       expect(g.llmSpotlightCursor).toBe(4);
     });
@@ -900,7 +904,24 @@ describe("LLMService", () => {
 
     it("счётчик хода и id события растут при повторных проходах", () => {
       service.processResponse(validResponse);
-      service.processResponse(validResponse);
+      // Второй ответ ОТЛИЧАЕТСЯ текстом: idempotency-ключ выводится из
+      // содержания ответа и игровой даты, поэтому побайтно тот же ответ в том
+      // же месяце — дубль по контракту (docs/PRIMITIVES.md §3), а не второй
+      // проход. До 2026-07-27 ключ ответа без примитивов не запоминался вовсе,
+      // и этот тест проходил на дыре, а не на свойстве.
+      service.processResponse(
+        JSON.stringify({
+          descriptions: "СССР отвечает встречным жестом.",
+          actions: [
+            {
+              type: "diplomacy",
+              sourceCountryId: "USSR",
+              targetCountryId: "USA",
+              data: { relationChange: 10 },
+            },
+          ],
+        })
+      );
 
       expect(game.llmTurn).toBe(2);
       expect(game.eventHistory.map(e => e.id)).toEqual(["llm-turn-1", "llm-turn-2"]);

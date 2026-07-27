@@ -65,10 +65,10 @@ Rules the engine enforces, not requests:
   inside a corridor whose width the world state decides. Where the state gives
   no room, "severe" equals "mild". Any numeric field inside params is a schema
   error that rejects the primitive.
-- A structural primitive (enact_reform) that fails on ANY layer — the schema,
-  the preconditions, or the turn budget — rejects the WHOLE response, including
-  the soft primitives you sent with it. Send a structural one only when the
-  rest of the response is meant to happen together with it.
+- A structural primitive (enact_reform) rejected by the ENGINE — on the schema,
+  on the preconditions, or on the turn budget — rejects the WHOLE response,
+  including the soft primitives you sent with it. Send a structural one only
+  when the rest of the response is meant to happen together with it.
 - Order is execution order: each primitive sees the effect of the previous one,
   so incite_unrest followed by spawn_incident is a legitimate chain.
 - At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one (enact_reform) per game
@@ -87,7 +87,18 @@ Rules the engine enforces, not requests:
  * решений государственной политики (docs/CONCEPT.md §7.2). В промте перевода
  * приказа она была бы прямо ложной — там эти глаголы и есть предмет перевода, —
  * поэтому живёт отдельной строкой, а не внутри общего алфавита.
+ *
+ * Здесь же названо ИСКЛЮЧЕНИЕ из правила «структурный уносит весь ответ»
+ * (исправлено 2026-07-27 по независимому ревью). Общий текст контракта обещал
+ * откат на «ЛЮБОМ слое», а граница агентности в это правило намеренно не
+ * входит (docs/PRIMITIVES.md §4, «Отказ агентности ≠ отказ структурного») — и
+ * это самый вероятный слой отказа, потому что режиссёр естественно хочет
+ * реформировать страну игрока. Обещать модели откат там, где движок его не
+ * делает, значит учить её правилу, которого нет.
  */
 export const PRIMITIVE_PLAYER_AGENCY_NOTE = `- repress, grant_autonomy and enact_reform for the PLAYER's own country are
   refused: creating pressure is your job, answering it is the player's. Put the
-  choice in front of them in "descriptions" instead.`;
+  choice in front of them in "descriptions" instead. This refusal is the one
+  exception to the whole-response rollback above: it removes only the primitive
+  it refuses, so the soft primitives you sent alongside a refused enact_reform
+  DO apply. The pressure lands; the player's answer stays theirs.`;

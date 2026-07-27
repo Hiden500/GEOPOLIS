@@ -31,10 +31,19 @@ export const IDEOLOGY_AXES = ["economic", "political"] as const satisfies readon
 /**
  * Компайл-тайм проверка ПОЛНОТЫ перечня: `satisfies` выше запрещает лишнее, а
  * это — пропуск. Ось, добавленная в `IdeologyCoordinates` и забытая в
- * `IDEOLOGY_AXES`, превращает тип в `never` и валит сборку.
+ * `IDEOLOGY_AXES`, делает тип `never`, и присваивание `true` не компилируется.
+ *
+ * ПРИСВАИВАНИЕ обязательно: один псевдоним типа сборку не валит — TypeScript
+ * вычисляет его лениво, и до Милстоуна 1 этот страж молчал (найдено
+ * независимым ревью 2026-07-27, проверено добавлением третьей оси). Образец —
+ * `_AssertSchemaMatchesSharedType` в `server/src/llm/actionSchemas.ts`.
+ *
+ * Константа ЭКСПОРТИРУЕТСЯ, а не остаётся локальной: `client/tsconfig.app.json`
+ * включает `noUnusedLocals`, и неиспользуемая локальная переменная в файле,
+ * который клиент импортирует, провалила бы его же typecheck.
  */
-export type _AllIdeologyAxesListed =
-  Exclude<keyof IdeologyCoordinates, (typeof IDEOLOGY_AXES)[number]> extends never ? true : never;
+type MissingIdeologyAxis = Exclude<keyof IdeologyCoordinates, (typeof IDEOLOGY_AXES)[number]>;
+export const _allIdeologyAxesListed: [MissingIdeologyAxis] extends [never] ? true : never = true;
 
 /** Минимум/максимум любой оси координат идеологии. */
 export const IDEOLOGY_AXIS_MIN = -1;
