@@ -10,6 +10,7 @@ import { nextRandom } from "@shared/utils/rng";
 import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
 import { computePlayerStanding } from "@shared/utils/nationalPower";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
+import { activeCampaign } from "@shared/types/Campaign";
 
 /**
  * Выводит денежные поля economy из economyProfile (масштаб-свободные доли,
@@ -142,6 +143,7 @@ export function createGame(
     nextFeatureId: 0,
     locale,
     playerIntent: "",
+    campaign: activeCampaign(),
     eventHistory: [],
     chronicle: [],
     mapFeatures: [],

@@ -11,6 +11,7 @@ import { type EquipmentType } from "./military/EquipmentType";
 import { type ResourceType } from "./resources/ResourcesType";
 import { type EthnicGroupDefinition, type GroupImpactMemory } from "./politics/Demographics";
 import { type PrimitiveTurnBudget } from "./politics/PrimitiveTurnBudget";
+import { type CampaignState } from "./Campaign";
 
 export interface GameState {
   currentDate: string;
@@ -191,11 +192,31 @@ export interface GameState {
   llmResponse?: string; // последний ответ LLM
   llmTurn?: number; // номер хода для LLM симуляции
   pendingLlmActions?: LLMAction[]; // действия от LLM ожидающие применения
-  // Индекс ротации "Spotlight Countries" (детерминированный round-robin по
-  // не-major странам, id-sort) — расширение круга стран, реально ощущающих
-  // LLM (docs/DECISIONS.md, 2026-07-04, вопрос 11). Двигается только при
-  // успешном processResponse, не при простом generatePrompt.
-  llmSpotlightCursor?: number;
+  /**
+   * Позиция ротации "Spotlight Countries" — расширение круга стран, реально
+   * ощущающих LLM (docs/DECISIONS.md, 2026-07-04, вопрос 11). Двигается только
+   * при успешном processResponse, не при простом generatePrompt.
+   *
+   * Хранится ИДЕНТИФИКАТОР последней показанной страны, а не индекс в пуле
+   * (изменено Милстоуном 1, сессия жизненного цикла). Индекс был ссылкой на
+   * страну, замаскированной под число: пул — это не-major страны,
+   * отсортированные по id, поэтому появление или исчезновение любой страны
+   * молча сдвигало курсор на другую. Ротация «по всем без пропусков и
+   * повторов», ради которой сортировка по id и выбрана, при первом же расколе
+   * переставала выполняться — и заметить это было нечем. Id стабилен:
+   * следующий цикл начинается со страны, идущей за ним в текущем пуле, а если
+   * запомненной страны больше нет — с начала пула.
+   */
+  llmSpotlightCountryId?: string;
+
+  /**
+   * Состояние кампании (docs/CONCEPT.md §7.1, §6) — active /
+   * succession_choice_pending / defeated.
+   *
+   * Обязательное поле: «состояния нет» не должно читаться как «партия активна».
+   * Старые сейвы отклоняются по `SAVE_VERSION`, а не донабираются умолчаниями.
+   */
+  campaign: CampaignState;
 
   // Гейт хода (docs/DECISIONS.md, 2026-07-06): true после успешного
   // processResponse текущего цикла, сбрасывается в false при каждом

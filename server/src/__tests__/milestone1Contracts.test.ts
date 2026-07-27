@@ -18,7 +18,8 @@ import {
 import { applyPrimitiveTurn } from "../primitives/turnBatch";
 import * as politicsCommands from "../commands/politics";
 import { pushRejectionFact } from "../primitives/PrimitiveEngine";
-import { PRIMITIVE_VERBS } from "../primitives/types";
+import {
+  type PrimitiveVerb, PRIMITIVE_VERBS } from "../primitives/types";
 import { toProviderSchema } from "../llm/providers/GeminiProvider";
 import { primitiveTranslationSchema } from "../llm/primitiveTranslation";
 import {
@@ -528,27 +529,50 @@ describe("сверка результата покрывает все число
       "countries[*].politics.governmentSupport": "support",
     };
 
-    /** Пути вне разложения на ячейки — каждый с причиной, а не общей корзиной. */
-    const outsideCellReconciliation = (path: string): boolean =>
+    /**
+     * Пути вне разложения на ячейки — каждый с причиной, а не общей корзиной.
+     *
+     * Исключение ключуется ПАРОЙ (глагол, путь), а не одним путём (уточнено
+     * Милстоуном 1, сессия жизненного цикла). Разница содержательна:
+     * `countries[*].economy.treasury` законно стоит вне сверки у структурного
+     * `split_country`, чью правдивость держит проверка СХОДИМОСТИ СУММ, но
+     * стоял бы там незаконно у мягкого глагола, который просто двигает казну.
+     * Исключение на весь алфавит открыло бы вторую дверь первому же такому
+     * глаголу — молча.
+     */
+    const outsideCellReconciliation = (verb: PrimitiveVerb, path: string): boolean => {
       // Объекты карты сверяются фактом создания («заявленный создан, созданный
-      // заявлен»), а не числовыми ячейками — включая числовой `regionId`.
-      path.startsWith("mapFeatures[") ||
+      // заявлен»), а не числовыми ячейками.
+      if (path.startsWith("mapFeatures[")) return true;
       // Счётчик, а не заявление о мире: его правдивость держит палитра
       // (JSDoc `reconciliation.ts`).
-      path === "nextFeatureId" ||
-      // Идентификаторы записи памяти воздействий — АДРЕС ячейки, а не величина
-      // в ней; сами величины перечислены выше.
-      path === "groupImpactMemory[*].regionId" ||
-      path === "groupImpactMemory[*].groupId";
+      if (path === "nextFeatureId") return true;
+      // Появление и исчезновение элемента массива — заявление о СОСТАВЕ мира, а
+      // не величина: содержимое созданного объекта проверяют пост-инварианты.
+      if (path.endsWith("[+]") || path.endsWith("[-]")) return true;
 
-    const palettePaths = [...new Set(Object.values(PRIMITIVE_PALETTE).flat())];
-    expect(palettePaths.length).toBeGreaterThan(0);
+      // Жизненный цикл государств (`CONCEPT.md` §7.1) не заявляет числовых
+      // ячеек ВООБЩЕ: он меняет состав мира, а не значения полей. Его
+      // правдивость держат два других механизма — сходимость сумм
+      // (население/казна/живая сила/регионы) и ноль висячих ссылок, — и оба
+      // сильнее поячеечной сверки, потому что знают смысл полей.
+      if (verb === "split_country") return true;
+
+      return false;
+    };
+
+    const paletteEntries = Object.entries(PRIMITIVE_PALETTE) as [PrimitiveVerb, readonly string[]][];
+    expect(paletteEntries.length).toBeGreaterThan(0);
 
     // 1. Классификация полная: путь, которого нет ни в одном канале и ни в
     //    одном исключении, обязан уронить тест — это и есть «канал объявлен
     //    палитрой, но сверке неизвестен».
     expect(
-      palettePaths.filter(path => !(path in numericPathChannel) && !outsideCellReconciliation(path))
+      paletteEntries.flatMap(([verb, paths]) =>
+        paths
+          .filter(path => !(path in numericPathChannel) && !outsideCellReconciliation(verb, path))
+          .map(path => `${verb}: ${path}`)
+      )
     ).toEqual([]);
 
     for (const [path, channel] of Object.entries(numericPathChannel)) {

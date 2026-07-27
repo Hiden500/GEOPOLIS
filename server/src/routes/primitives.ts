@@ -1,5 +1,9 @@
 import express from "express";
-import { applyPrimitivesSchema, translateIntentSchema } from "../validation/schemas";
+import {
+  applyPrimitivesSchema,
+  chooseSuccessorSchema,
+  translateIntentSchema,
+} from "../validation/schemas";
 import { ValidationError, GameError, LLMProviderError } from "../errors/AppError";
 import { getGame, setGame } from "../game/GameStore";
 import { effectiveController } from "@shared/utils/regionControl";
@@ -12,6 +16,7 @@ import {
 import { buildPrimitivePreview } from "../primitives/outcomes";
 import { rejectionRecord } from "../primitives/rejections";
 import { applyPrimitiveTurn } from "../primitives/turnBatch";
+import { chooseSuccessor } from "../primitives/campaign";
 
 const router = express.Router();
 const geminiProvider = new GeminiProvider();
@@ -124,6 +129,50 @@ router.post("/apply", (req, res) => {
       outcomes: result.outcomes,
       rejected: result.rejected.map(r => rejectionRecord(r.rejection, r.verb)),
     });
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      res.status(400).json({ error: error.message, details: error.details });
+    } else if (error instanceof GameError) {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
+});
+
+/**
+ * Выбор осколка после распада страны игрока (docs/CONCEPT.md §7.1:
+ * `succession_choice_pending -> active`).
+ *
+ * Отдельная ручка, а не параметр `/apply`, потому что это НЕ примитив: примитив
+ * применяет движок к миру, а здесь человек отвечает на вопрос, который движок
+ * ему задал. Смешать их значило бы позволить модели выбрать преемника за игрока
+ * — ровно то, что запрещает граница агентности (§7.2).
+ *
+ * Ручка не создаёт и не удаляет стран: все осколки уже существуют, выбор лишь
+ * переводит `playerCountryId` на один из объявленных. Поэтому она не проходит
+ * через границу хода и не тратит бюджет примитивов.
+ */
+router.post("/succession", (req, res) => {
+  try {
+    const game = getGame();
+    if (!game) throw new GameError("No active game");
+
+    const parsed = chooseSuccessorSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new ValidationError("Invalid succession input", parsed.error.issues);
+    }
+
+    const result = chooseSuccessor(game, parsed.data.countryId);
+    if (!result.ok) {
+      // Причина — структурный код, как у отказов примитивов: клиент рендерит
+      // его своим словарём, а не показывает английскую строку сервера.
+      res.status(409).json({ rejection: result.rejection });
+      return;
+    }
+
+    setGame(game);
+    res.json({ playerCountryId: game.playerCountryId, campaign: game.campaign });
   } catch (error) {
     if (error instanceof ValidationError) {
       res.status(400).json({ error: error.message, details: error.details });
