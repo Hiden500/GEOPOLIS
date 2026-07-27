@@ -4,7 +4,8 @@ import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { MAX_PENDING_REJECTION_FACTS_PER_SOURCE } from "@shared/defines/discontent";
 import { LLMService } from "../services/LLMService";
 import { parsePrimitives, PRIMITIVE_SCHEMAS } from "../primitives/primitiveSchemas";
-import { PRIMITIVE_PALETTE } from "../primitives/palette";
+import { PRIMITIVE_PALETTE, pathMatchesPaletteEntry } from "../primitives/palette";
+import { collectChangedPaths } from "../primitives/statePaths";
 import { enumerateCells } from "../primitives/reconciliation";
 import { findStateViolations } from "../primitives/invariants";
 import {
@@ -442,6 +443,70 @@ describe("сверка результата покрывает все число
     expect(keys).toContain("ideology:SUN.economic");
     expect(keys).toContain("ideology:SUN.political");
     expect(keys).toContain("support:SUN");
+  });
+});
+
+describe("палитра выражает ключи словарей и удаление элементов", () => {
+  // Оба свойства сегодня не задевают ни один из пяти глаголов — они вводятся
+  // под глаголы следующей сессии (`diplomacy`/`sanction`/`war`/`peace` пишут в
+  // `Record`-поля дипломатии, `peace` снимает объекты карты при завершении
+  // войны). Проверяются поэтому на уровне механизма, а не через боевой глагол.
+
+  it("ключ словаря попадает в путь ДОСЛОВНО — схлопывать его в дифе нельзя", () => {
+    const changed = collectChangedPaths(
+      { countries: [{ diplomacy: { relations: {} } }] },
+      { countries: [{ diplomacy: { relations: { USA: 5 } } }] }
+    );
+    expect(changed).toEqual(["countries[*].diplomacy.relations.USA"]);
+  });
+
+  it("шаблон `{*}` в палитре покрывает любой ключ словаря", () => {
+    const entry = "countries[*].diplomacy.relations.{*}";
+    expect(pathMatchesPaletteEntry(entry, "countries[*].diplomacy.relations.USA")).toBe(true);
+    expect(pathMatchesPaletteEntry(entry, "countries[*].diplomacy.relations.SUN")).toBe(true);
+    // Ровно ОДИН сегмент: шаблон не должен превращаться в «что угодно дальше».
+    expect(pathMatchesPaletteEntry(entry, "countries[*].diplomacy.relations.USA.extra"))
+      .toBe(false);
+    // И не покрывает соседнее поле того же уровня.
+    expect(pathMatchesPaletteEntry(entry, "countries[*].diplomacy.influence.USA")).toBe(false);
+  });
+
+  it("запись палитры без шаблона по-прежнему сравнивается точно", () => {
+    const entry = "countries[*].politics.governmentSupport";
+    expect(pathMatchesPaletteEntry(entry, entry)).toBe(true);
+    expect(pathMatchesPaletteEntry(entry, "countries[*].politics.legitimacy")).toBe(false);
+  });
+
+  it("удаление элемента массива отмечается отдельным путём, а не россыпью полей", () => {
+    const changed = collectChangedPaths(
+      { mapFeatures: [{ id: "a" }, { id: "b" }] },
+      { mapFeatures: [{ id: "a" }] }
+    );
+    // Маркер обязателен: по нему отказ палитры называет удаление удалением.
+    expect(changed).toContain("mapFeatures[-]");
+  });
+
+  it("ДОБАВЛЕНИЕ элемента маркера не даёт — позиции не сдвигаются", () => {
+    // Иначе `spawn_incident`, который только дополняет `mapFeatures`, начал бы
+    // требовать объявления удаления, которого не делает.
+    const changed = collectChangedPaths(
+      { mapFeatures: [{ id: "a" }] },
+      { mapFeatures: [{ id: "a" }, { id: "b" }] }
+    );
+    expect(changed).not.toContain("mapFeatures[-]");
+  });
+
+  it("ни один сегодняшний глагол маркера удаления не производит", () => {
+    // Свойство, а не снимок: если новый глагол начнёт удалять элементы, он
+    // обязан объявить это в палитре — и тест назовёт его первым.
+    const game = createDiscontentTestGame();
+    const before = structuredClone(game);
+    applyPrimitiveTurn(
+      game,
+      [{ verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } }],
+      "no-removal"
+    );
+    expect(collectChangedPaths(before, game).filter(p => p.endsWith("[-]"))).toEqual([]);
   });
 });
 

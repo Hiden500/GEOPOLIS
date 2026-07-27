@@ -27,8 +27,9 @@ const DEFAULT_MODEL = "gemini-3.1-flash-lite";
  *     400 "Request contains an invalid argument" без детализации поля;
  *     бисекция живыми вызовами локализовала причину до веток с ИДЕНТИЧНОЙ
  *     формой, различающихся только значением discriminant `type`
- *     (peace/annex/puppet/guarantee — все `{sourceCountryId,
- *     targetCountryId}`, без `data`) — 2 структурно РАЗНЫЕ ветки (diplomacy+
+ *     (тогда peace/annex/puppet/guarantee — все `{sourceCountryId,
+ *     targetCountryId}`, без `data`; `annex`/`puppet` удалены из контракта
+ *     2026-07-27, пара peace/guarantee осталась) — 2 структурно РАЗНЫЕ ветки (diplomacy+
  *     war) проходили, добавление ещё 3 структурно ОДИНАКОВЫХ веток
  *     ломало запрос. Похоже на ограничение grammar-компилятора
  *     constrained-decoding: неразличимые по форме anyOf-ветки не строятся.

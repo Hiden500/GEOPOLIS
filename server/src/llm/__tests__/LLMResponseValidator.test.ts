@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { LLMResponseValidator } from "../LLMResponseValidator";
+import { LLMActionSchema } from "../actionSchemas";
 import { WarService } from "../../services/WarService";
 import { createTestCountry, createTestGameState, createTestRegion } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
@@ -47,40 +48,22 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
   });
 
   /**
-   * Действие без apply-логики не может считаться применённым (2026-07-26,
-   * повторная верификация внешнего аудита).
+   * `annex`/`puppet` УДАЛЕНЫ из контракта (решение пользователя 2026-07-27).
    *
-   * `annex`/`puppet` типизированы контрактом, но их apply — пустая ветка с логом.
-   * Проходя валидацию, они попадали в `appliedActions`, и одного этого хватало,
-   * чтобы `processResponse` признал ответ применившим изменение и канонизировал
-   * текст при полностью неизменившемся мире.
+   * До этого они были типизированы, но не реализованы, и валидатор отклонял их
+   * отдельной веткой «нет apply-логики» — то есть тип существовал ровно затем,
+   * чтобы быть отклонённым, занимая место в схеме и в бюджете промта. Теперь их
+   * нет вовсе, и отказ приходит РАНЬШЕ и точнее — на структурной схеме.
    */
-  describe("annex/puppet — контракт типизирован, реализации нет", () => {
-    it.each(["annex", "puppet"] as const)("%s отклоняется с причиной «нет apply-логики»", type => {
-      const validator = new LLMResponseValidator(makeGame());
-      const result = validator.validateActionApplicability({
+  describe("annex/puppet удалены из контракта", () => {
+    it.each(["annex", "puppet"] as const)("%s не проходит структурную схему действия", type => {
+      const parsed = LLMActionSchema.safeParse({
         type,
         sourceCountryId: "USA",
         targetCountryId: "USSR",
       });
 
-      expect(result.valid).toBe(false);
-      expect(result.error).toContain("no apply logic");
-      expect(result.error).toContain(type);
-    });
-
-    it("причина не зависит от состояния мира: она про движок, а не про партию", () => {
-      // Страны-источника нет вовсе — прежний порядок проверок дал бы «Source
-      // country not found», то есть увёл бы читателя от настоящей причины.
-      const validator = new LLMResponseValidator(makeGame());
-      const result = validator.validateActionApplicability({
-        type: "annex",
-        sourceCountryId: "ATLANTIS",
-        targetCountryId: "USA",
-      });
-
-      expect(result.valid).toBe(false);
-      expect(result.error).toContain("no apply logic");
+      expect(parsed.success).toBe(false);
     });
   });
 

@@ -914,7 +914,7 @@ Return your response in JSON format with the following structure:
   "descriptions": "Narrative description of world events",
   "actions": [
     {
-      "type": "diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift|production_shift|build_extraction",
+      "type": "diplomacy|war|peace|sanction|guarantee|influence|research_shift|production_shift|build_extraction",
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
@@ -931,10 +931,6 @@ Return your response in JSON format with the following structure:
 }
 
 Hard limits (actions violating them are rejected):
-- "annex" and "puppet" exist in the type list for contract compatibility only:
-  the engine has NO logic for them, so they are always rejected and never
-  change the world. Do not propose them — narrate the annexation or the
-  installed government instead, or use "war"/"peace", which do change it.
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
 - data.relationChange: number within ±${MAX_RELATION_CHANGE}.
 - data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
@@ -992,17 +988,6 @@ Hard limits (actions violating them are rejected):
           break;
         case 'build_extraction':
           this.applyBuildExtractionAction(action, game);
-          break;
-        case 'annex':
-        case 'puppet':
-          // Реализации нет — и с 2026-07-26 сюда не приходит ни одно действие
-          // ответа модели: `LLMResponseValidator` отклоняет эти два глагола как
-          // нереализованные, поэтому в `appliedActions` они не попадают и ответ,
-          // состоящий только из них, не канонизируется. Ветка остаётся ровно
-          // потому, что `applyLlmActions` — публичный метод (прямые вызовы в
-          // тестах и потенциально в ИИ-путях), и пустой глагол не должен ронять
-          // весь батч.
-          console.log(`Action ${action.type} has no apply logic (rejected earlier on the LLM path)`);
           break;
       }
     }
@@ -1403,7 +1388,7 @@ Hard limits (actions violating them are rejected):
     // ОБА канала: примитивы и старые `actions` (docs/TODO.md, закрыто
     // Милстоуном 1). Раньше отказ действия уходил только игроку, и отучить
     // модель от заведомо отклоняемого действия можно было исключительно
-    // инструкцией промта — так и сделано для `annex`/`puppet`.
+    // инструкцией промта.
     const rejected = this.game.pendingWorldFacts.filter(
       f => f.kind === "primitive_rejected" || f.kind === "action_rejected"
     );

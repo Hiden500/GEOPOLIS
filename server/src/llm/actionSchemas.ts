@@ -66,20 +66,14 @@ const PeaceAction = noSelfTarget({
   targetCountryId: z.string().min(1),
 });
 
-// Контракт типизирует annex/puppet (реальная присоединяющая механика — не
-// в этом плане, apply остаётся no-op, см. docs/plans/02_LLM_CONTRACT.md
-// "Явно не в этом заходе").
-const AnnexAction = noSelfTarget({
-  type: z.literal("annex"),
-  sourceCountryId: z.string().min(1),
-  targetCountryId: z.string().min(1),
-});
-
-const PuppetAction = noSelfTarget({
-  type: z.literal("puppet"),
-  sourceCountryId: z.string().min(1),
-  targetCountryId: z.string().min(1),
-});
+// `annex`/`puppet` УДАЛЕНЫ из контракта (решение пользователя 2026-07-27).
+// Они числились в схеме и в промте, но реализации не имели: с 2026-07-26
+// валидатор отклонял их как нереализованные, то есть они занимали место в
+// контракте и в бюджете промта ровно ради того, чтобы быть отклонёнными.
+// Аннексия и вассалитет — операции ЖИЗНЕННОГО ЦИКЛА государств (перенос всех
+// ссылок, инварианты сумм населения/казны/регионов, docs/CONCEPT.md §7.1) и
+// вернутся настоящими глаголами алфавита в сессии lifecycle, а не пустыми
+// ветками старого канала.
 
 const SanctionAction = noSelfTarget({
   type: z.literal("sanction"),
@@ -157,8 +151,6 @@ export const LLMActionSchema = z.discriminatedUnion("type", [
   DiplomacyAction,
   WarAction,
   PeaceAction,
-  AnnexAction,
-  PuppetAction,
   SanctionAction,
   GuaranteeAction,
   InfluenceAction,

@@ -68,8 +68,45 @@ export const PRIMITIVE_PALETTE: Record<PrimitiveVerb, readonly string[]> = {
   ],
 };
 
+/**
+ * Совпадает ли изменённый путь с записью палитры.
+ *
+ * Запись палитры — ШАБЛОН, а не строка: сегмент `{*}` означает «любой ключ
+ * словаря». Нужен потому, что `collectChangedPaths` оставляет ключи записей в
+ * пути дословно (`countries[*].diplomacy.relations.USA`), а `relations`,
+ * `influence` и `sanctions` — это `Record<string, …>`, ключи которых суть
+ * данные партии, а не имена полей. Без шаблона любой глагол, пишущий туда,
+ * гарантированно проваливал бы рантайм-проверку палитры: перечислить все
+ * возможные id стран в статическом списке нельзя.
+ *
+ * Сегодня ни один из пяти глаголов в словари не пишет — но переиспользуемые
+ * `diplomacy`, `sanction`, `war`, `peace`, которые следующая сессия переводит в
+ * алфавит, пишут туда все. Шаблон вводится сейчас, чтобы первый же такой глагол
+ * не упёрся в механизм, а не потому, что он нужен пяти сегодняшним.
+ *
+ * Схлопывать ключи в самом дифе было нельзя: словарь от объекта с
+ * фиксированными полями там не отличить, и `politics.governmentSupport`
+ * превратился бы в `politics.{*}` — палитра перестала бы что-либо запрещать.
+ * Здесь же объявление делает ГЛАГОЛ, и оно читается как намерение: «пишу в
+ * relations по любому ключу».
+ */
+export function pathMatchesPaletteEntry(entry: string, path: string): boolean {
+  if (!entry.includes(KEY_WILDCARD)) return entry === path;
+
+  // Экранируем всё, кроме плейсхолдера, и заменяем его на «сегмент без точки»:
+  // `{*}` покрывает ровно один ключ, а не путь произвольной глубины.
+  const pattern = entry
+    .split(KEY_WILDCARD)
+    .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("[^.]+");
+  return new RegExp(`^${pattern}$`).test(path);
+}
+
+/** Плейсхолдер ключа словаря в записи палитры. */
+const KEY_WILDCARD = "{*}";
+
 /** Пути, изменённые примитивом, но не объявленные в его палитре. */
 export function findPaletteViolations(verb: PrimitiveVerb, changedPaths: readonly string[]): string[] {
-  const allowed = new Set(PRIMITIVE_PALETTE[verb]);
-  return changedPaths.filter(p => !allowed.has(p));
+  const allowed = PRIMITIVE_PALETTE[verb];
+  return changedPaths.filter(path => !allowed.some(entry => pathMatchesPaletteEntry(entry, path)));
 }

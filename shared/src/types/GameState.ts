@@ -342,8 +342,6 @@ export type LLMAction =
   | { type: "diplomacy"; sourceCountryId: string; targetCountryId: string; data: { relationChange: number } }
   | { type: "war"; sourceCountryId: string; targetCountryId: string; data?: { warGoal?: string | undefined } | undefined }
   | { type: "peace"; sourceCountryId: string; targetCountryId: string }
-  | { type: "annex"; sourceCountryId: string; targetCountryId: string }
-  | { type: "puppet"; sourceCountryId: string; targetCountryId: string }
   | { type: "sanction"; sourceCountryId: string; targetCountryId: string; data?: { sanctionType?: SanctionType | undefined } | undefined }
   | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
   | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number | undefined } | undefined }

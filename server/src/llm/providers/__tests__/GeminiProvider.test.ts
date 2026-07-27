@@ -144,27 +144,25 @@ describe("GeminiProvider", () => {
 
       // discriminant "type" литералы приходят как enum: [...] (не const, не
       // поддерживается этим REST-эндпоинтом Gemini — см. enrichForGemini).
-      // Ветки с идентичной формой (peace/annex/puppet/guarantee) схлопнуты
+      // Ветки с идентичной формой (peace/guarantee) схлопнуты
       // mergeIdenticalShapeBranches в одну — enum там содержит несколько
-      // значений, не одно; flatMap разворачивает все 11 обратно.
+      // значений, не одно; flatMap разворачивает все девять обратно.
       const types = items.anyOf.flatMap((branch: any) => branch.properties.type.enum);
       expect(types.sort()).toEqual(
         [
-          "annex", "build_extraction", "diplomacy", "guarantee", "influence", "peace",
-          "production_shift", "puppet", "research_shift", "sanction", "war",
+          "build_extraction", "diplomacy", "guarantee", "influence", "peace",
+          "production_shift", "research_shift", "sanction", "war",
         ].sort()
       );
     });
 
-    it("ветки с идентичной формой (peace/annex/puppet/guarantee) схлопнуты в одну — anyOf короче 10 (подтверждённое живым вызовом ограничение Gemini)", async () => {
+    it("ветки с идентичной формой (peace/guarantee) схлопнуты в одну — anyOf короче числа типов (подтверждённое живым вызовом ограничение Gemini)", async () => {
       const schema = await captureResponseSchema();
       const items = schema.properties.actions.items;
-      expect(items.anyOf.length).toBeLessThan(10);
+      expect(items.anyOf.length).toBeLessThan(9);
 
       const mergedBranch = items.anyOf.find((b: any) => b.properties.type.enum.length > 1);
-      expect(mergedBranch.properties.type.enum.sort()).toEqual(
-        ["annex", "guarantee", "peace", "puppet"].sort()
-      );
+      expect(mergedBranch.properties.type.enum.sort()).toEqual(["guarantee", "peace"].sort());
     });
 
     it("нет const/additionalProperties — Gemini их не поддерживает (подтверждено живым вызовом 2026-07-10)", async () => {

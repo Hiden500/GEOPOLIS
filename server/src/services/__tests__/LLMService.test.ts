@@ -33,7 +33,12 @@ describe("LLMService", () => {
       expect(prompt).toContain('"descriptions"');
       expect(prompt).toContain('"actions"');
       // перечень допустимых типов действий присутствует в инструкции
-      expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence");
+      // `annex`/`puppet` в списке типов больше нет (решение 2026-07-27): тип,
+      // существующий ради того, чтобы быть отклонённым, занимал место в
+      // контракте и в бюджете промта.
+      expect(prompt).toContain("diplomacy|war|peace|sanction|guarantee|influence");
+      expect(prompt).not.toContain("annex");
+      expect(prompt).not.toContain("puppet");
     });
 
     it("## Language: требует писать нарратив на языке локали игры (2026-07-05)", () => {
@@ -245,7 +250,7 @@ describe("LLMService", () => {
     it("Instructions: упоминает research_shift и его пределы (2026-07-06)", () => {
       const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("research_shift");
-      expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift|production_shift");
+      expect(prompt).toContain("diplomacy|war|peace|sanction|guarantee|influence|research_shift|production_shift");
     });
 
     it("Instructions: упоминает production_shift и категории техники (War Phase 2, 2026-07-06)", () => {
@@ -612,16 +617,6 @@ describe("LLMService", () => {
       expect(usa().diplomacy.influence["USSR"]).toBe(10);
     });
 
-    it("annex/puppet: не падает и не меняет отношения (пока не реализовано)", () => {
-      const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-      service.applyLlmActions([
-        { type: "annex", sourceCountryId: "USA", targetCountryId: "USSR" },
-        { type: "puppet", sourceCountryId: "USA", targetCountryId: "USSR" },
-      ]);
-      expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
-      logSpy.mockRestore();
-    });
-
     // "действие без targetCountryId/data — no-op" тесты удалены здесь (2026-07-10,
     // план 02_LLM_CONTRACT.md, Шаг 0-1): applyXAction теперь принимает
     // Extract<LLMAction, {type: '...'}> — targetCountryId/data гарантированы
@@ -758,16 +753,17 @@ describe("LLMService", () => {
     });
 
     /**
-     * Legacy-действия без реализации не дают ложного «применено» (2026-07-26,
-     * повторная верификация внешнего аудита).
+     * `annex`/`puppet` УДАЛЕНЫ из контракта (решение пользователя 2026-07-27).
      *
-     * До правки `annex` проходил схему и applicability, попадал в
-     * `appliedActions`, и `appliedChange === true` канонизировал текст, хотя мир
-     * не менялся ни на байт: `applyLlmActions` только логировал «not yet
-     * implemented». Дыра сидела ровно в защите, построенной от этого же
-     * (docs/PRIMITIVES.md §3, защита №2).
+     * История, ради которой блок остаётся. Сначала эти типы проходили схему и
+     * applicability, попадали в `appliedActions`, и `appliedChange === true`
+     * канонизировал текст «Эльзас присоединён» при неизменившемся мире — дыра
+     * ровно в защите №2 (docs/PRIMITIVES.md §3). Потом валидатор стал отклонять
+     * их отдельной веткой «нет apply-логики». Теперь их нет вовсе: отказ
+     * приходит на СХЕМЕ — раньше и точнее, — а абзац промта, объяснявший, почему
+     * их не надо предлагать, освободил место в бюджете.
      */
-    describe("annex/puppet: предложение без реализации — не «применено»", () => {
+    describe("annex/puppet удалены из контракта", () => {
       const annexOnly = JSON.stringify({
         title: "Эльзас присоединён к Франции",
         descriptions: "Франция объявила о присоединении Эльзаса.",
@@ -787,7 +783,8 @@ describe("LLMService", () => {
         expect(game.eventHistory).toHaveLength(0);
 
         expect(result.receipt.actions.rejected).toHaveLength(1);
-        expect(result.receipt.actions.rejected[0]!.reason).toContain("no apply logic");
+        // Причина структурная, от схемы: такого типа в контракте нет.
+        expect(result.receipt.actions.rejected[0]!.reason).toMatch(/discriminator|type/i);
       });
 
       it("повтор того же ответа тоже не канонизируется (не остаётся лазейкой на второй заход)", () => {
@@ -813,10 +810,10 @@ describe("LLMService", () => {
         expect(usa().diplomacy.relations["USSR"]).toBe(5);
       });
 
-      it("промт называет эти два глагола неработающими — модель узнаёт правило до попытки", () => {
+      it("промт больше не тратит место на объяснение неработающих глаголов", () => {
         const prompt = service.generatePrompt().prompt;
-        expect(prompt).toContain('"annex" and "puppet" exist in the type list');
-        expect(prompt).toContain("always rejected and never");
+        expect(prompt).not.toContain("annex");
+        expect(prompt).not.toContain("puppet");
       });
     });
 
