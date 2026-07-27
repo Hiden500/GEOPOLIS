@@ -32,18 +32,25 @@ export function setInfluence(game: GameState, fromId: string, toId: string, delt
   return { success: true };
 }
 
-/** Обёртка DiplomacyService.addSanction — используется LLM-действием "sanction". */
+/**
+ * Обёртка DiplomacyService.recordSanction — используется примитивом `sanction`.
+ *
+ * Именно `recordSanction`, а не `addSanction`: дипломатическую цену санкции
+ * считает коридор магнитуды примитива, и вшитая в сервис константа перекрыла бы
+ * её (см. JSDoc сервиса). `applied` сообщает, появился ли режим на самом деле —
+ * повторное наложение действующей санкции состояния не меняет.
+ */
 export function applySanction(
   game: GameState,
   fromId: string,
   toId: string,
   sanctionType: SanctionType
-): CommandResult {
+): CommandResult<boolean> {
   const error = requireCountries(game, fromId, toId);
   if (error) return { success: false, error };
 
-  diplomacyService.addSanction(game.countries, fromId, toId, sanctionType);
-  return { success: true };
+  const applied = diplomacyService.recordSanction(game.countries, fromId, toId, sanctionType);
+  return { success: true, applied };
 }
 
 /** Обёртка DiplomacyService.addGuarantee — используется LLM-действием "guarantee". */

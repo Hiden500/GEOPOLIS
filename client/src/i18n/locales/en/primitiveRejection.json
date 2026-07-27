@@ -29,5 +29,11 @@
   "duplicateResponse": "This response was already applied this month",
   "splitNotSelf": "{{source}} cannot break up {{country}}: a state falls apart from within, it is not taken apart from outside",
   "splitTooFewRegions": "{{country}} holds {{regions}} region(s); a split needs at least {{required}}",
-  "splitNoSeparatistRegion": "No region of {{country}} has a discontented majority at the secession threshold ({{best}} against {{threshold}})"
+  "splitNoSeparatistRegion": "No region of {{country}} has a discontented majority at the secession threshold ({{best}} against {{threshold}})",
+  "bilateralSelfTarget": "\"{{verb}}\" needs another country: {{country}} cannot address itself",
+  "diplomacyNoDirection": "No direction given for the gesture towards {{country}}: closing and breaking are different decisions",
+  "sanctionAlreadyImposed": "{{source}} already holds sanctions ({{sanctionType}}) against {{target}} — repeating changes nothing",
+  "alreadyAtWar": "{{source}} is already at war with {{target}}",
+  "warOnAlly": "{{source}} cannot declare war on its ally {{target}}: breaking an alliance is not modelled yet",
+  "noActiveWar": "There is no active war between {{source}} and {{target}}"
 }

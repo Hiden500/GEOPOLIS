@@ -39,7 +39,7 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
     const game = makeGame();
     const validator = new LLMResponseValidator(game);
     const result = validator.validateActionApplicability({
-      type: "war",
+      type: "guarantee",
       sourceCountryId: "USA",
       targetCountryId: "ATLANTIS",
     });
@@ -67,19 +67,12 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
     });
   });
 
-  it("отклоняет повторные санкции, если они уже наложены", () => {
-    const game = makeGame();
-    const validator = new LLMResponseValidator(game);
-    const usa = game.countries.find(c => c.id === "USA")!;
-    usa.diplomacy.sanctions["USSR"] = ["economic_sanctions"];
-    const result = validator.validateActionApplicability({
-      type: "sanction",
-      sourceCountryId: "USA",
-      targetCountryId: "USSR",
-    });
-    expect(result.valid).toBe(false);
-    expect(result.error).toBe("Sanctions already exist");
-  });
+  // Правила «санкция уже наложена», «уже воюем», «война с союзником» и «нет
+  // активной войны» УШЛИ ОТСЮДА вместе со своими типами (Милстоун 1): это
+  // теперь предпосылки движка примитивов. Их проверка живёт в
+  // `server/src/primitives/__tests__/diplomaticVerbs.test.ts` и стала строже —
+  // отказ там несёт структурный код, а не английскую строку, поэтому
+  // проверяется и то, что игрок получает причину на своём языке.
 
   it("отклоняет повторную гарантию", () => {
     const game = makeGame();
@@ -93,17 +86,6 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
     });
     expect(result.valid).toBe(false);
     expect(result.error).toBe("Guarantee already exists");
-  });
-
-  it("разрешает санкции, если их ещё нет", () => {
-    const game = makeGame();
-    const validator = new LLMResponseValidator(game);
-    const result = validator.validateActionApplicability({
-      type: "sanction",
-      sourceCountryId: "USA",
-      targetCountryId: "USSR",
-    });
-    expect(result.valid).toBe(true);
   });
 
   it("research_shift: разрешает известный домен страны и допустимый share (2026-07-06)", () => {
@@ -137,68 +119,6 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
       type: "production_shift",
       sourceCountryId: "USA",
       data: { equipmentType: "tanks", share: 0.5 },
-    });
-    expect(result.valid).toBe(true);
-  });
-
-  it("war: разрешает объявление, если сторона ещё не воюет и не союзник (2026-07-06)", () => {
-    const game = makeGame();
-    const validator = new LLMResponseValidator(game);
-    const result = validator.validateActionApplicability({
-      type: "war",
-      sourceCountryId: "USA",
-      targetCountryId: "USSR",
-    });
-    expect(result.valid).toBe(true);
-  });
-
-  it("war: отклоняет, если уже идёт война между этими странами (2026-07-06)", () => {
-    const game = makeGame();
-    new WarService(game).declareWar("USA", "USSR");
-    const validator = new LLMResponseValidator(game);
-    const result = validator.validateActionApplicability({
-      type: "war",
-      sourceCountryId: "USA",
-      targetCountryId: "USSR",
-    });
-    expect(result.valid).toBe(false);
-    expect(result.error).toBe("Already at war with this country");
-  });
-
-  it("war: отклоняет объявление войны союзнику (2026-07-06)", () => {
-    const game = makeGame();
-    const usa = game.countries.find(c => c.id === "USA")!;
-    usa.diplomacy.allies.push("USSR");
-    const validator = new LLMResponseValidator(game);
-    const result = validator.validateActionApplicability({
-      type: "war",
-      sourceCountryId: "USA",
-      targetCountryId: "USSR",
-    });
-    expect(result.valid).toBe(false);
-    expect(result.error).toBe("Cannot declare war on an ally");
-  });
-
-  it("peace: отклоняет, если между странами нет активной войны (2026-07-06)", () => {
-    const game = makeGame();
-    const validator = new LLMResponseValidator(game);
-    const result = validator.validateActionApplicability({
-      type: "peace",
-      sourceCountryId: "USA",
-      targetCountryId: "USSR",
-    });
-    expect(result.valid).toBe(false);
-    expect(result.error).toBe("No active war between these countries");
-  });
-
-  it("peace: разрешает, если между странами есть активная война (2026-07-06)", () => {
-    const game = makeGame();
-    new WarService(game).declareWar("USA", "USSR");
-    const validator = new LLMResponseValidator(game);
-    const result = validator.validateActionApplicability({
-      type: "peace",
-      sourceCountryId: "USA",
-      targetCountryId: "USSR",
     });
     expect(result.valid).toBe(true);
   });

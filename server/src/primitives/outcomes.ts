@@ -4,7 +4,12 @@ import {
   type PrimitiveOutcomeLine,
   type PrimitiveOutcomeRecord,
 } from "@shared/types/politics/PrimitiveOutcome";
-import { type AppliedPrimitive, type GroupImpactEffect, type Primitive } from "./types";
+import {
+  type AppliedPrimitive,
+  type GroupImpactEffect,
+  type Primitive,
+  type RelationEffect,
+} from "./types";
 import { countryNames, groupNames, regionNames } from "./entityNames";
 
 /**
@@ -79,6 +84,36 @@ function impactLines(
             delta: signed(effect.delta),
             before: fixed(effect.before),
             after: fixed(effect.after),
+          },
+          names,
+        };
+  });
+}
+
+/**
+ * Строки по фактическим сдвигам отношений — по КАЖДОЙ стороне пары.
+ *
+ * Обе стороны и нулевые дельты называются по тому же правилу, что у памяти
+ * воздействий: умолчать о стороне значит дать игроку симметрию, которой не
+ * было (`changeRelation` пишет адресату половину дельты инициатора).
+ */
+function relationLines(
+  game: GameState,
+  effects: readonly RelationEffect[]
+): PrimitiveOutcomeLine[] {
+  return effects.map(effect => {
+    const names: Record<string, LocalizedText> = {
+      source: countryNames(game, effect.fromCountryId),
+      country: countryNames(game, effect.toCountryId),
+    };
+    return effect.delta === 0
+      ? { key: "relation.unchanged", values: { value: effect.after.toFixed(1) }, names }
+      : {
+          key: "relation.changed",
+          values: {
+            delta: signed(effect.delta),
+            before: effect.before.toFixed(1),
+            after: effect.after.toFixed(1),
           },
           names,
         };
@@ -201,6 +236,99 @@ export function buildPrimitiveOutcome(
           key: `spawnIncident.headline.${applied.incidentKind}`,
           values: { mapFeatureId: applied.mapFeatureId },
           names: { region: regionNames(game, applied.regionId) },
+        },
+        details,
+      };
+    }
+
+    case "diplomacy":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: `diplomacy.headline.${applied.direction}`,
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: relationLines(game, applied.relationEffects),
+      };
+
+    case "sanction":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "sanction.headline",
+          values: { sanctionType: applied.sanctionType },
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          // Названо прямо, а не умолчано: три из четырёх видов санкций сегодня
+          // репутационные, и отклик обязан отличать блокаду от заявления.
+          { key: applied.cutsTrade ? "sanction.cutsTrade" : "sanction.reputationOnly" },
+          ...relationLines(game, applied.relationEffects),
+        ],
+      };
+
+    case "war": {
+      const dragged = applied.attackers.length + applied.defenders.length - 2;
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "war.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          // Втянутые договорами стороны — факт, который игрок обязан увидеть
+          // сразу: он не выбирал их, но воюет теперь и с ними.
+          ...(dragged > 0 ? [{ key: "war.draggedIn", values: { count: dragged } }] : []),
+          ...relationLines(game, applied.relationEffects),
+        ],
+      };
+    }
+
+    case "peace": {
+      const details: PrimitiveOutcomeLine[] = [
+        applied.annexedRegionIds.length > 0
+          ? { key: "peace.annexed", values: { count: applied.annexedRegionIds.length } }
+          : { key: "peace.borderUnchanged" },
+      ];
+      for (const move of applied.capitalMoves) {
+        details.push({
+          key: "peace.capitalMoved",
+          names: {
+            country: countryNames(game, move.countryId),
+            region: regionNames(game, move.to),
+          },
+        });
+      }
+      for (const effect of applied.countryScalarEffects) {
+        details.push({
+          key: `peace.${effect.field}`,
+          values: {
+            delta: signed(effect.delta),
+            before: effect.before.toFixed(1),
+            after: effect.after.toFixed(1),
+          },
+          names: { country: countryNames(game, effect.countryId) },
+        });
+      }
+      details.push(...relationLines(game, applied.relationEffects));
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "peace.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
         },
         details,
       };
@@ -359,12 +487,36 @@ export function buildPrimitivePreview(
         names.country = countryNames(game, primitive.target.countryId);
         key = "preview.split_country";
         break;
+      case "diplomacy":
+        // Направление — часть НАМЕРЕНИЯ и потому показывается; величина сдвига
+        // не показывается, потому что её ещё не существует.
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.diplomacy.${primitive.params?.direction ?? "unspecified"}`;
+        break;
+      case "sanction":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.sanction";
+        details.push({
+          key: `preview.sanctionType.${primitive.params?.sanctionType ?? "default"}`,
+        });
+        break;
+      case "war":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.war";
+        break;
+      case "peace":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.peace";
+        break;
     }
 
     // Интенсивность — качественный хинт, а не сила: подписывается словом и
-    // только тем, что модель действительно указала.
-    if (primitive.params?.intensity) {
-      details.push({ key: `preview.intensity.${primitive.params.intensity}` });
+    // только тем, что модель действительно указала. Читается через
+    // промежуточную переменную: у структурных `war`/`peace` поля `intensity` в
+    // форме нет вовсе, и это заявление о том, что у события величины не бывает.
+    const params = primitive.params;
+    if (params && "intensity" in params && params.intensity) {
+      details.push({ key: `preview.intensity.${params.intensity}` });
     }
 
     return { verb: primitive.verb, headline: { key, names }, details };

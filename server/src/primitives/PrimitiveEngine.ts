@@ -57,8 +57,20 @@ import {
   emptyPrimitiveTurnBudget,
   type PrimitiveTurnBudget,
 } from "@shared/types/politics/PrimitiveTurnBudget";
+import { SANCTION_TYPES, TRADE_CUTTING_SANCTION, type SanctionType } from "@shared/types/DiplomacyState";
+import {
+  DIPLOMACY_RELATION_MIN,
+  DIPLOMACY_RELATION_MAX,
+  SANCTION_RELATION_MIN,
+  SANCTION_RELATION_MAX,
+  WAR_DECLARATION_RELATION_PENALTY,
+  PEACE_RELATION_RELIEF,
+} from "@shared/defines/diplomacy";
 import { MapFeatureService } from "../services/MapFeatureService";
+import { WarService } from "../services/WarService";
 import * as politicsCommands from "../commands/politics";
+import * as diplomacyCommands from "../commands/diplomacy";
+import * as warCommands from "../commands/war";
 import { type CommandResult } from "../commands/types";
 import { collectChangedPaths } from "./statePaths";
 import { findPaletteViolations } from "./palette";
@@ -69,7 +81,12 @@ import {
 } from "./entityNames";
 import { findMisreportedChanges } from "./reconciliation";
 import { elementIdentity, identityIndex } from "./elementIdentity";
-import { planSplit, splitCountry, splitDiscontentThreshold } from "./polityLifecycle";
+import {
+  planSplit,
+  reassignCapitalIfLost,
+  splitCountry,
+  splitDiscontentThreshold,
+} from "./polityLifecycle";
 import { pruneTurnBudgetTargets } from "./countryRefs";
 import { SPLIT_MIN_GROUP_SHARE, SPLIT_MIN_REGIONS } from "@shared/defines/discontent";
 import { applyLifecycleToCampaign } from "./campaign";
@@ -88,15 +105,23 @@ import {
   inciteFactor,
   incidentFactor,
   reformMandateFactor,
+  relationRoom,
+  diplomaticGrip,
+  sanctionBite,
+  type DiplomaticTies,
 } from "./magnitude";
 import {
   type AppliedPrimitive,
+  type CountryScalarEffect,
+  type CountryScalarField,
   type GroupImpactEffect,
   type IdeologyAxis,
   type IdeologyShiftEffect,
   type IncidentKind,
   type PoliticalCostEffect,
   type Primitive,
+  type RelationDirection,
+  type RelationEffect,
   type PrimitiveOf,
   type PrimitiveBatchResult,
   type PreconditionResult,
@@ -174,8 +199,20 @@ import {
  * применённые мягкие (§4).
  */
 
+/**
+ * Качественный хинт силы — у глаголов, которые его принимают.
+ *
+ * Промежуточная переменная нужна с появлением структурных `war`/`peace`: у них
+ * `params.intensity` НЕ СУЩЕСТВУЕТ вовсе (у события нет величины), и обращение
+ * к полю прямо на union'е перестало компилироваться. Это не досадное
+ * препятствие, а ровно то, ради чего форма объявляется по глаголу: значение
+ * по умолчанию здесь возвращается для глаголов, которые хинт читают, и не
+ * притворяется, что война бывает «умеренной».
+ */
 function intensityHint(primitive: Primitive): PrimitiveIntensity {
-  return primitive.params?.intensity ?? PRIMITIVE_DEFAULT_INTENSITY;
+  const params = primitive.params;
+  if (params && "intensity" in params && params.intensity) return params.intensity;
+  return PRIMITIVE_DEFAULT_INTENSITY;
 }
 
 function findRegion(game: GameState, regionId: number | undefined): Region | undefined {
@@ -239,6 +276,22 @@ const DEFAULT_INCIDENT_KIND: IncidentKind = "protest";
 
 function incidentKindOf(primitive: PrimitiveOf<"spawn_incident">): IncidentKind {
   return primitive.params?.incidentKind ?? DEFAULT_INCIDENT_KIND;
+}
+
+/**
+ * Умолчание вида санкции — то же, что было у старого канала
+ * (`economic_sanctions`), и намеренно НЕ `trade_embargo`.
+ *
+ * Умолчание обязано быть мягчайшим из вариантов: назвать неуточнённую санкцию
+ * торговой блокадой значило бы, что модель, не выбравшая вид, получает
+ * сильнейшую меру. Цена этого умолчания названа прямо и живёт в результате
+ * (`AppliedSanction.cutsTrade`): торговлю сегодня режет только
+ * `trade_embargo`, поэтому неуточнённая санкция — репутационная.
+ */
+const DEFAULT_SANCTION_TYPE: SanctionType = "economic_sanctions";
+
+function sanctionKindOf(primitive: PrimitiveOf<"sanction">): SanctionType {
+  return primitive.params?.sanctionType ?? DEFAULT_SANCTION_TYPE;
 }
 
 /**
@@ -346,6 +399,188 @@ function unreachableAxes(
   axes: readonly ReformAxisRequest[]
 ): ReformAxisRequest[] {
   return axes.filter(a => clampAxis(current[a.axis] + a.delta) === current[a.axis]);
+}
+
+// --------------------------------------------------------------------------
+// Дипломатический блок: связи пары, из которых движок выводит ширину коридора
+// --------------------------------------------------------------------------
+
+/**
+ * Есть ли у двух стран общая сухопутная граница.
+ *
+ * Считается по ЛЕГАЛЬНОМУ владению (`ownerCountryId`), а не по фактическому
+ * контролю: оккупация — временное положение фронта, а «дотягивается ли слово
+ * до этой столицы» — свойство устойчивое, и менять ширину дипломатического
+ * коридора каждым сдвигом линии фронта незачем.
+ *
+ * ЦЕНА НАЗВАНА ПРЯМО: один проход по регионам на построение карты владения плюс
+ * обход регионов источника. Это допустимо здесь и было бы недопустимо в тике:
+ * дипломатических примитивов за игровой МЕСЯЦ бывает не больше капа хода
+ * (11), а не по одному на страну на тик.
+ */
+function sharesLandBorder(game: GameState, countryA: string, countryB: string): boolean {
+  const ownerOf = new Map(game.regions.map(r => [r.id, r.ownerCountryId]));
+  for (const region of game.regions) {
+    if (region.ownerCountryId !== countryA) continue;
+    if (region.neighboringRegionIds.some(id => ownerOf.get(id) === countryB)) return true;
+  }
+  return false;
+}
+
+/**
+ * Формальное обязательство между странами — В ЛЮБУЮ сторону.
+ *
+ * Односторонности здесь нет намеренно, в отличие от `alliedWith` у
+ * пограничного спора: там вопрос «как контролёр региона смотрит на соседа»,
+ * здесь — «существует ли между этими двумя канал, по которому слово доходит».
+ * Сюзерен слышен пуппету ровно так же, как пуппет сюзерену.
+ */
+function hasFormalTie(a: Country | undefined, b: Country | undefined): boolean {
+  const linked = (from: Country | undefined, toId: string | undefined): boolean => {
+    if (!from || toId === undefined) return false;
+    return (
+      from.diplomacy.allies.includes(toId) ||
+      from.diplomacy.guarantees.includes(toId) ||
+      from.diplomacy.puppets.includes(toId) ||
+      from.diplomacy.sphereOfInfluence.includes(toId)
+    );
+  };
+  return linked(a, b?.id) || linked(b, a?.id);
+}
+
+/** Как две страны стоят друг к другу в активных войнах. */
+function warStanding(
+  game: GameState,
+  a: string,
+  b: string
+): { atWarWithEachOther: boolean; coBelligerent: boolean } {
+  let atWarWithEachOther = false;
+  let coBelligerent = false;
+  for (const war of game.wars) {
+    if (!war.active) continue;
+    const aAttacks = war.attackers.includes(a);
+    const aDefends = war.defenders.includes(a);
+    const bAttacks = war.attackers.includes(b);
+    const bDefends = war.defenders.includes(b);
+    if ((aAttacks && bDefends) || (aDefends && bAttacks)) atWarWithEachOther = true;
+    if ((aAttacks && bAttacks) || (aDefends && bDefends)) coBelligerent = true;
+  }
+  return { atWarWithEachOther, coBelligerent };
+}
+
+/**
+ * Живые связи пары — вход множителя «хватки» (`magnitude.diplomaticGrip`).
+ *
+ * Собирается здесь, а не в `magnitude.ts`, по правилу того модуля: он про
+ * арифметику коридоров и состояния не разбирает. Читать состояние — работа
+ * движка.
+ */
+function diplomaticTiesOf(game: GameState, sourceId: string, targetId: string): DiplomaticTies {
+  const source = game.countries.find(c => c.id === sourceId);
+  const target = game.countries.find(c => c.id === targetId);
+  const standing = warStanding(game, sourceId, targetId);
+  return {
+    sharesBorder: sharesLandBorder(game, sourceId, targetId),
+    influence: source?.diplomacy.influence[targetId] ?? 0,
+    formalTie: hasFormalTie(source, target),
+    coBelligerent: standing.coBelligerent,
+    atWarWithEachOther: standing.atWarWithEachOther,
+  };
+}
+
+function relationBetween(game: GameState, fromId: string, toId: string): number {
+  return game.countries.find(c => c.id === fromId)?.diplomacy.relations[toId] ?? 0;
+}
+
+/**
+ * Двигает отношения и возвращает ФАКТИЧЕСКИЕ сдвиги ОБЕИХ сторон.
+ *
+ * Обеих, потому что `DiplomacyService.changeRelation` пишет инициатору полную
+ * дельту, а адресату половину: отчитаться одной стороной значило бы скрыть
+ * половину эффекта от сверки, а нарративу дать неверную симметрию. Обе записи
+ * попадают в результат даже при нулевой дельте — «пара уже на краю шкалы» тоже
+ * факт, и правило «нулевой канал называется нулевым» здесь то же, что у памяти
+ * воздействий.
+ */
+function shiftRelation(
+  game: GameState,
+  fromId: string,
+  toId: string,
+  delta: number
+): { effects: RelationEffect[]; error: string | undefined } {
+  const beforeForward = relationBetween(game, fromId, toId);
+  const beforeBack = relationBetween(game, toId, fromId);
+
+  const result = diplomacyCommands.setRelation(game, fromId, toId, delta);
+  const error = failIfCommandFailed([result]);
+  if (error) return { effects: [], error };
+
+  const afterForward = relationBetween(game, fromId, toId);
+  const afterBack = relationBetween(game, toId, fromId);
+  return {
+    effects: [
+      {
+        fromCountryId: fromId,
+        toCountryId: toId,
+        before: beforeForward,
+        after: afterForward,
+        delta: afterForward - beforeForward,
+      },
+      {
+        fromCountryId: toId,
+        toCountryId: fromId,
+        before: beforeBack,
+        after: afterBack,
+        delta: afterBack - beforeBack,
+      },
+    ],
+    error: undefined,
+  };
+}
+
+/** Знаковая величина дипломатического сдвига: направление задаёт знак, коридор — модуль. */
+function signedByDirection(magnitude: number, direction: RelationDirection): number {
+  return direction === "improve" ? magnitude : -magnitude;
+}
+
+/** Скалярные поля страны, за которыми следит сверка, — снимком по всем странам. */
+function countryScalars(game: GameState): Map<string, number> {
+  const values = new Map<string, number>();
+  for (const country of game.countries) {
+    values.set(`${country.id}|governmentSupport`, country.politics.governmentSupport);
+    values.set(`${country.id}|legitimacy`, country.politics.legitimacy);
+    values.set(`${country.id}|treasury`, country.economy.treasury);
+  }
+  return values;
+}
+
+/**
+ * Что реально изменилось в скалярных полях стран между двумя снимками.
+ *
+ * Отчёт СТРОИТСЯ ИЗ ДИФА, а не из знания о том, что делает вызванный сервис, и
+ * это осознанный выбор для `peace`. Мирный договор исполняет условия
+ * (`WarService.makePeace`): штраф легитимности проигравшему, репарации при
+ * решительной победе, аннексия оккупированного. Перечислять эти эффекты по
+ * памяти значило бы завести ВТОРОЕ мнение о том, что сделал сервис, и первое же
+ * изменение его правил разошлось бы с отчётом молча.
+ *
+ * Что при этом теряется, названо прямо: сверка результата с состоянием на этих
+ * ячейках становится тождеством и лжи поймать не может. Границу здесь держит
+ * палитра — она ограничивает, ЧТО мир вправе тронуть, — а не сверка, которая
+ * следит лишь за согласием отчёта с состоянием.
+ */
+function countryScalarDiff(
+  before: Map<string, number>,
+  after: Map<string, number>
+): CountryScalarEffect[] {
+  const effects: CountryScalarEffect[] = [];
+  for (const [key, now] of after) {
+    const was = before.get(key);
+    if (was === undefined || was === now) continue;
+    const [countryId, field] = key.split("|") as [string, CountryScalarField];
+    effects.push({ countryId, field, before: was, after: now, delta: now - was });
+  }
+  return effects;
 }
 
 // --------------------------------------------------------------------------
@@ -625,6 +860,92 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       }
       return { valid: true };
     }
+
+    case "diplomacy":
+    case "sanction":
+    case "war":
+    case "peace": {
+      // Общая часть всех четырёх: цель существует и не равна источнику.
+      // Равенство отклоняется ЗДЕСЬ, а не схемой, потому что `.refine()`
+      // превращает ветку в `ZodEffects`, а `z.discriminatedUnion` и схема
+      // провайдера работают с объектными ветками (то же ограничение, что у
+      // «хотя бы одного направления» реформы).
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId);
+      if (!target) return { valid: false, rejection: { code: "unknownCountry", countryId: targetId } };
+      if (targetId === primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "bilateralSelfTarget", verb: primitive.verb, country: source.name },
+        };
+      }
+
+      if (primitive.verb === "diplomacy") {
+        // Направление — единственное, что модель здесь решает, и умолчания у
+        // него быть не может: «улучшить» и «ухудшить» — разные события, а не
+        // разные величины одного, и угадывать намерение движок не вправе.
+        if (primitive.params?.direction === undefined) {
+          return { valid: false, rejection: { code: "diplomacyNoDirection", country: target.name } };
+        }
+        return { valid: true };
+      }
+
+      if (primitive.verb === "sanction") {
+        // Уже действующий режим повторно не накладывается: состояние от этого
+        // не меняется, а примитив, ничего не изменивший, не вправе считаться
+        // применённым (docs/PRIMITIVES.md §3, прецедент `annex`/`puppet`).
+        const kind = sanctionKindOf(primitive);
+        if (source.diplomacy.sanctions[targetId]?.includes(kind)) {
+          return {
+            valid: false,
+            rejection: {
+              code: "sanctionAlreadyImposed",
+              source: source.name,
+              target: target.name,
+              sanctionType: kind,
+            },
+          };
+        }
+        return { valid: true };
+      }
+
+      const activeWar = new WarService(game).getActiveWarBetween(primitive.sourceCountryId, targetId);
+
+      if (primitive.verb === "war") {
+        if (activeWar) {
+          return {
+            valid: false,
+            rejection: { code: "alreadyAtWar", source: source.name, target: target.name },
+          };
+        }
+        // Правило перенесено из `LLMResponseValidator` вместе с глаголом:
+        // разрыв союза не смоделирован (docs/WAR.md, Phase 1), поэтому война
+        // с союзником — не «жёсткое решение», а состояние, которого движок не
+        // умеет описать.
+        if (source.diplomacy.allies.includes(targetId)) {
+          return {
+            valid: false,
+            rejection: { code: "warOnAlly", source: source.name, target: target.name },
+          };
+        }
+        // ПОВОД (casus belli) НЕ проверяется, и это заявление, а не пропуск.
+        // Претензий, спорных территорий и обид в состоянии не существует
+        // вовсе — та же граница, что у `border_dispute`: движок отказывается
+        // изобретать историчность, которой в мире нет. Единственный кандидат в
+        // повод, отношения, в поставляемом сценарии 1946 у всех 157 стран
+        // равен нулю, поэтому порог по нему был бы либо пустым, либо запирал
+        // бы войну во всём мире (`docs/TODO.md`).
+        return { valid: true };
+      }
+
+      if (!activeWar) {
+        return {
+          valid: false,
+          rejection: { code: "noActiveWar", source: source.name, target: target.name },
+        };
+      }
+      return { valid: true };
+    }
   }
 }
 
@@ -759,6 +1080,34 @@ function untouchedNote(effects: readonly GroupImpactEffect[], addressed: number)
 /** Сшивка резюме: заголовок + перечисление фактов; пустой список не даёт хвоста. */
 function joinSummary(head: string, details: readonly string[]): string {
   return details.length > 0 ? `${head}: ${details.join("; ")}` : head;
+}
+
+/**
+ * Локализованное имя страны для резюме — по той же причине, что `groupLabel`:
+ * резюме уходит в промт, и сырой `SUN` рядом с локализованным именем региона
+ * выдавал бы идентификатор кода за человеческое имя.
+ */
+function countryLabel(game: GameState, countryId: string): string {
+  return getText(countryNamesOf(game, countryId), LLM_LOCALE) || countryId;
+}
+
+/**
+ * Человеческое описание фактических сдвигов отношений — по КАЖДОЙ стороне.
+ *
+ * Обе стороны названы всегда, включая нулевую: у отношений та же гранулярность
+ * правдивости, что у памяти воздействий, — пара (цель, поле), — и умолчать о
+ * стороне, у которой не сдвинулось ничего, значит дать нарративу симметрию,
+ * которой не было.
+ */
+function describeRelations(game: GameState, effects: readonly RelationEffect[]): string[] {
+  return effects.map(effect => {
+    const pair = `${countryLabel(game, effect.fromCountryId)} → ` +
+      `${countryLabel(game, effect.toCountryId)}`;
+    return effect.delta === 0
+      ? `relations ${pair} unchanged (${effect.after.toFixed(1)})`
+      : `relations ${pair} ${signed(effect.delta)} ` +
+        `(${effect.before.toFixed(1)} → ${effect.after.toFixed(1)})`;
+  });
 }
 
 function apply(game: GameState, primitive: Primitive): ApplyOutcome {
@@ -1111,6 +1460,10 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
     case "split_country": {
       const target = game.countries.find(c => c.id === primitive.target.countryId)!;
       const name = getText(target.name, LLM_LOCALE);
+      // Снимок казны ДО деления: раскол делит её между метрополией и осколками,
+      // и заявить фактическую дельту иначе нечем (см. поле
+      // `countryScalarEffects` в `types.ts`).
+      const scalarsBefore = countryScalars(game);
 
       // Вся работа со ссылками, суммами и войнами живёт в `polityLifecycle.ts`,
       // а не здесь: обработчик глагола обязан оставаться переводом «примитив →
@@ -1149,6 +1502,12 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
             ? {}
             : { capitalMoved: result.capitalReassignments[0] }),
           closedWarIds: result.closedWarIds,
+          // Казна метрополии поделена между ней и осколками — заявляется, потому
+          // что у неё есть ячейка в разложении состояния. Осколки в сверку не
+          // попадают: стран, которых не было в снимке «до», она исключает.
+          countryScalarEffects: countryScalarDiff(scalarsBefore, countryScalars(game)).filter(
+            effect => effect.countryId === target.id
+          ),
           summary: joinSummary(
             result.dissolvedCountryId === undefined
               ? `${name} split: ${shardSummary} seceded`
@@ -1156,6 +1515,210 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
             result.closedWarIds.length > 0
               ? [`wars closed: ${result.closedWarIds.join(", ")}`]
               : []
+          ),
+        },
+      };
+    }
+
+    case "diplomacy": {
+      const targetId = primitive.target.countryId;
+      // Направление гарантировано предпосылкой: без него примитив сюда не
+      // доезжает (`diplomacyNoDirection`).
+      const direction = primitive.params!.direction!;
+
+      // КОРИДОР ОТ СОСТОЯНИЯ, ПОЗИЦИЯ ОТ ХИНТА (docs/PRIMITIVES.md §1).
+      // Ширину задают два множителя: сколько шкале осталось в запрошенную
+      // сторону и насколько слово источника вообще долетает до этой цели.
+      // Хинт выбирает позицию внутри того, что состояние разрешило, и вытолкнуть
+      // эффект за коридор не может ничем.
+      const current = relationBetween(game, primitive.sourceCountryId, targetId);
+      const ties = diplomaticTiesOf(game, primitive.sourceCountryId, targetId);
+      const magnitude = magnitudeFromState(
+        DIPLOMACY_RELATION_MIN,
+        DIPLOMACY_RELATION_MAX,
+        relationRoom(current, direction) * diplomaticGrip(ties, direction),
+        hint
+      );
+
+      const shift = shiftRelation(
+        game,
+        primitive.sourceCountryId,
+        targetId,
+        signedByDirection(magnitude, direction)
+      );
+      if (shift.error) return commandFailure(primitive.verb, shift.error);
+
+      return {
+        ok: true,
+        applied: {
+          verb: "diplomacy",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          direction,
+          relationEffects: shift.effects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} moved to ${direction} relations ` +
+            `with ${countryLabel(game, targetId)}`,
+            describeRelations(game, shift.effects)
+          ),
+        },
+      };
+    }
+
+    case "sanction": {
+      const targetId = primitive.target.countryId;
+      const kind = sanctionKindOf(primitive);
+
+      // Укус санкции — экономический вес санкционера для цели; коридор при этом
+      // всё равно ограничен тем, сколько шкале отношений осталось вниз.
+      const current = relationBetween(game, primitive.sourceCountryId, targetId);
+      const source = game.countries.find(c => c.id === primitive.sourceCountryId);
+      const target = game.countries.find(c => c.id === targetId);
+      const magnitude = magnitudeFromState(
+        SANCTION_RELATION_MIN,
+        SANCTION_RELATION_MAX,
+        relationRoom(current, "worsen") *
+          sanctionBite(source?.economy.gdp ?? 0, target?.economy.gdp ?? 0),
+        hint
+      );
+
+      const imposed = diplomacyCommands.applySanction(game, primitive.sourceCountryId, targetId, kind);
+      const imposeError = failIfCommandFailed([imposed]);
+      if (imposeError) return commandFailure(primitive.verb, imposeError);
+
+      const shift = shiftRelation(game, primitive.sourceCountryId, targetId, -magnitude);
+      if (shift.error) return commandFailure(primitive.verb, shift.error);
+
+      const cutsTrade = kind === TRADE_CUTTING_SANCTION;
+      return {
+        ok: true,
+        applied: {
+          verb: "sanction",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          sanctionType: kind,
+          cutsTrade,
+          relationEffects: shift.effects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} imposed ${kind} on ` +
+            `${countryLabel(game, targetId)}`,
+            [
+              cutsTrade
+                ? "exports of the target are cut from the next month on"
+                : "no trade effect: only a trade_embargo cuts exports today",
+              ...describeRelations(game, shift.effects),
+            ]
+          ),
+        },
+      };
+    }
+
+    case "war": {
+      const targetId = primitive.target.countryId;
+
+      const declaration = warCommands.declareWar(
+        game,
+        primitive.sourceCountryId,
+        targetId,
+        primitive.params?.warGoal
+      );
+      const declareError = failIfCommandFailed([declaration]);
+      if (declareError || !declaration.applied) {
+        return commandFailure(primitive.verb, declareError ?? "war was not created");
+      }
+      const war = declaration.applied;
+
+      // Обвал отношений — КОНСТАНТА события, а не коридор: у структурного
+      // глагола величины нет (тот же принцип, что у `split_country`).
+      const shift = shiftRelation(
+        game,
+        primitive.sourceCountryId,
+        targetId,
+        WAR_DECLARATION_RELATION_PENALTY
+      );
+      if (shift.error) return commandFailure(primitive.verb, shift.error);
+
+      const dragged = war.attackers.length + war.defenders.length - 2;
+      return {
+        ok: true,
+        applied: {
+          verb: "war",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          warId: war.id,
+          attackers: [...war.attackers],
+          defenders: [...war.defenders],
+          relationEffects: shift.effects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} declared war on ` +
+            `${countryLabel(game, targetId)}` +
+            (dragged > 0 ? ` (${dragged} further state(s) dragged in by treaty)` : ""),
+            describeRelations(game, shift.effects)
+          ),
+        },
+      };
+    }
+
+    case "peace": {
+      const targetId = primitive.target.countryId;
+
+      // Снимки ДО договора: мир исполняет условия (аннексия, штраф
+      // легитимности, репарации), и отчёт о них строится из дифа, а не из
+      // знания о внутренностях `WarService` (см. `countryScalarDiff`).
+      const scalarsBefore = countryScalars(game);
+      const ownersBefore = new Map(game.regions.map(r => [r.id, r.ownerCountryId]));
+
+      const peace = warCommands.makePeaceBetween(game, primitive.sourceCountryId, targetId);
+      const peaceError = failIfCommandFailed([peace]);
+      if (peaceError || peace.applied === undefined) {
+        return commandFailure(primitive.verb, peaceError ?? "no war was closed");
+      }
+
+      // Столица, ушедшая по договору, переезжает. Без этого мир, отдавший
+      // столицу победителю, ронял бы пост-инвариант «столица среди своих
+      // регионов» и откатывал ВЕСЬ ответ — правило существует, а состояние,
+      // которого оно требует, никто бы не восстановил.
+      const capitalMoves: { countryId: string; from: number; to: number }[] = [];
+      for (const country of game.countries) {
+        const moved = reassignCapitalIfLost(game, country);
+        if (moved) capitalMoves.push(moved);
+      }
+
+      const shift = shiftRelation(game, primitive.sourceCountryId, targetId, PEACE_RELATION_RELIEF);
+      if (shift.error) return commandFailure(primitive.verb, shift.error);
+
+      const annexedRegionIds = game.regions
+        .filter(r => ownersBefore.get(r.id) !== r.ownerCountryId)
+        .map(r => r.id);
+
+      const countryScalarEffects = countryScalarDiff(scalarsBefore, countryScalars(game));
+      const scalarNotes = countryScalarEffects.map(
+        effect =>
+          `${effect.field} of ${countryLabel(game, effect.countryId)} ${signed(effect.delta)} ` +
+          `(${effect.before.toFixed(1)} → ${effect.after.toFixed(1)})`
+      );
+
+      return {
+        ok: true,
+        applied: {
+          verb: "peace",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          warId: peace.applied,
+          relationEffects: shift.effects,
+          countryScalarEffects,
+          annexedRegionIds,
+          capitalMoves,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} and ${countryLabel(game, targetId)} ` +
+            `made peace (war ${peace.applied})`,
+            [
+              annexedRegionIds.length > 0
+                ? `${annexedRegionIds.length} region(s) changed hands by treaty`
+                : "the border did not move",
+              ...scalarNotes,
+              ...describeRelations(game, shift.effects),
+            ]
           ),
         },
       };
@@ -1222,13 +1785,46 @@ interface PrimitiveTarget {
   label: ExhaustedTarget;
 }
 
+/**
+ * Ключ счётчика ДЛЯ ОДНОГО ГЛАГОЛА — то, что было общим шаблоном до
+ * дипломатического блока.
+ *
+ * Отдельной функцией, а не шаблоном по месту: проверка и занятие цели обязаны
+ * строить ключ ОДИНАКОВО, иначе кап тихо перестаёт срабатывать, оставаясь на
+ * вид реализованным.
+ */
+function verbScopedKey(verb: PrimitiveVerb, entity: string): string {
+  return `${verb} -> ${entity}`;
+}
+
+/**
+ * Ключ счётчика, ОБЩИЙ для мягких двусторонних глаголов.
+ *
+ * Верб в ключ не входит намеренно, и это и есть защита от обхода коридора
+ * сменой глагола: `diplomacy(worsen)` и `sanction` по одной упорядоченной паре
+ * пишут в ОДНУ ячейку `relations`, поэтому раздельные ключи позволили бы
+ * сложить два коридора за месяц. Общий ключ даёт доказуемую границу — за
+ * игровой месяц по одной упорядоченной паре проходит не более одного мягкого
+ * дипломатического акта.
+ *
+ * Пара УПОРЯДОЧЕННАЯ: `USA → SUN` и `SUN → USA` — разные акты разных
+ * государств, и запирать одно другим было бы не защитой, а запретом отвечать.
+ * Спилловера в чужие ячейки у этого домена нет по построению (отношения
+ * ключуются парой), поэтому одного слота на пару достаточно — в отличие от
+ * `grant_autonomy`, где отклик соседей приходит в чужие пары и потребовал
+ * второго капа по величине.
+ */
+function bilateralPairKey(sourceCountryId: string, targetCountryId: string): string {
+  return `diplomatic pair ${sourceCountryId} -> ${targetCountryId}`;
+}
+
 function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
   switch (primitive.verb) {
     case "enact_reform":
     case "split_country":
       return [
         {
-          key: `country ${primitive.target.countryId}`,
+          key: verbScopedKey(primitive.verb, `country ${primitive.target.countryId}`),
           label: { country: countryNamesOf(game, primitive.target.countryId) },
         },
       ];
@@ -1236,7 +1832,7 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
     case "spawn_incident":
       return [
         {
-          key: `region ${primitive.target.regionId}`,
+          key: verbScopedKey(primitive.verb, `region ${primitive.target.regionId}`),
           label: { region: regionNamesOf(game, primitive.target.regionId) },
         },
       ];
@@ -1244,7 +1840,10 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
     case "incite_unrest":
       return [
         {
-          key: `region ${primitive.target.regionId} / group ${primitive.target.groupId}`,
+          key: verbScopedKey(
+            primitive.verb,
+            `region ${primitive.target.regionId} / group ${primitive.target.groupId}`
+          ),
           label: {
             region: regionNamesOf(game, primitive.target.regionId),
             group: groupNamesOf(game, primitive.target.groupId),
@@ -1256,20 +1855,37 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
     case "grant_autonomy": {
       const region = findRegion(game, primitive.target.regionId)!;
       return targetedGroups(region, primitive.target.groupId).map(g => ({
-        key: `region ${region.id} / group ${g.groupId}`,
+        key: verbScopedKey(primitive.verb, `region ${region.id} / group ${g.groupId}`),
         label: { region: region.names, group: groupNamesOf(game, g.groupId) },
       }));
     }
-  }
-}
 
-/**
- * Ключ счётчика капа. Отдельной функцией, а не двумя одинаковыми шаблонами по
- * месту: проверка и занятие цели обязаны строить ключ ОДИНАКОВО, иначе кап
- * тихо перестаёт срабатывать, оставаясь на вид реализованным.
- */
-function targetUseKey(primitive: Primitive, entity: string): string {
-  return `${primitive.verb} -> ${entity}`;
+    // Мягкие двусторонние — ОДИН общий слот на пару (см. `bilateralPairKey`).
+    case "diplomacy":
+    case "sanction":
+      return [
+        {
+          key: bilateralPairKey(primitive.sourceCountryId, primitive.target.countryId),
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+
+    // Война и мир держат СВОИ ключи, а не общий слот пары. Иначе мягкий
+    // примитив, применённый раньше в том же месяце, отклонял бы структурный по
+    // капу цели — а отказ структурного уносит весь ответ. Своей защитой им
+    // служит кап «один структурный за ход», который строже общего слота.
+    case "war":
+    case "peace":
+      return [
+        {
+          key: verbScopedKey(
+            primitive.verb,
+            bilateralPairKey(primitive.sourceCountryId, primitive.target.countryId)
+          ),
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+  }
 }
 
 /** Фактический след примитива в одной тройке (регион, группа, поле памяти). */
@@ -1524,7 +2140,7 @@ export function applyPrimitiveBatch(
     // отдельными запросами.
     const targets = targetsOf(working, primitive);
     const exhausted = targets.filter(
-      t => (targetUses.get(targetUseKey(primitive, t.key)) ?? 0) >= MAX_PRIMITIVES_PER_TARGET_PER_TURN
+      t => (targetUses.get(t.key) ?? 0) >= MAX_PRIMITIVES_PER_TARGET_PER_TURN
     );
     if (exhausted.length > 0) {
       reject(primitive, {
@@ -1614,8 +2230,7 @@ export function applyPrimitiveBatch(
     if (structural) structuralUsed += 1;
     else softUsed += 1;
     for (const target of targets) {
-      const key = targetUseKey(primitive, target.key);
-      targetUses.set(key, (targetUses.get(key) ?? 0) + 1);
+      targetUses.set(target.key, (targetUses.get(target.key) ?? 0) + 1);
     }
     for (const impact of accrued) {
       const key = impactBudgetKey(impact);
