@@ -10,6 +10,7 @@ import { type SanctionType } from "./DiplomacyState";
 import { type EquipmentType } from "./military/EquipmentType";
 import { type ResourceType } from "./resources/ResourcesType";
 import { type EthnicGroupDefinition, type GroupImpactMemory } from "./politics/Demographics";
+import { type IdeologyAnchor } from "./politics/IdeologyAnchor";
 import { type PrimitiveTurnBudget } from "./politics/PrimitiveTurnBudget";
 import { type CampaignState } from "./Campaign";
 
@@ -90,6 +91,19 @@ export interface GameState {
    * (`shift_mood`/`enact_reform`), и сейв обязан это пережить.
    */
   ethnicGroups: EthnicGroupDefinition[];
+
+  /**
+   * Именованные точки спектра идеологии для эпохи сценария (docs/CONCEPT.md
+   * §4.2). Живут в состоянии по той же причине, что и `ethnicGroups`: это
+   * контент сценария с готовыми переводами, а не словарь движка. «Перонизм»
+   * осмыслен в 1946 и бессмыслен в 1836, поэтому набор приходит вместе со
+   * сценарием, а не лежит в клиентских словарях.
+   *
+   * Страна на них не ссылается: ярлык ВЫЧИСЛЯЕТСЯ из координат
+   * (`shared/src/utils/ideologyLabel.ts`), а не хранится. Шестнадцать записей
+   * на партию против 1399 регионов — цена, названная явно.
+   */
+  ideologyAnchors: IdeologyAnchor[];
 
   /**
    * Разреженная память воздействий по парам (регион, группа) — см.

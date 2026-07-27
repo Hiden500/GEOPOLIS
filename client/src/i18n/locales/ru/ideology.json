@@ -1,0 +1,23 @@
+{
+  "bands": {
+    "economic": {
+      "command": "Командная экономика",
+      "planned": "Плановая экономика",
+      "stateDirected": "Госуправляемая экономика",
+      "mixed": "Смешанная экономика",
+      "regulatedMarket": "Регулируемый рынок",
+      "market": "Рыночная экономика",
+      "freeMarket": "Свободный рынок"
+    },
+    "political": {
+      "closedDictatorship": "Закрытая диктатура",
+      "authoritarian": "Авторитарный режим",
+      "restrictedRule": "Ограниченное правление",
+      "managedCompetition": "Управляемая конкуренция",
+      "limitedDemocracy": "Ограниченная демократия",
+      "competitiveDemocracy": "Конкурентная демократия",
+      "representativeDemocracy": "Представительная демократия"
+    }
+  },
+  "separator": " · "
+}

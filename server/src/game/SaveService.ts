@@ -140,6 +140,7 @@ const saveGameShapeSchema = z.object({
   modifiers: z.array(z.unknown()),
   pendingWorldFacts: z.array(z.unknown()),
   ethnicGroups: z.array(z.unknown()),
+  ideologyAnchors: z.array(z.unknown()),
   groupImpactMemory: z.array(z.unknown()),
   regionCrisisLatch: z.array(z.number()),
   primitiveBatchKeys: z.array(z.string()),

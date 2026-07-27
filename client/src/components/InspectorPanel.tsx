@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { getDomainTier } from "@shared/utils/technology";
+import { useIdeologyLabel } from "../i18n/ideologyLabel";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 function CountryInspector({ countryId, game, onSelectCountry }: { countryId: string; game: GameState; onSelectCountry: (id: string) => void }) {
   const { t, i18n } = useTranslation("inspectorPanel");
+  const ideologyLabel = useIdeologyLabel();
   const country = game.countries.find(c => c.id === countryId);
   if (!country) return <p>{t("country.notFound")}</p>;
 
@@ -26,7 +28,9 @@ function CountryInspector({ countryId, game, onSelectCountry }: { countryId: str
     <>
       <p className="inspector-subtitle">
         <span className="country-color-dot" style={{ backgroundColor: country.color }} />
-        {[country.politics.ideology, country.politics.governmentType].filter(Boolean).join(" · ")}
+        {[ideologyLabel(country.politics, game.ideologyAnchors), country.politics.governmentType]
+          .filter(Boolean)
+          .join(" · ")}
         {country.id === game.playerCountryId && <span className="inspector-tag">{t("country.youTag")}</span>}
       </p>
 

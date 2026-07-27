@@ -159,6 +159,7 @@ describe('MapFeatureService', () => {
       modifiers: [],
       pendingWorldFacts: [],
       ethnicGroups: [],
+      ideologyAnchors: [],
       groupImpactMemory: [],
       regionCrisisLatch: [],
       primitiveBatchKeys: [],
