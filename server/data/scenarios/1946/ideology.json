@@ -1,9 +1,169 @@
 {
   "countries": [
     {
+      "countryId": "AFG",
+      "economic": 0.3,
+      "political": -0.65
+    },
+    {
+      "countryId": "AGO",
+      "economic": 0.2,
+      "political": -0.78
+    },
+    {
+      "countryId": "ALA",
+      "economic": 0.25,
+      "political": 0.82
+    },
+    {
+      "countryId": "ALB",
+      "economic": -0.85,
+      "political": -0.9
+    },
+    {
+      "countryId": "AND",
+      "economic": 0.4,
+      "political": 0.2
+    },
+    {
+      "countryId": "ARE",
+      "economic": 0.45,
+      "political": -0.82
+    },
+    {
+      "countryId": "ARG",
+      "economic": -0.25,
+      "political": 0.05
+    },
+    {
+      "countryId": "AUS",
+      "economic": 0.45,
+      "political": 0.86
+    },
+    {
+      "countryId": "BEL",
+      "economic": 0.25,
+      "political": 0.85
+    },
+    {
+      "countryId": "BGR",
+      "economic": -0.65,
+      "political": -0.72
+    },
+    {
+      "countryId": "BHR",
+      "economic": 0.4,
+      "political": -0.72
+    },
+    {
+      "countryId": "BOL",
+      "economic": 0.2,
+      "political": -0.05
+    },
+    {
+      "countryId": "BRA",
+      "economic": 0.2,
+      "political": 0.65
+    },
+    {
+      "countryId": "BRN",
+      "economic": 0.45,
+      "political": -0.78
+    },
+    {
+      "countryId": "BTN",
+      "economic": 0.3,
+      "political": -0.75
+    },
+    {
+      "countryId": "CAN",
+      "economic": 0.45,
+      "political": 0.88
+    },
+    {
+      "countryId": "CHE",
+      "economic": 0.55,
+      "political": 0.75
+    },
+    {
+      "countryId": "CHL",
+      "economic": 0.25,
+      "political": 0.7
+    },
+    {
       "countryId": "CHN",
       "economic": 0.1,
       "political": -0.4
+    },
+    {
+      "countryId": "CMR",
+      "economic": 0.05,
+      "political": -0.58
+    },
+    {
+      "countryId": "COD",
+      "economic": 0.35,
+      "political": -0.75
+    },
+    {
+      "countryId": "COK",
+      "economic": 0.2,
+      "political": -0.3
+    },
+    {
+      "countryId": "COL",
+      "economic": 0.35,
+      "political": 0.55
+    },
+    {
+      "countryId": "CRI",
+      "economic": 0.35,
+      "political": 0.7
+    },
+    {
+      "countryId": "CSK",
+      "economic": -0.55,
+      "political": 0.55
+    },
+    {
+      "countryId": "CUB",
+      "economic": 0.35,
+      "political": 0.55
+    },
+    {
+      "countryId": "DNK",
+      "economic": 0.2,
+      "political": 0.92
+    },
+    {
+      "countryId": "DOM",
+      "economic": 0.35,
+      "political": -0.9
+    },
+    {
+      "countryId": "ECU",
+      "economic": 0.15,
+      "political": -0.05
+    },
+    {
+      "countryId": "EGY",
+      "economic": 0.2,
+      "political": -0.1
+    },
+    {
+      "countryId": "ESP",
+      "economic": -0.25,
+      "political": -0.9
+    },
+    {
+      "countryId": "ETH",
+      "economic": 0.15,
+      "political": -0.65
+    },
+    {
+      "countryId": "FIN",
+      "economic": 0.25,
+      "political": 0.8
     },
     {
       "countryId": "FRA",
@@ -16,9 +176,499 @@
       "political": 0.9
     },
     {
+      "countryId": "GHA",
+      "economic": 0.15,
+      "political": -0.35
+    },
+    {
+      "countryId": "GLP",
+      "economic": 0.05,
+      "political": 0.35
+    },
+    {
+      "countryId": "GRC",
+      "economic": 0.15,
+      "political": 0.2
+    },
+    {
+      "countryId": "GRL",
+      "economic": -0.05,
+      "political": -0.3
+    },
+    {
+      "countryId": "GTM",
+      "economic": 0.15,
+      "political": 0.65
+    },
+    {
+      "countryId": "HKG",
+      "economic": 0.45,
+      "political": -0.58
+    },
+    {
+      "countryId": "HND",
+      "economic": 0.3,
+      "political": -0.78
+    },
+    {
+      "countryId": "HTI",
+      "economic": 0.25,
+      "political": -0.05
+    },
+    {
+      "countryId": "HUN",
+      "economic": -0.45,
+      "political": -0.3
+    },
+    {
+      "countryId": "IDN",
+      "economic": 0.15,
+      "political": -0.7
+    },
+    {
+      "countryId": "IND",
+      "economic": -0.05,
+      "political": -0.15
+    },
+    {
+      "countryId": "IRL",
+      "economic": 0.35,
+      "political": 0.85
+    },
+    {
+      "countryId": "IRN",
+      "economic": 0.25,
+      "political": 0.05
+    },
+    {
+      "countryId": "IRQ",
+      "economic": 0.25,
+      "political": -0.2
+    },
+    {
+      "countryId": "ISL",
+      "economic": 0.35,
+      "political": 0.88
+    },
+    {
+      "countryId": "ITA",
+      "economic": 0.05,
+      "political": 0.72
+    },
+    {
+      "countryId": "JOR",
+      "economic": 0.25,
+      "political": -0.35
+    },
+    {
+      "countryId": "JPN",
+      "economic": 0.15,
+      "political": 0.3
+    },
+    {
+      "countryId": "KEN",
+      "economic": 0.25,
+      "political": -0.68
+    },
+    {
+      "countryId": "KHM",
+      "economic": 0.1,
+      "political": -0.55
+    },
+    {
+      "countryId": "KWT",
+      "economic": 0.45,
+      "political": -0.72
+    },
+    {
+      "countryId": "LAO",
+      "economic": 0.15,
+      "political": -0.6
+    },
+    {
+      "countryId": "LBN",
+      "economic": 0.3,
+      "political": 0.45
+    },
+    {
+      "countryId": "LBR",
+      "economic": 0.35,
+      "political": -0.25
+    },
+    {
+      "countryId": "LIE",
+      "economic": 0.45,
+      "political": 0.7
+    },
+    {
+      "countryId": "LKA",
+      "economic": 0.2,
+      "political": 0.45
+    },
+    {
+      "countryId": "LUX",
+      "economic": 0.3,
+      "political": 0.85
+    },
+    {
+      "countryId": "MAC",
+      "economic": 0.35,
+      "political": -0.8
+    },
+    {
+      "countryId": "MAR",
+      "economic": 0.15,
+      "political": -0.65
+    },
+    {
+      "countryId": "MCO",
+      "economic": 0.45,
+      "political": 0.05
+    },
+    {
+      "countryId": "MDG",
+      "economic": 0.1,
+      "political": -0.58
+    },
+    {
+      "countryId": "MEX",
+      "economic": -0.15,
+      "political": 0.1
+    },
+    {
+      "countryId": "MMR",
+      "economic": 0.1,
+      "political": -0.15
+    },
+    {
+      "countryId": "MNG",
+      "economic": -0.88,
+      "political": -0.92
+    },
+    {
+      "countryId": "MOZ",
+      "economic": 0.2,
+      "political": -0.78
+    },
+    {
+      "countryId": "MTQ",
+      "economic": 0.05,
+      "political": 0.35
+    },
+    {
+      "countryId": "MWI",
+      "economic": 0.2,
+      "political": -0.68
+    },
+    {
+      "countryId": "MYS",
+      "economic": 0.2,
+      "political": -0.58
+    },
+    {
+      "countryId": "NAM",
+      "economic": 0.35,
+      "political": -0.62
+    },
+    {
+      "countryId": "NFD",
+      "economic": 0.25,
+      "political": 0.2
+    },
+    {
+      "countryId": "NFK",
+      "economic": 0.35,
+      "political": 0.1
+    },
+    {
+      "countryId": "NGA",
+      "economic": 0.2,
+      "political": -0.55
+    },
+    {
+      "countryId": "NIC",
+      "economic": 0.35,
+      "political": -0.82
+    },
+    {
+      "countryId": "NLD",
+      "economic": 0.3,
+      "political": 0.88
+    },
+    {
+      "countryId": "NOR",
+      "economic": 0.2,
+      "political": 0.92
+    },
+    {
+      "countryId": "NPL",
+      "economic": 0.25,
+      "political": -0.82
+    },
+    {
+      "countryId": "NRU",
+      "economic": 0.1,
+      "political": -0.65
+    },
+    {
+      "countryId": "NZL",
+      "economic": 0.4,
+      "political": 0.9
+    },
+    {
+      "countryId": "OMN",
+      "economic": 0.35,
+      "political": -0.9
+    },
+    {
+      "countryId": "PAN",
+      "economic": 0.5,
+      "political": 0.35
+    },
+    {
+      "countryId": "PER",
+      "economic": 0.3,
+      "political": 0.5
+    },
+    {
+      "countryId": "PHL",
+      "economic": 0.35,
+      "political": 0.55
+    },
+    {
+      "countryId": "PNG",
+      "economic": 0.2,
+      "political": -0.7
+    },
+    {
       "countryId": "POL",
       "economic": -0.72,
       "political": -0.68
+    },
+    {
+      "countryId": "PRT",
+      "economic": -0.15,
+      "political": -0.82
+    },
+    {
+      "countryId": "PRY",
+      "economic": 0.3,
+      "political": -0.78
+    },
+    {
+      "countryId": "PSE",
+      "economic": 0.1,
+      "political": -0.72
+    },
+    {
+      "countryId": "QAD",
+      "economic": 0.35,
+      "political": -0.75
+    },
+    {
+      "countryId": "QAT",
+      "economic": 0.5,
+      "political": -0.82
+    },
+    {
+      "countryId": "QAZ",
+      "economic": -0.55,
+      "political": -0.7
+    },
+    {
+      "countryId": "QDV",
+      "economic": -0.35,
+      "political": -0.35
+    },
+    {
+      "countryId": "QFE",
+      "economic": 0.05,
+      "political": -0.58
+    },
+    {
+      "countryId": "QFI",
+      "economic": 0.15,
+      "political": -0.25
+    },
+    {
+      "countryId": "QFW",
+      "economic": 0.05,
+      "political": -0.5
+    },
+    {
+      "countryId": "QGA",
+      "economic": -0.05,
+      "political": -0.25
+    },
+    {
+      "countryId": "QGB",
+      "economic": -0.1,
+      "political": -0.3
+    },
+    {
+      "countryId": "QGF",
+      "economic": -0.1,
+      "political": -0.35
+    },
+    {
+      "countryId": "QGS",
+      "economic": -0.7,
+      "political": -0.78
+    },
+    {
+      "countryId": "QJK",
+      "economic": 0.15,
+      "political": -0.35
+    },
+    {
+      "countryId": "QKA",
+      "economic": 0.05,
+      "political": -0.45
+    },
+    {
+      "countryId": "QKS",
+      "economic": -0.75,
+      "political": -0.82
+    },
+    {
+      "countryId": "QLB",
+      "economic": 0.35,
+      "political": -0.65
+    },
+    {
+      "countryId": "QMH",
+      "economic": -0.3,
+      "political": -0.45
+    },
+    {
+      "countryId": "QMS",
+      "economic": -0.65,
+      "political": -0.8
+    },
+    {
+      "countryId": "QNB",
+      "economic": 0.25,
+      "political": -0.65
+    },
+    {
+      "countryId": "QND",
+      "economic": 0.35,
+      "political": -0.3
+    },
+    {
+      "countryId": "QOA",
+      "economic": -0.05,
+      "political": 0.05
+    },
+    {
+      "countryId": "QOB",
+      "economic": -0.05,
+      "political": 0.05
+    },
+    {
+      "countryId": "QOF",
+      "economic": -0.1,
+      "political": 0.0
+    },
+    {
+      "countryId": "QOS",
+      "economic": -0.3,
+      "political": -0.15
+    },
+    {
+      "countryId": "QPI",
+      "economic": 0.15,
+      "political": -0.8
+    },
+    {
+      "countryId": "QPS",
+      "economic": 0.1,
+      "political": -0.75
+    },
+    {
+      "countryId": "QRI",
+      "economic": -0.1,
+      "political": -0.2
+    },
+    {
+      "countryId": "QRU",
+      "economic": 0.25,
+      "political": -0.72
+    },
+    {
+      "countryId": "QSI",
+      "economic": 0.3,
+      "political": -0.65
+    },
+    {
+      "countryId": "QSO",
+      "economic": 0.25,
+      "political": -0.7
+    },
+    {
+      "countryId": "QSR",
+      "economic": 0.25,
+      "political": -0.65
+    },
+    {
+      "countryId": "QTB",
+      "economic": 0.25,
+      "political": -0.82
+    },
+    {
+      "countryId": "QWL",
+      "economic": 0.3,
+      "political": -0.5
+    },
+    {
+      "countryId": "QWW",
+      "economic": 0.3,
+      "political": -0.45
+    },
+    {
+      "countryId": "QZN",
+      "economic": 0.25,
+      "political": -0.65
+    },
+    {
+      "countryId": "ROU",
+      "economic": -0.55,
+      "political": -0.65
+    },
+    {
+      "countryId": "SAU",
+      "economic": 0.35,
+      "political": -0.88
+    },
+    {
+      "countryId": "SDN",
+      "economic": 0.2,
+      "political": -0.7
+    },
+    {
+      "countryId": "SGP",
+      "economic": 0.4,
+      "political": -0.55
+    },
+    {
+      "countryId": "SLB",
+      "economic": 0.25,
+      "political": -0.7
+    },
+    {
+      "countryId": "SLE",
+      "economic": 0.2,
+      "political": -0.58
+    },
+    {
+      "countryId": "SLV",
+      "economic": 0.25,
+      "political": -0.65
+    },
+    {
+      "countryId": "SMR",
+      "economic": -0.15,
+      "political": 0.75
     },
     {
       "countryId": "SUN",
@@ -26,14 +676,114 @@
       "political": -0.95
     },
     {
+      "countryId": "SWE",
+      "economic": 0.05,
+      "political": 0.92
+    },
+    {
+      "countryId": "SYR",
+      "economic": 0.25,
+      "political": 0.35
+    },
+    {
+      "countryId": "TGO",
+      "economic": 0.1,
+      "political": -0.55
+    },
+    {
+      "countryId": "THA",
+      "economic": 0.2,
+      "political": 0.3
+    },
+    {
+      "countryId": "TON",
+      "economic": 0.3,
+      "political": -0.15
+    },
+    {
+      "countryId": "TUN",
+      "economic": 0.1,
+      "political": -0.65
+    },
+    {
+      "countryId": "TUR",
+      "economic": -0.25,
+      "political": -0.1
+    },
+    {
+      "countryId": "TWN",
+      "economic": 0.1,
+      "political": -0.4
+    },
+    {
+      "countryId": "TZA",
+      "economic": 0.15,
+      "political": -0.62
+    },
+    {
+      "countryId": "UGA",
+      "economic": 0.2,
+      "political": -0.62
+    },
+    {
+      "countryId": "URY",
+      "economic": 0.4,
+      "political": 0.88
+    },
+    {
       "countryId": "USA",
       "economic": 0.7,
       "political": 0.78
     },
     {
+      "countryId": "VAT",
+      "economic": 0.2,
+      "political": -0.88
+    },
+    {
+      "countryId": "VEN",
+      "economic": 0.15,
+      "political": 0.55
+    },
+    {
+      "countryId": "VNM",
+      "economic": 0.05,
+      "political": -0.75
+    },
+    {
+      "countryId": "VUT",
+      "economic": 0.3,
+      "political": -0.78
+    },
+    {
+      "countryId": "WSM",
+      "economic": 0.2,
+      "political": -0.55
+    },
+    {
+      "countryId": "YEM",
+      "economic": 0.3,
+      "political": -0.85
+    },
+    {
       "countryId": "YUG",
       "economic": -0.88,
       "political": -0.86
+    },
+    {
+      "countryId": "ZAF",
+      "economic": 0.35,
+      "political": 0.25
+    },
+    {
+      "countryId": "ZMB",
+      "economic": 0.25,
+      "political": -0.65
+    },
+    {
+      "countryId": "ZWE",
+      "economic": 0.4,
+      "political": -0.1
     }
   ]
 }

@@ -30,6 +30,23 @@ import_to_game.py — запускать первым; читается чере
 
 Результат — рабочая база ("дефолт"), не финал: дальнейшая ручная доводка
 группировки ожидаема (см. открытые вопросы плана).
+
+politics.ideology — ПРОИЗВОДНОЕ ПОЛЕ (с 2026-07-27)
+---------------------------------------------------
+Ярлык больше не авторский: он вычисляется из координат
+`scripts/map/config/ideology_1946.json` функцией `ideology_zones.zone_for()`.
+Источник истины — координаты; ярлык — их проекция на пять именованных зон.
+
+До этого ярлык был производной от ТИПА ЭКОНОМИКИ ("Communism" если planned,
+иначе "Liberal Democracy") плюс 37 ручных исключений в CUSTOM_COUNTRIES. Это
+давало 138 стран из 157 под ярлыком "Liberal Democracy" — включая Испанию
+Франко, Португалию Салазара, Саудовскую Аравию и Ватикан, — то есть ярлык
+описывал не режим, а способ, которым его выставил генератор.
+
+Практическое следствие для правок: `ideology` НЕ надо (и нельзя) проставлять
+руками ни здесь, ни в countries.json. Меняются координаты в конфиге, после чего
+перезапускаются ОБА генератора; расхождение ярлыка с координатами ловит
+scripts/map/validate_demographics_1946.py.
 """
 import hashlib
 import json
@@ -39,6 +56,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.region_files import load_regions_combined, write_regions_state
 from economy_1946.capital_overrides import CAPITAL_REGION_OVERRIDES as CAPITAL_REGION_OVERRIDES_DATA
+from ideology_zones import load_coordinates, zone_for
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
@@ -50,10 +68,10 @@ ENTITY_CONFIG = CONFIG_DIR / "country_entities_1946.json"
 # Кастомные записи, отсутствующие в каталоге MAP: зоны оккупации, Тайвань и
 # исторические администрации, собранные из нескольких современных ISO-кодов.
 CUSTOM_COUNTRIES = {
-    "QGS": {"name_en": "Soviet Occupation Zone (Germany)", "name_ru": "Советская оккупационная зона (Германия)", "ideology": "Communism", "economy": "planned"},
-    "QGA": {"name_en": "American Occupation Zone (Germany)", "name_ru": "Американская оккупационная зона (Германия)", "ideology": "Liberal Democracy", "economy": "market"},
-    "QGB": {"name_en": "British Occupation Zone (Germany)", "name_ru": "Британская оккупационная зона (Германия)", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QGF": {"name_en": "French Occupation Zone (Germany)", "name_ru": "Французская оккупационная зона (Германия)", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QGS": {"name_en": "Soviet Occupation Zone (Germany)", "name_ru": "Советская оккупационная зона (Германия)", "economy": "planned"},
+    "QGA": {"name_en": "American Occupation Zone (Germany)", "name_ru": "Американская оккупационная зона (Германия)", "economy": "market"},
+    "QGB": {"name_en": "British Occupation Zone (Germany)", "name_ru": "Британская оккупационная зона (Германия)", "economy": "mixed"},
+    "QGF": {"name_en": "French Occupation Zone (Germany)", "name_ru": "Французская оккупационная зона (Германия)", "economy": "mixed"},
     # Австрия — те же 4 зоны оккупации, что и Германия (2026-07-19, по
     # запросу пользователя), но Австрия НЕ дробится географически так
     # мелко: MAP даёт только 9 регионов = 9 федеральных земель, без
@@ -68,18 +86,18 @@ CUSTOM_COUNTRIES = {
     # но регион у нас один "Tirol" (Северный+Восточный) — целиком к
     # французской зоне, т.к. Северный Тироль (французский) существенно
     # населённее.
-    "QOS": {"name_en": "Soviet Occupation Zone (Austria)", "name_ru": "Советская оккупационная зона (Австрия)", "ideology": "Communism", "economy": "planned"},
-    "QOA": {"name_en": "American Occupation Zone (Austria)", "name_ru": "Американская оккупационная зона (Австрия)", "ideology": "Liberal Democracy", "economy": "market"},
-    "QOB": {"name_en": "British Occupation Zone (Austria)", "name_ru": "Британская оккупационная зона (Австрия)", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QOF": {"name_en": "French Occupation Zone (Austria)", "name_ru": "Французская оккупационная зона (Австрия)", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "TWN": {"name_en": "Republic of China (Kuomintang)", "name_ru": "Китайская Республика (Гоминьдан)", "ideology": "Nationalism", "economy": "mixed"},
-    "QKS": {"name_en": "Soviet Occupation Zone (Korea)", "name_ru": "Советская оккупационная зона (Корея)", "ideology": "Communism", "economy": "planned"},
-    "QKA": {"name_en": "American Occupation Zone (Korea)", "name_ru": "Американская оккупационная зона (Корея)", "ideology": "Liberal Democracy", "economy": "market"},
-    "QMS": {"name_en": "Soviet-administered Manchuria", "name_ru": "Маньчжурия под советским управлением", "ideology": "Communism", "economy": "planned"},
+    "QOS": {"name_en": "Soviet Occupation Zone (Austria)", "name_ru": "Советская оккупационная зона (Австрия)", "economy": "planned"},
+    "QOA": {"name_en": "American Occupation Zone (Austria)", "name_ru": "Американская оккупационная зона (Австрия)", "economy": "market"},
+    "QOB": {"name_en": "British Occupation Zone (Austria)", "name_ru": "Британская оккупационная зона (Австрия)", "economy": "mixed"},
+    "QOF": {"name_en": "French Occupation Zone (Austria)", "name_ru": "Французская оккупационная зона (Австрия)", "economy": "mixed"},
+    "TWN": {"name_en": "Republic of China (Kuomintang)", "name_ru": "Китайская Республика (Гоминьдан)", "economy": "mixed"},
+    "QKS": {"name_en": "Soviet Occupation Zone (Korea)", "name_ru": "Советская оккупационная зона (Корея)", "economy": "planned"},
+    "QKA": {"name_en": "American Occupation Zone (Korea)", "name_ru": "Американская оккупационная зона (Корея)", "economy": "market"},
+    "QMS": {"name_en": "Soviet-administered Manchuria", "name_ru": "Маньчжурия под советским управлением", "economy": "planned"},
     # Иранский кризис 1946 — два просоветских квазигосударства (разгромлены
     # Тегераном в декабре 1946), см. occupation_overlay.json::_iran_crisis_1946.
-    "QAZ": {"name_en": "Azerbaijan People's Government", "name_ru": "Азербайджанское национальное правительство", "ideology": "Communism", "economy": "planned"},
-    "QMH": {"name_en": "Republic of Mahabad", "name_ru": "Мехабадская Республика", "ideology": "Communism", "economy": "planned"},
+    "QAZ": {"name_en": "Azerbaijan People's Government", "name_ru": "Азербайджанское национальное правительство", "economy": "planned"},
+    "QMH": {"name_en": "Republic of Mahabad", "name_ru": "Мехабадская Республика", "economy": "planned"},
     # Британский Сомалиленд — код нормализован из составного MAP-кода SOM_GBR
     # на 3-буквенный private-use (см. import_to_game.py::OWNER_CODE_ALIASES);
     # из-за смены кода каталог MAP по нему не матчится напрямую, поэтому здесь.
@@ -89,33 +107,33 @@ CUSTOM_COUNTRIES = {
     # этого файла, а тестовый harness (`test_country_entities_1946.py`)
     # читает сырой каталог без алиаса, где ключ всё ещё `SOM_GBR` — preserve-
     # запись под `QSO` там не смогла бы найти код и падала бы.
-    "QSO": {"name_en": "British Somaliland", "name_ru": "Британский Сомалиленд", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QSO": {"name_en": "British Somaliland", "name_ru": "Британский Сомалиленд", "economy": "mixed"},
     # Исторические карибские администрации на дату снимка. Современные ISO3
     # островов сводятся к ним через country_entities_1946.json.
-    "QWL": {"name_en": "Leeward Islands", "name_ru": "Наветренные острова", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QWW": {"name_en": "Windward Islands", "name_ru": "Подветренные острова", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QND": {"name_en": "Curaçao and Dependencies", "name_ru": "Кюрасао и зависимые территории", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "MTQ": {"name_en": "Martinique", "name_ru": "Мартиника", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "GLP": {"name_en": "Guadeloupe", "name_ru": "Гваделупа", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QFW": {"name_en": "French West Africa", "name_ru": "Французская Западная Африка", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QFE": {"name_en": "French Equatorial Africa", "name_ru": "Французская Экваториальная Африка", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QRU": {"name_en": "Ruanda-Urundi", "name_ru": "Руанда-Урунди", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QTB": {"name_en": "Tibet", "name_ru": "Тибет", "ideology": "Traditionalism", "economy": "mixed"},
-    "QSI": {"name_en": "Kingdom of Sikkim", "name_ru": "Королевство Сикким", "ideology": "Traditionalism", "economy": "mixed"},
-    "QJK": {"name_en": "Jammu and Kashmir", "name_ru": "Джамму и Кашмир", "ideology": "Traditionalism", "economy": "mixed"},
-    "QPI": {"name_en": "Portuguese India", "name_ru": "Португальская Индия", "ideology": "Authoritarianism", "economy": "mixed"},
-    "QFI": {"name_en": "French India", "name_ru": "Французская Индия", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QNB": {"name_en": "North Borneo", "name_ru": "Северный Борнео", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QSR": {"name_en": "Sarawak", "name_ru": "Саравак", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QLB": {"name_en": "Labuan", "name_ru": "Лабуан", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QDV": {"name_en": "Democratic Republic of Vietnam", "name_ru": "Демократическая Республика Вьетнам", "ideology": "Communism", "economy": "planned"},
-    "QRI": {"name_en": "Republic of Indonesia", "name_ru": "Республика Индонезия", "ideology": "Nationalism", "economy": "mixed"},
-    "QAD": {"name_en": "Aden Colony and Protectorate", "name_ru": "Колония и протекторат Аден", "ideology": "Traditionalism", "economy": "mixed"},
-    "NFK": {"name_en": "Norfolk Island", "name_ru": "Остров Норфолк", "ideology": "Liberal Democracy", "economy": "mixed"},
-    "QPS": {"name_en": "U.S. Naval Administration of the Former Japanese Mandated Islands", "name_ru": "Военно-морская администрация США бывших японских подмандатных островов", "ideology": "Liberal Democracy", "economy": "mixed"},
+    "QWL": {"name_en": "Leeward Islands", "name_ru": "Наветренные острова", "economy": "mixed"},
+    "QWW": {"name_en": "Windward Islands", "name_ru": "Подветренные острова", "economy": "mixed"},
+    "QND": {"name_en": "Curaçao and Dependencies", "name_ru": "Кюрасао и зависимые территории", "economy": "mixed"},
+    "MTQ": {"name_en": "Martinique", "name_ru": "Мартиника", "economy": "mixed"},
+    "GLP": {"name_en": "Guadeloupe", "name_ru": "Гваделупа", "economy": "mixed"},
+    "QFW": {"name_en": "French West Africa", "name_ru": "Французская Западная Африка", "economy": "mixed"},
+    "QFE": {"name_en": "French Equatorial Africa", "name_ru": "Французская Экваториальная Африка", "economy": "mixed"},
+    "QRU": {"name_en": "Ruanda-Urundi", "name_ru": "Руанда-Урунди", "economy": "mixed"},
+    "QTB": {"name_en": "Tibet", "name_ru": "Тибет", "economy": "mixed"},
+    "QSI": {"name_en": "Kingdom of Sikkim", "name_ru": "Королевство Сикким", "economy": "mixed"},
+    "QJK": {"name_en": "Jammu and Kashmir", "name_ru": "Джамму и Кашмир", "economy": "mixed"},
+    "QPI": {"name_en": "Portuguese India", "name_ru": "Португальская Индия", "economy": "mixed"},
+    "QFI": {"name_en": "French India", "name_ru": "Французская Индия", "economy": "mixed"},
+    "QNB": {"name_en": "North Borneo", "name_ru": "Северный Борнео", "economy": "mixed"},
+    "QSR": {"name_en": "Sarawak", "name_ru": "Саравак", "economy": "mixed"},
+    "QLB": {"name_en": "Labuan", "name_ru": "Лабуан", "economy": "mixed"},
+    "QDV": {"name_en": "Democratic Republic of Vietnam", "name_ru": "Демократическая Республика Вьетнам", "economy": "planned"},
+    "QRI": {"name_en": "Republic of Indonesia", "name_ru": "Республика Индонезия", "economy": "mixed"},
+    "QAD": {"name_en": "Aden Colony and Protectorate", "name_ru": "Колония и протекторат Аден", "economy": "mixed"},
+    "NFK": {"name_en": "Norfolk Island", "name_ru": "Остров Норфолк", "economy": "mixed"},
+    "QPS": {"name_en": "U.S. Naval Administration of the Former Japanese Mandated Islands", "name_ru": "Военно-морская администрация США бывших японских подмандатных островов", "economy": "mixed"},
     # Занзибарский протекторат (свой султан) — юридически отделён от
     # Танганьики в 1946; уния (Танзания) состоялась только в 1964.
-    "QZN": {"name_en": "Zanzibar Protectorate", "name_ru": "Занзибарский протекторат", "ideology": "Traditionalism", "economy": "mixed"},
+    "QZN": {"name_en": "Zanzibar Protectorate", "name_ru": "Занзибарский протекторат", "economy": "mixed"},
 }
 
 # Суверены, исторически идущие с плановой экономикой/коммунистической идеологией.
@@ -556,8 +574,9 @@ def make_country(country_id: str, name_en: str, economy_type: str, ideology: str
     рантайм-блоки (technology/military/stockpile/researchedTechnologyIds/goals/
     population, пустая diplomacy) не пишутся: их дефолтит createCountry на
     загрузке (server/src/data/countries/templates/CreateCountry.ts). politics —
-    только ideology (реально варьируется по стране), остальные поля политики —
-    единый дефолт для всего реестра стран, тоже не авторские данные.
+    только ideology, остальные поля политики — единый дефолт для всего реестра
+    стран, тоже не авторские данные. Сам `ideology` тоже НЕ авторский: он
+    выводится из координат (см. шапку модуля) и приходит сюда уже посчитанным.
     name/shortName — LocalizedText (shared/src/types/i18n/LocalizedText.ts):
     en всегда есть, ru — только если реально известен (name_ru), без
     выдуманного перевода для остальных стран реестра."""
@@ -708,6 +727,11 @@ def main():
     # ловит "владелец верный, регион — нет") плюс 7 мёртвых записей UAE.
     CAPITAL_REGION_OVERRIDES = CAPITAL_REGION_OVERRIDES_DATA
 
+    # Авторские координаты идеологии — единственный источник и для ярлыка здесь,
+    # и для ideology.json (generate_demographics_1946.py). Читаем ВХОД, а не
+    # чужой выход: цикла между генераторами нет.
+    ideology_coordinates = load_coordinates()
+
     countries = []
     for country_id in sorted(final_owner_ids):
         capital_region_id = CAPITAL_REGION_OVERRIDES.get(country_id)
@@ -718,9 +742,17 @@ def main():
 
         currency_zone_anchor = CURRENCY_ZONE_ANCHOR.get(country_id)
 
+        # Ярлык — ПРОИЗВОДНОЕ от координат, а не авторское поле (см. шапку).
+        if country_id not in ideology_coordinates:
+            raise SystemExit(
+                f"config/ideology_1946.json: нет координат для страны {country_id!r} — "
+                "ярлык politics.ideology вывести не из чего"
+            )
+        ideology = zone_for(*ideology_coordinates[country_id])
+
         if country_id in CUSTOM_COUNTRIES:
             meta = CUSTOM_COUNTRIES[country_id]
-            countries.append(make_country(country_id, meta["name_en"], meta["economy"], meta["ideology"], capital_region_id, puppets, color, currency_zone_anchor, name_ru_by_code.get(country_id)))
+            countries.append(make_country(country_id, meta["name_en"], meta["economy"], ideology, capital_region_id, puppets, color, currency_zone_anchor, name_ru_by_code.get(country_id)))
             continue
 
         if country_id in catalog:
@@ -729,7 +761,6 @@ def main():
             name_en = country_id
 
         economy_type = "planned" if country_id in PLANNED_ECONOMY_SOVEREIGNS else "mixed"
-        ideology = "Communism" if economy_type == "planned" else "Liberal Democracy"
         countries.append(make_country(country_id, name_en, economy_type, ideology, capital_region_id, puppets, color, currency_zone_anchor, name_ru_by_code.get(country_id)))
 
     # Военное/договорное присутствие (см. SPHERE_OVERRIDES) — только сфера
