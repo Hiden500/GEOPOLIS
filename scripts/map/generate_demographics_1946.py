@@ -59,59 +59,14 @@ IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 
-# ---------------------------------------------------------------------------
-# Каталог демо-групп: id -> (en, ru, желаемая позиция на спектре).
-# Ось economic: -1 крайне лево .. +1 крайне право.
-# Ось political: -1 тоталитарный авторитаризм .. +1 полная демократия.
-# «Желаемая» — куда группа тянет, а не где она находится. Недовольство =
-# дистанция между этой точкой и позицией власти (docs/CONCEPT.md §4.2).
-# ---------------------------------------------------------------------------
-GROUPS = [
-    # Титульные нации присоединённых в 1940 республик: защита независимости и
-    # частного крестьянского хозяйства → заметно правее и много
-    # «демократичнее» советской власти.
-    ("lithuanians", "Lithuanians", "Литовцы", 0.20, 0.45),
-    ("latvians", "Latvians", "Латыши", 0.15, 0.35),
-    ("estonians", "Estonians", "Эстонцы", 0.20, 0.45),
-    # Государствообразующие для СССР группы: близки к позиции власти, но не
-    # тождественны ей — дистанция мала, а не нулевая.
-    ("russians", "Russians", "Русские", -0.70, -0.55),
-    # Меньшинства без своей государственности в этих регионах.
-    ("poles", "Poles", "Поляки", 0.25, 0.45),
-    ("belarusians", "Belarusians", "Белорусы", -0.45, -0.25),
-    ("ukrainians", "Ukrainians", "Украинцы", -0.35, -0.20),
-    ("jews", "Jews", "Евреи", -0.15, 0.35),
-    ("germans", "Germans", "Немцы", 0.35, 0.05),
-]
-
-# ---------------------------------------------------------------------------
-# Демо-состав: region_id -> [(group_id, доля), ...]. Сумма = 1.0.
-# id регионов — из server/data/scenarios/1946/regions.core.json.
-# ---------------------------------------------------------------------------
-DEMOGRAPHICS = {
-    # --- Литовская ССР (SUN). Исторический якорь среза: вооружённое
-    # сопротивление «лесных братьев» 1944-1953.
-    185: [("lithuanians", 0.93), ("russians", 0.05), ("poles", 0.01), ("jews", 0.01)],   # Panevezys
-    186: [("lithuanians", 0.92), ("poles", 0.04), ("russians", 0.03), ("belarusians", 0.01)],  # Alytus
-    187: [("lithuanians", 0.94), ("russians", 0.04), ("latvians", 0.01), ("jews", 0.01)],  # Siauliai
-    # --- Латвийская ССР (SUN). Рига и Латгалия заметно более смешанные.
-    189: [("latvians", 0.94), ("russians", 0.05), ("estonians", 0.01)],      # Vidzeme
-    190: [("latvians", 0.72), ("russians", 0.23), ("poles", 0.04), ("jews", 0.01)],  # Riga
-    191: [("latvians", 0.63), ("russians", 0.32), ("poles", 0.03), ("belarusians", 0.02)],  # Latgale
-    192: [("latvians", 0.91), ("russians", 0.06), ("lithuanians", 0.02), ("poles", 0.01)],  # Zemgale
-    193: [("latvians", 0.90), ("russians", 0.08), ("lithuanians", 0.01), ("jews", 0.01)],  # Kurzeme
-    # --- Эстонская ССР (SUN). Острова — почти моноэтничны.
-    68: [("estonians", 0.99), ("russians", 0.01)],                           # Saare
-    69: [("estonians", 0.99), ("russians", 0.01)],                           # Hiiu
-    70: [("estonians", 0.95), ("russians", 0.05)],                           # Tartu
-    # --- Славянские соседи и Восточная Пруссия. Роль «контрольной группы» за
-    # ними НЕ закреплена: Гродно после репатриации сохраняет крупное польское
-    # население, Калининград к концу 1946 всё ещё немецкий по большинству.
-    # Тесты движка на эту расстановку не опираются (см. шапку файла).
-    26: [("belarusians", 0.84), ("russians", 0.14), ("ukrainians", 0.01), ("jews", 0.01)],   # Vitebsk
-    27: [("belarusians", 0.59), ("poles", 0.34), ("russians", 0.06), ("jews", 0.01)],        # Grodno
-    274: [("germans", 0.65), ("russians", 0.25), ("belarusians", 0.06), ("ukrainians", 0.04)],  # Kaliningrad
-}
+# Демо-слои вынесены во ВХОД пайплайна (2026-07-27, расширение до 504
+# регионов и 270 групп). Держать полтысячи регионов питоновскими литералами
+# нельзя: файл перестаёт читаться, а diff перестаёт быть обозримым. Тот же
+# приём, что у остальных наборов пайплайна в scripts/map/config/.
+# Провенанс — docs/DEMOGRAPHICS_1946_PROVENANCE.md.
+CONFIG_DIR = Path(__file__).resolve().parent / "config"
+GROUPS_CONFIG = CONFIG_DIR / "groups_1946.json"
+DEMOGRAPHICS_CONFIG = CONFIG_DIR / "demographics_1946.json"
 
 # ---------------------------------------------------------------------------
 # Координаты идеологии стран: country_id -> (economic, political).
@@ -142,29 +97,18 @@ IDEOLOGY = {
 
 
 def build_groups() -> dict:
-    return {
-        "groups": [
-            {
-                "id": gid,
-                "names": {"en": en, "ru": ru},
-                "desiredIdeology": {"economic": economic, "political": political},
-            }
-            for gid, en, ru, economic, political in GROUPS
-        ]
-    }
+    """Каталог групп из входного конфига (см. GROUPS_CONFIG)."""
+    return {"groups": load_json(GROUPS_CONFIG)["groups"]}
 
 
 def build_demographics() -> dict:
-    return {
-        "regions": [
-            {
-                "regionId": region_id,
-                "groups": [{"groupId": gid, "share": share} for gid, share in shares],
-            }
-            # Порядок по region_id — стабильный diff при перегенерации.
-            for region_id, shares in sorted(DEMOGRAPHICS.items())
-        ]
-    }
+    """
+    Демо-состав регионов из входного конфига (см. DEMOGRAPHICS_CONFIG).
+
+    Порядок по region_id — стабильный diff при перегенерации.
+    """
+    regions = load_json(DEMOGRAPHICS_CONFIG)["regions"]
+    return {"regions": sorted(regions, key=lambda r: r["regionId"])}
 
 
 def build_ideology() -> dict:
