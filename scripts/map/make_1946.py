@@ -53,6 +53,7 @@ FULL_REBUILD_STEPS = [
     "build/clip_sea_by_land.py",
     "build/resolve_brazil_paraguay_overlap.py",
     "build/fix_ponta_pora_matogrosso_gap.py",
+    "build/fix_ponta_pora_junction_gap.py",
     "build/merge_world_1946.py",
     "build/build_neighbor_graph.py",
     "build/translate_world.py",
