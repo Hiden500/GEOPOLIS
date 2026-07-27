@@ -160,7 +160,12 @@ Write-Host "cwd инструментов между ходами соскаль�
 Write-Host "абсолютные пути и ``git -C `"$treePath`"``. Основной checkout не редактируй."
 Write-Host "``git add`` поимённо. Локальные коммиты после проверок; push и merge — только"
 Write-Host "с разрешения пользователя. На ``Edit|Write|Bash`` стоит guard-хук — не обходи,"
-Write-Host "доложи если заблокирует. Зависимости уже подключены, ставить не нужно."
+if ($NoLink) {
+    Write-Host "доложи если заблокирует. Зависимости в дереве не установлены — поставь их сам."
+}
+else {
+    Write-Host "доложи если заблокирует. Зависимости уже подключены, ставить не нужно."
+}
 Write-Host ''
 Write-Host '--- по завершении задачи ---' -ForegroundColor Cyan
 Write-Host "./scripts/worktree-drop.ps1 $Name"

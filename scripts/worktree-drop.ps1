@@ -23,14 +23,10 @@
     Удалить и саму ветку после дерева. Влитая ветка удаляется через -d,
     невлитая потребует ещё и -Force.
 
-.PARAMETER IdleMinutes
-    Сколько минут дерево должно простоять без записи, чтобы считаться брошенным.
-    По умолчанию 30. Проверка ловит живую сессию, чьи правки ещё не дошли ни до
-    индекса, ни до коммита: чистый `git status` о такой работе молчит.
-
 .PARAMETER Force
-    Удалять несмотря на признаки живой сессии, незакоммиченные изменения и
-    невлитость.
+    Удалять несмотря на незакоммиченные изменения и невлитость. Дерево живой
+    сессии выглядит именно так — прежде чем передавать этот флаг, посмотри,
+    ЧТО именно скрипт отказался стирать.
 
 .EXAMPLE
     ./scripts/worktree-drop.ps1 alliance-affinity -DeleteBranch
@@ -41,8 +37,6 @@ param(
     [string] $Name,
 
     [string] $Base = 'main',
-
-    [int] $IdleMinutes = 30,
 
     [switch] $DeleteBranch,
 
@@ -74,24 +68,6 @@ $branch = (git -C $treePath rev-parse --abbrev-ref HEAD 2>$null)
 if ($LASTEXITCODE -ne 0) { $branch = $null }
 
 if (-not $Force) {
-    # Признак живой сессии. Влитая ветка и чистый статус этого не показывают:
-    # агент может писать в дерево прямо сейчас, а его правки ещё не дошли ни до
-    # индекса, ни до коммита. Единственный доступный признак — свежесть файлов.
-    $recentCutoff = (Get-Date).AddMinutes(-$IdleMinutes)
-    $recent = @(Get-ChildItem -Path $treePath -Recurse -File -Force -ErrorAction SilentlyContinue |
-                Where-Object {
-                    $_.LastWriteTime -gt $recentCutoff -and
-                    $_.FullName -notmatch '\\node_modules\\' -and
-                    $_.FullName -notmatch '\\\.git\\'
-                })
-    if ($recent.Count -gt 0) {
-        $newest = ($recent | Sort-Object LastWriteTime -Descending | Select-Object -First 1)
-        $agoMin = [math]::Round(((Get-Date) - $newest.LastWriteTime).TotalMinutes, 1)
-        Write-Host "В дереве идёт запись: $($recent.Count) файлов изменено за последние $IdleMinutes мин." -ForegroundColor Yellow
-        Write-Host "  свежайший: $($newest.FullName) ($agoMin мин назад)" -ForegroundColor Yellow
-        Fail 'похоже, там работает живая сессия. Дождись её завершения или повтори с -Force.'
-    }
-
     $dirty = @(git -C $treePath status --porcelain 2>$null)
     if ($dirty.Count -gt 0) {
         Write-Host "В дереве $($dirty.Count) незакоммиченных изменений:" -ForegroundColor Yellow
