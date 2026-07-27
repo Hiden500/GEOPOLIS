@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { type Event, type EventFactuality } from "@shared/types/Event";
+import { emptyResponseReceipt } from "@shared/types/ResponseReceipt";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 import { chronicleTick } from "./ChronicleTick";
 import { createTestGameState } from "../../test-utils/fixtures";
@@ -17,9 +18,12 @@ function event(
     date,
     title,
     description: "x",
-    countries: ["USA"],
-    factuality,
-    ...(primitiveOutcomes ? { primitiveOutcomes } : {}),
+    receipt: {
+      ...emptyResponseReceipt(date),
+      factuality,
+      countries: ["USA"],
+      primitives: { applied: primitiveOutcomes ?? [], rejected: [] },
+    },
   };
 }
 

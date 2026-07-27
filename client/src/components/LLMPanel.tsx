@@ -7,21 +7,11 @@ import {
   type LlmCycleResult,
 } from "../api/gameApi";
 import { usePrimitiveOutcomeText } from "./primitiveOutcomeText";
+import { usePrimitiveRejectionText } from "./primitiveRejectionText";
 
 interface Props {
   llmTurn: number;
   onApplied: () => void;
-}
-
-/**
- * Читает строковое поле из rejectedActions[].action — тип `unknown`
- * (docs/plans/02_LLM_CONTRACT.md, Шаг 3): точечно отклонённый элемент не
- * гарантированно валиден, мог провалиться ровно на структурной проверке.
- */
-function rejectedActionField(action: unknown, key: string): string | undefined {
-  if (typeof action !== "object" || action === null || !(key in action)) return undefined;
-  const value = (action as Record<string, unknown>)[key];
-  return typeof value === "string" ? value : undefined;
 }
 
 /**
@@ -170,6 +160,7 @@ export function LLMPanel({ llmTurn, onApplied }: Props) {
 function CycleResult({ result }: { result: LlmCycleResult }) {
   const { t } = useTranslation("llmPanel");
   const outcomeText = usePrimitiveOutcomeText();
+  const rejectionText = usePrimitiveRejectionText();
 
   return (
     <section className="panel-section llm-result">
@@ -183,9 +174,9 @@ function CycleResult({ result }: { result: LlmCycleResult }) {
             ПЕРВЫМ, поэтому оставить её здесь без пометки значило бы отложить
             правду на один экран.
           */}
-          {result.factuality && result.factuality !== "confirmed" && (
+          {result.receipt.factuality !== "confirmed" && (
             <p className="llm-factuality" role="note">
-              {t(`result.factuality.${result.factuality}`)}
+              {t(`result.factuality.${result.receipt.factuality}`)}
             </p>
           )}
           {result.descriptions && <p className="llm-descriptions">{result.descriptions}</p>}
@@ -198,16 +189,16 @@ function CycleResult({ result }: { result: LlmCycleResult }) {
       )}
 
       <p>
-        {t("result.appliedActionsCount", { count: result.appliedActions.length })}
-        {result.rejectedActions.length > 0 &&
-          t("result.rejectedActionsSuffix", { count: result.rejectedActions.length })}
+        {t("result.appliedActionsCount", { count: result.receipt.actions.applied.length })}
+        {result.receipt.actions.rejected.length > 0 &&
+          t("result.rejectedActionsSuffix", { count: result.receipt.actions.rejected.length })}
       </p>
 
-      {result.primitiveOutcomes.length > 0 && (
+      {result.receipt.primitives.applied.length > 0 && (
         <section aria-label={t("result.primitivesApplied")}>
           <h4>{t("result.primitivesApplied")}</h4>
           <ul className="llm-outcomes">
-            {result.primitiveOutcomes.map((record, index) => (
+            {result.receipt.primitives.applied.map((record, index) => (
               <li key={index}>
                 {outcomeText(record.headline)}
                 <ul>
@@ -221,31 +212,28 @@ function CycleResult({ result }: { result: LlmCycleResult }) {
         </section>
       )}
 
-      {result.rejectedPrimitives.length > 0 && (
+      {result.receipt.primitives.rejected.length > 0 && (
         <section aria-label={t("result.primitivesRejected")}>
           <h4>{t("result.primitivesRejected")}</h4>
-          {/* Причина приходит с движка сырым английским — тот же осознанный
-              хвост, что в панели приказов (docs/TODO.md): одна строка обслуживает
-              и игрока, и диагностику модели, разделить их можно только
-              структурным кодом отказа в ядре. */}
+          {/* Причина локализована: сервер присылает код и параметры, а не
+              готовую английскую строку движка (Милстоун 1). Величины
+              несостоявшегося действия в неё не попадают вовсе. */}
           <ul className="llm-rejected">
-            {result.rejectedPrimitives.map((rejection, index) => (
-              <li key={index}>
-                {rejection.verb ?? "?"}: <small>{rejection.reason}</small>
-              </li>
+            {result.receipt.primitives.rejected.map((rejection, index) => (
+              <li key={index}>{rejectionText(rejection)}</li>
             ))}
           </ul>
         </section>
       )}
 
-      {result.rejectedActions.length > 0 && (
+      {result.receipt.actions.rejected.length > 0 && (
+        /* Старый канал `actions` структурных кодов отказа не получил: его
+           причины по-прежнему английские строки валидатора (docs/TODO.md). */
         <ul className="llm-rejected">
-          {result.rejectedActions.map((r, i) => (
+          {result.receipt.actions.rejected.map((r, i) => (
             <li key={i}>
-              {rejectedActionField(r.action, "type") ?? "?"} {rejectedActionField(r.action, "sourceCountryId") ?? "?"}
-              {rejectedActionField(r.action, "targetCountryId")
-                ? ` → ${rejectedActionField(r.action, "targetCountryId")}`
-                : ""}: {r.reason}
+              {r.type ?? "?"} {r.sourceCountryId ?? "?"}
+              {r.targetCountryId ? ` → ${r.targetCountryId}` : ""}: {r.reason}
             </li>
           ))}
         </ul>

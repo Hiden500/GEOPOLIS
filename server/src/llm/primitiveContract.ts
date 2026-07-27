@@ -29,24 +29,34 @@ the legacy "actions". A primitive is one elementary verb of influence; the
 engine validates its precondition, computes every magnitude itself, and applies
 it atomically or rejects it whole.
 
-- incite_unrest — target {regionId, groupId} — requires the ideological
-  distance between the authorities holding that region and that group to be at
-  least ${INCITE_UNREST_MIN_DISTANCE}.
-- repress — target {regionId} or {regionId, groupId} — sourceCountryId must
-  control the region. Without groupId it addresses every group living there.
-- grant_autonomy — target {regionId} or {regionId, groupId} — same control
-  requirement. The same group in neighbouring regions takes heart in
-  proportion to what was actually granted.
-- enact_reform — target {countryId}, which MUST equal sourceCountryId: a
-  reform is a domestic act of the country that pays for it. Requires
-  government support of at least ${ENACT_REFORM_MIN_GOVERNMENT_SUPPORT}, and at least one of
+Each verb has its OWN shape of target and params. A field that belongs to
+another verb is a schema error, not a field the engine will quietly ignore: a
+repress carrying params.incidentKind is rejected whole, and so is a verb whose
+required target field is missing.
+
+- incite_unrest — target {regionId, groupId}, both required —
+  params {intensity} — requires the ideological distance between the
+  authorities holding that region and that group to be at least
+  ${INCITE_UNREST_MIN_DISTANCE}.
+- repress — target {regionId} with optional {groupId} — params {intensity} —
+  sourceCountryId must control the region. Without groupId it addresses every
+  group living there.
+- grant_autonomy — target {regionId} with optional {groupId} —
+  params {intensity} — same control requirement. The same group in neighbouring
+  regions takes heart in proportion to what was actually granted.
+- enact_reform — target {countryId}, required and MUST equal sourceCountryId: a
+  reform is a domestic act of the country that pays for it. Name the country
+  explicitly; there is no default. params {intensity, economicDirection,
+  politicalDirection}. Requires government support of at least
+  ${ENACT_REFORM_MIN_GOVERNMENT_SUPPORT}, and at least one of
   params.economicDirection ("left"/"right") or params.politicalDirection
   ("authoritarian"/"democratic"). A direction whose coordinate already sits at
   the edge of the spectrum is rejected before any cost is paid.
-- spawn_incident — target {regionId}, params.incidentKind
-  "protest"/"uprising"/"border_dispute" — requires regional discontent of at
-  least ${SPAWN_INCIDENT_MIN_DISCONTENT}; "uprising" additionally needs ${SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT} (a region in crisis is
-  not yet a region in revolt); "border_dispute" additionally needs a
+- spawn_incident — target {regionId} — params {intensity, incidentKind} where
+  incidentKind is "protest"/"uprising"/"border_dispute" — requires regional
+  discontent of at least ${SPAWN_INCIDENT_MIN_DISCONTENT}; "uprising"
+  additionally needs ${SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT} (a region in
+  crisis is not yet a region in revolt); "border_dispute" additionally needs a
   neighbouring region held by someone who is not an ally.
 
 Rules the engine enforces, not requests:
@@ -55,6 +65,10 @@ Rules the engine enforces, not requests:
   inside a corridor whose width the world state decides. Where the state gives
   no room, "severe" equals "mild". Any numeric field inside params is a schema
   error that rejects the primitive.
+- A structural primitive (enact_reform) that fails on ANY layer — the schema,
+  the preconditions, or the turn budget — rejects the WHOLE response, including
+  the soft primitives you sent with it. Send a structural one only when the
+  rest of the response is meant to happen together with it.
 - Order is execution order: each primitive sees the effect of the previous one,
   so incite_unrest followed by spawn_incident is a legitimate chain.
 - At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one (enact_reform) per game

@@ -17,6 +17,25 @@ export interface IdeologyCoordinates {
   political: number;
 }
 
+/**
+ * Оси координат — перечнем, а не только полями интерфейса.
+ *
+ * Нужен там, где по осям надо ПРОЙТИ, а не обратиться к известной: сверка
+ * результата примитива с состоянием (`server/src/primitives/reconciliation.ts`)
+ * раскладывает координаты в плоские ячейки. Перечень типизирован ключами
+ * `IdeologyCoordinates`, поэтому третья ось, добавленная в интерфейс и забытая
+ * здесь, не скомпилируется.
+ */
+export const IDEOLOGY_AXES = ["economic", "political"] as const satisfies readonly (keyof IdeologyCoordinates)[];
+
+/**
+ * Компайл-тайм проверка ПОЛНОТЫ перечня: `satisfies` выше запрещает лишнее, а
+ * это — пропуск. Ось, добавленная в `IdeologyCoordinates` и забытая в
+ * `IDEOLOGY_AXES`, превращает тип в `never` и валит сборку.
+ */
+export type _AllIdeologyAxesListed =
+  Exclude<keyof IdeologyCoordinates, (typeof IDEOLOGY_AXES)[number]> extends never ? true : never;
+
 /** Минимум/максимум любой оси координат идеологии. */
 export const IDEOLOGY_AXIS_MIN = -1;
 export const IDEOLOGY_AXIS_MAX = 1;

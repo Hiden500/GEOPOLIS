@@ -4,6 +4,7 @@ import "../i18n";
 import { LLMPanel } from "./LLMPanel";
 import * as gameApi from "../api/gameApi";
 import { type LlmCycleResult } from "../api/gameApi";
+import { emptyResponseReceipt } from "@shared/types/ResponseReceipt";
 
 /**
  * Отклик цикла режиссёра (docs/CONCEPT.md §7.2).
@@ -17,11 +18,21 @@ import { type LlmCycleResult } from "../api/gameApi";
 const BASE: LlmCycleResult = {
   success: true,
   narrativeCanonized: true,
-  appliedActions: [],
-  rejectedActions: [],
-  primitiveOutcomes: [],
-  rejectedPrimitives: [],
+  receipt: emptyResponseReceipt("1946-03-01"),
 };
+
+/** Квитанция поверх пустой: тесты меняют по одному каналу за раз. */
+function receipt(patch: {
+  factuality?: LlmCycleResult["receipt"]["factuality"];
+  applied?: LlmCycleResult["receipt"]["primitives"]["applied"];
+  rejected?: LlmCycleResult["receipt"]["primitives"]["rejected"];
+}): LlmCycleResult["receipt"] {
+  return {
+    ...emptyResponseReceipt("1946-03-01"),
+    ...(patch.factuality ? { factuality: patch.factuality } : {}),
+    primitives: { applied: patch.applied ?? [], rejected: patch.rejected ?? [] },
+  };
+}
 
 const outcome = {
   verb: "repress",
@@ -56,7 +67,7 @@ describe("LLMPanel — канон отделён от предложенного
         ...BASE,
         title: "Волнения вспыхнули",
         descriptions: "Три абзаца нарратива.",
-        primitiveOutcomes: [outcome],
+        receipt: receipt({ applied: [outcome] }),
       },
       /Волнения вспыхнули/
     );
@@ -74,16 +85,18 @@ describe("LLMPanel — канон отделён от предложенного
       {
         ...BASE,
         narrativeCanonized: false,
-        rejectedPrimitives: [
-          { verb: "repress", reason: "The director cannot act as the player's country" },
-        ],
+        receipt: receipt({
+          rejected: [{ verb: "repress", code: "agencyPlayerDecision", names: {} }],
+        }),
       },
       /Режиссёр предложил невозможное/
     );
 
     expect(screen.getByText(/событие не записано/)).toBeTruthy();
     expect(screen.getByRole("heading", { name: /Отклонено движком/ })).toBeTruthy();
-    expect(screen.getByText(/cannot act as the player's country/)).toBeTruthy();
+    // Причина — по-русски: сервер прислал код отказа, локаль подставил клиент
+    // (Милстоун 1). Раньше здесь стояла английская строка движка.
+    expect(screen.getByText(/решение принимает/)).toBeTruthy();
   });
 
   it("частичное применение: и текст, и то, что было отклонено", async () => {
@@ -94,16 +107,20 @@ describe("LLMPanel — канон отделён от предложенного
         ...BASE,
         title: "Двойной ход",
         descriptions: "Нарратив.",
-        factuality: "partial",
-        primitiveOutcomes: [outcome],
-        rejectedPrimitives: [{ verb: "enact_reform", reason: "at least one direction" }],
+        receipt: receipt({
+          factuality: "partial",
+          applied: [outcome],
+          rejected: [{ verb: "enact_reform", code: "reformNoDirection", names: {} }],
+        }),
       },
       /Двойной ход/
     );
 
     expect(screen.getByRole("heading", { name: /Что произошло на самом деле/ })).toBeTruthy();
     expect(screen.getByRole("heading", { name: /Отклонено движком/ })).toBeTruthy();
-    expect(screen.getByText(/at least one direction/)).toBeTruthy();
+    // Причина показана ЛОКАЛИЗОВАННОЙ: клиент рендерит код, а не английскую
+    // строку движка (Милстоун 1).
+    expect(screen.getByText(/не указывает ни одного направления/)).toBeTruthy();
     // Пометка стоит у самого текста: игрок читает его здесь первым, до ленты.
     expect(screen.getByRole("note").textContent).toMatch(/Подтверждено частично/);
   });
@@ -112,7 +129,12 @@ describe("LLMPanel — канон отделён от предложенного
     // Ответ, ничего не предлагавший движку, — законное событие (§4), но
     // подтверждать в нём нечего (решение пользователя 2026-07-27).
     await runAuto(
-      { ...BASE, title: "Мир замер", descriptions: "Нарратив.", factuality: "unconfirmed" },
+      {
+        ...BASE,
+        title: "Мир замер",
+        descriptions: "Нарратив.",
+        receipt: receipt({ factuality: "unconfirmed" }),
+      },
       /Мир замер/
     );
 
@@ -125,8 +147,7 @@ describe("LLMPanel — канон отделён от предложенного
         ...BASE,
         title: "Волнения вспыхнули",
         descriptions: "Нарратив.",
-        factuality: "confirmed",
-        primitiveOutcomes: [outcome],
+        receipt: receipt({ factuality: "confirmed", applied: [outcome] }),
       },
       /Волнения вспыхнули/
     );

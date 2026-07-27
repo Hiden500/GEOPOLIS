@@ -10,6 +10,7 @@ import {
   primitiveTranslationSchema,
 } from "../llm/primitiveTranslation";
 import { buildPrimitivePreview } from "../primitives/outcomes";
+import { rejectionRecord } from "../primitives/rejections";
 import { applyPrimitiveTurn } from "../primitives/turnBatch";
 
 const router = express.Router();
@@ -121,7 +122,7 @@ router.post("/apply", (req, res) => {
     res.json({
       duplicate: result.duplicate,
       outcomes: result.outcomes,
-      rejected: result.rejected.map(r => ({ verb: r.verb, reason: r.reason })),
+      rejected: result.rejected.map(r => rejectionRecord(r.rejection, r.verb)),
     });
   } catch (error) {
     if (error instanceof ValidationError) {

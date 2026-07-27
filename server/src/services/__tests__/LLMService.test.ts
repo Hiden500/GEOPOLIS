@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { LLMService } from "../LLMService";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
+import { emptyResponseReceipt } from "@shared/types/ResponseReceipt";
 
 function gameWithUsaUssr(overrides: Partial<GameState> = {}): GameState {
   return createTestGameState({
@@ -25,7 +26,7 @@ describe("LLMService", () => {
     });
 
     it("включает дату, имя страны игрока и JSON-схему ответа", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain(game.currentDate);
       expect(prompt).toContain("USA");
       expect(prompt).toContain('"title"');
@@ -37,24 +38,24 @@ describe("LLMService", () => {
 
     it("## Language: требует писать нарратив на языке локали игры (2026-07-05)", () => {
       game.locale = "ru";
-      let prompt = service.generatePrompt();
+      let prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("## Language");
       expect(prompt).toContain("in Russian");
 
       game.locale = "en";
-      prompt = service.generatePrompt();
+      prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("in English");
     });
 
     it("сообщает LLM жёсткие пределы магнитуды (Hard limits)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("Hard limits");
       expect(prompt).toContain("±40");
       expect(prompt).toContain("±20");
     });
 
     it("Narrative requirements: требует минимум 3 абзаца и охват Spotlight-стран (2026-07-05, живой тест на Groq/Gemini)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("Narrative requirements");
       expect(prompt).toContain("at least 3 distinct paragraphs");
       expect(prompt).toContain("at least 2 of the");
@@ -62,25 +63,25 @@ describe("LLMService", () => {
     });
 
     it("Narrative requirements: запрещает страны вне ## Country IDs", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("MUST NOT mention, narrate about, or take action for any country");
       expect(prompt).toContain("## Country IDs");
     });
 
     it("Narrative requirements: требует историческую конкретику месяца, с оговоркой про альтернативную историю", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("concrete real historical events");
       expect(prompt).toContain("Deviations from real history");
     });
 
     it("Instructions: требует принять фантастическое намерение игрока как канон (2026-07-06)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("fundamentally incompatible with");
       expect(prompt).toContain("MUST accept it as canon");
     });
 
     it("Notable Developments: 'No notable developments this month' без фактов (2026-07-06)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(
         prompt.indexOf("## Notable Developments"),
         prompt.indexOf("## Recent Events")
@@ -88,16 +89,22 @@ describe("LLMService", () => {
       expect(section).toContain("No notable developments this month");
     });
 
-    it("Notable Developments: рендерит факт по видимой стране и очищает pendingWorldFacts (2026-07-06)", () => {
-      game.pendingWorldFacts.push({ countryId: "USA", text: "USA technology reached tier 1 in armor" });
+    it("Notable Developments: рендерит факт по видимой стране и НАЗЫВАЕТ его потреблённым, но не списывает (Милстоун 1)", () => {
+      const fact = { countryId: "USA", text: "USA technology reached tier 1 in armor" };
+      game.pendingWorldFacts.push(fact);
 
-      const prompt = service.generatePrompt();
+      const { prompt, consumption } = service.generatePrompt();
       const section = prompt.slice(
         prompt.indexOf("## Notable Developments"),
         prompt.indexOf("## Recent Events")
       );
       expect(section).toContain("USA technology reached tier 1 in armor");
-      expect(game.pendingWorldFacts).toEqual([]);
+
+      // Рендер ЧИСТЫЙ: факт остаётся в состоянии до тех пор, пока не станет
+      // известно, что промт доехал до модели. Ручной цикл (`GET /llm/prompt`)
+      // раньше терял его насовсем, если игрок не вставлял ответ.
+      expect(game.pendingWorldFacts).toEqual([fact]);
+      expect(consumption.facts).toEqual([fact]);
     });
 
     it("Historical Context: 'No historical hinge points active this period' с реальными id вне срабатывающих предусловий (2026-07-06)", () => {
@@ -112,7 +119,7 @@ describe("LLMService", () => {
       });
       const hpService = new LLMService(hpGame);
 
-      const prompt = hpService.generatePrompt();
+      const prompt = hpService.generatePrompt().prompt;
       const section = prompt.slice(
         prompt.indexOf("## Historical Context"),
         prompt.indexOf("## Recent Events")
@@ -131,17 +138,21 @@ describe("LLMService", () => {
       });
       const hpService = new LLMService(hpGame);
 
-      const prompt = hpService.generatePrompt();
+      const prompt = hpService.generatePrompt().prompt;
       const section = prompt.slice(
         prompt.indexOf("## Historical Context"),
         prompt.indexOf("## Recent Events")
       );
       expect(section).toContain("доктрина Трумэна");
-      expect(hpGame.hingePointShowCount["cold_war_hardening"]).toBe(1);
+      // Счётчик показов растёт не при рендере, а при обработке ответа: промт,
+      // который никто не увидел, показом не считается (Милстоун 1).
+      expect(hpGame.hingePointShowCount["cold_war_hardening"]).toBeUndefined();
+      expect(hpService.generatePrompt().consumption.hingePointIds)
+        .toContain("cold_war_hardening");
     });
 
     it("Chronicle: fallback-строка при пустой летописи (docs/plans/02_LLM_CONTRACT.md, Шаг 3)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Chronicle"), prompt.indexOf("## Recent Events"));
       expect(section).toContain("No chronicle yet (first year of the campaign)");
     });
@@ -156,13 +167,13 @@ describe("LLMService", () => {
         ],
       });
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Chronicle"), prompt.indexOf("## Recent Events"));
       expect(section).toContain("- 1946: Marshall Plan announced; Border skirmish");
       expect(section).toContain("- 1947: Cold War hardens");
     });
 
-    it("Chronicle: generatePrompt НЕ мутирует game.chronicle (в отличие от pendingWorldFacts/hingePointShowCount)", () => {
+    it("Chronicle: generatePrompt НЕ мутирует game.chronicle (как и всё остальное состояние)", () => {
       const g = createTestGameState({
         playerCountryId: "USA",
         countries: [createTestCountry({ id: "USA" })],
@@ -170,22 +181,22 @@ describe("LLMService", () => {
       });
       const svc = new LLMService(g);
 
-      const a = svc.generatePrompt();
-      const b = svc.generatePrompt();
+      const a = svc.generatePrompt().prompt;
+      const b = svc.generatePrompt().prompt;
 
       expect(g.chronicle).toEqual([{ year: 1946, summary: "X" }]);
       expect(a).toBe(b); // идемпотентность и с непустой летописью, не только с пустой
     });
 
     it("Spotlight Countries: секция требует минимум 2 конкретных страны, не просто упоминание", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
       expect(section).toContain("MUST give at least 2 of them a");
       expect(section).toContain("not just a passing mention");
     });
 
     it("Active Wars: 'No active wars', если войн нет (2026-07-06)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
       expect(section).toContain("No active wars");
     });
@@ -202,7 +213,7 @@ describe("LLMService", () => {
         territoryFlips: { toAttackers: 3, toDefenders: 0 },
         casualties: {},
       });
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
       expect(section).toContain("USA vs USSR");
       expect(section).toContain("attackers advancing");
@@ -220,25 +231,25 @@ describe("LLMService", () => {
         territoryFlips: { toAttackers: 0, toDefenders: 0 },
         casualties: {},
       });
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Active Wars"), prompt.indexOf("## Recent Events"));
       expect(section).toContain("No active wars");
     });
 
     it("Narrative requirements: инструктирует избегать прямой войны между ядерными державами (2026-07-06)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("nuclear-armed Major Powers");
       expect(prompt).toContain("proxy support");
     });
 
     it("Instructions: упоминает research_shift и его пределы (2026-07-06)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("research_shift");
       expect(prompt).toContain("diplomacy|war|peace|annex|puppet|sanction|guarantee|influence|research_shift|production_shift");
     });
 
     it("Instructions: упоминает production_shift и категории техники (War Phase 2, 2026-07-06)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("production_shift");
       expect(prompt).toContain("rifles/trucks/tanks");
       expect(prompt).toContain("submarines");
@@ -246,7 +257,7 @@ describe("LLMService", () => {
 
     it("Player Country: показывает ВВП/чел, индекс благосостояния и тиры технологий (2026-07-06)", () => {
       game.countries.find(c => c.id === "USA")!.technology.domains = { armor: 250, naval: 0 };
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
       expect(section).toContain("per capita");
       expect(section).toContain("Living standard index");
@@ -255,42 +266,42 @@ describe("LLMService", () => {
     });
 
     it("Player Country: 'no notable tech progress yet' без прогресса", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
       expect(section).toContain("no notable tech progress yet");
     });
 
     it("Major Powers: показывает тиры технологий по каждой державе (2026-07-06)", () => {
       game.countries.find(c => c.id === "USSR")!.technology.domains = { rocketry: 300 };
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
       expect(section).toContain("rocketry T3");
     });
 
     it("Память страны: показывает последние заголовки eventHistory по стране игрока, самые свежие первыми (2026-07-05, вопрос 7)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Event One", description: "", countries: ["USA"], factuality: "confirmed" },
-        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", countries: ["USA"], factuality: "confirmed" },
+        { id: "e1", date: "1946-01-01", title: "Event One", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USA"], factuality: "confirmed" } },
+        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USA"], factuality: "confirmed" } },
       ];
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
       expect(section).toContain("Recent: Event Two (1946-02-01); Event One (1946-01-01)");
     });
 
     it("Память страны: ничего не показывает, если по стране ещё не было событий", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
       expect(section).not.toContain("Recent:");
     });
 
     it("Память страны: у Major Powers окно ограничено MAJOR_RECENT_TITLES_COUNT (3)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", countries: ["USSR"], factuality: "confirmed" },
-        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", countries: ["USSR"], factuality: "confirmed" },
-        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", countries: ["USSR"], factuality: "confirmed" },
-        { id: "e4", date: "1946-04-01", title: "Newest", description: "", countries: ["USSR"], factuality: "confirmed" },
+        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
+        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
+        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
+        { id: "e4", date: "1946-04-01", title: "Newest", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
       ];
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
       expect(section).toContain("Recent: Newest (1946-04-01); Middle2 (1946-03-01); Middle1 (1946-02-01)");
       expect(section).not.toContain("Oldest");
@@ -304,13 +315,13 @@ describe("LLMService", () => {
           createTestCountry({ id: "AAA", name: { en: "Alpha" } }),
         ],
         eventHistory: [
-          { id: "e1", date: "1946-01-01", title: "Old", description: "", countries: ["AAA"], factuality: "confirmed" },
-          { id: "e2", date: "1946-02-01", title: "Mid", description: "", countries: ["AAA"], factuality: "confirmed" },
-          { id: "e3", date: "1946-03-01", title: "New", description: "", countries: ["AAA"], factuality: "confirmed" },
+          { id: "e1", date: "1946-01-01", title: "Old", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
+          { id: "e2", date: "1946-02-01", title: "Mid", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
+          { id: "e3", date: "1946-03-01", title: "New", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
         ],
       });
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
       expect(section).toContain("Recent: New (1946-03-01); Mid (1946-02-01)");
       expect(section).not.toContain("Old");
@@ -318,19 +329,19 @@ describe("LLMService", () => {
 
     it("Player Intent: включает текст намерения игрока, если оно задано", () => {
       game.playerIntent = "наращиваем добычу угля в 12: Силезия";
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("## Player Intent");
       expect(prompt).toContain("наращиваем добычу угля в 12: Силезия");
     });
 
     it("Player Intent: fallback-строка, если намерение пустое", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Player Intent"), prompt.indexOf("## Country IDs"));
       expect(section).toContain("No player intent this cycle");
     });
 
     it("Country IDs: даёт реальные id упомянутых стран, не только имена (регрессия 2026-07-04: SOV/ROM вместо SUN/ROU)", () => {
-      const prompt = service.generatePrompt();
+      const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("## Country IDs");
       expect(prompt).toContain("- USA: USA");
       expect(prompt).toContain("- USSR: USSR");
@@ -351,7 +362,7 @@ describe("LLMService", () => {
         ],
       });
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       expect(prompt).toContain("- ROU: Romania");
       expect(prompt).toContain("- SUN: Soviet Union");
     });
@@ -368,14 +379,14 @@ describe("LLMService", () => {
         ],
       });
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       const idsSection = prompt.slice(prompt.indexOf("## Country IDs"), prompt.indexOf("## Instructions"));
       expect(idsSection).not.toContain("ATLANTIS");
     });
 
     it("детерминирован: два вызова дают одинаковый промт", () => {
-      const a = service.generatePrompt();
-      const b = service.generatePrompt();
+      const a = service.generatePrompt().prompt;
+      const b = service.generatePrompt().prompt;
       expect(a).toBe(b);
     });
 
@@ -388,7 +399,7 @@ describe("LLMService", () => {
         ],
       });
       const svc = new LLMService(g);
-      svc.generatePrompt();
+      svc.generatePrompt().prompt;
       // generatePrompt сортирует копию, исходный порядок сохраняется
       expect(g.countries.map(c => c.id)).toEqual(["WEAK", "STRONG"]);
     });
@@ -412,11 +423,14 @@ describe("LLMService", () => {
             date: g.currentDate,
             title: `Event at month ${month}`,
             description: "x",
-            countries: ["USA"],
             // Летопись берёт только подтверждённое (ChronicleTick.ts), поэтому
             // накопление за 3 года проверяется на событиях, чьи предложения
             // движок применил целиком.
-            factuality: "confirmed",
+            receipt: {
+              ...emptyResponseReceipt(g.currentDate),
+              countries: ["USA"],
+              factuality: "confirmed",
+            },
           });
         }
         simulateMonth(g);
@@ -425,7 +439,7 @@ describe("LLMService", () => {
       expect(g.chronicle.length).toBeGreaterThanOrEqual(3);
 
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
 
       expect(prompt).toContain("## Chronicle");
       const section = prompt.slice(prompt.indexOf("## Chronicle"), prompt.indexOf("## Recent Events"));
@@ -454,7 +468,7 @@ describe("LLMService", () => {
     it("выбирает первые LLM_SPOTLIGHT_COUNT не-major стран по id, начиная с курсора 0", () => {
       const g = gameWithRoster();
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
       // Пул по id: AAA, BBB, CCC, DDD, EEE, FFF — первые 5 от курсора 0
       expect(section).toContain("Alpha");
@@ -468,8 +482,8 @@ describe("LLMService", () => {
     it("generatePrompt не двигает курсор ротации (идемпотентно)", () => {
       const g = gameWithRoster();
       const svc = new LLMService(g);
-      svc.generatePrompt();
-      svc.generatePrompt();
+      svc.generatePrompt().prompt;
+      svc.generatePrompt().prompt;
       expect(g.llmSpotlightCursor ?? 0).toBe(0);
     });
 
@@ -482,7 +496,7 @@ describe("LLMService", () => {
       // Пул из 6 стран, шаг 5 → курсор 5
       expect(g.llmSpotlightCursor).toBe(5);
 
-      const promptAfter = svc.generatePrompt();
+      const promptAfter = svc.generatePrompt().prompt;
       const section = promptAfter.slice(
         promptAfter.indexOf("## Spotlight Countries"),
         promptAfter.indexOf("## Active Wars")
@@ -499,7 +513,7 @@ describe("LLMService", () => {
     it("майоры никогда не попадают в пул ротации", () => {
       const g = gameWithRoster();
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       const majorsSection = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
       expect(majorsSection).toContain("USA");
     });
@@ -507,14 +521,14 @@ describe("LLMService", () => {
     it("пустой пул (все страны major) не роняет промт", () => {
       const g = gameWithUsaUssr(); // и USA, и USSR — major
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       expect(prompt).toContain("No spotlight countries this cycle");
     });
 
     it("страны в ротации попадают в ## Country IDs", () => {
       const g = gameWithRoster();
       const svc = new LLMService(g);
-      const prompt = svc.generatePrompt();
+      const prompt = svc.generatePrompt().prompt;
       expect(prompt).toContain("- AAA: Alpha");
       expect(prompt).toContain("- EEE: Echo");
     });
@@ -693,8 +707,8 @@ describe("LLMService", () => {
 
       expect(result.success).toBe(true);
       expect(result.descriptions).toBe("США улучшают отношения с СССР.");
-      expect(result.appliedActions).toHaveLength(1);
-      expect(result.rejectedActions).toHaveLength(0);
+      expect(result.receipt.actions.applied).toHaveLength(1);
+      expect(result.receipt.actions.rejected).toHaveLength(0);
 
       expect(usa().diplomacy.relations["USSR"]).toBe(20);
       expect(game.llmResponse).toBe(validResponse);
@@ -705,7 +719,7 @@ describe("LLMService", () => {
       expect(event.id).toBe("llm-turn-1");
       expect(event.date).toBe(game.currentDate);
       expect(event.description).toBe("США улучшают отношения с СССР.");
-      expect(event.countries).toEqual(["USA", "USSR"]);
+      expect(event.receipt.countries).toEqual(["USA", "USSR"]);
     });
 
     it("валидный ответ: очищает playerIntent (одноразовое, не история)", () => {
@@ -764,7 +778,7 @@ describe("LLMService", () => {
         const result = service.processResponse(annexOnly);
 
         expect(result.success).toBe(true);
-        expect(result.appliedActions).toEqual([]);
+        expect(result.receipt.actions.applied).toEqual([]);
         expect(result.narrativeCanonized).toBe(false);
         // Текст, описывающий несостоявшееся присоединение, наружу не уходит
         // вовсе — поля, которого нет, нельзя отрисовать по ошибке.
@@ -772,8 +786,8 @@ describe("LLMService", () => {
         expect(result.descriptions).toBeUndefined();
         expect(game.eventHistory).toHaveLength(0);
 
-        expect(result.rejectedActions).toHaveLength(1);
-        expect(result.rejectedActions[0]!.reason).toContain("no apply logic");
+        expect(result.receipt.actions.rejected).toHaveLength(1);
+        expect(result.receipt.actions.rejected[0]!.reason).toContain("no apply logic");
       });
 
       it("повтор того же ответа тоже не канонизируется (не остаётся лазейкой на второй заход)", () => {
@@ -794,13 +808,13 @@ describe("LLMService", () => {
         }));
 
         expect(result.narrativeCanonized).toBe(true);
-        expect(result.appliedActions.map(a => a.type)).toEqual(["diplomacy"]);
-        expect(result.rejectedActions).toHaveLength(1);
+        expect(result.receipt.actions.applied.map(a => a.type)).toEqual(["diplomacy"]);
+        expect(result.receipt.actions.rejected).toHaveLength(1);
         expect(usa().diplomacy.relations["USSR"]).toBe(5);
       });
 
       it("промт называет эти два глагола неработающими — модель узнаёт правило до попытки", () => {
-        const prompt = service.generatePrompt();
+        const prompt = service.generatePrompt().prompt;
         expect(prompt).toContain('"annex" and "puppet" exist in the type list');
         expect(prompt).toContain("always rejected and never");
       });
@@ -846,9 +860,9 @@ describe("LLMService", () => {
       }));
 
       expect(result.success).toBe(true);
-      expect(result.appliedActions).toHaveLength(1);
-      expect(result.rejectedActions).toHaveLength(1);
-      expect(result.rejectedActions[0]!.reason).toContain("Source country not found");
+      expect(result.receipt.actions.applied).toHaveLength(1);
+      expect(result.receipt.actions.rejected).toHaveLength(1);
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("Source country not found");
       expect(usa().diplomacy.relations["USSR"]).toBe(10);
     });
 
@@ -862,9 +876,9 @@ describe("LLMService", () => {
       }));
 
       expect(result.success).toBe(true);
-      expect(result.appliedActions).toHaveLength(1);
-      expect(result.rejectedActions).toHaveLength(1);
-      expect(result.rejectedActions[0]!.reason).toContain("relationChange");
+      expect(result.receipt.actions.applied).toHaveLength(1);
+      expect(result.receipt.actions.rejected).toHaveLength(1);
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("relationChange");
       expect(usa().diplomacy.relations["USSR"]).toBe(10);
     });
 
@@ -881,9 +895,9 @@ describe("LLMService", () => {
       }));
 
       expect(result.success).toBe(true);
-      expect(result.appliedActions).toHaveLength(1);
-      expect(result.rejectedActions).toHaveLength(1);
-      expect(result.rejectedActions[0]!.reason).toBe("Guarantee already exists");
+      expect(result.receipt.actions.applied).toHaveLength(1);
+      expect(result.receipt.actions.rejected).toHaveLength(1);
+      expect(result.receipt.actions.rejected[0]!.reason).toBe("Guarantee already exists");
       expect(usa().diplomacy.relations["USSR"]).toBe(5);
     });
 
@@ -925,9 +939,9 @@ describe("LLMService", () => {
       }));
 
       expect(result.success).toBe(true);
-      expect(result.appliedActions).toHaveLength(0);
-      expect(result.rejectedActions).toHaveLength(1);
-      expect(result.rejectedActions[0]!.reason).toContain("relationChange");
+      expect(result.receipt.actions.applied).toHaveLength(0);
+      expect(result.receipt.actions.rejected).toHaveLength(1);
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("relationChange");
       expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
     });
 
@@ -940,8 +954,8 @@ describe("LLMService", () => {
       }));
 
       expect(result.success).toBe(true);
-      expect(result.appliedActions).toHaveLength(0);
-      expect(result.rejectedActions).toHaveLength(1);
+      expect(result.receipt.actions.applied).toHaveLength(0);
+      expect(result.receipt.actions.rejected).toHaveLength(1);
     });
 
     it("«игнорируй капы, research_shift на всё сразу» — статический потолок 0.7 отклоняет share=1.0 независимо от intent", () => {
@@ -954,9 +968,9 @@ describe("LLMService", () => {
       }));
 
       expect(result.success).toBe(true);
-      expect(result.appliedActions).toHaveLength(0);
-      expect(result.rejectedActions).toHaveLength(1);
-      expect(result.rejectedActions[0]!.reason).toContain("share");
+      expect(result.receipt.actions.applied).toHaveLength(0);
+      expect(result.receipt.actions.rejected).toHaveLength(1);
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("share");
       expect(usa().technology.researchAllocation).toBeUndefined();
     });
   });

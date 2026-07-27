@@ -43,6 +43,12 @@ import {
 import { createTestRegion } from "../../test-utils/fixtures";
 import { createGame } from "../../game/CreateGame";
 import { type GameState } from "@shared/types/GameState";
+import { rejectionPromptText } from "../rejections";
+import { type RejectedPrimitive } from "../types";
+
+/** Английский рендер причины — тот, что уходит в промт (см. `rejections.ts`). */
+const promptTextOf = (rejected: RejectedPrimitive): string =>
+  rejectionPromptText(rejected.rejection);
 
 /**
  * Контракт валидатора примитивов (docs/PRIMITIVES.md §3): validate → compute →
@@ -160,18 +166,22 @@ describe("incite_unrest", () => {
     }]);
 
     expect(result.applied).toHaveLength(0);
-    expect(result.rejected[0]!.reason).toMatch(/distance/i);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/distance/i);
     expect(state.groupImpactMemory).toHaveLength(0);
   });
 
-  it("отклоняется без указания группы", () => {
-    const state = game();
-    const result = applyPrimitiveBatch(state, [{
-      verb: "incite_unrest",
-      sourceCountryId: "USA",
-      target: { regionId: TEST_REGION_NATIONAL },
-    }]);
-    expect(result.rejected[0]!.reason).toMatch(/requires a target group/);
+  it("без указания группы не проходит СХЕМУ — до движка такой примитив не доезжает", () => {
+    // С Милстоуна 1 обязательность группы держит форма глагола, а не
+    // предпосылка движка: `incite_unrest` объявлен с целью
+    // `{regionId, groupId}`, и запись без группы отклоняется раньше — там же,
+    // где отклоняется чужое поле. Проверять это применением батча больше
+    // нельзя: такой литерал не компилируется, что и есть смысл правки.
+    const parsed = parsePrimitives([
+      { verb: "incite_unrest", sourceCountryId: "USA", target: { regionId: TEST_REGION_NATIONAL } },
+    ]);
+    expect(parsed.primitives).toHaveLength(0);
+    expect(parsed.invalid[0]!.verb).toBe("incite_unrest");
+    expect(parsed.invalid[0]!.reason).toMatch(/groupId/);
   });
 });
 
@@ -204,7 +214,7 @@ describe("repress", () => {
     }]);
 
     expect(result.applied).toHaveLength(0);
-    expect(result.rejected[0]!.reason).toMatch(/does not control/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/does not control/);
   });
 
   it("качественный хинт интенсивности двигает величину внутри коридора", () => {
@@ -301,7 +311,7 @@ describe("enact_reform", () => {
     }]);
 
     expect(result.applied).toHaveLength(0);
-    expect(result.rejected[0]!.reason).toMatch(/[Gg]overnment support/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/[Gg]overnment support/);
   });
 
   it("отклоняется без указанного направления", () => {
@@ -309,7 +319,7 @@ describe("enact_reform", () => {
     const result = applyPrimitiveBatch(state, [{
       verb: "enact_reform", sourceCountryId: "SUN", target: { countryId: "SUN" },
     }]);
-    expect(result.rejected[0]!.reason).toMatch(/at least one direction/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/at least one direction/);
   });
 
   /**
@@ -330,17 +340,17 @@ describe("enact_reform", () => {
     }]);
 
     expect(result.applied).toHaveLength(0);
-    expect(result.rejected[0]!.reason).toMatch(/cannot enact a reform in USA/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/cannot enact a reform in/);
     // Ни координат, ни списанной поддержки — reject целиком.
     expect(state.countries.find(c => c.id === "USA")!.politics).toEqual(usaBefore);
   });
 
-  it("цель по умолчанию — сама страна-источник", () => {
+  it("цель называется явно: реформа адресуется стране-источнику", () => {
     const state = game();
     const result = applyPrimitiveBatch(state, [{
       verb: "enact_reform",
       sourceCountryId: "SUN",
-      target: {},
+      target: { countryId: "SUN" },
       params: { politicalDirection: "democratic" },
     }]);
 
@@ -367,8 +377,8 @@ describe("enact_reform", () => {
     }]);
 
     expect(result.applied).toEqual([]);
-    expect(result.rejected[0]!.reason).toMatch(/would not move anything/);
-    expect(result.rejected[0]!.reason).toMatch(/political axis is already at -1\.00/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/would not move anything/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/political axis is already at -1\.00/);
 
     const after = state.countries.find(c => c.id === "SUN")!.politics;
     expect(after.governmentSupport).toBe(supportBefore);
@@ -388,7 +398,7 @@ describe("enact_reform", () => {
 
     // «Полусобытий» не бывает: экономическую ось тоже не двигаем.
     expect(result.applied).toEqual([]);
-    expect(result.rejected[0]!.reason).toMatch(/political axis is already at -1\.00/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/political axis is already at -1\.00/);
     expect(state.countries.find(c => c.id === "SUN")!.politics.ideologyCoordinates)
       .toEqual({ economic: -0.5, political: -1 });
   });
@@ -458,7 +468,7 @@ describe("spawn_incident", () => {
     }]);
 
     expect(result.applied).toHaveLength(0);
-    expect(result.rejected[0]!.reason).toMatch(/below the .* threshold/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/below the .* threshold/);
     expect(state.mapFeatures).toHaveLength(0);
   });
 
@@ -486,7 +496,7 @@ describe("spawn_incident", () => {
 
       expect(protest.applied).toHaveLength(1);
       expect(uprising.applied).toHaveLength(0);
-      expect(uprising.rejected[0]!.reason).toMatch(/an uprising needs/);
+      expect(promptTextOf(uprising.rejected[0]!)).toMatch(/an uprising needs/);
       expect(state.mapFeatures).toHaveLength(0);
     });
 
@@ -513,7 +523,7 @@ describe("spawn_incident", () => {
       }]);
 
       expect(result.applied).toEqual([]);
-      expect(result.rejected[0]!.reason).toMatch(/no border a dispute could be about/);
+      expect(promptTextOf(result.rejected[0]!)).toMatch(/no border a dispute could be about/);
       expect(state.mapFeatures).toHaveLength(0);
     });
 
@@ -541,7 +551,7 @@ describe("spawn_incident", () => {
       }]);
 
       expect(result.applied).toEqual([]);
-      expect(result.rejected[0]!.reason).toMatch(/by an ally/);
+      expect(promptTextOf(result.rejected[0]!)).toMatch(/by an ally/);
     });
 
     /**
@@ -581,7 +591,7 @@ describe("spawn_incident", () => {
         target: { regionId: peak.id }, params: { incidentKind: "uprising" },
       }]);
       expect(straight.applied).toEqual([]);
-      expect(straight.rejected[0]!.reason).toMatch(/an uprising needs/);
+      expect(promptTextOf(straight.rejected[0]!)).toMatch(/an uprising needs/);
 
       // Цепочка §4 подводит мир к восстанию там же, где он к нему ближе всего.
       const chained = createGame("1946", "SUN", "ru", 1);
@@ -714,8 +724,8 @@ describe("контракт батча", () => {
       // Причина отказа мягкого называет виновника, а не выглядит его
       // собственной ошибкой: модель обязана чинить структурный, а не волнения.
       const rolledBack = result.rejected.find(r => r.verb === "incite_unrest")!;
-      expect(rolledBack.reason).toMatch(/Rolled back: the structural enact_reform/);
-      expect(result.rejected.find(r => r.verb === "enact_reform")!.reason)
+      expect(promptTextOf(rolledBack)).toMatch(/Rolled back: the structural enact_reform/);
+      expect(promptTextOf(result.rejected.find(r => r.verb === "enact_reform")!))
         .toMatch(/at least one direction/);
     });
 
@@ -748,10 +758,10 @@ describe("контракт батча", () => {
 
       expect(result.applied).toEqual([]);
       expect(result.rejected.some(r =>
-        new RegExp(`At most ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural`).test(r.reason)
+        new RegExp(`At most ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural`).test(promptTextOf(r))
       )).toBe(true);
       // Откачены обе половины уже применённого: и мягкий, и первый структурный.
-      expect(result.rejected.filter(r => /^Rolled back/.test(r.reason)).map(r => r.verb).sort())
+      expect(result.rejected.filter(r => /^Rolled back/.test(promptTextOf(r))).map(r => r.verb).sort())
         .toEqual(["enact_reform", "incite_unrest"]);
     });
   });
@@ -772,10 +782,14 @@ describe("контракт батча", () => {
     expect(result.applied).toHaveLength(1);
     expect(result.rejected).toHaveLength(9);
     for (const rejection of result.rejected) {
-      expect(rejection.reason).toMatch(/per target per turn/);
-      // Диагностика называет саму цель, а не только факт дубля.
-      expect(rejection.reason).toContain(`region ${TEST_REGION_NATIONAL}`);
-      expect(rejection.reason).toContain(TEST_GROUP_TITULAR);
+      expect(promptTextOf(rejection)).toMatch(/per target per turn/);
+      // Диагностика называет саму цель, а не только факт дубля, — и называет её
+      // ЧЕЛОВЕЧЕСКИМ именем: та же причина уходит игроку, а сырой `lithuanians`
+      // рядом с локализованным именем региона выдавал идентификатор кода за имя
+      // (docs/PRIMITIVES.md §3, Милстоун 1).
+      expect(promptTextOf(rejection)).toContain(`region ${TEST_REGION_NATIONAL}`);
+      expect(promptTextOf(rejection)).toContain(titularName(state));
+      expect(promptTextOf(rejection)).not.toContain(TEST_GROUP_TITULAR);
     }
 
     // И главное: поле памяти получило ровно один удар, а не десять. Именно так
@@ -826,7 +840,7 @@ describe("контракт батча", () => {
 
     expect(result.applied).toHaveLength(1);
     expect(result.rejected).toHaveLength(1);
-    expect(result.rejected[0]!.reason).toContain(TEST_GROUP_TITULAR);
+    expect(promptTextOf(result.rejected[0]!)).toContain(titularName(state));
   });
 
   it("цель занимает только ПРИМЕНЁННЫЙ примитив — откаченный её не запирает", () => {
@@ -842,7 +856,7 @@ describe("контракт батча", () => {
     expect(result.rejected).toHaveLength(1);
     // Причина — настоящая (нет контроля), а не «дубль»: невозможный примитив не
     // должен маскировать свою диагностику капом.
-    expect(result.rejected[0]!.reason).toMatch(/does not control/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/does not control/);
   });
 
   it("кап накопления не мешает законным комбинациям по разным полям и парам", () => {
@@ -955,6 +969,11 @@ describe("контракт батча", () => {
  * 0.613 при `mild`, тогда как сильнейший ОДИНОЧНЫЙ примитив по этому полю
  * (`incite_unrest(severe)`) даёт там 0.20.
  */
+/** Локализованное имя титульной группы — то, что попадает в причину отказа. */
+function titularName(state: GameState): string {
+  return getText(state.ethnicGroups.find(g => g.id === TEST_GROUP_TITULAR)!.names, LLM_LOCALE);
+}
+
 describe("кольцо соседей: побочный эффект не обходит коридор частотой", () => {
   const RING_HUB = 900;
   const RING_SHARE = 0.88;
@@ -1010,8 +1029,8 @@ describe("кольцо соседей: побочный эффект не обх
       expect(result.applied.length).toBeGreaterThan(0);
       expect(result.rejected.length).toBeGreaterThan(0);
       for (const rejection of result.rejected) {
-        expect(rejection.reason).toMatch(/Turn impact ceiling/);
-        expect(rejection.reason).toContain(`region ${RING_HUB}`);
+        expect(promptTextOf(rejection)).toMatch(/Turn impact ceiling/);
+        expect(promptTextOf(rejection)).toContain(`region ${RING_HUB}`);
       }
     }
   );
@@ -1047,7 +1066,7 @@ describe("кольцо соседей: побочный эффект не обх
     expect(memory.emboldenment).toBeLessThanOrEqual(IMPACT_FIELD_TURN_CEILING.emboldenment);
     expect(result.applied.length).toBeGreaterThan(0);
     expect(result.rejected.length).toBeGreaterThan(0);
-    expect(result.rejected[0]!.reason).toMatch(/Turn impact ceiling/);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/Turn impact ceiling/);
   });
 
   it("кап накопления держится и при смягчении капа «verb на цель»", () => {
@@ -1117,7 +1136,7 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
       }]);
 
       expect(result.applied).toHaveLength(0);
-      expect(result.rejected[0]!.reason).toMatch(/outside the repress palette/);
+      expect(promptTextOf(result.rejected[0]!)).toMatch(/outside the repress palette/);
       expect(state.groupImpactMemory).toHaveLength(0);
     } finally {
       (PRIMITIVE_PALETTE as Record<PrimitiveVerb, readonly string[]>).repress = original;
@@ -1381,9 +1400,9 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
         const result = applyPrimitiveBatch(state, [repressRegion]);
 
         expect(result.applied).toEqual([]);
-        expect(result.rejected[0]!.reason).toMatch(/disagrees with what it changed/);
-        expect(result.rejected[0]!.reason).toMatch(/alienation on region 187/);
-        expect(result.rejected[0]!.reason).toMatch(/reported 0\.000, actually 0\.1/);
+        expect(promptTextOf(result.rejected[0]!)).toMatch(/disagrees with what it changed/);
+        expect(promptTextOf(result.rejected[0]!)).toMatch(new RegExp(`impact:${TEST_REGION_NATIONAL}/[^.]+\.alienation`));
+        expect(promptTextOf(result.rejected[0]!)).toMatch(/reported 0\.000, actually 0\.1/);
         // Откат целиком: применённого следа в мире не осталось.
         expect(state.groupImpactMemory).toHaveLength(0);
       }
@@ -1401,8 +1420,8 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
         const result = applyPrimitiveBatch(state, [repressRegion]);
 
         expect(result.applied).toEqual([]);
-        expect(result.rejected[0]!.reason).toMatch(/concession on region 187/);
-        expect(result.rejected[0]!.reason).toMatch(/reported 0\.500, actually 0\.000/);
+        expect(promptTextOf(result.rejected[0]!)).toMatch(new RegExp(`impact:${TEST_REGION_NATIONAL}/[^.]+\.concession`));
+        expect(promptTextOf(result.rejected[0]!)).toMatch(/reported 0\.500, actually 0\.000/);
         expect(state.groupImpactMemory).toHaveLength(0);
       }
     );
@@ -1418,8 +1437,8 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
         const result = applyPrimitiveBatch(state, [repressRegion]);
 
         expect(result.applied).toEqual([]);
-        expect(result.rejected[0]!.reason).toMatch(/suppression on region 187/);
-        expect(result.rejected[0]!.reason).toMatch(/reported 0\.001, actually 0\.[1-9]/);
+        expect(promptTextOf(result.rejected[0]!)).toMatch(new RegExp(`impact:${TEST_REGION_NATIONAL}/[^.]+\.suppression`));
+        expect(promptTextOf(result.rejected[0]!)).toMatch(/reported 0\.001, actually 0\.[1-9]/);
         expect(state.groupImpactMemory).toHaveLength(0);
       }
     );
@@ -1543,7 +1562,7 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     // слой, а не валидатор. Без этой ловушки NaN-шаг уехал бы в координаты, и
     // недовольство всех регионов SUN стало бы NaN.
     expect(result.applied).toHaveLength(0);
-    expect(result.rejected[0]!.reason).toMatch(/finite/i);
+    expect(promptTextOf(result.rejected[0]!)).toMatch(/finite/i);
     expect(Number.isNaN(discontentOf(state, TEST_REGION_NATIONAL))).toBe(false);
   });
 });

@@ -47,19 +47,22 @@ const DEFAULT_MODEL = "gemini-3.1-flash-lite";
  * discriminant-поля `type`) в одну ветку с объединённым `type.enum`. Порядок
  * входных веток определяет порядок результата (первое вхождение формы).
  */
-function mergeIdenticalShapeBranches(branches: Record<string, unknown>[]): Record<string, unknown>[] {
+function mergeIdenticalShapeBranches(
+  branches: Record<string, unknown>[],
+  discriminant: string
+): Record<string, unknown>[] {
   const groups: { shapeKey: string; branch: Record<string, unknown>; values: unknown[] }[] = [];
 
   for (const branch of branches) {
     const properties = { ...(branch.properties as Record<string, unknown>) };
-    const typeSchema = properties.type as Record<string, unknown>;
-    delete properties.type;
+    const discriminantSchema = properties[discriminant] as Record<string, unknown>;
+    delete properties[discriminant];
 
     const shapeKey = JSON.stringify({
       properties,
-      required: ((branch.required as string[]) || []).filter(f => f !== "type"),
+      required: ((branch.required as string[]) || []).filter(f => f !== discriminant),
     });
-    const discriminantValue = (typeSchema.enum as unknown[])[0];
+    const discriminantValue = (discriminantSchema.enum as unknown[])[0];
 
     const existing = groups.find(g => g.shapeKey === shapeKey);
     if (existing) {
@@ -73,7 +76,7 @@ function mergeIdenticalShapeBranches(branches: Record<string, unknown>[]): Recor
     ...branch,
     properties: {
       ...(branch.properties as Record<string, unknown>),
-      type: { type: "string", enum: values },
+      [discriminant]: { type: "string", enum: values },
     },
   }));
 }
@@ -88,13 +91,59 @@ function mergeIdenticalShapeBranches(branches: Record<string, unknown>[]): Recor
  * (`branch.properties.type` — undefined). Схлопывание применимо только если
  * ВСЕ ветки — объекты с `type`-дискриминантом в properties.
  */
-function isMergeableDiscriminatedBranch(branch: Record<string, unknown>): boolean {
+function isMergeableDiscriminatedBranch(
+  branch: Record<string, unknown>,
+  discriminant: string
+): boolean {
+  if (branch.type !== "object") return false;
+  const properties = branch.properties;
+  if (typeof properties !== "object" || properties === null) return false;
+  const schema = (properties as Record<string, unknown>)[discriminant];
   return (
-    branch.type === "object" &&
-    typeof branch.properties === "object" &&
-    branch.properties !== null &&
-    "type" in (branch.properties as Record<string, unknown>)
+    typeof schema === "object" &&
+    schema !== null &&
+    Array.isArray((schema as Record<string, unknown>).enum) &&
+    ((schema as Record<string, unknown>).enum as unknown[]).length === 1
   );
+}
+
+/**
+ * Имя поля-дискриминанта, общего для всех веток, — вместо захардкоженного
+ * `type` (обобщено Милстоуном 1).
+ *
+ * Стало нужно потому, что дискриминированный union появился второй:
+ * `LLMActionSchema` различает ветки по `type`, а примитив — по `verb`. Пока имя
+ * было зашито, схема примитивов не схлопывалась вовсе, и в неё уезжали
+ * СТРУКТУРНО ОДИНАКОВЫЕ ветки (`repress` и `grant_autonomy` — одна и та же
+ * форма цели и параметров), то есть ровно тот случай, на котором живой вызов
+ * возвращал 400 (см. шапку модуля).
+ *
+ * Дискриминант опознаётся по форме, а не по имени: это поле, которое есть у
+ * КАЖДОЙ ветки и в каждой описано как enum ровно из одного значения (`const`,
+ * приведённый `enrichForGemini` к enum). Если таких полей несколько или ни
+ * одного — схлопывание не применяется вовсе: угадывать, какое из них
+ * дискриминант, значило бы менять смысл схемы наугад.
+ */
+function discriminantOf(branches: Record<string, unknown>[]): string | undefined {
+  const first = branches[0];
+  if (!first || typeof first.properties !== "object" || first.properties === null) return undefined;
+
+  const candidates = Object.keys(first.properties as Record<string, unknown>).filter(key =>
+    branches.every(branch => isMergeableDiscriminatedBranch(branch, key))
+  );
+  return candidates.length === 1 ? candidates[0] : undefined;
+}
+
+/**
+ * Схлопывание ветвей с одинаковой формой, если у union есть однозначный
+ * дискриминант; иначе ветки остаются как есть.
+ */
+function mergeBranches(branches: unknown[]): Record<string, unknown>[] {
+  const enriched = branches.map(enrichForGemini) as Record<string, unknown>[];
+  const discriminant = discriminantOf(enriched);
+  return discriminant === undefined
+    ? enriched
+    : mergeIdenticalShapeBranches(enriched, discriminant);
 }
 
 function enrichForGemini(node: unknown): unknown {
@@ -113,16 +162,10 @@ function enrichForGemini(node: unknown): unknown {
   }
 
   if (Array.isArray(obj.oneOf)) {
-    const enriched = obj.oneOf.map(enrichForGemini) as Record<string, unknown>[];
-    obj.anyOf = enriched.every(isMergeableDiscriminatedBranch)
-      ? mergeIdenticalShapeBranches(enriched)
-      : enriched;
+    obj.anyOf = mergeBranches(obj.oneOf);
     delete obj.oneOf;
   } else if (Array.isArray(obj.anyOf)) {
-    const enriched = obj.anyOf.map(enrichForGemini) as Record<string, unknown>[];
-    obj.anyOf = enriched.every(isMergeableDiscriminatedBranch)
-      ? mergeIdenticalShapeBranches(enriched)
-      : enriched;
+    obj.anyOf = mergeBranches(obj.anyOf);
   }
 
   if (obj.properties && typeof obj.properties === "object") {

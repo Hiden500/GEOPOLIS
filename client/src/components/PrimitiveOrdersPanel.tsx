@@ -8,6 +8,7 @@ import {
   type ApplyPrimitivesResult,
 } from "../api/gameApi";
 import { usePrimitiveOutcomeText } from "./primitiveOutcomeText";
+import { usePrimitiveRejectionText } from "./primitiveRejectionText";
 
 /**
  * Гибридный интерфейс приказа (docs/PRIMITIVES.md §1).
@@ -321,14 +322,15 @@ export function PrimitiveOrdersPanel({
  *
  * Отказ показывается как «Не удалось: <действие>» плюс техническая причина
  * отдельной строкой (docs/PRIMITIVES.md §3 — «не удалось: причина»). Имя
- * глагола локализуется; сама причина приходит с движка английским текстом и
- * пока не локализуется — она диагностическая, и придумывать ей перевод на
- * клиенте значило бы пересказывать правило движка своими словами, рискуя
- * разойтись с ним.
+ * глагола и сама причина локализуются: с Милстоуна 1 движок присылает код
+ * отказа и параметры, а не английскую строку. Величин несостоявшегося действия
+ * в причине нет по построению — они остаются в английском рендере для промта
+ * (docs/PRIMITIVES.md §3).
  */
 function OrderResult({ result }: { result: ApplyPrimitivesResult }) {
   const { t } = useTranslation("primitiveOrders");
   const outcomeText = usePrimitiveOutcomeText();
+  const rejectionText = usePrimitiveRejectionText();
 
   if (result.duplicate) return <p role="status">{t("result.duplicate")}</p>;
 
@@ -362,7 +364,7 @@ function OrderResult({ result }: { result: ApplyPrimitivesResult }) {
                   defaultValue: t("verb.unknown"),
                 })}
                 <br />
-                <small>{rejection.reason}</small>
+                <small>{rejectionText(rejection)}</small>
               </li>
             ))}
           </ul>

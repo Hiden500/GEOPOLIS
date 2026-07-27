@@ -179,9 +179,9 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
     }));
 
     expect(result.success).toBe(true);
-    expect(result.appliedActions).toHaveLength(1);
-    expect(result.rejectedActions).toHaveLength(1);
-    expect(result.rejectedActions[0]!.reason).toBeTruthy();
+    expect(result.receipt.actions.applied).toHaveLength(1);
+    expect(result.receipt.actions.rejected).toHaveLength(1);
+    expect(result.receipt.actions.rejected[0]!.reason).toBeTruthy();
   });
 
   it("за-каповое значение отклоняется точечно, с непустой причиной — не обваливает весь ответ", () => {
@@ -194,9 +194,9 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
     }));
 
     expect(result.success).toBe(true);
-    expect(result.appliedActions).toHaveLength(0);
-    expect(result.rejectedActions).toHaveLength(1);
-    expect(result.rejectedActions[0]!.reason).toBeTruthy();
+    expect(result.receipt.actions.applied).toHaveLength(0);
+    expect(result.receipt.actions.rejected).toHaveLength(1);
+    expect(result.receipt.actions.rejected[0]!.reason).toBeTruthy();
   });
 
   // "Сырые координаты в действии — отклоняются" (формулировка правила 6 в
@@ -247,8 +247,8 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
       }],
     }));
 
-    expect(result.appliedActions).toHaveLength(1);
-    const applied = result.appliedActions[0]!;
+    expect(result.receipt.actions.applied).toHaveLength(1);
+    const applied = result.receipt.actions.applied[0]!;
     expect(applied.type === "diplomacy" && (applied.data as Record<string, unknown>)["lat"]).toBeUndefined();
     expect(applied.type === "diplomacy" && (applied.data as Record<string, unknown>)["lng"]).toBeUndefined();
     expect(game.countries.find(c => c.id === "USA")!.diplomacy.relations["SUN"]).toBe(5);

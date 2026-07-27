@@ -14,8 +14,8 @@
  * Тестовый v0 среза — пять глаголов из ~18 полного алфавита.
  */
 
-import { type PrimitiveIntensity } from "@shared/types/politics/PrimitiveIntensity";
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
+import { type PrimitiveRejection } from "./rejections";
 
 export const PRIMITIVE_VERBS = [
   "incite_unrest",
@@ -61,26 +61,18 @@ export type ReformPoliticalDirection = (typeof REFORM_POLITICAL_DIRECTIONS)[numb
 export const INCIDENT_KINDS = ["protest", "uprising", "border_dispute"] as const;
 export type IncidentKind = (typeof INCIDENT_KINDS)[number];
 
-export interface PrimitiveParams {
-  intensity?: PrimitiveIntensity | undefined;
-  economicDirection?: ReformEconomicDirection | undefined;
-  politicalDirection?: ReformPoliticalDirection | undefined;
-  incidentKind?: IncidentKind | undefined;
-}
-
-export interface PrimitiveTarget {
-  countryId?: string | undefined;
-  regionId?: number | undefined;
-  groupId?: string | undefined;
-}
-
-export interface Primitive {
-  verb: PrimitiveVerb;
-  /** Кто действует. Для действий власти над своей территорией — она же контролёр региона. */
-  sourceCountryId: string;
-  target: PrimitiveTarget;
-  params?: PrimitiveParams | undefined;
-}
+/**
+ * Форма примитива живёт в `primitiveSchemas.ts` и выводится из Zod-схемы:
+ * у каждого глагола своя цель и свои параметры (discriminated union по `verb`).
+ * Здесь — только реэкспорт, чтобы потребители движка по-прежнему брали и вход,
+ * и результат из одного места.
+ *
+ * Реэкспорт ТОЛЬКО типов (`export type`): он стирается компиляцией, поэтому
+ * взаимный импорт `types ↔ primitiveSchemas` не образует рантайм-цикла —
+ * значения (`PRIMITIVE_VERBS` и прочие enum'ы) ходят строго в одну сторону,
+ * отсюда в схемы.
+ */
+export type { Primitive, PrimitiveOf } from "./primitiveSchemas";
 
 // --------------------------------------------------------------------------
 // Факт применения — материал для нарратива, который пишется ТОЛЬКО после commit
@@ -206,12 +198,11 @@ export type AppliedPrimitive =
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
  *
- * Движок сверяет им отчёт с фактическим дифом ПАМЯТИ ВОЗДЕЙСТВИЙ (не состояния
- * целиком): ни скрытых, ни выдуманных эффектов в этом канале быть не должно, и
- * величины обязаны совпасть. Прочие каналы результата — координаты идеологии,
- * политическая цена, объект карты — сверкой не покрыты и держатся на палитре и
- * внешних тестах. Функция здесь, а не по месту, чтобы новый verb с новым
- * каналом памяти нельзя было забыть подключить к сверке — `switch` без ветки не
+ * Используется бюджетом накопления следа и как ЧАСТЬ общей сверки отчёта с
+ * состоянием (`reconciliation.ts`), которая с Милстоуна 1 покрывает не только
+ * память воздействий, но и координаты идеологии, поддержку правительства и
+ * созданные объекты карты. Функция здесь, а не по месту, чтобы новый verb с
+ * новым каналом памяти нельзя было забыть подключить — `switch` без ветки не
  * компилируется.
  */
 export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] {
@@ -227,11 +218,22 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
   }
 }
 
-/** Отклонение целиком — с диагностической причиной (docs/PRIMITIVES.md §3). */
+/**
+ * Отклонение целиком — со СТРУКТУРНОЙ причиной (docs/PRIMITIVES.md §3).
+ *
+ * `rejection` — код + типизированные параметры (`rejections.ts`), а не строка:
+ * причина уходит игроку по-русски и в промт по-английски, и одна строка не
+ * может быть обеими сразу. Готового текста здесь нет вовсе, чтобы ни один
+ * потребитель не мог случайно показать чужой.
+ *
+ * `verb` и `sourceCountryId` необязательны: запись, отклонённая структурной
+ * схемой, может не нести ни того, ни другого. Движок заполняет оба всегда —
+ * до него доезжает только разобранный примитив.
+ */
 export interface RejectedPrimitive {
-  verb: PrimitiveVerb;
-  sourceCountryId: string;
-  reason: string;
+  verb?: PrimitiveVerb | undefined;
+  sourceCountryId?: string | undefined;
+  rejection: PrimitiveRejection;
 }
 
 export interface PrimitiveBatchResult {
@@ -239,5 +241,5 @@ export interface PrimitiveBatchResult {
   rejected: RejectedPrimitive[];
 }
 
-/** Результат фазы validate: либо pass, либо причина отказа. */
-export type PreconditionResult = { valid: true } | { valid: false; reason: string };
+/** Результат фазы validate: либо pass, либо структурная причина отказа. */
+export type PreconditionResult = { valid: true } | { valid: false; rejection: PrimitiveRejection };

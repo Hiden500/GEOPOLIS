@@ -51,12 +51,16 @@ describe("Милстоун 0: петля замыкается на данных 
     expect(crisisFacts.length).toBe(latched);
 
     // --- 2. Кризисный кап на границе промта --------------------------------
-    const prompt = new LLMService(game).generatePrompt();
+    const rendered = new LLMService(game).generatePrompt();
+    const prompt = rendered.prompt;
     const shown = crisisLines(prompt);
     expect(shown).toHaveLength(MAX_PROMPT_CRISES);
     expect(prompt).toContain(`(${latched - MAX_PROMPT_CRISES} more region(s) are above the threshold`);
-    // Кризисные факты потреблены секцией, а не потеряны фильтром видимости.
-    expect(game.pendingWorldFacts.some(f => f.kind === "region_crisis")).toBe(false);
+    // Кризисные факты названы потреблёнными секцией, а не потеряны фильтром
+    // видимости. Списываются они ответом, а не рендером (Милстоун 1): промт,
+    // который никто не увидел, новизну кризисов не расходует.
+    expect(rendered.consumption.facts.filter(f => f.kind === "region_crisis"))
+      .toHaveLength(crisisFacts.length);
 
     // Самый острый регион — цель режиссуры. Берётся из промта, а не зашит
     // числом: тест не должен ломаться от калибровки коэффициентов.
@@ -92,23 +96,26 @@ describe("Милстоун 0: петля замыкается на данных 
 
     const cycle = new LLMService(game).processResponse(directorResponse);
     expect(cycle.success).toBe(true);
-    expect(cycle.rejectedPrimitives).toEqual([]);
-    expect(cycle.primitiveOutcomes).toHaveLength(2);
+    expect(cycle.receipt.primitives.rejected).toEqual([]);
+    expect(cycle.receipt.primitives.applied).toHaveLength(2);
     expect(cycle.narrativeCanonized).toBe(true);
 
     // Событие записано — и несёт рядом с текстом ФАКТИЧЕСКИЙ результат, а не
     // одну прозу: по нему потребитель проверяет заголовок, не заглядывая в мир.
     const event = game.eventHistory.at(-1)!;
     expect(event.title).toBe("Волнения вспыхнули и вылились на улицы");
-    expect(event.primitiveOutcomes).toHaveLength(2);
-    expect(event.rejectedPrimitives).toBeUndefined();
+    expect(event.receipt.primitives.applied).toHaveLength(2);
+    // Квитанция всегда полная: пустой список отказов означает «отказов не
+    // было», а не «поля нет» (Милстоун 1 — до него отсутствие поля и пустоту
+    // приходилось различать потребителю).
+    expect(event.receipt.primitives.rejected).toEqual([]);
     // `countries` считается из применённых примитивов, а не из старого канала
     // `actions` (его здесь нет вовсе): без этого чистое primitive-событие
     // получало `countries: []` и выпадало из памяти собственной страны.
     const owner = game.regions.find(r => r.id === hottestId)!.ownerCountryId;
-    expect(event.countries).toContain(owner);
-    expect(event.countries).toContain("USA");
-    expect(new LLMService(game).generatePrompt()).toContain(
+    expect(event.receipt.countries).toContain(owner);
+    expect(event.receipt.countries).toContain("USA");
+    expect(new LLMService(game).generatePrompt().prompt).toContain(
       "Волнения вспыхнули и вылились на улицы"
     );
 
@@ -264,8 +271,8 @@ describe("Милстоун 0: петля замыкается на данных 
         ],
       })
     );
-    expect(refused.primitiveOutcomes).toEqual([]);
-    expect(refused.rejectedPrimitives).toHaveLength(1);
+    expect(refused.receipt.primitives.applied).toEqual([]);
+    expect(refused.receipt.primitives.rejected).toHaveLength(1);
 
     const allowed = applyPrimitiveTurn(
       game,
@@ -309,14 +316,14 @@ describe("Милстоун 0: петля замыкается на данных 
       // «так и было» от «предложено и отклонено» иначе было бы нечем.
       expect(cycle.title).toBeUndefined();
       expect(cycle.descriptions).toBeUndefined();
-      expect(cycle.rejectedPrimitives).toHaveLength(1);
+      expect(cycle.receipt.primitives.rejected).toHaveLength(1);
 
       expect(game.eventHistory).toHaveLength(eventsBefore);
       expect(game.eventHistory.some(e => e.title === "Восстание подавлено")).toBe(false);
 
       // Диагностика на месте в обе стороны: игроку — причина в ответе (выше),
       // модели — та же причина в следующем промте.
-      expect(new LLMService(game).generatePrompt()).toContain("Attempt rejected (repress)");
+      expect(new LLMService(game).generatePrompt().prompt).toContain("Attempt rejected (repress)");
 
       // И ложный заголовок не может добраться до летописи: она склеивает
       // заголовки событий, а события нет.
@@ -346,8 +353,8 @@ describe("Милстоун 0: петля замыкается на данных 
       expect(game.eventHistory.at(-1)!.title).toBe("Мир замер в ожидании");
       // …но законное событие ≠ установленный факт: подтверждать в нём нечего,
       // и в ленте игрок увидит его помеченным (решение 2026-07-27).
-      expect(cycle.factuality).toBe("unconfirmed");
-      expect(game.eventHistory.at(-1)!.factuality).toBe("unconfirmed");
+      expect(cycle.receipt.factuality).toBe("unconfirmed");
+      expect(game.eventHistory.at(-1)!.receipt.factuality).toBe("unconfirmed");
     });
 
     it("частично применённый ответ помечен, а не выдан за факт", () => {
@@ -381,13 +388,13 @@ describe("Милстоун 0: петля замыкается на данных 
       );
 
       expect(cycle.narrativeCanonized).toBe(true);
-      expect(cycle.factuality).toBe("partial");
-      expect(cycle.primitiveOutcomes).toHaveLength(1);
-      expect(cycle.rejectedPrimitives).toHaveLength(1);
+      expect(cycle.receipt.factuality).toBe("partial");
+      expect(cycle.receipt.primitives.applied).toHaveLength(1);
+      expect(cycle.receipt.primitives.rejected).toHaveLength(1);
 
       const event = game.eventHistory.at(-1)!;
       expect(event.title).toBe("Волнения вспыхнули, и войска их подавили");
-      expect(event.factuality).toBe("partial");
+      expect(event.receipt.factuality).toBe("partial");
     });
 
     it("летопись доносит применённое, а не заявленное", () => {
@@ -439,7 +446,7 @@ describe("Милстоун 0: петля замыкается на данных 
       expect(year1946.summary).toBe(`applied: incite_unrest in ${regionName}`);
 
       // И та же строка — то, что увидит модель в следующем промте.
-      expect(new LLMService(game).generatePrompt()).toContain(
+      expect(new LLMService(game).generatePrompt().prompt).toContain(
         `- 1946: applied: incite_unrest in ${regionName}`
       );
     });
@@ -491,8 +498,8 @@ describe("Милстоун 0: петля замыкается на данных 
 
       expect(cycle.success).toBe(true);
       expect(cycle.narrativeCanonized).toBe(false);
-      expect(cycle.rejectedPrimitives).toHaveLength(1);
-      expect(cycle.rejectedPrimitives[0]!.reason).toMatch(/structural/);
+      expect(cycle.receipt.primitives.rejected).toHaveLength(1);
+      expect(cycle.receipt.primitives.rejected[0]!.code).toBe("structuralTurnCapReached");
 
       expect(game.eventHistory).toHaveLength(eventsBefore);
       expect(

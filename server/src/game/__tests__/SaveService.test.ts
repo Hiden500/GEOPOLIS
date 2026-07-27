@@ -3,7 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { saveGame, loadGame, listSaves, deleteSave } from "../SaveService";
-import { SaveNotFoundError, SaveVersionError } from "../../errors/AppError";
+import {
+  SaveNotFoundError,
+  SaveVersionError,
+  SaveCorruptedError,
+} from "../../errors/AppError";
 import { createTestGameState } from "../../test-utils/fixtures";
 import { SAVE_VERSION } from "@shared/types/SaveFile";
 import { type GameState } from "@shared/types/GameState";
@@ -111,6 +115,45 @@ describe("SaveService", () => {
 
     expect(a).toMatchObject({ playerCountryId: "USA", currentDate: "1946-03-01" });
     expect(b).toMatchObject({ playerCountryId: "SUN", currentDate: "1946-05-01" });
+  });
+
+  /**
+   * Проверка СОДЕРЖИМОГО, а не только номера версии (Милстоун 1).
+   *
+   * До неё сейв своей версии принимался приведением типа, и порча, снимающая
+   * защиту, проходила молча: счётчик бюджета хода, начинающийся с −100,
+   * разрешает сотню лишних примитивов в месяц. Ломалось это поздно и не там,
+   * где причина.
+   */
+  it("сейв СВОЕЙ версии с порченым бюджетом хода отклоняется при загрузке", () => {
+    const game = createTestGameState();
+    saveGame(game, "__test_corrupt_budget");
+
+    const filePath = path.join(SAVES_DIR, "__test_corrupt_budget.json");
+    const file = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    file.game.primitiveTurnBudget.softUsed = -100;
+    fs.writeFileSync(filePath, JSON.stringify(file));
+
+    expect(() => loadGame("__test_corrupt_budget")).toThrow(SaveCorruptedError);
+    expect(() => loadGame("__test_corrupt_budget")).toThrow(/softUsed/);
+  });
+
+  it("сейв без обязательного массива состояния отклоняется внятно, а не падает позже", () => {
+    const game = createTestGameState();
+    saveGame(game, "__test_corrupt_shape");
+
+    const filePath = path.join(SAVES_DIR, "__test_corrupt_shape.json");
+    const file = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    delete file.game.groupImpactMemory;
+    fs.writeFileSync(filePath, JSON.stringify(file));
+
+    expect(() => loadGame("__test_corrupt_shape")).toThrow(SaveCorruptedError);
+    expect(() => loadGame("__test_corrupt_shape")).toThrow(/groupImpactMemory/);
+  });
+
+  it("целый сейв текущей версии грузится — проверка не ложная по построению", () => {
+    saveGame(createTestGameState({ currentDate: "1946-07-01" }), "__test_intact");
+    expect(loadGame("__test_intact").currentDate).toBe("1946-07-01");
   });
 
   it("отклоняет имя слота вне допустимого алфавита (защита от path traversal)", () => {

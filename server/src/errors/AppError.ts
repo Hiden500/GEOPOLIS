@@ -81,3 +81,20 @@ export class SaveVersionError extends AppError {
     super(message, "SAVE_VERSION_MISMATCH", 409);
   }
 }
+
+/**
+ * Файл сейва СВОЕЙ версии, но с непригодным содержимым (Милстоун 1) —
+ * отсутствует обязательное поле состояния либо нарушен инвариант движка
+ * (`server/src/primitives/invariants.ts`).
+ *
+ * Отдельный класс, а не `SaveVersionError`: причины разные и лечатся по-разному.
+ * «Версия не та» означает «сейв от другой сборки», «содержимое непригодно» —
+ * «файл повреждён или собран мимо движка». Смешивать их значило бы предлагать
+ * игроку обновиться там, где обновление не поможет. 409 — тот же класс
+ * конфликта состояния файла.
+ */
+export class SaveCorruptedError extends AppError {
+  constructor(message: string) {
+    super(message, "SAVE_CORRUPTED", 409);
+  }
+}
