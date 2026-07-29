@@ -41,7 +41,7 @@
 
 .text {
   font-family: var(--font-narrative);
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   line-height: var(--leading-prose);
   color: var(--text);
 }

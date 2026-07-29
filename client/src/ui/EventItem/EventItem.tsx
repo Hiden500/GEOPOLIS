@@ -12,6 +12,12 @@ import styles from "./EventItem.module.css";
 export type Factuality = "confirmed" | "partial" | "unconfirmed";
 
 export interface EventItemProps {
+  /**
+   * День события, уже отформатированный вызывающим. Лента группируется по
+   * ходу, но месяц вмещает несколько остановок движка — «когда именно»
+   * часть факта.
+   */
+  date?: string;
   title: ReactNode;
   body?: ReactNode;
   factuality?: Factuality;
@@ -24,7 +30,7 @@ export interface EventItemProps {
   order?: { text: string };
 }
 
-export function EventItem({ title, body, factuality = "confirmed", order }: EventItemProps) {
+export function EventItem({ date, title, body, factuality = "confirmed", order }: EventItemProps) {
   const { t } = useTranslation("ui");
   const [revealed, setRevealed] = useState(false);
 
@@ -43,6 +49,7 @@ export function EventItem({ title, body, factuality = "confirmed", order }: Even
       </div>
 
       <div className={styles.content}>
+        {date !== undefined && <time className={styles.date}>{date}</time>}
         <p className={styles.title}>{title}</p>
         {body !== undefined && <div className={styles.body}>{body}</div>}
       </div>

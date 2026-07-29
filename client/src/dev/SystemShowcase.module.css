@@ -43,7 +43,7 @@
 .note {
   margin-bottom: var(--space-4);
   max-width: 68ch;
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   line-height: var(--leading-prose);
   color: var(--text-dim);
 }
@@ -150,6 +150,14 @@
   max-width: 380px;
 }
 
+/*
+ * Лента показывается в НАСТОЯЩЕЙ своей ширине: если полный текст события
+ * не читается в 360px, это находка, а не повод расширить демонстрацию.
+ */
+.feed {
+  width: var(--feed-width);
+}
+
 .wide {
   max-width: 760px;
 }
@@ -161,7 +169,7 @@
 
 .prose {
   font-family: var(--font-narrative);
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   line-height: var(--leading-prose);
   color: var(--text-dim);
 }

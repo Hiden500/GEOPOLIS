@@ -46,16 +46,31 @@
   grid-row: 2;
 }
 
+/*
+ * Дата — надстрочник над заголовком. Лента группируется по ходу, но каждое
+ * событие всё равно несёт свой день: месяц вмещает несколько остановок, и
+ * «когда именно» — часть факта, а не украшение.
+ */
+.date {
+  display: block;
+  margin-bottom: 2px;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
 .title {
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
   line-height: var(--leading-normal);
   color: var(--text);
 }
 
 .body {
-  margin-top: var(--space-1);
+  margin-top: var(--space-2);
   font-family: var(--font-narrative);
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   line-height: var(--leading-prose);
   color: var(--text-dim);
 }
@@ -92,7 +107,7 @@
   background: var(--surface-raised);
   border-radius: 0 var(--radius-inner) var(--radius-inner) 0;
   font-family: var(--font-narrative);
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   line-height: var(--leading-prose);
   color: var(--text-dim);
 }
