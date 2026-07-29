@@ -10448,118 +10448,6 @@
     "name_ru": "Северный остров"
   },
   {
-    "region_id": "OCE-0035",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "PG",
-    "name_en": "North Solomons",
-    "name_ru": "Северные Соломоновы острова"
-  },
-  {
-    "region_id": "OCE-0036",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "PG",
-    "name_en": "Western",
-    "name_ru": "Западный"
-  },
-  {
-    "region_id": "OCE-0037",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "PG",
-    "name_en": "Southern Highlands",
-    "name_ru": "Южное Хайлендс"
-  },
-  {
-    "region_id": "OCE-0038",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "PG",
-    "name_en": "East Sepik",
-    "name_ru": "Восточный Сепик"
-  },
-  {
-    "region_id": "OCE-0039",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "PG",
-    "name_en": "Central",
-    "name_ru": "Центральный"
-  },
-  {
-    "region_id": "OCE-0040",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "SB",
-    "name_en": "Malaita",
-    "name_ru": "Малаита"
-  },
-  {
-    "region_id": "OCE-0041",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "SB",
-    "name_en": "Guadalcanal",
-    "name_ru": "Гуадалканал"
-  },
-  {
-    "region_id": "OCE-0042",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "SB",
-    "name_en": "Isabel",
-    "name_ru": "Изабель"
-  },
-  {
-    "region_id": "OCE-0043",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "VU",
-    "name_en": "Sanma",
-    "name_ru": "Санма"
-  },
-  {
-    "region_id": "OCE-0044",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "WS",
-    "name_en": "Palauli",
-    "name_ru": "Палаули"
-  },
-  {
-    "region_id": "OCE-0045",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "PW",
-    "name_en": "Ngardmau",
-    "name_ru": "Нгардмау"
-  },
-  {
-    "region_id": "OCE-0046",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "FJ",
-    "name_en": "Western",
-    "name_ru": "Западный"
-  },
-  {
-    "region_id": "OCE-0047",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "FM",
-    "name_en": "Yap",
-    "name_ru": "Яп"
-  },
-  {
-    "region_id": "OCE-0048",
-    "continent": "Oceania",
-    "region_type": "land",
-    "iso_a2": "FM",
-    "name_en": "Pohnpei",
-    "name_ru": "Понпеи"
-  },
-  {
     "region_id": "SAM-0001",
     "continent": "South America",
     "region_type": "land",
@@ -12230,5 +12118,293 @@
     "iso_a2": "PA_CZ",
     "name_en": "Panama Canal Zone",
     "name_ru": "Зона Панамского канала"
+  },
+  {
+    "region_id": "OCE-0035",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Sandaun",
+    "name_ru": "Сандаун"
+  },
+  {
+    "region_id": "OCE-0036",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Western",
+    "name_ru": "Западный"
+  },
+  {
+    "region_id": "OCE-0037",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "East Sepik",
+    "name_ru": "Восточный Сепик"
+  },
+  {
+    "region_id": "OCE-0038",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Madang",
+    "name_ru": "Маданг"
+  },
+  {
+    "region_id": "OCE-0039",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Morobe",
+    "name_ru": "Моробе"
+  },
+  {
+    "region_id": "OCE-0040",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Northern",
+    "name_ru": "Северный"
+  },
+  {
+    "region_id": "OCE-0041",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Milne Bay",
+    "name_ru": "Милн-Бей"
+  },
+  {
+    "region_id": "OCE-0042",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Central",
+    "name_ru": "Центральный"
+  },
+  {
+    "region_id": "OCE-0043",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "National Capital District",
+    "name_ru": "Национальный столичный округ"
+  },
+  {
+    "region_id": "OCE-0044",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Gulf",
+    "name_ru": "Галф"
+  },
+  {
+    "region_id": "OCE-0045",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "North Solomons",
+    "name_ru": "Северные Соломоновы острова"
+  },
+  {
+    "region_id": "OCE-0046",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "West New Britain",
+    "name_ru": "Западная Новая Британия"
+  },
+  {
+    "region_id": "OCE-0047",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "East New Britain",
+    "name_ru": "Восточная Новая Британия"
+  },
+  {
+    "region_id": "OCE-0048",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "New Ireland",
+    "name_ru": "Новая Ирландия"
+  },
+  {
+    "region_id": "OCE-0049",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Manus",
+    "name_ru": "Манус"
+  },
+  {
+    "region_id": "OCE-0050",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Chimbu",
+    "name_ru": "Чимбу"
+  },
+  {
+    "region_id": "OCE-0051",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Enga",
+    "name_ru": "Энга"
+  },
+  {
+    "region_id": "OCE-0052",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Western Highlands",
+    "name_ru": "Западное Хайлендс"
+  },
+  {
+    "region_id": "OCE-0053",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Southern Highlands",
+    "name_ru": "Южное Хайлендс"
+  },
+  {
+    "region_id": "OCE-0054",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PG",
+    "name_en": "Eastern Highlands",
+    "name_ru": "Восточное Хайлендс"
+  },
+  {
+    "region_id": "OCE-0055",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Rennell and Bellona",
+    "name_ru": "Реннелл и Беллона"
+  },
+  {
+    "region_id": "OCE-0056",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Makira",
+    "name_ru": "Макира"
+  },
+  {
+    "region_id": "OCE-0057",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Temotu",
+    "name_ru": "Темоту"
+  },
+  {
+    "region_id": "OCE-0058",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Malaita",
+    "name_ru": "Малаита"
+  },
+  {
+    "region_id": "OCE-0059",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Capital Territory",
+    "name_ru": "Столичная территория"
+  },
+  {
+    "region_id": "OCE-0060",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Guadalcanal",
+    "name_ru": "Гуадалканал"
+  },
+  {
+    "region_id": "OCE-0061",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Central",
+    "name_ru": "Центральный"
+  },
+  {
+    "region_id": "OCE-0062",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Western",
+    "name_ru": "Западный"
+  },
+  {
+    "region_id": "OCE-0063",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Isabel",
+    "name_ru": "Изабель"
+  },
+  {
+    "region_id": "OCE-0064",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "SB",
+    "name_en": "Choiseul",
+    "name_ru": "Шуазёль"
+  },
+  {
+    "region_id": "OCE-0065",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "VU",
+    "name_en": "Sanma",
+    "name_ru": "Санма"
+  },
+  {
+    "region_id": "OCE-0066",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "WS",
+    "name_en": "Palauli",
+    "name_ru": "Палаули"
+  },
+  {
+    "region_id": "OCE-0067",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "PW",
+    "name_en": "Ngardmau",
+    "name_ru": "Нгардмау"
+  },
+  {
+    "region_id": "OCE-0068",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "FJ",
+    "name_en": "Western",
+    "name_ru": "Западный"
+  },
+  {
+    "region_id": "OCE-0069",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "FM",
+    "name_en": "Yap",
+    "name_ru": "Яп"
+  },
+  {
+    "region_id": "OCE-0070",
+    "continent": "Oceania",
+    "region_type": "land",
+    "iso_a2": "FM",
+    "name_en": "Pohnpei",
+    "name_ru": "Понпеи"
   }
 ]

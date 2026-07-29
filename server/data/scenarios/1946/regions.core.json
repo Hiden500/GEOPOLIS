@@ -7046,8 +7046,8 @@
     "area": 312602.7,
     "neighboringRegionIds": [
       485,
-      1388,
-      1391
+      1387,
+      1388
     ],
     "sourceAdm1Codes": [
       "ASI-0105"
@@ -13743,7 +13743,7 @@
   {
     "id": 963,
     "geoJsonId": "NAM-0167",
-    "area": 25275.1,
+    "area": 25276.5,
     "neighboringRegionIds": [
       966
     ],
@@ -13754,7 +13754,7 @@
   {
     "id": 964,
     "geoJsonId": "NAM-0168",
-    "area": 24534.2,
+    "area": 24534.4,
     "neighboringRegionIds": [
       810,
       966,
@@ -13767,7 +13767,7 @@
   {
     "id": 965,
     "geoJsonId": "NAM-0169",
-    "area": 43988.4,
+    "area": 43989.0,
     "neighboringRegionIds": [
       810,
       1051,
@@ -13780,7 +13780,7 @@
   {
     "id": 966,
     "geoJsonId": "NAM-0170",
-    "area": 58363.2,
+    "area": 58364.3,
     "neighboringRegionIds": [
       963,
       964,
@@ -13881,7 +13881,7 @@
   {
     "id": 973,
     "geoJsonId": "NAM-0177",
-    "area": 32866.2,
+    "area": 32866.3,
     "neighboringRegionIds": [
       970,
       974,
@@ -14195,7 +14195,7 @@
   {
     "id": 994,
     "geoJsonId": "NAM-0198",
-    "area": 1490678.0,
+    "area": 1490678.7,
     "neighboringRegionIds": [
       806,
       813
@@ -14234,7 +14234,7 @@
   {
     "id": 997,
     "geoJsonId": "NAM-0201",
-    "area": 31918.3,
+    "area": 31918.9,
     "neighboringRegionIds": [
       995,
       998,
@@ -14321,7 +14321,7 @@
   {
     "id": 1003,
     "geoJsonId": "NAM-0207",
-    "area": 58461.4,
+    "area": 58461.8,
     "neighboringRegionIds": [
       1001,
       1002,
@@ -15005,7 +15005,7 @@
   {
     "id": 1051,
     "geoJsonId": "NAM-0255",
-    "area": 37077.9,
+    "area": 37079.8,
     "neighboringRegionIds": [
       961,
       962,
@@ -15020,7 +15020,7 @@
   {
     "id": 1052,
     "geoJsonId": "NAM-0256",
-    "area": 74204.0,
+    "area": 74204.6,
     "neighboringRegionIds": [
       965,
       1050,
@@ -15431,7 +15431,7 @@
   {
     "id": 1079,
     "geoJsonId": "SAM-0013",
-    "area": 1121.0,
+    "area": 1121.2,
     "neighboringRegionIds": [
       1080
     ],
@@ -19642,8 +19642,13 @@
   {
     "id": 1387,
     "geoJsonId": "OCE-0035",
-    "area": 9398.1,
-    "neighboringRegionIds": [],
+    "area": 37161.1,
+    "neighboringRegionIds": [
+      482,
+      1388,
+      1389,
+      1405
+    ],
     "sourceAdm1Codes": [
       "OCE-0035"
     ]
@@ -19651,11 +19656,12 @@
   {
     "id": 1388,
     "geoJsonId": "OCE-0036",
-    "area": 113510.9,
+    "area": 99809.1,
     "neighboringRegionIds": [
       482,
-      1389,
-      1391
+      1387,
+      1396,
+      1405
     ],
     "sourceAdm1Codes": [
       "OCE-0036"
@@ -19664,11 +19670,12 @@
   {
     "id": 1389,
     "geoJsonId": "OCE-0037",
-    "area": 74300.9,
+    "area": 42435.0,
     "neighboringRegionIds": [
-      1388,
+      1387,
       1390,
-      1391
+      1403,
+      1405
     ],
     "sourceAdm1Codes": [
       "OCE-0037"
@@ -19677,10 +19684,14 @@
   {
     "id": 1390,
     "geoJsonId": "OCE-0038",
-    "area": 109525.9,
+    "area": 29548.6,
     "neighboringRegionIds": [
       1389,
-      1391
+      1391,
+      1402,
+      1403,
+      1404,
+      1406
     ],
     "sourceAdm1Codes": [
       "OCE-0038"
@@ -19689,12 +19700,13 @@
   {
     "id": 1391,
     "geoJsonId": "OCE-0039",
-    "area": 158342.8,
+    "area": 34342.9,
     "neighboringRegionIds": [
-      482,
-      1388,
-      1389,
-      1390
+      1390,
+      1392,
+      1394,
+      1396,
+      1406
     ],
     "sourceAdm1Codes": [
       "OCE-0039"
@@ -19703,8 +19715,12 @@
   {
     "id": 1392,
     "geoJsonId": "OCE-0040",
-    "area": 4401.4,
-    "neighboringRegionIds": [],
+    "area": 23048.0,
+    "neighboringRegionIds": [
+      1391,
+      1393,
+      1394
+    ],
     "sourceAdm1Codes": [
       "OCE-0040"
     ]
@@ -19712,8 +19728,9 @@
   {
     "id": 1393,
     "geoJsonId": "OCE-0041",
-    "area": 5317.1,
+    "area": 13701.8,
     "neighboringRegionIds": [
+      1392,
       1394
     ],
     "sourceAdm1Codes": [
@@ -19723,9 +19740,13 @@
   {
     "id": 1394,
     "geoJsonId": "OCE-0042",
-    "area": 17404.2,
+    "area": 29367.8,
     "neighboringRegionIds": [
-      1393
+      1391,
+      1392,
+      1393,
+      1395,
+      1396
     ],
     "sourceAdm1Codes": [
       "OCE-0042"
@@ -19734,8 +19755,10 @@
   {
     "id": 1395,
     "geoJsonId": "OCE-0043",
-    "area": 12233.9,
-    "neighboringRegionIds": [],
+    "area": 235.8,
+    "neighboringRegionIds": [
+      1394
+    ],
     "sourceAdm1Codes": [
       "OCE-0043"
     ]
@@ -19743,8 +19766,15 @@
   {
     "id": 1396,
     "geoJsonId": "OCE-0044",
-    "area": 2777.3,
-    "neighboringRegionIds": [],
+    "area": 34423.0,
+    "neighboringRegionIds": [
+      1388,
+      1391,
+      1394,
+      1402,
+      1405,
+      1406
+    ],
     "sourceAdm1Codes": [
       "OCE-0044"
     ]
@@ -19752,7 +19782,7 @@
   {
     "id": 1397,
     "geoJsonId": "OCE-0045",
-    "area": 483.8,
+    "area": 9398.1,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "OCE-0045"
@@ -19761,8 +19791,10 @@
   {
     "id": 1398,
     "geoJsonId": "OCE-0046",
-    "area": 18828.9,
-    "neighboringRegionIds": [],
+    "area": 20585.1,
+    "neighboringRegionIds": [
+      1399
+    ],
     "sourceAdm1Codes": [
       "OCE-0046"
     ]
@@ -19770,8 +19802,10 @@
   {
     "id": 1399,
     "geoJsonId": "OCE-0047",
-    "area": 370.4,
-    "neighboringRegionIds": [],
+    "area": 15428.2,
+    "neighboringRegionIds": [
+      1398
+    ],
     "sourceAdm1Codes": [
       "OCE-0047"
     ]
@@ -19779,10 +19813,241 @@
   {
     "id": 1400,
     "geoJsonId": "OCE-0048",
-    "area": 665.4,
+    "area": 9325.9,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "OCE-0048"
+    ]
+  },
+  {
+    "id": 1401,
+    "geoJsonId": "OCE-0049",
+    "area": 1943.1,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0049"
+    ]
+  },
+  {
+    "id": 1402,
+    "geoJsonId": "OCE-0050",
+    "area": 6221.9,
+    "neighboringRegionIds": [
+      1390,
+      1396,
+      1404,
+      1405,
+      1406
+    ],
+    "sourceAdm1Codes": [
+      "OCE-0050"
+    ]
+  },
+  {
+    "id": 1403,
+    "geoJsonId": "OCE-0051",
+    "area": 12688.6,
+    "neighboringRegionIds": [
+      1389,
+      1390,
+      1404,
+      1405
+    ],
+    "sourceAdm1Codes": [
+      "OCE-0051"
+    ]
+  },
+  {
+    "id": 1404,
+    "geoJsonId": "OCE-0052",
+    "area": 8767.5,
+    "neighboringRegionIds": [
+      1390,
+      1402,
+      1403,
+      1405
+    ],
+    "sourceAdm1Codes": [
+      "OCE-0052"
+    ]
+  },
+  {
+    "id": 1405,
+    "geoJsonId": "OCE-0053",
+    "area": 25363.2,
+    "neighboringRegionIds": [
+      1387,
+      1388,
+      1389,
+      1396,
+      1402,
+      1403,
+      1404
+    ],
+    "sourceAdm1Codes": [
+      "OCE-0053"
+    ]
+  },
+  {
+    "id": 1406,
+    "geoJsonId": "OCE-0054",
+    "area": 11283.8,
+    "neighboringRegionIds": [
+      1390,
+      1391,
+      1396,
+      1402
+    ],
+    "sourceAdm1Codes": [
+      "OCE-0054"
+    ]
+  },
+  {
+    "id": 1407,
+    "geoJsonId": "OCE-0055",
+    "area": 664.2,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0055"
+    ]
+  },
+  {
+    "id": 1408,
+    "geoJsonId": "OCE-0056",
+    "area": 3095.5,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0056"
+    ]
+  },
+  {
+    "id": 1409,
+    "geoJsonId": "OCE-0057",
+    "area": 858.6,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0057"
+    ]
+  },
+  {
+    "id": 1410,
+    "geoJsonId": "OCE-0058",
+    "area": 4401.4,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0058"
+    ]
+  },
+  {
+    "id": 1411,
+    "geoJsonId": "OCE-0059",
+    "area": 31.1,
+    "neighboringRegionIds": [
+      1412
+    ],
+    "sourceAdm1Codes": [
+      "OCE-0059"
+    ]
+  },
+  {
+    "id": 1412,
+    "geoJsonId": "OCE-0060",
+    "area": 5317.1,
+    "neighboringRegionIds": [
+      1411
+    ],
+    "sourceAdm1Codes": [
+      "OCE-0060"
+    ]
+  },
+  {
+    "id": 1413,
+    "geoJsonId": "OCE-0061",
+    "area": 549.4,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0061"
+    ]
+  },
+  {
+    "id": 1414,
+    "geoJsonId": "OCE-0062",
+    "area": 5168.4,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0062"
+    ]
+  },
+  {
+    "id": 1415,
+    "geoJsonId": "OCE-0063",
+    "area": 4036.0,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0063"
+    ]
+  },
+  {
+    "id": 1416,
+    "geoJsonId": "OCE-0064",
+    "area": 3001.0,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0064"
+    ]
+  },
+  {
+    "id": 1417,
+    "geoJsonId": "OCE-0065",
+    "area": 12233.9,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0065"
+    ]
+  },
+  {
+    "id": 1418,
+    "geoJsonId": "OCE-0066",
+    "area": 2777.3,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0066"
+    ]
+  },
+  {
+    "id": 1419,
+    "geoJsonId": "OCE-0067",
+    "area": 483.8,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0067"
+    ]
+  },
+  {
+    "id": 1420,
+    "geoJsonId": "OCE-0068",
+    "area": 18828.9,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0068"
+    ]
+  },
+  {
+    "id": 1421,
+    "geoJsonId": "OCE-0069",
+    "area": 370.4,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0069"
+    ]
+  },
+  {
+    "id": 1422,
+    "geoJsonId": "OCE-0070",
+    "area": 665.4,
+    "neighboringRegionIds": [],
+    "sourceAdm1Codes": [
+      "OCE-0070"
     ]
   }
 ]

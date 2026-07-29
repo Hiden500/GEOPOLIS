@@ -3260,7 +3260,7 @@
       "ru": "Папуа и Новая Гвинея"
     },
     "color": "#4d9f74",
-    "capitalRegionId": 1391,
+    "capitalRegionId": 1388,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4790,7 +4790,7 @@
       "ru": "Соломоновы Острова"
     },
     "color": "#c27a96",
-    "capitalRegionId": 1394,
+    "capitalRegionId": 1412,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5510,7 +5510,7 @@
       "ru": "Новые Гебриды"
     },
     "color": "#7a5c8f",
-    "capitalRegionId": 1395,
+    "capitalRegionId": 1417,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5545,7 +5545,7 @@
       "ru": "Западное Самоа"
     },
     "color": "#3b5b84",
-    "capitalRegionId": 1396,
+    "capitalRegionId": 1418,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
