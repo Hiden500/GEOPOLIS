@@ -337,6 +337,14 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
     // сверка откатила бы примитив за молчание о том, что он честно сделал.
     // Поглощённая страна в сверку не попадает: `findMisreportedChanges`
     // исключает страны, существующие только по одну сторону снимка.
+    // Рождение государства делит имущество метрополии тем же ядром, что и
+    // раскол, — значит и заявляет то же самое. Канала влияния у него нет:
+    // страна не исчезает, а появляется, и записей влияния НА неё до этого не
+    // существовало (`findMisreportedChanges` исключает страны, которых не было
+    // в снимке «до»).
+    case "create_country":
+      pushScalars(applied.countryScalarEffects);
+      break;
     case "merge_countries":
       pushScalars(applied.countryScalarEffects);
       for (const effect of applied.influenceEffects) {
@@ -396,6 +404,7 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     case "puppet":
     case "annex":
     case "merge_countries":
+    case "create_country":
       return [];
   }
 }

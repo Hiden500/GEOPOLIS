@@ -138,6 +138,83 @@ export const PRIMITIVE_PALETTE: Record<PrimitiveVerb, readonly string[]> = {
     "primitiveTurnBudget.targetUses.{*}",
   ],
 
+  // Рождение государства идёт тем же ядром отделения, что и раскол
+  // (`polityLifecycle.ts::secedeGroups`), поэтому и палитра у него та же: список
+  // отличался бы от списка раскола только тем, чего автор не вспомнил.
+  create_country: [
+    // Появление осколков и исчезновение распустившейся метрополии.
+    "countries[+]",
+    "countries[-]",
+    // Метрополия: столица могла уйти с осколком, агрегаты и делимое пересчитаны.
+    "countries[*].capitalRegionId",
+    "countries[*].population",
+    "countries[*].economy.gdp",
+    "countries[*].economy.treasury",
+    "countries[*].military.manpower",
+    "countries[*].military.activePersonnel",
+    "countries[*].military.reservePersonnel",
+    // Перенос ссылок затрагивает дипломатию ВСЕХ ссылающихся стран, а не только
+    // сторон раскола, — это и есть контракт §7.1.
+    "countries[*].currencyZoneAnchor",
+    "countries[*].diplomacy.allies[*]",
+    "countries[*].diplomacy.allies[-]",
+    "countries[*].diplomacy.rivals[*]",
+    "countries[*].diplomacy.rivals[-]",
+    "countries[*].diplomacy.puppets[*]",
+    "countries[*].diplomacy.puppets[-]",
+    "countries[*].diplomacy.sphereOfInfluence[*]",
+    "countries[*].diplomacy.sphereOfInfluence[-]",
+    "countries[*].diplomacy.guarantees[*]",
+    "countries[*].diplomacy.guarantees[-]",
+    "countries[*].diplomacy.relations.{*}",
+    "countries[*].diplomacy.influence.{*}",
+    "countries[*].diplomacy.sanctions.{*}[*]",
+    "countries[*].diplomacy.sanctions.{*}[-]",
+    // Юридическая половина зависимости переезжает вместе с рантаймовой:
+    // `countryRefs.ts` переносит `overlordIds` наравне со списками дипломатии, а
+    // `removeCountry` достраивает пару, которую перенос мог оставить
+    // односторонней (`subordination.ts`). Без этих записей раскол государства,
+    // НЕ пережившего распад и состоявшего в отношениях подчинения, откатывался
+    // собственной палитрой — на данных 1946 достижимо (СССР держит двух
+    // клиентов, Британия — 42 территории). Дефект найден и закрыт Милстоуном 1,
+    // сессия структурных глаголов.
+    "countries[*].politics.overlordIds[*]",
+    "countries[*].politics.overlordIds[+]",
+    "countries[*].politics.overlordIds[-]",
+    "countries[*].politics.sovereigntyStatus",
+    // Регионы меняют владельца; оккупация снимается, если оккупант стал
+    // владельцем (иначе страна «оккупировала» бы саму себя).
+    "regions[*].ownerCountryId",
+    "regions[*].occupiedBy",
+    // Войны: стороны переехали, потерявшая смысл война закрыта.
+    "wars[*].active",
+    "wars[*].attackers[*]",
+    "wars[*].attackers[-]",
+    "wars[*].defenders[*]",
+    "wars[*].defenders[-]",
+    "wars[*].supporters[+]",
+    "wars[*].supporters[-]",
+    "wars[*].supporters[*].countryId",
+    "wars[*].casualties.{*}",
+    // Модификаторы на исчезнувшую страну снимаются, на переехавшую — переносятся.
+    "modifiers[-]",
+    "modifiers[*].target.id",
+    // Объект карты переживает исчезновение владельца, сменив хозяина.
+    "mapFeatures[*].ownerId",
+    // Партия: за кого играет человек и в каком состоянии кампания.
+    "playerCountryId",
+    "llmSpotlightCountryId",
+    "campaign.status",
+    "campaign.predecessor.en",
+    "campaign.predecessor.ru",
+    "campaign.successorCountryIds[*]",
+    "campaign.since",
+    // Одноразовая диагностика и счётчики хода, ключуемые страной.
+    "pendingWorldFacts[-]",
+    "pendingWorldFacts[*].countryId",
+    "primitiveTurnBudget.targetUses.{*}",
+  ],
+
   // Дипломатический жест: ТОЛЬКО двусторонние отношения, обе стороны пары.
   // Ни влияния, ни санкций, ни списков — «поговорили» не должно уметь молча
   // создать формальное обязательство.

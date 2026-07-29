@@ -353,6 +353,25 @@ export function splitCountry(game: GameState, params: SplitParams): PolityLifecy
   const plan = planSplit(game, source.id, params.intensity);
   if (plan.length === 0) throw new Error(`split_country: nothing to split off ${source.id}`);
 
+  return secedeGroups(game, source, plan);
+}
+
+/**
+ * ЯДРО отделения: по готовому плану «группа → её регионы» создаёт новые
+ * государства, делит имущество и приводит мир в порядок.
+ *
+ * Вынесено из `splitCountry` Милстоуном 1 (сессия структурных глаголов), когда
+ * у него появился второй потребитель — `create_country`. Разница между ними
+ * ровно в том, КАК строится план: раскол выводит его из недовольства (страна
+ * разваливается сама), предоставление независимости — из решения владельца.
+ * Всё, что происходит ПОСЛЕ плана, у них обязано совпадать до буквы, поэтому
+ * второй копии этого кода не существует.
+ */
+function secedeGroups(
+  game: GameState,
+  source: Country,
+  plan: readonly { groupId: string; regionIds: number[] }[]
+): PolityLifecycleResult {
   const ownedBefore = game.regions.filter(r => r.ownerCountryId === source.id);
   const secedingIds = new Set(plan.flatMap(p => p.regionIds));
   const rumpRegions = ownedBefore.filter(r => !secedingIds.has(r.id));
@@ -495,6 +514,76 @@ export function splitCountry(game: GameState, params: SplitParams): PolityLifecy
 
   result.closedWarIds = closeBrokenWars(game);
   return result;
+}
+
+
+export interface IndependenceParams {
+  /** Государство, отпускающее территорию. */
+  countryId: string;
+  /** Регион, с которого начинается новое государство. */
+  regionId: number;
+}
+
+/**
+ * Группа-большинство региона, если такая есть (доля не ниже той же границы,
+ * по которой отделяется раскол). `undefined` — большинства нет.
+ *
+ * Порядок детерминирован: доля по убыванию, при равенстве — id по возрастанию.
+ */
+export function dominantGroupOf(region: Region): string | undefined {
+  const candidates = [...(region.demographics ?? [])]
+    .filter(entry => entry.share >= SPLIT_MIN_GROUP_SHARE)
+    .sort((a, b) => b.share - a.share || a.groupId.localeCompare(b.groupId));
+  return candidates[0]?.groupId;
+}
+
+/**
+ * Регионы, которые уйдут вместе с указанным, если владелец отпустит его группу.
+ *
+ * Все регионы владельца, где большинство составляет ТА ЖЕ группа. Смежность не
+ * требуется — ровно как у раскола, который группирует по группе, а не по
+ * географии: связность территории в состоянии не выражена ничем, кроме списка
+ * соседей, и требовать её значило бы изобретать правило, которого у раскола нет.
+ */
+export function planIndependence(
+  game: GameState,
+  countryId: string,
+  regionId: number
+): { groupId: string; regionIds: number[] } | undefined {
+  const seed = game.regions.find(r => r.id === regionId);
+  if (!seed || seed.ownerCountryId !== countryId) return undefined;
+
+  const groupId = dominantGroupOf(seed);
+  if (groupId === undefined) return undefined;
+
+  const regionIds = game.regions
+    .filter(r => r.ownerCountryId === countryId && dominantGroupOf(r) === groupId)
+    .map(r => r.id)
+    .sort((a, b) => a - b);
+  return { groupId, regionIds };
+}
+
+/**
+ * Предоставление независимости — рождение государства БЕЗ предшественника,
+ * который бы развалился.
+ *
+ * Отличие от раскола названо прямо: раскол происходит ИЗНУТРИ и требует
+ * недовольства (государство разваливается само), а здесь территорию отпускает
+ * ВЛАДЕЛЕЦ — это акт метрополии, деколонизация. Механика после решения одна и
+ * та же (`secedeGroups`), потому что «как делится имущество и куда переезжают
+ * ссылки» не зависит от того, чьим решением новая страна возникла.
+ */
+export function grantIndependence(
+  game: GameState,
+  params: IndependenceParams
+): PolityLifecycleResult {
+  const source = game.countries.find(c => c.id === params.countryId);
+  if (!source) throw new Error(`create_country: unknown country ${params.countryId}`);
+
+  const plan = planIndependence(game, source.id, params.regionId);
+  if (!plan) throw new Error(`create_country: region ${params.regionId} cannot form a state`);
+
+  return secedeGroups(game, source, [plan]);
 }
 
 export interface MergeParams {

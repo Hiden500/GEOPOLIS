@@ -107,7 +107,9 @@ import {
 import { findMisreportedChanges } from "./reconciliation";
 import { elementIdentity, identityIndex } from "./elementIdentity";
 import {
+  grantIndependence,
   mergeCountries,
+  planIndependence,
   planSplit,
   reassignCapitalIfLost,
   splitCountry,
@@ -1280,6 +1282,48 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
         return {
           valid: false,
           rejection: { code: "mergeNotVassal", source: source.name, target: target.name },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "create_country": {
+      const region = findRegion(game, primitive.target.regionId);
+      if (!region) {
+        return { valid: false, rejection: { code: "unknownRegion", regionId: primitive.target.regionId } };
+      }
+
+      // ВЛАДЕНИЕ, а не контроль: независимость предоставляет собственник земли.
+      // Оккупант, «отпускающий» чужую территорию, создавал бы государство на
+      // земле, которая ему не принадлежит, — это аннексия через третье лицо.
+      if (region.ownerCountryId !== primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "independenceNotOwner", source: source.name, region: region.names },
+        };
+      }
+
+      const plan = planIndependence(game, primitive.sourceCountryId, region.id);
+      if (!plan) {
+        // Причина называет НАСКОЛЬКО не хватило: новое государство носит имя
+        // своей группы, и без большинства называть его нечем.
+        const largest = [...(region.demographics ?? [])]
+          .sort((a, b) => b.share - a.share)[0]?.share ?? 0;
+        return {
+          valid: false,
+          rejection: { code: "independenceNoMajority", region: region.names, share: largest },
+        };
+      }
+
+      // Метрополия обязана пережить акт. Государство, отпускающее ВСЮ свою
+      // землю, — это самороспуск, и у него свой глагол со своими предпосылками
+      // (недовольство, минимум регионов): разрешить обойти их отсюда значило бы
+      // завести второй, бесплатный путь к тому же исходу.
+      const owned = game.regions.filter(r => r.ownerCountryId === primitive.sourceCountryId);
+      if (owned.length <= plan.regionIds.length) {
+        return {
+          valid: false,
+          rejection: { code: "independenceWouldEmptyParent", country: source.name },
         };
       }
       return { valid: true };
@@ -2534,6 +2578,46 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         },
       };
     }
+
+    case "create_country": {
+      const parentId = primitive.sourceCountryId;
+      const parentName = countryLabel(game, parentId);
+      const scalarsBefore = countryScalars(game);
+
+      // Та же операция жизненного цикла, что у раскола, с планом из одной
+      // группы: «как делится имущество и куда переезжают ссылки» не зависит от
+      // того, чьим решением новая страна возникла.
+      const result = grantIndependence(game, {
+        countryId: parentId,
+        regionId: primitive.target.regionId,
+      });
+      const shard = result.shards[0]!;
+
+      return {
+        ok: true,
+        applied: {
+          verb: "create_country",
+          sourceCountryId: parentId,
+          parentCountryId: parentId,
+          createdCountryId: shard.countryId,
+          groupId: shard.groupId,
+          regionIds: shard.regionIds,
+          // Заявляется только метрополия: страны, которой не было в снимке
+          // «до», сверка не касается по построению.
+          countryScalarEffects: countryScalarDiff(scalarsBefore, countryScalars(game)).filter(
+            effect => effect.countryId === parentId
+          ),
+          capitalMoves: result.capitalReassignments,
+          summary: joinSummary(
+            `${parentName} granted independence to ${countryLabel(game, shard.countryId)} ` +
+            `(${shard.regionIds.length} region(s))`,
+            result.capitalReassignments.length > 0
+              ? [`${parentName} moved its capital`]
+              : []
+          ),
+        },
+      };
+    }
   }
 }
 
@@ -2752,6 +2836,16 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
     // отклоняет структурный по капу цели, а отказ структурного уносит ВЕСЬ
     // ответ. Их собственная защита строже общего слота: один структурный
     // примитив на игровой месяц на всю партию.
+    // Рождение государства ключуется РЕГИОНОМ: цель у него регион, и пара
+    // стран здесь не при чём — второй страны до применения не существует.
+    case "create_country":
+      return [
+        {
+          key: verbScopedKey(primitive.verb, `region ${primitive.target.regionId}`),
+          label: { region: regionNamesOf(game, primitive.target.regionId) },
+        },
+      ];
+
     case "puppet":
     case "annex":
     case "merge_countries":

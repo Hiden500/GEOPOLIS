@@ -127,7 +127,8 @@
     "support_proxy": "Back {{country}} in its war without joining it",
     "puppet": "Subject {{country}}",
     "annex": "Annex territory from {{country}}",
-    "merge_countries": "Absorb {{country}}"
+    "merge_countries": "Absorb {{country}}",
+    "create_country": "Grant independence to {{region}}"
   },
   "splitCountry": {
     "headline": "{{country}} broke apart into {{shards}} new state(s)"
@@ -216,5 +217,12 @@
     "absorbed": "{{country}} ceases to exist; {{regions}} region(s) passed over",
     "capitalMoved": "The capital moved to {{region}}",
     "warsClosed": "Wars closed: {{count}}"
+  },
+  "createCountry": {
+    "headline": "{{country}} declares independence from {{source}}"
+  },
+  "create": {
+    "regions": "The new state holds {{regions}} region(s)",
+    "capitalMoved": "The parent capital moved to {{region}}"
   }
 }

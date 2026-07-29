@@ -17,7 +17,7 @@ import { applyPrimitiveBatch } from "../PrimitiveEngine";
 import { findStateViolations } from "../invariants";
 import { findDanglingCountryReferences } from "../countryRefs";
 import { findSubordinationViolations, reconcileSubordination } from "../subordination";
-import { mergeCountries, splitCountry } from "../polityLifecycle";
+import { mergeCountries, planIndependence, splitCountry } from "../polityLifecycle";
 import { aggregateCountryFromRegions } from "@shared/utils/aggregateCountryData";
 
 /**
@@ -678,6 +678,165 @@ describe("merge_countries: сложение — обратная задача к
     expect(after.manpower).toBe(before.manpower);
     expect(after.regions).toBe(before.regions);
 
+    expect(findStateViolations(game)).toEqual([]);
+    expect(findDanglingCountryReferences(game)).toEqual([]);
+  });
+});
+
+// --------------------------------------------------------------------------
+// 6. Рождение государства без предшественника
+// --------------------------------------------------------------------------
+
+describe("create_country: независимость предоставляет ВЛАДЕЛЕЦ", () => {
+  it("новое государство забирает регионы своей группы, суммы мира сходятся", () => {
+    const game = createDiscontentTestGame();
+    const worldRegions = game.regions.length;
+    const parentBefore = sun(game).economy.treasury;
+    expect(parentBefore).toBeGreaterThan(0);
+
+    const result = applyPrimitiveBatch(game, [
+      {
+        verb: "create_country", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL },
+      },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    const applied = result.applied[0]!;
+    expect(applied.verb).toBe("create_country");
+    if (applied.verb !== "create_country") return;
+
+    const created = game.countries.find(c => c.id === applied.createdCountryId)!;
+    expect(created).toBeDefined();
+    // Ушли ВСЕ регионы источника с тем же большинством, а не только названный.
+    expect(applied.regionIds.length).toBeGreaterThan(1);
+    expect(game.regions.filter(r => r.ownerCountryId === created.id)).toHaveLength(
+      applied.regionIds.length
+    );
+    // Земля не создалась и не пропала.
+    expect(game.regions).toHaveLength(worldRegions);
+    // Казна поделена, а не удвоена.
+    expect(sun(game).economy.treasury + created.economy.treasury).toBe(parentBefore);
+
+    expect(findStateViolations(game)).toEqual([]);
+    expect(findDanglingCountryReferences(game)).toEqual([]);
+  });
+
+  it("дипломатия новорождённого пуста: независимость не наследует чужих союзов", () => {
+    const game = createDiscontentTestGame();
+    sun(game).diplomacy.allies = ["USA"];
+    sun(game).diplomacy.relations["USA"] = 60;
+
+    const result = applyPrimitiveBatch(game, [
+      {
+        verb: "create_country", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL },
+      },
+    ]);
+
+    const applied = result.applied[0]!;
+    if (applied.verb !== "create_country") throw new Error("expected create_country");
+    const created = game.countries.find(c => c.id === applied.createdCountryId)!;
+    expect(created.diplomacy.allies).toEqual([]);
+    expect(created.diplomacy.relations).toEqual({});
+  });
+
+  it("чужую территорию в независимость не отпустишь", () => {
+    const game = createDiscontentTestGame();
+    // USA лишь ОККУПИРУЕТ регион, владелец — SUN.
+    game.regions.find(r => r.id === TEST_REGION_NATIONAL)!.occupiedBy = "USA";
+
+    const result = applyPrimitiveBatch(game, [
+      {
+        verb: "create_country", sourceCountryId: "USA",
+        target: { regionId: TEST_REGION_NATIONAL },
+      },
+    ]);
+
+    expect(result.applied).toEqual([]);
+    expect(result.rejected[0]!.rejection.code).toBe("independenceNotOwner");
+  });
+
+  it("метрополия обязана пережить акт: отпустить ВСЁ — это самороспуск", () => {
+    // У SUN остаются только национальные регионы одной группы: отпустить их
+    // значит не оставить себе ничего. Для этого есть `split_country` со своими
+    // предпосылками, и обходить их отсюда нельзя.
+    const game = createDiscontentTestGame();
+    const control = game.regions.find(r => r.id === TEST_REGION_CONTROL)!;
+    control.ownerCountryId = "USA";
+    usa(game).capitalRegionId = control.id;
+    sun(game).capitalRegionId = TEST_REGION_NATIONAL;
+
+    const result = applyPrimitiveBatch(game, [
+      {
+        verb: "create_country", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL },
+      },
+    ]);
+
+    expect(result.applied).toEqual([]);
+    expect(result.rejected[0]!.rejection.code).toBe("independenceWouldEmptyParent");
+    expect(game.countries).toHaveLength(2);
+  });
+
+  it("НЕГАТИВНЫЙ КОНТРОЛЬ: без группы-большинства государство не рождается", () => {
+    // Регион из мелких общин: назвать новое государство не в честь кого. Без
+    // этой проверки предыдущие тесты проходили бы и на регионе без демографии.
+    const game = createDiscontentTestGame();
+    const region = game.regions.find(r => r.id === TEST_REGION_NATIONAL)!;
+    region.demographics = [
+      { groupId: "lithuanians", share: 0.3 },
+      { groupId: "russians", share: 0.3 },
+    ];
+
+    const result = applyPrimitiveBatch(game, [
+      {
+        verb: "create_country", sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL },
+      },
+    ]);
+
+    expect(result.applied).toEqual([]);
+    expect(result.rejected[0]!.rejection.code).toBe("independenceNoMajority");
+  });
+
+  it("на боевых данных 1946: деколонизация реальной державы держит мир целым", () => {
+    const game = createGame("1946", "SUN", "ru", 1);
+    // Держава с наибольшим числом регионов и регион с группой-большинством,
+    // после ухода которой ей остаётся земля. Ищется В СОСТОЯНИИ.
+    const owners = new Map<string, number>();
+    for (const region of game.regions) {
+      owners.set(region.ownerCountryId, (owners.get(region.ownerCountryId) ?? 0) + 1);
+    }
+    let found: { ownerId: string; regionId: number } | undefined;
+    for (const [ownerId, count] of [...owners.entries()].sort((a, b) => b[1] - a[1])) {
+      if (count < 2) continue;
+      for (const region of game.regions.filter(r => r.ownerCountryId === ownerId)) {
+        const plan = planIndependence(game, ownerId, region.id);
+        if (plan && plan.regionIds.length < count) {
+          found = { ownerId, regionId: region.id };
+          break;
+        }
+      }
+      if (found) break;
+    }
+    expect(found).toBeDefined();
+
+    const countriesBefore = game.countries.length;
+    const regionsBefore = game.regions.length;
+
+    const result = applyPrimitiveBatch(game, [
+      {
+        verb: "create_country",
+        sourceCountryId: found!.ownerId,
+        target: { regionId: found!.regionId },
+      },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(game.countries).toHaveLength(countriesBefore + 1);
+    expect(game.regions).toHaveLength(regionsBefore);
+    expect(new Set(game.countries.map(c => c.id)).size).toBe(game.countries.length);
     expect(findStateViolations(game)).toEqual([]);
     expect(findDanglingCountryReferences(game)).toEqual([]);
   });

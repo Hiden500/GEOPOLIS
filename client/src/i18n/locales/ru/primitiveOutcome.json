@@ -127,7 +127,8 @@
     "support_proxy": "Поддержать {{country}} в её войне, не вступая в неё",
     "puppet": "Подчинить {{country}}",
     "annex": "Присоединить земли {{country}}",
-    "merge_countries": "Присоединить {{country}} к своему составу"
+    "merge_countries": "Присоединить {{country}} к своему составу",
+    "create_country": "Предоставить независимость региону {{region}}"
   },
   "splitCountry": {
     "headline": "Государство {{country}} раскололось: новых государств — {{shards}}"
@@ -216,5 +217,12 @@
     "absorbed": "{{country}} перестаёт существовать; регионов перешло: {{regions}}",
     "capitalMoved": "Столица переехала в регион {{region}}",
     "warsClosed": "Войн закрыто: {{count}}"
+  },
+  "createCountry": {
+    "headline": "{{country}} провозглашает независимость от {{source}}"
+  },
+  "create": {
+    "regions": "Регионов в составе нового государства: {{regions}}",
+    "capitalMoved": "Столица метрополии переехала в регион {{region}}"
   }
 }

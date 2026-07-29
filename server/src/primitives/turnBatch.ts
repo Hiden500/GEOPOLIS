@@ -94,7 +94,8 @@ function placeHistoryEntries(
     // Объединение — то же, что раскол: оно затрагивает МНОГО мест сразу, и
     // истории места сказать о нём нечего, кроме смены флага, уже выраженной
     // владением региона.
-    applied.verb === "merge_countries"
+    applied.verb === "merge_countries" ||
+    applied.verb === "create_country"
   ) {
     return entries;
   }

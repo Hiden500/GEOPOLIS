@@ -779,6 +779,13 @@ export class LLMService {
           // произошло и с ними, а новый владелец попадает через `addRegion`.
           for (const regionId of primitive.annexedRegionIds) addRegion(regionId);
           break;
+        case "create_country":
+          // Новое государство и его регионы: «память страны» новорождённого
+          // обязана начинаться с собственного рождения — то же требование, что
+          // у осколков раскола.
+          countries.add(primitive.createdCountryId);
+          for (const regionId of primitive.regionIds) addRegion(regionId);
+          break;
         case "merge_countries":
           // Поглощённой страны в состоянии уже нет, но событие касается её
           // буквально: её идентификатор остаётся в квитанции как запись о

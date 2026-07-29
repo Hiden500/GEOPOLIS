@@ -169,6 +169,13 @@ changes hands or it does not.
   one whose foreign policy it already conducts, not into whoever asks. The state
   the human plays can never be absorbed — the player loses their country by
   losing all of its land, never by merger.
+- create_country — STRUCTURAL — target {regionId} — the state that OWNS that
+  region lets it go, and a new country is born on it. Which land leaves is
+  decided by demography, not by you: every region of the owner where the same
+  group holds the majority goes with it, and the new state is named after that
+  group. Requires the source to own the region, the region to have a majority
+  group at all, and the source to keep at least one region — a state letting go
+  of everything is dissolving itself, and that is split_country.
 
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —

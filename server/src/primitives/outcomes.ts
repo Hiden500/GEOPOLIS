@@ -634,6 +634,30 @@ export function buildPrimitiveOutcome(
         details,
       };
     }
+
+    case "create_country": {
+      const details: PrimitiveOutcomeLine[] = [
+        { key: "create.regions", values: { regions: applied.regionIds.length } },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "create.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "createCountry.headline",
+          names: {
+            source: countryNames(game, applied.parentCountryId),
+            country: countryNames(game, applied.createdCountryId),
+          },
+        },
+        details,
+      };
+    }
   }
 }
 
@@ -786,6 +810,12 @@ export function buildPrimitivePreview(
       case "merge_countries":
         names.country = countryNames(game, primitive.target.countryId);
         key = `preview.${primitive.verb}`;
+        break;
+      case "create_country":
+        // Ни имени будущего государства, ни состава его земель: и то и другое
+        // выведет движок из демографии в момент применения.
+        names.region = regionNames(game, primitive.target.regionId);
+        key = "preview.create_country";
         break;
     }
 

@@ -47,7 +47,8 @@
     "support_proxy": "proxy support",
     "puppet": "Subjection",
     "annex": "Annexation",
-    "merge_countries": "Absorption"
+    "merge_countries": "Absorption",
+    "create_country": "Independence"
   },
   "errors": {
     "translateFailed": "The order could not be recognised. Check that model access is configured.",

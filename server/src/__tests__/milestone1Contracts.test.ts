@@ -624,7 +624,11 @@ describe("сверка результата покрывает все число
       // обязаны сверяться. Их список растёт вместе с разложением состояния —
       // `treasury:` пришла с репарациями `peace`, `personnel:` с
       // `support_proxy`, и каждая обязала жизненный цикл заявлять своё деление.
-      const LIFECYCLE_VERBS: PrimitiveVerb[] = ["split_country", "merge_countries"];
+      const LIFECYCLE_VERBS: PrimitiveVerb[] = [
+        "split_country",
+        "merge_countries",
+        "create_country",
+      ];
       const LIFECYCLE_REPORTED_PATHS = [
         "countries[*].economy.treasury",
         "countries[*].military.activePersonnel",

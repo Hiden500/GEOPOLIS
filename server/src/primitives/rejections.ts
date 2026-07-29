@@ -154,6 +154,9 @@ export type PrimitiveRejection =
   | { code: "annexNothingHeld"; source: LocalizedText; target: LocalizedText }
   | { code: "mergeNotVassal"; source: LocalizedText; target: LocalizedText }
   | { code: "mergePlayerCountry"; target: LocalizedText }
+  | { code: "independenceNotOwner"; source: LocalizedText; region: LocalizedText }
+  | { code: "independenceNoMajority"; region: LocalizedText; share: number }
+  | { code: "independenceWouldEmptyParent"; country: LocalizedText }
 
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
@@ -375,6 +378,22 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
         `absorbed into the one whose foreign policy it already follows — subject it first (puppet), ` +
         `or take its land by war`
       );
+    case "independenceNotOwner":
+      return (
+        `${name(rejection.source)} does not own ${name(rejection.region)}: independence is granted ` +
+        `by the state that holds the land, it is not declared over somebody else's territory`
+      );
+    case "independenceNoMajority":
+      return (
+        `${name(rejection.region)} has no majority group to found a state on (largest share ` +
+        `${rejection.share.toFixed(2)}): a new country is named after its people, and there is ` +
+        `nobody here to name it after`
+      );
+    case "independenceWouldEmptyParent":
+      return (
+        `Letting this territory go would leave ${name(rejection.country)} with no land at all: ` +
+        `that is a state dissolving itself, and it has its own verb (split_country)`
+      );
     case "mergePlayerCountry":
       return (
         `${name(rejection.target)} is the state the human plays: it cannot be absorbed into another ` +
@@ -552,6 +571,13 @@ export function rejectionRecord(
       return of(undefined, { source: rejection.source, target: rejection.target });
     case "mergePlayerCountry":
       return of(undefined, { target: rejection.target });
+    case "independenceNotOwner":
+      return of(undefined, { source: rejection.source, region: rejection.region });
+    case "independenceNoMajority":
+      // Доля — свойство МИРА: игрок видит демографию региона в интерфейсе.
+      return of({ share: rejection.share.toFixed(2) }, { region: rejection.region });
+    case "independenceWouldEmptyParent":
+      return of(undefined, { country: rejection.country });
     case "noVassalageLeverage":
       // Доля удержанной земли, влияние и оба порога — свойства МИРА и ПРАВИЛ,
       // игрок видит их в интерфейсе; магнитуды несостоявшегося действия у

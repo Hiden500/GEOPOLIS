@@ -224,6 +224,11 @@ export const PRIMITIVE_SCHEMAS = {
   // Параметров нет по той же причине: страна либо вошла в состав другой, либо
   // нет, промежуточной величины у этого не бывает.
   merge_countries: primitiveOf("merge_countries", countryTargetSchema, noParamsSchema),
+  // Рождение государства адресуется РЕГИОНУ, а не стране: он и есть то, что
+  // отпускают. Какая именно территория уйдёт, решает демография (все регионы
+  // источника с тем же большинством) — тот же принцип, что у раскола: модель
+  // называет событие, карту рисует движок.
+  create_country: primitiveOf("create_country", regionTargetSchema, noParamsSchema),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -244,6 +249,7 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.puppet,
   PRIMITIVE_SCHEMAS.annex,
   PRIMITIVE_SCHEMAS.merge_countries,
+  PRIMITIVE_SCHEMAS.create_country,
 ]);
 
 /**

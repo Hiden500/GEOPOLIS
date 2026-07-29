@@ -41,6 +41,7 @@ export const PRIMITIVE_VERBS = [
   "puppet",
   "annex",
   "merge_countries",
+  "create_country",
 ] as const;
 
 export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
@@ -70,6 +71,7 @@ export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = [
   "puppet",
   "annex",
   "merge_countries",
+  "create_country",
 ];
 
 /**
@@ -576,6 +578,29 @@ export interface AppliedMergeCountries extends AppliedPrimitiveBase {
 }
 
 /**
+ * Факт рождения государства — БЕЗ предшественника, который бы развалился.
+ *
+ * Отличается от раскола не механикой, а автором решения: территорию отпускает
+ * ВЛАДЕЛЕЦ, а не недовольство её жителей. Поэтому у результата нет ни списка
+ * осколков, ни распустившейся метрополии: страна ровно одна, и она возникла.
+ */
+export interface AppliedCreateCountry extends AppliedPrimitiveBase {
+  verb: "create_country";
+  /** Государство, отпустившее территорию. */
+  parentCountryId: string;
+  /** Возникшее государство. */
+  createdCountryId: string;
+  /** Группа, чьим именем оно названо (имён гипотетических стран в состоянии нет). */
+  groupId: string;
+  /** Регионы, ушедшие новому государству. */
+  regionIds: number[];
+  /** Казна и живая сила метрополии после деления — фактические дельты. */
+  countryScalarEffects: CountryScalarEffect[];
+  /** Столица метрополии, если прежняя ушла новому государству. */
+  capitalMoves: { countryId: string; from: number; to: number }[];
+}
+
+/**
  * Discriminated union по глаголу: у каждого verb своя форма фактов, и лишнего
  * поля в ней нет. Общего скаляра «магнитуда» тут намеренно нет — один усреднённый
  * канал не описывает примитив, у которого их несколько (repress пишет и
@@ -598,7 +623,8 @@ export type AppliedPrimitive =
   | AppliedSupportProxy
   | AppliedPuppet
   | AppliedAnnex
-  | AppliedMergeCountries;
+  | AppliedMergeCountries
+  | AppliedCreateCountry;
 
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
@@ -635,6 +661,7 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
     case "puppet":
     case "annex":
     case "merge_countries":
+    case "create_country":
       return [];
     case "incite_unrest":
     case "repress":

@@ -258,6 +258,16 @@ const SCENARIOS: {
       state.countries.find(c => c.id === "SUN")!.diplomacy.puppets = ["USA"];
     },
   },
+  {
+    verb: "create_country",
+    primitive: {
+      verb: "create_country", sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL },
+    },
+    // Предпосылок у него три, и все выполняет сама фикстура: SUN владеет
+    // регионом, у региона есть группа-большинство, и после отделения
+    // национальных регионов у метрополии остаётся контрольный.
+  },
 ];
 
 describe("incite_unrest", () => {
