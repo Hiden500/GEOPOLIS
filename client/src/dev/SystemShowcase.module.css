@@ -1,5 +1,12 @@
+/*
+ * Витрина прокручивается САМА, а не растит документ: App.css держит на
+ * body `overflow: hidden` — игровой оболочке это нужно, карта занимает
+ * весь экран. Это же правило действует во всей системе: длинная
+ * поверхность прокручивается внутри себя.
+ */
 .page {
-  min-height: 100%;
+  height: 100%;
+  overflow-y: auto;
   padding: var(--space-6) var(--space-7);
   background: var(--surface-sunken);
   color: var(--text);
