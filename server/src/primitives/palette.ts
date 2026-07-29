@@ -93,6 +93,95 @@ export const PRIMITIVE_PALETTE: Record<PrimitiveVerb, readonly string[]> = {
     "countries[*].diplomacy.influence.{*}",
     "countries[*].diplomacy.sanctions.{*}[*]",
     "countries[*].diplomacy.sanctions.{*}[-]",
+    // Юридическая половина зависимости переезжает вместе с рантаймовой:
+    // `countryRefs.ts` переносит `overlordIds` наравне со списками дипломатии, а
+    // `removeCountry` достраивает пару, которую перенос мог оставить
+    // односторонней (`subordination.ts`). Без этих записей раскол государства,
+    // НЕ пережившего распад и состоявшего в отношениях подчинения, откатывался
+    // собственной палитрой — на данных 1946 достижимо (СССР держит двух
+    // клиентов, Британия — 42 территории). Дефект найден и закрыт Милстоуном 1,
+    // сессия структурных глаголов.
+    "countries[*].politics.overlordIds[*]",
+    "countries[*].politics.overlordIds[+]",
+    "countries[*].politics.overlordIds[-]",
+    "countries[*].politics.sovereigntyStatus",
+    // Регионы меняют владельца; оккупация снимается, если оккупант стал
+    // владельцем (иначе страна «оккупировала» бы саму себя).
+    "regions[*].ownerCountryId",
+    "regions[*].occupiedBy",
+    // Войны: стороны переехали, потерявшая смысл война закрыта.
+    "wars[*].active",
+    "wars[*].attackers[*]",
+    "wars[*].attackers[-]",
+    "wars[*].defenders[*]",
+    "wars[*].defenders[-]",
+    "wars[*].supporters[+]",
+    "wars[*].supporters[-]",
+    "wars[*].supporters[*].countryId",
+    "wars[*].casualties.{*}",
+    // Модификаторы на исчезнувшую страну снимаются, на переехавшую — переносятся.
+    "modifiers[-]",
+    "modifiers[*].target.id",
+    // Объект карты переживает исчезновение владельца, сменив хозяина.
+    "mapFeatures[*].ownerId",
+    // Партия: за кого играет человек и в каком состоянии кампания.
+    "playerCountryId",
+    "llmSpotlightCountryId",
+    "campaign.status",
+    "campaign.predecessor.en",
+    "campaign.predecessor.ru",
+    "campaign.successorCountryIds[*]",
+    "campaign.since",
+    // Одноразовая диагностика и счётчики хода, ключуемые страной.
+    "pendingWorldFacts[-]",
+    "pendingWorldFacts[*].countryId",
+    "primitiveTurnBudget.targetUses.{*}",
+  ],
+
+  // Рождение государства идёт тем же ядром отделения, что и раскол
+  // (`polityLifecycle.ts::secedeGroups`), поэтому и палитра у него та же: список
+  // отличался бы от списка раскола только тем, чего автор не вспомнил.
+  create_country: [
+    // Появление осколков и исчезновение распустившейся метрополии.
+    "countries[+]",
+    "countries[-]",
+    // Метрополия: столица могла уйти с осколком, агрегаты и делимое пересчитаны.
+    "countries[*].capitalRegionId",
+    "countries[*].population",
+    "countries[*].economy.gdp",
+    "countries[*].economy.treasury",
+    "countries[*].military.manpower",
+    "countries[*].military.activePersonnel",
+    "countries[*].military.reservePersonnel",
+    // Перенос ссылок затрагивает дипломатию ВСЕХ ссылающихся стран, а не только
+    // сторон раскола, — это и есть контракт §7.1.
+    "countries[*].currencyZoneAnchor",
+    "countries[*].diplomacy.allies[*]",
+    "countries[*].diplomacy.allies[-]",
+    "countries[*].diplomacy.rivals[*]",
+    "countries[*].diplomacy.rivals[-]",
+    "countries[*].diplomacy.puppets[*]",
+    "countries[*].diplomacy.puppets[-]",
+    "countries[*].diplomacy.sphereOfInfluence[*]",
+    "countries[*].diplomacy.sphereOfInfluence[-]",
+    "countries[*].diplomacy.guarantees[*]",
+    "countries[*].diplomacy.guarantees[-]",
+    "countries[*].diplomacy.relations.{*}",
+    "countries[*].diplomacy.influence.{*}",
+    "countries[*].diplomacy.sanctions.{*}[*]",
+    "countries[*].diplomacy.sanctions.{*}[-]",
+    // Юридическая половина зависимости переезжает вместе с рантаймовой:
+    // `countryRefs.ts` переносит `overlordIds` наравне со списками дипломатии, а
+    // `removeCountry` достраивает пару, которую перенос мог оставить
+    // односторонней (`subordination.ts`). Без этих записей раскол государства,
+    // НЕ пережившего распад и состоявшего в отношениях подчинения, откатывался
+    // собственной палитрой — на данных 1946 достижимо (СССР держит двух
+    // клиентов, Британия — 42 территории). Дефект найден и закрыт Милстоуном 1,
+    // сессия структурных глаголов.
+    "countries[*].politics.overlordIds[*]",
+    "countries[*].politics.overlordIds[+]",
+    "countries[*].politics.overlordIds[-]",
+    "countries[*].politics.sovereigntyStatus",
     // Регионы меняют владельца; оккупация снимается, если оккупант стал
     // владельцем (иначе страна «оккупировала» бы саму себя).
     "regions[*].ownerCountryId",
@@ -211,6 +300,118 @@ export const PRIMITIVE_PALETTE: Record<PrimitiveVerb, readonly string[]> = {
   support_proxy: [
     "countries[*].economy.treasury",
     "countries[*].military.activePersonnel",
+  ],
+
+  // Подчинение: РОВНО две половины одной зависимости и ничего сверх. Ни земли,
+  // ни казны, ни армии — вассал сохраняет территорию и государственность,
+  // теряет самостоятельность внешнего курса. Отношений тут тоже нет: подчинение
+  // не жест доброй воли и не ссора, а смена положения; последствия для пары
+  // приходят следующим тиком через `DiplomacyTick.dependencyStrength`.
+  puppet: [
+    // Элементы объявлены `[*]`, а не маркером роста: у `string[]` стабильной
+    // идентичности нет (`elementIdentity.ts`), поэтому диф сравнивает такие
+    // массивы позиционно, и появление первого элемента читается как изменение
+    // позиции 0, а не как рост массива. Маркер `[+]` нужен там, где элемент —
+    // объект с ключом; здесь он не сработал бы ни разу.
+    "countries[*].diplomacy.puppets[*]",
+    "countries[*].diplomacy.puppets[+]",
+    "countries[*].politics.overlordIds[*]",
+    "countries[*].politics.overlordIds[+]",
+    // Появление самого поля у страны, у которой списка сюзеренов не было вовсе.
+    "countries[*].politics.overlordIds",
+    "countries[*].politics.sovereigntyStatus",
+  ],
+
+  // Поглощение: земля переходит во владение, оккупация с неё снимается вместе
+  // со своим модификатором стабильности, агрегаты обеих стран пересчитываются
+  // из регионов. Страна-жертва в списке НЕ исчезает — `countries[-]` здесь нет
+  // намеренно: государство без территории законно (§7.1), а конец партии
+  // вычисляет машина состояний кампании.
+  annex: [
+    "regions[*].ownerCountryId",
+    "regions[*].occupiedBy",
+    // Смена оккупации ведёт модификатор стабильности региона
+    // (`simulation/war/occupation.ts` — единственная точка, держащая их
+    // согласованными).
+    "modifiers[+]",
+    "modifiers[-]",
+    // Столица, ушедшая победителю, переезжает: инвариант состояния требует её
+    // среди своих регионов, и без переноса аннексия откатывала бы весь ответ.
+    "countries[*].capitalRegionId",
+    // Население и ВВП выводятся из регионов и потому обязаны быть пересчитаны:
+    // держава, забравшая землю, не должна остаться с числами за чужую.
+    "countries[*].population",
+    "countries[*].economy.gdp",
+    // Война, потерявшая сторону целиком, закрывается тем же актом.
+    "wars[*].active",
+    // Партия: конец кампании вычисляет движок здесь же, а не следующим тиком.
+    "campaign.status",
+    "campaign.reason.code",
+    "campaign.reason.by.en",
+    "campaign.reason.by.ru",
+    "campaign.since",
+  ],
+
+  // Объединение государств — ОБРАТНАЯ операция к расколу, и палитра у неё того
+  // же вида и по той же причине: перечислено ровно то, что жизненный цикл
+  // обязан тронуть. Отличие одно и содержательное — здесь нет `countries[+]`:
+  // объединение страны не создаёт, оно их убавляет.
+  merge_countries: [
+    "countries[-]",
+    // Поглотитель: делимое имущество сложено, агрегаты пересчитаны из регионов.
+    "countries[*].capitalRegionId",
+    "countries[*].population",
+    "countries[*].economy.gdp",
+    "countries[*].economy.treasury",
+    "countries[*].military.manpower",
+    "countries[*].military.activePersonnel",
+    "countries[*].military.reservePersonnel",
+    // Перенос ссылок затрагивает дипломатию ВСЕХ ссылающихся стран.
+    "countries[*].currencyZoneAnchor",
+    "countries[*].diplomacy.allies[*]",
+    "countries[*].diplomacy.allies[-]",
+    "countries[*].diplomacy.rivals[*]",
+    "countries[*].diplomacy.rivals[-]",
+    "countries[*].diplomacy.puppets[*]",
+    "countries[*].diplomacy.puppets[-]",
+    "countries[*].diplomacy.sphereOfInfluence[*]",
+    "countries[*].diplomacy.sphereOfInfluence[-]",
+    "countries[*].diplomacy.guarantees[*]",
+    "countries[*].diplomacy.guarantees[-]",
+    "countries[*].diplomacy.relations.{*}",
+    "countries[*].diplomacy.influence.{*}",
+    "countries[*].diplomacy.sanctions.{*}[*]",
+    "countries[*].diplomacy.sanctions.{*}[-]",
+    // Юридическая половина зависимости переезжает вместе с рантаймовой.
+    "countries[*].politics.overlordIds[*]",
+    "countries[*].politics.overlordIds[+]",
+    "countries[*].politics.overlordIds[-]",
+    "countries[*].politics.sovereigntyStatus",
+    // Земля переходит поглотителю; оккупация с неё снимается вместе с
+    // модификатором стабильности.
+    "regions[*].ownerCountryId",
+    "regions[*].occupiedBy",
+    "modifiers[+]",
+    "modifiers[-]",
+    "modifiers[*].target.id",
+    // Война, схлопнувшаяся в войну страны с самой собой, закрыта.
+    "wars[*].active",
+    "wars[*].attackers[*]",
+    "wars[*].attackers[-]",
+    "wars[*].defenders[*]",
+    "wars[*].defenders[-]",
+    "wars[*].supporters[+]",
+    "wars[*].supporters[-]",
+    "wars[*].supporters[*].countryId",
+    "wars[*].casualties.{*}",
+    "mapFeatures[*].ownerId",
+    // `playerCountryId` здесь НЕТ намеренно: поглощение страны игрока
+    // отклоняется предпосылкой, и если ссылка всё-таки переедет, палитра
+    // обязана это поймать, а не разрешить.
+    "llmSpotlightCountryId",
+    "pendingWorldFacts[-]",
+    "pendingWorldFacts[*].countryId",
+    "primitiveTurnBudget.targetUses.{*}",
   ],
 };
 

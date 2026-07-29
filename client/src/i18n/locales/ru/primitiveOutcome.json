@@ -124,7 +124,11 @@
     "send_aid": "Направить помощь стране {{country}}",
     "capital_flight": "Спровоцировать бегство капитала — {{region}}",
     "condemn": "Публично осудить {{country}}",
-    "support_proxy": "Поддержать {{country}} в её войне, не вступая в неё"
+    "support_proxy": "Поддержать {{country}} в её войне, не вступая в неё",
+    "puppet": "Подчинить {{country}}",
+    "annex": "Присоединить земли {{country}}",
+    "merge_countries": "Присоединить {{country}} к своему составу",
+    "create_country": "Предоставить независимость региону {{region}}"
   },
   "splitCountry": {
     "headline": "Государство {{country}} раскололось: новых государств — {{shards}}"
@@ -190,5 +194,35 @@
   "influence": {
     "changed": "Влияние {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
     "unchanged": "Влияние {{source}} → {{country}}: без изменений ({{value}})"
+  },
+  "puppet": {
+    "headline": {
+      "occupation": "{{source}} подчиняет {{country}} силой: внешний курс теперь диктует {{source}}",
+      "influence": "{{source}} переводит {{country}} под своё покровительство: внешний курс теперь диктует {{source}}"
+    },
+    "statusChanged": "{{country}} теряет самостоятельность внешней политики",
+    "statusKept": "{{country}} и прежде была зависимой — теперь и от {{source}}"
+  },
+  "annex": {
+    "headline": "{{source}} присоединяет земли {{country}}: регионов — {{regions}}",
+    "noTerritoryLeft": "У {{country}} не осталось территории",
+    "territoryLeft": "За {{country}} остаётся регионов: {{regions}}",
+    "capitalMoved": "Столица переехала в регион {{region}}",
+    "campaignDefeated": "Ваше государство лишилось последней земли — кампания окончена"
+  },
+  "mergeCountries": {
+    "headline": "{{source}} присоединяет {{country}} к своему составу"
+  },
+  "merge": {
+    "absorbed": "{{country}} перестаёт существовать; регионов перешло: {{regions}}",
+    "capitalMoved": "Столица переехала в регион {{region}}",
+    "warsClosed": "Войн закрыто: {{count}}"
+  },
+  "createCountry": {
+    "headline": "{{country}} провозглашает независимость от {{source}}"
+  },
+  "create": {
+    "regions": "Регионов в составе нового государства: {{regions}}",
+    "capitalMoved": "Столица метрополии переехала в регион {{region}}"
   }
 }

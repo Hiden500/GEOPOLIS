@@ -43,6 +43,8 @@ import {
   seedSeparatistDiscontent,
   destabilizeRegion,
   giveAudience,
+  giveVassalageLeverage,
+  holdTerritoryOf,
   addProxyClientWar,
 } from "../../test-utils/discontentFixtures";
 import { createTestRegion } from "../../test-utils/fixtures";
@@ -224,6 +226,47 @@ const SCENARIOS: {
       addProxyClientWar(state, "USA");
       giveAudience(state, "SUN", "USA");
     },
+  },
+  // Структурные глаголы подчинения и поглощения (Милстоун 1).
+  {
+    verb: "puppet",
+    primitive: { verb: "puppet", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Рычаг влияния, а не оккупации: он единственный доступен без войны, и
+    // именно он живой на данных 1946 (оккупированных регионов там ноль).
+    setup: state => { giveVassalageLeverage(state, "SUN", "USA"); },
+  },
+  {
+    verb: "annex",
+    primitive: { verb: "annex", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Аннексировать можно только то, что держишь: без региона под чужим
+    // владением и своим контролем сценарий проверял бы отказ вместо палитры.
+    setup: state => { holdTerritoryOf(state, "SUN", "USA", TEST_REGION_NEIGHBOUR); },
+  },
+  {
+    verb: "merge_countries",
+    primitive: { verb: "merge_countries", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Поглощается тот, чью внешнюю политику источник уже ведёт, и у цели
+    // должна быть земля — иначе объединение не тронуло бы ни одного региона и
+    // палитра осталась бы непроверенной на своей главной записи.
+    setup: state => {
+      const region = state.regions.find(r => r.id === TEST_REGION_NEIGHBOUR)!;
+      region.ownerCountryId = "USA";
+      const usa = state.countries.find(c => c.id === "USA")!;
+      usa.capitalRegionId = region.id;
+      usa.politics.sovereigntyStatus = "protectorate";
+      usa.politics.overlordIds = ["SUN"];
+      state.countries.find(c => c.id === "SUN")!.diplomacy.puppets = ["USA"];
+    },
+  },
+  {
+    verb: "create_country",
+    primitive: {
+      verb: "create_country", sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL },
+    },
+    // Предпосылок у него три, и все выполняет сама фикстура: SUN владеет
+    // регионом, у региона есть группа-большинство, и после отделения
+    // национальных регионов у метрополии остаётся контрольный.
   },
 ];
 

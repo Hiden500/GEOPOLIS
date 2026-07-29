@@ -16,7 +16,12 @@ import {
   IDEOLOGY_AXIS_MAX,
   type IdeologyCoordinates,
 } from "@shared/types/politics/Ideology";
-import { ALLY_RELATION_THRESHOLD } from "@shared/defines/diplomacy";
+import {
+  ALLY_RELATION_THRESHOLD,
+  VASSALAGE_MIN_HELD_SHARE,
+  VASSALAGE_MIN_INFLUENCE,
+} from "@shared/defines/diplomacy";
+import { aggregateCountryFromRegions } from "@shared/utils/aggregateCountryData";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
 import {
@@ -102,14 +107,18 @@ import {
 import { findMisreportedChanges } from "./reconciliation";
 import { elementIdentity, identityIndex } from "./elementIdentity";
 import {
+  grantIndependence,
+  mergeCountries,
+  planIndependence,
   planSplit,
   reassignCapitalIfLost,
   splitCountry,
   splitDiscontentThreshold,
 } from "./polityLifecycle";
 import { pruneTurnBudgetTargets } from "./countryRefs";
+import { applyVassalage, overlordChainOf } from "./subordination";
 import { SPLIT_MIN_GROUP_SHARE, SPLIT_MIN_REGIONS } from "@shared/defines/discontent";
-import { applyLifecycleToCampaign } from "./campaign";
+import { applyLifecycleToCampaign, evaluateCampaign } from "./campaign";
 import {
   type ExhaustedTarget,
   type PrimitiveRejection,
@@ -588,6 +597,46 @@ function countryScalars(game: GameState): Map<string, number> {
     values.set(`${country.id}|activePersonnel`, country.military.activePersonnel);
   }
   return values;
+}
+
+/**
+ * Влияние всех пар стран — снимком, тем же приёмом, что `countryScalars`.
+ *
+ * Нужен структурным глаголам жизненного цикла: страна, исчезнувшая из мира,
+ * уносит с собой и записи влияния НА неё, и запись влияния поглотителя на
+ * поглощённого (она снимается как самоссылка). Обе — ячейки `influence:` в
+ * разложении состояния, и обе обязаны быть заявлены.
+ */
+function countryInfluences(game: GameState): Map<string, number> {
+  const values = new Map<string, number>();
+  for (const country of game.countries) {
+    for (const [targetId, value] of Object.entries(country.diplomacy.influence)) {
+      values.set(`${country.id}|${targetId}`, value);
+    }
+  }
+  return values;
+}
+
+/**
+ * Фактические изменения влияния между снимками.
+ *
+ * Пары, которых нет в снимке «после», считаются ушедшими в ноль: ячейка,
+ * которой не стало, и ячейка со значением ноль — одно утверждение о мире (та же
+ * трактовка, что у `cellChanges` в сверке).
+ */
+function influenceDiff(
+  before: Map<string, number>,
+  after: Map<string, number>
+): InfluenceEffect[] {
+  const effects: InfluenceEffect[] = [];
+  for (const key of new Set([...before.keys(), ...after.keys()])) {
+    const was = before.get(key) ?? 0;
+    const now = after.get(key) ?? 0;
+    if (was === now) continue;
+    const [fromCountryId, toCountryId] = key.split("|") as [string, string];
+    effects.push({ fromCountryId, toCountryId, before: was, after: now, delta: now - was });
+  }
+  return effects;
 }
 
 /** Доля в 0..1 — вход множителей состояния, приходящий из деления величин мира. */
@@ -1126,7 +1175,181 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       }
       return { valid: true };
     }
+
+    case "puppet": {
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId);
+      if (!target) return { valid: false, rejection: { code: "unknownCountry", countryId: targetId } };
+      if (targetId === primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "bilateralSelfTarget", verb: primitive.verb, country: source.name },
+        };
+      }
+      if (source.diplomacy.puppets.includes(targetId)) {
+        return {
+          valid: false,
+          rejection: { code: "alreadyVassal", source: source.name, target: target.name },
+        };
+      }
+      // Цикл запрещён на ЦЕПОЧКЕ, а не только на прямой паре: A → B → C → A
+      // ломает `WarService.findCoalitionFor` и тяготение пары ровно так же, как
+      // взаимное подчинение двоих, и обход по цепочке стоит одного прохода по
+      // ростеру.
+      if (overlordChainOf(game, primitive.sourceCountryId).has(targetId)) {
+        return {
+          valid: false,
+          rejection: { code: "vassalageCycle", source: source.name, target: target.name },
+        };
+      }
+
+      // РЫЧАГ: подчинение следует либо за войсками на земле, либо за долго
+      // построенным влиянием. Третьего входа в состоянии нет — отношения в
+      // сценарии 1946 у всех нули, и порог по ним был бы либо пустым, либо
+      // всеобщим (та же граница, что у повода войны).
+      const heldShare = heldShareOf(game, primitive.sourceCountryId, targetId);
+      const influence = source.diplomacy.influence[targetId] ?? 0;
+      if (heldShare < VASSALAGE_MIN_HELD_SHARE && influence < VASSALAGE_MIN_INFLUENCE) {
+        return {
+          valid: false,
+          rejection: {
+            code: "noVassalageLeverage",
+            source: source.name,
+            target: target.name,
+            heldShare,
+            heldThreshold: VASSALAGE_MIN_HELD_SHARE,
+            influence,
+            influenceThreshold: VASSALAGE_MIN_INFLUENCE,
+          },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "annex": {
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId);
+      if (!target) return { valid: false, rejection: { code: "unknownCountry", countryId: targetId } };
+      if (targetId === primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "bilateralSelfTarget", verb: primitive.verb, country: source.name },
+        };
+      }
+
+      // ЕДИНСТВЕННАЯ предпосылка, и она же — вся семантика глагола: аннексия
+      // превращает землю, которую ты ДЕРЖИШЬ, в землю, которой ты ВЛАДЕЕШЬ.
+      // Повода войны она не требует по той же причине, что и `war` (претензий
+      // и обид в состоянии нет вовсе), но и захватом на расстоянии не является:
+      // оккупация возникает только войной, поэтому фактический контроль и есть
+      // проверяемое движком «ты за это воевал».
+      if (heldRegionsOf(game, primitive.sourceCountryId, targetId).length === 0) {
+        return {
+          valid: false,
+          rejection: { code: "annexNothingHeld", source: source.name, target: target.name },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "merge_countries": {
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId);
+      if (!target) return { valid: false, rejection: { code: "unknownCountry", countryId: targetId } };
+      if (targetId === primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "bilateralSelfTarget", verb: primitive.verb, country: source.name },
+        };
+      }
+
+      // СТРАНА ИГРОКА НЕ ПОГЛОЩАЕТСЯ, и это граница, а не осторожность.
+      // Объединение переносит ссылки поглощённой страны поглотителю, включая
+      // `playerCountryId`, — то есть человек молча продолжил бы партию за
+      // другую державу. §6 называет ровно один способ потерять своё
+      // государство: лишиться всей земли. Раскол предлагает выбор осколка,
+      // аннексия ведёт к вердикту кампании; у слияния такого пути нет.
+      if (targetId === game.playerCountryId) {
+        return { valid: false, rejection: { code: "mergePlayerCountry", target: target.name } };
+      }
+
+      // ЕДИНСТВЕННАЯ содержательная предпосылка: поглощается тот, чью внешнюю
+      // политику ты уже ведёшь. Она живая на данных 1946 (77 пар), выражает
+      // ступень «сначала подчини, потом присоедини» и закрывает главный обход —
+      // мирное поглощение соседа, с которым тебя ничего не связывает.
+      // Отношения порогом быть не могут: в сценарии они нули у всех.
+      if (!source.diplomacy.puppets.includes(targetId)) {
+        return {
+          valid: false,
+          rejection: { code: "mergeNotVassal", source: source.name, target: target.name },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "create_country": {
+      const region = findRegion(game, primitive.target.regionId);
+      if (!region) {
+        return { valid: false, rejection: { code: "unknownRegion", regionId: primitive.target.regionId } };
+      }
+
+      // ВЛАДЕНИЕ, а не контроль: независимость предоставляет собственник земли.
+      // Оккупант, «отпускающий» чужую территорию, создавал бы государство на
+      // земле, которая ему не принадлежит, — это аннексия через третье лицо.
+      if (region.ownerCountryId !== primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "independenceNotOwner", source: source.name, region: region.names },
+        };
+      }
+
+      const plan = planIndependence(game, primitive.sourceCountryId, region.id);
+      if (!plan) {
+        // Причина называет НАСКОЛЬКО не хватило: новое государство носит имя
+        // своей группы, и без большинства называть его нечем.
+        const largest = [...(region.demographics ?? [])]
+          .sort((a, b) => b.share - a.share)[0]?.share ?? 0;
+        return {
+          valid: false,
+          rejection: { code: "independenceNoMajority", region: region.names, share: largest },
+        };
+      }
+
+      // Метрополия обязана пережить акт. Государство, отпускающее ВСЮ свою
+      // землю, — это самороспуск, и у него свой глагол со своими предпосылками
+      // (недовольство, минимум регионов): разрешить обойти их отсюда значило бы
+      // завести второй, бесплатный путь к тому же исходу.
+      const owned = game.regions.filter(r => r.ownerCountryId === primitive.sourceCountryId);
+      if (owned.length <= plan.regionIds.length) {
+        return {
+          valid: false,
+          rejection: { code: "independenceWouldEmptyParent", country: source.name },
+        };
+      }
+      return { valid: true };
+    }
   }
+}
+
+/**
+ * Регионы, которыми цель ВЛАДЕЕТ, а источник фактически КОНТРОЛИРУЕТ.
+ *
+ * Ровно то, что аннексия вправе перевести во владение, и ровно то, из чего
+ * считается доля удержанного для подчинения, — одна функция на предпосылку и
+ * на эффект, чтобы «что держит держава» не могло означать разное в отказе и в
+ * применении.
+ */
+function heldRegionsOf(game: GameState, holderId: string, ownerId: string): Region[] {
+  return game.regions.filter(
+    r => r.ownerCountryId === ownerId && effectiveController(r) === holderId
+  );
+}
+
+/** Доля территории цели под фактическим контролем источника; ноль у страны без земли. */
+function heldShareOf(game: GameState, holderId: string, ownerId: string): number {
+  const owned = game.regions.filter(r => r.ownerCountryId === ownerId).length;
+  if (owned === 0) return 0;
+  return heldRegionsOf(game, holderId, ownerId).length / owned;
 }
 
 /**
@@ -2204,6 +2427,197 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         },
       };
     }
+
+    case "puppet": {
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId)!;
+
+      // Чем подчинение обеспечено — считается ЗДЕСЬ ЖЕ, а не берётся из
+      // предпосылки: между validate и apply лежит применение предыдущих
+      // примитивов батча, и рычаг мог смениться. Отчёт обязан называть тот,
+      // что сработал в момент акта.
+      const leverage =
+        heldShareOf(game, primitive.sourceCountryId, targetId) >= VASSALAGE_MIN_HELD_SHARE
+          ? "occupation"
+          : "influence";
+
+      // ОБА представления зависимости одним вызовом — в этом весь глагол.
+      // Юридический статус и рантайм-отношение расходились именно потому, что
+      // менять их было принято по отдельности (`subordination.ts`).
+      const change = applyVassalage(game, primitive.sourceCountryId, targetId);
+      if (!change) {
+        const overlord = game.countries.find(c => c.id === primitive.sourceCountryId)!;
+        // Предпосылка это уже проверила; сюда попасть можно только если
+        // состояние сдвинулось между фазами. Тихо «применить ничего» нельзя —
+        // ответ считался бы изменившим мир и канонизировал бы нарратив.
+        return {
+          ok: false,
+          rejection: { code: "alreadyVassal", source: overlord.name, target: target.name },
+        };
+      }
+
+      return {
+        ok: true,
+        applied: {
+          verb: "puppet",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          leverage,
+          statusBefore: change.statusBefore,
+          statusAfter: change.statusAfter,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} subjected ` +
+            `${countryLabel(game, targetId)} by ${leverage}`,
+            change.statusBefore === change.statusAfter
+              ? [`legal status unchanged (${change.statusAfter})`]
+              : [`legal status ${change.statusBefore} -> ${change.statusAfter}`]
+          ),
+        },
+      };
+    }
+
+    case "annex": {
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId)!;
+      const held = heldRegionsOf(game, primitive.sourceCountryId, targetId);
+
+      const transfers = held.map(region =>
+        warCommands.transferRegion(game, region.id, primitive.sourceCountryId)
+      );
+      const transferError = failIfCommandFailed(transfers);
+      if (transferError) return commandFailure(primitive.verb, transferError);
+
+      // Столица, ушедшая победителю, переезжает в крупнейший оставшийся регион.
+      // Та же функция, которой двигают столицу раскол и мирный договор: второй
+      // копии правила «где теперь столица» быть не может — она разошлась бы.
+      const capitalMoves: { countryId: string; from: number; to: number }[] = [];
+      const moved = reassignCapitalIfLost(game, target);
+      if (moved) capitalMoves.push(moved);
+
+      // Население и ВВП выводятся из регионов и обязаны быть пересчитаны у
+      // ОБЕИХ сторон — иначе держава осталась бы с числами за чужую землю.
+      aggregateCountryFromRegions(game.countries.find(c => c.id === primitive.sourceCountryId)!, game.regions);
+      aggregateCountryFromRegions(target, game.regions);
+
+      // ЦЕЛЬ НЕ УДАЛЯЕТСЯ, даже потеряв последний регион. Государство без
+      // территории — законное состояние (§7.1: тотальное поражение даёт переход
+      // в подчинённое положение, а не во владение победителем), и решение о
+      // конце партии принимает машина состояний кампании, а не этот глагол.
+      // Считается тем же ходом, а не следующим тиком: аннексия последнего
+      // региона страны игрока обязана привести к вердикту немедленно, иначе
+      // между актом и его последствием лежал бы целый игровой месяц.
+      const campaignBefore = game.campaign.status;
+      const campaign = evaluateCampaign(game);
+      const targetRegionsLeft = game.regions.filter(r => r.ownerCountryId === targetId).length;
+
+      return {
+        ok: true,
+        applied: {
+          verb: "annex",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          annexedRegionIds: held.map(r => r.id),
+          targetRegionsLeft,
+          capitalMoves,
+          ...(campaign.status === "defeated" && campaignBefore !== "defeated"
+            ? { campaignEnded: "defeated" as const }
+            : {}),
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} annexed ${held.length} region(s) ` +
+            `from ${countryLabel(game, targetId)}`,
+            targetRegionsLeft === 0
+              ? [`${countryLabel(game, targetId)} holds no territory left`]
+              : [`${targetRegionsLeft} region(s) remain under ${countryLabel(game, targetId)}`]
+          ),
+        },
+      };
+    }
+
+    case "merge_countries": {
+      const targetId = primitive.target.countryId;
+      const absorbedName = countryLabel(game, targetId);
+      const absorbedRegionIds = game.regions
+        .filter(r => r.ownerCountryId === targetId)
+        .map(r => r.id);
+      // Снимок ДО сложения: заявить фактический прирост казны и живой силы
+      // иначе нечем, а не заявить — значит быть откаченным собственной сверкой.
+      const scalarsBefore = countryScalars(game);
+      const influencesBefore = countryInfluences(game);
+
+      // Вся работа со ссылками, суммами и войнами — в `polityLifecycle.ts`, той
+      // же машинерией, что у раскола. Обратная операция обязана пользоваться
+      // тем же жизненным циклом, иначе «суммы сходятся» означало бы разное на
+      // делении и на сложении.
+      const result = mergeCountries(game, {
+        absorberId: primitive.sourceCountryId,
+        absorbedId: targetId,
+      });
+
+      return {
+        ok: true,
+        applied: {
+          verb: "merge_countries",
+          sourceCountryId: primitive.sourceCountryId,
+          absorbedCountryId: targetId,
+          absorbedName: result.dissolvedName ?? { en: targetId },
+          absorbedRegionIds,
+          countryScalarEffects: countryScalarDiff(scalarsBefore, countryScalars(game)),
+          // Влияние поглотителя НА поглощённого снимается как самоссылка, а
+          // влияние третьих стран на неё уходит вместе со страной. Обе дельты
+          // реальны, обе имеют ячейку, обе заявляются.
+          influenceEffects: influenceDiff(influencesBefore, countryInfluences(game)),
+          capitalMoves: result.capitalReassignments,
+          closedWarIds: result.closedWarIds,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} absorbed ${absorbedName} ` +
+            `(${absorbedRegionIds.length} region(s))`,
+            result.closedWarIds.length > 0
+              ? [`wars closed: ${result.closedWarIds.join(", ")}`]
+              : []
+          ),
+        },
+      };
+    }
+
+    case "create_country": {
+      const parentId = primitive.sourceCountryId;
+      const parentName = countryLabel(game, parentId);
+      const scalarsBefore = countryScalars(game);
+
+      // Та же операция жизненного цикла, что у раскола, с планом из одной
+      // группы: «как делится имущество и куда переезжают ссылки» не зависит от
+      // того, чьим решением новая страна возникла.
+      const result = grantIndependence(game, {
+        countryId: parentId,
+        regionId: primitive.target.regionId,
+      });
+      const shard = result.shards[0]!;
+
+      return {
+        ok: true,
+        applied: {
+          verb: "create_country",
+          sourceCountryId: parentId,
+          parentCountryId: parentId,
+          createdCountryId: shard.countryId,
+          groupId: shard.groupId,
+          regionIds: shard.regionIds,
+          // Заявляется только метрополия: страны, которой не было в снимке
+          // «до», сверка не касается по построению.
+          countryScalarEffects: countryScalarDiff(scalarsBefore, countryScalars(game)).filter(
+            effect => effect.countryId === parentId
+          ),
+          capitalMoves: result.capitalReassignments,
+          summary: joinSummary(
+            `${parentName} granted independence to ${countryLabel(game, shard.countryId)} ` +
+            `(${shard.regionIds.length} region(s))`,
+            result.capitalReassignments.length > 0
+              ? [`${parentName} moved its capital`]
+              : []
+          ),
+        },
+      };
+    }
   }
 }
 
@@ -2413,6 +2827,35 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
         {
           key: verbScopedKey(primitive.verb, `region ${primitive.target.regionId}`),
           label: { region: regionNamesOf(game, primitive.target.regionId) },
+        },
+      ];
+
+    // ПОДЧИНЕНИЕ И ПОГЛОЩЕНИЕ держат СВОИ ключи на упорядоченную пару — по той
+    // же причине, что `war`/`peace`, и с той же ценой: общий слот пары означал
+    // бы, что мягкий дипломатический акт, применённый раньше в том же месяце,
+    // отклоняет структурный по капу цели, а отказ структурного уносит ВЕСЬ
+    // ответ. Их собственная защита строже общего слота: один структурный
+    // примитив на игровой месяц на всю партию.
+    // Рождение государства ключуется РЕГИОНОМ: цель у него регион, и пара
+    // стран здесь не при чём — второй страны до применения не существует.
+    case "create_country":
+      return [
+        {
+          key: verbScopedKey(primitive.verb, `region ${primitive.target.regionId}`),
+          label: { region: regionNamesOf(game, primitive.target.regionId) },
+        },
+      ];
+
+    case "puppet":
+    case "annex":
+    case "merge_countries":
+      return [
+        {
+          key: verbScopedKey(
+            primitive.verb,
+            bilateralPairKey(primitive.sourceCountryId, primitive.target.countryId)
+          ),
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
         },
       ];
   }

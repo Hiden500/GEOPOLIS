@@ -34,16 +34,19 @@ describe("LLMService", () => {
       expect(prompt).toContain('"title"');
       expect(prompt).toContain('"descriptions"');
       expect(prompt).toContain('"actions"');
-      // перечень допустимых типов действий присутствует в инструкции
-      // `annex`/`puppet` в списке типов больше нет (решение 2026-07-27): тип,
-      // существующий ради того, чтобы быть отклонённым, занимал место в
-      // контракте и в бюджете промта.
+      // Перечень допустимых типов СТАРОГО канала присутствует в инструкции.
+      // Проверяется он сам, а не отсутствие подстроки где угодно в промте:
+      // с возвращением `annex`/`puppet` глаголами алфавита (Милстоун 1, сессия
+      // структурных глаголов) их имена ЗАКОННО стоят в описании примитивов, и
+      // прежняя проверка `not.toContain("annex")` стала бы утверждать, что
+      // реализованный глагол модели не предлагается.
       expect(prompt).toContain("guarantee|research_shift");
       // Переведённые в алфавит типы из перечня УБРАНЫ: промт не вправе
       // обещать модели канал, которого схема больше не принимает.
       expect(prompt).not.toContain("diplomacy|war");
-      expect(prompt).not.toContain("annex");
-      expect(prompt).not.toContain("puppet");
+      const legacyTypes = prompt.slice(prompt.indexOf('"type": "guarantee')).split("\n")[0]!;
+      expect(legacyTypes).not.toContain("annex");
+      expect(legacyTypes).not.toContain("puppet");
     });
 
     it("## Language: требует писать нарратив на языке локали игры (2026-07-05)", () => {
@@ -779,7 +782,7 @@ describe("LLMService", () => {
      * приходит на СХЕМЕ — раньше и точнее, — а абзац промта, объяснявший, почему
      * их не надо предлагать, освободил место в бюджете.
      */
-    describe("annex/puppet удалены из контракта", () => {
+    describe("annex/puppet: удалены из старого канала, возвращены глаголами алфавита", () => {
       const annexOnly = JSON.stringify({
         title: "Эльзас присоединён к Франции",
         descriptions: "Франция объявила о присоединении Эльзаса.",
@@ -826,10 +829,21 @@ describe("LLMService", () => {
         expect(usa().diplomacy.guarantees).toContain("USSR");
       });
 
-      it("промт больше не тратит место на объяснение неработающих глаголов", () => {
+      it("старый канал их не принимает, а алфавит примитивов — предлагает", () => {
         const prompt = service.generatePrompt().prompt;
-        expect(prompt).not.toContain("annex");
-        expect(prompt).not.toContain("puppet");
+
+        // Перечень типов старого канала их не содержит: там у них не было и
+        // нет реализации, и тип, существующий ради того, чтобы быть
+        // отклонённым, занимал место в контракте и в бюджете промта.
+        const legacyTypes = prompt.slice(prompt.indexOf('"type": "guarantee')).split("\n")[0]!;
+        expect(legacyTypes).not.toContain("annex");
+        expect(legacyTypes).not.toContain("puppet");
+
+        // А в алфавите примитивов они ЕСТЬ и описаны — с Милстоуна 1, сессии
+        // структурных глаголов. Проверяется именно это, а не отсутствие
+        // подстроки: иначе тест сторожил бы удаление, которое отменено.
+        expect(prompt).toContain("- puppet — STRUCTURAL");
+        expect(prompt).toContain("- annex — STRUCTURAL");
       });
     });
 

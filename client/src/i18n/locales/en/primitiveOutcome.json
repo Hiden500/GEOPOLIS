@@ -124,7 +124,11 @@
     "send_aid": "Send aid to {{country}}",
     "capital_flight": "Trigger capital flight in {{region}}",
     "condemn": "Publicly condemn {{country}}",
-    "support_proxy": "Back {{country}} in its war without joining it"
+    "support_proxy": "Back {{country}} in its war without joining it",
+    "puppet": "Subject {{country}}",
+    "annex": "Annex territory from {{country}}",
+    "merge_countries": "Absorb {{country}}",
+    "create_country": "Grant independence to {{region}}"
   },
   "splitCountry": {
     "headline": "{{country}} broke apart into {{shards}} new state(s)"
@@ -190,5 +194,35 @@
   "influence": {
     "changed": "Influence {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
     "unchanged": "Influence {{source}} → {{country}}: unchanged ({{value}})"
+  },
+  "puppet": {
+    "headline": {
+      "occupation": "{{source}} subjects {{country}} by force: its foreign policy is now dictated by {{source}}",
+      "influence": "{{source}} brings {{country}} under its patronage: its foreign policy is now dictated by {{source}}"
+    },
+    "statusChanged": "{{country}} loses command of its own foreign policy",
+    "statusKept": "{{country}} was already dependent — now on {{source}} as well"
+  },
+  "annex": {
+    "headline": "{{source}} annexes territory from {{country}}: {{regions}} region(s)",
+    "noTerritoryLeft": "{{country}} holds no territory left",
+    "territoryLeft": "{{country}} still holds {{regions}} region(s)",
+    "capitalMoved": "The capital moved to {{region}}",
+    "campaignDefeated": "Your state has lost its last land — the campaign is over"
+  },
+  "mergeCountries": {
+    "headline": "{{source}} absorbs {{country}} into itself"
+  },
+  "merge": {
+    "absorbed": "{{country}} ceases to exist; {{regions}} region(s) passed over",
+    "capitalMoved": "The capital moved to {{region}}",
+    "warsClosed": "Wars closed: {{count}}"
+  },
+  "createCountry": {
+    "headline": "{{country}} declares independence from {{source}}"
+  },
+  "create": {
+    "regions": "The new state holds {{regions}} region(s)",
+    "capitalMoved": "The parent capital moved to {{region}}"
   }
 }

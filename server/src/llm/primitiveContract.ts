@@ -10,7 +10,11 @@ import {
   SPLIT_MIN_DISCONTENT_LOOSE,
   SPLIT_MIN_DISCONTENT_STRICT,
 } from "@shared/defines/discontent";
-import { SEND_AID_MIN_TREASURY_SHARE } from "@shared/defines/diplomacy";
+import {
+  SEND_AID_MIN_TREASURY_SHARE,
+  VASSALAGE_MIN_HELD_SHARE,
+  VASSALAGE_MIN_INFLUENCE,
+} from "@shared/defines/diplomacy";
 import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
 
 /**
@@ -136,6 +140,42 @@ them takes a magnitude either; all take params {intensity} only.
   same war, and the source is actually its patron (influence over it or a formal
   tie). How much is decided by the strength of that patronage and by how much of
   the client's land is currently occupied.
+
+Two structural verbs change who commands a state and who owns its land. Neither
+takes params at all: a state is either subjected or it is not, land either
+changes hands or it does not.
+
+- puppet — STRUCTURAL — target {countryId} — the target keeps its territory and
+  its statehood but loses command of its own foreign policy. This writes BOTH
+  halves of dependence at once: the runtime tie (the client is dragged into the
+  patron's wars and gravitates towards it) and the legal status (a sovereign
+  target becomes a protectorate; one already subordinate keeps whatever status
+  it has and simply gains another overlord). Requires LEVERAGE, and there are
+  exactly two kinds: the source actually controls at least
+  ${(VASSALAGE_MIN_HELD_SHARE * 100).toFixed(0)}% of the target's land, or it
+  holds at least ${VASSALAGE_MIN_INFLUENCE} influence over it. A state cannot
+  subject its own patron, directly or through a chain.
+- annex — STRUCTURAL — target {countryId} — every region the target OWNS and the
+  source actually CONTROLS passes into the source's ownership; the occupation on
+  it is lifted because it has become its own land. Requires holding at least one
+  such region: annexation converts ground you already hold, it does not reach
+  across a map. A state that loses its last region is NOT deleted and does not
+  become part of the winner — it continues as a government without territory,
+  and whether the campaign is over is decided by the engine, never by your text.
+- merge_countries — STRUCTURAL — target {countryId} — the target ceases to exist
+  and everything it had passes to the source: its regions, its treasury, its
+  manpower, and every reference the world held to it. Requires the target to be
+  a CLIENT of the source already (puppet it first): a state is absorbed into the
+  one whose foreign policy it already conducts, not into whoever asks. The state
+  the human plays can never be absorbed — the player loses their country by
+  losing all of its land, never by merger.
+- create_country — STRUCTURAL — target {regionId} — the state that OWNS that
+  region lets it go, and a new country is born on it. Which land leaves is
+  decided by demography, not by you: every region of the owner where the same
+  group holds the majority goes with it, and the new state is named after that
+  group. Requires the source to own the region, the region to have a majority
+  group at all, and the source to keep at least one region — a state letting go
+  of everything is dissolving itself, and that is split_country.
 
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —

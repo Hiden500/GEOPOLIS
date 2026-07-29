@@ -3,6 +3,7 @@ import { IMPACT_MEMORY_FIELDS } from "@shared/types/politics/Demographics";
 import { IDEOLOGY_AXES, IDEOLOGY_AXIS_MIN, IDEOLOGY_AXIS_MAX } from "@shared/types/politics/Ideology";
 import { COUNTRY_POLITICS_SCALE_MAX } from "@shared/defines/discontent";
 import { findDanglingCountryReferences } from "./countryRefs";
+import { findSubordinationViolations } from "./subordination";
 
 /**
  * Инварианты состояния, которые движок отказывается коммитить и отказывается
@@ -189,6 +190,15 @@ export function findStateViolations(game: GameState): string[] {
   for (const [countryId, paths] of danglingByCountry) {
     violations.push(`dangling reference to unknown country ${countryId} at ${paths.join(", ")}`);
   }
+
+  // Согласованность двух представлений зависимости (docs/DIPLOMACY.md).
+  // Перенесено сюда из слоя данных Милстоуном 1 вместе с глаголом `puppet`:
+  // пока `diplomacy.puppets` в рантайме не менял никто, инвариант проверялся
+  // валидатором пайплайна и тестом по загруженному сценарию, и этого хватало.
+  // С появлением механики вассалитета мир, где марионетка юридически
+  // суверенна, стал достижим игровым путём — то есть проверка обязана стоять
+  // там, где стоят остальные пост-инварианты транзакции и загрузки сейва.
+  violations.push(...findSubordinationViolations(game));
 
   // --- кампания (docs/CONCEPT.md §6, §7.1) ---
   const campaign = game.campaign as GameState["campaign"] | undefined;

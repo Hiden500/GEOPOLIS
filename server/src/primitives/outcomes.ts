@@ -535,6 +535,129 @@ export function buildPrimitiveOutcome(
         details,
       };
     }
+
+    case "puppet":
+      return {
+        verb: applied.verb,
+        headline: {
+          // Ключ несёт РЫЧАГ, а не только факт: «подчинена силой» и «вошла в
+          // клиенты по влиянию» — разные события для игрока, и один заголовок
+          // на оба выдал бы капитуляцию за дипломатию.
+          key: `puppet.headline.${applied.leverage}`,
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        // Машинного имени статуса в отклике НЕТ намеренно: `values`
+        // подставляются клиентом дословно, и `protectorate` попал бы в русский
+        // текст как есть. Разница «стал зависимым впервые» / «был зависим и
+        // раньше» выражена ключом, а конкретный статус игрок читает там, где он
+        // и живёт, — в панели страны (`client/src/i18n/governmentLabel.ts`).
+        details: [
+          applied.statusBefore === applied.statusAfter
+            ? {
+                key: "puppet.statusKept",
+                names: { source: countryNames(game, applied.sourceCountryId) },
+              }
+            : {
+                key: "puppet.statusChanged",
+                names: { country: countryNames(game, applied.targetCountryId) },
+              },
+        ],
+      };
+
+    case "annex": {
+      const details: PrimitiveOutcomeLine[] = [
+        applied.targetRegionsLeft === 0
+          ? { key: "annex.noTerritoryLeft", names: { country: countryNames(game, applied.targetCountryId) } }
+          : {
+              key: "annex.territoryLeft",
+              values: { regions: applied.targetRegionsLeft },
+              names: { country: countryNames(game, applied.targetCountryId) },
+            },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "annex.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+      // Конец партии называется ЗДЕСЬ же, а не оставляется панели кампании:
+      // игрок читает отклик приказа первым, и узнать о поражении из другого
+      // места экраном ниже — не то же самое, что узнать из результата акта.
+      if (applied.campaignEnded) details.push({ key: "annex.campaignDefeated" });
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "annex.headline",
+          values: { regions: applied.annexedRegionIds.length },
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details,
+      };
+    }
+
+    case "merge_countries": {
+      const details: PrimitiveOutcomeLine[] = [
+        {
+          key: "merge.absorbed",
+          values: { regions: applied.absorbedRegionIds.length },
+          // Имя поглощённой страны берётся ИЗ РЕЗУЛЬТАТА, а не из состояния:
+          // её там уже нет, и резолвер вернул бы сырой идентификатор.
+          names: { country: applied.absorbedName },
+        },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "merge.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+      if (applied.closedWarIds.length > 0) {
+        details.push({ key: "merge.warsClosed", values: { count: applied.closedWarIds.length } });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "mergeCountries.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: applied.absorbedName,
+          },
+        },
+        details,
+      };
+    }
+
+    case "create_country": {
+      const details: PrimitiveOutcomeLine[] = [
+        { key: "create.regions", values: { regions: applied.regionIds.length } },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "create.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "createCountry.headline",
+          names: {
+            source: countryNames(game, applied.parentCountryId),
+            country: countryNames(game, applied.createdCountryId),
+          },
+        },
+        details,
+      };
+    }
   }
 }
 
@@ -677,6 +800,22 @@ export function buildPrimitivePreview(
       case "capital_flight":
         names.region = regionNames(game, primitive.target.regionId);
         key = "preview.capital_flight";
+        break;
+      // Подчинение и поглощение: в показе распознанного нет ни рычага, ни
+      // состава регионов. Оба выведет движок из состояния в момент применения —
+      // между подтверждением и применением рычаг мог смениться, а земля
+      // перейти.
+      case "puppet":
+      case "annex":
+      case "merge_countries":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.${primitive.verb}`;
+        break;
+      case "create_country":
+        // Ни имени будущего государства, ни состава его земель: и то и другое
+        // выведет движок из демографии в момент применения.
+        names.region = regionNames(game, primitive.target.regionId);
+        key = "preview.create_country";
         break;
     }
 

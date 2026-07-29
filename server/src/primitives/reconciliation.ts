@@ -321,6 +321,39 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
     case "repress":
     case "grant_autonomy":
     case "spawn_incident":
+    // Подчинение и поглощение не заявляют НИ ОДНОЙ числовой ячейки, и это
+    // свойство класса, а не пропуск: `puppet` меняет два поля-перечисления и
+    // список, `annex` — владение регионами и агрегаты, выводимые из них.
+    // Правдивость обоих держат пост-инварианты (согласованность подчинения,
+    // ноль висячих ссылок, столица среди своих регионов) — механизмы, знающие
+    // о смысле этих полей больше, чем плоская карта чисел. Агрегаты страны
+    // (`population`, `economy.gdp`) ячеек не имеют вовсе: их источник —
+    // регионы, а не заявление глагола.
+    case "puppet":
+    case "annex":
+      break;
+    // Объединение делит с расколом обе ячейки делимого имущества: там оно
+    // делится, здесь складывается, и заявить прирост обязаны оба — иначе
+    // сверка откатила бы примитив за молчание о том, что он честно сделал.
+    // Поглощённая страна в сверку не попадает: `findMisreportedChanges`
+    // исключает страны, существующие только по одну сторону снимка.
+    // Рождение государства делит имущество метрополии тем же ядром, что и
+    // раскол, — значит и заявляет то же самое. Канала влияния у него нет:
+    // страна не исчезает, а появляется, и записей влияния НА неё до этого не
+    // существовало (`findMisreportedChanges` исключает страны, которых не было
+    // в снимке «до»).
+    case "create_country":
+      pushScalars(applied.countryScalarEffects);
+      break;
+    case "merge_countries":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.influenceEffects) {
+        changes.push({
+          key: influenceCellKey(effect.fromCountryId, effect.toCountryId),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
       break;
     default:
       assertNeverVerb(applied);
@@ -365,6 +398,13 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     case "capital_flight":
     case "condemn":
     case "support_proxy":
+    // Структурные глаголы подчинения и поглощения карту не трогают: объекты
+    // переживают смену флага региона (`mapFeatures[*].ownerId` в палитре
+    // раскола — это перенос владельца, а не создание).
+    case "puppet":
+    case "annex":
+    case "merge_countries":
+    case "create_country":
       return [];
   }
 }

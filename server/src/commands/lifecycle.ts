@@ -1,4 +1,8 @@
 import { type GameState } from "@shared/types/GameState";
+import {
+  type SovereigntyStatus,
+  SOVEREIGN_STATUS,
+} from "@shared/types/politics/Government";
 import { type CommandResult } from "./types";
 
 /**
@@ -72,5 +76,54 @@ export function setDivisibleAssets(
   country.military.manpower = assets.manpower;
   country.military.activePersonnel = assets.activePersonnel;
   country.military.reservePersonnel = assets.reservePersonnel;
+  return { success: true };
+}
+
+/**
+ * Записывает подчинение одного государства другому — ОБА представления
+ * зависимости за один вызов (docs/DIPLOMACY.md).
+ *
+ * Почему одна команда, а не две. `diplomacy.puppets` (рантайм-отношение) и
+ * `politics.sovereigntyStatus`/`overlordIds` (юридическое положение) — не
+ * дубль, но и противоречить друг другу не вправе: марионетка не бывает
+ * юридически суверенной, её сюзерен обязан входить в `overlordIds`. Пока
+ * записи делались порознь, инвариант держал только слой данных; команда,
+ * пишущая обе половины сразу, делает разрыв невыразимым в коде, а не
+ * запрещённым на словах.
+ *
+ * СМЫСЛ решения (кого можно подчинять, чем это обеспечено, какой статус
+ * получает суверенный субъект) живёт в `primitives/subordination.ts`. Здесь —
+ * только запись: команда не решает, законно ли подчинение, ровно как
+ * `setDivisibleAssets` не решает, законен ли раскол.
+ *
+ * Идемпотентна: повторный вызов по существующей паре ничего не меняет и
+ * успешен. `statusIfSovereign` применяется ТОЛЬКО к суверенному субъекту —
+ * государство, уже несуверенное по другому поводу (колония, зона оккупации),
+ * сохраняет свой статус, потому что тот точнее описывает природу подчинения.
+ */
+export function setSubordination(
+  game: GameState,
+  overlordId: string,
+  vassalId: string,
+  statusIfSovereign: SovereigntyStatus
+): CommandResult {
+  const overlord = game.countries.find(c => c.id === overlordId);
+  const vassal = game.countries.find(c => c.id === vassalId);
+  if (!overlord) return { success: false, error: `Unknown country: ${overlordId}` };
+  if (!vassal) return { success: false, error: `Unknown country: ${vassalId}` };
+  if (overlord.id === vassal.id) {
+    return { success: false, error: `A country cannot be its own overlord: ${overlordId}` };
+  }
+
+  if (!overlord.diplomacy.puppets.includes(vassal.id)) {
+    overlord.diplomacy.puppets = [...overlord.diplomacy.puppets, vassal.id];
+  }
+  const overlords = vassal.politics.overlordIds ?? [];
+  if (!overlords.includes(overlord.id)) {
+    vassal.politics.overlordIds = [...overlords, overlord.id];
+  }
+  if ((vassal.politics.sovereigntyStatus ?? SOVEREIGN_STATUS) === SOVEREIGN_STATUS) {
+    vassal.politics.sovereigntyStatus = statusIfSovereign;
+  }
   return { success: true };
 }

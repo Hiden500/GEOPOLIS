@@ -212,6 +212,23 @@ export const PRIMITIVE_SCHEMAS = {
   capital_flight: primitiveOf("capital_flight", regionTargetSchema, intensityOnlyParamsSchema),
   condemn: primitiveOf("condemn", countryTargetSchema, intensityOnlyParamsSchema),
   support_proxy: primitiveOf("support_proxy", countryTargetSchema, intensityOnlyParamsSchema),
+  // Подчинение и поглощение параметров не имеют ВОВСЕ — по той же причине, что
+  // `war` и `peace`: у структурного глагола величины нет. Государство либо
+  // подчинено, либо нет; земля либо перешла, либо не перешла. `intensity` здесь
+  // нечему двигать даже как порог — какие именно регионы переходят, решает
+  // фактический контроль, а не хинт, и приславший `params.intensity` получит
+  // ошибку схемы вместо молча проигнорированного поля.
+  puppet: primitiveOf("puppet", countryTargetSchema, noParamsSchema),
+  annex: primitiveOf("annex", countryTargetSchema, noParamsSchema),
+  // Объединение: цель — ПОГЛОЩАЕМОЕ государство, источник — поглотитель.
+  // Параметров нет по той же причине: страна либо вошла в состав другой, либо
+  // нет, промежуточной величины у этого не бывает.
+  merge_countries: primitiveOf("merge_countries", countryTargetSchema, noParamsSchema),
+  // Рождение государства адресуется РЕГИОНУ, а не стране: он и есть то, что
+  // отпускают. Какая именно территория уйдёт, решает демография (все регионы
+  // источника с тем же большинством) — тот же принцип, что у раскола: модель
+  // называет событие, карту рисует движок.
+  create_country: primitiveOf("create_country", regionTargetSchema, noParamsSchema),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -229,6 +246,10 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.capital_flight,
   PRIMITIVE_SCHEMAS.condemn,
   PRIMITIVE_SCHEMAS.support_proxy,
+  PRIMITIVE_SCHEMAS.puppet,
+  PRIMITIVE_SCHEMAS.annex,
+  PRIMITIVE_SCHEMAS.merge_countries,
+  PRIMITIVE_SCHEMAS.create_country,
 ]);
 
 /**

@@ -133,6 +133,31 @@ export type PrimitiveRejection =
   | { code: "proxyPatronIsBelligerent"; source: LocalizedText; target: LocalizedText }
   | { code: "proxyNoPatronage"; source: LocalizedText; target: LocalizedText }
 
+  // --- validate: подчинение и поглощение (Милстоун 1, структурные глаголы) ---
+  //
+  // Все четыре отвечают «так не бывает». Отдельного отказа «цель слишком
+  // сильна» здесь нет: сила выражена самой предпосылкой рычага — либо войска
+  // стоят на земле, либо влияние дотягивается, третьего входа у подчинения в
+  // состоянии нет.
+  | { code: "alreadyVassal"; source: LocalizedText; target: LocalizedText }
+  | { code: "vassalageCycle"; source: LocalizedText; target: LocalizedText }
+  | {
+      code: "noVassalageLeverage";
+      source: LocalizedText;
+      target: LocalizedText;
+      /** Доля территории цели под контролем источника — насколько не хватило. */
+      heldShare: number;
+      heldThreshold: number;
+      influence: number;
+      influenceThreshold: number;
+    }
+  | { code: "annexNothingHeld"; source: LocalizedText; target: LocalizedText }
+  | { code: "mergeNotVassal"; source: LocalizedText; target: LocalizedText }
+  | { code: "mergePlayerCountry"; target: LocalizedText }
+  | { code: "independenceNotOwner"; source: LocalizedText; region: LocalizedText }
+  | { code: "independenceNoMajority"; region: LocalizedText; share: number }
+  | { code: "independenceWouldEmptyParent"; country: LocalizedText }
+
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
   | { code: "structuralTurnCapReached"; cap: number }
@@ -324,6 +349,58 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
         `requires influence over it or a formal tie (alliance, guarantee, client state, sphere)`
       );
 
+    case "alreadyVassal":
+      return (
+        `${name(rejection.target)} already follows ${name(rejection.source)}'s foreign policy: ` +
+        `subjecting an existing client changes nothing`
+      );
+    case "vassalageCycle":
+      return (
+        `${name(rejection.source)} already follows ${name(rejection.target)} (directly or through ` +
+        `a chain of patrons): two states cannot each conduct the other's foreign policy`
+      );
+    case "noVassalageLeverage":
+      return (
+        `${name(rejection.source)} has no hold over ${name(rejection.target)}: it controls ` +
+        `${(rejection.heldShare * 100).toFixed(0)}% of its land (needs ` +
+        `${(rejection.heldThreshold * 100).toFixed(0)}%) and holds ${rejection.influence.toFixed(0)} ` +
+        `influence over it (needs ${rejection.influenceThreshold.toFixed(0)}). Subjection follows ` +
+        `either boots on the ground or long-built influence, and neither is there yet`
+      );
+    case "annexNothingHeld":
+      return (
+        `${name(rejection.source)} holds no region owned by ${name(rejection.target)}: annexation ` +
+        `converts land you actually control into land you own, it does not take land at a distance`
+      );
+    case "mergeNotVassal":
+      return (
+        `${name(rejection.target)} is not a client of ${name(rejection.source)}: a state is ` +
+        `absorbed into the one whose foreign policy it already follows — subject it first (puppet), ` +
+        `or take its land by war`
+      );
+    case "independenceNotOwner":
+      return (
+        `${name(rejection.source)} does not own ${name(rejection.region)}: independence is granted ` +
+        `by the state that holds the land, it is not declared over somebody else's territory`
+      );
+    case "independenceNoMajority":
+      return (
+        `${name(rejection.region)} has no majority group to found a state on (largest share ` +
+        `${rejection.share.toFixed(2)}): a new country is named after its people, and there is ` +
+        `nobody here to name it after`
+      );
+    case "independenceWouldEmptyParent":
+      return (
+        `Letting this territory go would leave ${name(rejection.country)} with no land at all: ` +
+        `that is a state dissolving itself, and it has its own verb (split_country)`
+      );
+    case "mergePlayerCountry":
+      return (
+        `${name(rejection.target)} is the state the human plays: it cannot be absorbed into another ` +
+        `country, because that would silently hand the player a different nation. A player loses ` +
+        `their state by losing all of its land, never by merger`
+      );
+
     case "softTurnCapReached":
       return `At most ${rejection.cap} soft primitives per turn`;
     case "structuralTurnCapReached":
@@ -486,6 +563,34 @@ export function rejectionRecord(
     case "proxyPatronIsBelligerent":
     case "proxyNoPatronage":
       return of(undefined, { source: rejection.source, target: rejection.target });
+
+    case "alreadyVassal":
+    case "vassalageCycle":
+    case "annexNothingHeld":
+    case "mergeNotVassal":
+      return of(undefined, { source: rejection.source, target: rejection.target });
+    case "mergePlayerCountry":
+      return of(undefined, { target: rejection.target });
+    case "independenceNotOwner":
+      return of(undefined, { source: rejection.source, region: rejection.region });
+    case "independenceNoMajority":
+      // Доля — свойство МИРА: игрок видит демографию региона в интерфейсе.
+      return of({ share: rejection.share.toFixed(2) }, { region: rejection.region });
+    case "independenceWouldEmptyParent":
+      return of(undefined, { country: rejection.country });
+    case "noVassalageLeverage":
+      // Доля удержанной земли, влияние и оба порога — свойства МИРА и ПРАВИЛ,
+      // игрок видит их в интерфейсе; магнитуды несостоявшегося действия у
+      // структурного глагола нет вовсе (см. шапку модуля).
+      return of(
+        {
+          heldShare: (rejection.heldShare * 100).toFixed(0),
+          heldThreshold: (rejection.heldThreshold * 100).toFixed(0),
+          influence: rejection.influence.toFixed(0),
+          influenceThreshold: rejection.influenceThreshold.toFixed(0),
+        },
+        { source: rejection.source, target: rejection.target }
+      );
 
     // Доля казны, стабильность региона и пороги — свойства МИРА и ПРАВИЛ:
     // игрок видит их в интерфейсе, и магнитуды несостоявшегося действия среди
