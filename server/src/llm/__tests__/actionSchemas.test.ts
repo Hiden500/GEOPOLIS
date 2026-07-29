@@ -2,207 +2,133 @@ import { describe, it, expect } from "vitest";
 import { LLMActionSchema, LLMResponseEnvelopeSchema, GeminiResponseSchema } from "../actionSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
-  MAX_RELATION_CHANGE,
-  MAX_INFLUENCE_CHANGE,
   MAX_RESEARCH_SHARE,
   MAX_PRODUCTION_SHARE,
 } from "@shared/defines/llmActionCaps";
 
+/**
+ * Блоки `diplomacy`, `war`, `peace` и `sanction` УДАЛЕНЫ вместе со своими
+ * типами (Милстоун 1, дипломатический блок алфавита). Покрытие не потеряно, а
+ * переехало: те же четыре воздействия проверяются как примитивы в
+ * `server/src/primitives/__tests__/diplomaticVerbs.test.ts` — и проверяются
+ * строже, потому что там же проверяется главное, чего этот контракт не умел:
+ * величину задаёт движок, а не модель.
+ *
+ * Капы `MAX_RELATION_CHANGE`/`MAX_INFLUENCE_CHANGE` удалены как понятие: они
+ * ограничивали ЧИСЛО ОТ МОДЕЛИ, то есть узаконивали её право это число прислать.
+ */
 describe("LLMActionSchema", () => {
-  describe("общие правила (все 11 типов)", () => {
+  describe("общие правила", () => {
     it("отклоняет неизвестный type", () => {
       const result = LLMActionSchema.safeParse({ type: "nuke", sourceCountryId: "USA", targetCountryId: "SUN" });
       expect(result.success).toBe(false);
     });
 
+    it("отклоняет переведённые в алфавит типы: канал остался ровно один", () => {
+      // Главная проверка удаления. Пока схема принимает `diplomacy`, модель
+      // может обойти коридор магнитуды примитива одной строкой `actions` —
+      // тогда перевод в алфавит не закрывает ничего.
+      for (const type of ["diplomacy", "war", "peace", "sanction"] as const) {
+        const result = LLMActionSchema.safeParse({
+          type,
+          sourceCountryId: "USA",
+          targetCountryId: "SUN",
+          data: { relationChange: 40 },
+        });
+        expect(result.success, `${type} обязан отклоняться старым каналом`).toBe(false);
+      }
+    });
+
     it("отклоняет отсутствующий sourceCountryId", () => {
-      const result = LLMActionSchema.safeParse({ type: "peace", targetCountryId: "SUN" });
+      const result = LLMActionSchema.safeParse({ type: "guarantee", targetCountryId: "SUN" });
       expect(result.success).toBe(false);
     });
 
     it("отклоняет пустую строку sourceCountryId", () => {
-      const result = LLMActionSchema.safeParse({ type: "peace", sourceCountryId: "", targetCountryId: "SUN" });
+      const result = LLMActionSchema.safeParse({ type: "guarantee", sourceCountryId: "", targetCountryId: "SUN" });
       expect(result.success).toBe(false);
     });
 
-    it.each(["diplomacy", "war", "peace", "sanction", "guarantee", "influence"] as const)(
+    it.each(["guarantee", "influence"] as const)(
       "%s: отклоняет sourceCountryId === targetCountryId",
       (type) => {
         const result = LLMActionSchema.safeParse({
           type,
           sourceCountryId: "USA",
           targetCountryId: "USA",
-          ...(type === "diplomacy" ? { data: { relationChange: 5 } } : {}),
         });
         expect(result.success).toBe(false);
       }
     );
 
-    it.each(["diplomacy", "war", "peace", "sanction", "guarantee", "influence"] as const)(
+    it.each(["guarantee", "influence"] as const)(
       "%s: отклоняет отсутствующий targetCountryId",
       (type) => {
-        const result = LLMActionSchema.safeParse({
-          type,
-          sourceCountryId: "USA",
-          ...(type === "diplomacy" ? { data: { relationChange: 5 } } : {}),
-        });
+        const result = LLMActionSchema.safeParse({ type, sourceCountryId: "USA" });
         expect(result.success).toBe(false);
       }
     );
 
     it("неизвестные поля внутри data (например lat/lng) молча отбрасываются, не роняют парсинг", () => {
       const result = LLMActionSchema.safeParse({
-        type: "diplomacy",
+        type: "research_shift",
         sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: { relationChange: 5, lat: 55.7, lng: 37.6 },
+        data: { domain: "armor", share: 0.5, lat: 55.7, lng: 37.6 },
       });
       expect(result.success).toBe(true);
-      if (result.success && result.data.type === "diplomacy") {
-        expect(result.data.data.relationChange).toBe(5);
+      if (result.success && result.data.type === "research_shift") {
+        expect(result.data.data.domain).toBe("armor");
         expect((result.data.data as any).lat).toBeUndefined();
       }
     });
 
-    it("действие с типом, не объявляющим data (peace), игнорирует посторонний data-объект целиком", () => {
+    it("действие с типом, не объявляющим data (guarantee), игнорирует посторонний data-объект целиком", () => {
       const result = LLMActionSchema.safeParse({
-        type: "peace",
+        type: "guarantee",
         sourceCountryId: "USA",
         targetCountryId: "SUN",
         data: { lat: 55.7, lng: 37.6 },
       });
       expect(result.success).toBe(true);
-      if (result.success && result.data.type === "peace") {
+      if (result.success && result.data.type === "guarantee") {
         expect((result.data as any).data).toBeUndefined();
       }
     });
   });
 
-  describe("diplomacy", () => {
-    it("принимает валидное действие", () => {
+  describe("guarantee — без data", () => {
+    it("валиден с только source/target", () => {
       const result = LLMActionSchema.safeParse({
-        type: "diplomacy",
+        type: "guarantee",
         sourceCountryId: "USA",
         targetCountryId: "SUN",
-        data: { relationChange: 10 },
       });
       expect(result.success).toBe(true);
-    });
-
-    it("data.relationChange обязателен", () => {
-      const result = LLMActionSchema.safeParse({
-        type: "diplomacy",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: {},
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it("принимает relationChange ровно на границе капа (включительно)", () => {
-      const result = LLMActionSchema.safeParse({
-        type: "diplomacy",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: { relationChange: MAX_RELATION_CHANGE },
-      });
-      expect(result.success).toBe(true);
-    });
-
-    it("отклоняет relationChange за пределами капа", () => {
-      const result = LLMActionSchema.safeParse({
-        type: "diplomacy",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: { relationChange: MAX_RELATION_CHANGE + 1 },
-      });
-      expect(result.success).toBe(false);
-    });
-
-    it("отклоняет отрицательный relationChange за пределами капа", () => {
-      const result = LLMActionSchema.safeParse({
-        type: "diplomacy",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: { relationChange: -MAX_RELATION_CHANGE - 1 },
-      });
-      expect(result.success).toBe(false);
-    });
-  });
-
-  describe("war", () => {
-    it("принимает без data (warGoal опционален)", () => {
-      const result = LLMActionSchema.safeParse({ type: "war", sourceCountryId: "USA", targetCountryId: "SUN" });
-      expect(result.success).toBe(true);
-    });
-
-    it("принимает с warGoal свободным текстом", () => {
-      const result = LLMActionSchema.safeParse({
-        type: "war",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: { warGoal: "border dispute" },
-      });
-      expect(result.success).toBe(true);
-    });
-  });
-
-  describe("peace / guarantee — без data", () => {
-    it.each(["peace", "guarantee"] as const)("%s: валиден с только source/target", (type) => {
-      const result = LLMActionSchema.safeParse({ type, sourceCountryId: "USA", targetCountryId: "SUN" });
-      expect(result.success).toBe(true);
-    });
-  });
-
-  describe("sanction", () => {
-    it("принимает без data (дефолт sanctionType — на стороне apply, не схемы)", () => {
-      const result = LLMActionSchema.safeParse({ type: "sanction", sourceCountryId: "USA", targetCountryId: "SUN" });
-      expect(result.success).toBe(true);
-    });
-
-    it.each(["trade_embargo", "economic_sanctions", "military_sanctions", "diplomatic_sanctions"] as const)(
-      "принимает реальный SanctionType: %s",
-      (sanctionType) => {
-        const result = LLMActionSchema.safeParse({
-          type: "sanction",
-          sourceCountryId: "USA",
-          targetCountryId: "SUN",
-          data: { sanctionType },
-        });
-        expect(result.success).toBe(true);
-      }
-    );
-
-    it("отклоняет несуществующий sanctionType", () => {
-      const result = LLMActionSchema.safeParse({
-        type: "sanction",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: { sanctionType: "arms_embargo" },
-      });
-      expect(result.success).toBe(false);
     });
   });
 
   describe("influence", () => {
-    it("принимает influenceChange ровно на границе капа", () => {
+    it("валиден без единого числового поля: величину задаёт движок", () => {
       const result = LLMActionSchema.safeParse({
         type: "influence",
         sourceCountryId: "USA",
         targetCountryId: "SUN",
-        data: { influenceChange: MAX_INFLUENCE_CHANGE },
       });
       expect(result.success).toBe(true);
     });
 
-    it("отклоняет influenceChange за пределами капа", () => {
+    it("присланная моделью величина не попадает в разобранное действие", () => {
+      // Поле снято из схемы — последнее место старого канала, где модель
+      // задавала магнитуду дипломатического акта. Zod посторонний ключ молча
+      // отбрасывает, и проверяется именно это: величина до движка не доезжает.
       const result = LLMActionSchema.safeParse({
         type: "influence",
         sourceCountryId: "USA",
         targetCountryId: "SUN",
-        data: { influenceChange: MAX_INFLUENCE_CHANGE + 1 },
+        data: { influenceChange: 999 },
       });
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
+      if (result.success) expect((result.data as any).data).toBeUndefined();
     });
   });
 
@@ -412,7 +338,7 @@ describe("GeminiResponseSchema", () => {
     const result = GeminiResponseSchema.safeParse({
       title: "t",
       descriptions: "x",
-      actions: [{ type: "peace", sourceCountryId: "USA", targetCountryId: "SUN" }],
+      actions: [{ type: "guarantee", sourceCountryId: "USA", targetCountryId: "SUN" }],
       // `primitives` обязателен в схеме ГЕНЕРАЦИИ (2026-07-26, сессия B): пустой
       // массив — законный ответ «в этом месяце режиссуре нечего применять», но
       // само поле модель обязана вернуть, иначе новый канал остаётся невидимым

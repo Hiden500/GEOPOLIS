@@ -35,7 +35,12 @@
     "grant_autonomy": "autonomy",
     "enact_reform": "reform",
     "spawn_incident": "incident",
-    "unknown": "order"
+    "unknown": "order",
+    "diplomacy": "diplomacy",
+    "sanction": "sanctions",
+    "war": "declaration of war",
+    "peace": "peace treaty",
+    "split_country": "break-up of a state"
   },
   "errors": {
     "translateFailed": "The order could not be recognised. Check that model access is configured.",

@@ -19,6 +19,15 @@ import {
   SPAWN_INCIDENT_MIN_DISCONTENT,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
 } from "@shared/defines/discontent";
+import {
+  RELATION_SCALE_MIN,
+  RELATION_SCALE_MAX,
+  INFLUENCE_SCALE_MAX,
+  DIPLOMACY_GRIP_BASE,
+  DIPLOMACY_WAR_DAMPING,
+  SANCTION_BITE_BASE,
+} from "@shared/defines/diplomacy";
+import { type RelationDirection } from "./types";
 
 /**
  * Величина эффекта примитива — **коридор от состояния, позиция от хинта**
@@ -55,6 +64,12 @@ import {
  *   | incite_unrest             | дистанция ровно на пороге предпосылки        |
  *   | spawn_incident            | недовольство ровно на пороге предпосылки     |
  *   | enact_reform              | поддержка ровно на пороге предпосылки        |
+ *   | diplomacy · relations     | отношения на краю шкалы в сторону жеста      |
+ *   | sanction · relations      | отношения на нижней границе шкалы            |
+ *
+ * У `war`/`peace` строки в таблице нет, и это заявление: у структурного глагола
+ * величины не существует вовсе (тот же принцип, что у `split_country`) —
+ * сопутствующий сдвиг отношений там константа события, а не коридор.
  *
  * До калибровки 2026-07-26 таблица была неполной: у канала отчуждения
  * `stateFactor` был функцией одной только доли группы с жёстким полом 0.35, а
@@ -216,6 +231,111 @@ export function reformMandateFactor(governmentSupport: number): number {
   const span = COUNTRY_POLITICS_SCALE_MAX - ENACT_REFORM_MIN_GOVERNMENT_SUPPORT;
   if (span <= 0) return 0;
   return clamp01((governmentSupport - ENACT_REFORM_MIN_GOVERNMENT_SUPPORT) / span);
+}
+
+// --------------------------------------------------------------------------
+// Дипломатический блок (Милстоун 1)
+// --------------------------------------------------------------------------
+
+/**
+ * `diplomacy`, множитель №1 — СКОЛЬКО ШКАЛЕ ОСТАЛОСЬ в запрошенную сторону.
+ *
+ * Здесь живёт достижимое схлопывание коридора, обязательное по контракту этого
+ * модуля: пару, стоящую на `RELATION_SCALE_MAX`, улучшить нечем, и `severe` там
+ * буквально равен `mild`. Симметрично для `worsen` на нижней границе.
+ *
+ * Нормируется на ПОЛНУЮ ширину шкалы (200 пунктов), а не на расстояние до
+ * ближайшей границы: иначе фактор был бы равен 1 и у пары на нуле, и у пары в
+ * шаге от края, то есть «запас» перестал бы что-либо измерять.
+ */
+export function relationRoom(current: number, direction: RelationDirection): number {
+  const span = RELATION_SCALE_MAX - RELATION_SCALE_MIN;
+  if (span <= 0) return 0;
+  return clamp01(
+    direction === "improve"
+      ? (RELATION_SCALE_MAX - current) / span
+      : (current - RELATION_SCALE_MIN) / span
+  );
+}
+
+/**
+ * Живые связи пары — вход множителя «хватки». Булевы и нормированные значения, а
+ * не `GameState`: этот модуль про арифметику коридоров, и разбор состояния в нём
+ * означал бы, что фактор нельзя проверить на достижимость схлопывания без сборки
+ * мира вокруг одного числа (то же правило, что у `coerciveCapacity`).
+ */
+export interface DiplomaticTies {
+  /** Хотя бы один регион источника граничит с регионом цели. */
+  sharesBorder: boolean;
+  /** Влияние источника на цель, сырая шкала 0..100. */
+  influence: number;
+  /** Формальное обязательство любой из сторон: союз, гарантия, пуппет, сфера. */
+  formalTie: boolean;
+  /** Стороны воюют в одной войне НА ОДНОЙ стороне. */
+  coBelligerent: boolean;
+  /** Стороны воюют в одной войне ДРУГ ПРОТИВ ДРУГА. */
+  atWarWithEachOther: boolean;
+}
+
+/**
+ * `diplomacy`, множитель №2 — НАСКОЛЬКО СЛОВО ИСТОЧНИКА ДОЛЕТАЕТ до этой цели.
+ *
+ * Канал — максимум по четырём независимым признакам связи, а не их сумма:
+ * связь либо есть, либо её нет, и общая граница не становится «двумя связями»
+ * оттого, что рядом лежит формальное обязательство. Максимум же (а не «И»)
+ * потому, что признаки взаимозаменяемы: сюзерену не нужна общая граница с
+ * пуппетом, чтобы быть услышанным.
+ *
+ * ПОЛ `DIPLOMACY_GRIP_BASE` НЕ НОЛЬ, и это решение, а не смягчение. Нулевой пол
+ * означал бы, что две державы без общей границы, без влияния и без формальных
+ * связей физически не способны сдвинуть отношения — а именно так выглядит
+ * КАЖДАЯ пара поставляемого сценария 1946: прямой подсчёт (2026-07-27) даёт у
+ * всех 157 стран пустые `relations`, `influence`, `allies`, `guarantees` и
+ * непустые только `puppets`/`sphereOfInfluence` (по 13 стран). С нулевым полом
+ * дипломатия в январе 1946 не работала бы вовсе.
+ *
+ * Идущая между сторонами ВОЙНА гасит дружественный жест и не гасит враждебный:
+ * материальный факт войны обесценивает слова о сближении, но ничем не мешает
+ * ухудшать то, что и так плохо.
+ *
+ * Идеологическая близость сюда НЕ входит намеренно — это предмет отдельной
+ * работы (`docs/DECISIONS.md`, 2026-07-27: идеология становится модификатором
+ * отношений и порога союза), и занять её место здесь значило бы принять за неё
+ * решение в чужой ветке.
+ */
+export function diplomaticGrip(ties: DiplomaticTies, direction: RelationDirection): number {
+  const channel = Math.max(
+    ties.sharesBorder ? 1 : 0,
+    clamp01(ties.influence / INFLUENCE_SCALE_MAX),
+    ties.formalTie ? 1 : 0,
+    ties.coBelligerent ? 1 : 0
+  );
+  const reach = DIPLOMACY_GRIP_BASE + (1 - DIPLOMACY_GRIP_BASE) * channel;
+  const friction =
+    ties.atWarWithEachOther && direction === "improve" ? 1 - DIPLOMACY_WAR_DAMPING : 1;
+  return clamp01(reach * friction);
+}
+
+/**
+ * `sanction` — НАСКОЛЬКО САНКЦИОНЕР ВАЖЕН ЦЕЛИ экономически.
+ *
+ * Доля санкционера в суммарном ВВП пары: санкция от главного партнёра —
+ * катастрофа, от периферийного государства — жест. ВВП, а не военная сила,
+ * потому что у загружаемых стран 1946 блок `military` нулевой, и второй член
+ * формулы был бы мёртвым (та же причина, по которой он не входит в
+ * `coerciveCapacity`).
+ *
+ * Схлопывание коридора у этого глагола достигается не здесь, а множителем
+ * `relationRoom`: паре, чьи отношения уже на дне шкалы, санкция дипломатически
+ * добавить нечего. Пол `SANCTION_BITE_BASE` больше нуля осознанно — санкция
+ * ничтожного партнёра остаётся оскорблением, даже не будучи ущербом.
+ */
+export function sanctionBite(sanctionerGdp: number, targetGdp: number): number {
+  const total = sanctionerGdp + targetGdp;
+  if (!Number.isFinite(total) || total <= 0) return SANCTION_BITE_BASE;
+  return clamp01(
+    SANCTION_BITE_BASE + (1 - SANCTION_BITE_BASE) * clamp01(sanctionerGdp / total)
+  );
 }
 
 /** Средняя по долям величина — «фактическое число» для нарратива по группам. */

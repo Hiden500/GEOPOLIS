@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { applyPrimitiveBatch, restore } from "../PrimitiveEngine";
 import * as politicsCommands from "../../commands/politics";
-import { PRIMITIVE_PALETTE } from "../palette";
+import { PRIMITIVE_PALETTE, pathMatchesPaletteEntry } from "../palette";
+import { WarService } from "../../services/WarService";
 import { collectChangedPaths } from "../statePaths";
 import {
   PRIMITIVE_VERBS,
@@ -162,6 +163,33 @@ const SCENARIOS: {
       target: { countryId: "SUN" }, params: { intensity: "severe" },
     },
     setup: seedSeparatistDiscontent,
+  },
+  // Дипломатический блок (Милстоун 1). Цель — USA: `createDiscontentTestGame`
+  // держит её второй страной мира, и все четыре глагола двусторонние.
+  {
+    verb: "diplomacy",
+    primitive: {
+      verb: "diplomacy", sourceCountryId: "SUN",
+      target: { countryId: "USA" }, params: { direction: "improve" },
+    },
+  },
+  {
+    verb: "sanction",
+    primitive: {
+      verb: "sanction", sourceCountryId: "SUN",
+      target: { countryId: "USA" }, params: { sanctionType: "trade_embargo" },
+    },
+  },
+  {
+    verb: "war",
+    primitive: { verb: "war", sourceCountryId: "SUN", target: { countryId: "USA" } },
+  },
+  {
+    verb: "peace",
+    primitive: { verb: "peace", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Мир требует идущей войны: без неё предпосылка не выполнена, и сценарий
+    // проверял бы отказ вместо палитры.
+    setup: state => { new WarService(state).declareWar("SUN", "USA"); },
   },
 ];
 
@@ -1177,7 +1205,15 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
 
     const changed = collectChangedPaths(before, state);
     expect(changed.length).toBeGreaterThan(0);
-    expect(changed.filter(p => !PRIMITIVE_PALETTE[verb].includes(p))).toEqual([]);
+    // Сверяется ТЕМ ЖЕ матчером, каким палитру проверяет движок, а не
+    // строковым равенством (исправлено Милстоуном 1). Прежнее `includes`
+    // работало лишь потому, что ни один из шести глаголов не писал в словари:
+    // запись-шаблон `relations.{*}` дословному сравнению не равна никогда, и
+    // первый же дипломатический глагол валил бы тест на разнице между
+    // проверкой и её имитацией.
+    expect(
+      changed.filter(p => !PRIMITIVE_PALETTE[verb].some(entry => pathMatchesPaletteEntry(entry, p)))
+    ).toEqual([]);
   });
 
   it("рантайм-проверка кусается: эффект вне палитры откатывает примитив целиком", () => {
@@ -1552,8 +1588,11 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
    * Проверяется структурно и на всех глаголах сразу: каждый факт из результата
    * даёт ровно одно «for <цель>» в тексте. Пропажа любой цели роняет счёт.
    */
-  it.each(SCENARIOS)("$verb: резюме называет каждую пару (цель, поле) из результата", ({ primitive }) => {
+  it.each(SCENARIOS)("$verb: резюме называет каждую пару (цель, поле) из результата", ({ primitive, setup }) => {
     const state = game();
+    // Подготовка сценария идёт ПЕРВОЙ: у `peace` она заводит войну, без которой
+    // предпосылка не выполнена и тест мерил бы отказ вместо резюме.
+    setup?.(state);
     // Насыщаются ровно те два канала, которые недовольство ПОДНИМАЮТ: тогда у
     // каждого глагола появляется хотя бы одна нулевая пара (у `repress` —
     // отчуждение, у `grant_autonomy` — отклик соседа), и при этом ни одна
@@ -1562,6 +1601,13 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     // `spawn_incident` перестал бы проходить порог.
     for (const region of state.regions) {
       for (const share of region.demographics ?? []) {
+        // Пару, которую уже завела подготовка сценария, не дублируем: две
+        // записи на одну (регион, группу) — не состояние мира, и первая из них
+        // молча победила бы во всех чтениях.
+        const seeded = state.groupImpactMemory.some(
+          m => m.regionId === region.id && m.groupId === share.groupId
+        );
+        if (seeded) continue;
         state.groupImpactMemory.push({
           regionId: region.id, groupId: share.groupId,
           suppression: 0, alienation: 1, concession: 0, emboldenment: 1,
