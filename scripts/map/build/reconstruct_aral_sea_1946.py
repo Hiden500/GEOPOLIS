@@ -51,7 +51,19 @@ ne10m.py`/`extract_kinneret.py`.
 позиция в файле) — downstream (ownership_1946.json/names_ru.json) не
 сдвигается.
 
-Запуск: python scripts/map/build/reconstruct_aral_sea_1946.py
+ВАЖНО (2026-07-29): суша вокруг (Aqtöbe/Qyzylorda/Karakalpakstan,
+out/asia_1946.geojson) подогнана под ПРЕДЫДУЩУЮ форму озера — после
+любой замены формы здесь ОБЯЗАТЕЛЬНО прогнать `fix_aral_sea_coastline_
+gaps.py` следом (закрывает разрыв/наложение суша-море от смены формы).
+Забытый повторный прогон этого скрипта откатывает `out/lakes_1946.geojson`
+к старому placeholder-овалу при любом восстановлении рабочего дерева из
+устаревшей копии (тот же класс бага, что у South America/Great Lakes/
+Panama в этой сессии, см. docs/DECISIONS.md 2026-07-29) — если карта
+снова показывает идеальный овал вместо изрезанного берега, сначала
+проверь именно это, не деформацию.
+
+Запуск: python scripts/map/build/reconstruct_aral_sea_1946.py &&
+        python scripts/map/build/fix_aral_sea_coastline_gaps.py
 """
 from paths import out
 import json
