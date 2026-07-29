@@ -87,6 +87,23 @@ export const VERB_AGENCY: Record<PrimitiveVerb, AgencySide> = {
   condemn: "playerDecision",
   /** Патронаж воюющему клиенту — обязательство государства. */
   support_proxy: "playerDecision",
+  /**
+   * Подчинение чужой страны — акт внешней политики и, по §7.2, необратимое.
+   * В отличие от `split_country`, который страна претерпевает, вассалитет
+   * оформляет тот, кто его накладывает.
+   */
+  puppet: "playerDecision",
+  /** Поглощение — §7.2 называет необратимое прямо. */
+  annex: "playerDecision",
+  /** Объединение государств решают государства. */
+  merge_countries: "playerDecision",
+  /**
+   * Предоставление независимости: «отпускает» собственник земли
+   * (`PrimitiveEngine`, `create_country` — владение, а не контроль). Отдать
+   * свою территорию за игрока режиссёр не вправе, хотя обратная операция —
+   * распад под давлением (`split_country`) — ему разрешена.
+   */
+  create_country: "playerDecision",
 };
 
 /**
