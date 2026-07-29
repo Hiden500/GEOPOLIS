@@ -629,3 +629,50 @@ Fresh-session status: pending — discovery и применимость блок
 обязана побайтно совпадать), не завязанному на конкретное число пар.
 
 Decision: keep.
+
+## 2026-07-29 — `map-geometry-qa` skill: composite positional shifts, majority-vote pitfall, render-tool recurrence
+
+Problem evidence: same working session (Panama/Washington/Aral Sea fixes,
+`docs/DECISIONS.md` 2026-07-29 entries) hit three new failure modes not yet
+captured in the skill, plus found one already-documented lesson (interior-
+ring render holes, Faroe Islands case) had recurred verbatim in the
+PERMANENT `diagnose_coastline_gaps.py::render()` tool itself, proving the
+existing writeup didn't generalize past its first fix site. Also found the
+skill's `CAPITAL_REGION_OVERRIDES` note was stale (said "deferred, don't
+fix" — this session fixed all 26 drifted entries using the anchor-name
+protocol already built into the file).
+
+Layer changed: `.claude/skills/map-geometry-qa/SKILL.md` +
+`references/{build_pipeline_gotchas,cross_source_merging}.md` (Claude-local
+skill, no `.agents/skills/map-geometry-qa` canonical counterpart — not
+subject to the byte-parity eval check).
+
+Expected benefit: (1) a future composite/non-uniform positional shift gets
+fixed by content-matching immediately instead of after a failed
+single-offset attempt is caught on re-verification; (2) ownership-repair
+work doesn't trust majority-vote inside an already-corrupted bucket without
+an independent ground truth; (3) `CAPITAL_REGION_OVERRIDES` drift gets
+resynced via the existing anchor-name protocol instead of being silently
+left growing past its documented (now stale) baseline; (4) any new render
+function gets checked against the interior-ring-white-paint anti-pattern
+before being trusted, not just the one instance already fixed; (5) a
+manual `merge_world_1946.py` rerun is followed by `translate_world.py`
+without needing to rediscover the dependency; (6) external reference
+snapshots (D:\MAP) aren't assumed internally self-consistent just because
+they're "the source of truth."
+
+Risks and containment: additive only — no existing rule removed or
+contradicted, one stale note corrected to match current reality. Skill grew
+from 347 to ~410 lines (SKILL.md) plus two reference-file additions;
+accepted per the file's own existing size (already the largest skill in
+this repo) since each addition is a distinct failure mode with its own
+trigger, not overlapping content.
+
+Validation: `python .agent/evals/public/run_public_evals.py` run after the
+edit (see session log). No canonical/mirror pair involves this skill, so
+parity checks are not applicable here.
+
+Fresh-session status: pending — not yet exercised by a session that hits
+one of these five failure modes from a cold start.
+
+Decision: keep.

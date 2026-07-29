@@ -270,6 +270,33 @@ mismatches, stray MultiPolygon fragments after a `.difference()`, and
   fix, not a coastline-precision one. Same symptom, opposite diagnosis;
   render the raw source before assuming either.
 
+- **The "ugly zigzag" pattern above isn't limited to raw-vs-intersection
+  precision mismatches — growing a curated boundary to meet a newly
+  reshaped water body (`absorb_slivers_until_stable`) produces the SAME
+  coastline-hugging ugliness, and the SAME fix applies.** After
+  `reconstruct_aral_sea_1946.py` gave the Aral Sea a more accurate shape,
+  the gap-closing fix grew Aqtöbe/Qyzylorda/Karakalpakstan cell-by-cell to
+  meet the new water edge — geometrically correct (0 gaps/overlaps) but the
+  province borders ended up tracing every wiggle of the lake's outline, a
+  coastline OFFSET rather than an independent administrative line (user:
+  "прилипание некрасивое"). Fix, same principle as Dalian/Qingdao: go back
+  to the RAW `game_map.json` polygons (before absorb-growth touched them)
+  and clip THEM by the current water shape (`raw.difference(water)`)
+  instead of growing the already-deformed current shape further. Caveat
+  found here that didn't apply to Dalian: some raw provinces in this
+  dataset are themselves `merge_method: "geometric"` clusters of MULTIPLE
+  raw ADM1 units (`source_adm1` lists >1 code) — union all listed source
+  codes before subtracting water, or the clip silently drops every source
+  unit but the first. Before applying, verify quantitatively (not just "it
+  renders fine"): the raw-clipped provinces must not overlap each other,
+  and their combined area should match the current (pre-fix) combined area
+  closely — a real difference concentrated in one small patch away from
+  the water usually means the growth algorithm had ALSO silently resolved
+  an unrelated same-country border dispute at some point, which the raw
+  swap will legitimately re-open in the raw source's favor (verify that's
+  actually correct before shipping it, don't just assume 0 is the only
+  acceptable diff).
+
 - **A "horizontal line" request can still produce real (not synthetic)
   islands as a side effect — that's not a bug.** Cutting Dalian/Liaoning at
   a constant latitude swept up 4 small pre-existing Liaoning islets (their

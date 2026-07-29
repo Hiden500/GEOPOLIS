@@ -290,6 +290,38 @@ data-sourcing traps, and live-server verification pitfalls.
   deleting the evidence. `grep` for suspiciously-specific unused constants
   near the feature you're fixing before opening a browser.
 
+- **A manual `merge_world_1946.py` rerun (outside `make_1946.py`) must be
+  IMMEDIATELY followed by `translate_world.py`, every time, no exceptions.**
+  `make_1946.py --full-rebuild` runs both in the right order automatically;
+  running `merge_world_1946.py` by hand (e.g. to pick up a point-fix to one
+  continent's `out/*.geojson` without a full rebuild) regenerates `out/
+  world_1946.geojson` from the continent builders' raw output, which still
+  has untranslated Russian `name` values for every manually-patched entry
+  (small dependent territories, disputed-status enclaves) — 221 regions
+  world-wide, 2026-07-29. Nothing errors; the Russian text just flows
+  straight through `import_to_game.py` into `names.en.json` and breaks any
+  test/lookup keyed on the English name (`test_country_entities_1946.py`
+  looking for `("Spratly Islands", "PGA")` found only `"Спратли"`). The
+  pipeline's own `translate_world.py::main()` prints "Не переведено: N" —
+  treat any N > 0 after a manual merge as a hard stop, not a warning to
+  skim past.
+
+- **Two intermediate files copied from the SAME external snapshot directory
+  can still disagree with each other — "it's from D:\MAP" is not proof of
+  internal consistency, even for the snapshot's own files.**
+  `D:\MAP\namerica_1946.geojson` (an intermediate pipeline file) held a
+  stale, coarse Panama Canal Zone that matched what this session had
+  ALREADY identified as wrong — while `D:\MAP\world_1946.geojson` (that
+  same external tree's own FINAL merged output, timestamped 5 minutes
+  earlier despite being logically downstream) had the correct, refined
+  version. The "stale hand-maintained intermediate" class of bug documented
+  elsewhere in this session (South America/Great Lakes/Aral Sea) isn't
+  specific to THIS worktree's neglect — it can just as easily be baked into
+  whatever external reference you're copying from. Diff a substituted
+  file's specific properties of interest against the SAME external tree's
+  own final output before trusting it as ground truth, don't assume
+  "external snapshot" implies "internally coherent snapshot."
+
 - **When a gitignored, regenerated `out/*.geojson` gets corrupted mid-
   session and there's no git history to fall back on, check whether
   `--full-rebuild` can even complete before assuming you need it — and if

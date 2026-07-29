@@ -104,6 +104,21 @@ cell-mosaic logic.
   Use `matplotlib.path.Path`/`PathPatch` with both the exterior AND each
   interior ring's vertices/codes when the verification depends on holes
   being visible, not a bare `ax.fill` per exterior only.
+  **This exact bug recurred in the PERMANENT tool itself, not just a
+  one-off script** — `diagnose_coastline_gaps.py::render()` (the canonical,
+  reused-dozens-of-times-per-session verification renderer) painted
+  interior rings `color="white"` OVER whatever was drawn underneath, rather
+  than leaving them transparent; when a polygon's hole happens to be a
+  neighboring feature's legitimate territory (routine after any
+  `resolve_same_iso_overlaps` — see `cross_source_merging.md`), the render
+  showed that neighbor's real land as a blank "gap" (2026-07-29, Washington
+  — San Juan, 7 of 8 holes were British Columbia). The general rule above
+  was already written down after the FIRST occurrence (Faroe Islands) — it
+  didn't stop this second one, because it wasn't checked against every
+  render call site, just fixed where it was first found. Fixed now via
+  `PathPatch` in the shared tool; if you write or touch ANY new render
+  function in this codebase, grep for `color=.white.`/`color="#a8d8f0"`
+  near an `interiors` loop before trusting it.
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake
@@ -243,17 +258,71 @@ checkout --` the 4 positional files back to the last clean commit, then run
 code edit is done). Batch all edits before remapping; don't remap after
 each intermediate step.
 
-**A third sibling, same disease, different location:** `generate_country_
-registry.py::CAPITAL_REGION_OVERRIDES` is a hardcoded Python dict of
-`region_id -> number`, baked in at whatever numbering existed when it was
-written (commit `6c1cf56`) — every later region-count change anywhere in the
-world drifts it too. This is the `capitalRegionId` violation category that
-`validate_region_economy_1946.py` already reports every run (~31-33 entries,
-count drifts slightly with every region-count change) — **already known,
-already deferred by the user to a single dedicated pass once the whole map is
-done. Do not try to fix all of them as a side effect of an unrelated geometry
-change** — confirm the count is in the same ballpark as before your change
-(not exploding) and move on.
+**When a positional shift is composite/non-uniform (not a clean "+N from
+here on"), match by CONTENT instead of computing an offset.** Substituting
+an external snapshot as a new base file (see `cross_source_merging.md`'s
+D:\MAP entries) can shift `ownership_1946.json`/`names_ru.json` by a
+DIFFERENT amount in different sub-ranges of the same continent, because the
+snapshot's own internal feature order doesn't match this tree's — a
+"shift every id ≥ N by -1" fix (the obvious first attempt, mirroring
+`remap_region_ids.py`'s single-offset model) silently only fixes the FIRST
+sub-range and leaves everything after the second break point still wrong
+(2026-07-29: fixed NAM-0055..0093, left NAM-0094..0267 broken, discovered
+only by re-verifying after the "fix" instead of trusting it). Diagnosing
+the exact composite offset pattern is unnecessary work — instead, build a
+`name_en -> value` map from ALL existing (even mis-positioned) entries in
+the stale file, then for every region_id in the CURRENT world file, look up
+its `name` in that map and write the value at the CURRENT (correct)
+position. This is immune to however many breakpoints the shift has, because
+it never computes an offset at all — it only requires that content (a
+name, an owner code) survives somewhere in the stale file under SOME wrong
+key, which is true for any pure reordering (nothing added or removed, just
+moved). Verify 0 remaining mismatches by re-comparing `name_en` (or
+`owner`) against the live world file afterward — don't trust the fix
+without this, exactly like the shift-based attempt above wasn't caught
+until re-verified.
+
+**Majority-vote across a small bucket can be fooled by the SAME corruption
+it's trying to detect — needs an independent ground truth, not internal
+consensus.** Repairing `ownership_1946.json` after a large positional shift,
+grouping entries by `iso_a2` and trusting whichever `owner` value appears
+most often in each bucket "fixed" 2 small Caribbean buckets (Saint Kitts,
+Trinidad — 2 entries each) by making BOTH entries agree on a value that was
+WRONG for both of them (the shift had corrupted every entry in those small
+buckets identically, so "majority" just confirmed the shared error and
+overwrote the one entry that had coincidentally still been correct). Caught
+by cross-checking against a source truly independent of the file being
+repaired: `iso_a2 -> iso3` derived directly from `game_map.json`'s raw
+`adm0_a3`/`sov_a3` fields (with explicit, already-decided overrides for
+this game's deliberate 1946 anachronisms — Baltic/Belarus/Ukraine/Caucasus/
+Central Asian SSRs read `SUN` not their modern code, Yugoslav/Czechoslovak
+successor states read `YUG`/`CSK`, undivided Korea reads `KOR`, Taiwan
+reads `CHN`, and this game's convention of small dependent territories
+getting their OWN iso3 rather than the administering power's — Aruba=ABW
+not NLD, confirmed already-correct examples before trusting the pattern for
+new ones). Use majority-vote only as a candidate generator on a dataset you
+don't already suspect is corrupted; once corruption is suspected, the
+final check needs a source the corruption couldn't have touched.
+
+**A third sibling, same disease, different location:**
+`economy_1946/capital_overrides.py::CAPITAL_REGION_OVERRIDES` is a hardcoded
+Python dict of `country_code -> numeric region id` (NOT a `region_id` string
+like `"NAM-0055"` — a plain int, `regions.core.json`'s own sequential
+`id` field, assigned by `import_to_game.py` from feature order) — every
+later region-count change ANYWHERE in the world earlier in build order
+drifts it. **This got fully resynced 2026-07-29** (26/55 entries had drifted
++22..+25 from that session's own Oceania/Philippines/Panama work) using a
+protocol already built into the same file: `CAPITAL_REGION_ANCHOR_NAMES`
+pairs each code with the expected English name of the region currently at
+that id (added 2026-07-26, checked by `validate_region_economy_1946.py`
+every run). To resync: for each `(code, id)` whose current name ≠ the
+anchor name, search `names.en.json` for a region whose name EXACTLY matches
+the anchor (filtering by `ownerCountryId == code` when the anchor name is
+ambiguous across countries, e.g. "Northern"/"Eastern" appear in several
+African countries) — a unique match is the corrected id. Do this any time
+the violation count balloons past its prior baseline, not just once —
+it's cheap (pure lookup, no geometry) and the anchor-name table makes it
+mechanical, not a research task each time.
 
 After any region-count change run `scripts/map/build/remap_region_ids.py
 --old <pre-edit world snapshot> --prefix <XXX-> --apply` (a snapshot of the
