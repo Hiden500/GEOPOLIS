@@ -40,7 +40,11 @@
     "sanction": "sanctions",
     "war": "declaration of war",
     "peace": "peace treaty",
-    "split_country": "break-up of a state"
+    "split_country": "break-up of a state",
+    "send_aid": "aid",
+    "capital_flight": "capital flight",
+    "condemn": "condemnation",
+    "support_proxy": "proxy support"
   },
   "errors": {
     "translateFailed": "The order could not be recognised. Check that model access is configured.",
