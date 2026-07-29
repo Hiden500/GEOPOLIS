@@ -126,7 +126,8 @@
     "condemn": "Публично осудить {{country}}",
     "support_proxy": "Поддержать {{country}} в её войне, не вступая в неё",
     "puppet": "Подчинить {{country}}",
-    "annex": "Присоединить земли {{country}}"
+    "annex": "Присоединить земли {{country}}",
+    "merge_countries": "Присоединить {{country}} к своему составу"
   },
   "splitCountry": {
     "headline": "Государство {{country}} раскололось: новых государств — {{shards}}"
@@ -207,5 +208,13 @@
     "territoryLeft": "За {{country}} остаётся регионов: {{regions}}",
     "capitalMoved": "Столица переехала в регион {{region}}",
     "campaignDefeated": "Ваше государство лишилось последней земли — кампания окончена"
+  },
+  "mergeCountries": {
+    "headline": "{{source}} присоединяет {{country}} к своему составу"
+  },
+  "merge": {
+    "absorbed": "{{country}} перестаёт существовать; регионов перешло: {{regions}}",
+    "capitalMoved": "Столица переехала в регион {{region}}",
+    "warsClosed": "Войн закрыто: {{count}}"
   }
 }

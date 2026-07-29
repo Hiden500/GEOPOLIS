@@ -107,6 +107,7 @@ import {
 import { findMisreportedChanges } from "./reconciliation";
 import { elementIdentity, identityIndex } from "./elementIdentity";
 import {
+  mergeCountries,
   planSplit,
   reassignCapitalIfLost,
   splitCountry,
@@ -594,6 +595,46 @@ function countryScalars(game: GameState): Map<string, number> {
     values.set(`${country.id}|activePersonnel`, country.military.activePersonnel);
   }
   return values;
+}
+
+/**
+ * Влияние всех пар стран — снимком, тем же приёмом, что `countryScalars`.
+ *
+ * Нужен структурным глаголам жизненного цикла: страна, исчезнувшая из мира,
+ * уносит с собой и записи влияния НА неё, и запись влияния поглотителя на
+ * поглощённого (она снимается как самоссылка). Обе — ячейки `influence:` в
+ * разложении состояния, и обе обязаны быть заявлены.
+ */
+function countryInfluences(game: GameState): Map<string, number> {
+  const values = new Map<string, number>();
+  for (const country of game.countries) {
+    for (const [targetId, value] of Object.entries(country.diplomacy.influence)) {
+      values.set(`${country.id}|${targetId}`, value);
+    }
+  }
+  return values;
+}
+
+/**
+ * Фактические изменения влияния между снимками.
+ *
+ * Пары, которых нет в снимке «после», считаются ушедшими в ноль: ячейка,
+ * которой не стало, и ячейка со значением ноль — одно утверждение о мире (та же
+ * трактовка, что у `cellChanges` в сверке).
+ */
+function influenceDiff(
+  before: Map<string, number>,
+  after: Map<string, number>
+): InfluenceEffect[] {
+  const effects: InfluenceEffect[] = [];
+  for (const key of new Set([...before.keys(), ...after.keys()])) {
+    const was = before.get(key) ?? 0;
+    const now = after.get(key) ?? 0;
+    if (was === now) continue;
+    const [fromCountryId, toCountryId] = key.split("|") as [string, string];
+    effects.push({ fromCountryId, toCountryId, before: was, after: now, delta: now - was });
+  }
+  return effects;
 }
 
 /** Доля в 0..1 — вход множителей состояния, приходящий из деления величин мира. */
@@ -1204,6 +1245,41 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
         return {
           valid: false,
           rejection: { code: "annexNothingHeld", source: source.name, target: target.name },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "merge_countries": {
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId);
+      if (!target) return { valid: false, rejection: { code: "unknownCountry", countryId: targetId } };
+      if (targetId === primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "bilateralSelfTarget", verb: primitive.verb, country: source.name },
+        };
+      }
+
+      // СТРАНА ИГРОКА НЕ ПОГЛОЩАЕТСЯ, и это граница, а не осторожность.
+      // Объединение переносит ссылки поглощённой страны поглотителю, включая
+      // `playerCountryId`, — то есть человек молча продолжил бы партию за
+      // другую державу. §6 называет ровно один способ потерять своё
+      // государство: лишиться всей земли. Раскол предлагает выбор осколка,
+      // аннексия ведёт к вердикту кампании; у слияния такого пути нет.
+      if (targetId === game.playerCountryId) {
+        return { valid: false, rejection: { code: "mergePlayerCountry", target: target.name } };
+      }
+
+      // ЕДИНСТВЕННАЯ содержательная предпосылка: поглощается тот, чью внешнюю
+      // политику ты уже ведёшь. Она живая на данных 1946 (77 пар), выражает
+      // ступень «сначала подчини, потом присоедини» и закрывает главный обход —
+      // мирное поглощение соседа, с которым тебя ничего не связывает.
+      // Отношения порогом быть не могут: в сценарии они нули у всех.
+      if (!source.diplomacy.puppets.includes(targetId)) {
+        return {
+          valid: false,
+          rejection: { code: "mergeNotVassal", source: source.name, target: target.name },
         };
       }
       return { valid: true };
@@ -2412,6 +2488,52 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         },
       };
     }
+
+    case "merge_countries": {
+      const targetId = primitive.target.countryId;
+      const absorbedName = countryLabel(game, targetId);
+      const absorbedRegionIds = game.regions
+        .filter(r => r.ownerCountryId === targetId)
+        .map(r => r.id);
+      // Снимок ДО сложения: заявить фактический прирост казны и живой силы
+      // иначе нечем, а не заявить — значит быть откаченным собственной сверкой.
+      const scalarsBefore = countryScalars(game);
+      const influencesBefore = countryInfluences(game);
+
+      // Вся работа со ссылками, суммами и войнами — в `polityLifecycle.ts`, той
+      // же машинерией, что у раскола. Обратная операция обязана пользоваться
+      // тем же жизненным циклом, иначе «суммы сходятся» означало бы разное на
+      // делении и на сложении.
+      const result = mergeCountries(game, {
+        absorberId: primitive.sourceCountryId,
+        absorbedId: targetId,
+      });
+
+      return {
+        ok: true,
+        applied: {
+          verb: "merge_countries",
+          sourceCountryId: primitive.sourceCountryId,
+          absorbedCountryId: targetId,
+          absorbedName: result.dissolvedName ?? { en: targetId },
+          absorbedRegionIds,
+          countryScalarEffects: countryScalarDiff(scalarsBefore, countryScalars(game)),
+          // Влияние поглотителя НА поглощённого снимается как самоссылка, а
+          // влияние третьих стран на неё уходит вместе со страной. Обе дельты
+          // реальны, обе имеют ячейку, обе заявляются.
+          influenceEffects: influenceDiff(influencesBefore, countryInfluences(game)),
+          capitalMoves: result.capitalReassignments,
+          closedWarIds: result.closedWarIds,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} absorbed ${absorbedName} ` +
+            `(${absorbedRegionIds.length} region(s))`,
+            result.closedWarIds.length > 0
+              ? [`wars closed: ${result.closedWarIds.join(", ")}`]
+              : []
+          ),
+        },
+      };
+    }
   }
 }
 
@@ -2632,6 +2754,7 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
     // примитив на игровой месяц на всю партию.
     case "puppet":
     case "annex":
+    case "merge_countries":
       return [
         {
           key: verbScopedKey(

@@ -126,7 +126,8 @@
     "condemn": "Publicly condemn {{country}}",
     "support_proxy": "Back {{country}} in its war without joining it",
     "puppet": "Subject {{country}}",
-    "annex": "Annex territory from {{country}}"
+    "annex": "Annex territory from {{country}}",
+    "merge_countries": "Absorb {{country}}"
   },
   "splitCountry": {
     "headline": "{{country}} broke apart into {{shards}} new state(s)"
@@ -207,5 +208,13 @@
     "territoryLeft": "{{country}} still holds {{regions}} region(s)",
     "capitalMoved": "The capital moved to {{region}}",
     "campaignDefeated": "Your state has lost its last land — the campaign is over"
+  },
+  "mergeCountries": {
+    "headline": "{{source}} absorbs {{country}} into itself"
+  },
+  "merge": {
+    "absorbed": "{{country}} ceases to exist; {{regions}} region(s) passed over",
+    "capitalMoved": "The capital moved to {{region}}",
+    "warsClosed": "Wars closed: {{count}}"
   }
 }

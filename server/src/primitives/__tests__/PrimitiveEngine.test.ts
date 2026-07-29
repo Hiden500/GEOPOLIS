@@ -242,6 +242,22 @@ const SCENARIOS: {
     // владением и своим контролем сценарий проверял бы отказ вместо палитры.
     setup: state => { holdTerritoryOf(state, "SUN", "USA", TEST_REGION_NEIGHBOUR); },
   },
+  {
+    verb: "merge_countries",
+    primitive: { verb: "merge_countries", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Поглощается тот, чью внешнюю политику источник уже ведёт, и у цели
+    // должна быть земля — иначе объединение не тронуло бы ни одного региона и
+    // палитра осталась бы непроверенной на своей главной записи.
+    setup: state => {
+      const region = state.regions.find(r => r.id === TEST_REGION_NEIGHBOUR)!;
+      region.ownerCountryId = "USA";
+      const usa = state.countries.find(c => c.id === "USA")!;
+      usa.capitalRegionId = region.id;
+      usa.politics.sovereigntyStatus = "protectorate";
+      usa.politics.overlordIds = ["SUN"];
+      state.countries.find(c => c.id === "SUN")!.diplomacy.puppets = ["USA"];
+    },
+  },
 ];
 
 describe("incite_unrest", () => {

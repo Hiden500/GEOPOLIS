@@ -17,7 +17,8 @@ import { applyPrimitiveBatch } from "../PrimitiveEngine";
 import { findStateViolations } from "../invariants";
 import { findDanglingCountryReferences } from "../countryRefs";
 import { findSubordinationViolations, reconcileSubordination } from "../subordination";
-import { splitCountry } from "../polityLifecycle";
+import { mergeCountries, splitCountry } from "../polityLifecycle";
+import { aggregateCountryFromRegions } from "@shared/utils/aggregateCountryData";
 
 /**
  * Структурные глаголы подчинения и поглощения (Милстоун 1).
@@ -494,6 +495,189 @@ describe("структурные глаголы на боевых данных 1
     expect(game.regions.filter(r => r.ownerCountryId === targetId)).toHaveLength(
       ownedCount - seized.length
     );
+    expect(findStateViolations(game)).toEqual([]);
+    expect(findDanglingCountryReferences(game)).toEqual([]);
+  });
+});
+
+// --------------------------------------------------------------------------
+// 5. Объединение: суммы сходятся в ОБЕ стороны
+// --------------------------------------------------------------------------
+
+describe("merge_countries: сложение — обратная задача к делению", () => {
+  /** Мир, где USA — клиент SUN и владеет собственной землёй. */
+  function vassalWithLandGame(): GameState {
+    const game = createDiscontentTestGame();
+    const region = game.regions.find(r => r.id === TEST_REGION_NEIGHBOUR)!;
+    region.ownerCountryId = "USA";
+    const client = usa(game);
+    client.capitalRegionId = region.id;
+    client.politics.sovereigntyStatus = "protectorate";
+    client.politics.overlordIds = ["SUN"];
+    client.economy.treasury = 1234;
+    client.military.manpower = 777;
+    client.military.activePersonnel = 55;
+    client.military.reservePersonnel = 33;
+    sun(game).diplomacy.puppets = ["USA"];
+    // Агрегаты приводятся к регионам ДО замера: население и ВВП выводятся из
+    // регионов (`aggregateCountryFromRegions`), второго источника истины у них
+    // нет, и фикстура, объявившая стране население больше суммы её регионов,
+    // мерила бы не сходимость сумм, а собственную рассогласованность.
+    for (const country of game.countries) aggregateCountryFromRegions(country, game.regions);
+    return game;
+  }
+
+  function totals(game: GameState, ids: readonly string[]) {
+    const countries = game.countries.filter(c => ids.includes(c.id));
+    return {
+      population: countries.reduce((s, c) => s + c.population, 0),
+      treasury: countries.reduce((s, c) => s + c.economy.treasury, 0),
+      manpower: countries.reduce((s, c) => s + c.military.manpower, 0),
+      activePersonnel: countries.reduce((s, c) => s + c.military.activePersonnel, 0),
+      reservePersonnel: countries.reduce((s, c) => s + c.military.reservePersonnel, 0),
+      regions: game.regions.filter(r => ids.includes(r.ownerCountryId)).length,
+    };
+  }
+
+  it("население, казна, живая сила и регионы складываются БЕЗ потерь", () => {
+    const game = vassalWithLandGame();
+    const before = totals(game, ["SUN", "USA"]);
+    expect(before.treasury).toBeGreaterThan(0);
+    expect(before.regions).toBeGreaterThan(1);
+
+    const result = applyPrimitiveBatch(game, [
+      { verb: "merge_countries", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(game.countries.map(c => c.id)).not.toContain("USA");
+
+    const after = totals(game, ["SUN"]);
+    expect(after.population).toBe(before.population);
+    expect(after.treasury).toBe(before.treasury);
+    expect(after.manpower).toBe(before.manpower);
+    expect(after.activePersonnel).toBe(before.activePersonnel);
+    expect(after.reservePersonnel).toBe(before.reservePersonnel);
+    expect(after.regions).toBe(before.regions);
+
+    expect(findStateViolations(game)).toEqual([]);
+    expect(findDanglingCountryReferences(game)).toEqual([]);
+  });
+
+  it("раскол и последующее объединение возвращают исходные суммы — цикл замкнут", () => {
+    // Прямая проверка «в обе стороны»: делим, затем складываем обратно, и
+    // сумма мира обязана совпасть с исходной. Ошибка округления деления и
+    // потерянное слагаемое сложения — ошибки РАЗНОГО рода, и поймать обе
+    // может только замкнутый цикл, а не проверка одной операции.
+    const game = createDiscontentTestGame();
+    seedSeparatistDiscontent(game);
+    const worldBefore = totals(game, game.countries.map(c => c.id));
+
+    const split = splitCountry(game, { countryId: "SUN", intensity: "severe" });
+    expect(split.shards.length).toBeGreaterThan(0);
+
+    // Осколки возвращаются метрополии — по одному, каждый через ту же операцию
+    // объединения, что и глагол.
+    for (const shard of split.shards) {
+      mergeCountries(game, { absorberId: "SUN", absorbedId: shard.countryId });
+    }
+
+    const worldAfter = totals(game, game.countries.map(c => c.id));
+    expect(worldAfter.population).toBe(worldBefore.population);
+    expect(worldAfter.treasury).toBe(worldBefore.treasury);
+    expect(worldAfter.manpower).toBe(worldBefore.manpower);
+    expect(worldAfter.activePersonnel).toBe(worldBefore.activePersonnel);
+    expect(worldAfter.reservePersonnel).toBe(worldBefore.reservePersonnel);
+    expect(worldAfter.regions).toBe(worldBefore.regions);
+    expect(findStateViolations(game)).toEqual([]);
+  });
+
+  it("НЕГАТИВНЫЙ КОНТРОЛЬ: проверка сумм видит потерянное слагаемое", () => {
+    // Восстанавливаем «объединение, забывшее сложить казну»: если бы сложения
+    // не было, тест выше проходил бы только по регионам. Здесь сумма ломается
+    // руками, и проверка обязана это заметить.
+    const game = vassalWithLandGame();
+    const before = totals(game, ["SUN", "USA"]);
+
+    applyPrimitiveBatch(game, [
+      { verb: "merge_countries", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    ]);
+    sun(game).economy.treasury -= 1;
+
+    expect(totals(game, ["SUN"]).treasury).not.toBe(before.treasury);
+  });
+
+  it("не-клиента поглотить нельзя: сначала подчини", () => {
+    const game = createDiscontentTestGame();
+    const region = game.regions.find(r => r.id === TEST_REGION_NEIGHBOUR)!;
+    region.ownerCountryId = "USA";
+    usa(game).capitalRegionId = region.id;
+
+    const result = applyPrimitiveBatch(game, [
+      { verb: "merge_countries", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    ]);
+
+    expect(result.applied).toEqual([]);
+    expect(result.rejected[0]!.rejection.code).toBe("mergeNotVassal");
+    expect(game.countries.map(c => c.id)).toContain("USA");
+  });
+
+  it("страну ИГРОКА поглотить нельзя: человек не меняет державу молча", () => {
+    // Без этой предпосылки перенос ссылок увёл бы `playerCountryId` на
+    // поглотителя, и партия продолжилась бы за другое государство.
+    const game = vassalWithLandGame();
+    game.playerCountryId = "USA";
+
+    const result = applyPrimitiveBatch(game, [
+      { verb: "merge_countries", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    ]);
+
+    expect(result.applied).toEqual([]);
+    expect(result.rejected[0]!.rejection.code).toBe("mergePlayerCountry");
+    expect(game.playerCountryId).toBe("USA");
+    expect(game.countries.map(c => c.id)).toContain("USA");
+  });
+
+  it("на боевых данных 1946: поглощение реального клиента держит мир целым", () => {
+    const game = createGame("1946", "SUN", "ru", 1);
+    // Пара «сюзерен → клиент», взятая ИЗ СОСТОЯНИЯ: у клиента должна быть земля
+    // и он не должен быть страной игрока.
+    let pair: { overlordId: string; clientId: string } | undefined;
+    for (const country of game.countries) {
+      for (const clientId of country.diplomacy.puppets) {
+        if (clientId === game.playerCountryId) continue;
+        if (!game.regions.some(r => r.ownerCountryId === clientId)) continue;
+        pair = { overlordId: country.id, clientId };
+        break;
+      }
+      if (pair) break;
+    }
+    expect(pair).toBeDefined();
+
+    const ids = game.countries.map(c => c.id);
+    const before = totals(game, ids);
+    const clientRegions = game.regions.filter(r => r.ownerCountryId === pair!.clientId).length;
+    expect(clientRegions).toBeGreaterThan(0);
+
+    const result = applyPrimitiveBatch(game, [
+      {
+        verb: "merge_countries",
+        sourceCountryId: pair!.overlordId,
+        target: { countryId: pair!.clientId },
+      },
+    ]);
+
+    expect(result.rejected).toEqual([]);
+    expect(game.countries.map(c => c.id)).not.toContain(pair!.clientId);
+
+    // Мир в целом ничего не потерял: суммы считаются по ВСЕМ странам, включая
+    // те, что операции не касались.
+    const after = totals(game, game.countries.map(c => c.id));
+    expect(after.population).toBe(before.population);
+    expect(after.treasury).toBe(before.treasury);
+    expect(after.manpower).toBe(before.manpower);
+    expect(after.regions).toBe(before.regions);
+
     expect(findStateViolations(game)).toEqual([]);
     expect(findDanglingCountryReferences(game)).toEqual([]);
   });

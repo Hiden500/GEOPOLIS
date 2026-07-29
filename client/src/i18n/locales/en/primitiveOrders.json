@@ -46,7 +46,8 @@
     "condemn": "condemnation",
     "support_proxy": "proxy support",
     "puppet": "Subjection",
-    "annex": "Annexation"
+    "annex": "Annexation",
+    "merge_countries": "Absorption"
   },
   "errors": {
     "translateFailed": "The order could not be recognised. Check that model access is configured.",

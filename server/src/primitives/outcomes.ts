@@ -601,6 +601,39 @@ export function buildPrimitiveOutcome(
         details,
       };
     }
+
+    case "merge_countries": {
+      const details: PrimitiveOutcomeLine[] = [
+        {
+          key: "merge.absorbed",
+          values: { regions: applied.absorbedRegionIds.length },
+          // Имя поглощённой страны берётся ИЗ РЕЗУЛЬТАТА, а не из состояния:
+          // её там уже нет, и резолвер вернул бы сырой идентификатор.
+          names: { country: applied.absorbedName },
+        },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "merge.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+      if (applied.closedWarIds.length > 0) {
+        details.push({ key: "merge.warsClosed", values: { count: applied.closedWarIds.length } });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "mergeCountries.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: applied.absorbedName,
+          },
+        },
+        details,
+      };
+    }
   }
 }
 
@@ -750,6 +783,7 @@ export function buildPrimitivePreview(
       // перейти.
       case "puppet":
       case "annex":
+      case "merge_countries":
         names.country = countryNames(game, primitive.target.countryId);
         key = `preview.${primitive.verb}`;
         break;

@@ -220,6 +220,10 @@ export const PRIMITIVE_SCHEMAS = {
   // ошибку схемы вместо молча проигнорированного поля.
   puppet: primitiveOf("puppet", countryTargetSchema, noParamsSchema),
   annex: primitiveOf("annex", countryTargetSchema, noParamsSchema),
+  // Объединение: цель — ПОГЛОЩАЕМОЕ государство, источник — поглотитель.
+  // Параметров нет по той же причине: страна либо вошла в состав другой, либо
+  // нет, промежуточной величины у этого не бывает.
+  merge_countries: primitiveOf("merge_countries", countryTargetSchema, noParamsSchema),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -239,6 +243,7 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.support_proxy,
   PRIMITIVE_SCHEMAS.puppet,
   PRIMITIVE_SCHEMAS.annex,
+  PRIMITIVE_SCHEMAS.merge_countries,
 ]);
 
 /**

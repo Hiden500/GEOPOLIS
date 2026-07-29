@@ -162,6 +162,13 @@ changes hands or it does not.
   across a map. A state that loses its last region is NOT deleted and does not
   become part of the winner — it continues as a government without territory,
   and whether the campaign is over is decided by the engine, never by your text.
+- merge_countries — STRUCTURAL — target {countryId} — the target ceases to exist
+  and everything it had passes to the source: its regions, its treasury, its
+  manpower, and every reference the world held to it. Requires the target to be
+  a CLIENT of the source already (puppet it first): a state is absorbed into the
+  one whose foreign policy it already conducts, not into whoever asks. The state
+  the human plays can never be absorbed — the player loses their country by
+  losing all of its land, never by merger.
 
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —

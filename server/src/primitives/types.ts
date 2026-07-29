@@ -20,6 +20,7 @@
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
 import { type SanctionType } from "@shared/types/DiplomacyState";
 import { type SovereigntyStatus } from "@shared/types/politics/Government";
+import { type LocalizedText } from "@shared/types/i18n/LocalizedText";
 import { type PrimitiveRejection } from "./rejections";
 
 export const PRIMITIVE_VERBS = [
@@ -39,6 +40,7 @@ export const PRIMITIVE_VERBS = [
   "support_proxy",
   "puppet",
   "annex",
+  "merge_countries",
 ] as const;
 
 export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
@@ -67,6 +69,7 @@ export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = [
   // X» при несостоявшейся аннексии не должен делать X.
   "puppet",
   "annex",
+  "merge_countries",
 ];
 
 /**
@@ -537,6 +540,42 @@ export interface AppliedAnnex extends AppliedPrimitiveBase {
 }
 
 /**
+ * Факт объединения государств — ОБРАТНАЯ операция к расколу.
+ *
+ * Поглощённая страна исчезает, её ссылки переходят поглотителю, а делимое
+ * имущество СКЛАДЫВАЕТСЯ. Заявляется прирост казны и живой силы поглотителя:
+ * у обеих есть ячейка в разложении состояния, и молчание о честно сделанном
+ * откатило бы примитив собственной сверкой — ровно то же требование, что у
+ * раскола, делящего те же величины.
+ */
+export interface AppliedMergeCountries extends AppliedPrimitiveBase {
+  verb: "merge_countries";
+  /** Государство, перестающее существовать. */
+  absorbedCountryId: string;
+  /** Его имя — ссылки на страну в состоянии уже нет, а интерфейсу она нужна. */
+  absorbedName: LocalizedText;
+  /** Регионы, перешедшие поглотителю. */
+  absorbedRegionIds: number[];
+  /** Казна и живая сила поглотителя после сложения — фактические дельты. */
+  countryScalarEffects: CountryScalarEffect[];
+  /**
+   * Влияние, ИСЧЕЗНУВШЕЕ вместе с поглощённой страной.
+   *
+   * Найдено проверкой на боевых данных 1946: у поглотителя было 85 влияния на
+   * своего клиента, и после слияния запись снялась как самоссылка
+   * (`countryRefs.ts` — влиять на себя нельзя). Ячейка `influence:` в разложении
+   * состояния существует с `send_aid`, поэтому молчание об этом откатывало
+   * примитив собственной сверкой — правильно: исчезновение влияния такой же
+   * факт мира, как сложение казны.
+   */
+  influenceEffects: InfluenceEffect[];
+  /** Столица поглотителя, если земля появилась у страны, её не имевшей. */
+  capitalMoves: { countryId: string; from: number; to: number }[];
+  /** Война, схлопнувшаяся в войну страны с самой собой, закрыта. */
+  closedWarIds: string[];
+}
+
+/**
  * Discriminated union по глаголу: у каждого verb своя форма фактов, и лишнего
  * поля в ней нет. Общего скаляра «магнитуда» тут намеренно нет — один усреднённый
  * канал не описывает примитив, у которого их несколько (repress пишет и
@@ -558,7 +597,8 @@ export type AppliedPrimitive =
   | AppliedCondemn
   | AppliedSupportProxy
   | AppliedPuppet
-  | AppliedAnnex;
+  | AppliedAnnex
+  | AppliedMergeCountries;
 
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
@@ -594,6 +634,7 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
     // (регион, группа), и записи там у них нет по построению.
     case "puppet":
     case "annex":
+    case "merge_countries":
       return [];
     case "incite_unrest":
     case "repress":

@@ -274,6 +274,68 @@ export const PRIMITIVE_PALETTE: Record<PrimitiveVerb, readonly string[]> = {
     "campaign.reason.by.ru",
     "campaign.since",
   ],
+
+  // Объединение государств — ОБРАТНАЯ операция к расколу, и палитра у неё того
+  // же вида и по той же причине: перечислено ровно то, что жизненный цикл
+  // обязан тронуть. Отличие одно и содержательное — здесь нет `countries[+]`:
+  // объединение страны не создаёт, оно их убавляет.
+  merge_countries: [
+    "countries[-]",
+    // Поглотитель: делимое имущество сложено, агрегаты пересчитаны из регионов.
+    "countries[*].capitalRegionId",
+    "countries[*].population",
+    "countries[*].economy.gdp",
+    "countries[*].economy.treasury",
+    "countries[*].military.manpower",
+    "countries[*].military.activePersonnel",
+    "countries[*].military.reservePersonnel",
+    // Перенос ссылок затрагивает дипломатию ВСЕХ ссылающихся стран.
+    "countries[*].currencyZoneAnchor",
+    "countries[*].diplomacy.allies[*]",
+    "countries[*].diplomacy.allies[-]",
+    "countries[*].diplomacy.rivals[*]",
+    "countries[*].diplomacy.rivals[-]",
+    "countries[*].diplomacy.puppets[*]",
+    "countries[*].diplomacy.puppets[-]",
+    "countries[*].diplomacy.sphereOfInfluence[*]",
+    "countries[*].diplomacy.sphereOfInfluence[-]",
+    "countries[*].diplomacy.guarantees[*]",
+    "countries[*].diplomacy.guarantees[-]",
+    "countries[*].diplomacy.relations.{*}",
+    "countries[*].diplomacy.influence.{*}",
+    "countries[*].diplomacy.sanctions.{*}[*]",
+    "countries[*].diplomacy.sanctions.{*}[-]",
+    // Юридическая половина зависимости переезжает вместе с рантаймовой.
+    "countries[*].politics.overlordIds[*]",
+    "countries[*].politics.overlordIds[+]",
+    "countries[*].politics.overlordIds[-]",
+    "countries[*].politics.sovereigntyStatus",
+    // Земля переходит поглотителю; оккупация с неё снимается вместе с
+    // модификатором стабильности.
+    "regions[*].ownerCountryId",
+    "regions[*].occupiedBy",
+    "modifiers[+]",
+    "modifiers[-]",
+    "modifiers[*].target.id",
+    // Война, схлопнувшаяся в войну страны с самой собой, закрыта.
+    "wars[*].active",
+    "wars[*].attackers[*]",
+    "wars[*].attackers[-]",
+    "wars[*].defenders[*]",
+    "wars[*].defenders[-]",
+    "wars[*].supporters[+]",
+    "wars[*].supporters[-]",
+    "wars[*].supporters[*].countryId",
+    "wars[*].casualties.{*}",
+    "mapFeatures[*].ownerId",
+    // `playerCountryId` здесь НЕТ намеренно: поглощение страны игрока
+    // отклоняется предпосылкой, и если ссылка всё-таки переедет, палитра
+    // обязана это поймать, а не разрешить.
+    "llmSpotlightCountryId",
+    "pendingWorldFacts[-]",
+    "pendingWorldFacts[*].countryId",
+    "primitiveTurnBudget.targetUses.{*}",
+  ],
 };
 
 /**

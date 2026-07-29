@@ -45,5 +45,7 @@
   "alreadyVassal": "{{target}} already follows the foreign policy of {{source}}",
   "vassalageCycle": "{{source}} itself follows {{target}} — two states cannot conduct each other’s foreign policy",
   "noVassalageLeverage": "{{source}} has no hold over {{target}}: it controls {{heldShare}}% of its land (needs {{heldThreshold}}%) and holds {{influence}} influence (needs {{influenceThreshold}})",
-  "annexNothingHeld": "{{source}} holds no region owned by {{target}}: annexation converts ground you already hold"
+  "annexNothingHeld": "{{source}} holds no region owned by {{target}}: annexation converts ground you already hold",
+  "mergeNotVassal": "{{target}} is not a client of {{source}}: a state is absorbed into the one whose foreign policy it already follows",
+  "mergePlayerCountry": "{{target}} is the state the player runs: it cannot be absorbed into another country"
 }

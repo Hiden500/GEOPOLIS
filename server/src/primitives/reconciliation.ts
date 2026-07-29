@@ -332,6 +332,21 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
     case "puppet":
     case "annex":
       break;
+    // Объединение делит с расколом обе ячейки делимого имущества: там оно
+    // делится, здесь складывается, и заявить прирост обязаны оба — иначе
+    // сверка откатила бы примитив за молчание о том, что он честно сделал.
+    // Поглощённая страна в сверку не попадает: `findMisreportedChanges`
+    // исключает страны, существующие только по одну сторону снимка.
+    case "merge_countries":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.influenceEffects) {
+        changes.push({
+          key: influenceCellKey(effect.fromCountryId, effect.toCountryId),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
+      break;
     default:
       assertNeverVerb(applied);
   }
@@ -380,6 +395,7 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     // раскола — это перенос владельца, а не создание).
     case "puppet":
     case "annex":
+    case "merge_countries":
       return [];
   }
 }

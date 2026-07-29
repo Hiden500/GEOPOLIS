@@ -23,7 +23,8 @@ import {
 import { aggregateCountryFromRegions } from "@shared/utils/aggregateCountryData";
 import { remapCountryReferences } from "./countryRefs";
 import { reconcileSubordination } from "./subordination";
-import { setDivisibleAssets } from "../commands/lifecycle";
+import { readDivisibleAssets, setDivisibleAssets } from "../commands/lifecycle";
+import { transferRegion } from "../simulation/war/occupation";
 
 /**
  * Жизненный цикл государств — создание, роспуск, раскол (docs/CONCEPT.md §7.1).
@@ -492,6 +493,87 @@ export function splitCountry(game: GameState, params: SplitParams): PolityLifecy
   const rump = game.countries.find(c => c.id === source.id);
   if (rump) aggregateCountryFromRegions(rump, game.regions);
 
+  result.closedWarIds = closeBrokenWars(game);
+  return result;
+}
+
+export interface MergeParams {
+  /** Государство, которое поглощает. */
+  absorberId: string;
+  /** Государство, которое перестаёт существовать. */
+  absorbedId: string;
+}
+
+/**
+ * Объединение двух государств — ОБРАТНАЯ задача к расколу.
+ *
+ * Раскол делит население, казну, живую силу и регионы; объединение их
+ * складывает, и именно здесь проверяется, что §7.1 («суммы сходятся»)
+ * выполняется в ОБЕ стороны, а не только на делении. Деление умеет ошибиться на
+ * копейку округления (поэтому `splitAmount` отдаёт остаток крупнейшей доле);
+ * сложение — на потерянном слагаемом, и это ошибка другого рода, которую
+ * проверка «сумма до = сумма после» ловит только если её действительно делать.
+ *
+ * ПОЧЕМУ ТА ЖЕ МАШИНЕРИЯ, ЧТО У РАСКОЛА. Перенос ссылок делает один
+ * объявленный обход (`countryRefs.ts`), удаление страны — `removeCountry`,
+ * согласование подчинения — `subordination.ts`. Второй копии правил
+ * жизненного цикла у объединения нет, и это то самое, ради чего раскол в своё
+ * время выносили из обработчика глагола в модуль.
+ *
+ * ЧЕГО ЗДЕСЬ НЕТ. Ни выбора имени объединённого государства, ни нового флага,
+ * ни столицы «посередине»: объединение — это ПОГЛОЩЕНИЕ, у результата остаётся
+ * идентичность поглотителя. Слияние равных в третье государство потребовало бы
+ * имени, которого в состоянии нет (та же граница, что у осколков раскола,
+ * носящих имя своей группы).
+ */
+export function mergeCountries(game: GameState, params: MergeParams): PolityLifecycleResult {
+  const absorber = game.countries.find(c => c.id === params.absorberId);
+  const absorbed = game.countries.find(c => c.id === params.absorbedId);
+  if (!absorber) throw new Error(`merge_countries: unknown country ${params.absorberId}`);
+  if (!absorbed) throw new Error(`merge_countries: unknown country ${params.absorbedId}`);
+  if (absorber.id === absorbed.id) {
+    throw new Error(`merge_countries: a country cannot absorb itself (${absorber.id})`);
+  }
+
+  // Порядок существен: регионы переезжают ДО удаления страны. Владение снять
+  // нельзя вовсе (`countryRefs.ts`), и попытка удалить страну, за которой ещё
+  // числится земля, кончается исключением — громко, а не молча.
+  const moved = game.regions.filter(r => r.ownerCountryId === absorbed.id);
+  for (const region of moved) transferRegion(game, region, absorber.id);
+
+  // СЛОЖЕНИЕ делимого. Абсолютом, а не дельтой, по той же причине, что у
+  // деления: два способа получить одно число — два способа разойтись.
+  const mine = readDivisibleAssets(game, absorber.id)!;
+  const theirs = readDivisibleAssets(game, absorbed.id)!;
+  setDivisibleAssets(game, absorber.id, {
+    treasury: mine.treasury + theirs.treasury,
+    manpower: mine.manpower + theirs.manpower,
+    activePersonnel: mine.activePersonnel + theirs.activePersonnel,
+    reservePersonnel: mine.reservePersonnel + theirs.reservePersonnel,
+  });
+
+  const result: PolityLifecycleResult = {
+    shards: [],
+    dissolvedCountryId: absorbed.id,
+    dissolvedName: { ...absorbed.name },
+    successorCountryId: absorber.id,
+    capitalReassignments: [],
+    closedWarIds: [],
+  };
+
+  removeCountry(game, absorbed.id, absorber.id);
+
+  // Столица поглотителя, если он до этого сам был без территории: земля
+  // появилась, и указание на потерянную столицу пора обновить.
+  const reassigned = reassignCapitalIfLost(game, absorber);
+  if (reassigned) result.capitalReassignments.push(reassigned);
+
+  // Население и ВВП выводятся из регионов — второго источника истины у них нет.
+  aggregateCountryFromRegions(absorber, game.regions);
+
+  // Война, где поглотитель и поглощённый стояли по разные стороны, схлопнулась
+  // в войну страны с самой собой — её закрывает та же проверка, что и войну,
+  // потерявшую сторону при расколе.
   result.closedWarIds = closeBrokenWars(game);
   return result;
 }

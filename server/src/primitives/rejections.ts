@@ -152,6 +152,8 @@ export type PrimitiveRejection =
       influenceThreshold: number;
     }
   | { code: "annexNothingHeld"; source: LocalizedText; target: LocalizedText }
+  | { code: "mergeNotVassal"; source: LocalizedText; target: LocalizedText }
+  | { code: "mergePlayerCountry"; target: LocalizedText }
 
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
@@ -367,6 +369,18 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
         `${name(rejection.source)} holds no region owned by ${name(rejection.target)}: annexation ` +
         `converts land you actually control into land you own, it does not take land at a distance`
       );
+    case "mergeNotVassal":
+      return (
+        `${name(rejection.target)} is not a client of ${name(rejection.source)}: a state is ` +
+        `absorbed into the one whose foreign policy it already follows — subject it first (puppet), ` +
+        `or take its land by war`
+      );
+    case "mergePlayerCountry":
+      return (
+        `${name(rejection.target)} is the state the human plays: it cannot be absorbed into another ` +
+        `country, because that would silently hand the player a different nation. A player loses ` +
+        `their state by losing all of its land, never by merger`
+      );
 
     case "softTurnCapReached":
       return `At most ${rejection.cap} soft primitives per turn`;
@@ -534,7 +548,10 @@ export function rejectionRecord(
     case "alreadyVassal":
     case "vassalageCycle":
     case "annexNothingHeld":
+    case "mergeNotVassal":
       return of(undefined, { source: rejection.source, target: rejection.target });
+    case "mergePlayerCountry":
+      return of(undefined, { target: rejection.target });
     case "noVassalageLeverage":
       // Доля удержанной земли, влияние и оба порога — свойства МИРА и ПРАВИЛ,
       // игрок видит их в интерфейсе; магнитуды несостоявшегося действия у

@@ -779,6 +779,14 @@ export class LLMService {
           // произошло и с ними, а новый владелец попадает через `addRegion`.
           for (const regionId of primitive.annexedRegionIds) addRegion(regionId);
           break;
+        case "merge_countries":
+          // Поглощённой страны в состоянии уже нет, но событие касается её
+          // буквально: её идентификатор остаётся в квитанции как запись о
+          // прошлом — ровно тот случай, который `countryRefs.ts` выводит из
+          // реестра ссылок («история не переписывается»).
+          countries.add(primitive.absorbedCountryId);
+          for (const regionId of primitive.absorbedRegionIds) addRegion(regionId);
+          break;
         default:
           // Явная проверка на недостижимость: ветки здесь заканчиваются
           // `break`, а не `return`, и без неё TypeScript полноту `switch` не
