@@ -142,7 +142,7 @@ export function simulateMonth(
     discontentTick(game);
 
     // Дипломатические изменения
-    diplomacyTick(game.countries);
+    diplomacyTick(game);
 
     // Фронт активных войн (docs/WAR.md, Phase 1) — до aiBehaviorTick, чтобы
     // новые войны от ИИ-порога стартовали с чистого состояния фронта.
