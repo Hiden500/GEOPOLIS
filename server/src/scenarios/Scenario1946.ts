@@ -16,6 +16,7 @@ import {
   demographicsFileSchema,
   ideologyFileSchema,
   governmentFileSchema,
+  influenceFileSchema,
   ideologyZonesFileSchema,
   type RegionCoreEntry,
   type RegionStateEntry,
@@ -219,6 +220,7 @@ function applyDemographicLayers(
   }
 
   applyGovernmentLayer(baseDir, countries, countryById);
+  applyInfluenceLayer(baseDir, countries, countryById);
 
   return groups;
 }
@@ -267,6 +269,50 @@ function applyGovernmentLayer(
     country.politics.powerStructure = entry.powerStructure;
     country.politics.sovereigntyStatus = entry.sovereigntyStatus;
     country.politics.overlordIds = [...entry.overlordIds];
+  }
+}
+
+/**
+ * Стартовое влияние держав (`influence.json`). Слой независимый и
+ * опциональный, как остальные слои фундамента.
+ *
+ * ЗАЧЕМ ЭТОТ СЛОЙ СУЩЕСТВУЕТ. `DiplomacyTick` работает только по УЖЕ
+ * существующим записям `relations`/`influence`, а в сценарии они пусты у всех
+ * 157 стран: дрейфовать нечему, тяготение пары считать не от чего. Полную
+ * матрицу заводить нельзя — 157 стран дают 24 649 пар против правила о размере
+ * сохранений. Этот файл и есть разреженный каркас, из которого дипломатия
+ * начинает работать: 300 связей вместо 24 649.
+ *
+ * Zod проверил форму (диапазон 10..100, отсутствие самовлияния); здесь —
+ * ссылочная целостность между файлами: и источник, и каждая цель обязаны
+ * существовать в ростере.
+ */
+function applyInfluenceLayer(
+  baseDir: string,
+  countries: Country[],
+  countryById: Map<string, Country>
+): void {
+  const influenceFile = readOptionalJsonFile(
+    path.join(baseDir, 'influence.json'), influenceFileSchema, 'influence.json'
+  );
+  if (!influenceFile) return;
+
+  const roster = new Set(countries.map(c => c.id));
+  for (const entry of influenceFile.influence) {
+    const source = countryById.get(entry.sourceCountryId);
+    if (!source) {
+      throw new ScenarioDataError(
+        `influence.json: нет страны id="${entry.sourceCountryId}" в сценарии`
+      );
+    }
+    for (const [targetId, value] of Object.entries(entry.targets)) {
+      if (!roster.has(targetId)) {
+        throw new ScenarioDataError(
+          `influence.json: "${entry.sourceCountryId}" влияет на несуществующую страну "${targetId}"`
+        );
+      }
+      source.diplomacy.influence[targetId] = value;
+    }
   }
 }
 

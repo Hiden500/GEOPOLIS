@@ -6,6 +6,7 @@ import {
   SOVEREIGN_STATUS,
   CONDOMINIUM_STATUS,
 } from "@shared/types/politics/Government";
+import { INFLUENCE_SCALE_MAX } from "@shared/defines/diplomacy";
 
 /**
  * Схемы расслоённых файлов сценария 1946 (docs/plans/05_DATA_LAYOUT.md).
@@ -171,6 +172,45 @@ export const countryGovernmentSchema = z.object({
     ctx.addIssue({ code: "custom", message: `"${countryId}": страна назначена сюзереном самой себе` });
   }
 });
+/**
+ * Стартовое влияние держав (`influence.json`).
+ *
+ * Влияние НАПРАВЛЕННОЕ и несимметричное: СССР влияет на Польшу сильно, Польша
+ * на СССР — почти никак, и обе стороны, если значимы, записываются отдельно.
+ *
+ * Нижняя граница 10 — не техническая, а смысловая: связь слабее в движке
+ * неотличима от её отсутствия, поэтому запись со значением 3 означала бы
+ * данные, которые никто не прочтёт. Ноль тоже запрещён — отсутствие связи
+ * выражается отсутствием ключа, а не нулём (иначе разреженная карта перестаёт
+ * быть разреженной).
+ */
+export const INFLUENCE_MIN_RECORDED = 10;
+
+export const countryInfluenceSchema = z.object({
+  sourceCountryId: z.string().min(1),
+  targets: z.record(
+    z.string().min(1),
+    z.number().int().min(INFLUENCE_MIN_RECORDED).max(INFLUENCE_SCALE_MAX)
+  ),
+}).superRefine((entry, ctx) => {
+  if (entry.targets[entry.sourceCountryId] !== undefined) {
+    ctx.addIssue({
+      code: "custom",
+      message: `"${entry.sourceCountryId}": страна влияет сама на себя`,
+    });
+  }
+  if (Object.keys(entry.targets).length === 0) {
+    ctx.addIssue({
+      code: "custom",
+      message: `"${entry.sourceCountryId}": источник без единой цели — запись без смысла`,
+    });
+  }
+});
+export const influenceFileSchema = z.object({
+  influence: z.array(countryInfluenceSchema),
+});
+export type InfluenceFile = z.infer<typeof influenceFileSchema>;
+
 export const governmentFileSchema = z.object({
   countries: z.array(countryGovernmentSchema),
 });

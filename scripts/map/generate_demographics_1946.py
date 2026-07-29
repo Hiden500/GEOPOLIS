@@ -10,6 +10,7 @@ docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
     server/data/scenarios/1946/demographics.json  <- scripts/map/config/demographics_1946.json
     server/data/scenarios/1946/ideology.json      <- scripts/map/config/ideology_1946.json
     server/data/scenarios/1946/government.json    <- scripts/map/config/government_1946.json
+    server/data/scenarios/1946/influence.json     <- scripts/map/config/influence_1946.json
 
 Запуск из корня: python scripts/map/generate_demographics_1946.py
 После записи прогоняет scripts/map/validate_demographics_1946.py.
@@ -75,6 +76,7 @@ GROUPS_PATH = SCENARIO_DIR / "groups.json"
 DEMOGRAPHICS_PATH = SCENARIO_DIR / "demographics.json"
 IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
 GOVERNMENT_PATH = SCENARIO_DIR / "government.json"
+INFLUENCE_PATH = SCENARIO_DIR / "influence.json"
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 
@@ -87,6 +89,7 @@ CONFIG_DIR = Path(__file__).resolve().parent / "config"
 GROUPS_CONFIG = CONFIG_DIR / "groups_1946.json"
 DEMOGRAPHICS_CONFIG = CONFIG_DIR / "demographics_1946.json"
 GOVERNMENT_CONFIG = CONFIG_DIR / "government_1946.json"
+INFLUENCE_CONFIG = CONFIG_DIR / "influence_1946.json"
 
 # Координаты идеологии стран живут в scripts/map/config/ideology_1946.json —
 # авторский вход, а не таблица этого файла (см. шапку). Пообъектное обоснование,
@@ -139,6 +142,28 @@ def build_government() -> dict:
     }
 
 
+def build_influence() -> dict:
+    """
+    Стартовое влияние держав из входного конфига.
+
+    `_meta` входа в сценарий не переносится — это провенанс для рецензента, а не
+    данные движка (тот же приём, что у `government`). Порядок по источнику и по
+    убыванию силы внутри источника — стабильный diff при перегенерации.
+    """
+    entries = load_json(INFLUENCE_CONFIG)["influence"]
+    return {
+        "influence": [
+            {
+                "sourceCountryId": entry["sourceCountryId"],
+                "targets": dict(
+                    sorted(entry["targets"].items(), key=lambda kv: (-kv[1], kv[0]))
+                ),
+            }
+            for entry in sorted(entries, key=lambda e: e["sourceCountryId"])
+        ]
+    }
+
+
 def write_json(path: Path, payload: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
@@ -150,6 +175,7 @@ def main() -> int:
     demographics = build_demographics()
     ideology = build_ideology(load_coordinates())
     government = build_government()
+    influence = build_influence()
 
     region_ids = {r["id"] for r in load_json(REGIONS_CORE_PATH)}
     countries = load_json(COUNTRIES_PATH)
@@ -170,12 +196,15 @@ def main() -> int:
     write_json(DEMOGRAPHICS_PATH, demographics)
     write_json(IDEOLOGY_PATH, ideology)
     write_json(GOVERNMENT_PATH, government)
+    write_json(INFLUENCE_PATH, influence)
 
     print(
         f"Записано: groups.json ({len(groups['groups'])} групп), "
         f"demographics.json ({len(demographics['regions'])} регионов), "
         f"ideology.json ({len(ideology['countries'])} стран), "
-        f"government.json ({len(government['countries'])} стран)"
+        f"government.json ({len(government['countries'])} стран), "
+        f"influence.json ({sum(len(e['targets']) for e in influence['influence'])} связей "
+        f"от {len(influence['influence'])} источников)"
     )
     return 0
 

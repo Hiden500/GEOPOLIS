@@ -85,6 +85,7 @@ savegames/
 # Формы правления и юридический статус (2026-07-29, docs/POLITICS.md) — тот же
 # генератор, то же явное отрицание.
 !/server/data/scenarios/1946/government.json
+!/server/data/scenarios/1946/influence.json
 /client/data/
 logs/
 
