@@ -55,6 +55,8 @@ FULL_REBUILD_STEPS = [
     "build/fix_ponta_pora_matogrosso_gap.py",
     "build/fix_ponta_pora_junction_gap.py",
     "build/fix_santafe_tacuarembo_gap.py",
+    "build/fix_alaska_coastline_gaps.py",
+    "build/fix_alaska_coastline_gaps_pointfix.py",
     "build/merge_world_1946.py",
     "build/build_neighbor_graph.py",
     "build/translate_world.py",

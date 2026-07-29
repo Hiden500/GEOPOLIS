@@ -14186,7 +14186,7 @@
   {
     "id": 993,
     "geoJsonId": "NAM-0197",
-    "area": 12512.1,
+    "area": 12562.2,
     "neighboringRegionIds": [],
     "sourceAdm1Codes": [
       "NAM-0197"
@@ -14195,7 +14195,7 @@
   {
     "id": 994,
     "geoJsonId": "NAM-0198",
-    "area": 1489241.6,
+    "area": 1490678.0,
     "neighboringRegionIds": [
       806,
       813

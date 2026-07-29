@@ -16618,12 +16618,12 @@
   {
     "id": 993,
     "ownerCountryId": "USA",
-    "population": 4573,
+    "population": 4580,
     "urbanization": 0.073,
     "stability": 0.562,
     "infrastructure": 0.607,
     "development": 0.613,
-    "gdp": 1701572,
+    "gdp": 1704177,
     "deposits": {
       "food": 5
     },
@@ -16634,12 +16634,12 @@
   {
     "id": 994,
     "ownerCountryId": "USA",
-    "population": 72865,
+    "population": 72858,
     "urbanization": 0.082,
     "stability": 0.57,
     "infrastructure": 0.569,
     "development": 0.557,
-    "gdp": 23093323,
+    "gdp": 23091105,
     "deposits": {
       "food": 77,
       "timber": 298
