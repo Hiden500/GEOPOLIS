@@ -212,6 +212,14 @@ export const PRIMITIVE_SCHEMAS = {
   capital_flight: primitiveOf("capital_flight", regionTargetSchema, intensityOnlyParamsSchema),
   condemn: primitiveOf("condemn", countryTargetSchema, intensityOnlyParamsSchema),
   support_proxy: primitiveOf("support_proxy", countryTargetSchema, intensityOnlyParamsSchema),
+  // Подчинение и поглощение параметров не имеют ВОВСЕ — по той же причине, что
+  // `war` и `peace`: у структурного глагола величины нет. Государство либо
+  // подчинено, либо нет; земля либо перешла, либо не перешла. `intensity` здесь
+  // нечему двигать даже как порог — какие именно регионы переходят, решает
+  // фактический контроль, а не хинт, и приславший `params.intensity` получит
+  // ошибку схемы вместо молча проигнорированного поля.
+  puppet: primitiveOf("puppet", countryTargetSchema, noParamsSchema),
+  annex: primitiveOf("annex", countryTargetSchema, noParamsSchema),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -229,6 +237,8 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.capital_flight,
   PRIMITIVE_SCHEMAS.condemn,
   PRIMITIVE_SCHEMAS.support_proxy,
+  PRIMITIVE_SCHEMAS.puppet,
+  PRIMITIVE_SCHEMAS.annex,
 ]);
 
 /**

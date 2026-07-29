@@ -10,7 +10,11 @@ import {
   SPLIT_MIN_DISCONTENT_LOOSE,
   SPLIT_MIN_DISCONTENT_STRICT,
 } from "@shared/defines/discontent";
-import { SEND_AID_MIN_TREASURY_SHARE } from "@shared/defines/diplomacy";
+import {
+  SEND_AID_MIN_TREASURY_SHARE,
+  VASSALAGE_MIN_HELD_SHARE,
+  VASSALAGE_MIN_INFLUENCE,
+} from "@shared/defines/diplomacy";
 import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
 
 /**
@@ -136,6 +140,28 @@ them takes a magnitude either; all take params {intensity} only.
   same war, and the source is actually its patron (influence over it or a formal
   tie). How much is decided by the strength of that patronage and by how much of
   the client's land is currently occupied.
+
+Two structural verbs change who commands a state and who owns its land. Neither
+takes params at all: a state is either subjected or it is not, land either
+changes hands or it does not.
+
+- puppet — STRUCTURAL — target {countryId} — the target keeps its territory and
+  its statehood but loses command of its own foreign policy. This writes BOTH
+  halves of dependence at once: the runtime tie (the client is dragged into the
+  patron's wars and gravitates towards it) and the legal status (a sovereign
+  target becomes a protectorate; one already subordinate keeps whatever status
+  it has and simply gains another overlord). Requires LEVERAGE, and there are
+  exactly two kinds: the source actually controls at least
+  ${(VASSALAGE_MIN_HELD_SHARE * 100).toFixed(0)}% of the target's land, or it
+  holds at least ${VASSALAGE_MIN_INFLUENCE} influence over it. A state cannot
+  subject its own patron, directly or through a chain.
+- annex — STRUCTURAL — target {countryId} — every region the target OWNS and the
+  source actually CONTROLS passes into the source's ownership; the occupation on
+  it is lifted because it has become its own land. Requires holding at least one
+  such region: annexation converts ground you already hold, it does not reach
+  across a map. A state that loses its last region is NOT deleted and does not
+  become part of the winner — it continues as a government without territory,
+  and whether the campaign is over is decided by the engine, never by your text.
 
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —

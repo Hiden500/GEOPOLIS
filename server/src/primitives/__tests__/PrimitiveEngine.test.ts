@@ -43,6 +43,8 @@ import {
   seedSeparatistDiscontent,
   destabilizeRegion,
   giveAudience,
+  giveVassalageLeverage,
+  holdTerritoryOf,
   addProxyClientWar,
 } from "../../test-utils/discontentFixtures";
 import { createTestRegion } from "../../test-utils/fixtures";
@@ -224,6 +226,21 @@ const SCENARIOS: {
       addProxyClientWar(state, "USA");
       giveAudience(state, "SUN", "USA");
     },
+  },
+  // Структурные глаголы подчинения и поглощения (Милстоун 1).
+  {
+    verb: "puppet",
+    primitive: { verb: "puppet", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Рычаг влияния, а не оккупации: он единственный доступен без войны, и
+    // именно он живой на данных 1946 (оккупированных регионов там ноль).
+    setup: state => { giveVassalageLeverage(state, "SUN", "USA"); },
+  },
+  {
+    verb: "annex",
+    primitive: { verb: "annex", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Аннексировать можно только то, что держишь: без региона под чужим
+    // владением и своим контролем сценарий проверял бы отказ вместо палитры.
+    setup: state => { holdTerritoryOf(state, "SUN", "USA", TEST_REGION_NEIGHBOUR); },
   },
 ];
 

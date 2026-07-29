@@ -133,6 +133,26 @@ export type PrimitiveRejection =
   | { code: "proxyPatronIsBelligerent"; source: LocalizedText; target: LocalizedText }
   | { code: "proxyNoPatronage"; source: LocalizedText; target: LocalizedText }
 
+  // --- validate: подчинение и поглощение (Милстоун 1, структурные глаголы) ---
+  //
+  // Все четыре отвечают «так не бывает». Отдельного отказа «цель слишком
+  // сильна» здесь нет: сила выражена самой предпосылкой рычага — либо войска
+  // стоят на земле, либо влияние дотягивается, третьего входа у подчинения в
+  // состоянии нет.
+  | { code: "alreadyVassal"; source: LocalizedText; target: LocalizedText }
+  | { code: "vassalageCycle"; source: LocalizedText; target: LocalizedText }
+  | {
+      code: "noVassalageLeverage";
+      source: LocalizedText;
+      target: LocalizedText;
+      /** Доля территории цели под контролем источника — насколько не хватило. */
+      heldShare: number;
+      heldThreshold: number;
+      influence: number;
+      influenceThreshold: number;
+    }
+  | { code: "annexNothingHeld"; source: LocalizedText; target: LocalizedText }
+
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
   | { code: "structuralTurnCapReached"; cap: number }
@@ -324,6 +344,30 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
         `requires influence over it or a formal tie (alliance, guarantee, client state, sphere)`
       );
 
+    case "alreadyVassal":
+      return (
+        `${name(rejection.target)} already follows ${name(rejection.source)}'s foreign policy: ` +
+        `subjecting an existing client changes nothing`
+      );
+    case "vassalageCycle":
+      return (
+        `${name(rejection.source)} already follows ${name(rejection.target)} (directly or through ` +
+        `a chain of patrons): two states cannot each conduct the other's foreign policy`
+      );
+    case "noVassalageLeverage":
+      return (
+        `${name(rejection.source)} has no hold over ${name(rejection.target)}: it controls ` +
+        `${(rejection.heldShare * 100).toFixed(0)}% of its land (needs ` +
+        `${(rejection.heldThreshold * 100).toFixed(0)}%) and holds ${rejection.influence.toFixed(0)} ` +
+        `influence over it (needs ${rejection.influenceThreshold.toFixed(0)}). Subjection follows ` +
+        `either boots on the ground or long-built influence, and neither is there yet`
+      );
+    case "annexNothingHeld":
+      return (
+        `${name(rejection.source)} holds no region owned by ${name(rejection.target)}: annexation ` +
+        `converts land you actually control into land you own, it does not take land at a distance`
+      );
+
     case "softTurnCapReached":
       return `At most ${rejection.cap} soft primitives per turn`;
     case "structuralTurnCapReached":
@@ -486,6 +530,24 @@ export function rejectionRecord(
     case "proxyPatronIsBelligerent":
     case "proxyNoPatronage":
       return of(undefined, { source: rejection.source, target: rejection.target });
+
+    case "alreadyVassal":
+    case "vassalageCycle":
+    case "annexNothingHeld":
+      return of(undefined, { source: rejection.source, target: rejection.target });
+    case "noVassalageLeverage":
+      // Доля удержанной земли, влияние и оба порога — свойства МИРА и ПРАВИЛ,
+      // игрок видит их в интерфейсе; магнитуды несостоявшегося действия у
+      // структурного глагола нет вовсе (см. шапку модуля).
+      return of(
+        {
+          heldShare: (rejection.heldShare * 100).toFixed(0),
+          heldThreshold: (rejection.heldThreshold * 100).toFixed(0),
+          influence: rejection.influence.toFixed(0),
+          influenceThreshold: rejection.influenceThreshold.toFixed(0),
+        },
+        { source: rejection.source, target: rejection.target }
+      );
 
     // Доля казны, стабильность региона и пороги — свойства МИРА и ПРАВИЛ:
     // игрок видит их в интерфейсе, и магнитуды несостоявшегося действия среди

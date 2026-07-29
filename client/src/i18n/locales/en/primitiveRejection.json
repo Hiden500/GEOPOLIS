@@ -41,5 +41,9 @@
   "noPodium": "{{source}} has no podium: no influence and no formal ties, so there is nobody to hear it",
   "proxyNotAtWar": "{{target}} is not at war with anyone: there is no war to support it in",
   "proxyPatronIsBelligerent": "{{source}} fights in the same war as {{target}}: that is its own war, not a proxy one",
-  "proxyNoPatronage": "{{source}} is no patron of {{target}}: influence or a formal tie is required"
+  "proxyNoPatronage": "{{source}} is no patron of {{target}}: influence or a formal tie is required",
+  "alreadyVassal": "{{target}} already follows the foreign policy of {{source}}",
+  "vassalageCycle": "{{source}} itself follows {{target}} — two states cannot conduct each other’s foreign policy",
+  "noVassalageLeverage": "{{source}} has no hold over {{target}}: it controls {{heldShare}}% of its land (needs {{heldThreshold}}%) and holds {{influence}} influence (needs {{influenceThreshold}})",
+  "annexNothingHeld": "{{source}} holds no region owned by {{target}}: annexation converts ground you already hold"
 }

@@ -105,6 +105,17 @@ export const CONDOMINIUM_STATUS: SovereigntyStatus = 'condominium';
 export const SOVEREIGN_STATUS: SovereigntyStatus = 'sovereign';
 
 /**
+ * Статус, который получает СУВЕРЕННОЕ государство, подчинённое в партии
+ * (примитив `puppet`, `server/src/primitives/subordination.ts`).
+ *
+ * `protectorate` выбран из перечня, а не заведён новым значением: он и есть
+ * «внутреннее самоуправление, внешние сношения у метрополии», то есть ровно то,
+ * чем вассалитет отличается от аннексии. Отдельный статус «вассал» дублировал
+ * бы существующий и потребовал бы решать, чем они различаются, — а различия нет.
+ */
+export const VASSALAGE_DEFAULT_STATUS: SovereigntyStatus = 'protectorate';
+
+/**
  * Статусы, при которых `overlordIds` называет ПРЕТЕНДЕНТА либо администратора,
  * а не патрона, — то есть подчинение не означает следования внешней политике.
  *

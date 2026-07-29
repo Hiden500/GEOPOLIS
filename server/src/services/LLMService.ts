@@ -768,6 +768,17 @@ export class LLMService {
           // произошло и с ними, а их новые контролёры попадают через `addRegion`.
           for (const regionId of primitive.annexedRegionIds) addRegion(regionId);
           break;
+        case "puppet":
+          // Подчинение касается ровно двух государств и ни одного места: земля
+          // остаётся у субъекта, меняется его положение.
+          countries.add(primitive.targetCountryId);
+          break;
+        case "annex":
+          countries.add(primitive.targetCountryId);
+          // Аннексированные регионы — то же, что у мира с условиями: событие
+          // произошло и с ними, а новый владелец попадает через `addRegion`.
+          for (const regionId of primitive.annexedRegionIds) addRegion(regionId);
+          break;
         default:
           // Явная проверка на недостижимость: ветки здесь заканчиваются
           // `break`, а не `return`, и без неё TypeScript полноту `switch` не

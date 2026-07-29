@@ -321,6 +321,16 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
     case "repress":
     case "grant_autonomy":
     case "spawn_incident":
+    // Подчинение и поглощение не заявляют НИ ОДНОЙ числовой ячейки, и это
+    // свойство класса, а не пропуск: `puppet` меняет два поля-перечисления и
+    // список, `annex` — владение регионами и агрегаты, выводимые из них.
+    // Правдивость обоих держат пост-инварианты (согласованность подчинения,
+    // ноль висячих ссылок, столица среди своих регионов) — механизмы, знающие
+    // о смысле этих полей больше, чем плоская карта чисел. Агрегаты страны
+    // (`population`, `economy.gdp`) ячеек не имеют вовсе: их источник —
+    // регионы, а не заявление глагола.
+    case "puppet":
+    case "annex":
       break;
     default:
       assertNeverVerb(applied);
@@ -365,6 +375,11 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     case "capital_flight":
     case "condemn":
     case "support_proxy":
+    // Структурные глаголы подчинения и поглощения карту не трогают: объекты
+    // переживают смену флага региона (`mapFeatures[*].ownerId` в палитре
+    // раскола — это перенос владельца, а не создание).
+    case "puppet":
+    case "annex":
       return [];
   }
 }

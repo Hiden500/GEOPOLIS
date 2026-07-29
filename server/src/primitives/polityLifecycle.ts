@@ -22,6 +22,7 @@ import {
 } from "@shared/utils/discontent";
 import { aggregateCountryFromRegions } from "@shared/utils/aggregateCountryData";
 import { remapCountryReferences } from "./countryRefs";
+import { reconcileSubordination } from "./subordination";
 import { setDivisibleAssets } from "../commands/lifecycle";
 
 /**
@@ -322,6 +323,12 @@ export function removeCountry(
 ): void {
   remapCountryReferences(game, id => (id === countryId ? successorId : id));
   game.countries = game.countries.filter(c => c.id !== countryId);
+  // Перенос переписывает `puppets` и `overlordIds` независимо и потому способен
+  // оставить половину пары: субъект исчез, его юридическая запись ушла вместе с
+  // ним, а запись сюзерена переехала на правопреемника. Пост-инварианты этого
+  // не простят (`subordination.ts`), и правильно — но чинить обязана операция,
+  // породившая асимметрию, а не проверка.
+  reconcileSubordination(game);
 }
 
 export interface SplitParams {

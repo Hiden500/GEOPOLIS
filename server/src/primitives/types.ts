@@ -19,6 +19,7 @@
 
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
 import { type SanctionType } from "@shared/types/DiplomacyState";
+import { type SovereigntyStatus } from "@shared/types/politics/Government";
 import { type PrimitiveRejection } from "./rejections";
 
 export const PRIMITIVE_VERBS = [
@@ -36,6 +37,8 @@ export const PRIMITIVE_VERBS = [
   "capital_flight",
   "condemn",
   "support_proxy",
+  "puppet",
+  "annex",
 ] as const;
 
 export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
@@ -57,6 +60,13 @@ export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = [
   "split_country",
   "war",
   "peace",
+  // Подчинение и поглощение меняют устройство мира так же необратимо, как
+  // раскол: одно снимает с государства собственную внешнюю политику, другое
+  // переносит землю между державами. Правило «отказ структурного отклоняет
+  // весь ответ» им подходит по той же причине — ответ «аннексировать и затем
+  // X» при несостоявшейся аннексии не должен делать X.
+  "puppet",
+  "annex",
 ];
 
 /**
@@ -473,6 +483,60 @@ export interface AppliedSupportProxy extends AppliedPrimitiveBase {
 }
 
 /**
+ * Факт подчинения одного государства другому.
+ *
+ * ДВА поля состояния одним актом, и это главное свойство глагола:
+ * `diplomacy.puppets` (рантайм-отношение, по нему втягивают в войну и считают
+ * тяготение пары) и `politics.sovereigntyStatus`/`overlordIds` (юридическое
+ * положение). До этой сессии их синхронизировал только слой данных, и
+ * подчинение, пришедшее из партии, оставляло юридический статус нетронутым —
+ * см. `subordination.ts`.
+ *
+ * `leverage` — ЧЕМ подчинение обеспечено. Не украшение: у глагола два разных
+ * пути к одной предпосылке (войска на земле либо влияние), и нарратив,
+ * не знающий который сработал, рассказал бы о капитуляции там, где произошёл
+ * дипломатический переход в сферу.
+ */
+export interface AppliedPuppet extends AppliedPrimitiveBase {
+  verb: "puppet";
+  targetCountryId: string;
+  leverage: "occupation" | "influence";
+  /** Юридический статус субъекта до и после — оба, потому что могли совпасть. */
+  statusBefore: SovereigntyStatus;
+  statusAfter: SovereigntyStatus;
+}
+
+/**
+ * Факт поглощения: регионы цели, которые источник фактически держит,
+ * переходят к нему во ВЛАДЕНИЕ.
+ *
+ * Страна-жертва при этом НЕ удаляется, даже потеряв последний регион.
+ * Государство без территории — законное состояние по §7.1 («тотальное
+ * поражение даёт переход в подчинённое положение, а не во владение
+ * победителем»), и решение о конце партии принимает машина состояний кампании,
+ * а не этот глагол: `campaignEnded` несёт её вердикт, если он изменился.
+ */
+export interface AppliedAnnex extends AppliedPrimitiveBase {
+  verb: "annex";
+  targetCountryId: string;
+  /** Регионы, сменившие владельца. Пустым не бывает: пустое отклоняет предпосылка. */
+  annexedRegionIds: number[];
+  /** Осталось ли у цели хоть что-нибудь — от этого зависит и нарратив, и кампания. */
+  targetRegionsLeft: number;
+  /** Столица, переехавшая потому, что прежняя ушла победителю. */
+  capitalMoves: { countryId: string; from: number; to: number }[];
+  /**
+   * Кампания перешла в терминальное состояние этим актом.
+   *
+   * Войн аннексия НЕ закрывает, и это заявление: стороны войны — государства, а
+   * государство, потерявшее последний регион, не исчезает (§7.1). Война с
+   * противником без территории продолжает существовать до мирного договора, и
+   * гасить её здесь значило бы объявить капитуляцию за движок войны.
+   */
+  campaignEnded?: "defeated" | undefined;
+}
+
+/**
  * Discriminated union по глаголу: у каждого verb своя форма фактов, и лишнего
  * поля в ней нет. Общего скаляра «магнитуда» тут намеренно нет — один усреднённый
  * канал не описывает примитив, у которого их несколько (repress пишет и
@@ -492,7 +556,9 @@ export type AppliedPrimitive =
   | AppliedSendAid
   | AppliedCapitalFlight
   | AppliedCondemn
-  | AppliedSupportProxy;
+  | AppliedSupportProxy
+  | AppliedPuppet
+  | AppliedAnnex;
 
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
@@ -523,6 +589,11 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
     case "capital_flight":
     case "condemn":
     case "support_proxy":
+    // Структурные глаголы подчинения и поглощения меняют состав и статус
+    // государств, а не настроение групп: память воздействий ключуется парой
+    // (регион, группа), и записи там у них нет по построению.
+    case "puppet":
+    case "annex":
       return [];
     case "incite_unrest":
     case "repress":

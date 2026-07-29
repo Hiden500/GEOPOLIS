@@ -3,7 +3,9 @@ import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type EthnicGroupDefinition } from "@shared/types/politics/Demographics";
 import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
+import { VASSALAGE_MIN_INFLUENCE } from "@shared/defines/diplomacy";
 import { WarService } from "../services/WarService";
+import { setRegionOccupation } from "../simulation/war/occupation";
 import { createTestCountry, createTestRegion, createTestGameState } from "./fixtures";
 
 /**
@@ -195,3 +197,53 @@ export function addProxyClientWar(game: GameState, clientId: string): string {
 
 /** Влияние фикстуры: заметно больше нуля и заметно меньше потолка шкалы. */
 const FIXTURE_INFLUENCE = 40;
+
+// --------------------------------------------------------------------------
+// Предпосылки структурных глаголов подчинения и поглощения (Милстоун 1)
+// --------------------------------------------------------------------------
+
+/**
+ * Доводит влияние источника до РЫЧАГА подчинения (`puppet`).
+ *
+ * Отдельно от `giveAudience` намеренно: трибуна и рычаг — разные величины
+ * одного поля, и `FIXTURE_INFLUENCE` (40) до порога вассалитета не дотягивает.
+ * Значение берётся ОТ КОНСТАНТЫ порога, а не назначается числом: тест обязан
+ * следовать за калибровкой, а не фиксировать снимок сегодняшнего значения.
+ */
+export function giveVassalageLeverage(
+  game: GameState,
+  sourceId: string,
+  targetId: string
+): void {
+  const source = game.countries.find(c => c.id === sourceId);
+  if (!source) throw new Error(`No such country in fixture: ${sourceId}`);
+  source.diplomacy.influence[targetId] = VASSALAGE_MIN_INFLUENCE;
+}
+
+/**
+ * Отдаёт регион во владение одной стране и под фактический контроль другой —
+ * то есть доводит мир до предпосылки `annex` («держишь, но не владеешь»).
+ *
+ * Оккупация ставится через `setRegionOccupation`, а не записью в `occupiedBy`:
+ * это единственная точка, держащая оккупацию и её модификатор стабильности
+ * согласованными, и фикстура, обошедшая её, готовила бы мир, которого движок
+ * не создаёт.
+ *
+ * Столица владельца переносится сюда же: инвариант состояния требует её среди
+ * своих регионов у любой страны, владеющей хотя бы одним.
+ */
+export function holdTerritoryOf(
+  game: GameState,
+  holderId: string,
+  ownerId: string,
+  regionId: number
+): void {
+  const region = game.regions.find(r => r.id === regionId);
+  const owner = game.countries.find(c => c.id === ownerId);
+  if (!region) throw new Error(`No such region in fixture: ${regionId}`);
+  if (!owner) throw new Error(`No such country in fixture: ${ownerId}`);
+
+  region.ownerCountryId = ownerId;
+  owner.capitalRegionId = regionId;
+  setRegionOccupation(game, region, holderId);
+}
