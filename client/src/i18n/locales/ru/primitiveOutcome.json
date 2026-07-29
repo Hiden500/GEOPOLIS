@@ -105,7 +105,22 @@
       "moderate": "характер: умеренно",
       "severe": "характер: жёстко"
     },
-    "split_country": "Распад государства {{country}}"
+    "split_country": "Распад государства {{country}}",
+    "diplomacy": {
+      "improve": "Улучшить отношения с {{country}}",
+      "worsen": "Ухудшить отношения с {{country}}",
+      "unspecified": "Дипломатический жест в сторону {{country}} (направление не указано)"
+    },
+    "sanction": "Ввести санкции против {{country}}",
+    "sanctionType": {
+      "trade_embargo": "вид: торговое эмбарго",
+      "economic_sanctions": "вид: экономические санкции",
+      "military_sanctions": "вид: военные санкции",
+      "diplomatic_sanctions": "вид: дипломатические санкции",
+      "default": "вид: по умолчанию (экономические санкции)"
+    },
+    "war": "Объявить войну — {{country}}",
+    "peace": "Заключить мир — {{country}}"
   },
   "splitCountry": {
     "headline": "Государство {{country}} раскололось: новых государств — {{shards}}"
@@ -115,5 +130,33 @@
     "dissolved": "Метрополия прекратила существование; правопреемник — {{country}}",
     "capitalMoved": "Столица перенесена в регион {{region}}",
     "warsClosed": "Войн закрыто: {{count}}"
+  },
+  "diplomacy": {
+    "headline": {
+      "improve": "Дипломатический жест: {{source}} — сближение с {{country}}",
+      "worsen": "Дипломатический демарш: {{source}} — охлаждение с {{country}}"
+    }
+  },
+  "sanction": {
+    "headline": "{{source}} вводит санкции против {{country}} ({{sanctionType}})",
+    "cutsTrade": "Экспорт цели урезан со следующего месяца",
+    "reputationOnly": "Торговли не касается: сегодня её режет только торговое эмбарго"
+  },
+  "war": {
+    "headline": "{{source}} объявляет войну — {{country}}",
+    "draggedIn": "Договоры втянули в войну ещё государств: {{count}}"
+  },
+  "peace": {
+    "headline": "Мир заключён: {{source}} и {{country}}",
+    "annexed": "Регионов сменило владельца по договору: {{count}}",
+    "borderUnchanged": "Граница не изменилась",
+    "capitalMoved": "Столица {{country}} перенесена в регион {{region}}",
+    "governmentSupport": "Поддержка правительства {{country}}: {{delta}} ({{before}} → {{after}})",
+    "legitimacy": "Легитимность {{country}}: {{delta}} ({{before}} → {{after}})",
+    "treasury": "Казна {{country}}: {{delta}} ({{before}} → {{after}})"
+  },
+  "relation": {
+    "changed": "Отношения {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
+    "unchanged": "Отношения {{source}} → {{country}}: без изменений ({{value}})"
   }
 }

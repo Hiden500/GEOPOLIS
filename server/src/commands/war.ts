@@ -1,4 +1,5 @@
 import { type GameState } from "@shared/types/GameState";
+import { type War } from "@shared/types/War";
 import { WarService } from "../services/WarService";
 import { transferRegion as transferRegionCore } from "../simulation/war/occupation";
 import { type CommandResult } from "./types";
@@ -7,13 +8,22 @@ import { type CommandResult } from "./types";
  * Обёртка WarService.declareWar (идемпотентна) — используется LLM-действием
  * "war" и AiBehaviorTick.applyWarThreshold (Правило D).
  */
-export function declareWar(game: GameState, initiatorId: string, targetId: string, warGoal?: string): CommandResult {
+export function declareWar(
+  game: GameState,
+  initiatorId: string,
+  targetId: string,
+  warGoal?: string
+): CommandResult<War> {
   if (!game.countries.some(c => c.id === initiatorId) || !game.countries.some(c => c.id === targetId)) {
     return { success: false, error: `Unknown country: ${initiatorId} or ${targetId}` };
   }
 
-  new WarService(game).declareWar(initiatorId, targetId, warGoal);
-  return { success: true };
+  // Война возвращается вызывающему: примитив `war` обязан отчитаться её id и
+  // фактическим составом сторон ПОСЛЕ авто-втягивания коалиций, а собирать их
+  // повторным поиском по `game.wars` значило бы завести второе мнение о том,
+  // что только что создал сервис.
+  const war = new WarService(game).declareWar(initiatorId, targetId, warGoal);
+  return { success: true, applied: war };
 }
 
 /**
@@ -21,7 +31,11 @@ export function declareWar(game: GameState, initiatorId: string, targetId: strin
  * поиск, что раньше делал LLMService.applyPeaceAction инлайн. Используется
  * LLM-действием "peace".
  */
-export function makePeaceBetween(game: GameState, countryAId: string, countryBId: string): CommandResult {
+export function makePeaceBetween(
+  game: GameState,
+  countryAId: string,
+  countryBId: string
+): CommandResult<string> {
   const warService = new WarService(game);
   const war = warService.getActiveWarBetween(countryAId, countryBId);
   if (!war) {
@@ -29,7 +43,7 @@ export function makePeaceBetween(game: GameState, countryAId: string, countryBId
   }
 
   warService.makePeace(war.id);
-  return { success: true };
+  return { success: true, applied: war.id };
 }
 
 /**

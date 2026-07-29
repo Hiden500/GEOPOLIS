@@ -74,20 +74,56 @@ required target field is missing.
   an uprising needs: a region ready to revolt is not yet a region leaving the
   country.
 
+Relations between states are primitives too — there is no "actions" shortcut for
+them any more. All four take target {countryId}, which must NOT equal
+sourceCountryId.
+
+- diplomacy — params {direction, intensity}, direction ("improve"/"worsen") is
+  REQUIRED: improving and breaking a relationship are different events, not
+  different sizes of one, and the engine will not guess which you meant. How FAR
+  the relation moves is decided by the pair's state — how much room is left on
+  the scale towards the direction you asked for, and how far the source's word
+  reaches this target at all (a shared border, existing influence, a formal tie
+  such as an alliance, a guarantee, a client state or a sphere relationship, or
+  fighting on the same side).
+  A war between the two damps a friendly gesture and does not damp a hostile
+  one. Where the scale has no room left, "severe" equals "mild".
+- sanction — params {sanctionType} — imposes a sanctions regime and damages
+  relations. Only "trade_embargo" actually cuts the target's exports today; the
+  other three kinds are reputational and the engine says so in the result. A
+  regime already in force is refused: imposing it twice changes nothing.
+- war — STRUCTURAL — params {warGoal}, a short free-text aim. Declaring war
+  drags in the allies, guarantors and client states of both sides automatically,
+  and collapses relations. Refused against a country you already fight, and against
+  a formal ally (breaking an alliance is not modelled yet).
+- peace — STRUCTURAL — no params at all. Requires an active war between the two.
+  The engine settles the terms itself from the war score: the winner keeps the
+  ground it occupies, the rest of the occupation is lifted, the loser pays with
+  legitimacy, and a decisive victory adds reparations. You name the peace; you
+  do not write the treaty.
+
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —
   params.intensity is "mild" | "moderate" | "severe", and it selects a position
   inside a corridor whose width the world state decides. Where the state gives
   no room, "severe" equals "mild". Any numeric field inside params is a schema
   error that rejects the primitive.
-- A structural primitive (enact_reform, split_country) rejected by the ENGINE — on the schema,
-  on the preconditions, or on the turn budget — rejects the WHOLE response,
-  including the soft primitives you sent with it. Send a structural one only
-  when the rest of the response is meant to happen together with it.
+- A structural primitive (enact_reform, split_country, war, peace) rejected by
+  the ENGINE — on the schema, on the preconditions, or on the turn budget —
+  rejects the WHOLE response, including the soft primitives you sent with it.
+  Send a structural one only when the rest of the response is meant to happen
+  together with it. All four share the SAME single structural slot of the turn:
+  a month that declares a war cannot also enact a reform.
+- The soft diplomatic verbs (diplomacy, sanction) share ONE slot per ordered
+  pair of countries per turn. Sanctioning a country you have already addressed
+  diplomatically this month is refused — not because the verb is wrong, but
+  because that month is over for that pair. Changing the verb does not widen
+  what one month may do to one relationship.
 - Order is execution order: each primitive sees the effect of the previous one,
   so incite_unrest followed by spawn_incident is a legitimate chain.
 - At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one per game
-  turn (enact_reform and split_country share that one structural slot), and at
+  turn (enact_reform, split_country, war and peace all draw on that single
+  structural slot), and at
   most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} use of the same verb against the same target per turn.
   These are budgets of the TURN, not of your response: the player's own orders
   this month draw on the same budget, so a target they have already acted on is

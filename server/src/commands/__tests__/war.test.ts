@@ -16,7 +16,10 @@ describe("commands/war", () => {
       const game = gameWithUsaSun();
       const result = commands.declareWar(game, "USA", "SUN");
 
-      expect(result).toEqual({ success: true });
+      // `applied` несёт саму войну: примитив `war` обязан отчитаться её id и
+      // фактическим составом сторон после втягивания коалиций.
+      expect(result.success).toBe(true);
+      expect(result.applied).toBe(game.wars[0]);
       expect(game.wars).toHaveLength(1);
       expect(game.wars[0]!.attackers).toEqual(["USA"]);
       expect(game.wars[0]!.defenders).toEqual(["SUN"]);
@@ -49,7 +52,10 @@ describe("commands/war", () => {
       commands.declareWar(game, "USA", "SUN");
 
       const result = commands.makePeaceBetween(game, "USA", "SUN");
-      expect(result).toEqual({ success: true });
+      expect(result.success).toBe(true);
+      // `applied` несёт id закрытой войны — примитив `peace` ссылается на неё
+      // в квитанции, а не ищет повторным поиском по состоянию.
+      expect(result.applied).toBe(game.wars[0]!.id);
       expect(game.wars[0]!.active).toBe(false);
     });
 

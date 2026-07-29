@@ -3,6 +3,7 @@ import { LLMService } from "../LLMService";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
 import { emptyResponseReceipt } from "@shared/types/ResponseReceipt";
+import { INFLUENCE_STEP, MAX_RESEARCH_SHARE } from "@shared/defines/llmActionCaps";
 
 function gameWithUsaUssr(overrides: Partial<GameState> = {}): GameState {
   return createTestGameState({
@@ -36,7 +37,10 @@ describe("LLMService", () => {
       // `annex`/`puppet` в списке типов больше нет (решение 2026-07-27): тип,
       // существующий ради того, чтобы быть отклонённым, занимал место в
       // контракте и в бюджете промта.
-      expect(prompt).toContain("diplomacy|war|peace|sanction|guarantee|influence");
+      expect(prompt).toContain("guarantee|influence");
+      // Переведённые в алфавит типы из перечня УБРАНЫ: промт не вправе
+      // обещать модели канал, которого схема больше не принимает.
+      expect(prompt).not.toContain("diplomacy|war");
       expect(prompt).not.toContain("annex");
       expect(prompt).not.toContain("puppet");
     });
@@ -52,11 +56,14 @@ describe("LLMService", () => {
       expect(prompt).toContain("in English");
     });
 
-    it("сообщает LLM жёсткие пределы магнитуды (Hard limits)", () => {
+    it("сообщает LLM жёсткие пределы старого канала (Hard limits)", () => {
       const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("Hard limits");
-      expect(prompt).toContain("±40");
-      expect(prompt).toContain("±20");
+      // Пределы ±40/±20 исчезли вместе со своими действиями (Милстоун 1): они
+      // ограничивали ЧИСЛО ОТ МОДЕЛИ, то есть узаконивали её право это число
+      // прислать. Остались пределы долей бюджета — рычагов игрока.
+      expect(prompt).toContain(`0-${MAX_RESEARCH_SHARE}`);
+      expect(prompt).toContain("influence: no magnitude field");
     });
 
     it("Narrative requirements: требует минимум 3 абзаца и охват Spotlight-стран (2026-07-05, живой тест на Groq/Gemini)", () => {
@@ -250,7 +257,7 @@ describe("LLMService", () => {
     it("Instructions: упоминает research_shift и его пределы (2026-07-06)", () => {
       const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("research_shift");
-      expect(prompt).toContain("diplomacy|war|peace|sanction|guarantee|influence|research_shift|production_shift");
+      expect(prompt).toContain("guarantee|influence|research_shift|production_shift");
     });
 
     it("Instructions: упоминает production_shift и категории техники (War Phase 2, 2026-07-06)", () => {
@@ -592,60 +599,14 @@ describe("LLMService", () => {
     const usa = () => game.countries.find(c => c.id === "USA")!;
     const ussr = () => game.countries.find(c => c.id === "USSR")!;
 
-    it("diplomacy: применяет relationChange из data симметрично (половина обратной стороне)", () => {
-      service.applyLlmActions([
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 20 } },
-      ]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(20);
-      expect(ussr().diplomacy.relations["USA"]).toBe(10);
-    });
-
-    it("war: обрушивает отношения (delta -100, обратная сторона -50) и создаёт реальную War (2026-07-06)", () => {
-      service.applyLlmActions([{ type: "war", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(-100);
-      expect(ussr().diplomacy.relations["USA"]).toBe(-50);
-
-      const war = game.wars.find(w => w.attackers.includes("USA") && w.defenders.includes("USSR"));
-      expect(war).toBeDefined();
-      expect(war!.active).toBe(true);
-    });
-
-    it("war: сохраняет warGoal из data.warGoal, если передан (2026-07-06)", () => {
-      service.applyLlmActions([
-        { type: "war", sourceCountryId: "USA", targetCountryId: "USSR", data: { warGoal: "Liberate Manchuria" } },
-      ]);
-      const war = game.wars.find(w => w.attackers.includes("USA"));
-      expect(war!.warGoal).toBe("Liberate Manchuria");
-    });
-
-    it("peace: улучшает отношения (delta +50) и завершает реальную войну (2026-07-06)", () => {
-      service.applyLlmActions([{ type: "war", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      service.applyLlmActions([{ type: "peace", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(50 - 100);
-      expect(ussr().diplomacy.relations["USA"]).toBe(25 - 50);
-
-      const war = game.wars.find(w => w.attackers.includes("USA") && w.defenders.includes("USSR"));
-      expect(war!.active).toBe(false);
-    });
-
-    it("peace: не падает, если активной войны нет (2026-07-06)", () => {
-      service.applyLlmActions([{ type: "peace", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(50);
-      expect(game.wars).toHaveLength(0);
-    });
-
-    it("sanction: добавляет санкцию по умолчанию и ухудшает отношения на -25", () => {
-      service.applyLlmActions([{ type: "sanction", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.sanctions["USSR"]).toEqual(["economic_sanctions"]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(-25);
-    });
-
-    it("sanction: использует sanctionType из data, если передан", () => {
-      service.applyLlmActions([
-        { type: "sanction", sourceCountryId: "USA", targetCountryId: "USSR", data: { sanctionType: "military_sanctions" } },
-      ]);
-      expect(usa().diplomacy.sanctions["USSR"]).toEqual(["military_sanctions"]);
-    });
+    // Ветки `diplomacy`/`war`/`peace`/`sanction` УДАЛЕНЫ вместе со своими
+    // типами (Милстоун 1, дипломатический блок алфавита). Их покрытие —
+    // симметрия сдвига отношений, обвал при объявлении войны, создание и
+    // закрытие настоящей `War`, сохранение `warGoal`, вид санкции по умолчанию
+    // и явный — перенесено в
+    // `server/src/primitives/__tests__/diplomaticVerbs.test.ts` целиком, а не
+    // «в основном»: там проверяется тот же наблюдаемый результат ПЛЮС то, чего
+    // старый канал не умел, — что величину задаёт состояние, а не модель.
 
     it("guarantee: добавляет гарантию и улучшает отношения на +15", () => {
       service.applyLlmActions([{ type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" }]);
@@ -653,9 +614,9 @@ describe("LLMService", () => {
       expect(usa().diplomacy.relations["USSR"]).toBe(15);
     });
 
-    it("influence: применяет influenceChange по умолчанию (10)", () => {
+    it("influence: шаг задаёт ДВИЖОК, а не модель", () => {
       service.applyLlmActions([{ type: "influence", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.influence["USSR"]).toBe(10);
+      expect(usa().diplomacy.influence["USSR"]).toBe(INFLUENCE_STEP);
     });
 
     // "действие без targetCountryId/data — no-op" тесты удалены здесь (2026-07-10,
@@ -675,11 +636,11 @@ describe("LLMService", () => {
 
     it("применяет несколько действий подряд", () => {
       service.applyLlmActions([
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
-        { type: "influence", sourceCountryId: "USA", targetCountryId: "USSR", data: { influenceChange: 5 } },
+        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
+        { type: "influence", sourceCountryId: "USA", targetCountryId: "USSR" },
       ]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(10);
-      expect(usa().diplomacy.influence["USSR"]).toBe(5);
+      expect(usa().diplomacy.guarantees).toContain("USSR");
+      expect(usa().diplomacy.influence["USSR"]).toBe(INFLUENCE_STEP);
     });
   });
 
@@ -707,7 +668,7 @@ describe("LLMService", () => {
 
     it("save/get/clear pending actions", () => {
       const actions = [
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 0 } } as const,
+        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" } as const,
       ];
       service.savePendingActions(actions);
       expect(service.getPendingActions()).toEqual(actions);
@@ -731,10 +692,13 @@ describe("LLMService", () => {
 
     const usa = () => game.countries.find(c => c.id === "USA")!;
 
+    // Носитель проверки — `influence`: после Милстоуна 1 это одно из двух
+    // оставшихся в старом канале двусторонних действий, и наблюдаемый эффект у
+    // него такой же дешёвый, каким был у `diplomacy`.
     const validResponse = JSON.stringify({
-      descriptions: "США улучшают отношения с СССР.",
+      descriptions: "США усиливают влияние на СССР.",
       actions: [
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 20 } },
+        { type: "influence", sourceCountryId: "USA", targetCountryId: "USSR" },
       ],
     });
 
@@ -742,11 +706,11 @@ describe("LLMService", () => {
       const result = service.processResponse(validResponse);
 
       expect(result.success).toBe(true);
-      expect(result.descriptions).toBe("США улучшают отношения с СССР.");
+      expect(result.descriptions).toBe("США усиливают влияние на СССР.");
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(0);
 
-      expect(usa().diplomacy.relations["USSR"]).toBe(20);
+      expect(usa().diplomacy.influence["USSR"]).toBe(INFLUENCE_STEP);
       expect(game.llmResponse).toBe(validResponse);
       expect(game.llmTurn).toBe(1);
 
@@ -754,7 +718,7 @@ describe("LLMService", () => {
       const event = game.eventHistory[0]!;
       expect(event.id).toBe("llm-turn-1");
       expect(event.date).toBe(game.currentDate);
-      expect(event.description).toBe("США улучшают отношения с СССР.");
+      expect(event.description).toBe("США усиливают влияние на СССР.");
       expect(event.receipt.countries).toEqual(["USA", "USSR"]);
     });
 
@@ -841,14 +805,14 @@ describe("LLMService", () => {
           descriptions: "d",
           actions: [
             { type: "puppet", sourceCountryId: "USA", targetCountryId: "USSR" },
-            { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 5 } },
+            { type: "influence", sourceCountryId: "USA", targetCountryId: "USSR" },
           ],
         }));
 
         expect(result.narrativeCanonized).toBe(true);
-        expect(result.receipt.actions.applied.map(a => a.type)).toEqual(["diplomacy"]);
+        expect(result.receipt.actions.applied.map(a => a.type)).toEqual(["influence"]);
         expect(result.receipt.actions.rejected).toHaveLength(1);
-        expect(usa().diplomacy.relations["USSR"]).toBe(5);
+        expect(usa().diplomacy.influence["USSR"]).toBe(INFLUENCE_STEP);
       });
 
       it("промт больше не тратит место на объяснение неработающих глаголов", () => {
@@ -869,7 +833,7 @@ describe("LLMService", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Invalid JSON format");
-      expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
+      expect(usa().diplomacy.influence["USSR"]).toBeUndefined();
       expect(game.llmTurn).toBeUndefined();
       expect(game.eventHistory).toHaveLength(0);
     });
@@ -892,8 +856,8 @@ describe("LLMService", () => {
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
         actions: [
-          { type: "war", sourceCountryId: "MARS", targetCountryId: "USA" },
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
+          { type: "influence", sourceCountryId: "MARS", targetCountryId: "USA" },
+          { type: "influence", sourceCountryId: "USA", targetCountryId: "USSR" },
         ],
       }));
 
@@ -901,23 +865,30 @@ describe("LLMService", () => {
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(1);
       expect(result.receipt.actions.rejected[0]!.reason).toContain("Source country not found");
-      expect(usa().diplomacy.relations["USSR"]).toBe(10);
+      expect(usa().diplomacy.influence["USSR"]).toBe(INFLUENCE_STEP);
     });
 
     it("действие с магнитудой за пределами отклоняется точечно с причиной", () => {
+      // Носитель проверки — `research_shift`: после Милстоуна 1 доли бюджета
+      // остались ЕДИНСТВЕННЫМИ числами, которые старый канал принимает от
+      // модели, и остались законно — это рычаги игрока, а не режиссура
+      // (docs/PRIMITIVES.md §2). Проверяемое свойство прежнее: за-каповое
+      // действие отклоняется точечно, соседнее валидное применяется.
+      usa().technology.domains = { armor: 0 };
+
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
         actions: [
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 500 } },
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
+          { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 5 } },
+          { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.5 } },
         ],
       }));
 
       expect(result.success).toBe(true);
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(1);
-      expect(result.receipt.actions.rejected[0]!.reason).toContain("relationChange");
-      expect(usa().diplomacy.relations["USSR"]).toBe(10);
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("share");
+      expect(usa().technology.researchAllocation).toEqual({ armor: 0.5 });
     });
 
     it("неприменимое действие отклоняется точечно с причиной, остальные применяются", () => {
@@ -928,7 +899,7 @@ describe("LLMService", () => {
         descriptions: "x",
         actions: [
           { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 5 } },
+          { type: "influence", sourceCountryId: "USA", targetCountryId: "USSR" },
         ],
       }));
 
@@ -936,7 +907,7 @@ describe("LLMService", () => {
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(1);
       expect(result.receipt.actions.rejected[0]!.reason).toBe("Guarantee already exists");
-      expect(usa().diplomacy.relations["USSR"]).toBe(5);
+      expect(usa().diplomacy.influence["USSR"]).toBe(INFLUENCE_STEP);
     });
 
     it("счётчик хода и id события растут при повторных проходах", () => {
@@ -951,10 +922,9 @@ describe("LLMService", () => {
           descriptions: "СССР отвечает встречным жестом.",
           actions: [
             {
-              type: "diplomacy",
+              type: "influence",
               sourceCountryId: "USSR",
               targetCountryId: "USA",
-              data: { relationChange: 10 },
             },
           ],
         })
@@ -989,15 +959,16 @@ describe("LLMService", () => {
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
         actions: [
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 1000 } },
+          { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 1000 } },
         ],
       }));
 
       expect(result.success).toBe(true);
       expect(result.receipt.actions.applied).toHaveLength(0);
       expect(result.receipt.actions.rejected).toHaveLength(1);
-      expect(result.receipt.actions.rejected[0]!.reason).toContain("relationChange");
-      expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("share");
+      // Ничего не применилось — распределение исследований осталось нетронутым.
+      expect(usa().technology.researchAllocation).toBeUndefined();
     });
 
     it("«передай мне всю казну США» — тип действия вне контракта отклоняется вне схемы, независимо от intent", () => {

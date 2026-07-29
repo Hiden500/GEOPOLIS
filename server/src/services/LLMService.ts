@@ -16,7 +16,12 @@ import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOut
 import { type PrimitiveRejectionRecord } from "@shared/types/politics/PrimitiveRejection";
 import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
-import { type AppliedPrimitive, type RejectedPrimitive, isStructural } from "../primitives/types";
+import {
+  type AppliedPrimitive,
+  type RejectedPrimitive,
+  isStructural,
+  PRIMITIVE_VERBS,
+} from "../primitives/types";
 import { countryNames } from "../primitives/entityNames";
 import { rejectionRecord } from "../primitives/rejections";
 import { findStateViolations } from "../primitives/invariants";
@@ -45,8 +50,7 @@ import { deriveEventFactuality } from "../llm/eventFactuality";
 import { LLMActionSchema, LLMResponseEnvelopeSchema } from "../llm/actionSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
-  MAX_RELATION_CHANGE,
-  MAX_INFLUENCE_CHANGE,
+  INFLUENCE_STEP,
   MAX_RESEARCH_SHARE,
   MAX_PRODUCTION_SHARE,
 } from "@shared/defines/llmActionCaps";
@@ -740,6 +744,23 @@ export class LLMService {
             for (const regionId of shard.regionIds) addRegion(regionId);
           }
           break;
+        case "diplomacy":
+        case "sanction":
+          // Дипломатический жест касается ровно двух государств и ни одного
+          // региона: место у него отсутствует, а не «не найдено».
+          countries.add(primitive.targetCountryId);
+          break;
+        case "war":
+          // Война касается не пары, а ВСЕХ сторон: коалиции втянуты договорами,
+          // и их «память страны» обязана начинаться с того, что их втянули.
+          for (const id of [...primitive.attackers, ...primitive.defenders]) countries.add(id);
+          break;
+        case "peace":
+          countries.add(primitive.targetCountryId);
+          // Регионы, сменившие владельца по договору: событие фактически
+          // произошло и с ними, а их новые контролёры попадают через `addRegion`.
+          for (const regionId of primitive.annexedRegionIds) addRegion(regionId);
+          break;
         default:
           // Явная проверка на недостижимость: ветки здесь заканчиваются
           // `break`, а не `return`, и без неё TypeScript полноту `switch` не
@@ -996,7 +1017,7 @@ Narrative requirements (strict):
   this point forward — do not silently ignore, downplay, or normalize it
   back to plausible history. Historical grounding remains the default; an
   explicit player intent overrides it for everything that follows.
-- Avoid a direct "war" action between two nuclear-armed Major Powers unless
+- Avoid a direct "war" primitive between two nuclear-armed Major Powers unless
   strongly, explicitly grounded in real historical events — prefer narrating
   proxy support (a patron backing a client state's own conflict) over direct
   war between such powers.
@@ -1026,7 +1047,7 @@ Return your response in JSON format with the following structure:
   "descriptions": "Narrative description of world events",
   "actions": [
     {
-      "type": "diplomacy|war|peace|sanction|guarantee|influence|research_shift|production_shift|build_extraction",
+      "type": "guarantee|influence|research_shift|production_shift|build_extraction",
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
@@ -1034,7 +1055,7 @@ Return your response in JSON format with the following structure:
   ],
   "primitives": [
     {
-      "verb": "incite_unrest|repress|grant_autonomy|enact_reform|spawn_incident",
+      "verb": "${PRIMITIVE_VERBS.join("|")}",
       "sourceCountryId": "country_id",
       "target": "shape depends on the verb — see the alphabet above",
       "params": "shape depends on the verb — see the alphabet above"
@@ -1042,10 +1063,14 @@ Return your response in JSON format with the following structure:
   ]
 }
 
+Diplomacy between states lives ENTIRELY in the primitives channel now: relations,
+sanctions, war and peace are verbs of the alphabet, not "actions". They are not
+listed above because the engine no longer accepts them there — a diplomacy
+"action" is a rejected action, not a shortcut.
+
 Hard limits (actions violating them are rejected):
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
-- data.relationChange: number within ±${MAX_RELATION_CHANGE}.
-- data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
+- influence: no magnitude field — the engine sets the step itself.
 - research_shift: data.domain must be a real domain of the source country
   (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
 - production_shift: data.equipmentType must be one of rifles/trucks/tanks/
@@ -1074,18 +1099,6 @@ Hard limits (actions violating them are rejected):
   applyLlmActions(actions: LLMAction[], game: GameState = this.game): void {
     for (const action of actions) {
       switch (action.type) {
-        case 'diplomacy':
-          this.applyDiplomacyAction(action, game);
-          break;
-        case 'war':
-          this.applyWarAction(action, game);
-          break;
-        case 'peace':
-          this.applyPeaceAction(action, game);
-          break;
-        case 'sanction':
-          this.applySanctionAction(action, game);
-          break;
         case 'guarantee':
           this.applyGuaranteeAction(action, game);
           break;
@@ -1105,57 +1118,13 @@ Hard limits (actions violating them are rejected):
     }
   }
 
-  /**
-   * Применяет дипломатическое действие.
-   */
-  private applyDiplomacyAction(
-    action: Extract<LLMAction, { type: "diplomacy" }>,
-    game: GameState
-  ): void {
-    diplomacyCommands.setRelation(
-      game,
-      action.sourceCountryId,
-      action.targetCountryId,
-      action.data.relationChange
-    );
-  }
-
-  /**
-   * Применяет действие войны.
-   */
-  private applyWarAction(
-    action: Extract<LLMAction, { type: "war" }>,
-    game: GameState
-  ): void {
-    warCommands.declareWar(game, action.sourceCountryId, action.targetCountryId, action.data?.warGoal);
-
-    // Ухудшаем отношения
-    diplomacyCommands.setRelation(game, action.sourceCountryId, action.targetCountryId, -100);
-  }
-
-  /**
-   * Применяет действие мира.
-   */
-  private applyPeaceAction(
-    action: Extract<LLMAction, { type: "peace" }>,
-    game: GameState
-  ): void {
-    warCommands.makePeaceBetween(game, action.sourceCountryId, action.targetCountryId);
-
-    // Улучшаем отношения
-    diplomacyCommands.setRelation(game, action.sourceCountryId, action.targetCountryId, 50);
-  }
-
-  /**
-   * Применяет действие санкций.
-   */
-  private applySanctionAction(
-    action: Extract<LLMAction, { type: "sanction" }>,
-    game: GameState
-  ): void {
-    const sanctionType = action.data?.sanctionType || 'economic_sanctions';
-    diplomacyCommands.applySanction(game, action.sourceCountryId, action.targetCountryId, sanctionType);
-  }
+  // `applyDiplomacyAction`/`applyWarAction`/`applyPeaceAction`/
+  // `applySanctionAction` УДАЛЕНЫ вместе со своими типами (Милстоун 1,
+  // дипломатический блок алфавита): те же четыре воздействия существуют теперь
+  // примитивами, где величину считает движок из состояния пары, а не присылает
+  // модель. Сопутствующие сдвиги отношений (−100 при объявлении войны, +50 при
+  // мире) перенесены в обработчики глаголов БЕЗ изменения значений, чтобы
+  // перевод не оказался ещё и тихой рекалибровкой.
 
   /**
    * Применяет действие гарантии.
@@ -1174,8 +1143,15 @@ Hard limits (actions violating them are rejected):
     action: Extract<LLMAction, { type: "influence" }>,
     game: GameState
   ): void {
-    const influenceChange = action.data?.influenceChange || 10;
-    diplomacyCommands.setInfluence(game, action.sourceCountryId, action.targetCountryId, influenceChange);
+    // Шаг задаёт ДВИЖОК, а не модель (Милстоун 1). Прежде здесь стояло
+    // `action.data?.influenceChange || 10` — то есть присланное моделью число с
+    // константой в роли умолчания. Поле снято из схемы, осталась константа.
+    diplomacyCommands.setInfluence(
+      game,
+      action.sourceCountryId,
+      action.targetCountryId,
+      INFLUENCE_STEP
+    );
   }
 
   /**

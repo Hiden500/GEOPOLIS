@@ -6,7 +6,6 @@ import { type MapFeature } from "./map/MapFeature";
 import { type Locale } from "./i18n/LocalizedText";
 import { type War } from "./War";
 import { type Modifier } from "./Modifier";
-import { type SanctionType } from "./DiplomacyState";
 import { type EquipmentType } from "./military/EquipmentType";
 import { type ResourceType } from "./resources/ResourcesType";
 import { type EthnicGroupDefinition, type GroupImpactMemory } from "./politics/Demographics";
@@ -373,13 +372,23 @@ export interface LastTurnReport {
 // z.infer<...> (actionSchemas.ts) для .optional() всегда выводит `X | undefined`
 // явно. Без этого компайл-тайм проверка эквивалентности в actionSchemas.ts
 // не проходит на пустом месте — не убирать `| undefined` при правке.
+// `diplomacy`/`war`/`peace`/`sanction` УДАЛЕНЫ из старого канала (Милстоун 1,
+// дипломатический блок алфавита) — они стали примитивами воздействия
+// (`docs/PRIMITIVES.md` §2), и оставить их здесь значило бы сохранить ровно ту
+// дыру, ради закрытия которой перевод и делался: `diplomacy` принимал от модели
+// готовое число `relationChange`, то есть модель задавала ВЕЛИЧИНУ. Пока
+// работал этот путь, алфавит обходился одной строкой `actions`. Прецедент тот
+// же, что у `annex`/`puppet` (2026-07-27), но причина другая: те не имели
+// реализации, эти имели неправильный контракт.
 export type LLMAction =
-  | { type: "diplomacy"; sourceCountryId: string; targetCountryId: string; data: { relationChange: number } }
-  | { type: "war"; sourceCountryId: string; targetCountryId: string; data?: { warGoal?: string | undefined } | undefined }
-  | { type: "peace"; sourceCountryId: string; targetCountryId: string }
-  | { type: "sanction"; sourceCountryId: string; targetCountryId: string; data?: { sanctionType?: SanctionType | undefined } | undefined }
   | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
-  | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number | undefined } | undefined }
+  // `influence` ОСТАЁТСЯ в старом канале, но БЕЗ модельного числа (Милстоун 1).
+  // Он не дублируется ни одним переведённым глаголом, и удалить его значило бы
+  // отнять живую способность (сфера влияния имеет пороговые последствия в
+  // `DiplomacyTick`). Числовое поле `influenceChange` снято: величину задаёт
+  // движок. Полноценным глаголом алфавита влияние становится вместе с
+  // `send_aid` (`docs/TODO.md`).
+  | { type: "influence"; sourceCountryId: string; targetCountryId: string }
   | { type: "research_shift"; sourceCountryId: string; data: { domain: string; share: number } }
   | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } }
   | { type: "build_extraction"; sourceCountryId: string; data: { regionId: number; resource: ResourceType; delta: 1 | -1 } };

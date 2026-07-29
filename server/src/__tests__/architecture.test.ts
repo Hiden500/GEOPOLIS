@@ -9,6 +9,7 @@ import { LLMService } from "../services/LLMService";
 import { LLMActionSchema } from "../llm/actionSchemas";
 import { createTestCountry, createTestGameState } from "../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
+import { INFLUENCE_STEP } from "@shared/defines/llmActionCaps";
 
 /**
  * Fitness-функции архитектурной конституции (docs/agent/MASTER_PROMPT.md,
@@ -174,7 +175,7 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
       descriptions: "x",
       actions: [
         { type: "nuke", sourceCountryId: "USA", targetCountryId: "SUN" },
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "SUN", data: { relationChange: 5 } },
+        { type: "influence", sourceCountryId: "USA", targetCountryId: "SUN" },
       ],
     }));
 
@@ -237,21 +238,26 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
     const game = gameWithUsaSun();
     const service = new LLMService(game);
 
+    // Носитель проверки сменился с `diplomacy` на `influence` (Милстоун 1:
+    // дипломатия переехала в примитивы). Проверяется по-прежнему СВОЙСТВО
+    // схемы, а не конкретный глагол: посторонние координаты не должны
+    // просачиваться в применённое действие ни через какое поле.
     const result = service.processResponse(JSON.stringify({
       descriptions: "x",
       actions: [{
-        type: "diplomacy",
+        type: "influence",
         sourceCountryId: "USA",
         targetCountryId: "SUN",
-        data: { relationChange: 5, lat: 55.7, lng: 37.6 },
+        lat: 55.7,
+        lng: 37.6,
       }],
     }));
 
     expect(result.receipt.actions.applied).toHaveLength(1);
-    const applied = result.receipt.actions.applied[0]!;
-    expect(applied.type === "diplomacy" && (applied.data as Record<string, unknown>)["lat"]).toBeUndefined();
-    expect(applied.type === "diplomacy" && (applied.data as Record<string, unknown>)["lng"]).toBeUndefined();
-    expect(game.countries.find(c => c.id === "USA")!.diplomacy.relations["SUN"]).toBe(5);
+    const applied = result.receipt.actions.applied[0]! as Record<string, unknown>;
+    expect(applied["lat"]).toBeUndefined();
+    expect(applied["lng"]).toBeUndefined();
+    expect(game.countries.find(c => c.id === "USA")!.diplomacy.influence["SUN"]).toBe(INFLUENCE_STEP);
   });
 });
 

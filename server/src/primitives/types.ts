@@ -11,10 +11,13 @@
  * величины»). Это не соглашение в комментарии, а свойство типа и Zod-схемы,
  * проверяемое тестом.
  *
- * Тестовый v0 среза — пять глаголов из ~18 полного алфавита.
+ * Тестовый v0 — десять глаголов из ~18 полного алфавита: пять
+ * мягко-политических из вертикального среза, структурный `split_country`
+ * (жизненный цикл) и дипломатический блок `diplomacy`/`sanction`/`war`/`peace`.
  */
 
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
+import { type SanctionType } from "@shared/types/DiplomacyState";
 import { type PrimitiveRejection } from "./rejections";
 
 export const PRIMITIVE_VERBS = [
@@ -24,6 +27,10 @@ export const PRIMITIVE_VERBS = [
   "enact_reform",
   "spawn_incident",
   "split_country",
+  "diplomacy",
+  "sanction",
+  "war",
+  "peace",
 ] as const;
 
 export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
@@ -32,8 +39,32 @@ export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
  * Два класса примитивов (docs/PRIMITIVES.md §1): мягкие — сдвиги состояния,
  * свободно комбинируются; структурные — меняют устройство сущности, максимум
  * 1 на ответ, валидируются и коммитятся последними.
+ *
+ * `war`/`peace` структурные по таблице §2: они меняют устройство мира (создают
+ * и закрывают войну, двигают границы по договору), и правило «отказ
+ * структурного отклоняет весь ответ» им подходит — ответ «объявить войну и
+ * сделать X» при несостоявшейся войне не должен делать X. Цена названа прямо:
+ * `war`, `peace`, `enact_reform` и `split_country` делят ОДИН структурный слот
+ * игрового месяца.
  */
-export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = ["enact_reform", "split_country"];
+export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = [
+  "enact_reform",
+  "split_country",
+  "war",
+  "peace",
+];
+
+/**
+ * Мягкие ДВУСТОРОННИЕ глаголы — те, что пишут в отношения пары стран.
+ *
+ * Перечислены отдельным списком, потому что на нём держится защита от обхода
+ * коридора частотой: все они делят ОДИН слот капа «цель за ход» на
+ * упорядоченную пару (`PrimitiveEngine.targetsOf`). Без общего слота
+ * `diplomacy(worsen)` и `sanction` по одной паре за месяц прошли бы обоими
+ * ключами и сложились бы в одной ячейке `relations` — то есть коридор
+ * обходился бы сменой глагола (docs/PRIMITIVES.md §4).
+ */
+export const SOFT_BILATERAL_VERBS: readonly PrimitiveVerb[] = ["diplomacy", "sanction"];
 
 export function isStructural(verb: PrimitiveVerb): boolean {
   return STRUCTURAL_VERBS.includes(verb);
@@ -61,6 +92,16 @@ export type ReformPoliticalDirection = (typeof REFORM_POLITICAL_DIRECTIONS)[numb
 /** Характер инцидента — определяет тип объекта на карте, не его силу. */
 export const INCIDENT_KINDS = ["protest", "uprising", "border_dispute"] as const;
 export type IncidentKind = (typeof INCIDENT_KINDS)[number];
+
+/**
+ * Направление дипломатического жеста — «в какую сторону», а не «насколько».
+ *
+ * Это ровно та развилка, которую модель ВПРАВЕ решать: сближение и разрыв —
+ * разные события, а не разные величины одного. Величину обоих считает движок
+ * из состояния пары.
+ */
+export const RELATION_DIRECTIONS = ["improve", "worsen"] as const;
+export type RelationDirection = (typeof RELATION_DIRECTIONS)[number];
 
 /**
  * Форма примитива живёт в `primitiveSchemas.ts` и выводится из Zod-схемы:
@@ -120,6 +161,42 @@ export interface PoliticalCostEffect {
   before: number;
   after: number;
   /** Отрицательная: цена именно списывается. */
+  delta: number;
+}
+
+/**
+ * Скалярные поля страны, которые алфавит вправе двигать ВНЕ памяти воздействий.
+ *
+ * Перечисление, а не свободная строка: каждое имя обязано иметь ячейку в
+ * разложении состояния (`reconciliation.ts`), иначе глагол смог бы заявить
+ * канал, о котором сверка не спросит. Новое имя здесь не компилируется, пока
+ * ему не назначен ключ ячейки.
+ */
+export const COUNTRY_SCALAR_FIELDS = ["governmentSupport", "legitimacy", "treasury"] as const;
+export type CountryScalarField = (typeof COUNTRY_SCALAR_FIELDS)[number];
+
+/** Фактический сдвиг одного скалярного поля одной страны. */
+export interface CountryScalarEffect {
+  countryId: string;
+  field: CountryScalarField;
+  before: number;
+  after: number;
+  delta: number;
+}
+
+/**
+ * Фактический сдвиг ОДНОЙ стороны двусторонних отношений.
+ *
+ * Сторон всегда две, и они не симметричны: `DiplomacyService.changeRelation`
+ * пишет инициатору полную дельту, а адресату — половину. Поэтому запись хранит
+ * пару «кто → о ком», а не одну «отношения пары»: нарратив, сказавший «стороны
+ * сблизились на 12», соврал бы адресату.
+ */
+export interface RelationEffect {
+  fromCountryId: string;
+  toCountryId: string;
+  before: number;
+  after: number;
   delta: number;
 }
 
@@ -207,6 +284,81 @@ export interface AppliedSplitCountry extends AppliedPrimitiveBase {
   capitalMoved?: { countryId: string; from: number; to: number } | undefined;
   /** Войны, потерявшие сторону и потому закрытые движком. */
   closedWarIds: string[];
+  /**
+   * Казна метрополии после деления между ней и осколками.
+   *
+   * Появилось Милстоуном 1 вместе с ячейкой `treasury:` в разложении состояния
+   * (её потребовал `peace` со своими репарациями). Раскол казну делит всегда,
+   * поэтому без этого заявления собственная сверка результата откатывала бы его
+   * за молчание о том, что он честно сделал. Казна ОСКОЛКОВ сюда не входит:
+   * страны, которых не было в снимке «до», из сверки исключены по построению.
+   */
+  countryScalarEffects: CountryScalarEffect[];
+}
+
+/**
+ * Факт применения дипломатического жеста.
+ *
+ * `direction` — качественное намерение, которое назвала модель; фактический
+ * знак дельт лежит в `relationEffects` и может от него отличаться нулём (пара
+ * на краю шкалы). Хранятся оба, чтобы резюме не выдавало намерение за результат.
+ */
+export interface AppliedDiplomacy extends AppliedPrimitiveBase {
+  verb: "diplomacy";
+  targetCountryId: string;
+  direction: RelationDirection;
+  relationEffects: RelationEffect[];
+}
+
+/**
+ * Факт применения санкции.
+ *
+ * `cutsTrade` — не украшение, а единственное честное место для НАЗВАННОЙ цены
+ * механики: торговлю сегодня режет только `trade_embargo`
+ * (`simulation/trade/TradeTick.ts`), остальные три вида — репутационные, то
+ * есть меняют лишь отношения. Флаг обязан ехать в результат, иначе нарратив
+ * рассказал бы о задушенной экономике там, где произошёл дипломатический жест.
+ */
+export interface AppliedSanction extends AppliedPrimitiveBase {
+  verb: "sanction";
+  targetCountryId: string;
+  sanctionType: SanctionType;
+  cutsTrade: boolean;
+  relationEffects: RelationEffect[];
+}
+
+/** Факт объявления войны: кто с кем и кого втянула коалиция. */
+export interface AppliedWar extends AppliedPrimitiveBase {
+  verb: "war";
+  targetCountryId: string;
+  warId: string;
+  /** Стороны ПОСЛЕ авто-втягивания союзников/гарантов/пуппетов (`WarService`). */
+  attackers: string[];
+  defenders: string[];
+  relationEffects: RelationEffect[];
+}
+
+/**
+ * Факт заключения мира — самый широкий след среди мягко-дипломатических
+ * глаголов, и по одной причине: мир исполняет УСЛОВИЯ (`WarService.makePeace`),
+ * а не только гасит флаг войны.
+ *
+ * Всё перечисленное обязано быть заявлено, потому что каждое поле имеет ячейку
+ * в разложении состояния: скрытая репарация или скрытый штраф легитимности
+ * откатили бы примитив сверкой (`reconciliation.ts`), и это правильное
+ * поведение — нарратив о мире обязан знать его цену.
+ */
+export interface AppliedPeace extends AppliedPrimitiveBase {
+  verb: "peace";
+  targetCountryId: string;
+  warId: string;
+  relationEffects: RelationEffect[];
+  /** Штраф легитимности/поддержки проигравшему и репарации — фактические. */
+  countryScalarEffects: CountryScalarEffect[];
+  /** Регионы, сменившие владельца по договору (аннексия победителя). */
+  annexedRegionIds: number[];
+  /** Столица, переехавшая потому, что прежняя ушла по договору. */
+  capitalMoves: { countryId: string; from: number; to: number }[];
 }
 
 /**
@@ -221,7 +373,11 @@ export type AppliedPrimitive =
   | AppliedGrantAutonomy
   | AppliedEnactReform
   | AppliedSpawnIncident
-  | AppliedSplitCountry;
+  | AppliedSplitCountry
+  | AppliedDiplomacy
+  | AppliedSanction
+  | AppliedWar
+  | AppliedPeace;
 
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
@@ -239,6 +395,12 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
       return [...applied.targetEffects, ...applied.neighbourEffects];
     case "enact_reform":
     case "split_country":
+    // Дипломатический блок в память воздействий не пишет вовсе: он действует
+    // между ГОСУДАРСТВАМИ, а память ключуется парой (регион, группа).
+    case "diplomacy":
+    case "sanction":
+    case "war":
+    case "peace":
       return [];
     case "incite_unrest":
     case "repress":

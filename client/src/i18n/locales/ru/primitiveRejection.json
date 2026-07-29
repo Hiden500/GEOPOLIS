@@ -29,5 +29,11 @@
   "duplicateResponse": "Этот ответ уже был применён в этом месяце",
   "splitNotSelf": "{{source}} не может расколоть страну {{country}}: государство распадается изнутри, а не разбирается снаружи",
   "splitTooFewRegions": "У страны {{country}} регионов {{regions}} — для раскола нужно не меньше {{required}}",
-  "splitNoSeparatistRegion": "Ни в одном регионе страны {{country}} недовольное большинство не дошло до порога отделения ({{best}} против {{threshold}})"
+  "splitNoSeparatistRegion": "Ни в одном регионе страны {{country}} недовольное большинство не дошло до порога отделения ({{best}} против {{threshold}})",
+  "bilateralSelfTarget": "Действие «{{verb}}» требует другую страну: {{country}} не может адресоваться сама себе",
+  "diplomacyNoDirection": "Не указано направление жеста в сторону {{country}}: сближение и разрыв — разные решения",
+  "sanctionAlreadyImposed": "{{source}} уже держит санкции ({{sanctionType}}) против {{target}} — повтор ничего не изменит",
+  "alreadyAtWar": "{{source}} уже воюет с {{target}}",
+  "warOnAlly": "{{source}} не может объявить войну союзнику {{target}}: разрыв союза пока не смоделирован",
+  "noActiveWar": "Между {{source}} и {{target}} нет активной войны"
 }
