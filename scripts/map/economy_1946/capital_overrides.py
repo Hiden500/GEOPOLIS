@@ -12,11 +12,16 @@ region_id здесь ПОЗИЦИОННЫЙ (см. scripts/map/AGENTS.md, "Ка�
 присваивается порядком сборки геометрии, не привязан к географии. Любая
 регенерация, меняющая ЧИСЛО регионов где-либо в build-порядке ДО записи,
 сдвигает всё после неё — эта таблица НЕ пересчитывается пайплайном
-автоматически и может протухнуть молча (уже случалось дважды: 46/61 записей
+автоматически и может протухнуть молча (уже случалось трижды: 46/61 записей
 2026-07-23, см. capital-region-overrides-remap.md; ещё 8/61 обнаружены
 2026-07-26 при аудите — see capital-region-invariant.md, включая находки,
 не пойманные ремапом 07-23, потому что тот проверял только owner, не
-конкретный регион).
+конкретный регион; ещё 26/68 сдвинулись 2026-07-29 суммарно из-за
+рекластеризации Океании (+22 фичи), разделения Филиппин/Японии (+25) и слияния
+безымянного MX-обрывка в Юкатан (-1) в рамках работы над Панамским каналом —
+см. docs/DECISIONS.md 2026-07-29 "Панама"; починено тем же протоколом:
+сверка CAPITAL_REGION_ANCHOR_NAMES против текущего имени, resync по
+owner+name, без ручного угадывания).
 
 CAPITAL_REGION_ANCHOR_NAMES — параллельная таблица "страна -> ожидаемое
 английское имя региона" (из names.en.json на момент последней проверки).
@@ -51,32 +56,38 @@ CAPITAL_REGION_OVERRIDES: dict[str, int] = {
     "SUN": 320,   # Москва (2026-07-26: было 318 "Chukotka AO" — не Москва,
                   # см. capital-region-invariant.md; owner-проверка ремапа
                   # 07-23 это не поймала, т.к. Chukotka тоже принадлежит SUN)
-    "USA": 1015,  # Округ Колумбия/Вашингтон (2026-07-26: было 990 "Texas — Comanche")
+    "USA": 1037,  # Округ Колумбия/Вашингтон (2026-07-29: было 1015 — см.
+                  # ремап ниже, "resync 2026-07-29")
     "GBR": 125,   # Большой Лондон (2026-07-26: было 124 "North Eastern")
     "FRA": 109,   # Иль-де-Франс/Париж (2026-07-26: было 108 "Centre-Val de Loire")
     "DNK": 67,    # Столичный регион (Копенгаген)
-    "CAN": 810,   # Онтарио (Оттава)
-    "BRA": 1078,  # Federal District — до Бразилиа (1960) Рио-де-Жанейро был
+    "CAN": 835,   # Онтарио (Оттава) (2026-07-29: было 810)
+    "BRA": 1101,  # Federal District — до Бразилиа (1960) Рио-де-Жанейро был
                   # отдельным федеральным округом, ОТДЕЛЬНЫМ от штата Рио-де-
-                  # Жанейро (2026-07-26: было 1079 "Rio de Janeiro" — штат,
-                  # не сам город/округ; географическая точка Рио содержится
-                  # в 1078, не в 1079)
+                  # Жанейро (2026-07-29: было 1078, до этого 1079 "Rio de
+                  # Janeiro" — штат, не сам город/округ; географическая точка
+                  # Рио содержится в текущем id, не в id штата)
     "ITA": 178,   # Лацио (Рим) (2026-07-26: было 175 "Basilicata")
     "JPN": 573,   # Канто (Токио)
     "TWN": 420,   # Нанкин (2026-07-26: было 382 "Guangdong")
     "AFG": 449,   # Баглан (Кабул)
-    "EGY": 1157,  # Каир
-    "NFD": 804,   # Newfoundland, содержит St. John's
-    "QWL": 847,   # Antigua, содержит St. John's — резиденцию Governor
-    "QWW": 869,   # Grenada, содержит St. George's — резиденцию Governor
-    "QND": 867,   # Curaçao, содержит Willemstad
-    "MTQ": 797,   # Martinique, содержит Fort-de-France
-    "GLP": 798,   # Guadeloupe, содержит Basse-Terre
-    "QFW": 1302,  # Louga, содержит Dakar — столицу AOF
-    "QFE": 1347,  # Pool, содержит Brazzaville — столицу AEF
-    "QRU": 1349,  # Bujumbura Rural, содержит Usumbura — административный центр
-    "QZN": 1235,  # AFR-0092 "Zanzibar South and Central", содержит Zanzibar Town/Stone Town
-    "AGO": 1247,  # Cuando Cubango source polygon, содержащий Luanda —
+    "EGY": 1180,  # Каир (2026-07-29: было 1157)
+    "NFD": 829,   # Newfoundland, содержит St. John's (2026-07-29: было 804)
+    "QWL": 872,   # Antigua, содержит St. John's — резиденцию Governor
+                  # (2026-07-29: было 847)
+    "QWW": 893,   # Grenada, содержит St. George's — резиденцию Governor
+                  # (2026-07-29: было 869)
+    "QND": 891,   # Curaçao, содержит Willemstad (2026-07-29: было 867)
+    "MTQ": 822,   # Martinique, содержит Fort-de-France (2026-07-29: было 797)
+    "GLP": 823,   # Guadeloupe, содержит Basse-Terre (2026-07-29: было 798)
+    "QFW": 1325,  # Louga, содержит Dakar — столицу AOF (2026-07-29: было 1302)
+    "QFE": 1370,  # Pool, содержит Brazzaville — столицу AEF (2026-07-29: было 1347)
+    "QRU": 1372,  # Bujumbura Rural, содержит Usumbura — административный
+                  # центр (2026-07-29: было 1349)
+    "QZN": 1258,  # AFR-0092 "Zanzibar South and Central", содержит Zanzibar
+                  # Town/Stone Town (2026-07-29: было 1235)
+    "AGO": 1270,  # Cuando Cubango source polygon, содержащий Luanda —
+                  # (2026-07-29: было 1247)
                   # 2026-07-26: НЕ подтверждено координатами (см.
                   # capital-region-invariant.md, "что осталось UNKNOWN");
                   # Ангола смоделирована всего 5 укрупнёнными регионами,
@@ -86,14 +97,15 @@ CAPITAL_REGION_OVERRIDES: dict[str, int] = {
                   # регионов, не позиционный дрейф; оставлено как есть,
                   # чинить требует решения по геометрии/группировке Анголы,
                   # вне границ этой задачи.
-    "MOZ": 1251,  # Gaza source polygon, содержит Lourenço Marques
-    "MDG": 1234,  # Bongolava source polygon, содержащий Tananarive
-    "GHA": 1272,  # Eastern source polygon, содержащий Accra
-    "KEN": 1267,  # Rift Valley source polygon, содержащий Nairobi
-    "NGA": 1219,  # Benue source polygon, содержащий Lagos
-    "SLE": 1336,  # AFR-0193 "Northern" — единственный Sierra Leone polygon, содержит Freetown
-    "ZMB": 1296,  # Southern source polygon, содержащий Lusaka
-    "ZWE": 1299,  # Mashonaland West source polygon, содержащий Salisbury
+    "MOZ": 1274,  # Gaza source polygon, содержит Lourenço Marques (2026-07-29: было 1251)
+    "MDG": 1257,  # Bongolava source polygon, содержащий Tananarive (2026-07-29: было 1234)
+    "GHA": 1295,  # Eastern source polygon, содержащий Accra (2026-07-29: было 1272)
+    "KEN": 1290,  # Rift Valley source polygon, содержащий Nairobi (2026-07-29: было 1267)
+    "NGA": 1242,  # Benue source polygon, содержащий Lagos (2026-07-29: было 1219)
+    "SLE": 1359,  # AFR-0193 "Northern" — единственный Sierra Leone polygon,
+                  # содержит Freetown (2026-07-29: было 1336)
+    "ZMB": 1319,  # Southern source polygon, содержащий Lusaka (2026-07-29: было 1296)
+    "ZWE": 1322,  # Mashonaland West source polygon, содержащий Salisbury (2026-07-29: было 1299)
     "QTB": 418,   # Xizang polygon, содержит Lhasa
     "QSI": 501,   # Sikkim, содержит Gangtok
     "QJK": 514,   # Jammu and Kashmir, содержит Srinagar
@@ -117,9 +129,9 @@ CAPITAL_REGION_OVERRIDES: dict[str, int] = {
                   # текущее-имя, см. capital-region-invariant.md)
     "MAC": 652,   # Macau
     "QAD": 795,   # Lahij source polygon, содержащий Aden
-    "QPS": 1359,  # Northern Mariana Islands, Saipan administration anchor
-    "COK": 1360,  # Cook Islands, Rarotonga
-    "NFK": 1362,  # Norfolk Island, Kingston
+    "QPS": 1382,  # Northern Mariana Islands, Saipan administration anchor (2026-07-29: было 1359)
+    "COK": 1383,  # Cook Islands, Rarotonga (2026-07-29: было 1360)
+    "NFK": 1385,  # Norfolk Island, Kingston (2026-07-29: было 1362)
     "CHN": 397,   # Шэньси — Яньань (столица КПК/пограничного района Шэньси-
                   # Ганьсу-Нинся в гражданскую войну 1946) физически в
                   # Шэньси; (2026-07-26: раньше записи не было вообще,

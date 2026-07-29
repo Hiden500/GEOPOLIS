@@ -8088,2134 +8088,6 @@
     "name_ru": "Малави (Ньяса)"
   },
   {
-    "region_id": "NAM-0001",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "FR",
-    "name_en": "Martinique",
-    "name_ru": "Мартиника"
-  },
-  {
-    "region_id": "NAM-0002",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "FR",
-    "name_en": "Guadeloupe",
-    "name_ru": "Гваделупа"
-  },
-  {
-    "region_id": "NAM-0003",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NL",
-    "name_en": "Bonaire",
-    "name_ru": "Бонайре"
-  },
-  {
-    "region_id": "NAM-0004",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NL",
-    "name_en": "St. Eustatius",
-    "name_ru": "Св. Эстатиус"
-  },
-  {
-    "region_id": "NAM-0005",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NL",
-    "name_en": "Saba",
-    "name_ru": "Саба"
-  },
-  {
-    "region_id": "NAM-0006",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "-1",
-    "name_en": "Guantanamo Bay (US Naval Base)",
-    "name_ru": "Гуантанамо (военная база США)"
-  },
-  {
-    "region_id": "NAM-0007",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "-1",
-    "name_en": "Clipperton Island",
-    "name_ru": "Клипертон (Франция)"
-  },
-  {
-    "region_id": "NAM-0008",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NF",
-    "name_en": "Newfoundland",
-    "name_ru": "Ньюфаундленд"
-  },
-  {
-    "region_id": "NAM-0009",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Northwest Territories",
-    "name_ru": "Северо-Западные территории"
-  },
-  {
-    "region_id": "NAM-0010",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "British Columbia",
-    "name_ru": "Британская Колумбия"
-  },
-  {
-    "region_id": "NAM-0011",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Alberta",
-    "name_ru": "Альберта"
-  },
-  {
-    "region_id": "NAM-0012",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Saskatchewan",
-    "name_ru": "Саскачеван"
-  },
-  {
-    "region_id": "NAM-0013",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Manitoba",
-    "name_ru": "Манитоба"
-  },
-  {
-    "region_id": "NAM-0014",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Ontario",
-    "name_ru": "Онтарио"
-  },
-  {
-    "region_id": "NAM-0015",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Québec",
-    "name_ru": "Квебек"
-  },
-  {
-    "region_id": "NAM-0016",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "New Brunswick",
-    "name_ru": "Нью-Брансуик"
-  },
-  {
-    "region_id": "NAM-0017",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Yukon",
-    "name_ru": "Юкон"
-  },
-  {
-    "region_id": "NAM-0018",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Nova Scotia",
-    "name_ru": "Новая Шотландия"
-  },
-  {
-    "region_id": "NAM-0019",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CA",
-    "name_en": "Prince Edward Island",
-    "name_ru": "Остров Принца Эдуарда"
-  },
-  {
-    "region_id": "NAM-0020",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CU",
-    "name_en": "Pinar del Río",
-    "name_ru": "Пинар-дель-Рио"
-  },
-  {
-    "region_id": "NAM-0021",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CU",
-    "name_en": "Habana",
-    "name_ru": "Гавана"
-  },
-  {
-    "region_id": "NAM-0022",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CU",
-    "name_en": "Matanzas",
-    "name_ru": "Матансас"
-  },
-  {
-    "region_id": "NAM-0023",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CU",
-    "name_en": "Las Villas",
-    "name_ru": "Лас-Вильяс"
-  },
-  {
-    "region_id": "NAM-0024",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CU",
-    "name_en": "Camagüey",
-    "name_ru": "Камагуэй"
-  },
-  {
-    "region_id": "NAM-0025",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CU",
-    "name_en": "Oriente",
-    "name_ru": "Ориенте"
-  },
-  {
-    "region_id": "NAM-0026",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CU",
-    "name_en": "Isla de la Juventud",
-    "name_ru": "Остров Хувентуд"
-  },
-  {
-    "region_id": "NAM-0027",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HT",
-    "name_en": "Artibonite",
-    "name_ru": "Артибонит"
-  },
-  {
-    "region_id": "NAM-0028",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HT",
-    "name_en": "Nord",
-    "name_ru": "Норд"
-  },
-  {
-    "region_id": "NAM-0029",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HT",
-    "name_en": "Nord-Ouest",
-    "name_ru": "Норд-Запад"
-  },
-  {
-    "region_id": "NAM-0030",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HT",
-    "name_en": "Ouest",
-    "name_ru": "Запад"
-  },
-  {
-    "region_id": "NAM-0031",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HT",
-    "name_en": "Sud",
-    "name_ru": "Суд"
-  },
-  {
-    "region_id": "NAM-0032",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Azua",
-    "name_ru": "Азуа"
-  },
-  {
-    "region_id": "NAM-0033",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Bahoruco",
-    "name_ru": "Бахоруко"
-  },
-  {
-    "region_id": "NAM-0034",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Barahona",
-    "name_ru": "Бараона"
-  },
-  {
-    "region_id": "NAM-0035",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Dajabón",
-    "name_ru": "Дахабон"
-  },
-  {
-    "region_id": "NAM-0036",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Distrito Nacional",
-    "name_ru": "Национальный округ"
-  },
-  {
-    "region_id": "NAM-0037",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Duarte",
-    "name_ru": "Дуарте"
-  },
-  {
-    "region_id": "NAM-0038",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "La Estrelleta",
-    "name_ru": "Ла Эстреллета"
-  },
-  {
-    "region_id": "NAM-0039",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "El Seybo",
-    "name_ru": "Эль-Сейбо"
-  },
-  {
-    "region_id": "NAM-0040",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Espaillat",
-    "name_ru": "Эспайлат"
-  },
-  {
-    "region_id": "NAM-0041",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "La Altagracia",
-    "name_ru": "Ла Альтаграсия"
-  },
-  {
-    "region_id": "NAM-0042",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "La Vega",
-    "name_ru": "Ла Вега"
-  },
-  {
-    "region_id": "NAM-0043",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Monte Cristi",
-    "name_ru": "Монте-Кристи"
-  },
-  {
-    "region_id": "NAM-0044",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Peravia",
-    "name_ru": "Перавиа"
-  },
-  {
-    "region_id": "NAM-0045",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Puerto Plata",
-    "name_ru": "Пуэрто-Плата"
-  },
-  {
-    "region_id": "NAM-0046",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Samaná",
-    "name_ru": "Самана"
-  },
-  {
-    "region_id": "NAM-0047",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "San Cristóbal",
-    "name_ru": "Сан-Кристобаль"
-  },
-  {
-    "region_id": "NAM-0048",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "San Juan",
-    "name_ru": "Сан-Хуан"
-  },
-  {
-    "region_id": "NAM-0049",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "San Pedro de Macorís",
-    "name_ru": "Сан-Педро-де-Макорис"
-  },
-  {
-    "region_id": "NAM-0050",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DO",
-    "name_en": "Santiago",
-    "name_ru": "Сантьяго"
-  },
-  {
-    "region_id": "NAM-0051",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "AG",
-    "name_en": "Antigua and Barbuda",
-    "name_ru": "Антигуа и Барбуда"
-  },
-  {
-    "region_id": "NAM-0052",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "AI",
-    "name_en": "Anguilla",
-    "name_ru": "Ангилья"
-  },
-  {
-    "region_id": "NAM-0053",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "AW",
-    "name_en": "Aruba",
-    "name_ru": "Аруба"
-  },
-  {
-    "region_id": "NAM-0054",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BB",
-    "name_en": "Barbados",
-    "name_ru": "Барбадос"
-  },
-  {
-    "region_id": "NAM-0056",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BM",
-    "name_en": "Bermuda",
-    "name_ru": "Бермуды"
-  },
-  {
-    "region_id": "NAM-0057",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BS",
-    "name_en": "Bahamas",
-    "name_ru": "Багамы"
-  },
-  {
-    "region_id": "NAM-0058",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BZ",
-    "name_en": "Cayo",
-    "name_ru": "Кайо"
-  },
-  {
-    "region_id": "NAM-0059",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BZ",
-    "name_en": "Orange Walk",
-    "name_ru": "Оранжевая прогулка"
-  },
-  {
-    "region_id": "NAM-0060",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BZ",
-    "name_en": "Corozal",
-    "name_ru": "Коросаль"
-  },
-  {
-    "region_id": "NAM-0061",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BZ",
-    "name_en": "Toledo",
-    "name_ru": "Толедо"
-  },
-  {
-    "region_id": "NAM-0062",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BZ",
-    "name_en": "Stann Creek",
-    "name_ru": "Стэнн Крик"
-  },
-  {
-    "region_id": "NAM-0063",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BZ",
-    "name_en": "Belize",
-    "name_ru": "Белиз"
-  },
-  {
-    "region_id": "NAM-0064",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CR",
-    "name_en": "Alajuela",
-    "name_ru": "Алахуэла"
-  },
-  {
-    "region_id": "NAM-0065",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CR",
-    "name_en": "Guanacaste",
-    "name_ru": "Гуанакасте"
-  },
-  {
-    "region_id": "NAM-0066",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CR",
-    "name_en": "Limón",
-    "name_ru": "Лимон"
-  },
-  {
-    "region_id": "NAM-0067",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CR",
-    "name_en": "Puntarenas",
-    "name_ru": "Пунтаренас"
-  },
-  {
-    "region_id": "NAM-0068",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CR",
-    "name_en": "Heredia",
-    "name_ru": "Эредиа"
-  },
-  {
-    "region_id": "NAM-0069",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CR",
-    "name_en": "San José",
-    "name_ru": "Сан-Хосе"
-  },
-  {
-    "region_id": "NAM-0070",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CR",
-    "name_en": "Cartago",
-    "name_ru": "Картаго"
-  },
-  {
-    "region_id": "NAM-0071",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "CW",
-    "name_en": "Curaçao",
-    "name_ru": "Кюрасао"
-  },
-  {
-    "region_id": "NAM-0072",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "DM",
-    "name_en": "Dominica",
-    "name_ru": "Доминика"
-  },
-  {
-    "region_id": "NAM-0073",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GD",
-    "name_en": "Grenada",
-    "name_ru": "Гренада"
-  },
-  {
-    "region_id": "NAM-0074",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GL",
-    "name_en": "Greenland",
-    "name_ru": "Гренландия"
-  },
-  {
-    "region_id": "NAM-0075",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "Petén",
-    "name_ru": "Петен"
-  },
-  {
-    "region_id": "NAM-0076",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "Quiché",
-    "name_ru": "Киче"
-  },
-  {
-    "region_id": "NAM-0077",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "Izabal",
-    "name_ru": "Изабаль"
-  },
-  {
-    "region_id": "NAM-0078",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "Huehuetenango (3)",
-    "name_ru": "Уэуэтенанго (3)"
-  },
-  {
-    "region_id": "NAM-0079",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "San Marcos (5)",
-    "name_ru": "Сан-Маркос (5)"
-  },
-  {
-    "region_id": "NAM-0080",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "Alta Verapaz (3)",
-    "name_ru": "Альта Верапас (3)"
-  },
-  {
-    "region_id": "NAM-0081",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "Zacapa (7)",
-    "name_ru": "Сакапа (7)"
-  },
-  {
-    "region_id": "NAM-0082",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "GT",
-    "name_en": "Escuintla (15)",
-    "name_ru": "Эскуинтла (15)"
-  },
-  {
-    "region_id": "NAM-0083",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HN",
-    "name_en": "Gracias a Dios",
-    "name_ru": "Грасиас а Диос"
-  },
-  {
-    "region_id": "NAM-0084",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HN",
-    "name_en": "Islas de la Bahía",
-    "name_ru": "Ислас-де-ла-Баия"
-  },
-  {
-    "region_id": "NAM-0085",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HN",
-    "name_en": "Francisco Morazán (3)",
-    "name_ru": "Франсиско Морасан (3)"
-  },
-  {
-    "region_id": "NAM-0086",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HN",
-    "name_en": "El Paraíso (3)",
-    "name_ru": "Эль-Параисо (3)"
-  },
-  {
-    "region_id": "NAM-0087",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HN",
-    "name_en": "Yoro (3)",
-    "name_ru": "Йоро (3)"
-  },
-  {
-    "region_id": "NAM-0088",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HN",
-    "name_en": "Olancho (3)",
-    "name_ru": "Оланчо (3)"
-  },
-  {
-    "region_id": "NAM-0089",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "HN",
-    "name_en": "Lempira (15)",
-    "name_ru": "Лемпира (15)"
-  },
-  {
-    "region_id": "NAM-0090",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "JM",
-    "name_en": "Jamaica",
-    "name_ru": "Ямайка"
-  },
-  {
-    "region_id": "NAM-0091",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "KN",
-    "name_en": "Nevis",
-    "name_ru": "Невис"
-  },
-  {
-    "region_id": "NAM-0092",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "KN",
-    "name_en": "Saint Kitts",
-    "name_ru": "Сент-Китс"
-  },
-  {
-    "region_id": "NAM-0093",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "KY",
-    "name_en": "Cayman Islands",
-    "name_ru": "Каймановы о-ва"
-  },
-  {
-    "region_id": "NAM-0094",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "LC",
-    "name_en": "Saint Lucia",
-    "name_ru": "Сент-Люсия"
-  },
-  {
-    "region_id": "NAM-0096",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MS",
-    "name_en": "Montserrat",
-    "name_ru": "Монтсеррат"
-  },
-  {
-    "region_id": "NAM-0097",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Sonora",
-    "name_ru": "Сонора"
-  },
-  {
-    "region_id": "NAM-0098",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Baja California",
-    "name_ru": "Нижняя Калифорния"
-  },
-  {
-    "region_id": "NAM-0099",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Chihuahua",
-    "name_ru": "Чихуахуа"
-  },
-  {
-    "region_id": "NAM-0100",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Coahuila",
-    "name_ru": "Коауила"
-  },
-  {
-    "region_id": "NAM-0101",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Tamaulipas",
-    "name_ru": "Тамаулипас"
-  },
-  {
-    "region_id": "NAM-0102",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Nuevo León",
-    "name_ru": "Нуэво-Леон"
-  },
-  {
-    "region_id": "NAM-0103",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Quintana Roo",
-    "name_ru": "Кинтана-Роо"
-  },
-  {
-    "region_id": "NAM-0104",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Campeche",
-    "name_ru": "Кампече"
-  },
-  {
-    "region_id": "NAM-0105",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Tabasco",
-    "name_ru": "Табаско"
-  },
-  {
-    "region_id": "NAM-0106",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Chiapas",
-    "name_ru": "Чьяпас"
-  },
-  {
-    "region_id": "NAM-0107",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Colima",
-    "name_ru": "Колима"
-  },
-  {
-    "region_id": "NAM-0108",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Nayarit",
-    "name_ru": "Наярит"
-  },
-  {
-    "region_id": "NAM-0109",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Baja California Sur",
-    "name_ru": "Нижняя Калифорния Южная"
-  },
-  {
-    "region_id": "NAM-0110",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Sinaloa",
-    "name_ru": "Синалоа"
-  },
-  {
-    "region_id": "NAM-0111",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Yucatán",
-    "name_ru": "Юкатан"
-  },
-  {
-    "region_id": "NAM-0112",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Veracruz",
-    "name_ru": "Веракрус"
-  },
-  {
-    "region_id": "NAM-0113",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Jalisco",
-    "name_ru": "Халиско"
-  },
-  {
-    "region_id": "NAM-0114",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Michoacán",
-    "name_ru": "Мичоакан"
-  },
-  {
-    "region_id": "NAM-0115",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Guerrero",
-    "name_ru": "Герреро"
-  },
-  {
-    "region_id": "NAM-0116",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Oaxaca",
-    "name_ru": "Оахака"
-  },
-  {
-    "region_id": "NAM-0117",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "",
-    "name_ru": ""
-  },
-  {
-    "region_id": "NAM-0118",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "México",
-    "name_ru": "Мексика"
-  },
-  {
-    "region_id": "NAM-0119",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Puebla",
-    "name_ru": "Пуэбла"
-  },
-  {
-    "region_id": "NAM-0120",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Morelos",
-    "name_ru": "Морелос"
-  },
-  {
-    "region_id": "NAM-0121",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Querétaro",
-    "name_ru": "Керетаро"
-  },
-  {
-    "region_id": "NAM-0122",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Hidalgo",
-    "name_ru": "Идальго"
-  },
-  {
-    "region_id": "NAM-0123",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Guanajuato",
-    "name_ru": "Гуанахуато"
-  },
-  {
-    "region_id": "NAM-0124",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "San Luis Potosí",
-    "name_ru": "Сан-Луис-Потоси"
-  },
-  {
-    "region_id": "NAM-0125",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Zacatecas",
-    "name_ru": "Сакатекас"
-  },
-  {
-    "region_id": "NAM-0126",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Aguascalientes",
-    "name_ru": "Агуаскальентес"
-  },
-  {
-    "region_id": "NAM-0127",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Durango",
-    "name_ru": "Дуранго"
-  },
-  {
-    "region_id": "NAM-0128",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Tlaxcala",
-    "name_ru": "Тласкала"
-  },
-  {
-    "region_id": "NAM-0129",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MX",
-    "name_en": "Distrito Federal",
-    "name_ru": "Федеральный округ"
-  },
-  {
-    "region_id": "NAM-0130",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NI",
-    "name_en": "Rio San Juan",
-    "name_ru": "Рио-Сан-Хуан"
-  },
-  {
-    "region_id": "NAM-0131",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NI",
-    "name_en": "Atlántico Norte",
-    "name_ru": "Атлантико Норте"
-  },
-  {
-    "region_id": "NAM-0132",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NI",
-    "name_en": "Atlántico Sur",
-    "name_ru": "Атлантико-Сур"
-  },
-  {
-    "region_id": "NAM-0133",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NI",
-    "name_en": "León (5)",
-    "name_ru": "Леон (5)"
-  },
-  {
-    "region_id": "NAM-0134",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NI",
-    "name_en": "Jinotega (5)",
-    "name_ru": "Хинотега (5)"
-  },
-  {
-    "region_id": "NAM-0135",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NI",
-    "name_en": "Managua (9)",
-    "name_ru": "Манагуа (9)"
-  },
-  {
-    "region_id": "NAM-0136",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "NI",
-    "name_en": "Chontales (5)",
-    "name_ru": "Чонталес (5)"
-  },
-  {
-    "region_id": "NAM-0137",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PA",
-    "name_en": "Chiriquí",
-    "name_ru": "Чирики"
-  },
-  {
-    "region_id": "NAM-0138",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PA",
-    "name_en": "Veraguas",
-    "name_ru": "Верагуас"
-  },
-  {
-    "region_id": "NAM-0139",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PA",
-    "name_en": "Panama (3)",
-    "name_ru": "Панама (3)"
-  },
-  {
-    "region_id": "NAM-0140",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PA",
-    "name_en": "Darién (3)",
-    "name_ru": "Дарьен (3)"
-  },
-  {
-    "region_id": "NAM-0141",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PA",
-    "name_en": "Ngöbe Buglé (3)",
-    "name_ru": "Нгобе Бугле (3)"
-  },
-  {
-    "region_id": "NAM-0142",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PA",
-    "name_en": "Los Santos (7)",
-    "name_ru": "Лос-Сантос (7)"
-  },
-  {
-    "region_id": "NAM-0143",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PM",
-    "name_en": "Saint Pierre and Miquelon",
-    "name_ru": "Сен-Пьер и Микелон"
-  },
-  {
-    "region_id": "NAM-0144",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PR",
-    "name_en": "Puerto Rico",
-    "name_ru": "Пуэрто-Рико"
-  },
-  {
-    "region_id": "NAM-0145",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "SV",
-    "name_en": "Santa Ana",
-    "name_ru": "Санта Ана"
-  },
-  {
-    "region_id": "NAM-0146",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "SV",
-    "name_en": "La Unión",
-    "name_ru": "Ла Юнион"
-  },
-  {
-    "region_id": "NAM-0147",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "SV",
-    "name_en": "Usulután",
-    "name_ru": "Усулутан"
-  },
-  {
-    "region_id": "NAM-0148",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "SV",
-    "name_en": "Sonsonate (3)",
-    "name_ru": "Сонсонате (3)"
-  },
-  {
-    "region_id": "NAM-0149",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "SV",
-    "name_en": "San Miguel (3)",
-    "name_ru": "Сан-Мигель (3)"
-  },
-  {
-    "region_id": "NAM-0150",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "SV",
-    "name_en": "San Vicente (13)",
-    "name_ru": "Сан-Висенте (13)"
-  },
-  {
-    "region_id": "NAM-0151",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "SX",
-    "name_en": "Sint Maarten",
-    "name_ru": "Синт-Мартен"
-  },
-  {
-    "region_id": "NAM-0152",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "TC",
-    "name_en": "Turks and Caicos Islands",
-    "name_ru": "Тёркс и Кайкос"
-  },
-  {
-    "region_id": "NAM-0153",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "TT",
-    "name_en": "Eastern Tobago (3)",
-    "name_ru": "Восточный Тобаго (3)"
-  },
-  {
-    "region_id": "NAM-0154",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "TT",
-    "name_en": "Rio Claro-Mayaro (27)",
-    "name_ru": "Рио Кларо-Маяро (27)"
-  },
-  {
-    "region_id": "NAM-0155",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "VC",
-    "name_en": "Saint Vincent and the Grenadines",
-    "name_ru": "Сент-Винсент и Гренадины"
-  },
-  {
-    "region_id": "NAM-0156",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "VG",
-    "name_en": "British Virgin Islands",
-    "name_ru": "Виргинские о-ва (Брит.)"
-  },
-  {
-    "region_id": "NAM-0157",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "VI",
-    "name_en": "United States Virgin Islands",
-    "name_ru": "Виргинские о-ва (США)"
-  },
-  {
-    "region_id": "NAM-0158",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Washington — San Juan",
-    "name_ru": "Вашингтон — Сан-Хуан"
-  },
-  {
-    "region_id": "NAM-0159",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Washington — Yakima",
-    "name_ru": "Вашингтон — Якима"
-  },
-  {
-    "region_id": "NAM-0160",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Washington — Adams",
-    "name_ru": "Вашингтон — Адамс"
-  },
-  {
-    "region_id": "NAM-0161",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Idaho",
-    "name_ru": "Айдахо"
-  },
-  {
-    "region_id": "NAM-0162",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Montana",
-    "name_ru": "Монтана"
-  },
-  {
-    "region_id": "NAM-0163",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "North Dakota",
-    "name_ru": "Северная Дакота"
-  },
-  {
-    "region_id": "NAM-0164",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Minnesota — Becker",
-    "name_ru": "Миннесота — Беккер"
-  },
-  {
-    "region_id": "NAM-0165",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Minnesota — Cass",
-    "name_ru": "Миннесота — Кэсс"
-  },
-  {
-    "region_id": "NAM-0166",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Minnesota — Lyon",
-    "name_ru": "Миннесота — Лион"
-  },
-  {
-    "region_id": "NAM-0167",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Michigan — Crawford",
-    "name_ru": "Мичиган — Кроуфорд"
-  },
-  {
-    "region_id": "NAM-0168",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Michigan — Lapeer",
-    "name_ru": "Мичиган — Лапир"
-  },
-  {
-    "region_id": "NAM-0169",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Michigan — Marquette",
-    "name_ru": "Мичиган — Маркетт"
-  },
-  {
-    "region_id": "NAM-0170",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Michigan — Isabella",
-    "name_ru": "Мичиган — Изабелла"
-  },
-  {
-    "region_id": "NAM-0171",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Ohio — Fairfield",
-    "name_ru": "Огайо — Фэрфилд"
-  },
-  {
-    "region_id": "NAM-0172",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Ohio — Putnam",
-    "name_ru": "Огайо — Патнэм"
-  },
-  {
-    "region_id": "NAM-0173",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Ohio — Champaign",
-    "name_ru": "Огайо — Шампейн"
-  },
-  {
-    "region_id": "NAM-0174",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Ohio — Portage",
-    "name_ru": "Огайо — Портедж"
-  },
-  {
-    "region_id": "NAM-0175",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Pennsylvania — Susquehanna",
-    "name_ru": "Пенсильвания — Саскуэханна"
-  },
-  {
-    "region_id": "NAM-0176",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Pennsylvania — Lycoming",
-    "name_ru": "Пенсильвания — Лайкоминг"
-  },
-  {
-    "region_id": "NAM-0177",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Pennsylvania — Washington",
-    "name_ru": "Пенсильвания — Вашингтон"
-  },
-  {
-    "region_id": "NAM-0178",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Pennsylvania — Bedford",
-    "name_ru": "Пенсильвания — Бедфорд"
-  },
-  {
-    "region_id": "NAM-0179",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New York — Richmond",
-    "name_ru": "Нью-Йорк — Ричмонд"
-  },
-  {
-    "region_id": "NAM-0180",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New York — Albany",
-    "name_ru": "Нью-Йорк — Олбани"
-  },
-  {
-    "region_id": "NAM-0181",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New York — Genesee",
-    "name_ru": "Нью-Йорк — Дженеси"
-  },
-  {
-    "region_id": "NAM-0182",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New York — Steuben",
-    "name_ru": "Нью-Йорк — Штойбен"
-  },
-  {
-    "region_id": "NAM-0183",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Vermont",
-    "name_ru": "Вермонт"
-  },
-  {
-    "region_id": "NAM-0184",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New Hampshire",
-    "name_ru": "Нью-Гэмпшир"
-  },
-  {
-    "region_id": "NAM-0185",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Maine",
-    "name_ru": "Мэн"
-  },
-  {
-    "region_id": "NAM-0186",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Arizona — Apache",
-    "name_ru": "Аризона — Апач"
-  },
-  {
-    "region_id": "NAM-0187",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Arizona — Maricopa",
-    "name_ru": "Аризона — Марикопа"
-  },
-  {
-    "region_id": "NAM-0188",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "California — Kern",
-    "name_ru": "Калифорния — Керн"
-  },
-  {
-    "region_id": "NAM-0189",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "California — Fresno",
-    "name_ru": "Калифорния — Фресно"
-  },
-  {
-    "region_id": "NAM-0190",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "California — San Bernardino",
-    "name_ru": "Калифорния — Сан-Бернардино"
-  },
-  {
-    "region_id": "NAM-0191",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "California — Lassen",
-    "name_ru": "Калифорния — Лассен"
-  },
-  {
-    "region_id": "NAM-0192",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New Mexico",
-    "name_ru": "Нью-Мексико"
-  },
-  {
-    "region_id": "NAM-0193",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Texas — Dimmit",
-    "name_ru": "Техас — Диммит"
-  },
-  {
-    "region_id": "NAM-0194",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Texas — Comanche",
-    "name_ru": "Техас — Команчи"
-  },
-  {
-    "region_id": "NAM-0195",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Texas — Hale",
-    "name_ru": "Техас — Хейл"
-  },
-  {
-    "region_id": "NAM-0196",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Texas — Pecos",
-    "name_ru": "Техас — Пекос"
-  },
-  {
-    "region_id": "NAM-0197",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Alaska — Aleutians West",
-    "name_ru": "Аляска — Западные Алеутские острова"
-  },
-  {
-    "region_id": "NAM-0198",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Alaska — Yukon-Koyukuk",
-    "name_ru": "Аляска — Юкон-Коюкук"
-  },
-  {
-    "region_id": "NAM-0199",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Louisiana — Grant",
-    "name_ru": "Луизиана — Грант"
-  },
-  {
-    "region_id": "NAM-0200",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Louisiana — Jackson",
-    "name_ru": "Луизиана — Джексон"
-  },
-  {
-    "region_id": "NAM-0201",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Mississippi — Covington",
-    "name_ru": "Миссисипи — Ковингтон"
-  },
-  {
-    "region_id": "NAM-0202",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Mississippi — Pontotoc",
-    "name_ru": "Миссисипи — Понтоток"
-  },
-  {
-    "region_id": "NAM-0203",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Alabama — Dallas",
-    "name_ru": "Алабама — Даллас"
-  },
-  {
-    "region_id": "NAM-0204",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Alabama — Tuscaloosa",
-    "name_ru": "Алабама — Тускалуса"
-  },
-  {
-    "region_id": "NAM-0205",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Florida — Walton",
-    "name_ru": "Флорида — Уолтон"
-  },
-  {
-    "region_id": "NAM-0206",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Florida — Highlands",
-    "name_ru": "Флорида — Хайлендс"
-  },
-  {
-    "region_id": "NAM-0207",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Florida — Taylor",
-    "name_ru": "Флорида — Тейлор"
-  },
-  {
-    "region_id": "NAM-0208",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Georgia — Bartow",
-    "name_ru": "Грузия — Бартоу"
-  },
-  {
-    "region_id": "NAM-0209",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Georgia — Wilkes",
-    "name_ru": "Джорджия — Уилкс"
-  },
-  {
-    "region_id": "NAM-0210",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Georgia — Decatur",
-    "name_ru": "Джорджия — Декейтер"
-  },
-  {
-    "region_id": "NAM-0211",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "South Carolina — Abbeville",
-    "name_ru": "Южная Каролина — Абвиль"
-  },
-  {
-    "region_id": "NAM-0212",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "South Carolina — Fairfield",
-    "name_ru": "Южная Каролина — Фэрфилд"
-  },
-  {
-    "region_id": "NAM-0213",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "North Carolina — Orange",
-    "name_ru": "Северная Каролина — Оранжевый"
-  },
-  {
-    "region_id": "NAM-0214",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "North Carolina — Sampson",
-    "name_ru": "Северная Каролина — Сэмпсон"
-  },
-  {
-    "region_id": "NAM-0215",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "North Carolina — Rowan",
-    "name_ru": "Северная Каролина — Роуэн"
-  },
-  {
-    "region_id": "NAM-0216",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Virginia — Accomack",
-    "name_ru": "Вирджиния — Аккомак"
-  },
-  {
-    "region_id": "NAM-0217",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Virginia — Fauquier",
-    "name_ru": "Вирджиния — Фокье"
-  },
-  {
-    "region_id": "NAM-0218",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Virginia — Pittsylvania",
-    "name_ru": "Вирджиния — Питтсильвания"
-  },
-  {
-    "region_id": "NAM-0219",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "District of Columbia",
-    "name_ru": "Округ Колумбия"
-  },
-  {
-    "region_id": "NAM-0220",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Maryland",
-    "name_ru": "Мэриленд"
-  },
-  {
-    "region_id": "NAM-0221",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Delaware",
-    "name_ru": "Делавэр"
-  },
-  {
-    "region_id": "NAM-0222",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New Jersey — Ocean",
-    "name_ru": "Нью-Джерси — Оушен"
-  },
-  {
-    "region_id": "NAM-0223",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New Jersey — Burlington",
-    "name_ru": "Нью-Джерси — Берлингтон"
-  },
-  {
-    "region_id": "NAM-0224",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "New Jersey — Morris",
-    "name_ru": "Нью-Джерси — Моррис"
-  },
-  {
-    "region_id": "NAM-0225",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Connecticut — Litchfield",
-    "name_ru": "Коннектикут — Личфилд"
-  },
-  {
-    "region_id": "NAM-0226",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Connecticut — Windham",
-    "name_ru": "Коннектикут — Виндхэм"
-  },
-  {
-    "region_id": "NAM-0227",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Rhode Island — Newport",
-    "name_ru": "Род-Айленд — Ньюпорт"
-  },
-  {
-    "region_id": "NAM-0228",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Rhode Island — Providence",
-    "name_ru": "Род-Айленд — Провиденс"
-  },
-  {
-    "region_id": "NAM-0229",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Massachusetts — Nantucket",
-    "name_ru": "Массачусетс — Нантакет"
-  },
-  {
-    "region_id": "NAM-0230",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Massachusetts — Middlesex",
-    "name_ru": "Массачусетс — Миддлсекс"
-  },
-  {
-    "region_id": "NAM-0231",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Massachusetts — Hampden",
-    "name_ru": "Массачусетс — Хэмпден"
-  },
-  {
-    "region_id": "NAM-0232",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Oregon — Douglas",
-    "name_ru": "Орегон — Дуглас"
-  },
-  {
-    "region_id": "NAM-0233",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Oregon — Harney",
-    "name_ru": "Орегон — Харни"
-  },
-  {
-    "region_id": "NAM-0234",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Hawaii — Honolulu",
-    "name_ru": "Гавайи — Гонолулу"
-  },
-  {
-    "region_id": "NAM-0235",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Hawaii — Kauai",
-    "name_ru": "Гавайи — Кауаи"
-  },
-  {
-    "region_id": "NAM-0236",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Hawaii — Hawaii",
-    "name_ru": "Гавайи — Гавайи"
-  },
-  {
-    "region_id": "NAM-0237",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Hawaii — Maui",
-    "name_ru": "Гавайи — Мауи"
-  },
-  {
-    "region_id": "NAM-0238",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Utah",
-    "name_ru": "Юта"
-  },
-  {
-    "region_id": "NAM-0239",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Wyoming",
-    "name_ru": "Вайоминг"
-  },
-  {
-    "region_id": "NAM-0240",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Nevada",
-    "name_ru": "Невада"
-  },
-  {
-    "region_id": "NAM-0241",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Colorado — Washington",
-    "name_ru": "Колорадо — Вашингтон"
-  },
-  {
-    "region_id": "NAM-0242",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Colorado — Saguache",
-    "name_ru": "Колорадо — Сагуаш"
-  },
-  {
-    "region_id": "NAM-0243",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "South Dakota",
-    "name_ru": "Южная Дакота"
-  },
-  {
-    "region_id": "NAM-0244",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Nebraska",
-    "name_ru": "Небраска"
-  },
-  {
-    "region_id": "NAM-0245",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Kansas — Lincoln",
-    "name_ru": "Канзас — Линкольн"
-  },
-  {
-    "region_id": "NAM-0246",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Kansas — Thomas",
-    "name_ru": "Канзас — Томас"
-  },
-  {
-    "region_id": "NAM-0247",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Oklahoma — Le Flore",
-    "name_ru": "Оклахома — Ле Флор"
-  },
-  {
-    "region_id": "NAM-0248",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Oklahoma — Washita",
-    "name_ru": "Оклахома — Вашита"
-  },
-  {
-    "region_id": "NAM-0249",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Iowa — Appanoose",
-    "name_ru": "Айова — Аппануз"
-  },
-  {
-    "region_id": "NAM-0250",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Iowa — Kossuth",
-    "name_ru": "Айова — Кошут"
-  },
-  {
-    "region_id": "NAM-0251",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Missouri — Macon",
-    "name_ru": "Миссури — Мейкон"
-  },
-  {
-    "region_id": "NAM-0252",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Missouri — Benton",
-    "name_ru": "Миссури — Бентон"
-  },
-  {
-    "region_id": "NAM-0253",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Missouri — Wright",
-    "name_ru": "Миссури — Райт"
-  },
-  {
-    "region_id": "NAM-0254",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Wisconsin — Monroe",
-    "name_ru": "Висконсин — Монро"
-  },
-  {
-    "region_id": "NAM-0255",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Wisconsin — Barron",
-    "name_ru": "Висконсин — Бэррон"
-  },
-  {
-    "region_id": "NAM-0256",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Wisconsin — Shawano",
-    "name_ru": "Висконсин — Шавано"
-  },
-  {
-    "region_id": "NAM-0257",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Illinois — Morgan",
-    "name_ru": "Иллинойс — Морган"
-  },
-  {
-    "region_id": "NAM-0258",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Illinois — LaSalle",
-    "name_ru": "Иллинойс — ЛаСалль"
-  },
-  {
-    "region_id": "NAM-0259",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Illinois — St. Clair",
-    "name_ru": "Иллинойс — Сент-Клер"
-  },
-  {
-    "region_id": "NAM-0260",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Illinois — Shelby",
-    "name_ru": "Иллинойс — Шелби"
-  },
-  {
-    "region_id": "NAM-0261",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Kentucky — Christian",
-    "name_ru": "Кентукки — Кристиан"
-  },
-  {
-    "region_id": "NAM-0262",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Kentucky — Leslie",
-    "name_ru": "Кентукки — Лесли"
-  },
-  {
-    "region_id": "NAM-0263",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Arkansas — White",
-    "name_ru": "Арканзас — Уайт"
-  },
-  {
-    "region_id": "NAM-0264",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Arkansas — Pope",
-    "name_ru": "Арканзас — Папа Римский"
-  },
-  {
-    "region_id": "NAM-0265",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Tennessee — Henry",
-    "name_ru": "Теннесси — Генри"
-  },
-  {
-    "region_id": "NAM-0266",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Tennessee — Overton",
-    "name_ru": "Теннесси — Овертон"
-  },
-  {
-    "region_id": "NAM-0267",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "West Virginia",
-    "name_ru": "Западная Вирджиния"
-  },
-  {
-    "region_id": "NAM-0269",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "US",
-    "name_en": "Indiana — Boone",
-    "name_ru": "Индиана — Бун"
-  },
-  {
     "region_id": "OCE-0004",
     "continent": "Oceania",
     "region_type": "land",
@@ -12056,22 +9928,6 @@
     "name_ru": "Мальдивы"
   },
   {
-    "region_id": "NAM-0055",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "BL",
-    "name_en": "Saint Barthélemy",
-    "name_ru": "Сен-Бартелеми"
-  },
-  {
-    "region_id": "NAM-0095",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "MF",
-    "name_en": "Saint Martin",
-    "name_ru": "Сен-Мартен (франц.)"
-  },
-  {
     "region_id": "OCE-0001",
     "continent": "Oceania",
     "region_type": "land",
@@ -12110,14 +9966,6 @@
     "iso_a2": "TF",
     "name_en": "French Southern Territories",
     "name_ru": "Французские Южные территории"
-  },
-  {
-    "region_id": "NAM-0270",
-    "continent": "North America",
-    "region_type": "land",
-    "iso_a2": "PA_CZ",
-    "name_en": "Panama Canal Zone",
-    "name_ru": "Зона Панамского канала"
   },
   {
     "region_id": "OCE-0035",
@@ -12606,5 +10454,2141 @@
     "iso_a2": "PH",
     "name_en": "Guimaras",
     "name_ru": "Гимарас"
+  },
+  {
+    "region_id": "NAM-0001",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "FR",
+    "name_en": "Martinique",
+    "name_ru": "Мартиника"
+  },
+  {
+    "region_id": "NAM-0002",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "FR",
+    "name_en": "Guadeloupe",
+    "name_ru": "Гваделупа"
+  },
+  {
+    "region_id": "NAM-0003",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NL",
+    "name_en": "Bonaire",
+    "name_ru": "Бонайре"
+  },
+  {
+    "region_id": "NAM-0004",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NL",
+    "name_en": "St. Eustatius",
+    "name_ru": "Св. Эстатиус"
+  },
+  {
+    "region_id": "NAM-0005",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NL",
+    "name_en": "Saba",
+    "name_ru": "Саба"
+  },
+  {
+    "region_id": "NAM-0006",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "-1",
+    "name_en": "Guantanamo Bay (US Naval Base)",
+    "name_ru": "Гуантанамо (военная база США)"
+  },
+  {
+    "region_id": "NAM-0007",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "-1",
+    "name_en": "Clipperton Island",
+    "name_ru": "Клипертон (Франция)"
+  },
+  {
+    "region_id": "NAM-0008",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NF",
+    "name_en": "Newfoundland",
+    "name_ru": "Ньюфаундленд"
+  },
+  {
+    "region_id": "NAM-0009",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Northwest Territories",
+    "name_ru": "Северо-Западные территории"
+  },
+  {
+    "region_id": "NAM-0010",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "British Columbia",
+    "name_ru": "Британская Колумбия"
+  },
+  {
+    "region_id": "NAM-0011",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Alberta",
+    "name_ru": "Альберта"
+  },
+  {
+    "region_id": "NAM-0012",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Saskatchewan",
+    "name_ru": "Саскачеван"
+  },
+  {
+    "region_id": "NAM-0013",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Manitoba",
+    "name_ru": "Манитоба"
+  },
+  {
+    "region_id": "NAM-0014",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Ontario",
+    "name_ru": "Онтарио"
+  },
+  {
+    "region_id": "NAM-0015",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Québec",
+    "name_ru": "Квебек"
+  },
+  {
+    "region_id": "NAM-0016",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "New Brunswick",
+    "name_ru": "Нью-Брансуик"
+  },
+  {
+    "region_id": "NAM-0017",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Yukon",
+    "name_ru": "Юкон"
+  },
+  {
+    "region_id": "NAM-0018",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Nova Scotia",
+    "name_ru": "Новая Шотландия"
+  },
+  {
+    "region_id": "NAM-0019",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CA",
+    "name_en": "Prince Edward Island",
+    "name_ru": "Остров Принца Эдуарда"
+  },
+  {
+    "region_id": "NAM-0020",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CU",
+    "name_en": "Pinar del Río",
+    "name_ru": "Пинар-дель-Рио"
+  },
+  {
+    "region_id": "NAM-0021",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CU",
+    "name_en": "Habana",
+    "name_ru": "Гавана"
+  },
+  {
+    "region_id": "NAM-0022",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CU",
+    "name_en": "Matanzas",
+    "name_ru": "Матансас"
+  },
+  {
+    "region_id": "NAM-0023",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CU",
+    "name_en": "Las Villas",
+    "name_ru": "Лас-Вильяс"
+  },
+  {
+    "region_id": "NAM-0024",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CU",
+    "name_en": "Camagüey",
+    "name_ru": "Камагуэй"
+  },
+  {
+    "region_id": "NAM-0025",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CU",
+    "name_en": "Oriente",
+    "name_ru": "Ориенте"
+  },
+  {
+    "region_id": "NAM-0026",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CU",
+    "name_en": "Isla de la Juventud",
+    "name_ru": "Остров Хувентуд"
+  },
+  {
+    "region_id": "NAM-0027",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HT",
+    "name_en": "Artibonite",
+    "name_ru": "Артибонит"
+  },
+  {
+    "region_id": "NAM-0028",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HT",
+    "name_en": "Nord",
+    "name_ru": "Норд"
+  },
+  {
+    "region_id": "NAM-0029",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HT",
+    "name_en": "Nord-Ouest",
+    "name_ru": "Норд-Запад"
+  },
+  {
+    "region_id": "NAM-0030",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HT",
+    "name_en": "Ouest",
+    "name_ru": "Запад"
+  },
+  {
+    "region_id": "NAM-0031",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HT",
+    "name_en": "Sud",
+    "name_ru": "Суд"
+  },
+  {
+    "region_id": "NAM-0032",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Azua",
+    "name_ru": "Азуа"
+  },
+  {
+    "region_id": "NAM-0033",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Bahoruco",
+    "name_ru": "Бахоруко"
+  },
+  {
+    "region_id": "NAM-0034",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Barahona",
+    "name_ru": "Бараона"
+  },
+  {
+    "region_id": "NAM-0035",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Dajabón",
+    "name_ru": "Дахабон"
+  },
+  {
+    "region_id": "NAM-0036",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Distrito Nacional",
+    "name_ru": "Национальный округ"
+  },
+  {
+    "region_id": "NAM-0037",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Duarte",
+    "name_ru": "Дуарте"
+  },
+  {
+    "region_id": "NAM-0038",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "La Estrelleta",
+    "name_ru": "Ла Эстреллета"
+  },
+  {
+    "region_id": "NAM-0039",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "El Seybo",
+    "name_ru": "Эль-Сейбо"
+  },
+  {
+    "region_id": "NAM-0040",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Espaillat",
+    "name_ru": "Эспайлат"
+  },
+  {
+    "region_id": "NAM-0041",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "La Altagracia",
+    "name_ru": "Ла Альтаграсия"
+  },
+  {
+    "region_id": "NAM-0042",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "La Vega",
+    "name_ru": "Ла Вега"
+  },
+  {
+    "region_id": "NAM-0043",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Monte Cristi",
+    "name_ru": "Монте-Кристи"
+  },
+  {
+    "region_id": "NAM-0044",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Peravia",
+    "name_ru": "Перавиа"
+  },
+  {
+    "region_id": "NAM-0045",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Puerto Plata",
+    "name_ru": "Пуэрто-Плата"
+  },
+  {
+    "region_id": "NAM-0046",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Samaná",
+    "name_ru": "Самана"
+  },
+  {
+    "region_id": "NAM-0047",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "San Cristóbal",
+    "name_ru": "Сан-Кристобаль"
+  },
+  {
+    "region_id": "NAM-0048",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "San Juan",
+    "name_ru": "Сан-Хуан"
+  },
+  {
+    "region_id": "NAM-0049",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "San Pedro de Macorís",
+    "name_ru": "Сан-Педро-де-Макорис"
+  },
+  {
+    "region_id": "NAM-0050",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DO",
+    "name_en": "Santiago",
+    "name_ru": "Сантьяго"
+  },
+  {
+    "region_id": "NAM-0051",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "AG",
+    "name_en": "Antigua and Barbuda",
+    "name_ru": "Антигуа и Барбуда"
+  },
+  {
+    "region_id": "NAM-0052",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "AI",
+    "name_en": "Anguilla",
+    "name_ru": "Ангилья"
+  },
+  {
+    "region_id": "NAM-0053",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "AW",
+    "name_en": "Aruba",
+    "name_ru": "Аруба"
+  },
+  {
+    "region_id": "NAM-0054",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BB",
+    "name_en": "Barbados",
+    "name_ru": "Барбадос"
+  },
+  {
+    "region_id": "NAM-0055",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BM",
+    "name_en": "Bermuda",
+    "name_ru": "Бермуды"
+  },
+  {
+    "region_id": "NAM-0056",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BS",
+    "name_en": "Bahamas",
+    "name_ru": "Багамы"
+  },
+  {
+    "region_id": "NAM-0057",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BZ",
+    "name_en": "Cayo",
+    "name_ru": "Кайо"
+  },
+  {
+    "region_id": "NAM-0058",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BZ",
+    "name_en": "Orange Walk",
+    "name_ru": "Оранжевая прогулка"
+  },
+  {
+    "region_id": "NAM-0059",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BZ",
+    "name_en": "Corozal",
+    "name_ru": "Коросаль"
+  },
+  {
+    "region_id": "NAM-0060",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BZ",
+    "name_en": "Toledo",
+    "name_ru": "Толедо"
+  },
+  {
+    "region_id": "NAM-0061",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BZ",
+    "name_en": "Stann Creek",
+    "name_ru": "Стэнн Крик"
+  },
+  {
+    "region_id": "NAM-0062",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "BZ",
+    "name_en": "Belize",
+    "name_ru": "Белиз"
+  },
+  {
+    "region_id": "NAM-0063",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CR",
+    "name_en": "Alajuela",
+    "name_ru": "Алахуэла"
+  },
+  {
+    "region_id": "NAM-0064",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CR",
+    "name_en": "Guanacaste",
+    "name_ru": "Гуанакасте"
+  },
+  {
+    "region_id": "NAM-0065",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CR",
+    "name_en": "Limón",
+    "name_ru": "Лимон"
+  },
+  {
+    "region_id": "NAM-0066",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CR",
+    "name_en": "Puntarenas",
+    "name_ru": "Пунтаренас"
+  },
+  {
+    "region_id": "NAM-0067",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CR",
+    "name_en": "Heredia",
+    "name_ru": "Эредиа"
+  },
+  {
+    "region_id": "NAM-0068",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CR",
+    "name_en": "San José",
+    "name_ru": "Сан-Хосе"
+  },
+  {
+    "region_id": "NAM-0069",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CR",
+    "name_en": "Cartago",
+    "name_ru": "Картаго"
+  },
+  {
+    "region_id": "NAM-0070",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "CW",
+    "name_en": "Curaçao",
+    "name_ru": "Кюрасао"
+  },
+  {
+    "region_id": "NAM-0071",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "DM",
+    "name_en": "Dominica",
+    "name_ru": "Доминика"
+  },
+  {
+    "region_id": "NAM-0072",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GD",
+    "name_en": "Grenada",
+    "name_ru": "Гренада"
+  },
+  {
+    "region_id": "NAM-0073",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GL",
+    "name_en": "Greenland",
+    "name_ru": "Гренландия"
+  },
+  {
+    "region_id": "NAM-0074",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "Petén",
+    "name_ru": "Петен"
+  },
+  {
+    "region_id": "NAM-0075",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "Quiché",
+    "name_ru": "Киче"
+  },
+  {
+    "region_id": "NAM-0076",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "Izabal",
+    "name_ru": "Изабаль"
+  },
+  {
+    "region_id": "NAM-0077",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "Huehuetenango (3)",
+    "name_ru": "Уэуэтенанго (3)"
+  },
+  {
+    "region_id": "NAM-0078",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "San Marcos (5)",
+    "name_ru": "Сан-Маркос (5)"
+  },
+  {
+    "region_id": "NAM-0079",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "Alta Verapaz (3)",
+    "name_ru": "Альта Верапас (3)"
+  },
+  {
+    "region_id": "NAM-0080",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "Zacapa (7)",
+    "name_ru": "Сакапа (7)"
+  },
+  {
+    "region_id": "NAM-0081",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "GT",
+    "name_en": "Escuintla (15)",
+    "name_ru": "Эскуинтла (15)"
+  },
+  {
+    "region_id": "NAM-0082",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HN",
+    "name_en": "Gracias a Dios",
+    "name_ru": "Грасиас а Диос"
+  },
+  {
+    "region_id": "NAM-0083",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HN",
+    "name_en": "Islas de la Bahía",
+    "name_ru": "Ислас-де-ла-Баия"
+  },
+  {
+    "region_id": "NAM-0084",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HN",
+    "name_en": "Francisco Morazán (3)",
+    "name_ru": "Франсиско Морасан (3)"
+  },
+  {
+    "region_id": "NAM-0085",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HN",
+    "name_en": "El Paraíso (3)",
+    "name_ru": "Эль-Параисо (3)"
+  },
+  {
+    "region_id": "NAM-0086",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HN",
+    "name_en": "Yoro (3)",
+    "name_ru": "Йоро (3)"
+  },
+  {
+    "region_id": "NAM-0087",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HN",
+    "name_en": "Olancho (3)",
+    "name_ru": "Оланчо (3)"
+  },
+  {
+    "region_id": "NAM-0088",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "HN",
+    "name_en": "Lempira (15)",
+    "name_ru": "Лемпира (15)"
+  },
+  {
+    "region_id": "NAM-0089",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "JM",
+    "name_en": "Jamaica",
+    "name_ru": "Ямайка"
+  },
+  {
+    "region_id": "NAM-0090",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "KN",
+    "name_en": "Nevis",
+    "name_ru": "Невис"
+  },
+  {
+    "region_id": "NAM-0091",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "KN",
+    "name_en": "Saint Kitts",
+    "name_ru": "Сент-Китс"
+  },
+  {
+    "region_id": "NAM-0092",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "KY",
+    "name_en": "Cayman Islands",
+    "name_ru": "Каймановы о-ва"
+  },
+  {
+    "region_id": "NAM-0093",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "LC",
+    "name_en": "Saint Lucia",
+    "name_ru": "Сент-Люсия"
+  },
+  {
+    "region_id": "NAM-0094",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MS",
+    "name_en": "Montserrat",
+    "name_ru": "Монтсеррат"
+  },
+  {
+    "region_id": "NAM-0095",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Sonora",
+    "name_ru": "Сонора"
+  },
+  {
+    "region_id": "NAM-0096",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Baja California",
+    "name_ru": "Нижняя Калифорния"
+  },
+  {
+    "region_id": "NAM-0097",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Chihuahua",
+    "name_ru": "Чихуахуа"
+  },
+  {
+    "region_id": "NAM-0098",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Coahuila",
+    "name_ru": "Коауила"
+  },
+  {
+    "region_id": "NAM-0099",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Tamaulipas",
+    "name_ru": "Тамаулипас"
+  },
+  {
+    "region_id": "NAM-0100",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Nuevo León",
+    "name_ru": "Нуэво-Леон"
+  },
+  {
+    "region_id": "NAM-0101",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Quintana Roo",
+    "name_ru": "Кинтана-Роо"
+  },
+  {
+    "region_id": "NAM-0102",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Campeche",
+    "name_ru": "Кампече"
+  },
+  {
+    "region_id": "NAM-0103",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Tabasco",
+    "name_ru": "Табаско"
+  },
+  {
+    "region_id": "NAM-0104",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Chiapas",
+    "name_ru": "Чьяпас"
+  },
+  {
+    "region_id": "NAM-0105",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Colima",
+    "name_ru": "Колима"
+  },
+  {
+    "region_id": "NAM-0106",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Nayarit",
+    "name_ru": "Наярит"
+  },
+  {
+    "region_id": "NAM-0107",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Baja California Sur",
+    "name_ru": "Нижняя Калифорния Южная"
+  },
+  {
+    "region_id": "NAM-0108",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Sinaloa",
+    "name_ru": "Синалоа"
+  },
+  {
+    "region_id": "NAM-0109",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Yucatán",
+    "name_ru": "Юкатан"
+  },
+  {
+    "region_id": "NAM-0110",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Veracruz",
+    "name_ru": "Веракрус"
+  },
+  {
+    "region_id": "NAM-0111",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Jalisco",
+    "name_ru": "Халиско"
+  },
+  {
+    "region_id": "NAM-0112",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Michoacán",
+    "name_ru": "Мичоакан"
+  },
+  {
+    "region_id": "NAM-0113",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Guerrero",
+    "name_ru": "Герреро"
+  },
+  {
+    "region_id": "NAM-0114",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Oaxaca",
+    "name_ru": "Оахака"
+  },
+  {
+    "region_id": "NAM-0115",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "México",
+    "name_ru": "Мексика"
+  },
+  {
+    "region_id": "NAM-0116",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Puebla",
+    "name_ru": "Пуэбла"
+  },
+  {
+    "region_id": "NAM-0117",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Morelos",
+    "name_ru": "Морелос"
+  },
+  {
+    "region_id": "NAM-0118",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Querétaro",
+    "name_ru": "Керетаро"
+  },
+  {
+    "region_id": "NAM-0119",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Hidalgo",
+    "name_ru": "Идальго"
+  },
+  {
+    "region_id": "NAM-0120",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Guanajuato",
+    "name_ru": "Гуанахуато"
+  },
+  {
+    "region_id": "NAM-0121",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "San Luis Potosí",
+    "name_ru": "Сан-Луис-Потоси"
+  },
+  {
+    "region_id": "NAM-0122",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Zacatecas",
+    "name_ru": "Сакатекас"
+  },
+  {
+    "region_id": "NAM-0123",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Aguascalientes",
+    "name_ru": "Агуаскальентес"
+  },
+  {
+    "region_id": "NAM-0124",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Durango",
+    "name_ru": "Дуранго"
+  },
+  {
+    "region_id": "NAM-0125",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Tlaxcala",
+    "name_ru": "Тласкала"
+  },
+  {
+    "region_id": "NAM-0126",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "MX",
+    "name_en": "Distrito Federal",
+    "name_ru": "Федеральный округ"
+  },
+  {
+    "region_id": "NAM-0127",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NI",
+    "name_en": "Rio San Juan",
+    "name_ru": "Рио-Сан-Хуан"
+  },
+  {
+    "region_id": "NAM-0128",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NI",
+    "name_en": "Atlántico Norte",
+    "name_ru": "Атлантико Норте"
+  },
+  {
+    "region_id": "NAM-0129",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NI",
+    "name_en": "Atlántico Sur",
+    "name_ru": "Атлантико-Сур"
+  },
+  {
+    "region_id": "NAM-0130",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NI",
+    "name_en": "León (5)",
+    "name_ru": "Леон (5)"
+  },
+  {
+    "region_id": "NAM-0131",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NI",
+    "name_en": "Jinotega (5)",
+    "name_ru": "Хинотега (5)"
+  },
+  {
+    "region_id": "NAM-0132",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NI",
+    "name_en": "Managua (9)",
+    "name_ru": "Манагуа (9)"
+  },
+  {
+    "region_id": "NAM-0133",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "NI",
+    "name_en": "Chontales (5)",
+    "name_ru": "Чонталес (5)"
+  },
+  {
+    "region_id": "NAM-0134",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PA",
+    "name_en": "Chiriquí",
+    "name_ru": "Чирики"
+  },
+  {
+    "region_id": "NAM-0135",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PA",
+    "name_en": "Veraguas",
+    "name_ru": "Верагуас"
+  },
+  {
+    "region_id": "NAM-0136",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PA",
+    "name_en": "Panama (3)",
+    "name_ru": "Панама (3)"
+  },
+  {
+    "region_id": "NAM-0137",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PA",
+    "name_en": "Darién (3)",
+    "name_ru": "Дарьен (3)"
+  },
+  {
+    "region_id": "NAM-0138",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PA",
+    "name_en": "Ngöbe Buglé (3)",
+    "name_ru": "Нгобе Бугле (3)"
+  },
+  {
+    "region_id": "NAM-0139",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PA",
+    "name_en": "Los Santos (7)",
+    "name_ru": "Лос-Сантос (7)"
+  },
+  {
+    "region_id": "NAM-0140",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PM",
+    "name_en": "Saint Pierre and Miquelon",
+    "name_ru": "Сен-Пьер и Микелон"
+  },
+  {
+    "region_id": "NAM-0141",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PR",
+    "name_en": "Puerto Rico",
+    "name_ru": "Пуэрто-Рико"
+  },
+  {
+    "region_id": "NAM-0142",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "SV",
+    "name_en": "Santa Ana",
+    "name_ru": "Санта Ана"
+  },
+  {
+    "region_id": "NAM-0143",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "SV",
+    "name_en": "La Unión",
+    "name_ru": "Ла Юнион"
+  },
+  {
+    "region_id": "NAM-0144",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "SV",
+    "name_en": "Usulután",
+    "name_ru": "Усулутан"
+  },
+  {
+    "region_id": "NAM-0145",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "SV",
+    "name_en": "Sonsonate (3)",
+    "name_ru": "Сонсонате (3)"
+  },
+  {
+    "region_id": "NAM-0146",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "SV",
+    "name_en": "San Miguel (3)",
+    "name_ru": "Сан-Мигель (3)"
+  },
+  {
+    "region_id": "NAM-0147",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "SV",
+    "name_en": "San Vicente (13)",
+    "name_ru": "Сан-Висенте (13)"
+  },
+  {
+    "region_id": "NAM-0148",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "SX",
+    "name_en": "Sint Maarten",
+    "name_ru": "Синт-Мартен"
+  },
+  {
+    "region_id": "NAM-0149",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "TC",
+    "name_en": "Turks and Caicos Islands",
+    "name_ru": "Тёркс и Кайкос"
+  },
+  {
+    "region_id": "NAM-0150",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "TT",
+    "name_en": "Eastern Tobago (3)",
+    "name_ru": "Восточный Тобаго (3)"
+  },
+  {
+    "region_id": "NAM-0151",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "TT",
+    "name_en": "Rio Claro-Mayaro (27)",
+    "name_ru": "Рио Кларо-Маяро (27)"
+  },
+  {
+    "region_id": "NAM-0152",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "VC",
+    "name_en": "Saint Vincent and the Grenadines",
+    "name_ru": "Сент-Винсент и Гренадины"
+  },
+  {
+    "region_id": "NAM-0153",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "VG",
+    "name_en": "British Virgin Islands",
+    "name_ru": "Виргинские о-ва (Брит.)"
+  },
+  {
+    "region_id": "NAM-0154",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "VI",
+    "name_en": "United States Virgin Islands",
+    "name_ru": "Виргинские о-ва (США)"
+  },
+  {
+    "region_id": "NAM-0155",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Washington — San Juan",
+    "name_ru": "Вашингтон — Сан-Хуан"
+  },
+  {
+    "region_id": "NAM-0156",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Washington — Yakima",
+    "name_ru": "Вашингтон — Якима"
+  },
+  {
+    "region_id": "NAM-0157",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Washington — Adams",
+    "name_ru": "Вашингтон — Адамс"
+  },
+  {
+    "region_id": "NAM-0158",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Idaho",
+    "name_ru": "Айдахо"
+  },
+  {
+    "region_id": "NAM-0159",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Montana",
+    "name_ru": "Монтана"
+  },
+  {
+    "region_id": "NAM-0160",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "North Dakota",
+    "name_ru": "Северная Дакота"
+  },
+  {
+    "region_id": "NAM-0161",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Minnesota — Becker",
+    "name_ru": "Миннесота — Беккер"
+  },
+  {
+    "region_id": "NAM-0162",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Minnesota — Cass",
+    "name_ru": "Миннесота — Кэсс"
+  },
+  {
+    "region_id": "NAM-0163",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Minnesota — Lyon",
+    "name_ru": "Миннесота — Лион"
+  },
+  {
+    "region_id": "NAM-0164",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Michigan — Crawford",
+    "name_ru": "Мичиган — Кроуфорд"
+  },
+  {
+    "region_id": "NAM-0165",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Michigan — Lapeer",
+    "name_ru": "Мичиган — Лапир"
+  },
+  {
+    "region_id": "NAM-0166",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Michigan — Marquette",
+    "name_ru": "Мичиган — Маркетт"
+  },
+  {
+    "region_id": "NAM-0167",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Michigan — Isabella",
+    "name_ru": "Мичиган — Изабелла"
+  },
+  {
+    "region_id": "NAM-0168",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Ohio — Fairfield",
+    "name_ru": "Огайо — Фэрфилд"
+  },
+  {
+    "region_id": "NAM-0169",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Ohio — Putnam",
+    "name_ru": "Огайо — Патнэм"
+  },
+  {
+    "region_id": "NAM-0170",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Ohio — Champaign",
+    "name_ru": "Огайо — Шампейн"
+  },
+  {
+    "region_id": "NAM-0171",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Ohio — Portage",
+    "name_ru": "Огайо — Портедж"
+  },
+  {
+    "region_id": "NAM-0172",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Pennsylvania — Susquehanna",
+    "name_ru": "Пенсильвания — Саскуэханна"
+  },
+  {
+    "region_id": "NAM-0173",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Pennsylvania — Lycoming",
+    "name_ru": "Пенсильвания — Лайкоминг"
+  },
+  {
+    "region_id": "NAM-0174",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Pennsylvania — Washington",
+    "name_ru": "Пенсильвания — Вашингтон"
+  },
+  {
+    "region_id": "NAM-0175",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Pennsylvania — Bedford",
+    "name_ru": "Пенсильвания — Бедфорд"
+  },
+  {
+    "region_id": "NAM-0176",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New York — Richmond",
+    "name_ru": "Нью-Йорк — Ричмонд"
+  },
+  {
+    "region_id": "NAM-0177",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New York — Albany",
+    "name_ru": "Нью-Йорк — Олбани"
+  },
+  {
+    "region_id": "NAM-0178",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New York — Genesee",
+    "name_ru": "Нью-Йорк — Дженеси"
+  },
+  {
+    "region_id": "NAM-0179",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New York — Steuben",
+    "name_ru": "Нью-Йорк — Штойбен"
+  },
+  {
+    "region_id": "NAM-0180",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Vermont",
+    "name_ru": "Вермонт"
+  },
+  {
+    "region_id": "NAM-0181",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New Hampshire",
+    "name_ru": "Нью-Гэмпшир"
+  },
+  {
+    "region_id": "NAM-0182",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Maine",
+    "name_ru": "Мэн"
+  },
+  {
+    "region_id": "NAM-0183",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Arizona — Apache",
+    "name_ru": "Аризона — Апач"
+  },
+  {
+    "region_id": "NAM-0184",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Arizona — Maricopa",
+    "name_ru": "Аризона — Марикопа"
+  },
+  {
+    "region_id": "NAM-0185",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "California — Kern",
+    "name_ru": "Калифорния — Керн"
+  },
+  {
+    "region_id": "NAM-0186",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "California — Fresno",
+    "name_ru": "Калифорния — Фресно"
+  },
+  {
+    "region_id": "NAM-0187",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "California — San Bernardino",
+    "name_ru": "Калифорния — Сан-Бернардино"
+  },
+  {
+    "region_id": "NAM-0188",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "California — Lassen",
+    "name_ru": "Калифорния — Лассен"
+  },
+  {
+    "region_id": "NAM-0189",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New Mexico",
+    "name_ru": "Нью-Мексико"
+  },
+  {
+    "region_id": "NAM-0190",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Texas — Dimmit",
+    "name_ru": "Техас — Диммит"
+  },
+  {
+    "region_id": "NAM-0191",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Texas — Comanche",
+    "name_ru": "Техас — Команчи"
+  },
+  {
+    "region_id": "NAM-0192",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Texas — Hale",
+    "name_ru": "Техас — Хейл"
+  },
+  {
+    "region_id": "NAM-0193",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Texas — Pecos",
+    "name_ru": "Техас — Пекос"
+  },
+  {
+    "region_id": "NAM-0194",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Alaska — Aleutians West",
+    "name_ru": "Аляска — Западные Алеутские острова"
+  },
+  {
+    "region_id": "NAM-0195",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Alaska — Yukon-Koyukuk",
+    "name_ru": "Аляска — Юкон-Коюкук"
+  },
+  {
+    "region_id": "NAM-0196",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Louisiana — Grant",
+    "name_ru": "Луизиана — Грант"
+  },
+  {
+    "region_id": "NAM-0197",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Louisiana — Jackson",
+    "name_ru": "Луизиана — Джексон"
+  },
+  {
+    "region_id": "NAM-0198",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Mississippi — Covington",
+    "name_ru": "Миссисипи — Ковингтон"
+  },
+  {
+    "region_id": "NAM-0199",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Mississippi — Pontotoc",
+    "name_ru": "Миссисипи — Понтоток"
+  },
+  {
+    "region_id": "NAM-0200",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Alabama — Dallas",
+    "name_ru": "Алабама — Даллас"
+  },
+  {
+    "region_id": "NAM-0201",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Alabama — Tuscaloosa",
+    "name_ru": "Алабама — Тускалуса"
+  },
+  {
+    "region_id": "NAM-0202",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Florida — Walton",
+    "name_ru": "Флорида — Уолтон"
+  },
+  {
+    "region_id": "NAM-0203",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Florida — Highlands",
+    "name_ru": "Флорида — Хайлендс"
+  },
+  {
+    "region_id": "NAM-0204",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Florida — Taylor",
+    "name_ru": "Флорида — Тейлор"
+  },
+  {
+    "region_id": "NAM-0205",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Georgia — Bartow",
+    "name_ru": "Грузия — Бартоу"
+  },
+  {
+    "region_id": "NAM-0206",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Georgia — Wilkes",
+    "name_ru": "Джорджия — Уилкс"
+  },
+  {
+    "region_id": "NAM-0207",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Georgia — Decatur",
+    "name_ru": "Джорджия — Декейтер"
+  },
+  {
+    "region_id": "NAM-0208",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "South Carolina — Abbeville",
+    "name_ru": "Южная Каролина — Абвиль"
+  },
+  {
+    "region_id": "NAM-0209",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "South Carolina — Fairfield",
+    "name_ru": "Южная Каролина — Фэрфилд"
+  },
+  {
+    "region_id": "NAM-0210",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "North Carolina — Orange",
+    "name_ru": "Северная Каролина — Оранжевый"
+  },
+  {
+    "region_id": "NAM-0211",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "North Carolina — Sampson",
+    "name_ru": "Северная Каролина — Сэмпсон"
+  },
+  {
+    "region_id": "NAM-0212",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "North Carolina — Rowan",
+    "name_ru": "Северная Каролина — Роуэн"
+  },
+  {
+    "region_id": "NAM-0213",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Virginia — Accomack",
+    "name_ru": "Вирджиния — Аккомак"
+  },
+  {
+    "region_id": "NAM-0214",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Virginia — Fauquier",
+    "name_ru": "Вирджиния — Фокье"
+  },
+  {
+    "region_id": "NAM-0215",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Virginia — Pittsylvania",
+    "name_ru": "Вирджиния — Питтсильвания"
+  },
+  {
+    "region_id": "NAM-0216",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "District of Columbia",
+    "name_ru": "Округ Колумбия"
+  },
+  {
+    "region_id": "NAM-0217",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Maryland",
+    "name_ru": "Мэриленд"
+  },
+  {
+    "region_id": "NAM-0218",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Delaware",
+    "name_ru": "Делавэр"
+  },
+  {
+    "region_id": "NAM-0219",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New Jersey — Ocean",
+    "name_ru": "Нью-Джерси — Оушен"
+  },
+  {
+    "region_id": "NAM-0220",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New Jersey — Burlington",
+    "name_ru": "Нью-Джерси — Берлингтон"
+  },
+  {
+    "region_id": "NAM-0221",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "New Jersey — Morris",
+    "name_ru": "Нью-Джерси — Моррис"
+  },
+  {
+    "region_id": "NAM-0222",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Connecticut — Litchfield",
+    "name_ru": "Коннектикут — Личфилд"
+  },
+  {
+    "region_id": "NAM-0223",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Connecticut — Windham",
+    "name_ru": "Коннектикут — Виндхэм"
+  },
+  {
+    "region_id": "NAM-0224",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Rhode Island — Newport",
+    "name_ru": "Род-Айленд — Ньюпорт"
+  },
+  {
+    "region_id": "NAM-0225",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Rhode Island — Providence",
+    "name_ru": "Род-Айленд — Провиденс"
+  },
+  {
+    "region_id": "NAM-0226",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Massachusetts — Nantucket",
+    "name_ru": "Массачусетс — Нантакет"
+  },
+  {
+    "region_id": "NAM-0227",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Massachusetts — Middlesex",
+    "name_ru": "Массачусетс — Миддлсекс"
+  },
+  {
+    "region_id": "NAM-0228",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Massachusetts — Hampden",
+    "name_ru": "Массачусетс — Хэмпден"
+  },
+  {
+    "region_id": "NAM-0229",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Oregon — Douglas",
+    "name_ru": "Орегон — Дуглас"
+  },
+  {
+    "region_id": "NAM-0230",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Oregon — Harney",
+    "name_ru": "Орегон — Харни"
+  },
+  {
+    "region_id": "NAM-0231",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Hawaii — Honolulu",
+    "name_ru": "Гавайи — Гонолулу"
+  },
+  {
+    "region_id": "NAM-0232",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Hawaii — Kauai",
+    "name_ru": "Гавайи — Кауаи"
+  },
+  {
+    "region_id": "NAM-0233",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Hawaii — Hawaii",
+    "name_ru": "Гавайи — Гавайи"
+  },
+  {
+    "region_id": "NAM-0234",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Hawaii — Maui",
+    "name_ru": "Гавайи — Мауи"
+  },
+  {
+    "region_id": "NAM-0235",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Utah",
+    "name_ru": "Юта"
+  },
+  {
+    "region_id": "NAM-0236",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Wyoming",
+    "name_ru": "Вайоминг"
+  },
+  {
+    "region_id": "NAM-0237",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Nevada",
+    "name_ru": "Невада"
+  },
+  {
+    "region_id": "NAM-0238",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Colorado — Washington",
+    "name_ru": "Колорадо — Вашингтон"
+  },
+  {
+    "region_id": "NAM-0239",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Colorado — Saguache",
+    "name_ru": "Колорадо — Сагуаш"
+  },
+  {
+    "region_id": "NAM-0240",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "South Dakota",
+    "name_ru": "Южная Дакота"
+  },
+  {
+    "region_id": "NAM-0241",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Nebraska",
+    "name_ru": "Небраска"
+  },
+  {
+    "region_id": "NAM-0242",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Kansas — Lincoln",
+    "name_ru": "Канзас — Линкольн"
+  },
+  {
+    "region_id": "NAM-0243",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Kansas — Thomas",
+    "name_ru": "Канзас — Томас"
+  },
+  {
+    "region_id": "NAM-0244",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Oklahoma — Le Flore",
+    "name_ru": "Оклахома — Ле Флор"
+  },
+  {
+    "region_id": "NAM-0245",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Oklahoma — Washita",
+    "name_ru": "Оклахома — Вашита"
+  },
+  {
+    "region_id": "NAM-0246",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Iowa — Appanoose",
+    "name_ru": "Айова — Аппануз"
+  },
+  {
+    "region_id": "NAM-0247",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Iowa — Kossuth",
+    "name_ru": "Айова — Кошут"
+  },
+  {
+    "region_id": "NAM-0248",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Missouri — Macon",
+    "name_ru": "Миссури — Мейкон"
+  },
+  {
+    "region_id": "NAM-0249",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Missouri — Benton",
+    "name_ru": "Миссури — Бентон"
+  },
+  {
+    "region_id": "NAM-0250",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Missouri — Wright",
+    "name_ru": "Миссури — Райт"
+  },
+  {
+    "region_id": "NAM-0251",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Wisconsin — Monroe",
+    "name_ru": "Висконсин — Монро"
+  },
+  {
+    "region_id": "NAM-0252",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Wisconsin — Barron",
+    "name_ru": "Висконсин — Бэррон"
+  },
+  {
+    "region_id": "NAM-0253",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Wisconsin — Shawano",
+    "name_ru": "Висконсин — Шавано"
+  },
+  {
+    "region_id": "NAM-0254",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Illinois — Morgan",
+    "name_ru": "Иллинойс — Морган"
+  },
+  {
+    "region_id": "NAM-0255",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Illinois — LaSalle",
+    "name_ru": "Иллинойс — ЛаСалль"
+  },
+  {
+    "region_id": "NAM-0256",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Illinois — St. Clair",
+    "name_ru": "Иллинойс — Сент-Клер"
+  },
+  {
+    "region_id": "NAM-0257",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Illinois — Shelby",
+    "name_ru": "Иллинойс — Шелби"
+  },
+  {
+    "region_id": "NAM-0258",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Kentucky — Christian",
+    "name_ru": "Кентукки — Кристиан"
+  },
+  {
+    "region_id": "NAM-0259",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Kentucky — Leslie",
+    "name_ru": "Кентукки — Лесли"
+  },
+  {
+    "region_id": "NAM-0260",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Arkansas — White",
+    "name_ru": "Арканзас — Уайт"
+  },
+  {
+    "region_id": "NAM-0261",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Arkansas — Pope",
+    "name_ru": "Арканзас — Папа Римский"
+  },
+  {
+    "region_id": "NAM-0262",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Tennessee — Henry",
+    "name_ru": "Теннесси — Генри"
+  },
+  {
+    "region_id": "NAM-0263",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Tennessee — Overton",
+    "name_ru": "Теннесси — Овертон"
+  },
+  {
+    "region_id": "NAM-0264",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "West Virginia",
+    "name_ru": "Западная Вирджиния"
+  },
+  {
+    "region_id": "NAM-0265",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Indiana — Noble",
+    "name_ru": "Индиана — Ноубл"
+  },
+  {
+    "region_id": "NAM-0266",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "US",
+    "name_en": "Indiana — Boone",
+    "name_ru": "Индиана — Бун"
+  },
+  {
+    "region_id": "NAM-0267",
+    "continent": "North America",
+    "region_type": "land",
+    "iso_a2": "PA_CZ",
+    "name_en": "Panama Canal Zone",
+    "name_ru": "Зона Панамского канала"
   }
 ]

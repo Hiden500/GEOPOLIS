@@ -3250,818 +3250,6 @@
   "LAK-0013": {
     "owner": null
   },
-  "NAM-0001": {
-    "owner": "FRA"
-  },
-  "NAM-0002": {
-    "owner": "FRA"
-  },
-  "NAM-0003": {
-    "owner": "NLD"
-  },
-  "NAM-0004": {
-    "owner": "NLD"
-  },
-  "NAM-0005": {
-    "owner": "NLD"
-  },
-  "NAM-0006": {
-    "controller": "USA",
-    "note": "US Naval Base leased from Cuba",
-    "owner": "CUB"
-  },
-  "NAM-0007": {
-    "owner": "FRA"
-  },
-  "NAM-0008": {
-    "owner": "NFD"
-  },
-  "NAM-0009": {
-    "owner": "CAN"
-  },
-  "NAM-0010": {
-    "owner": "CAN"
-  },
-  "NAM-0011": {
-    "owner": "CAN"
-  },
-  "NAM-0012": {
-    "owner": "CAN"
-  },
-  "NAM-0013": {
-    "owner": "CAN"
-  },
-  "NAM-0014": {
-    "owner": "CAN"
-  },
-  "NAM-0015": {
-    "owner": "CAN"
-  },
-  "NAM-0016": {
-    "owner": "CAN"
-  },
-  "NAM-0017": {
-    "owner": "CAN"
-  },
-  "NAM-0018": {
-    "owner": "CAN"
-  },
-  "NAM-0019": {
-    "owner": "CAN"
-  },
-  "NAM-0020": {
-    "owner": "CUB"
-  },
-  "NAM-0021": {
-    "owner": "CUB"
-  },
-  "NAM-0022": {
-    "owner": "CUB"
-  },
-  "NAM-0023": {
-    "owner": "CUB"
-  },
-  "NAM-0024": {
-    "owner": "CUB"
-  },
-  "NAM-0025": {
-    "owner": "CUB"
-  },
-  "NAM-0026": {
-    "owner": "CUB"
-  },
-  "NAM-0027": {
-    "owner": "HTI"
-  },
-  "NAM-0028": {
-    "owner": "HTI"
-  },
-  "NAM-0029": {
-    "owner": "HTI"
-  },
-  "NAM-0030": {
-    "owner": "HTI"
-  },
-  "NAM-0031": {
-    "owner": "HTI"
-  },
-  "NAM-0032": {
-    "owner": "DOM"
-  },
-  "NAM-0033": {
-    "owner": "DOM"
-  },
-  "NAM-0034": {
-    "owner": "DOM"
-  },
-  "NAM-0035": {
-    "owner": "DOM"
-  },
-  "NAM-0036": {
-    "owner": "DOM"
-  },
-  "NAM-0037": {
-    "owner": "DOM"
-  },
-  "NAM-0038": {
-    "owner": "DOM"
-  },
-  "NAM-0039": {
-    "owner": "DOM"
-  },
-  "NAM-0040": {
-    "owner": "DOM"
-  },
-  "NAM-0041": {
-    "owner": "DOM"
-  },
-  "NAM-0042": {
-    "owner": "DOM"
-  },
-  "NAM-0043": {
-    "owner": "DOM"
-  },
-  "NAM-0044": {
-    "owner": "DOM"
-  },
-  "NAM-0045": {
-    "owner": "DOM"
-  },
-  "NAM-0046": {
-    "owner": "DOM"
-  },
-  "NAM-0047": {
-    "owner": "DOM"
-  },
-  "NAM-0048": {
-    "owner": "DOM"
-  },
-  "NAM-0049": {
-    "owner": "DOM"
-  },
-  "NAM-0050": {
-    "owner": "DOM"
-  },
-  "NAM-0051": {
-    "owner": "ATG"
-  },
-  "NAM-0052": {
-    "owner": "AIA"
-  },
-  "NAM-0053": {
-    "owner": "ABW"
-  },
-  "NAM-0054": {
-    "owner": "BRB"
-  },
-  "NAM-0055": {
-    "owner": "FRA"
-  },
-  "NAM-0056": {
-    "owner": "BMU"
-  },
-  "NAM-0057": {
-    "owner": "BHS"
-  },
-  "NAM-0058": {
-    "owner": "BLZ"
-  },
-  "NAM-0059": {
-    "owner": "BLZ"
-  },
-  "NAM-0060": {
-    "owner": "BLZ"
-  },
-  "NAM-0061": {
-    "owner": "BLZ"
-  },
-  "NAM-0062": {
-    "owner": "BLZ"
-  },
-  "NAM-0063": {
-    "owner": "BLZ"
-  },
-  "NAM-0064": {
-    "owner": "CRI"
-  },
-  "NAM-0065": {
-    "owner": "CRI"
-  },
-  "NAM-0066": {
-    "owner": "CRI"
-  },
-  "NAM-0067": {
-    "owner": "CRI"
-  },
-  "NAM-0068": {
-    "owner": "CRI"
-  },
-  "NAM-0069": {
-    "owner": "CRI"
-  },
-  "NAM-0070": {
-    "owner": "CRI"
-  },
-  "NAM-0071": {
-    "owner": "CUW"
-  },
-  "NAM-0072": {
-    "owner": "DMA"
-  },
-  "NAM-0073": {
-    "owner": "GRD"
-  },
-  "NAM-0074": {
-    "owner": "GRL"
-  },
-  "NAM-0075": {
-    "owner": "GTM"
-  },
-  "NAM-0076": {
-    "owner": "GTM"
-  },
-  "NAM-0077": {
-    "owner": "GTM"
-  },
-  "NAM-0078": {
-    "owner": "GTM"
-  },
-  "NAM-0079": {
-    "owner": "GTM"
-  },
-  "NAM-0080": {
-    "owner": "GTM"
-  },
-  "NAM-0081": {
-    "owner": "GTM"
-  },
-  "NAM-0082": {
-    "owner": "GTM"
-  },
-  "NAM-0083": {
-    "owner": "HND"
-  },
-  "NAM-0084": {
-    "owner": "HND"
-  },
-  "NAM-0085": {
-    "owner": "HND"
-  },
-  "NAM-0086": {
-    "owner": "HND"
-  },
-  "NAM-0087": {
-    "owner": "HND"
-  },
-  "NAM-0088": {
-    "owner": "HND"
-  },
-  "NAM-0089": {
-    "owner": "HND"
-  },
-  "NAM-0090": {
-    "owner": "JAM"
-  },
-  "NAM-0091": {
-    "owner": "KNA"
-  },
-  "NAM-0092": {
-    "owner": "KNA"
-  },
-  "NAM-0093": {
-    "owner": "CYM"
-  },
-  "NAM-0094": {
-    "owner": "LCA"
-  },
-  "NAM-0095": {
-    "owner": "FRA"
-  },
-  "NAM-0096": {
-    "owner": "MSR"
-  },
-  "NAM-0097": {
-    "owner": "MEX"
-  },
-  "NAM-0098": {
-    "owner": "MEX"
-  },
-  "NAM-0099": {
-    "owner": "MEX"
-  },
-  "NAM-0100": {
-    "owner": "MEX"
-  },
-  "NAM-0101": {
-    "owner": "MEX"
-  },
-  "NAM-0102": {
-    "owner": "MEX"
-  },
-  "NAM-0103": {
-    "owner": "MEX"
-  },
-  "NAM-0104": {
-    "owner": "MEX"
-  },
-  "NAM-0105": {
-    "owner": "MEX"
-  },
-  "NAM-0106": {
-    "owner": "MEX"
-  },
-  "NAM-0107": {
-    "owner": "MEX"
-  },
-  "NAM-0108": {
-    "owner": "MEX"
-  },
-  "NAM-0109": {
-    "owner": "MEX"
-  },
-  "NAM-0110": {
-    "owner": "MEX"
-  },
-  "NAM-0111": {
-    "owner": "MEX"
-  },
-  "NAM-0112": {
-    "owner": "MEX"
-  },
-  "NAM-0113": {
-    "owner": "MEX"
-  },
-  "NAM-0114": {
-    "owner": "MEX"
-  },
-  "NAM-0115": {
-    "owner": "MEX"
-  },
-  "NAM-0116": {
-    "owner": "MEX"
-  },
-  "NAM-0117": {
-    "owner": "MEX"
-  },
-  "NAM-0118": {
-    "owner": "MEX"
-  },
-  "NAM-0119": {
-    "owner": "MEX"
-  },
-  "NAM-0120": {
-    "owner": "MEX"
-  },
-  "NAM-0121": {
-    "owner": "MEX"
-  },
-  "NAM-0122": {
-    "owner": "MEX"
-  },
-  "NAM-0123": {
-    "owner": "MEX"
-  },
-  "NAM-0124": {
-    "owner": "MEX"
-  },
-  "NAM-0125": {
-    "owner": "MEX"
-  },
-  "NAM-0126": {
-    "owner": "MEX"
-  },
-  "NAM-0127": {
-    "owner": "MEX"
-  },
-  "NAM-0128": {
-    "owner": "MEX"
-  },
-  "NAM-0129": {
-    "owner": "MEX"
-  },
-  "NAM-0130": {
-    "owner": "NIC"
-  },
-  "NAM-0131": {
-    "owner": "NIC"
-  },
-  "NAM-0132": {
-    "owner": "NIC"
-  },
-  "NAM-0133": {
-    "owner": "NIC"
-  },
-  "NAM-0134": {
-    "owner": "NIC"
-  },
-  "NAM-0135": {
-    "owner": "NIC"
-  },
-  "NAM-0136": {
-    "owner": "NIC"
-  },
-  "NAM-0137": {
-    "owner": "PAN"
-  },
-  "NAM-0138": {
-    "owner": "PAN"
-  },
-  "NAM-0139": {
-    "owner": "PAN"
-  },
-  "NAM-0140": {
-    "owner": "PAN"
-  },
-  "NAM-0141": {
-    "owner": "PAN"
-  },
-  "NAM-0142": {
-    "owner": "PAN"
-  },
-  "NAM-0143": {
-    "owner": "SPM"
-  },
-  "NAM-0144": {
-    "owner": "PRI"
-  },
-  "NAM-0145": {
-    "owner": "SLV"
-  },
-  "NAM-0146": {
-    "owner": "SLV"
-  },
-  "NAM-0147": {
-    "owner": "SLV"
-  },
-  "NAM-0148": {
-    "owner": "SLV"
-  },
-  "NAM-0149": {
-    "owner": "SLV"
-  },
-  "NAM-0150": {
-    "owner": "SLV"
-  },
-  "NAM-0151": {
-    "owner": "SXM"
-  },
-  "NAM-0152": {
-    "owner": "TCA"
-  },
-  "NAM-0153": {
-    "owner": "TTO"
-  },
-  "NAM-0154": {
-    "owner": "TTO"
-  },
-  "NAM-0155": {
-    "owner": "VCT"
-  },
-  "NAM-0156": {
-    "owner": "VGB"
-  },
-  "NAM-0157": {
-    "owner": "VIR"
-  },
-  "NAM-0158": {
-    "owner": "USA"
-  },
-  "NAM-0159": {
-    "owner": "USA"
-  },
-  "NAM-0160": {
-    "owner": "USA"
-  },
-  "NAM-0161": {
-    "owner": "USA"
-  },
-  "NAM-0162": {
-    "owner": "USA"
-  },
-  "NAM-0163": {
-    "owner": "USA"
-  },
-  "NAM-0164": {
-    "owner": "USA"
-  },
-  "NAM-0165": {
-    "owner": "USA"
-  },
-  "NAM-0166": {
-    "owner": "USA"
-  },
-  "NAM-0167": {
-    "owner": "USA"
-  },
-  "NAM-0168": {
-    "owner": "USA"
-  },
-  "NAM-0169": {
-    "owner": "USA"
-  },
-  "NAM-0170": {
-    "owner": "USA"
-  },
-  "NAM-0171": {
-    "owner": "USA"
-  },
-  "NAM-0172": {
-    "owner": "USA"
-  },
-  "NAM-0173": {
-    "owner": "USA"
-  },
-  "NAM-0174": {
-    "owner": "USA"
-  },
-  "NAM-0175": {
-    "owner": "USA"
-  },
-  "NAM-0176": {
-    "owner": "USA"
-  },
-  "NAM-0177": {
-    "owner": "USA"
-  },
-  "NAM-0178": {
-    "owner": "USA"
-  },
-  "NAM-0179": {
-    "owner": "USA"
-  },
-  "NAM-0180": {
-    "owner": "USA"
-  },
-  "NAM-0181": {
-    "owner": "USA"
-  },
-  "NAM-0182": {
-    "owner": "USA"
-  },
-  "NAM-0183": {
-    "owner": "USA"
-  },
-  "NAM-0184": {
-    "owner": "USA"
-  },
-  "NAM-0185": {
-    "owner": "USA"
-  },
-  "NAM-0186": {
-    "owner": "USA"
-  },
-  "NAM-0187": {
-    "owner": "USA"
-  },
-  "NAM-0188": {
-    "owner": "USA"
-  },
-  "NAM-0189": {
-    "owner": "USA"
-  },
-  "NAM-0190": {
-    "owner": "USA"
-  },
-  "NAM-0191": {
-    "owner": "USA"
-  },
-  "NAM-0192": {
-    "owner": "USA"
-  },
-  "NAM-0193": {
-    "owner": "USA"
-  },
-  "NAM-0194": {
-    "owner": "USA"
-  },
-  "NAM-0195": {
-    "owner": "USA"
-  },
-  "NAM-0196": {
-    "owner": "USA"
-  },
-  "NAM-0197": {
-    "owner": "USA"
-  },
-  "NAM-0198": {
-    "owner": "USA"
-  },
-  "NAM-0199": {
-    "owner": "USA"
-  },
-  "NAM-0200": {
-    "owner": "USA"
-  },
-  "NAM-0201": {
-    "owner": "USA"
-  },
-  "NAM-0202": {
-    "owner": "USA"
-  },
-  "NAM-0203": {
-    "owner": "USA"
-  },
-  "NAM-0204": {
-    "owner": "USA"
-  },
-  "NAM-0205": {
-    "owner": "USA"
-  },
-  "NAM-0206": {
-    "owner": "USA"
-  },
-  "NAM-0207": {
-    "owner": "USA"
-  },
-  "NAM-0208": {
-    "owner": "USA"
-  },
-  "NAM-0209": {
-    "owner": "USA"
-  },
-  "NAM-0210": {
-    "owner": "USA"
-  },
-  "NAM-0211": {
-    "owner": "USA"
-  },
-  "NAM-0212": {
-    "owner": "USA"
-  },
-  "NAM-0213": {
-    "owner": "USA"
-  },
-  "NAM-0214": {
-    "owner": "USA"
-  },
-  "NAM-0215": {
-    "owner": "USA"
-  },
-  "NAM-0216": {
-    "owner": "USA"
-  },
-  "NAM-0217": {
-    "owner": "USA"
-  },
-  "NAM-0218": {
-    "owner": "USA"
-  },
-  "NAM-0219": {
-    "owner": "USA"
-  },
-  "NAM-0220": {
-    "owner": "USA"
-  },
-  "NAM-0221": {
-    "owner": "USA"
-  },
-  "NAM-0222": {
-    "owner": "USA"
-  },
-  "NAM-0223": {
-    "owner": "USA"
-  },
-  "NAM-0224": {
-    "owner": "USA"
-  },
-  "NAM-0225": {
-    "owner": "USA"
-  },
-  "NAM-0226": {
-    "owner": "USA"
-  },
-  "NAM-0227": {
-    "owner": "USA"
-  },
-  "NAM-0228": {
-    "owner": "USA"
-  },
-  "NAM-0229": {
-    "owner": "USA"
-  },
-  "NAM-0230": {
-    "owner": "USA"
-  },
-  "NAM-0231": {
-    "owner": "USA"
-  },
-  "NAM-0232": {
-    "owner": "USA"
-  },
-  "NAM-0233": {
-    "owner": "USA"
-  },
-  "NAM-0234": {
-    "owner": "USA"
-  },
-  "NAM-0235": {
-    "owner": "USA"
-  },
-  "NAM-0236": {
-    "owner": "USA"
-  },
-  "NAM-0237": {
-    "owner": "USA"
-  },
-  "NAM-0238": {
-    "owner": "USA"
-  },
-  "NAM-0239": {
-    "owner": "USA"
-  },
-  "NAM-0240": {
-    "owner": "USA"
-  },
-  "NAM-0241": {
-    "owner": "USA"
-  },
-  "NAM-0242": {
-    "owner": "USA"
-  },
-  "NAM-0243": {
-    "owner": "USA"
-  },
-  "NAM-0244": {
-    "owner": "USA"
-  },
-  "NAM-0245": {
-    "owner": "USA"
-  },
-  "NAM-0246": {
-    "owner": "USA"
-  },
-  "NAM-0247": {
-    "owner": "USA"
-  },
-  "NAM-0248": {
-    "owner": "USA"
-  },
-  "NAM-0249": {
-    "owner": "USA"
-  },
-  "NAM-0250": {
-    "owner": "USA"
-  },
-  "NAM-0251": {
-    "owner": "USA"
-  },
-  "NAM-0252": {
-    "owner": "USA"
-  },
-  "NAM-0253": {
-    "owner": "USA"
-  },
-  "NAM-0254": {
-    "owner": "USA"
-  },
-  "NAM-0255": {
-    "owner": "USA"
-  },
-  "NAM-0256": {
-    "owner": "USA"
-  },
-  "NAM-0257": {
-    "owner": "USA"
-  },
-  "NAM-0258": {
-    "owner": "USA"
-  },
-  "NAM-0259": {
-    "owner": "USA"
-  },
-  "NAM-0260": {
-    "owner": "USA"
-  },
-  "NAM-0261": {
-    "owner": "USA"
-  },
-  "NAM-0262": {
-    "owner": "USA"
-  },
-  "NAM-0263": {
-    "owner": "USA"
-  },
-  "NAM-0264": {
-    "owner": "USA"
-  },
-  "NAM-0265": {
-    "owner": "USA"
-  },
-  "NAM-0266": {
-    "owner": "USA"
-  },
-  "NAM-0267": {
-    "owner": "USA"
-  },
-  "NAM-0268": {
-    "owner": "USA"
-  },
-  "NAM-0269": {
-    "owner": "USA"
-  },
-  "NAM-0270": {
-    "owner": "USA"
-  },
   "OCE-0001": {
     "owner": "AUS"
   },
@@ -4844,5 +4032,806 @@
   },
   "SEA-0113": {
     "owner": null
+  },
+  "NAM-0001": {
+    "owner": "FRA"
+  },
+  "NAM-0002": {
+    "owner": "FRA"
+  },
+  "NAM-0003": {
+    "owner": "NLD"
+  },
+  "NAM-0004": {
+    "owner": "NLD"
+  },
+  "NAM-0005": {
+    "owner": "NLD"
+  },
+  "NAM-0006": {
+    "owner": "USA"
+  },
+  "NAM-0007": {
+    "owner": "FRA"
+  },
+  "NAM-0008": {
+    "owner": "NFD"
+  },
+  "NAM-0009": {
+    "owner": "CAN"
+  },
+  "NAM-0010": {
+    "owner": "CAN"
+  },
+  "NAM-0011": {
+    "owner": "CAN"
+  },
+  "NAM-0012": {
+    "owner": "CAN"
+  },
+  "NAM-0013": {
+    "owner": "CAN"
+  },
+  "NAM-0014": {
+    "owner": "CAN"
+  },
+  "NAM-0015": {
+    "owner": "CAN"
+  },
+  "NAM-0016": {
+    "owner": "CAN"
+  },
+  "NAM-0017": {
+    "owner": "CAN"
+  },
+  "NAM-0018": {
+    "owner": "CAN"
+  },
+  "NAM-0019": {
+    "owner": "CAN"
+  },
+  "NAM-0020": {
+    "owner": "CUB"
+  },
+  "NAM-0021": {
+    "owner": "CUB"
+  },
+  "NAM-0022": {
+    "owner": "CUB"
+  },
+  "NAM-0023": {
+    "owner": "CUB"
+  },
+  "NAM-0024": {
+    "owner": "CUB"
+  },
+  "NAM-0025": {
+    "owner": "CUB"
+  },
+  "NAM-0026": {
+    "owner": "CUB"
+  },
+  "NAM-0027": {
+    "owner": "HTI"
+  },
+  "NAM-0028": {
+    "owner": "HTI"
+  },
+  "NAM-0029": {
+    "owner": "HTI"
+  },
+  "NAM-0030": {
+    "owner": "HTI"
+  },
+  "NAM-0031": {
+    "owner": "HTI"
+  },
+  "NAM-0032": {
+    "owner": "DOM"
+  },
+  "NAM-0033": {
+    "owner": "DOM"
+  },
+  "NAM-0034": {
+    "owner": "DOM"
+  },
+  "NAM-0035": {
+    "owner": "DOM"
+  },
+  "NAM-0036": {
+    "owner": "DOM"
+  },
+  "NAM-0037": {
+    "owner": "DOM"
+  },
+  "NAM-0038": {
+    "owner": "DOM"
+  },
+  "NAM-0039": {
+    "owner": "DOM"
+  },
+  "NAM-0040": {
+    "owner": "DOM"
+  },
+  "NAM-0041": {
+    "owner": "DOM"
+  },
+  "NAM-0042": {
+    "owner": "DOM"
+  },
+  "NAM-0043": {
+    "owner": "DOM"
+  },
+  "NAM-0044": {
+    "owner": "DOM"
+  },
+  "NAM-0045": {
+    "owner": "DOM"
+  },
+  "NAM-0046": {
+    "owner": "DOM"
+  },
+  "NAM-0047": {
+    "owner": "DOM"
+  },
+  "NAM-0048": {
+    "owner": "DOM"
+  },
+  "NAM-0049": {
+    "owner": "DOM"
+  },
+  "NAM-0050": {
+    "owner": "DOM"
+  },
+  "NAM-0051": {
+    "owner": "ATG"
+  },
+  "NAM-0052": {
+    "owner": "AIA"
+  },
+  "NAM-0053": {
+    "owner": "ABW"
+  },
+  "NAM-0054": {
+    "owner": "BRB"
+  },
+  "NAM-0055": {
+    "owner": "BMU"
+  },
+  "NAM-0056": {
+    "owner": "BHS"
+  },
+  "NAM-0057": {
+    "owner": "BLZ"
+  },
+  "NAM-0058": {
+    "owner": "BLZ"
+  },
+  "NAM-0059": {
+    "owner": "BLZ"
+  },
+  "NAM-0060": {
+    "owner": "BLZ"
+  },
+  "NAM-0061": {
+    "owner": "BLZ"
+  },
+  "NAM-0062": {
+    "owner": "BLZ"
+  },
+  "NAM-0063": {
+    "owner": "CRI"
+  },
+  "NAM-0064": {
+    "owner": "CRI"
+  },
+  "NAM-0065": {
+    "owner": "CRI"
+  },
+  "NAM-0066": {
+    "owner": "CRI"
+  },
+  "NAM-0067": {
+    "owner": "CRI"
+  },
+  "NAM-0068": {
+    "owner": "CRI"
+  },
+  "NAM-0069": {
+    "owner": "CRI"
+  },
+  "NAM-0070": {
+    "owner": "CUW"
+  },
+  "NAM-0071": {
+    "owner": "DMA"
+  },
+  "NAM-0072": {
+    "owner": "GRD"
+  },
+  "NAM-0073": {
+    "owner": "GRL"
+  },
+  "NAM-0074": {
+    "owner": "GTM"
+  },
+  "NAM-0075": {
+    "owner": "GTM"
+  },
+  "NAM-0076": {
+    "owner": "GTM"
+  },
+  "NAM-0077": {
+    "owner": "GTM"
+  },
+  "NAM-0078": {
+    "owner": "GTM"
+  },
+  "NAM-0079": {
+    "owner": "GTM"
+  },
+  "NAM-0080": {
+    "owner": "GTM"
+  },
+  "NAM-0081": {
+    "owner": "GTM"
+  },
+  "NAM-0082": {
+    "owner": "HND"
+  },
+  "NAM-0083": {
+    "owner": "HND"
+  },
+  "NAM-0084": {
+    "owner": "HND"
+  },
+  "NAM-0085": {
+    "owner": "HND"
+  },
+  "NAM-0086": {
+    "owner": "HND"
+  },
+  "NAM-0087": {
+    "owner": "HND"
+  },
+  "NAM-0088": {
+    "owner": "HND"
+  },
+  "NAM-0089": {
+    "owner": "JAM"
+  },
+  "NAM-0090": {
+    "owner": "KNA"
+  },
+  "NAM-0091": {
+    "owner": "KNA"
+  },
+  "NAM-0092": {
+    "owner": "CYM"
+  },
+  "NAM-0093": {
+    "owner": "LCA"
+  },
+  "NAM-0094": {
+    "owner": "MSR"
+  },
+  "NAM-0095": {
+    "owner": "MEX"
+  },
+  "NAM-0096": {
+    "owner": "MEX"
+  },
+  "NAM-0097": {
+    "owner": "MEX"
+  },
+  "NAM-0098": {
+    "owner": "MEX"
+  },
+  "NAM-0099": {
+    "owner": "MEX"
+  },
+  "NAM-0100": {
+    "owner": "MEX"
+  },
+  "NAM-0101": {
+    "owner": "MEX"
+  },
+  "NAM-0102": {
+    "owner": "MEX"
+  },
+  "NAM-0103": {
+    "owner": "MEX"
+  },
+  "NAM-0104": {
+    "owner": "MEX"
+  },
+  "NAM-0105": {
+    "owner": "MEX"
+  },
+  "NAM-0106": {
+    "owner": "MEX"
+  },
+  "NAM-0107": {
+    "owner": "MEX"
+  },
+  "NAM-0108": {
+    "owner": "MEX"
+  },
+  "NAM-0109": {
+    "owner": "MEX"
+  },
+  "NAM-0110": {
+    "owner": "MEX"
+  },
+  "NAM-0111": {
+    "owner": "MEX"
+  },
+  "NAM-0112": {
+    "owner": "MEX"
+  },
+  "NAM-0113": {
+    "owner": "MEX"
+  },
+  "NAM-0114": {
+    "owner": "MEX"
+  },
+  "NAM-0115": {
+    "owner": "MEX"
+  },
+  "NAM-0116": {
+    "owner": "MEX"
+  },
+  "NAM-0117": {
+    "owner": "MEX"
+  },
+  "NAM-0118": {
+    "owner": "MEX"
+  },
+  "NAM-0119": {
+    "owner": "MEX"
+  },
+  "NAM-0120": {
+    "owner": "MEX"
+  },
+  "NAM-0121": {
+    "owner": "MEX"
+  },
+  "NAM-0122": {
+    "owner": "MEX"
+  },
+  "NAM-0123": {
+    "owner": "MEX"
+  },
+  "NAM-0124": {
+    "owner": "MEX"
+  },
+  "NAM-0125": {
+    "owner": "MEX"
+  },
+  "NAM-0126": {
+    "owner": "MEX"
+  },
+  "NAM-0127": {
+    "owner": "NIC"
+  },
+  "NAM-0128": {
+    "owner": "NIC"
+  },
+  "NAM-0129": {
+    "owner": "NIC"
+  },
+  "NAM-0130": {
+    "owner": "NIC"
+  },
+  "NAM-0131": {
+    "owner": "NIC"
+  },
+  "NAM-0132": {
+    "owner": "NIC"
+  },
+  "NAM-0133": {
+    "owner": "NIC"
+  },
+  "NAM-0134": {
+    "owner": "PAN"
+  },
+  "NAM-0135": {
+    "owner": "PAN"
+  },
+  "NAM-0136": {
+    "owner": "PAN"
+  },
+  "NAM-0137": {
+    "owner": "PAN"
+  },
+  "NAM-0138": {
+    "owner": "PAN"
+  },
+  "NAM-0139": {
+    "owner": "PAN"
+  },
+  "NAM-0140": {
+    "owner": "SPM"
+  },
+  "NAM-0141": {
+    "owner": "PRI"
+  },
+  "NAM-0142": {
+    "owner": "SLV"
+  },
+  "NAM-0143": {
+    "owner": "SLV"
+  },
+  "NAM-0144": {
+    "owner": "SLV"
+  },
+  "NAM-0145": {
+    "owner": "SLV"
+  },
+  "NAM-0146": {
+    "owner": "SLV"
+  },
+  "NAM-0147": {
+    "owner": "SLV"
+  },
+  "NAM-0148": {
+    "owner": "SXM"
+  },
+  "NAM-0149": {
+    "owner": "TCA"
+  },
+  "NAM-0150": {
+    "owner": "TTO"
+  },
+  "NAM-0151": {
+    "owner": "TTO"
+  },
+  "NAM-0152": {
+    "owner": "VCT"
+  },
+  "NAM-0153": {
+    "owner": "VGB"
+  },
+  "NAM-0154": {
+    "owner": "VIR"
+  },
+  "NAM-0155": {
+    "owner": "USA"
+  },
+  "NAM-0156": {
+    "owner": "USA"
+  },
+  "NAM-0157": {
+    "owner": "USA"
+  },
+  "NAM-0158": {
+    "owner": "USA"
+  },
+  "NAM-0159": {
+    "owner": "USA"
+  },
+  "NAM-0160": {
+    "owner": "USA"
+  },
+  "NAM-0161": {
+    "owner": "USA"
+  },
+  "NAM-0162": {
+    "owner": "USA"
+  },
+  "NAM-0163": {
+    "owner": "USA"
+  },
+  "NAM-0164": {
+    "owner": "USA"
+  },
+  "NAM-0165": {
+    "owner": "USA"
+  },
+  "NAM-0166": {
+    "owner": "USA"
+  },
+  "NAM-0167": {
+    "owner": "USA"
+  },
+  "NAM-0168": {
+    "owner": "USA"
+  },
+  "NAM-0169": {
+    "owner": "USA"
+  },
+  "NAM-0170": {
+    "owner": "USA"
+  },
+  "NAM-0171": {
+    "owner": "USA"
+  },
+  "NAM-0172": {
+    "owner": "USA"
+  },
+  "NAM-0173": {
+    "owner": "USA"
+  },
+  "NAM-0174": {
+    "owner": "USA"
+  },
+  "NAM-0175": {
+    "owner": "USA"
+  },
+  "NAM-0176": {
+    "owner": "USA"
+  },
+  "NAM-0177": {
+    "owner": "USA"
+  },
+  "NAM-0178": {
+    "owner": "USA"
+  },
+  "NAM-0179": {
+    "owner": "USA"
+  },
+  "NAM-0180": {
+    "owner": "USA"
+  },
+  "NAM-0181": {
+    "owner": "USA"
+  },
+  "NAM-0182": {
+    "owner": "USA"
+  },
+  "NAM-0183": {
+    "owner": "USA"
+  },
+  "NAM-0184": {
+    "owner": "USA"
+  },
+  "NAM-0185": {
+    "owner": "USA"
+  },
+  "NAM-0186": {
+    "owner": "USA"
+  },
+  "NAM-0187": {
+    "owner": "USA"
+  },
+  "NAM-0188": {
+    "owner": "USA"
+  },
+  "NAM-0189": {
+    "owner": "USA"
+  },
+  "NAM-0190": {
+    "owner": "USA"
+  },
+  "NAM-0191": {
+    "owner": "USA"
+  },
+  "NAM-0192": {
+    "owner": "USA"
+  },
+  "NAM-0193": {
+    "owner": "USA"
+  },
+  "NAM-0194": {
+    "owner": "USA"
+  },
+  "NAM-0195": {
+    "owner": "USA"
+  },
+  "NAM-0196": {
+    "owner": "USA"
+  },
+  "NAM-0197": {
+    "owner": "USA"
+  },
+  "NAM-0198": {
+    "owner": "USA"
+  },
+  "NAM-0199": {
+    "owner": "USA"
+  },
+  "NAM-0200": {
+    "owner": "USA"
+  },
+  "NAM-0201": {
+    "owner": "USA"
+  },
+  "NAM-0202": {
+    "owner": "USA"
+  },
+  "NAM-0203": {
+    "owner": "USA"
+  },
+  "NAM-0204": {
+    "owner": "USA"
+  },
+  "NAM-0205": {
+    "owner": "USA"
+  },
+  "NAM-0206": {
+    "owner": "USA"
+  },
+  "NAM-0207": {
+    "owner": "USA"
+  },
+  "NAM-0208": {
+    "owner": "USA"
+  },
+  "NAM-0209": {
+    "owner": "USA"
+  },
+  "NAM-0210": {
+    "owner": "USA"
+  },
+  "NAM-0211": {
+    "owner": "USA"
+  },
+  "NAM-0212": {
+    "owner": "USA"
+  },
+  "NAM-0213": {
+    "owner": "USA"
+  },
+  "NAM-0214": {
+    "owner": "USA"
+  },
+  "NAM-0215": {
+    "owner": "USA"
+  },
+  "NAM-0216": {
+    "owner": "USA"
+  },
+  "NAM-0217": {
+    "owner": "USA"
+  },
+  "NAM-0218": {
+    "owner": "USA"
+  },
+  "NAM-0219": {
+    "owner": "USA"
+  },
+  "NAM-0220": {
+    "owner": "USA"
+  },
+  "NAM-0221": {
+    "owner": "USA"
+  },
+  "NAM-0222": {
+    "owner": "USA"
+  },
+  "NAM-0223": {
+    "owner": "USA"
+  },
+  "NAM-0224": {
+    "owner": "USA"
+  },
+  "NAM-0225": {
+    "owner": "USA"
+  },
+  "NAM-0226": {
+    "owner": "USA"
+  },
+  "NAM-0227": {
+    "owner": "USA"
+  },
+  "NAM-0228": {
+    "owner": "USA"
+  },
+  "NAM-0229": {
+    "owner": "USA"
+  },
+  "NAM-0230": {
+    "owner": "USA"
+  },
+  "NAM-0231": {
+    "owner": "USA"
+  },
+  "NAM-0232": {
+    "owner": "USA"
+  },
+  "NAM-0233": {
+    "owner": "USA"
+  },
+  "NAM-0234": {
+    "owner": "USA"
+  },
+  "NAM-0235": {
+    "owner": "USA"
+  },
+  "NAM-0236": {
+    "owner": "USA"
+  },
+  "NAM-0237": {
+    "owner": "USA"
+  },
+  "NAM-0238": {
+    "owner": "USA"
+  },
+  "NAM-0239": {
+    "owner": "USA"
+  },
+  "NAM-0240": {
+    "owner": "USA"
+  },
+  "NAM-0241": {
+    "owner": "USA"
+  },
+  "NAM-0242": {
+    "owner": "USA"
+  },
+  "NAM-0243": {
+    "owner": "USA"
+  },
+  "NAM-0244": {
+    "owner": "USA"
+  },
+  "NAM-0245": {
+    "owner": "USA"
+  },
+  "NAM-0246": {
+    "owner": "USA"
+  },
+  "NAM-0247": {
+    "owner": "USA"
+  },
+  "NAM-0248": {
+    "owner": "USA"
+  },
+  "NAM-0249": {
+    "owner": "USA"
+  },
+  "NAM-0250": {
+    "owner": "USA"
+  },
+  "NAM-0251": {
+    "owner": "USA"
+  },
+  "NAM-0252": {
+    "owner": "USA"
+  },
+  "NAM-0253": {
+    "owner": "USA"
+  },
+  "NAM-0254": {
+    "owner": "USA"
+  },
+  "NAM-0255": {
+    "owner": "USA"
+  },
+  "NAM-0256": {
+    "owner": "USA"
+  },
+  "NAM-0257": {
+    "owner": "USA"
+  },
+  "NAM-0258": {
+    "owner": "USA"
+  },
+  "NAM-0259": {
+    "owner": "USA"
+  },
+  "NAM-0260": {
+    "owner": "USA"
+  },
+  "NAM-0261": {
+    "owner": "USA"
+  },
+  "NAM-0262": {
+    "owner": "USA"
+  },
+  "NAM-0263": {
+    "owner": "USA"
+  },
+  "NAM-0264": {
+    "owner": "USA"
+  },
+  "NAM-0265": {
+    "owner": "USA"
+  },
+  "NAM-0266": {
+    "owner": "USA"
+  },
+  "NAM-0267": {
+    "owner": "USA"
   }
 }
