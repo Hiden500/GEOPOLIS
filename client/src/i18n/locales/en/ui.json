@@ -18,6 +18,16 @@
     "reveal": "show the order",
     "prefix": "from your order:"
   },
+  "tag": {
+    "region": "region on the map",
+    "country": "power",
+    "object": "map object"
+  },
+  "resources": {
+    "shortage": "shortage: production will stall",
+    "stock": "stock"
+  },
+  "inService": "in service",
   "order": {
     "drag": "reorder this order",
     "remove": "remove this order",

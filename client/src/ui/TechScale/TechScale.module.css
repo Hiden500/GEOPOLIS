@@ -8,10 +8,29 @@
 
 .row {
   display: grid;
-  grid-template-columns: minmax(120px, 168px) minmax(0, 1fr) minmax(96px, auto);
+  grid-template-columns: minmax(8rem, 11rem) auto minmax(0, 1fr) minmax(7rem, auto);
   align-items: center;
   column-gap: var(--space-3);
   padding: var(--space-2) 0;
+}
+
+/*
+ * Количество. Шкала говорит, КАКОГО поколения парк, но не сколько его:
+ * триста устаревших танков и три современных — разные державы, а шкала у
+ * них может совпасть. Число живёт отдельной колонкой, чтобы колонки
+ * сравнивались взглядом по вертикали.
+ */
+.count {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  text-align: right;
+  min-width: 3.5rem;
+}
+
+.countNone {
+  color: var(--text-faint);
+  font-weight: var(--weight-regular);
 }
 
 .name {

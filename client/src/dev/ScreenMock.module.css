@@ -1,0 +1,320 @@
+/*
+ * Раскладка игрового экрана. Карта под всем и никогда не исчезает; всё
+ * остальное — панели по краям, которые её обрамляют, а не душат.
+ *
+ * Правая колонка собрана одним флекс-столбцом (ход → лента → режимы карты),
+ * а не тремя независимыми абсолютными блоками: так они физически не могут
+ * наехать друг на друга ни при какой высоте окна и ни при каком масштабе.
+ */
+
+.shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--surface-sunken);
+}
+
+/* ── Подложка вместо настоящей карты ──────────────────────────── */
+
+.map {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map);
+  background:
+    radial-gradient(48% 38% at 22% 30%, rgba(112, 126, 108, 0.55) 0%, transparent 70%),
+    radial-gradient(42% 46% at 62% 26%, rgba(120, 118, 96, 0.5) 0%, transparent 72%),
+    radial-gradient(36% 40% at 78% 68%, rgba(104, 116, 110, 0.45) 0%, transparent 70%),
+    radial-gradient(30% 34% at 30% 76%, rgba(118, 110, 92, 0.4) 0%, transparent 70%),
+    linear-gradient(160deg, #1b2a33 0%, #16232b 55%, #121c23 100%);
+}
+
+.graticule {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map-overlay);
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 8% 12%;
+}
+
+/* ── Верхняя панель: флаг, показатели, кнопки, рейтинг ────────── */
+
+/* Заливку и контур рисует ShapedBar одним SVG-путём — здесь только место. */
+.topLeft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: var(--z-frame);
+}
+
+.topInner {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.flagCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) 0;
+}
+
+.flag {
+  width: 4.5rem;
+  height: 3rem;
+  border-radius: 3px;
+  /* Контур обязателен: без него белые и светлые флаги растворяются в фоне. */
+  box-shadow: 0 0 0 1px var(--divider);
+  overflow: hidden;
+}
+
+.flagButton {
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 3px;
+}
+
+/*
+ * Рейтинг вынесен ЗА нижний край панели. Вырез означает ровно это —
+ * «принадлежит панели, но вынесено наружу», — и ставится только там, где
+ * это правда. Появится как узор, и язык формы умрёт.
+ */
+.rankBox {
+  padding: 0 var(--space-4) var(--space-2);
+  text-align: center;
+}
+
+.rank {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--text);
+}
+
+.rankLabel {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/*
+ * Верхняя панель держится компактной сознательно: на 1366×768 каждые
+ * лишние 40px её высоты — это 40px, отнятых у карты, а карта здесь главный
+ * экран, а не фон.
+ */
+.statsCell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) 0;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.books {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
+  border-top: var(--edge-width) solid var(--divider);
+}
+
+/* ── Правая колонка ───────────────────────────────────────────── */
+
+/*
+ * Ширина задаётся ЯВНО. Абсолютно позиционированный блок без width
+ * подгоняется под содержимое: длинный нарратив события растягивал колонку
+ * на две трети экрана и наезжал на верхнюю панель и на приказы.
+ */
+.rightColumn {
+  position: absolute;
+  top: var(--frame-gap);
+  right: var(--frame-gap);
+  bottom: var(--frame-gap);
+  z-index: var(--z-surface);
+  width: var(--feed-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+/*
+ * Ручка ширины ленты. Ширина по умолчанию выводится из окна (clamp в
+ * tokens.css), но игрок вправе её перетянуть: на 4K лента по умолчанию
+ * узка для длинного нарратива, на 1366 — наоборот.
+ */
+.resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--space-2) * -1);
+  width: var(--space-2);
+  cursor: ew-resize;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: none;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.resizer:hover,
+.resizer:focus-visible {
+  background: var(--edge-strong);
+}
+
+.turnBlock {
+  display: grid;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+
+.turnMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.date {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+
+.modelState {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+.modelDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rise);
+}
+
+.tools {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.feed {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.feedBody {
+  padding: 0 var(--space-3);
+}
+
+.mapModes {
+  flex: 0 0 auto;
+}
+
+.modeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* ── Нижняя стопка: регион и приказы ──────────────────────────── */
+
+.bottom {
+  position: absolute;
+  bottom: var(--frame-gap);
+  left: var(--frame-gap);
+  z-index: var(--z-surface);
+  display: grid;
+  gap: var(--space-2);
+  width: var(--bottom-width);
+  max-width: calc(100% - var(--feed-width, 22rem) - var(--frame-gap) * 3);
+}
+
+.regionStrip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: var(--edge-width) solid var(--edge);
+  border-radius: var(--radius-panel);
+}
+
+.regionName {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.regionFacts {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.regionFact {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.grow {
+  flex: 1 1 auto;
+}
+
+.orders {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.orderList {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.input {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.field {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border: var(--edge-width) solid var(--divider);
+  border-radius: var(--radius-inner);
+  color: var(--text);
+  font-family: var(--font-narrative);
+  font-size: var(--text-md);
+}
+
+.field::placeholder {
+  color: var(--text-faint);
+}
+
+.field:focus {
+  border-color: var(--edge-strong);
+  outline: none;
+}

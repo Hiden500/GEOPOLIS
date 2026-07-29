@@ -11,6 +11,12 @@ export interface TechScaleProps {
   readiness: number;
   /** Тир домена: что держава умеет проектировать. */
   capability: number;
+  /**
+   * Сколько единиц в строю, уже отформатировано вызывающим. Шкала говорит
+   * о поколении, но не о количестве — а триста устаревших танков и три
+   * современных это разные державы при похожей шкале.
+   */
+  count?: string;
   /** С какого поколения доктрина запрещает ставить в строй. */
   forbiddenFrom?: number;
   /** Второй указатель для сравнения с чужой державой. */
@@ -22,6 +28,7 @@ export function TechScale({
   generations,
   readiness,
   capability,
+  count,
   forbiddenFrom,
   rival,
 }: TechScaleProps) {
@@ -41,6 +48,13 @@ export function TechScale({
   return (
     <div className={styles.row}>
       <span className={styles.name}>{name}</span>
+
+      <span
+        className={cx(styles.count, count === undefined && styles.countNone)}
+        title={t("inService")}
+      >
+        {count ?? "—"}
+      </span>
 
       <div className={styles.track}>
         {segments.map((kind, index) => (

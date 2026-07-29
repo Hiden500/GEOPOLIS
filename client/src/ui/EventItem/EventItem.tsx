@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { Tag, type TagKind } from "../Tag/Tag";
 import { cx } from "../cx";
 import styles from "./EventItem.module.css";
 
@@ -28,9 +29,25 @@ export interface EventItemProps {
    * лишь модель, а её утверждения фактом не считаются.
    */
   order?: { text: string };
+  /**
+   * Ярлыки перехода: регион на карте, держава, объект. Заполняются из
+   * ФАКТИЧЕСКИ применённого (затронутые регионы, страна-источник, созданный
+   * объект), а не разбором текста модели — поэтому они есть не у каждого
+   * события, и это правильно: чистый нарратив никуда не ведёт.
+   */
+  tags?: Array<{ id: string; label: string; kind: TagKind }>;
+  onTagClick?: (id: string) => void;
 }
 
-export function EventItem({ date, title, body, factuality = "confirmed", order }: EventItemProps) {
+export function EventItem({
+  date,
+  title,
+  body,
+  factuality = "confirmed",
+  order,
+  tags,
+  onTagClick,
+}: EventItemProps) {
   const { t } = useTranslation("ui");
   const [revealed, setRevealed] = useState(false);
 
@@ -52,6 +69,18 @@ export function EventItem({ date, title, body, factuality = "confirmed", order }
         {date !== undefined && <time className={styles.date}>{date}</time>}
         <p className={styles.title}>{title}</p>
         {body !== undefined && <div className={styles.body}>{body}</div>}
+        {tags !== undefined && tags.length > 0 && (
+          <div className={styles.tags}>
+            {tags.map((tag) => (
+              <Tag
+                key={tag.id}
+                label={tag.label}
+                kind={tag.kind}
+                onClick={onTagClick === undefined ? undefined : () => onTagClick(tag.id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className={styles.mark}>

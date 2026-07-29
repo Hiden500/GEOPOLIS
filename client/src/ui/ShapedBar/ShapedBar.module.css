@@ -1,0 +1,32 @@
+.shape {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.path {
+  fill: var(--surface);
+  stroke: var(--edge);
+  stroke-width: 1;
+  /* Обводка внутрь: половина линии наружу срезалась бы краем экрана. */
+  paint-order: stroke fill;
+}
+
+.body {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * Выступ висит ПОД нижним краем панели и не участвует в её потоке — иначе
+ * он растил бы её высоту, а «вынесено наружу» перестало бы быть правдой.
+ */
+.tab {
+  position: absolute;
+  top: 100%;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

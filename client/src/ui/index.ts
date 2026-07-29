@@ -23,5 +23,14 @@ export type { TechScaleProps } from "./TechScale/TechScale";
 export { OrderCard } from "./OrderCard/OrderCard";
 export type { OrderCardProps } from "./OrderCard/OrderCard";
 
+export { ShapedBar } from "./ShapedBar/ShapedBar";
+export type { ShapedBarProps } from "./ShapedBar/ShapedBar";
+
+export { Tag } from "./Tag/Tag";
+export type { TagProps, TagKind } from "./Tag/Tag";
+
+export { ResourceBar } from "./ResourceBar/ResourceBar";
+export type { ResourceBarProps, ResourceItem } from "./ResourceBar/ResourceBar";
+
 export { cx } from "./cx";
 export * from "./icons";
