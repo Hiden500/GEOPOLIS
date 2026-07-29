@@ -120,7 +120,11 @@
       "default": "вид: по умолчанию (экономические санкции)"
     },
     "war": "Объявить войну — {{country}}",
-    "peace": "Заключить мир — {{country}}"
+    "peace": "Заключить мир — {{country}}",
+    "send_aid": "Направить помощь стране {{country}}",
+    "capital_flight": "Спровоцировать бегство капитала — {{region}}",
+    "condemn": "Публично осудить {{country}}",
+    "support_proxy": "Поддержать {{country}} в её войне, не вступая в неё"
   },
   "splitCountry": {
     "headline": "Государство {{country}} раскололось: новых государств — {{shards}}"
@@ -158,5 +162,33 @@
   "relation": {
     "changed": "Отношения {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
     "unchanged": "Отношения {{source}} → {{country}}: без изменений ({{value}})"
+  },
+  "sendAid": {
+    "headline": "{{source}} направляет помощь стране {{country}}"
+  },
+  "capitalFlight": {
+    "headline": "Капитал уходит из региона {{region}}",
+    "output": {
+      "changed": "Производство региона: −{{delta}} ({{before}} → {{after}})",
+      "unchanged": "Производство региона: без изменений ({{value}})"
+    }
+  },
+  "condemn": {
+    "headline": "{{source}} публично осуждает {{country}} — слушают {{audience}} гос-в",
+    "nothingToLose": "Легитимности терять уже нечего: удар не изменил ничего"
+  },
+  "supportProxy": {
+    "headline": "{{source}} поддерживает {{country}} в её войне",
+    "notBelligerent": "Патрон стороной войны не стал"
+  },
+  "scalar": {
+    "governmentSupport": "Поддержка правительства {{country}}: {{delta}} ({{before}} → {{after}})",
+    "legitimacy": "Легитимность {{country}}: {{delta}} ({{before}} → {{after}})",
+    "treasury": "Казна {{country}}: {{delta}} ({{before}} → {{after}})",
+    "activePersonnel": "Армия {{country}}: {{delta}} чел. ({{before}} → {{after}})"
+  },
+  "influence": {
+    "changed": "Влияние {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
+    "unchanged": "Влияние {{source}} → {{country}}: без изменений ({{value}})"
   }
 }

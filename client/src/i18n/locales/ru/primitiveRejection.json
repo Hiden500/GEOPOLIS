@@ -35,5 +35,11 @@
   "sanctionAlreadyImposed": "{{source}} уже держит санкции ({{sanctionType}}) против {{target}} — повтор ничего не изменит",
   "alreadyAtWar": "{{source}} уже воюет с {{target}}",
   "warOnAlly": "{{source}} не может объявить войну союзнику {{target}}: разрыв союза пока не смоделирован",
-  "noActiveWar": "Между {{source}} и {{target}} нет активной войны"
+  "noActiveWar": "Между {{source}} и {{target}} нет активной войны",
+  "donorInsolvent": "{{source}} не может дать помощь: в казне {{treasuryShare}}% ВВП, а нужно не меньше {{threshold}}%",
+  "regionTooStableForFlight": "Капитал не бежит из региона {{region}}: стабильность {{stability}}, а отток начинается ниже {{threshold}}",
+  "noPodium": "{{source}} некому осуждать с трибуны: ни влияния, ни формальных связей — слушать некому",
+  "proxyNotAtWar": "{{target}} ни с кем не воюет: поддерживать в войне нечего",
+  "proxyPatronIsBelligerent": "{{source}} воюет в той же войне, что и {{target}}: это своя война, а не прокси",
+  "proxyNoPatronage": "{{source}} не покровитель для {{target}}: нужны влияние или формальная связь"
 }

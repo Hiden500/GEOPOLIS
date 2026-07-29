@@ -10,6 +10,8 @@ import {
   SPLIT_MIN_DISCONTENT_LOOSE,
   SPLIT_MIN_DISCONTENT_STRICT,
 } from "@shared/defines/discontent";
+import { SEND_AID_MIN_TREASURY_SHARE } from "@shared/defines/diplomacy";
+import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
 
 /**
  * Контракт примитивов, как он предъявляется модели (docs/PRIMITIVES.md §1-§4).
@@ -102,6 +104,39 @@ sourceCountryId.
   legitimacy, and a decisive victory adds reparations. You name the peace; you
   do not write the treaty.
 
+Four more soft verbs act on money, reputation and other people's wars. None of
+them takes a magnitude either; all take params {intensity} only.
+
+- send_aid — target {countryId} — the donor pays out of its own treasury and the
+  recipient's treasury grows by the same amount. How much is decided by the
+  donor's fiscal room and by how large the recipient's economy is next to its
+  own: nobody spends a fifth of the treasury on a micro-state. Requires the
+  donor to hold at least ${(SEND_AID_MIN_TREASURY_SHARE * 100).toFixed(0)}% of
+  its GDP in the treasury.
+  Aid also buys INFLUENCE over the recipient, in proportion to how visible the
+  money is against the recipient's economy. Influence is the only path to it —
+  there is no "influence" action any more. Note what aid does NOT do: it does
+  not move relations directly. Warmth follows later, through the sphere of
+  influence and the drift of relations, because that is how patronage works.
+- capital_flight — target {regionId} — money leaves a region: its output drops
+  and the treasury of whoever controls it takes a hit weighted by how much of
+  that economy the region is. Requires the region's stability to be BELOW
+  ${CAPITAL_FLIGHT_MAX_STABILITY}: capital flees broken confidence, it does not
+  flee on command. How much leaves is decided by how developed the region is
+  (there must be capital to flee) and how far its stability has fallen.
+- condemn — target {countryId} — a purely reputational strike: it lowers the
+  target's LEGITIMACY and touches nothing material, not relations and not trade.
+  Requires a PODIUM: the source must hold influence over at least one state or
+  have a formal tie to one, otherwise there is nobody for whom its word carries
+  weight. How hard it lands is decided by how much legitimacy the target still
+  has to lose and how large the source's audience is.
+- support_proxy — target {countryId} — the patron pays out of its treasury and
+  the client's army grows, without the patron joining the war. Requires all
+  three: the client is in an active war, the source is NOT a belligerent in that
+  same war, and the source is actually its patron (influence over it or a formal
+  tie). How much is decided by the strength of that patronage and by how much of
+  the client's land is currently occupied.
+
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —
   params.intensity is "mild" | "moderate" | "severe", and it selects a position
@@ -119,6 +154,12 @@ Rules the engine enforces, not requests:
   diplomatically this month is refused — not because the verb is wrong, but
   because that month is over for that pair. Changing the verb does not widen
   what one month may do to one relationship.
+- condemn and capital_flight are counted PER TARGET, not per source. They cost
+  the source nothing, so a second condemnation of the same country in the same
+  month is refused even when it comes from a different state — otherwise ten
+  states could stack ten strikes on one reputation for free. One month, one
+  blow to a given reputation; one month, one flight of capital from a given
+  region.
 - Order is execution order: each primitive sees the effect of the previous one,
   so incite_unrest followed by spawn_incident is a legitimate chain.
 - At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one per game

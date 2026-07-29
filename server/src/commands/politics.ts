@@ -218,3 +218,47 @@ export function spendGovernmentSupport(
 
   return { success: true, applied: before - country.politics.governmentSupport };
 }
+
+/**
+ * Списывает легитимность страны — используется примитивом `condemn`.
+ *
+ * Отличается от `spendGovernmentSupport` не только полем, и это существенно.
+ * Поддержка правительства — РЕСУРС, который страна тратит на собственные
+ * решения, поэтому нехватка там означает «реформа не проходит» и команда
+ * отказывает. Легитимность — не ресурс, а положение: осуждение бьёт по режиму
+ * СНАРУЖИ, и режим не вправе отказаться терять репутацию на том основании, что
+ * её мало. Поэтому удар КЛАМПИТСЯ полом шкалы, а не отклоняется, — и результат
+ * честно сообщает нулевую дельту у режима, которому терять уже нечего (тот же
+ * путь, что у репрессии по группе на потолке подавления).
+ *
+ * `applied` — фактически списанное после клампа.
+ */
+export function spendLegitimacy(
+  game: GameState,
+  countryId: string,
+  amount: number
+): CommandResult<number> {
+  const country = game.countries.find(c => c.id === countryId);
+  if (!country) return { success: false, error: `Unknown country: ${countryId}` };
+
+  // Та же защита, что у поддержки: отрицательная «цена» тихо ДОБАВИЛА бы
+  // легитимность, а неконечная отравила бы шкалу, откуда NaN уехал бы в базу
+  // недовольства каждого региона страны.
+  if (!Number.isFinite(amount) || amount < 0) {
+    return { success: false, error: `Legitimacy damage must be a finite non-negative number: ${String(amount)}` };
+  }
+  if (!Number.isFinite(country.politics.legitimacy)) {
+    return {
+      success: false,
+      error: `Legitimacy of ${countryId} is not a finite number: ${String(country.politics.legitimacy)}`,
+    };
+  }
+
+  const before = country.politics.legitimacy;
+  country.politics.legitimacy = clamp(before - amount, LEGITIMACY_MIN, LEGITIMACY_MAX);
+  return { success: true, applied: before - country.politics.legitimacy };
+}
+
+/** Границы шкалы легитимности — те же 0..100, что у поддержки правительства. */
+const LEGITIMACY_MIN = 0;
+const LEGITIMACY_MAX = 100;

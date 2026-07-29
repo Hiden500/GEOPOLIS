@@ -66,13 +66,21 @@ function placeHistoryEntries(
   // истории места был бы к лицу. Он не сделан осознанно — записи потребовалась
   // бы своя строка отклика, а не заголовок про страны, — и занесён в
   // `docs/TODO.md`, а не спрятан.
+  //
+  // Мягкие воздействия Милстоуна 1 делятся по тому же признаку, а не по классу:
+  // `send_aid`, `condemn` и `support_proxy` происходят МЕЖДУ государствами и
+  // места не имеют, а `capital_flight` бьёт по конкретному региону — «отсюда
+  // ушли деньги» истории места принадлежит буквально, и запись у него есть.
   if (
     applied.verb === "enact_reform" ||
     applied.verb === "split_country" ||
     applied.verb === "diplomacy" ||
     applied.verb === "sanction" ||
     applied.verb === "war" ||
-    applied.verb === "peace"
+    applied.verb === "peace" ||
+    applied.verb === "send_aid" ||
+    applied.verb === "condemn" ||
+    applied.verb === "support_proxy"
   ) {
     return entries;
   }

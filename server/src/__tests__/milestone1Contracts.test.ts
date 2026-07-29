@@ -41,13 +41,20 @@ import {
  * Наблюдаемый след СТАРОГО канала.
  *
  * До Милстоуна 1 им были отношения: их двигало действие `diplomacy`. Дипломатия
- * переехала в алфавит примитивов, и носителем той же проверки стало `influence` —
- * одно из двух двусторонних действий, оставшихся в старом канале. Проверяемое
- * свойство от смены носителя не изменилось: оба канала лежат в ОДНОЙ транзакции
- * ответа, и откат обязан уносить след старого канала вместе с примитивами.
+ * переехала в алфавит примитивов, носителем стало `influence`, а с сессией
+ * мягких глаголов — `guarantee`, ЕДИНСТВЕННОЕ оставшееся в старом канале
+ * двустороннее действие (влияние теперь покупается помощью, коридором от
+ * состояния). Проверяемое свойство от смены носителя не изменилось: оба канала
+ * лежат в ОДНОЙ транзакции ответа, и откат обязан уносить след старого канала
+ * вместе с примитивами.
+ *
+ * След читается ОТНОШЕНИЯМИ, а не списком гарантий, и это существенно:
+ * повторная гарантия в список ничего не добавляет, а сопутствующий сдвиг
+ * отношений накапливается — то есть только он отличает «применилось второй раз»
+ * от «применилось один раз», ради чего проверка и существует.
  */
-function influenceOf(game: GameState, from: string, to: string): number {
-  return game.countries.find(c => c.id === from)!.diplomacy.influence[to] ?? 0;
+function legacyTraceOf(game: GameState, from: string, to: string): number {
+  return game.countries.find(c => c.id === from)!.diplomacy.relations[to] ?? 0;
 }
 
 function llmResponse(body: Record<string, unknown>): string {
@@ -88,9 +95,9 @@ function resolveStatePath(state: unknown, path: string): unknown[] {
 }
 
 /** Действие старого канала с самым дешёвым видимым эффектом. */
-function influenceAction(): Record<string, unknown> {
+function legacyAction(): Record<string, unknown> {
   return {
-    type: "influence",
+    type: "guarantee",
     sourceCountryId: "SUN",
     targetCountryId: "USA",
   };
@@ -201,11 +208,11 @@ describe("контракт примитива: форма по глаголу, �
 describe("транзакция ответа: старый канал и примитивы коммитятся вместе", () => {
   it("отказ структурного откатывает и СТАРЫЙ канал, а не только примитивы", () => {
     const game = createDiscontentTestGame();
-    const before = influenceOf(game, "SUN", "USA");
+    const before = legacyTraceOf(game, "SUN", "USA");
 
     const result = new LLMService(game).processResponse(
       llmResponse({
-        actions: [influenceAction()],
+        actions: [legacyAction()],
         primitives: [
           // Реформа в ЧУЖОЙ стране: предпосылка движка не выполнена. Источник —
           // не страна игрока, иначе примитив снял бы ГРАНИЦА АГЕНТНОСТИ, а её
@@ -223,23 +230,23 @@ describe("транзакция ответа: старый канал и прим
     // До Милстоуна 1 `applyLlmActions` применялся ПРЯМО в состояние и до
     // примитивов, поэтому сдвиг отношений переживал отказ структурного: мир
     // оставался там, куда его никто не вёл.
-    expect(influenceOf(game, "SUN", "USA")).toBe(before);
+    expect(legacyTraceOf(game, "SUN", "USA")).toBe(before);
     expect(result.receipt.primitives.applied).toEqual([]);
   });
 
   it("нарушенный пост-инвариант откатывает весь ответ целиком", () => {
     const game = createDiscontentTestGame();
-    const before = influenceOf(game, "SUN", "USA");
+    const before = legacyTraceOf(game, "SUN", "USA");
 
     // Порча, которую ни один примитив не создаёт, но которую обязана поймать
     // ПОСЛЕДНЯЯ фаза: состояние заведомо непригодно ещё до ответа.
     game.primitiveTurnBudget = { ...game.primitiveTurnBudget, softUsed: -100 };
 
     const result = new LLMService(game).processResponse(
-      llmResponse({ actions: [influenceAction()] })
+      llmResponse({ actions: [legacyAction()] })
     );
 
-    expect(influenceOf(game, "SUN", "USA")).toBe(before);
+    expect(legacyTraceOf(game, "SUN", "USA")).toBe(before);
     expect(result.narrativeCanonized).toBe(false);
     expect(result.receipt.primitives.rejected.map(r => r.code)).toEqual([
       "postInvariantViolated",
@@ -251,7 +258,7 @@ describe("транзакция ответа: старый канал и прим
   it("квитанция события и квитанция ответа — одно и то же", () => {
     const game = createDiscontentTestGame();
     const result = new LLMService(game).processResponse(
-      llmResponse({ actions: [influenceAction()] })
+      llmResponse({ actions: [legacyAction()] })
     );
 
     expect(result.narrativeCanonized).toBe(true);
@@ -297,7 +304,7 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
     {
       name: "с примитивами",
       body: {
-        actions: [influenceAction()],
+        actions: [legacyAction()],
         primitives: [
           {
             verb: "incite_unrest",
@@ -307,8 +314,8 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
         ],
       },
     },
-    { name: "БЕЗ поля primitives вовсе", body: { actions: [influenceAction()] } },
-    { name: "с пустым массивом примитивов", body: { actions: [influenceAction()], primitives: [] } },
+    { name: "БЕЗ поля primitives вовсе", body: { actions: [legacyAction()] } },
+    { name: "с пустым массивом примитивов", body: { actions: [legacyAction()], primitives: [] } },
   ];
 
   for (const { name, body } of repeatedResponses) {
@@ -317,14 +324,14 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
       const raw = llmResponse(body);
 
       new LLMService(game).processResponse(raw);
-      const afterFirst = influenceOf(game, "SUN", "USA");
+      const afterFirst = legacyTraceOf(game, "SUN", "USA");
       // Первый ответ действительно что-то сделал — иначе «не двинулось второй
       // раз» выполнялось бы по построению.
       expect(afterFirst).not.toBe(0);
 
       const second = new LLMService(game).processResponse(raw);
 
-      expect(influenceOf(game, "SUN", "USA")).toBe(afterFirst);
+      expect(legacyTraceOf(game, "SUN", "USA")).toBe(afterFirst);
       expect(second.receipt.duplicate).toBe(true);
       expect(second.receipt.primitives.rejected.map(r => r.code)).toEqual(["duplicateResponse"]);
     });
@@ -374,7 +381,7 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
         // Битое действие старого канала: его причина тоже теряется при откате.
         actions: [
           {
-            type: "influence",
+            type: "guarantee",
             sourceCountryId: "SUN",
             targetCountryId: "NOWHERE",
           },
@@ -403,21 +410,29 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
     expect(promptLine).not.toContain(code);
     expect(promptLine.length).toBeGreaterThan(`Attempt rejected (enact_reform): ${code}`.length);
     // Отказ СТАРОГО канала на пути отката тоже доезжает.
-    expect(section).toContain("Action rejected (influence)");
+    expect(section).toContain("Action rejected (guarantee)");
   });
 
   it("тот же текст в ДРУГОМ месяце — законный ответ, а не дубль", () => {
     const game = createDiscontentTestGame();
-    const raw = llmResponse({ actions: [influenceAction()] });
+    const raw = llmResponse({ actions: [legacyAction()] });
 
     new LLMService(game).processResponse(raw);
-    const afterFirst = influenceOf(game, "SUN", "USA");
+    const afterFirst = legacyTraceOf(game, "SUN", "USA");
 
     game.currentDate = "1946-02-01";
     const second = new LLMService(game).processResponse(raw);
 
     expect(second.receipt.duplicate).toBe(false);
-    expect(influenceOf(game, "SUN", "USA")).not.toBe(afterFirst);
+    // Проверяется, что старый канал ОТРАБОТАЛ второй раз, а не что его след
+    // накопился: `guarantee` идемпотентен по эффекту (повторная гарантия
+    // отклоняется как уже существующая), и требовать от него накопления
+    // значило бы проверять свойство носителя, а не свойство idempotency-ключа.
+    // Ключ отвечает ровно на один вопрос — «этот запрос уже приходил?», — и
+    // ответ «нет» виден по тому, что ответ дошёл до канала повторно.
+    expect(second.receipt.actions.applied.length + second.receipt.actions.rejected.length)
+      .toBe(1);
+    expect(legacyTraceOf(game, "SUN", "USA")).toBe(afterFirst);
   });
 });
 
@@ -527,6 +542,10 @@ describe("сверка результата покрывает все число
           verb: "diplomacy", sourceCountryId: "SUN",
           target: { countryId: "USA" }, params: { direction: "improve" },
         },
+        // Словарь ВЛИЯНИЯ разрежен ровно так же, как отношения (в сценарии 1946
+        // непустых 47 из 157), поэтому ячейка канала `influence:` тоже
+        // засевается примитивом, а не подставляется ожиданием.
+        { verb: "send_aid", sourceCountryId: "SUN", target: { countryId: "USA" } },
       ],
       "seed-cells"
     );
@@ -553,6 +572,16 @@ describe("сверка результата покрывает все число
       "countries[*].diplomacy.relations.{*}": "relation",
       "countries[*].politics.legitimacy": "legitimacy",
       "countries[*].economy.treasury": "treasury",
+      // Каналы мягких воздействий (Милстоун 1). `influence` появилось вместе с
+      // `send_aid` — это то самое поле, которое до него двигалось плоским шагом
+      // из старого канала мимо всякой сверки. `regions[*].gdp` — с
+      // `capital_flight`: удар по производству живёт в регионе, потому что ВВП
+      // страны агрегат, который тик перезаписывает. `activePersonnel` — с
+      // `support_proxy`, и с ним же раскол государства обязан заявлять деление
+      // живой силы метрополии.
+      "countries[*].diplomacy.influence.{*}": "influence",
+      "regions[*].gdp": "regionGdp",
+      "countries[*].military.activePersonnel": "personnel",
     };
 
     /**
@@ -586,7 +615,17 @@ describe("сверка результата покрывает все число
       // полей, в отличие от плоской карты ячеек. Исключение сформулировано «всё
       // КРОМЕ казны», а не «весь глагол», намеренно: иначе оно молча покрыло бы
       // и тот канал, который теперь обязан сверяться.
-      if (verb === "split_country" && path !== "countries[*].economy.treasury") return true;
+      //
+      // Список исключений из исключения растёт вместе с ячейками: с появлением
+      // `personnel:` (Милстоун 1, `support_proxy`) раскол обязан заявлять и
+      // деление живой силы метрополии — ровно так же, как деление казны.
+      if (
+        verb === "split_country" &&
+        path !== "countries[*].economy.treasury" &&
+        path !== "countries[*].military.activePersonnel"
+      ) {
+        return true;
+      }
 
       // Идентификаторы и флаги — не величины, и сверять их ячейками нечем.
       // Перечислены поимённо, с причиной у каждого, а не общей корзиной

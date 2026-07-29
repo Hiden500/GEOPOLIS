@@ -2,6 +2,8 @@ import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type EthnicGroupDefinition } from "@shared/types/politics/Demographics";
+import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
+import { WarService } from "../services/WarService";
 import { createTestCountry, createTestRegion, createTestGameState } from "./fixtures";
 
 /**
@@ -134,3 +136,62 @@ export function seedSeparatistDiscontent(game: GameState): void {
  * мягкий порог отделения с запасом, но не упирается в потолок поля.
  */
 const SEPARATIST_EMBOLDENMENT = 0.6;
+
+// --------------------------------------------------------------------------
+// Предпосылки мягких воздействий (Милстоун 1)
+// --------------------------------------------------------------------------
+//
+// Три подготовки живут ЗДЕСЬ, а не в отдельных тестовых файлах, ровно по той же
+// причине, что `seedSeparatistDiscontent`: каждая доводит мир до предпосылки
+// глагола настоящим путём, а не подкруткой порога. Общие они потому, что их
+// используют и проверка палитры, и проверки самих глаголов, и разъехавшиеся
+// копии означали бы, что два теста проверяют разные миры под одним именем.
+
+/**
+ * Опускает стабильность региона ниже порога, при котором капитал перестаёт
+ * держаться в нём (`CAPITAL_FLIGHT_MAX_STABILITY`).
+ *
+ * Значение берётся ОТ КОНСТАНТЫ, а не назначается числом: тест обязан следовать
+ * за калибровкой порога, а не фиксировать снимок сегодняшнего значения.
+ */
+export function destabilizeRegion(game: GameState, regionId: number): void {
+  const region = game.regions.find(r => r.id === regionId);
+  if (!region) throw new Error(`No such region in fixture: ${regionId}`);
+  region.stability = CAPITAL_FLIGHT_MAX_STABILITY / 2;
+}
+
+/**
+ * Даёт одной стране влияние на другую — то есть и ТРИБУНУ для `condemn`, и
+ * канал ПАТРОНАЖА для `support_proxy`.
+ *
+ * Одной функцией на обе предпосылки намеренно: в состоянии это буквально одно и
+ * то же поле, и разводить его двумя подготовками значило бы делать вид, что
+ * тесты опираются на разные свойства мира.
+ */
+export function giveAudience(game: GameState, sourceId: string, targetId: string): void {
+  const source = game.countries.find(c => c.id === sourceId);
+  if (!source) throw new Error(`No such country in fixture: ${sourceId}`);
+  source.diplomacy.influence[targetId] = FIXTURE_INFLUENCE;
+}
+
+/**
+ * Втягивает страну в войну с ТРЕТЬИМ государством, которого в фикстуре ещё нет.
+ *
+ * Третье обязательно: `support_proxy` требует, чтобы патрон в этой войне НЕ
+ * участвовал, а в мире из двух стран единственным противником клиента был бы
+ * сам патрон — то есть предпосылка «патрон не воюет сам» стала бы непроверяемой
+ * не по решению, а по составу фикстуры.
+ *
+ * Возвращает id созданного противника.
+ */
+export function addProxyClientWar(game: GameState, clientId: string): string {
+  const enemyId = "ENE";
+  if (!game.countries.some(c => c.id === enemyId)) {
+    game.countries.push(createTestCountry({ id: enemyId }));
+  }
+  new WarService(game).declareWar(enemyId, clientId);
+  return enemyId;
+}
+
+/** Влияние фикстуры: заметно больше нуля и заметно меньше потолка шкалы. */
+const FIXTURE_INFLUENCE = 40;

@@ -120,7 +120,11 @@
       "default": "kind: default (economic sanctions)"
     },
     "war": "Declare war on {{country}}",
-    "peace": "Make peace with {{country}}"
+    "peace": "Make peace with {{country}}",
+    "send_aid": "Send aid to {{country}}",
+    "capital_flight": "Trigger capital flight in {{region}}",
+    "condemn": "Publicly condemn {{country}}",
+    "support_proxy": "Back {{country}} in its war without joining it"
   },
   "splitCountry": {
     "headline": "{{country}} broke apart into {{shards}} new state(s)"
@@ -158,5 +162,33 @@
   "relation": {
     "changed": "Relations {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
     "unchanged": "Relations {{source}} → {{country}}: unchanged ({{value}})"
+  },
+  "sendAid": {
+    "headline": "{{source}} sends aid to {{country}}"
+  },
+  "capitalFlight": {
+    "headline": "Capital flees {{region}}",
+    "output": {
+      "changed": "Regional output: −{{delta}} ({{before}} → {{after}})",
+      "unchanged": "Regional output: unchanged ({{value}})"
+    }
+  },
+  "condemn": {
+    "headline": "{{source}} publicly condemns {{country}} before {{audience}} state(s)",
+    "nothingToLose": "There was no legitimacy left to lose: the strike changed nothing"
+  },
+  "supportProxy": {
+    "headline": "{{source}} backs {{country}} in its war",
+    "notBelligerent": "The patron did not become a belligerent"
+  },
+  "scalar": {
+    "governmentSupport": "Government support of {{country}}: {{delta}} ({{before}} → {{after}})",
+    "legitimacy": "Legitimacy of {{country}}: {{delta}} ({{before}} → {{after}})",
+    "treasury": "Treasury of {{country}}: {{delta}} ({{before}} → {{after}})",
+    "activePersonnel": "Army of {{country}}: {{delta}} troops ({{before}} → {{after}})"
+  },
+  "influence": {
+    "changed": "Influence {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
+    "unchanged": "Influence {{source}} → {{country}}: unchanged ({{value}})"
   }
 }

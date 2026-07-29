@@ -6,7 +6,10 @@ import {
 } from "@shared/types/politics/PrimitiveOutcome";
 import {
   type AppliedPrimitive,
+  type CountryScalarEffect,
+  type CountryScalarField,
   type GroupImpactEffect,
+  type InfluenceEffect,
   type Primitive,
   type RelationEffect,
 } from "./types";
@@ -118,6 +121,76 @@ function relationLines(
           names,
         };
   });
+}
+
+/**
+ * Строки по фактическим сдвигам скалярных полей стран (казна, легитимность,
+ * живая сила).
+ *
+ * Ключ i18n строится ИЗ ИМЕНИ ПОЛЯ, а не по глаголу: одно и то же поле должно
+ * читаться игроком одинаково, чьей бы рукой его ни сдвинули. Нулевая дельта
+ * сюда не приходит вовсе — эти строки собираются из ДИФА состояния, а диф
+ * нулевых записей не содержит; «ничего не сдвинулось» глагол обязан назвать
+ * сам, своей строкой (см. `condemn.nothingToLose`).
+ */
+function scalarLines(
+  game: GameState,
+  effects: readonly CountryScalarEffect[]
+): PrimitiveOutcomeLine[] {
+  return effects.map(effect => ({
+    key: `scalar.${effect.field}`,
+    values: {
+      delta: signedAmount(effect.field, effect.delta),
+      before: amountOf(effect.field, effect.before),
+      after: amountOf(effect.field, effect.after),
+    },
+    names: { country: countryNames(game, effect.countryId) },
+  }));
+}
+
+/** Строки по фактическим сдвигам влияния — нулевая дельта называется нулевой. */
+function influenceLines(
+  game: GameState,
+  effects: readonly InfluenceEffect[]
+): PrimitiveOutcomeLine[] {
+  return effects.map(effect => {
+    const names: Record<string, LocalizedText> = {
+      source: countryNames(game, effect.fromCountryId),
+      country: countryNames(game, effect.toCountryId),
+    };
+    return effect.delta === 0
+      ? { key: "influence.unchanged", values: { value: effect.after.toFixed(1) }, names }
+      : {
+          key: "influence.changed",
+          values: {
+            delta: signed(effect.delta),
+            before: effect.before.toFixed(1),
+            after: effect.after.toFixed(1),
+          },
+          names,
+        };
+  });
+}
+
+/**
+ * Денежные и людские величины — целыми, без дробей.
+ *
+ * Шкалы здесь разные по природе: легитимность живёт в 0..100 и осмысленна с
+ * десятыми, казна измеряется миллиардами, а живая сила — людьми. Одно
+ * форматирование на все три давало бы либо «treasury −0.001», либо
+ * «legitimacy −3».
+ */
+function money(value: number): string {
+  return Math.round(value).toString();
+}
+
+function amountOf(field: CountryScalarField, value: number): string {
+  return field === "treasury" || field === "activePersonnel" ? money(value) : value.toFixed(1);
+}
+
+function signedAmount(field: CountryScalarField, value: number): string {
+  const sign = value >= 0 ? "+" : "−";
+  return `${sign}${amountOf(field, Math.abs(value))}`;
 }
 
 /** Сколько адресатов примитив реально сдвинул — считается по дельтам, не по составу региона. */
@@ -334,6 +407,90 @@ export function buildPrimitiveOutcome(
       };
     }
 
+    case "send_aid":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "sendAid.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          ...scalarLines(game, applied.countryScalarEffects),
+          ...influenceLines(game, applied.influenceEffects),
+        ],
+      };
+
+    case "capital_flight": {
+      const region = applied.regionEffects[0];
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "capitalFlight.headline",
+          names: { region: regionNames(game, applied.regionId) },
+        },
+        details: [
+          // Региональный ВВП называется всегда, включая нулевую дельту: у
+          // отчёта та же гранулярность правдивости, что у памяти воздействий.
+          ...(region
+            ? [
+                region.delta === 0
+                  ? { key: "capitalFlight.output.unchanged", values: { value: money(region.after) } }
+                  : {
+                      key: "capitalFlight.output.changed",
+                      values: {
+                        delta: money(Math.abs(region.delta)),
+                        before: money(region.before),
+                        after: money(region.after),
+                      },
+                    },
+              ]
+            : []),
+          ...scalarLines(game, applied.countryScalarEffects),
+        ],
+      };
+    }
+
+    case "condemn":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "condemn.headline",
+          values: { audience: applied.audienceSize },
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        // Пустой список — не «нет данных», а факт: легитимности цели уже
+        // нечего терять, и отклик обязан сказать это словом.
+        details:
+          applied.countryScalarEffects.length > 0
+            ? scalarLines(game, applied.countryScalarEffects)
+            : [{ key: "condemn.nothingToLose" }],
+      };
+
+    case "support_proxy":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "supportProxy.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          // Названо прямо: патрон не стал стороной войны. Это ГЛАВНОЕ свойство
+          // глагола, и умолчать о нём значило бы дать игроку повод думать, что
+          // он только что вступил в войну.
+          { key: "supportProxy.notBelligerent" },
+          ...scalarLines(game, applied.countryScalarEffects),
+        ],
+      };
+
     case "split_country": {
       // Отклик перечисляет ФАКТ, а не оценку: сколько государств возникло,
       // сколько регионов каждое забрало, пережила ли метрополия раскол.
@@ -507,6 +664,19 @@ export function buildPrimitivePreview(
       case "peace":
         names.country = countryNames(game, primitive.target.countryId);
         key = "preview.peace";
+        break;
+      // Мягкие воздействия Милстоуна 1. Величин в показе нет ни у одного, как и
+      // у всех остальных: сумму помощи, глубину оттока и силу удара по
+      // репутации движок посчитает из состояния в момент применения.
+      case "send_aid":
+      case "condemn":
+      case "support_proxy":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.${primitive.verb}`;
+        break;
+      case "capital_flight":
+        names.region = regionNames(game, primitive.target.regionId);
+        key = "preview.capital_flight";
         break;
     }
 

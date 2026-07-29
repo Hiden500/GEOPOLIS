@@ -111,6 +111,28 @@ export type PrimitiveRejection =
   | { code: "warOnAlly"; source: LocalizedText; target: LocalizedText }
   | { code: "noActiveWar"; source: LocalizedText; target: LocalizedText }
 
+  // --- validate: мягкие воздействия (Милстоун 1) ---
+  //
+  // Все пять отвечают «так не бывает», а не «мало»: отдельного отказа «состояние
+  // не оставило места» здесь, как и у дипломатического блока, НЕТ — там коридор
+  // схлопывается в минимум, и результат честно сообщает крохотную дельту.
+  | {
+      code: "donorInsolvent";
+      source: LocalizedText;
+      treasuryShare: number;
+      threshold: number;
+    }
+  | {
+      code: "regionTooStableForFlight";
+      region: LocalizedText;
+      stability: number;
+      threshold: number;
+    }
+  | { code: "noPodium"; source: LocalizedText }
+  | { code: "proxyNotAtWar"; target: LocalizedText }
+  | { code: "proxyPatronIsBelligerent"; source: LocalizedText; target: LocalizedText }
+  | { code: "proxyNoPatronage"; source: LocalizedText; target: LocalizedText }
+
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
   | { code: "structuralTurnCapReached"; cap: number }
@@ -272,6 +294,36 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
     case "noActiveWar":
       return `There is no active war between ${name(rejection.source)} and ${name(rejection.target)}`;
 
+    case "donorInsolvent":
+      return (
+        `${name(rejection.source)} cannot send aid: its treasury is ` +
+        `${(rejection.treasuryShare * 100).toFixed(1)}% of its GDP, below the ` +
+        `${(rejection.threshold * 100).toFixed(1)}% a donor needs to have anything to give`
+      );
+    case "regionTooStableForFlight":
+      return (
+        `Capital does not flee ${name(rejection.region)}: its stability is ` +
+        `${rejection.stability.toFixed(2)}, at or above the ${rejection.threshold} below which ` +
+        `confidence is broken enough for money to leave`
+      );
+    case "noPodium":
+      return (
+        `${name(rejection.source)} has no podium to condemn from: it holds no influence over any ` +
+        `state and has no formal tie to one, so there is nobody for whom its word carries weight`
+      );
+    case "proxyNotAtWar":
+      return `${name(rejection.target)} is not fighting any war: there is no proxy to support`;
+    case "proxyPatronIsBelligerent":
+      return (
+        `${name(rejection.source)} fights in the same war as ${name(rejection.target)}: ` +
+        `a patron who is already a belligerent supports the war directly, not by proxy`
+      );
+    case "proxyNoPatronage":
+      return (
+        `${name(rejection.source)} is no patron of ${name(rejection.target)}: supporting a proxy ` +
+        `requires influence over it or a formal tie (alliance, guarantee, client state, sphere)`
+      );
+
     case "softTurnCapReached":
       return `At most ${rejection.cap} soft primitives per turn`;
     case "structuralTurnCapReached":
@@ -431,7 +483,30 @@ export function rejectionRecord(
     case "alreadyAtWar":
     case "warOnAlly":
     case "noActiveWar":
+    case "proxyPatronIsBelligerent":
+    case "proxyNoPatronage":
       return of(undefined, { source: rejection.source, target: rejection.target });
+
+    // Доля казны, стабильность региона и пороги — свойства МИРА и ПРАВИЛ:
+    // игрок видит их в интерфейсе, и магнитуды несостоявшегося действия среди
+    // них нет ни одной (см. шапку модуля).
+    case "donorInsolvent":
+      return of(
+        {
+          treasuryShare: (rejection.treasuryShare * 100).toFixed(1),
+          threshold: (rejection.threshold * 100).toFixed(1),
+        },
+        { source: rejection.source }
+      );
+    case "regionTooStableForFlight":
+      return of(
+        { stability: rejection.stability.toFixed(2), threshold: rejection.threshold },
+        { region: rejection.region }
+      );
+    case "noPodium":
+      return of(undefined, { source: rejection.source });
+    case "proxyNotAtWar":
+      return of(undefined, { target: rejection.target });
 
     case "softTurnCapReached":
     case "structuralTurnCapReached":

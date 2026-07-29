@@ -205,6 +205,13 @@ export const PRIMITIVE_SCHEMAS = {
   sanction: primitiveOf("sanction", countryTargetSchema, sanctionParamsSchema),
   war: primitiveOf("war", countryTargetSchema, warParamsSchema),
   peace: primitiveOf("peace", countryTargetSchema, noParamsSchema),
+  // Мягкие воздействия Милстоуна 1. Три адресуются стране, `capital_flight` —
+  // региону: отток капитала бьёт по производству, а производство живёт в
+  // регионе (`docs/ECONOMY.md`).
+  send_aid: primitiveOf("send_aid", countryTargetSchema, intensityOnlyParamsSchema),
+  capital_flight: primitiveOf("capital_flight", regionTargetSchema, intensityOnlyParamsSchema),
+  condemn: primitiveOf("condemn", countryTargetSchema, intensityOnlyParamsSchema),
+  support_proxy: primitiveOf("support_proxy", countryTargetSchema, intensityOnlyParamsSchema),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -218,6 +225,10 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.sanction,
   PRIMITIVE_SCHEMAS.war,
   PRIMITIVE_SCHEMAS.peace,
+  PRIMITIVE_SCHEMAS.send_aid,
+  PRIMITIVE_SCHEMAS.capital_flight,
+  PRIMITIVE_SCHEMAS.condemn,
+  PRIMITIVE_SCHEMAS.support_proxy,
 ]);
 
 /**

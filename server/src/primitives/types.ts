@@ -11,9 +11,10 @@
  * величины»). Это не соглашение в комментарии, а свойство типа и Zod-схемы,
  * проверяемое тестом.
  *
- * Тестовый v0 — десять глаголов из ~18 полного алфавита: пять
+ * Тестовый v0 — четырнадцать глаголов из ~18 полного алфавита: пять
  * мягко-политических из вертикального среза, структурный `split_country`
- * (жизненный цикл) и дипломатический блок `diplomacy`/`sanction`/`war`/`peace`.
+ * (жизненный цикл), дипломатический блок `diplomacy`/`sanction`/`war`/`peace` и
+ * мягкие воздействия `send_aid`/`capital_flight`/`condemn`/`support_proxy`.
  */
 
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
@@ -31,6 +32,10 @@ export const PRIMITIVE_VERBS = [
   "sanction",
   "war",
   "peace",
+  "send_aid",
+  "capital_flight",
+  "condemn",
+  "support_proxy",
 ] as const;
 
 export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
@@ -172,7 +177,18 @@ export interface PoliticalCostEffect {
  * канал, о котором сверка не спросит. Новое имя здесь не компилируется, пока
  * ему не назначен ключ ячейки.
  */
-export const COUNTRY_SCALAR_FIELDS = ["governmentSupport", "legitimacy", "treasury"] as const;
+export const COUNTRY_SCALAR_FIELDS = [
+  "governmentSupport",
+  "legitimacy",
+  "treasury",
+  // Живая сила — Милстоун 1, `support_proxy`. Попала в ОБЩИЙ список скаляров, а
+  // не в отдельный тип военного эффекта, по прямому следствию: раскол
+  // государства делит `activePersonnel` метрополии, и с появлением ячейки
+  // `personnel:` он обязан её ЗАЯВИТЬ — иначе его откатывала бы собственная
+  // сверка за молчание о том, что он честно делает. Общий список даёт это одним
+  // изменением, без второй копии «снимок → диф → отчёт».
+  "activePersonnel",
+] as const;
 export type CountryScalarField = (typeof COUNTRY_SCALAR_FIELDS)[number];
 
 /** Фактический сдвиг одного скалярного поля одной страны. */
@@ -292,6 +308,10 @@ export interface AppliedSplitCountry extends AppliedPrimitiveBase {
    * поэтому без этого заявления собственная сверка результата откатывала бы его
    * за молчание о том, что он честно сделал. Казна ОСКОЛКОВ сюда не входит:
    * страны, которых не было в снимке «до», из сверки исключены по построению.
+   *
+   * С появлением ячейки `personnel:` (Милстоун 1, `support_proxy`) сюда попала
+   * и живая сила метрополии — по той же причине и тем же способом: раскол делит
+   * `activePersonnel`, значит обязан о делении заявить.
    */
   countryScalarEffects: CountryScalarEffect[];
 }
@@ -362,6 +382,97 @@ export interface AppliedPeace extends AppliedPrimitiveBase {
 }
 
 /**
+ * Фактический сдвиг влияния ОДНОЙ стороны на другую.
+ *
+ * Направленная пара, как у отношений, но по другой причине: влияние
+ * несимметрично ПО ОПРЕДЕЛЕНИЮ (`DiplomacyState.influence` — «влияние на другие
+ * страны»), и обратной записи у него не бывает вовсе.
+ */
+export interface InfluenceEffect {
+  fromCountryId: string;
+  toCountryId: string;
+  before: number;
+  after: number;
+  delta: number;
+}
+
+/** Фактический сдвиг ВВП одного региона. */
+export interface RegionEconomyEffect {
+  regionId: number;
+  field: "gdp";
+  before: number;
+  after: number;
+  delta: number;
+}
+
+/**
+ * Факт помощи одного государства другому.
+ *
+ * Каналов ДВА, и они не дублируют друг друга: деньги переходят из казны в
+ * казну, влияние донора растёт настолько, насколько помощь заметна получателю.
+ * Отношений здесь нет НАМЕРЕННО — потепление приходит симуляцией, через порог
+ * сферы влияния и член зависимости структурного тяготения, а не вторым прямым
+ * сдвигом (см. `docs/PRIMITIVES.md` §2).
+ */
+export interface AppliedSendAid extends AppliedPrimitiveBase {
+  verb: "send_aid";
+  targetCountryId: string;
+  /** Казна донора и получателя — фактические дельты обеих сторон. */
+  countryScalarEffects: CountryScalarEffect[];
+  influenceEffects: InfluenceEffect[];
+}
+
+/**
+ * Факт оттока капитала из региона.
+ *
+ * Цель — РЕГИОН, а не страна, и это решение (`docs/ECONOMY.md`):
+ * `country.economy.gdp` — агрегат, который `aggregateAllCountries`
+ * перезаписывает из регионов каждый тик, поэтому удар, записанный туда,
+ * исчезал бы к следующему месяцу. `region.gdp` живёт: `EconomyTick` растит его
+ * мультипликативно от текущего значения, и отток уменьшает базу роста.
+ */
+export interface AppliedCapitalFlight extends AppliedPrimitiveBase {
+  verb: "capital_flight";
+  regionId: number;
+  /** Чья казна пострадала — фактический контролёр региона. */
+  countryId: string;
+  regionEffects: RegionEconomyEffect[];
+  countryScalarEffects: CountryScalarEffect[];
+}
+
+/**
+ * Факт публичного осуждения.
+ *
+ * Единственный канал — легитимность цели. Отношений нет намеренно: это
+ * «репутационный удар без материального» по спецификации, а запись в
+ * `relations` затащила бы глагол в общий слот мягких двусторонних актов и
+ * сделала бы осуждение взаимоисключающим с переговорами в тот же месяц.
+ */
+export interface AppliedCondemn extends AppliedPrimitiveBase {
+  verb: "condemn";
+  targetCountryId: string;
+  /** Размер аудитории осуждающего — почему удар оказался таким. */
+  audienceSize: number;
+  countryScalarEffects: CountryScalarEffect[];
+}
+
+/**
+ * Факт поддержки воюющего клиента.
+ *
+ * Патрон платит казной, клиент получает живую силу. Деньги и сила — ДВА
+ * эффекта одного акта, а не конверсия: рынка вооружений в модели нет, и цена
+ * единицы техники была бы калибровочной константой без второго потребителя.
+ */
+export interface AppliedSupportProxy extends AppliedPrimitiveBase {
+  verb: "support_proxy";
+  targetCountryId: string;
+  /** Война клиента, ради которой поддержка и оказана. */
+  warId: string;
+  /** Казна патрона и живая сила клиента — обе стороны одним списком. */
+  countryScalarEffects: CountryScalarEffect[];
+}
+
+/**
  * Discriminated union по глаголу: у каждого verb своя форма фактов, и лишнего
  * поля в ней нет. Общего скаляра «магнитуда» тут намеренно нет — один усреднённый
  * канал не описывает примитив, у которого их несколько (repress пишет и
@@ -377,7 +488,11 @@ export type AppliedPrimitive =
   | AppliedDiplomacy
   | AppliedSanction
   | AppliedWar
-  | AppliedPeace;
+  | AppliedPeace
+  | AppliedSendAid
+  | AppliedCapitalFlight
+  | AppliedCondemn
+  | AppliedSupportProxy;
 
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
@@ -401,6 +516,13 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
     case "sanction":
     case "war":
     case "peace":
+    // Мягкие воздействия Милстоуна 1 работают с деньгами, влиянием,
+    // легитимностью и живой силой — ни один из этих каналов не ключуется парой
+    // (регион, группа), поэтому в память воздействий они не пишут вовсе.
+    case "send_aid":
+    case "capital_flight":
+    case "condemn":
+    case "support_proxy":
       return [];
     case "incite_unrest":
     case "repress":

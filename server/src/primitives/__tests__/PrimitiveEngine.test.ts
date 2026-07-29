@@ -41,6 +41,9 @@ import {
   TEST_REGION_NEIGHBOUR,
   TEST_REGION_CONTROL,
   seedSeparatistDiscontent,
+  destabilizeRegion,
+  giveAudience,
+  addProxyClientWar,
 } from "../../test-utils/discontentFixtures";
 import { createTestRegion } from "../../test-utils/fixtures";
 import { createGame } from "../../game/CreateGame";
@@ -190,6 +193,37 @@ const SCENARIOS: {
     // Мир требует идущей войны: без неё предпосылка не выполнена, и сценарий
     // проверял бы отказ вместо палитры.
     setup: state => { new WarService(state).declareWar("SUN", "USA"); },
+  },
+  // Мягкие воздействия (Милстоун 1).
+  {
+    verb: "send_aid",
+    primitive: { verb: "send_aid", sourceCountryId: "SUN", target: { countryId: "USA" } },
+  },
+  {
+    verb: "capital_flight",
+    primitive: {
+      verb: "capital_flight", sourceCountryId: "USA", target: { regionId: TEST_REGION_NATIONAL },
+    },
+    // Предпосылка глагола — сломанное доверие: регион спокойнее порога капитал
+    // не покидает, и сценарий проверял бы отказ вместо палитры.
+    setup: state => { destabilizeRegion(state, TEST_REGION_NATIONAL); },
+  },
+  {
+    verb: "condemn",
+    primitive: { verb: "condemn", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Предпосылка — трибуна: без единой связи осуждающего никто не слышит.
+    setup: state => { giveAudience(state, "SUN", "USA"); },
+  },
+  {
+    verb: "support_proxy",
+    primitive: { verb: "support_proxy", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Три предпосылки сразу: у клиента идёт война, патрон в ней не участвует,
+    // между ними есть патронаж. Третья страна нужна именно для второй — иначе
+    // единственным противником USA оказался бы сам патрон.
+    setup: state => {
+      addProxyClientWar(state, "USA");
+      giveAudience(state, "SUN", "USA");
+    },
   },
 ];
 

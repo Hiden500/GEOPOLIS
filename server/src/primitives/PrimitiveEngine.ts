@@ -65,11 +65,31 @@ import {
   SANCTION_RELATION_MAX,
   WAR_DECLARATION_RELATION_PENALTY,
   PEACE_RELATION_RELIEF,
+  SEND_AID_MIN_TREASURY_SHARE,
+  SEND_AID_SHARE_MIN,
+  SEND_AID_SHARE_MAX,
+  SEND_AID_INFLUENCE_MIN,
+  SEND_AID_INFLUENCE_MAX,
+  CONDEMN_LEGITIMACY_MIN,
+  CONDEMN_LEGITIMACY_MAX,
+  SUPPORT_PROXY_SHARE_MIN,
+  SUPPORT_PROXY_SHARE_MAX,
+  SUPPORT_PROXY_PERSONNEL_MIN_SHARE,
+  SUPPORT_PROXY_PERSONNEL_MAX_SHARE,
 } from "@shared/defines/diplomacy";
+import {
+  CAPITAL_FLIGHT_MAX_STABILITY,
+  CAPITAL_FLIGHT_GDP_MIN,
+  CAPITAL_FLIGHT_GDP_MAX,
+  CAPITAL_FLIGHT_TREASURY_MIN,
+  CAPITAL_FLIGHT_TREASURY_MAX,
+} from "@shared/defines/economy";
 import { MapFeatureService } from "../services/MapFeatureService";
 import { WarService } from "../services/WarService";
 import * as politicsCommands from "../commands/politics";
 import * as diplomacyCommands from "../commands/diplomacy";
+import * as economyCommands from "../commands/economy";
+import * as militaryCommands from "../commands/military";
 import * as warCommands from "../commands/war";
 import { type CommandResult } from "../commands/types";
 import { collectChangedPaths } from "./statePaths";
@@ -108,6 +128,15 @@ import {
   relationRoom,
   diplomaticGrip,
   sanctionBite,
+  donorFiscalRoom,
+  aidScale,
+  aidVisibility,
+  influenceRoom,
+  capitalFlightExposure,
+  legitimacyRoom,
+  podiumReach,
+  proxyTie,
+  proxyUrgency,
   type DiplomaticTies,
 } from "./magnitude";
 import {
@@ -118,6 +147,8 @@ import {
   type IdeologyAxis,
   type IdeologyShiftEffect,
   type IncidentKind,
+  type InfluenceEffect,
+  type RegionEconomyEffect,
   type PoliticalCostEffect,
   type Primitive,
   type RelationDirection,
@@ -550,8 +581,52 @@ function countryScalars(game: GameState): Map<string, number> {
     values.set(`${country.id}|governmentSupport`, country.politics.governmentSupport);
     values.set(`${country.id}|legitimacy`, country.politics.legitimacy);
     values.set(`${country.id}|treasury`, country.economy.treasury);
+    // Живая сила — Милстоун 1 (`support_proxy`). Стоит в ОБЩЕМ снимке, а не в
+    // отдельном: тогда раскол государства, делящий `activePersonnel`
+    // метрополии, заявляет её тем же кодом, каким уже заявляет казну, — иначе
+    // ячейка `personnel:` откатывала бы его за молчание.
+    values.set(`${country.id}|activePersonnel`, country.military.activePersonnel);
   }
   return values;
+}
+
+/** Доля в 0..1 — вход множителей состояния, приходящий из деления величин мира. */
+function clampShare(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(1, value));
+}
+
+/**
+ * Человеческое описание фактических сдвигов скалярных полей стран.
+ *
+ * Общее на четыре мягких глагола Милстоуна 1 и на мир: у всех у них результат
+ * строится из ДИФА снимка, поэтому и текст обязан строиться из того же списка,
+ * а не из знания о том, какие поля глагол собирался тронуть.
+ */
+function describeScalars(game: GameState, effects: readonly CountryScalarEffect[]): string[] {
+  return effects.map(
+    effect =>
+      `${effect.field} of ${countryLabel(game, effect.countryId)} ${signed(effect.delta)} ` +
+      `(${effect.before.toFixed(1)} → ${effect.after.toFixed(1)})`
+  );
+}
+
+/**
+ * Человеческое описание фактических сдвигов влияния.
+ *
+ * Нулевая дельта называется нулевой — то же правило гранулярности правдивости,
+ * что у отношений и памяти воздействий: донор, чьё влияние уже на потолке, не
+ * должен читать в резюме, что помощь его усилила.
+ */
+function describeInfluence(game: GameState, effects: readonly InfluenceEffect[]): string[] {
+  return effects.map(effect => {
+    const pair = `${countryLabel(game, effect.fromCountryId)} → ` +
+      `${countryLabel(game, effect.toCountryId)}`;
+    return effect.delta === 0
+      ? `influence ${pair} unchanged (${effect.after.toFixed(1)})`
+      : `influence ${pair} ${signed(effect.delta)} ` +
+        `(${effect.before.toFixed(1)} → ${effect.after.toFixed(1)})`;
+  });
 }
 
 /**
@@ -946,7 +1021,154 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       }
       return { valid: true };
     }
+
+    case "send_aid":
+    case "condemn":
+    case "support_proxy": {
+      // Общая часть трёх: цель существует и не равна источнику — помочь,
+      // осудить и поддержать самого себя нельзя ни в каком смысле.
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId);
+      if (!target) return { valid: false, rejection: { code: "unknownCountry", countryId: targetId } };
+      if (targetId === primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "bilateralSelfTarget", verb: primitive.verb, country: source.name },
+        };
+      }
+
+      if (primitive.verb === "send_aid") {
+        // Единственная предпосылка спецификации: «донор платёжеспособен».
+        // Выражена ДОЛЕЙ казны от ВВП, а не абсолютной суммой: абсолютный порог
+        // означал бы, что помощь способны оказывать только крупные экономики
+        // независимо от их фискального положения.
+        const gdp = source.economy.gdp;
+        const treasuryShare = gdp > 0 ? source.economy.treasury / gdp : 0;
+        if (treasuryShare < SEND_AID_MIN_TREASURY_SHARE) {
+          return {
+            valid: false,
+            rejection: {
+              code: "donorInsolvent",
+              source: source.name,
+              treasuryShare,
+              threshold: SEND_AID_MIN_TREASURY_SHARE,
+            },
+          };
+        }
+        return { valid: true };
+      }
+
+      if (primitive.verb === "condemn") {
+        // ТРИБУНА (docs/PRIMITIVES.md §2). Прошлая сессия отложила глагол
+        // именно за отсутствием этого входа; слой влияния его дал. Предпосылка
+        // не формальность: прямой подсчёт по сценарию 1946 даёт 110 стран из
+        // 157 без единой связи вовсе — то есть она реально отсекает.
+        if (audienceOf(source) === 0) {
+          return { valid: false, rejection: { code: "noPodium", source: source.name } };
+        }
+        return { valid: true };
+      }
+
+      // support_proxy — три предпосылки, и каждая отвечает за своё слово в
+      // «патрон поддерживает воюющего клиента, не воюя сам».
+      const clientWar = game.wars.find(
+        w => w.active && (w.attackers.includes(targetId) || w.defenders.includes(targetId))
+      );
+      if (!clientWar) {
+        return { valid: false, rejection: { code: "proxyNotAtWar", target: target.name } };
+      }
+      if (
+        clientWar.attackers.includes(primitive.sourceCountryId) ||
+        clientWar.defenders.includes(primitive.sourceCountryId)
+      ) {
+        return {
+          valid: false,
+          rejection: {
+            code: "proxyPatronIsBelligerent",
+            source: source.name,
+            target: target.name,
+          },
+        };
+      }
+      if (
+        (source.diplomacy.influence[targetId] ?? 0) <= 0 &&
+        !hasFormalTie(source, target)
+      ) {
+        return {
+          valid: false,
+          rejection: { code: "proxyNoPatronage", source: source.name, target: target.name },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "capital_flight": {
+      const region = findRegion(game, primitive.target.regionId);
+      if (!region) {
+        return { valid: false, rejection: { code: "unknownRegion", regionId: primitive.target.regionId } };
+      }
+
+      // Предпосылка ДОБАВЛЕНА к спецификации (она предпосылки не требует), и
+      // это названо явно. Без неё глагол — бесплатное оружие по любому региону
+      // мира: тот же класс дефекта, что общий порог `spawn_incident` до
+      // разделения по видам инцидента. Капитал бежит оттуда, где доверие уже
+      // сломано, а не откуда прикажут.
+      if (region.stability >= CAPITAL_FLIGHT_MAX_STABILITY) {
+        return {
+          valid: false,
+          rejection: {
+            code: "regionTooStableForFlight",
+            region: region.names,
+            stability: region.stability,
+            threshold: CAPITAL_FLIGHT_MAX_STABILITY,
+          },
+        };
+      }
+      return { valid: true };
+    }
   }
+}
+
+/**
+ * Размер аудитории государства — сколько стран его вообще слышат.
+ *
+ * Влияние ИЛИ формальная связь, по множеству (страна, на которую есть и то, и
+ * другое, считается один раз): «сколько адресатов», а не «сколько каналов».
+ * Это и предпосылка `condemn`, и вход его коридора — одна функция на оба, чтобы
+ * отказ и величина не могли разойтись в понимании того, что такое трибуна.
+ */
+function audienceOf(country: Country): number {
+  const heard = new Set<string>();
+  for (const [targetId, value] of Object.entries(country.diplomacy.influence)) {
+    if (value > 0) heard.add(targetId);
+  }
+  for (const id of [
+    ...country.diplomacy.allies,
+    ...country.diplomacy.guarantees,
+    ...country.diplomacy.puppets,
+    ...country.diplomacy.sphereOfInfluence,
+  ]) {
+    heard.add(id);
+  }
+  return heard.size;
+}
+
+/**
+ * Доля территории страны под ЧУЖОЙ оккупацией — вход срочности `support_proxy`.
+ *
+ * Считается по владению и фактическому контролю вместе: регион, которым страна
+ * владеет, но который держит противник, — это и есть потерянная земля. Страна
+ * без территории даёт ноль, а не деление на ноль.
+ */
+function occupiedShareOf(game: GameState, countryId: string): number {
+  let owned = 0;
+  let lost = 0;
+  for (const region of game.regions) {
+    if (region.ownerCountryId !== countryId) continue;
+    owned++;
+    if (effectiveController(region) !== countryId) lost++;
+  }
+  return owned > 0 ? lost / owned : 0;
 }
 
 // --------------------------------------------------------------------------
@@ -1723,6 +1945,265 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         },
       };
     }
+
+    case "send_aid": {
+      const targetId = primitive.target.countryId;
+      const source = game.countries.find(c => c.id === primitive.sourceCountryId)!;
+      const target = game.countries.find(c => c.id === targetId)!;
+
+      // КОРИДОР ОТ СОСТОЯНИЯ. Два множителя, каждый со своим вопросом:
+      // «может ли донор дать» (запас казны над порогом платёжеспособности) и
+      // «насколько велика задача» (доля получателя в ВВП пары). Второй — живой
+      // на поставляемых данных, первый на них почти константа и потому не
+      // единственный (см. `magnitude.ts`).
+      const share = magnitudeFromState(
+        SEND_AID_SHARE_MIN,
+        SEND_AID_SHARE_MAX,
+        donorFiscalRoom(source.economy.treasury, source.economy.gdp) *
+          aidScale(source.economy.gdp, target.economy.gdp),
+        hint
+      );
+
+      const scalarsBefore = countryScalars(game);
+      const transfer = economyCommands.transferTreasury(
+        game,
+        primitive.sourceCountryId,
+        targetId,
+        Math.max(0, source.economy.treasury) * share
+      );
+      const transferError = failIfCommandFailed([transfer]);
+      if (transferError) return commandFailure(primitive.verb, transferError);
+
+      // Влияние растёт настолько, насколько помощь ЗАМЕТНА получателю, и вход
+      // здесь фактический — сумма, которую вернула команда после клампа, а не
+      // та, что просили. Тот же принцип, что у отклика соседей на уступку:
+      // получатель видит, что реально пришло.
+      const moved = transfer.applied ?? 0;
+      const currentInfluence = source.diplomacy.influence[targetId] ?? 0;
+      const influenceGain = magnitudeFromState(
+        SEND_AID_INFLUENCE_MIN,
+        SEND_AID_INFLUENCE_MAX,
+        influenceRoom(currentInfluence) * aidVisibility(moved, target.economy.gdp),
+        hint
+      );
+      const influenceResult = diplomacyCommands.setInfluence(
+        game,
+        primitive.sourceCountryId,
+        targetId,
+        influenceGain
+      );
+      const influenceError = failIfCommandFailed([influenceResult]);
+      if (influenceError) return commandFailure(primitive.verb, influenceError);
+
+      const afterInfluence =
+        game.countries.find(c => c.id === primitive.sourceCountryId)!.diplomacy.influence[targetId] ?? 0;
+      const influenceEffects: InfluenceEffect[] = [
+        {
+          fromCountryId: primitive.sourceCountryId,
+          toCountryId: targetId,
+          before: currentInfluence,
+          after: afterInfluence,
+          delta: afterInfluence - currentInfluence,
+        },
+      ];
+      const countryScalarEffects = countryScalarDiff(scalarsBefore, countryScalars(game));
+
+      return {
+        ok: true,
+        applied: {
+          verb: "send_aid",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          countryScalarEffects,
+          influenceEffects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} sent aid to ` +
+            `${countryLabel(game, targetId)}`,
+            [
+              ...describeScalars(game, countryScalarEffects),
+              ...describeInfluence(game, influenceEffects),
+            ]
+          ),
+        },
+      };
+    }
+
+    case "capital_flight": {
+      const region = findRegion(game, primitive.target.regionId)!;
+      const controllerId = effectiveController(region);
+      const controller = game.countries.find(c => c.id === controllerId);
+
+      // КОРИДОР ОТ СОСТОЯНИЯ: сколько капитала вообще есть (развитость) и
+      // насколько сломано доверие (запас стабильности вниз от порога
+      // предпосылки). Оба входа живые на поставляемых данных.
+      const exposure = capitalFlightExposure(region.development, region.stability);
+      const gdpShare = magnitudeFromState(
+        CAPITAL_FLIGHT_GDP_MIN,
+        CAPITAL_FLIGHT_GDP_MAX,
+        exposure,
+        hint
+      );
+
+      const gdpBefore = region.gdp;
+      const drain = economyCommands.drainRegionGdp(game, region.id, gdpShare);
+      const drainError = failIfCommandFailed([drain]);
+      if (drainError) return commandFailure(primitive.verb, drainError);
+
+      // Удар по казне — отдельный коридор, но взвешенный ВЕСОМ РЕГИОНА в
+      // экономике контролёра: паника в одной провинции империи не опустошает
+      // её бюджет. Без этого веса `capital_flight` по любому окраинному региону
+      // стоил бы державе столько же, сколько по её промышленному ядру.
+      const scalarsBefore = countryScalars(game);
+      if (controller) {
+        const regionWeight =
+          controller.economy.gdp > 0 ? clampShare(gdpBefore / controller.economy.gdp) : 1;
+        const treasuryShare = magnitudeFromState(
+          CAPITAL_FLIGHT_TREASURY_MIN,
+          CAPITAL_FLIGHT_TREASURY_MAX,
+          exposure * regionWeight,
+          hint
+        );
+        const treasuryDrain = economyCommands.drainTreasury(
+          game,
+          controller.id,
+          Math.max(0, controller.economy.treasury) * treasuryShare
+        );
+        const treasuryError = failIfCommandFailed([treasuryDrain]);
+        if (treasuryError) return commandFailure(primitive.verb, treasuryError);
+      }
+
+      const regionEffects: RegionEconomyEffect[] = [
+        {
+          regionId: region.id,
+          field: "gdp",
+          before: gdpBefore,
+          after: region.gdp,
+          delta: region.gdp - gdpBefore,
+        },
+      ];
+      const countryScalarEffects = countryScalarDiff(scalarsBefore, countryScalars(game));
+
+      return {
+        ok: true,
+        applied: {
+          verb: "capital_flight",
+          sourceCountryId: primitive.sourceCountryId,
+          regionId: region.id,
+          countryId: controllerId,
+          regionEffects,
+          countryScalarEffects,
+          summary: joinSummary(
+            `Capital fled ${regionLabel(region)}`,
+            [
+              `regional output ${signed(regionEffects[0]!.delta)} ` +
+              `(${gdpBefore.toFixed(0)} → ${region.gdp.toFixed(0)})`,
+              ...describeScalars(game, countryScalarEffects),
+            ]
+          ),
+        },
+      };
+    }
+
+    case "condemn": {
+      const targetId = primitive.target.countryId;
+      const source = game.countries.find(c => c.id === primitive.sourceCountryId)!;
+      const target = game.countries.find(c => c.id === targetId)!;
+
+      // КОРИДОР ОТ СОСТОЯНИЯ: что цели терять (её легитимность) и есть ли кому
+      // слушать (аудитория источника). Второй множитель живой — слой влияния
+      // наполнен, и именно он превратил `condemn` из глагола без входов в
+      // глагол с проверяемой предпосылкой.
+      const audienceSize = audienceOf(source);
+      const damage = magnitudeFromState(
+        CONDEMN_LEGITIMACY_MIN,
+        CONDEMN_LEGITIMACY_MAX,
+        legitimacyRoom(target.politics.legitimacy) * podiumReach(audienceSize),
+        hint
+      );
+
+      const scalarsBefore = countryScalars(game);
+      const hit = politicsCommands.spendLegitimacy(game, targetId, damage);
+      const hitError = failIfCommandFailed([hit]);
+      if (hitError) return commandFailure(primitive.verb, hitError);
+
+      const countryScalarEffects = countryScalarDiff(scalarsBefore, countryScalars(game));
+      return {
+        ok: true,
+        applied: {
+          verb: "condemn",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          audienceSize,
+          countryScalarEffects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} condemned ` +
+            `${countryLabel(game, targetId)} before ${audienceSize} state(s) that hear it`,
+            describeScalars(game, countryScalarEffects)
+          ),
+        },
+      };
+    }
+
+    case "support_proxy": {
+      const targetId = primitive.target.countryId;
+      const source = game.countries.find(c => c.id === primitive.sourceCountryId)!;
+      const target = game.countries.find(c => c.id === targetId)!;
+      // Война гарантирована предпосылкой: без неё примитив сюда не доезжает.
+      const clientWar = game.wars.find(
+        w => w.active && (w.attackers.includes(targetId) || w.defenders.includes(targetId))
+      )!;
+
+      // КОРИДОР ОТ СОСТОЯНИЯ: есть ли канал патронажа (влияние либо формальная
+      // связь — живой вход и источник достижимого схлопывания) и насколько
+      // клиент прижат (доля его земли под оккупацией, с полом больше нуля).
+      const stateFactor =
+        proxyTie(source.diplomacy.influence[targetId] ?? 0, hasFormalTie(source, target)) *
+        proxyUrgency(occupiedShareOf(game, targetId));
+
+      const scalarsBefore = countryScalars(game);
+
+      // Патрон платит. Деньги и сила — ДВА эффекта одного акта, а не конверсия:
+      // рынка вооружений в модели нет, и цена единицы техники была бы
+      // калибровочной константой без второго потребителя.
+      const cost =
+        Math.max(0, source.economy.treasury) *
+        magnitudeFromState(SUPPORT_PROXY_SHARE_MIN, SUPPORT_PROXY_SHARE_MAX, stateFactor, hint);
+      const payment = economyCommands.drainTreasury(game, primitive.sourceCountryId, cost);
+      const paymentError = failIfCommandFailed([payment]);
+      if (paymentError) return commandFailure(primitive.verb, paymentError);
+
+      // Клиент получает живую силу. База — его НАСЕЛЕНИЕ, а не его армия:
+      // `activePersonnel` в поставляемом сценарии ноль у всех 157 стран, и
+      // доля от нуля дала бы ноль в любом мире.
+      const reinforcement =
+        target.population *
+        magnitudeFromState(
+          SUPPORT_PROXY_PERSONNEL_MIN_SHARE,
+          SUPPORT_PROXY_PERSONNEL_MAX_SHARE,
+          stateFactor,
+          hint
+        );
+      const reinforced = militaryCommands.reinforcePersonnel(game, targetId, reinforcement);
+      const reinforcedError = failIfCommandFailed([reinforced]);
+      if (reinforcedError) return commandFailure(primitive.verb, reinforcedError);
+
+      const countryScalarEffects = countryScalarDiff(scalarsBefore, countryScalars(game));
+      return {
+        ok: true,
+        applied: {
+          verb: "support_proxy",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          warId: clientWar.id,
+          countryScalarEffects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} backed ` +
+            `${countryLabel(game, targetId)} in war ${clientWar.id} without joining it`,
+            describeScalars(game, countryScalarEffects)
+          ),
+        },
+      };
+    }
   }
 }
 
@@ -1883,6 +2364,55 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
             bilateralPairKey(primitive.sourceCountryId, primitive.target.countryId)
           ),
           label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+
+    // ПОМОЩЬ И ПАТРОНАЖ — ключ на упорядоченную ПАРУ, с глаголом.
+    //
+    // Ячейки этих двух либо парные по построению (`influence:A->B`), либо
+    // оплачены СОБСТВЕННОЙ казной источника. Поэтому складывать их нескольким
+    // донорам законно: десять государств, помогающих одному, — это десять
+    // государств, каждое из которых заплатило само, а не десять коридоров,
+    // сложенных в одну бесплатную ячейку.
+    case "send_aid":
+    case "support_proxy":
+      return [
+        {
+          key: verbScopedKey(
+            primitive.verb,
+            bilateralPairKey(primitive.sourceCountryId, primitive.target.countryId)
+          ),
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+
+    // ОСУЖДЕНИЕ И ОТТОК КАПИТАЛА — ключ БЕЗ ИСТОЧНИКА, и это защита, а не
+    // экономия символов.
+    //
+    // Их ячейки принадлежат ЦЕЛИ, а не паре (`legitimacy:<цель>`,
+    // `regionGdp:<регион>`), и стоят источнику НОЛЬ. Ключ с источником означал
+    // бы, что десять разных государств в одном ответе складывают десять
+    // коридоров в одну ячейку бесплатно, — тот же спилловер, что у отклика
+    // соседей `grant_autonomy`, но здесь он выразим прямо в ключе цели и
+    // потому не требует второго капа по величине.
+    //
+    // Цена названа: за игровой месяц осудить одну страну может только ОДИН
+    // источник, и второе осуждение той же страны отклоняется, даже придя от
+    // другого государства. Это сознательно — «сколько раз мир вправе ударить
+    // по одной репутации за месяц» важнее, чем «кто именно ударил».
+    case "condemn":
+      return [
+        {
+          key: verbScopedKey(primitive.verb, `country ${primitive.target.countryId}`),
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+
+    case "capital_flight":
+      return [
+        {
+          key: verbScopedKey(primitive.verb, `region ${primitive.target.regionId}`),
+          label: { region: regionNamesOf(game, primitive.target.regionId) },
         },
       ];
   }

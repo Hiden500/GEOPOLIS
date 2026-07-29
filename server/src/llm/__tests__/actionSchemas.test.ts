@@ -49,7 +49,7 @@ describe("LLMActionSchema", () => {
       expect(result.success).toBe(false);
     });
 
-    it.each(["guarantee", "influence"] as const)(
+    it.each(["guarantee"] as const)(
       "%s: отклоняет sourceCountryId === targetCountryId",
       (type) => {
         const result = LLMActionSchema.safeParse({
@@ -61,7 +61,7 @@ describe("LLMActionSchema", () => {
       }
     );
 
-    it.each(["guarantee", "influence"] as const)(
+    it.each(["guarantee"] as const)(
       "%s: отклоняет отсутствующий targetCountryId",
       (type) => {
         const result = LLMActionSchema.safeParse({ type, sourceCountryId: "USA" });
@@ -107,28 +107,20 @@ describe("LLMActionSchema", () => {
     });
   });
 
-  describe("influence", () => {
-    it("валиден без единого числового поля: величину задаёт движок", () => {
+  describe("influence — удалён из старого канала (Милстоун 1, мягкие глаголы)", () => {
+    it("схема его не принимает: влияние двигает только примитив send_aid", () => {
+      // Путь этого типа был длинным и стоит того, чтобы его назвать. Сначала у
+      // него сняли числовое поле `influenceChange` — модель перестала задавать
+      // магнитуду. Затем появился `send_aid`, который двигает ТО ЖЕ поле
+      // коридором от состояния пары, под капом цели и под сверкой результата, —
+      // и плоский шаг рядом с коридором стал обходом коридора сменой КАНАЛА,
+      // ровно как `sanction` рядом с `diplomacy` внутри алфавита.
       const result = LLMActionSchema.safeParse({
         type: "influence",
         sourceCountryId: "USA",
         targetCountryId: "SUN",
       });
-      expect(result.success).toBe(true);
-    });
-
-    it("присланная моделью величина не попадает в разобранное действие", () => {
-      // Поле снято из схемы — последнее место старого канала, где модель
-      // задавала магнитуду дипломатического акта. Zod посторонний ключ молча
-      // отбрасывает, и проверяется именно это: величина до движка не доезжает.
-      const result = LLMActionSchema.safeParse({
-        type: "influence",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
-        data: { influenceChange: 999 },
-      });
-      expect(result.success).toBe(true);
-      if (result.success) expect((result.data as any).data).toBeUndefined();
+      expect(result.success).toBe(false);
     });
   });
 

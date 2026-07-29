@@ -382,13 +382,12 @@ export interface LastTurnReport {
 // реализации, эти имели неправильный контракт.
 export type LLMAction =
   | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
-  // `influence` ОСТАЁТСЯ в старом канале, но БЕЗ модельного числа (Милстоун 1).
-  // Он не дублируется ни одним переведённым глаголом, и удалить его значило бы
-  // отнять живую способность (сфера влияния имеет пороговые последствия в
-  // `DiplomacyTick`). Числовое поле `influenceChange` снято: величину задаёт
-  // движок. Полноценным глаголом алфавита влияние становится вместе с
-  // `send_aid` (`docs/TODO.md`).
-  | { type: "influence"; sourceCountryId: string; targetCountryId: string }
+  // `influence` УДАЛЁН Милстоуном 1 (сессия мягких глаголов). Его контракт был
+  // уже исправлен — числовое поле сняли, шаг задавал движок, — но с появлением
+  // `send_aid`, который двигает ТО ЖЕ поле коридором от состояния, под капом
+  // цели и под сверкой результата, плоский шаг рядом стал обходом коридора
+  // сменой канала. Цена названа: «влияние без денег» недоступно вовсе
+  // (`docs/TODO.md`).
   | { type: "research_shift"; sourceCountryId: string; data: { domain: string; share: number } }
   | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } }
   | { type: "build_extraction"; sourceCountryId: string; data: { regionId: number; resource: ResourceType; delta: 1 | -1 } };

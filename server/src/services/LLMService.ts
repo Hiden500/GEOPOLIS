@@ -50,7 +50,6 @@ import { deriveEventFactuality } from "../llm/eventFactuality";
 import { LLMActionSchema, LLMResponseEnvelopeSchema } from "../llm/actionSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
-  INFLUENCE_STEP,
   MAX_RESEARCH_SHARE,
   MAX_PRODUCTION_SHARE,
 } from "@shared/defines/llmActionCaps";
@@ -746,9 +745,17 @@ export class LLMService {
           break;
         case "diplomacy":
         case "sanction":
-          // Дипломатический жест касается ровно двух государств и ни одного
-          // региона: место у него отсутствует, а не «не найдено».
+        // Помощь, осуждение и патронаж — тоже акты между двумя государствами:
+        // места у них нет, а не «не найдено».
+        case "send_aid":
+        case "condemn":
+        case "support_proxy":
           countries.add(primitive.targetCountryId);
+          break;
+        case "capital_flight":
+          // Отток капитала происходит В РЕГИОНЕ, и `addRegion` сам добавит его
+          // фактического контролёра — ту страну, чья казна и пострадала.
+          addRegion(primitive.regionId);
           break;
         case "war":
           // Война касается не пары, а ВСЕХ сторон: коалиции втянуты договорами,
@@ -1047,7 +1054,7 @@ Return your response in JSON format with the following structure:
   "descriptions": "Narrative description of world events",
   "actions": [
     {
-      "type": "guarantee|influence|research_shift|production_shift|build_extraction",
+      "type": "guarantee|research_shift|production_shift|build_extraction",
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
@@ -1064,13 +1071,14 @@ Return your response in JSON format with the following structure:
 }
 
 Diplomacy between states lives ENTIRELY in the primitives channel now: relations,
-sanctions, war and peace are verbs of the alphabet, not "actions". They are not
-listed above because the engine no longer accepts them there — a diplomacy
-"action" is a rejected action, not a shortcut.
+sanctions, war, peace, aid, condemnation and support for a proxy are verbs of the
+alphabet, not "actions". They are not listed above because the engine no longer
+accepts them there — a diplomacy "action" is a rejected action, not a shortcut.
+That now includes influence: it is bought with aid (send_aid), and there is no
+flat-step "action" for it any more.
 
 Hard limits (actions violating them are rejected):
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
-- influence: no magnitude field — the engine sets the step itself.
 - research_shift: data.domain must be a real domain of the source country
   (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
 - production_shift: data.equipmentType must be one of rifles/trucks/tanks/
@@ -1102,9 +1110,6 @@ Hard limits (actions violating them are rejected):
         case 'guarantee':
           this.applyGuaranteeAction(action, game);
           break;
-        case 'influence':
-          this.applyInfluenceAction(action, game);
-          break;
         case 'research_shift':
           this.applyResearchShiftAction(action, game);
           break;
@@ -1134,24 +1139,6 @@ Hard limits (actions violating them are rejected):
     game: GameState
   ): void {
     diplomacyCommands.setGuarantee(game, action.sourceCountryId, action.targetCountryId);
-  }
-
-  /**
-   * Применяет действие влияния.
-   */
-  private applyInfluenceAction(
-    action: Extract<LLMAction, { type: "influence" }>,
-    game: GameState
-  ): void {
-    // Шаг задаёт ДВИЖОК, а не модель (Милстоун 1). Прежде здесь стояло
-    // `action.data?.influenceChange || 10` — то есть присланное моделью число с
-    // константой в роли умолчания. Поле снято из схемы, осталась константа.
-    diplomacyCommands.setInfluence(
-      game,
-      action.sourceCountryId,
-      action.targetCountryId,
-      INFLUENCE_STEP
-    );
   }
 
   /**

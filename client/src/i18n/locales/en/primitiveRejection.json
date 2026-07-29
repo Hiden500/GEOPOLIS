@@ -35,5 +35,11 @@
   "sanctionAlreadyImposed": "{{source}} already holds sanctions ({{sanctionType}}) against {{target}} — repeating changes nothing",
   "alreadyAtWar": "{{source}} is already at war with {{target}}",
   "warOnAlly": "{{source}} cannot declare war on its ally {{target}}: breaking an alliance is not modelled yet",
-  "noActiveWar": "There is no active war between {{source}} and {{target}}"
+  "noActiveWar": "There is no active war between {{source}} and {{target}}",
+  "donorInsolvent": "{{source}} cannot send aid: its treasury holds {{treasuryShare}}% of GDP, below the {{threshold}}% required",
+  "regionTooStableForFlight": "Capital does not flee {{region}}: stability is {{stability}}, and flight starts below {{threshold}}",
+  "noPodium": "{{source}} has no podium: no influence and no formal ties, so there is nobody to hear it",
+  "proxyNotAtWar": "{{target}} is not at war with anyone: there is no war to support it in",
+  "proxyPatronIsBelligerent": "{{source}} fights in the same war as {{target}}: that is its own war, not a proxy one",
+  "proxyNoPatronage": "{{source}} is no patron of {{target}}: influence or a formal tie is required"
 }

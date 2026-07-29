@@ -74,6 +74,7 @@ const COUNTRY_SCALAR_CELL_PREFIX: Record<CountryScalarField, string> = {
   governmentSupport: "support",
   legitimacy: "legitimacy",
   treasury: "treasury",
+  activePersonnel: "personnel",
 };
 
 function countryScalarCellKey(countryId: string, field: CountryScalarField): string {
@@ -94,6 +95,47 @@ function supportCellKey(countryId: string): string {
  */
 function relationCellKey(fromCountryId: string, toCountryId: string): string {
   return `relation:${fromCountryId}->${toCountryId}`;
+}
+
+/**
+ * Ключ ячейки влияния — тоже на УПОРЯДОЧЕННУЮ пару, но по другой причине, чем
+ * у отношений.
+ *
+ * У отношений две записи потому, что `changeRelation` пишет обеим сторонам
+ * разные дельты. Влияние несимметрично ПО ОПРЕДЕЛЕНИЮ (`DiplomacyState`:
+ * «влияние на другие страны»): обратной записи у него не существует вовсе, и
+ * ячейка на пару-множество означала бы, что сверка не отличит влияние донора на
+ * получателя от обратного.
+ */
+function influenceCellKey(fromCountryId: string, toCountryId: string): string {
+  return `influence:${fromCountryId}->${toCountryId}`;
+}
+
+/**
+ * Ключ ячейки ВВП региона.
+ *
+ * Появилась вместе с `capital_flight`: он бьёт по региональному производству, а
+ * `country.economy.gdp` — агрегат, который тик перезаписывает из регионов.
+ *
+ * ЦЕНА НАЗВАНА: разложение состояния теперь обходит и регионы (1399 в
+ * поставляемом сценарии), а `findMisreportedChanges` строит его дважды на
+ * примитив. Верхняя граница расхода — кап примитивов на ход (11), то есть
+ * порядка 30 тысяч итераций на ответ модели, раз в игровой месяц. Это
+ * несопоставимо дешевле пост-инвариантов, которые обходят мир целиком.
+ */
+function regionGdpCellKey(regionId: number): string {
+  return `regionGdp:${regionId}`;
+}
+
+/**
+ * Ключ ячейки живой силы страны.
+ *
+ * `activePersonnel`, а не `armyStrength`: первое — единственное военное число,
+ * которое реально читает бой (`simulation/war/WarTick.ts::sideStrength`),
+ * второе статичный ноль во всех сгенерированных странах.
+ */
+function personnelCellKey(countryId: string): string {
+  return countryScalarCellKey(countryId, "activePersonnel");
 }
 
 /**
@@ -137,6 +179,17 @@ export function enumerateCells(game: GameState): StateCells {
     for (const [targetId, value] of Object.entries(country.diplomacy.relations)) {
       cells.set(relationCellKey(country.id, targetId), value);
     }
+    // Влияние перечисляется по фактическим записям по той же причине, что
+    // отношения: словарь разрежен (47 непустых из 157 в сценарии 1946), и
+    // отсутствующая ячейка честно читается сверкой как ноль.
+    for (const [targetId, value] of Object.entries(country.diplomacy.influence)) {
+      cells.set(influenceCellKey(country.id, targetId), value);
+    }
+    cells.set(personnelCellKey(country.id), country.military.activePersonnel);
+  }
+
+  for (const region of game.regions) {
+    cells.set(regionGdpCellKey(region.id), region.gdp);
   }
 
   return cells;
@@ -237,6 +290,33 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
     case "split_country":
       pushScalars(applied.countryScalarEffects);
       break;
+    // Мягкие воздействия Милстоуна 1. Скалярный список у них общий (казна,
+    // легитимность, живая сила), поэтому три из четырёх разбираются одной
+    // веткой; `send_aid` добавляет к нему свой канал влияния.
+    case "capital_flight":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.regionEffects) {
+        changes.push({
+          key: regionGdpCellKey(effect.regionId),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
+      break;
+    case "condemn":
+    case "support_proxy":
+      pushScalars(applied.countryScalarEffects);
+      break;
+    case "send_aid":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.influenceEffects) {
+        changes.push({
+          key: influenceCellKey(effect.fromCountryId, effect.toCountryId),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
+      break;
     case "incite_unrest":
     case "repress":
     case "grant_autonomy":
@@ -279,6 +359,12 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     // здесь спрашивает про созданные. Удаление объявлено палитрой маркером
     // `mapFeatures[-]`.
     case "peace":
+    // Мягкие воздействия Милстоуна 1 карту не трогают вовсе — ни один из них
+    // не заявляет объекта в палитре.
+    case "send_aid":
+    case "capital_flight":
+    case "condemn":
+    case "support_proxy":
       return [];
   }
 }
