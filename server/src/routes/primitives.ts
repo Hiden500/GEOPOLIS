@@ -8,6 +8,7 @@ import { ValidationError, GameError, LLMProviderError } from "../errors/AppError
 import { getGame, setGame } from "../game/GameStore";
 import { effectiveController } from "@shared/utils/regionControl";
 import { GeminiProvider, toProviderSchema } from "../llm/providers/GeminiProvider";
+import { recordUsage } from "../llm/recordUsage";
 import {
   buildPrimitiveTranslationPrompt,
   parsePrimitiveTranslation,
@@ -19,7 +20,9 @@ import { applyPrimitiveTurn } from "../primitives/turnBatch";
 import { chooseSuccessor } from "../primitives/campaign";
 
 const router = express.Router();
-const geminiProvider = new GeminiProvider();
+const geminiProvider = new GeminiProvider(usage =>
+  recordUsage(usage, "intent-translation")
+);
 const TRANSLATION_RESPONSE_SCHEMA = toProviderSchema(primitiveTranslationSchema);
 
 /**

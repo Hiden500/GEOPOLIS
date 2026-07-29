@@ -4,10 +4,13 @@ import { LLMService } from "../services/LLMService";
 import { llmResponseSchema } from "../validation/schemas";
 import { ValidationError, GameError, LLMProviderError } from "../errors/AppError";
 import { GeminiProvider } from "../llm/providers/GeminiProvider";
+import { recordUsage } from "../llm/recordUsage";
 
 const router = express.Router();
 const gameService = new GameService();
-const geminiProvider = new GeminiProvider();
+const geminiProvider = new GeminiProvider(usage =>
+  recordUsage(usage, "world-cycle")
+);
 
 /**
  * Ручной LLM-цикл, шаг 1: отдать промт для копирования в внешнюю LLM.
