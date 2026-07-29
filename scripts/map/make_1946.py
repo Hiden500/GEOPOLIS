@@ -57,6 +57,8 @@ FULL_REBUILD_STEPS = [
     "build/fix_santafe_tacuarembo_gap.py",
     "build/fix_alaska_coastline_gaps.py",
     "build/fix_alaska_coastline_gaps_pointfix.py",
+    "build/fix_washington_sanjuan_orphans.py",
+    "build/fix_puget_sound_coastline_gaps.py",
     "build/merge_world_1946.py",
     "build/build_neighbor_graph.py",
     "build/translate_world.py",

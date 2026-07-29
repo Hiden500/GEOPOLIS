@@ -119,6 +119,46 @@ cell-mosaic logic.
   `PathPatch` in the shared tool; if you write or touch ANY new render
   function in this codebase, grep for `color=.white.`/`color="#a8d8f0"`
   near an `interiors` loop before trusting it.
+  **The `PathPatch` fix itself introduced a NEW render artifact** — it
+  strokes the ENTIRE compound path with one `edgecolor`, including
+  interior rings, so a legitimate hole (a neighbor's real territory) now
+  got a visible black outline traced right through the middle of the
+  polygon on the very next render (same day, same user report: "чёрная
+  полоса в полигоне"). Fix: never pass `edgecolor` to the fill patch at
+  all — draw the exterior ring's stroke as a SEPARATE `ax.plot(*exterior.
+  xy, ...)` call, so interior rings are used only for the even-odd fill
+  exclusion and never get their own visible border.
+- **A user pointing at several visually-similar defects in one screenshot
+  can be describing MULTIPLE independent bugs sharing one symptom — fixing
+  the first plausible explanation and re-rendering "clean" doesn't mean
+  the rest are explained by it too, verify each circled item separately.**
+  The white-hole render bug above was real and WAS the correct fix for
+  "white patches" — but the same user complaint also circled genuinely
+  disconnected `MultiPolygon` fragments (see next bullet) and genuine
+  unclosed coastline gaps that had been separately triaged as "deferred
+  backlog" earlier the same session. Declaring the area "fixed" after
+  solving only the render bug, without independently re-checking geometry
+  (part connectivity) and running the numeric gap scanner again, produced
+  a second render that still showed real defects the user had already
+  pointed at once. Each distinct-looking annotation needs its own
+  independent verification method (containment check for coverage,
+  distance-to-different-country for orphan parts, a fresh `diagnose_
+  coastline_gaps.py` scan for gaps) — don't let one satisfying root cause
+  explain away everything else in the same screenshot.
+- **A disconnected `MultiPolygon` part that touches a DIFFERENT country's
+  land at distance ≈0 is very likely misattributed territory, not
+  noise — check whether raw source confirms ownership before assuming
+  it's fine.** Washington — San Juan carried 4 parts beyond its main body;
+  3 (touching ONLY British Columbia, north of the US/Canada line or on
+  Vancouver Island's own coast) had NO raw `game_map.json` feature under
+  Washington at that location at all — genuine Canadian territory that had
+  drifted into the wrong feature (most likely the same "`unary_union`
+  shifts float coordinates elsewhere in the geometry" mechanism already
+  documented for Alaska/British Columbia). The 4th DID have a raw
+  Washington source — legitimately Washington, just in the wrong cluster.
+  Decisive test, not a judgment call: does the disconnected part touch
+  EXACTLY ONE other feature (reassign to it) — a part touching zero or
+  several needs a human look, don't auto-resolve those.
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake

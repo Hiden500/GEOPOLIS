@@ -234,7 +234,7 @@ def scan():
             print(f"  {a:8.1f} km2  [{label}]  at ({pt[0]:.3f},{pt[1]:.3f})")
 
 
-def _polygon_patch(p, **kw):
+def _polygon_patch(p, edgecolor=None, linewidth=0, **kw):
     # PathPatch с exterior+interior кольцами вместо ax.fill(exterior) +
     # ax.fill(interior, color="white") поверх. Разница критична: у второго
     # подхода "дыра" красится НЕПРОЗРАЧНЫМ белым НАД уже отрисованным ниже
@@ -247,6 +247,14 @@ def _polygon_patch(p, **kw):
     # отображаются" — 7 из 8 дыр в полигоне San Juan оказались точно
     # территорией British Columbia (легитимный сосед), белый цвет рисовал
     # эту реальную сушу как якобы отсутствующую.
+    #
+    # edgecolor здесь ВСЕГДА None (fill-only) — PathPatch обводит ВЕСЬ Path
+    # одним цветом, включая interior-кольца, а interior-кольцо часто НЕ
+    # реальный берег (та же легитимная граница с соседом, что и породила
+    # дыру) — обведённое чёрным, оно рисуется как "чёрная полоса прямо в
+    # середине суши" (тот же рендер, пользователь, 2026-07-29, после
+    # первого фикса дыр этим же PathPatch). Обводка экстерьера рисуется
+    # ОТДЕЛЬНО через _exterior_line ниже, только по внешнему контуру.
     from matplotlib.path import Path
     from matplotlib.patches import PathPatch
 
@@ -257,7 +265,16 @@ def _polygon_patch(p, **kw):
         codes.append(Path.MOVETO)
         codes.extend([Path.LINETO] * (len(coords) - 2))
         codes.append(Path.CLOSEPOLY)
-    return PathPatch(Path(vertices, codes), **kw)
+    return PathPatch(Path(vertices, codes), edgecolor="none", linewidth=0, **kw)
+
+
+def _exterior_line(p, ax, **kw):
+    """Обводка ТОЛЬКО внешнего контура полигона — используется вместо
+    edgecolor у _polygon_patch, чтобы дыры (interior-кольца) не получали
+    видимую чёрную рамку, когда дыра — легитимная граница с соседом, а не
+    настоящий берег."""
+    x, y = p.exterior.xy
+    ax.plot(x, y, **kw)
 
 
 def render(minx, miny, maxx, maxy, out_path, title=None):
@@ -274,14 +291,14 @@ def render(minx, miny, maxx, maxy, out_path, title=None):
         for p in polys:
             if p.is_empty:
                 continue
-            ax.add_patch(_polygon_patch(
-                p, facecolor="wheat", edgecolor="saddlebrown", linewidth=0.5, zorder=2))
+            ax.add_patch(_polygon_patch(p, facecolor="wheat", zorder=2))
+            _exterior_line(p, ax, color="saddlebrown", linewidth=0.5, zorder=2.1)
     for g in water_geoms:
         polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
         for p in polys:
             if p.is_empty:
                 continue
-            ax.add_patch(_polygon_patch(p, facecolor="#a8d8f0", linewidth=0, zorder=1))
+            ax.add_patch(_polygon_patch(p, facecolor="#a8d8f0", zorder=1))
 
     gaps = _gap_cells(box, land_geoms, water_geoms)
     counts = {"COASTLINE": 0, "LAND_HOLE": 0, "LAND_SEAM": 0}
