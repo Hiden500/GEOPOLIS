@@ -234,6 +234,32 @@ def scan():
             print(f"  {a:8.1f} km2  [{label}]  at ({pt[0]:.3f},{pt[1]:.3f})")
 
 
+def _polygon_patch(p, **kw):
+    # PathPatch с exterior+interior кольцами вместо ax.fill(exterior) +
+    # ax.fill(interior, color="white") поверх. Разница критична: у второго
+    # подхода "дыра" красится НЕПРОЗРАЧНЫМ белым НАД уже отрисованным ниже
+    # (напр. соседним легитимным регионом, чья территория как раз и
+    # находится в этой дыре — обычный исход resolve-overlap между двумя
+    # реальными фичами, не разрыв). PathPatch с чётно-нечётным правилом
+    # заливки оставляет дыру ПРОЗРАЧНОЙ — сквозь неё виден слой ниже, как и
+    # должно быть. Найдено 2026-07-29 (пользователь, Washington — San Juan):
+    # "Белые пятна - это суша, не пойму только почему у тебя не
+    # отображаются" — 7 из 8 дыр в полигоне San Juan оказались точно
+    # территорией British Columbia (легитимный сосед), белый цвет рисовал
+    # эту реальную сушу как якобы отсутствующую.
+    from matplotlib.path import Path
+    from matplotlib.patches import PathPatch
+
+    vertices, codes = [], []
+    for ring in (p.exterior, *p.interiors):
+        coords = list(ring.coords)
+        vertices.extend(coords)
+        codes.append(Path.MOVETO)
+        codes.extend([Path.LINETO] * (len(coords) - 2))
+        codes.append(Path.CLOSEPOLY)
+    return PathPatch(Path(vertices, codes), **kw)
+
+
 def render(minx, miny, maxx, maxy, out_path, title=None):
     import matplotlib
     matplotlib.use("Agg")
@@ -248,18 +274,14 @@ def render(minx, miny, maxx, maxy, out_path, title=None):
         for p in polys:
             if p.is_empty:
                 continue
-            xs, ys = p.exterior.xy
-            ax.fill(xs, ys, color="wheat", edgecolor="saddlebrown", linewidth=0.5, zorder=2)
-            for interior in p.interiors:
-                ixs, iys = interior.xy
-                ax.fill(ixs, iys, color="white", zorder=2.5)
+            ax.add_patch(_polygon_patch(
+                p, facecolor="wheat", edgecolor="saddlebrown", linewidth=0.5, zorder=2))
     for g in water_geoms:
         polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
         for p in polys:
             if p.is_empty:
                 continue
-            xs, ys = p.exterior.xy
-            ax.fill(xs, ys, color="#a8d8f0", zorder=1)
+            ax.add_patch(_polygon_patch(p, facecolor="#a8d8f0", linewidth=0, zorder=1))
 
     gaps = _gap_cells(box, land_geoms, water_geoms)
     counts = {"COASTLINE": 0, "LAND_HOLE": 0, "LAND_SEAM": 0}
