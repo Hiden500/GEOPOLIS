@@ -96,6 +96,21 @@ export type PrimitiveRejection =
       best: number;
     }
 
+  // --- validate: дипломатический блок ---
+  //
+  // Все пять кодов отвечают на вопрос «так не бывает», а не «мало». Отдельного
+  // отказа «отношения на краю шкалы» здесь НЕТ намеренно: коридор в этом случае
+  // схлопывается в свой минимум, команда клампит его в ноль, и результат
+  // честно сообщает нулевую дельту — тот же путь, что у репрессии по группе на
+  // потолке подавления. Отказывать за то, что состояние не оставило места,
+  // значило бы завести два разных ответа на одно и то же положение мира.
+  | { code: "bilateralSelfTarget"; verb: PrimitiveVerb; country: LocalizedText }
+  | { code: "diplomacyNoDirection"; country: LocalizedText }
+  | { code: "sanctionAlreadyImposed"; source: LocalizedText; target: LocalizedText; sanctionType: string }
+  | { code: "alreadyAtWar"; source: LocalizedText; target: LocalizedText }
+  | { code: "warOnAlly"; source: LocalizedText; target: LocalizedText }
+  | { code: "noActiveWar"; source: LocalizedText; target: LocalizedText }
+
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
   | { code: "structuralTurnCapReached"; cap: number }
@@ -230,6 +245,32 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
         `such discontent is ${rejection.best.toFixed(2)}, below the ` +
         `${rejection.threshold.toFixed(2)} secession threshold`
       );
+
+    case "bilateralSelfTarget":
+      return (
+        `${rejection.verb} needs a target country other than the source: ` +
+        `${name(rejection.country)} cannot address itself`
+      );
+    case "diplomacyNoDirection":
+      return (
+        `diplomacy towards ${name(rejection.country)} requires params.direction ` +
+        `("improve" or "worsen"): the engine decides how far the relation moves, ` +
+        `but not which way you meant it to`
+      );
+    case "sanctionAlreadyImposed":
+      return (
+        `${name(rejection.source)} already has ${rejection.sanctionType} in place against ` +
+        `${name(rejection.target)}: imposing it again would change nothing`
+      );
+    case "alreadyAtWar":
+      return `${name(rejection.source)} is already at war with ${name(rejection.target)}`;
+    case "warOnAlly":
+      return (
+        `${name(rejection.source)} cannot declare war on its ally ${name(rejection.target)}: ` +
+        `breaking an alliance is not modelled yet`
+      );
+    case "noActiveWar":
+      return `There is no active war between ${name(rejection.source)} and ${name(rejection.target)}`;
 
     case "softTurnCapReached":
       return `At most ${rejection.cap} soft primitives per turn`;
@@ -375,6 +416,22 @@ export function rejectionRecord(
         { threshold: rejection.threshold.toFixed(2), best: rejection.best.toFixed(2) },
         { country: rejection.country }
       );
+
+    case "bilateralSelfTarget":
+      return of({ verb: rejection.verb }, { country: rejection.country });
+    case "diplomacyNoDirection":
+      return of(undefined, { country: rejection.country });
+    case "sanctionAlreadyImposed":
+      // Вид санкции — машинное имя: клиент подставляет его в свой словарь как
+      // ключ, ровно как оси у `reformAxisAtSpectrumEdge`.
+      return of({ sanctionType: rejection.sanctionType }, {
+        source: rejection.source,
+        target: rejection.target,
+      });
+    case "alreadyAtWar":
+    case "warOnAlly":
+    case "noActiveWar":
+      return of(undefined, { source: rejection.source, target: rejection.target });
 
     case "softTurnCapReached":
     case "structuralTurnCapReached":

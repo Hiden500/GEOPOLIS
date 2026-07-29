@@ -105,7 +105,22 @@
       "moderate": "manner: moderate",
       "severe": "manner: severe"
     },
-    "split_country": "Break-up of {{country}}"
+    "split_country": "Break-up of {{country}}",
+    "diplomacy": {
+      "improve": "Improve relations with {{country}}",
+      "worsen": "Worsen relations with {{country}}",
+      "unspecified": "A diplomatic gesture towards {{country}} (no direction given)"
+    },
+    "sanction": "Impose sanctions on {{country}}",
+    "sanctionType": {
+      "trade_embargo": "kind: trade embargo",
+      "economic_sanctions": "kind: economic sanctions",
+      "military_sanctions": "kind: military sanctions",
+      "diplomatic_sanctions": "kind: diplomatic sanctions",
+      "default": "kind: default (economic sanctions)"
+    },
+    "war": "Declare war on {{country}}",
+    "peace": "Make peace with {{country}}"
   },
   "splitCountry": {
     "headline": "{{country}} broke apart into {{shards}} new state(s)"
@@ -115,5 +130,33 @@
     "dissolved": "The metropole ceased to exist; successor: {{country}}",
     "capitalMoved": "The capital moved to region {{region}}",
     "warsClosed": "Wars closed: {{count}}"
+  },
+  "diplomacy": {
+    "headline": {
+      "improve": "Diplomatic overture: {{source}} moves closer to {{country}}",
+      "worsen": "Diplomatic rupture: {{source}} cools towards {{country}}"
+    }
+  },
+  "sanction": {
+    "headline": "{{source}} imposes sanctions on {{country}} ({{sanctionType}})",
+    "cutsTrade": "The target's exports are cut from next month on",
+    "reputationOnly": "No trade effect: only a trade embargo cuts exports today"
+  },
+  "war": {
+    "headline": "{{source}} declares war on {{country}}",
+    "draggedIn": "Treaties dragged in {{count}} further state(s)"
+  },
+  "peace": {
+    "headline": "Peace concluded: {{source}} and {{country}}",
+    "annexed": "{{count}} region(s) changed hands by treaty",
+    "borderUnchanged": "The border did not move",
+    "capitalMoved": "The capital of {{country}} moved to {{region}}",
+    "governmentSupport": "Government support of {{country}}: {{delta}} ({{before}} → {{after}})",
+    "legitimacy": "Legitimacy of {{country}}: {{delta}} ({{before}} → {{after}})",
+    "treasury": "Treasury of {{country}}: {{delta}} ({{before}} → {{after}})"
+  },
+  "relation": {
+    "changed": "Relations {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
+    "unchanged": "Relations {{source}} → {{country}}: unchanged ({{value}})"
   }
 }

@@ -102,32 +102,12 @@ export class LLMResponseValidator {
         return { valid: false, error: 'Target country not found' };
       }
 
-      // Проверяем логические ограничения
-      if (action.type === 'peace') {
-        // Нельзя заключить мир, если между сторонами нет активной войны.
-        if (!this.warService.getActiveWarBetween(action.sourceCountryId, action.targetCountryId)) {
-          return { valid: false, error: 'No active war between these countries' };
-        }
-      }
-
-      if (action.type === 'war') {
-        // Нельзя объявить войну стороне, с которой уже воюешь, или союзнику
-        // (docs/WAR.md, Phase 1 — упрощение, не моделируем разрыв союза).
-        if (this.warService.getActiveWarBetween(action.sourceCountryId, action.targetCountryId)) {
-          return { valid: false, error: 'Already at war with this country' };
-        }
-        if (source.diplomacy.allies.includes(action.targetCountryId)) {
-          return { valid: false, error: 'Cannot declare war on an ally' };
-        }
-      }
-
-      if (action.type === 'sanction') {
-        // Нельзя наложить санкции если уже есть
-        const existingSanctions = source.diplomacy.sanctions[action.targetCountryId];
-        if (existingSanctions && existingSanctions.length > 0) {
-          return { valid: false, error: 'Sanctions already exist' };
-        }
-      }
+      // Правила для `peace`/`war`/`sanction` переехали в предпосылки движка
+      // примитивов вместе со своими глаголами (Милстоун 1,
+      // `PrimitiveEngine.validate`): «нет активной войны», «уже воюем», «война
+      // с союзником», «санкция уже наложена». Там они выражены структурными
+      // кодами отказа, а не английскими строками, и потому доезжают до игрока
+      // по-русски.
 
       if (action.type === 'guarantee') {
         // Нельзя гарантировать независимость если уже есть гарантия
