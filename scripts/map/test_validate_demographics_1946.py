@@ -21,7 +21,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from validate_demographics_1946 import (
     validate,
     zone_anchor_parity_violations,
+    influence_violations,
+    layer_sync_report,
     MAX_GROUPS_PER_REGION,
+    INFLUENCE_MIN_RECORDED,
 )
 from ideology_zones import ZONE_ANCHORS, zone_for
 
@@ -250,6 +253,94 @@ class ValidateDemographicsTest(unittest.TestCase):
         groups_b, *_ = make_valid_fixture()
         groups_a["groups"][0]["id"] = "changed"
         self.assertEqual(groups_b["groups"][0]["id"], "alphans")
+
+
+
+class InfluenceLayerTest(unittest.TestCase):
+    """Слой влияния (`influence.json`, 2026-07-29)."""
+
+    def make_influence(self):
+        return {"influence": [{"sourceCountryId": "AAA", "targets": {"BBB": 60}}]}
+
+    def test_valid_influence_passes(self):
+        self.assertEqual(influence_violations(self.make_influence(), {"AAA", "BBB"}), [])
+
+    def test_catches_unknown_source_and_target(self):
+        data = {"influence": [{"sourceCountryId": "ZZZ", "targets": {"YYY": 60}}]}
+        violations = influence_violations(data, {"AAA", "BBB"})
+        self.assertTrue(any("ZZZ" in v for v in violations), violations)
+        self.assertTrue(any("YYY" in v for v in violations), violations)
+
+    def test_catches_self_influence(self):
+        data = {"influence": [{"sourceCountryId": "AAA", "targets": {"AAA": 60}}]}
+        violations = influence_violations(data, {"AAA", "BBB"})
+        self.assertTrue(any("сам на себя" in v for v in violations), violations)
+
+    def test_catches_value_below_recorded_floor(self):
+        # Связь слабее порога движок не отличает от её отсутствия: такая запись
+        # существовала бы только чтобы никем не читаться.
+        data = {"influence": [{"sourceCountryId": "AAA", "targets": {"BBB": INFLUENCE_MIN_RECORDED - 1}}]}
+        violations = influence_violations(data, {"AAA", "BBB"})
+        self.assertTrue(any("вне" in v for v in violations), violations)
+
+    def test_catches_duplicate_source(self):
+        data = {"influence": [
+            {"sourceCountryId": "AAA", "targets": {"BBB": 60}},
+            {"sourceCountryId": "AAA", "targets": {"BBB": 20}},
+        ]}
+        violations = influence_violations(data, {"AAA", "BBB"})
+        self.assertTrue(any("дубль источника" in v for v in violations), violations)
+
+
+class LayerSyncTest(unittest.TestCase):
+    """
+    Сверка слоёв с составом карты.
+
+    Разница между «потерян» и «не размечен» — не косметика: первое роняет
+    загрузку сценария, второе штатно. Тесты держат обе стороны, иначе сверка
+    выродилась бы либо в шум, либо в молчание.
+    """
+
+    def layers(self):
+        demographics = {"regions": [{"regionId": 1, "groups": []}]}
+        ideology = {"countries": [{"countryId": "AAA"}]}
+        government = {"countries": [{"countryId": "AAA", "overlordIds": []}]}
+        influence = {"influence": [{"sourceCountryId": "AAA", "targets": {"BBB": 60}}]}
+        return demographics, ideology, government, influence
+
+    def test_region_gone_from_map_is_reported_as_lost(self):
+        demographics, ideology, government, influence = self.layers()
+        lost, _ = layer_sync_report(set(), {"AAA", "BBB"}, demographics, ideology, government, influence)
+        self.assertTrue(any("регион 1 исчез" in v for v in lost), lost)
+
+    def test_country_gone_from_roster_is_reported_for_every_layer(self):
+        demographics, ideology, government, influence = self.layers()
+        lost, _ = layer_sync_report({1}, set(), demographics, ideology, government, influence)
+        self.assertTrue(any("ideology.json" in v for v in lost), lost)
+        self.assertTrue(any("government.json" in v for v in lost), lost)
+        self.assertTrue(any("influence.json" in v and "источник" in v for v in lost), lost)
+        self.assertTrue(any("influence.json" in v and "цель" in v for v in lost), lost)
+
+    def test_lost_overlord_is_reported(self):
+        demographics, ideology, _, influence = self.layers()
+        government = {"countries": [{"countryId": "AAA", "overlordIds": ["GONE"]}]}
+        lost, _ = layer_sync_report({1}, {"AAA", "BBB"}, demographics, ideology, government, influence)
+        self.assertTrue(any("сюзерен 'GONE'" in v for v in lost), lost)
+
+    def test_new_map_object_is_unmarked_not_lost(self):
+        # Регион, появившийся на карте, — не ошибка: слои покрывают частично.
+        demographics, ideology, government, influence = self.layers()
+        lost, unmarked = layer_sync_report(
+            {1, 2}, {"AAA", "BBB"}, demographics, ideology, government, influence
+        )
+        self.assertEqual(lost, [])
+        self.assertTrue(any("регион 2" in u for u in unmarked), unmarked)
+        self.assertTrue(any("'BBB'" in u for u in unmarked), unmarked)
+
+    def test_layers_in_sync_report_nothing_lost(self):
+        demographics, ideology, government, influence = self.layers()
+        lost, _ = layer_sync_report({1}, {"AAA", "BBB"}, demographics, ideology, government, influence)
+        self.assertEqual(lost, [])
 
 
 if __name__ == "__main__":

@@ -43,6 +43,7 @@ GROUPS_PATH = SCENARIO_DIR / "groups.json"
 DEMOGRAPHICS_PATH = SCENARIO_DIR / "demographics.json"
 IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
 GOVERNMENT_PATH = SCENARIO_DIR / "government.json"
+INFLUENCE_PATH = SCENARIO_DIR / "influence.json"
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 DISCONTENT_TS_PATH = (
@@ -374,6 +375,103 @@ def zone_anchor_parity_violations() -> list[str]:
     ]
 
 
+
+#: Границы шкалы влияния. Дублируют server/src/scenarios/scenario1946Schemas.ts
+#: (INFLUENCE_MIN_RECORDED) и shared/src/defines/diplomacy.ts намеренно: там
+#: проверка на загрузке игры, здесь — до запуска, вместе с остальным пайплайном.
+INFLUENCE_MIN_RECORDED = 10
+INFLUENCE_SCALE_MAX = 100
+
+
+def influence_violations(influence: dict, country_ids: set) -> list[str]:
+    """Инварианты слоя влияния (`influence.json`).
+
+    Влияние направленное и разреженное: отсутствие связи выражается отсутствием
+    ключа, а не нулём. Значение ниже INFLUENCE_MIN_RECORDED запрещено, потому
+    что движок не отличает такую связь от её отсутствия — запись существовала
+    бы только чтобы никем не читаться.
+    """
+    violations: list[str] = []
+    seen_sources: set = set()
+
+    for entry in influence.get("influence", []):
+        source = entry.get("sourceCountryId")
+        if not source:
+            violations.append(f"influence.json: запись без sourceCountryId ({entry!r})")
+            continue
+        if source in seen_sources:
+            violations.append(f"influence.json: дубль источника '{source}'")
+        seen_sources.add(source)
+        if country_ids and source not in country_ids:
+            violations.append(f"influence.json: страна-источник '{source}' не существует в сценарии")
+
+        targets = entry.get("targets") or {}
+        if not targets:
+            violations.append(f"influence.json: источник '{source}' без единой цели")
+        for target, value in targets.items():
+            if country_ids and target not in country_ids:
+                violations.append(
+                    f"influence.json: '{source}' влияет на несуществующую страну '{target}'"
+                )
+            if target == source:
+                violations.append(f"influence.json: '{source}' влияет сам на себя")
+            if not isinstance(value, int) or isinstance(value, bool):
+                violations.append(f"influence.json: '{source}' -> '{target}' — значение {value!r} не целое")
+            elif not (INFLUENCE_MIN_RECORDED <= value <= INFLUENCE_SCALE_MAX):
+                violations.append(
+                    f"influence.json: '{source}' -> '{target}' — {value} вне "
+                    f"[{INFLUENCE_MIN_RECORDED}, {INFLUENCE_SCALE_MAX}]"
+                )
+    return violations
+
+
+def layer_sync_report(region_ids: set, country_ids: set, demographics: dict,
+                      ideology: dict, government: dict | None,
+                      influence: dict | None) -> tuple[list[str], list[str]]:
+    """Сверка слоёв с текущим составом карты.
+
+    Возвращает (потерянные, неразмеченные). РАЗНИЦА МЕЖДУ НИМИ ПРИНЦИПИАЛЬНА:
+
+    - «потерянные» — слой ссылается на регион или страну, которых на карте
+      больше нет. Это ОШИБКА: загрузка сценария падает ScenarioDataError, и
+      партия не запускается вовсе (server/src/scenarios/Scenario1946.ts).
+    - «неразмеченные» — на карте есть объект, которого нет в слое. Это штатное
+      частичное покрытие: регион без демографии просто не даёт недовольства.
+
+    Функция существует ради правок КАРТЫ: состав регионов меняется отдельной
+    работой, и рассинхрон обнаруживается либо здесь, либо падением игры.
+    """
+    lost: list[str] = []
+    unmarked: list[str] = []
+
+    demo_ids = {e.get("regionId") for e in demographics.get("regions", [])}
+    lost += [f"demographics.json: регион {r} исчез с карты" for r in sorted(demo_ids - region_ids, key=str)]
+    unmarked += [f"регион {r} без демографии" for r in sorted(region_ids - demo_ids, key=str)]
+
+    ideo_ids = {e.get("countryId") for e in ideology.get("countries", [])}
+    lost += [f"ideology.json: страна '{c}' исчезла из ростера" for c in sorted(ideo_ids - country_ids, key=str)]
+    unmarked += [f"страна '{c}' без координат идеологии" for c in sorted(country_ids - ideo_ids, key=str)]
+
+    if government is not None:
+        gov_entries = government.get("countries", [])
+        gov_ids = {e.get("countryId") for e in gov_entries}
+        lost += [f"government.json: страна '{c}' исчезла из ростера" for c in sorted(gov_ids - country_ids, key=str)]
+        unmarked += [f"страна '{c}' без формы правления" for c in sorted(country_ids - gov_ids, key=str)]
+        overlords = {o for e in gov_entries for o in (e.get("overlordIds") or [])}
+        lost += [
+            f"government.json: сюзерен '{o}' исчез из ростера" for o in sorted(overlords - country_ids, key=str)
+        ]
+
+    if influence is not None:
+        entries = influence.get("influence", [])
+        sources = {e.get("sourceCountryId") for e in entries}
+        targets = {t for e in entries for t in (e.get("targets") or {})}
+        lost += [f"influence.json: источник '{c}' исчез из ростера" for c in sorted(sources - country_ids, key=str)]
+        lost += [f"influence.json: цель '{c}' исчезла из ростера" for c in sorted(targets - country_ids, key=str)]
+
+    return lost, unmarked
+
+
 def main() -> int:
     missing = [
         p.name
@@ -388,17 +486,44 @@ def main() -> int:
     demographics = load_json(DEMOGRAPHICS_PATH)
     ideology = load_json(IDEOLOGY_PATH)
     government = load_json(GOVERNMENT_PATH)
+    # Слой влияния появился позже остальных; отсутствие файла — «слоя нет»,
+    # как и на загрузке движком, а не отказ валидатора.
+    influence = load_json(INFLUENCE_PATH) if INFLUENCE_PATH.exists() else None
     region_ids = {r["id"] for r in load_json(REGIONS_CORE_PATH)}
     countries = load_json(COUNTRIES_PATH)
+    country_ids = {c.get("id") for c in countries}
 
     violations = validate(groups, demographics, ideology, region_ids, countries, government)
     violations.extend(zone_anchor_parity_violations())
+    if influence is not None:
+        violations.extend(influence_violations(influence, country_ids))
+
+    # Сверка с составом карты. «Потерянные» — ошибка (загрузка партии упадёт),
+    # «неразмеченные» — штатное частичное покрытие, показывается по флагу.
+    lost, unmarked = layer_sync_report(
+        region_ids, country_ids, demographics, ideology, government, influence
+    )
+    violations.extend(lost)
 
     if violations:
         print(f"НАРУШЕНИЙ: {len(violations)}")
         for v in violations:
             print(f"  - {v}")
+        if lost:
+            print()
+            print(
+                f"Из них {len(lost)} — рассинхрон со составом карты. Слои ссылаются на "
+                "регионы или страны, которых больше нет: загрузка сценария упадёт "
+                "ScenarioDataError. Правь ВХОД пайплайна (scripts/map/config/*.json) и "
+                "перегенерируй, а не выход."
+            )
         return 1
+
+    if "--show-unmarked" in sys.argv:
+        print(f"Без разметки: {len(unmarked)}")
+        for u in unmarked:
+            print(f"  - {u}")
+        print()
 
     marked_regions = len(demographics.get("regions", []))
     marked_countries = len(ideology.get("countries", []))
@@ -412,6 +537,13 @@ def main() -> int:
         f"(покрытие полное, ярлыки сверены с координатами), "
         f"стран с формой правления {len(gov_entries)}/{len(countries)} "
         f"(из них зависимых {dependent}, непротиворечивость с diplomacy.puppets проверена)"
+        + (
+            f", влияние {sum(len(e.get('targets') or {}) for e in influence.get('influence', []))} связей "
+            f"от {len(influence.get('influence', []))} источников"
+            if influence is not None else ", слоя влияния нет"
+        )
+        + (f"; без разметки объектов: {len(unmarked)} (--show-unmarked покажет список)"
+           if unmarked else "; разметка покрывает состав карты целиком")
     )
     return 0
 
