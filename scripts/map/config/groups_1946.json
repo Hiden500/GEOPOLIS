@@ -2969,6 +2969,2096 @@
         "economic": -0.15,
         "political": 0.5
       }
+    },
+    {
+      "id": "swedes",
+      "names": {
+        "en": "Swedes",
+        "ru": "Шведы"
+      },
+      "desiredIdeology": {
+        "economic": 0.3,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "norwegians",
+      "names": {
+        "en": "Norwegians",
+        "ru": "Норвежцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "icelanders",
+      "names": {
+        "en": "Icelanders",
+        "ru": "Исландцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "faroese",
+      "names": {
+        "en": "Faroese",
+        "ru": "Фарерцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.2,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "spaniards",
+      "names": {
+        "en": "Spaniards",
+        "ru": "Испанцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.15
+      }
+    },
+    {
+      "id": "catalans",
+      "names": {
+        "en": "Catalans",
+        "ru": "Каталонцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "basques",
+      "names": {
+        "en": "Basques",
+        "ru": "Баски"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "galicians",
+      "names": {
+        "en": "Galicians",
+        "ru": "Галисийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.4
+      }
+    },
+    {
+      "id": "canarians",
+      "names": {
+        "en": "Canarians",
+        "ru": "Канарцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.35
+      }
+    },
+    {
+      "id": "french",
+      "names": {
+        "en": "French",
+        "ru": "Французы"
+      },
+      "desiredIdeology": {
+        "economic": 0.2,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "bretons",
+      "names": {
+        "en": "Bretons",
+        "ru": "Бретонцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "corsicans",
+      "names": {
+        "en": "Corsicans",
+        "ru": "Корсиканцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "portuguese",
+      "names": {
+        "en": "Portuguese",
+        "ru": "Португальцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.2
+      }
+    },
+    {
+      "id": "flemings",
+      "names": {
+        "en": "Flemings",
+        "ru": "Фламандцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "walloons",
+      "names": {
+        "en": "Walloons",
+        "ru": "Валлоны"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "swiss_germans",
+      "names": {
+        "en": "Swiss Germans",
+        "ru": "Швейцарские немцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.4,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "swiss_french",
+      "names": {
+        "en": "Swiss French",
+        "ru": "Швейцарские французы"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "swiss_italians",
+      "names": {
+        "en": "Swiss Italians",
+        "ru": "Швейцарские итальянцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "romansh",
+      "names": {
+        "en": "Romansh",
+        "ru": "Ретороманцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "english",
+      "names": {
+        "en": "English",
+        "ru": "Англичане"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "scots",
+      "names": {
+        "en": "Scots",
+        "ru": "Шотландцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "welsh",
+      "names": {
+        "en": "Welsh",
+        "ru": "Валлийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "irish",
+      "names": {
+        "en": "Irish",
+        "ru": "Ирландцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "ulster_unionists",
+      "names": {
+        "en": "Ulster Unionists",
+        "ru": "Ольстерские юнионисты"
+      },
+      "desiredIdeology": {
+        "economic": 0.3,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "dutch",
+      "names": {
+        "en": "Dutch",
+        "ru": "Нидерландцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "frisians",
+      "names": {
+        "en": "Frisians",
+        "ru": "Фризы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "luxembourgers",
+      "names": {
+        "en": "Luxembourgers",
+        "ru": "Люксембуржцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "liechtensteiners",
+      "names": {
+        "en": "Liechtensteiners",
+        "ru": "Лихтенштейнцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.45,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "monegasques",
+      "names": {
+        "en": "Monegasques",
+        "ru": "Монегаски"
+      },
+      "desiredIdeology": {
+        "economic": 0.55,
+        "political": 0.4
+      }
+    },
+    {
+      "id": "sammarinese",
+      "names": {
+        "en": "Sammarinese",
+        "ru": "Санмаринцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.25,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "maltese",
+      "names": {
+        "en": "Maltese",
+        "ru": "Мальтийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.2,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "gibraltarians",
+      "names": {
+        "en": "Gibraltarians",
+        "ru": "Гибралтарцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.4,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "channel_islanders",
+      "names": {
+        "en": "Channel Islanders",
+        "ru": "Нормандские островитяне"
+      },
+      "desiredIdeology": {
+        "economic": 0.4,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "manx",
+      "names": {
+        "en": "Manx",
+        "ru": "Мэнцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "sardinians",
+      "names": {
+        "en": "Sardinians",
+        "ru": "Сардинцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "slovenes_italy",
+      "names": {
+        "en": "Slovenes of Italy",
+        "ru": "Словенцы Италии"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "latin_mestizos",
+      "names": {
+        "en": "Latin American Mestizos",
+        "ru": "Латиноамериканские метисы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "european_latin_americans",
+      "names": {
+        "en": "European Latin Americans",
+        "ru": "Латиноамериканцы европейского происхождения"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "afro_latin_americans",
+      "names": {
+        "en": "Afro-Latin Americans",
+        "ru": "Афролатиноамериканцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "maya",
+      "names": {
+        "en": "Maya",
+        "ru": "Майя"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "nahua",
+      "names": {
+        "en": "Nahua",
+        "ru": "Нахуа"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "quechua",
+      "names": {
+        "en": "Quechua",
+        "ru": "Кечуа"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "aymara",
+      "names": {
+        "en": "Aymara",
+        "ru": "Аймара"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "guarani",
+      "names": {
+        "en": "Guarani",
+        "ru": "Гуарани"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "mapuche",
+      "names": {
+        "en": "Mapuche",
+        "ru": "Мапуче"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "amazonian_indigenous",
+      "names": {
+        "en": "Indigenous Peoples of Amazonia",
+        "ru": "Коренные народы Амазонии"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "central_american_indigenous",
+      "names": {
+        "en": "Indigenous Peoples of Central America",
+        "ru": "Коренные народы Центральной Америки"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "miskito",
+      "names": {
+        "en": "Miskito",
+        "ru": "Мискито"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "garifuna",
+      "names": {
+        "en": "Garifuna",
+        "ru": "Гарифуна"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "afro_caribbeans",
+      "names": {
+        "en": "Afro-Caribbeans",
+        "ru": "Афрокарибцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "caribbean_creoles",
+      "names": {
+        "en": "Mixed Caribbean Creoles",
+        "ru": "Карибские креолы смешанного происхождения"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "haitians",
+      "names": {
+        "en": "Haitians",
+        "ru": "Гаитяне"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "dominican_mixed",
+      "names": {
+        "en": "Mixed Dominicans",
+        "ru": "Доминиканцы смешанного происхождения"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "cuban_whites",
+      "names": {
+        "en": "White Cubans",
+        "ru": "Белые кубинцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "mixed_cubans",
+      "names": {
+        "en": "Mixed Cubans",
+        "ru": "Кубинцы смешанного происхождения"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "afro_cubans",
+      "names": {
+        "en": "Afro-Cubans",
+        "ru": "Афрокубинцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "puerto_ricans",
+      "names": {
+        "en": "Puerto Ricans",
+        "ru": "Пуэрториканцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "afro_puerto_ricans",
+      "names": {
+        "en": "Afro-Puerto Ricans",
+        "ru": "Афропуэрториканцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "white_americans",
+      "names": {
+        "en": "White Americans",
+        "ru": "Белые американцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.5,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "african_americans",
+      "names": {
+        "en": "African Americans",
+        "ru": "Афроамериканцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.75
+      }
+    },
+    {
+      "id": "hispanic_americans",
+      "names": {
+        "en": "Hispanic Americans",
+        "ru": "Испаноязычные американцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "native_north_americans",
+      "names": {
+        "en": "Indigenous Peoples of North America",
+        "ru": "Коренные народы Северной Америки"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "alaska_natives",
+      "names": {
+        "en": "Alaska Natives",
+        "ru": "Коренные народы Аляски"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "native_hawaiians",
+      "names": {
+        "en": "Native Hawaiians",
+        "ru": "Коренные гавайцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "chamorro",
+      "names": {
+        "en": "Chamorro",
+        "ru": "Чаморро"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "english_canadians",
+      "names": {
+        "en": "English Canadians",
+        "ru": "Англоканадцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.4,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "french_canadians",
+      "names": {
+        "en": "French Canadians",
+        "ru": "Франкоканадцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.2,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "euro_canadian_minorities",
+      "names": {
+        "en": "European Canadian Minorities",
+        "ru": "Европейские меньшинства Канады"
+      },
+      "desiredIdeology": {
+        "economic": 0.3,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "greenland_inuit",
+      "names": {
+        "en": "Greenland Inuit",
+        "ru": "Гренландские инуиты"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "australian_british",
+      "names": {
+        "en": "British Australians",
+        "ru": "Австралийцы британского происхождения"
+      },
+      "desiredIdeology": {
+        "economic": 0.45,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "aboriginal_australians",
+      "names": {
+        "en": "Aboriginal Australians",
+        "ru": "Аборигены Австралии"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "pakeha",
+      "names": {
+        "en": "Pākehā",
+        "ru": "Пакеха"
+      },
+      "desiredIdeology": {
+        "economic": 0.45,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "maori",
+      "names": {
+        "en": "Māori",
+        "ru": "Маори"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "ovimbundu",
+      "names": {
+        "en": "Ovimbundu",
+        "ru": "Овимбунду"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "mbundu",
+      "names": {
+        "en": "Mbundu",
+        "ru": "Мбунду"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "bakongo",
+      "names": {
+        "en": "Bakongo",
+        "ru": "Баконго"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "chokwe_lunda",
+      "names": {
+        "en": "Chokwe and Lunda",
+        "ru": "Чокве и лунда"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "nyaneka_humbe",
+      "names": {
+        "en": "Nyaneka and Humbe",
+        "ru": "Ньянэка и хумбе"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "khoisan_southern_africa",
+      "names": {
+        "en": "Khoisan Peoples of Southern Africa",
+        "ru": "Койсанские народы Южной Африки"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "luba",
+      "names": {
+        "en": "Luba",
+        "ru": "Луба"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "mongo",
+      "names": {
+        "en": "Mongo",
+        "ru": "Монго"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "congo_eastern_peoples",
+      "names": {
+        "en": "Peoples of Eastern Congo",
+        "ru": "Народы Восточного Конго"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "beti_fang",
+      "names": {
+        "en": "Beti and Fang",
+        "ru": "Бети и фанг"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "cameroon_bantu",
+      "names": {
+        "en": "Bantu Peoples of Cameroon",
+        "ru": "Бантуязычные народы Камеруна"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "chadic_cameroon_peoples",
+      "names": {
+        "en": "Chadic Peoples of Cameroon",
+        "ru": "Чадские народы Камеруна"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "kikuyu",
+      "names": {
+        "en": "Kikuyu",
+        "ru": "Кикуйю"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "kalenjin_maasai",
+      "names": {
+        "en": "Kalenjin and Maasai",
+        "ru": "Календжин и масаи"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "east_african_bantu",
+      "names": {
+        "en": "Bantu Peoples of East Africa",
+        "ru": "Бантуязычные народы Восточной Африки"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "swahili_coastal",
+      "names": {
+        "en": "Coastal Swahili",
+        "ru": "Суахили побережья"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "kpelle",
+      "names": {
+        "en": "Kpelle",
+        "ru": "Кпелле"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "americo_liberians",
+      "names": {
+        "en": "Americo-Liberians",
+        "ru": "Американо-либерийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.25
+      }
+    },
+    {
+      "id": "makua",
+      "names": {
+        "en": "Makua",
+        "ru": "Макуа"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "shona",
+      "names": {
+        "en": "Shona",
+        "ru": "Шона"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "ndebele",
+      "names": {
+        "en": "Ndebele",
+        "ru": "Ндебеле"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "chewa",
+      "names": {
+        "en": "Chewa",
+        "ru": "Чева"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "tumbuka_lomwe",
+      "names": {
+        "en": "Tumbuka and Lomwe",
+        "ru": "Тумбука и ломве"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "ovambo_herero",
+      "names": {
+        "en": "Ovambo and Herero",
+        "ru": "Овамбо и гереро"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "nama",
+      "names": {
+        "en": "Nama",
+        "ru": "Нама"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "hutu",
+      "names": {
+        "en": "Hutu",
+        "ru": "Хуту"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "tutsi",
+      "names": {
+        "en": "Tutsi",
+        "ru": "Тутси"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "twa",
+      "names": {
+        "en": "Twa",
+        "ru": "Тва"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "merina_malagasy",
+      "names": {
+        "en": "Merina Malagasy",
+        "ru": "Мерина"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "coastal_malagasy",
+      "names": {
+        "en": "Coastal Malagasy",
+        "ru": "Прибрежные малагасийцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "comorians",
+      "names": {
+        "en": "Comorians",
+        "ru": "Коморцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "cape_verdean_creoles",
+      "names": {
+        "en": "Cape Verdean Creoles",
+        "ru": "Кабовердианские креолы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "sao_tome_creoles",
+      "names": {
+        "en": "São Toméan Creoles",
+        "ru": "Креолы Сан-Томе"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "balanta_guineans",
+      "names": {
+        "en": "Balanta and Other Guinea-Bissau Peoples",
+        "ru": "Баланте и другие народы Гвинеи-Бисау"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "ghana_ewe_ga",
+      "names": {
+        "en": "Ewe and Ga",
+        "ru": "Эве и га"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "dagomba",
+      "names": {
+        "en": "Dagomba and Related Peoples",
+        "ru": "Дагомба и родственные народы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "tiv_idoma",
+      "names": {
+        "en": "Tiv and Idoma",
+        "ru": "Тив и идома"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "central_african_peoples",
+      "names": {
+        "en": "Peoples of the Central African Republic",
+        "ru": "Народы Центральноафриканской Республики"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "gabon_congo_peoples",
+      "names": {
+        "en": "Peoples of Gabon and Middle Congo",
+        "ru": "Народы Габона и Среднего Конго"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "sudan_arabs",
+      "names": {
+        "en": "Sudanese Arabs",
+        "ru": "Суданские арабы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "nilotic_sudanese",
+      "names": {
+        "en": "Nilotic Peoples of Sudan",
+        "ru": "Нилотские народы Судана"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "dinka_nuer",
+      "names": {
+        "en": "Dinka and Nuer",
+        "ru": "Динка и нуэр"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "fur_masalit",
+      "names": {
+        "en": "Fur and Masalit",
+        "ru": "Фур и масалит"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "baganda",
+      "names": {
+        "en": "Baganda",
+        "ru": "Баганда"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "ugandan_northern",
+      "names": {
+        "en": "Peoples of Northern Uganda",
+        "ru": "Народы Северной Уганды"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "ugandan_western",
+      "names": {
+        "en": "Peoples of Western Uganda",
+        "ru": "Народы Западной Уганды"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "bemba",
+      "names": {
+        "en": "Bemba",
+        "ru": "Бемба"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "tonga_lozi",
+      "names": {
+        "en": "Tonga and Lozi",
+        "ru": "Тонга и лози"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "swazi",
+      "names": {
+        "en": "Swazi",
+        "ru": "Свази"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "seychelles_creoles",
+      "names": {
+        "en": "Seychellois Creoles",
+        "ru": "Сейшельские креолы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "mauritian_indians",
+      "names": {
+        "en": "Indo-Mauritians",
+        "ru": "Индомаврикийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "mauritian_creoles",
+      "names": {
+        "en": "Mauritian Creoles",
+        "ru": "Маврикийские креолы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "zanzibar_swahili",
+      "names": {
+        "en": "Zanzibari Swahili",
+        "ru": "Занзибарские суахили"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "gulf_arabs",
+      "names": {
+        "en": "Gulf Arabs",
+        "ru": "Арабы Персидского залива"
+      },
+      "desiredIdeology": {
+        "economic": 0.2,
+        "political": 0.35
+      }
+    },
+    {
+      "id": "egyptian_arabs",
+      "names": {
+        "en": "Egyptian Arabs",
+        "ru": "Египетские арабы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "copts",
+      "names": {
+        "en": "Copts",
+        "ru": "Копты"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "maghrebi_berbers",
+      "names": {
+        "en": "Berbers of the Maghreb",
+        "ru": "Берберы Магриба"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "pied_noirs",
+      "names": {
+        "en": "European Settlers of French North Africa",
+        "ru": "Европейские поселенцы Французской Северной Африки"
+      },
+      "desiredIdeology": {
+        "economic": 0.45,
+        "political": 0.35
+      }
+    },
+    {
+      "id": "libyan_arabs",
+      "names": {
+        "en": "Libyan Arabs",
+        "ru": "Ливийские арабы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "jordanian_arabs",
+      "names": {
+        "en": "Transjordanian Arabs",
+        "ru": "Трансиорданские арабы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "omani_arabs",
+      "names": {
+        "en": "Omani Arabs",
+        "ru": "Оманские арабы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.35
+      }
+    },
+    {
+      "id": "yemeni_arabs",
+      "names": {
+        "en": "Yemeni Arabs",
+        "ru": "Йеменские арабы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.3
+      }
+    },
+    {
+      "id": "hadhrami_arabs",
+      "names": {
+        "en": "Hadhrami Arabs",
+        "ru": "Хадрамаутские арабы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.4
+      }
+    },
+    {
+      "id": "maldivians",
+      "names": {
+        "en": "Maldivians",
+        "ru": "Мальдивцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "sinhalese",
+      "names": {
+        "en": "Sinhalese",
+        "ru": "Сингалы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "ceylon_moors",
+      "names": {
+        "en": "Ceylon Moors",
+        "ru": "Цейлонские мавры"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "burghers",
+      "names": {
+        "en": "Ceylon Burghers",
+        "ru": "Бюргеры Цейлона"
+      },
+      "desiredIdeology": {
+        "economic": 0.45,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "nepalese",
+      "names": {
+        "en": "Nepalese",
+        "ru": "Непальцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "newars",
+      "names": {
+        "en": "Newars",
+        "ru": "Невары"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "madhesis",
+      "names": {
+        "en": "Madhesis",
+        "ru": "Мадхеси"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "bhutia_lepcha",
+      "names": {
+        "en": "Bhutia and Lepcha",
+        "ru": "Бхутия и лепча"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "kashmiri_muslims",
+      "names": {
+        "en": "Kashmiri Muslims",
+        "ru": "Кашмирские мусульмане"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "balti_dardic_peoples",
+      "names": {
+        "en": "Balti and Dardic Peoples",
+        "ru": "Балти и дардские народы"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "burmese",
+      "names": {
+        "en": "Bamar",
+        "ru": "Бирманцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "shan",
+      "names": {
+        "en": "Shan",
+        "ru": "Шаны"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "kachin",
+      "names": {
+        "en": "Kachin",
+        "ru": "Качины"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "khmers",
+      "names": {
+        "en": "Khmers",
+        "ru": "Кхмеры"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "lao",
+      "names": {
+        "en": "Lao",
+        "ru": "Лао"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "khmu",
+      "names": {
+        "en": "Khmu and Related Peoples",
+        "ru": "Кхму и родственные народы"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "thai",
+      "names": {
+        "en": "Thai",
+        "ru": "Тайцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.45
+      }
+    },
+    {
+      "id": "lao_isan",
+      "names": {
+        "en": "Lao Isan",
+        "ru": "Лао-исанцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "javanese",
+      "names": {
+        "en": "Javanese",
+        "ru": "Яванцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.5
+      }
+    },
+    {
+      "id": "sundanese",
+      "names": {
+        "en": "Sundanese",
+        "ru": "Сунданцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "acehnese",
+      "names": {
+        "en": "Acehnese",
+        "ru": "Ачехцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "batak",
+      "names": {
+        "en": "Batak",
+        "ru": "Батаки"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "minangkabau",
+      "names": {
+        "en": "Minangkabau",
+        "ru": "Минангкабау"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "dayak",
+      "names": {
+        "en": "Dayak",
+        "ru": "Даяки"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "balinese",
+      "names": {
+        "en": "Balinese",
+        "ru": "Балийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "bugis_makassar",
+      "names": {
+        "en": "Bugis and Makassar",
+        "ru": "Бугисы и макасары"
+      },
+      "desiredIdeology": {
+        "economic": 0.15,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "sulawesi_highlanders",
+      "names": {
+        "en": "Highland Peoples of Sulawesi",
+        "ru": "Горные народы Сулавеси"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "papuans",
+      "names": {
+        "en": "Papuans",
+        "ru": "Папуасы"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "moluccans",
+      "names": {
+        "en": "Moluccans",
+        "ru": "Молуккцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "lesser_sunda_peoples",
+      "names": {
+        "en": "Peoples of the Lesser Sunda Islands",
+        "ru": "Народы Малых Зондских островов"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "timorese",
+      "names": {
+        "en": "Timorese",
+        "ru": "Тиморцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "borneo_indigenous",
+      "names": {
+        "en": "Indigenous Peoples of Borneo",
+        "ru": "Коренные народы Борнео"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "orang_asli",
+      "names": {
+        "en": "Orang Asli",
+        "ru": "Оранг-асли"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "moro",
+      "names": {
+        "en": "Moro Peoples",
+        "ru": "Моро"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "cordillera_peoples",
+      "names": {
+        "en": "Cordillera Peoples",
+        "ru": "Народы Кордильер"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "lumad",
+      "names": {
+        "en": "Lumad",
+        "ru": "Лумады"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "north_koreans",
+      "names": {
+        "en": "North Koreans",
+        "ru": "Корейцы Северной Кореи"
+      },
+      "desiredIdeology": {
+        "economic": -0.25,
+        "political": 0.2
+      }
+    },
+    {
+      "id": "ainu",
+      "names": {
+        "en": "Ainu",
+        "ru": "Айны"
+      },
+      "desiredIdeology": {
+        "economic": -0.15,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "okinawans",
+      "names": {
+        "en": "Okinawans",
+        "ru": "Окинавцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "macanese",
+      "names": {
+        "en": "Macanese",
+        "ru": "Макаэнсе"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "polynesians",
+      "names": {
+        "en": "Polynesians",
+        "ru": "Полинезийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "melanesians",
+      "names": {
+        "en": "Melanesians",
+        "ru": "Меланезийцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "micronesians",
+      "names": {
+        "en": "Micronesians",
+        "ru": "Микронезийцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "chagossians",
+      "names": {
+        "en": "Chagossians",
+        "ru": "Чагосцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "euro_brazilians",
+      "names": {
+        "en": "European Brazilians",
+        "ru": "Бразильцы европейского происхождения"
+      },
+      "desiredIdeology": {
+        "economic": 0.35,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "brazilian_pardos",
+      "names": {
+        "en": "Mixed-Race Brazilians",
+        "ru": "Бразильцы смешанного происхождения"
+      },
+      "desiredIdeology": {
+        "economic": 0.05,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "afro_brazilians",
+      "names": {
+        "en": "Afro-Brazilians",
+        "ru": "Афробразильцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "indigenous_brazilians",
+      "names": {
+        "en": "Indigenous Peoples of Brazil",
+        "ru": "Коренные народы Бразилии"
+      },
+      "desiredIdeology": {
+        "economic": -0.2,
+        "political": 0.7
+      }
+    },
+    {
+      "id": "tai_peoples",
+      "names": {
+        "en": "Tai Peoples of Vietnam",
+        "ru": "Тайские народы Вьетнама"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "bubi",
+      "names": {
+        "en": "Bubi",
+        "ru": "Буби"
+      },
+      "desiredIdeology": {
+        "economic": -0.1,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "annobonese",
+      "names": {
+        "en": "Annobonese",
+        "ru": "Аннобонцы"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.65
+      }
+    },
+    {
+      "id": "ladins",
+      "names": {
+        "en": "Ladins",
+        "ru": "Ладины"
+      },
+      "desiredIdeology": {
+        "economic": 0.1,
+        "political": 0.6
+      }
+    },
+    {
+      "id": "malagasy",
+      "names": {
+        "en": "Malagasy",
+        "ru": "Малагасийцы"
+      },
+      "desiredIdeology": {
+        "economic": -0.05,
+        "political": 0.55
+      }
+    },
+    {
+      "id": "mon",
+      "names": {
+        "en": "Mon",
+        "ru": "Моны"
+      },
+      "desiredIdeology": {
+        "economic": 0.0,
+        "political": 0.6
+      }
     }
   ]
 }
