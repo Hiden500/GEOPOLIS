@@ -56,7 +56,7 @@ SINGLE_COUNTRY = {"NR": "Науру", "TV": "Тувалу", "KI": "Кириба�
 # ~330 км) - "Isabel" поглотил почти всю остальную цепь Соломоновых
 # островов (42 куска, разброс 9.6°), "Southern Highlands" (материковая, без
 # выхода к морю) вобрал часть архипелага Бисмарка (разброс 8.1°) и т.д.
-# (см. docs/DECISIONS.md 2026-07-29, diagnose_scattered_regions.py). См.
+# (см. docs/DECISIONS.md 2026-07-29, класс SCATTERED в audit_map_geometry.py). См.
 # RAW_PASSTHROUGH ниже - обе страны идут как есть, без укрупнения.
 GEOMETRIC_TARGETS = {
     "VU": 1, "WS": 1, "PW": 1, "FJ": 1, "FM": 1,
@@ -88,7 +88,7 @@ SINGLE_ORPHANS = {
 # iso_a2='-1' (не страна в датасете), у которых реально ЕСТЬ собственный
 # полигон. Тот же паттерн, что EXTRA_SINGLE_FEATURES в build_asia_1946.py/
 # build_namerica_1946.py. Cocos/Christmas/Coral Sea Islands (2026-07-22,
-# diagnose_missing_land.py) — sov_a3='AU1', австралийские внешние
+# класс MISSING_LAND в audit_map_geometry.py) — sov_a3='AU1', австралийские внешние
 # территории, выходной iso_a2='AU' (владелец по сюзерену).
 EXTRA_SINGLE_FEATURES = [
     ("IOA-1928", "Кокосовые (Килинг) острова", "AU"),

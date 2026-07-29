@@ -2,8 +2,7 @@
 diagnose_coastline_gaps.py
 
 Пермаментный диагностический скрипт (read-only, НЕ шаг пайплайна — как
-diagnose_sea_holes.py/diagnose_missing_land.py/diagnose_scattered_
-regions.py). Находит РЕАЛЬНЫЕ визуальные разрывы суша<->вода — те же
+diagnose_sea_holes.py). Находит РЕАЛЬНЫЕ визуальные разрывы суша<->вода — те же
 непокрытые ячейки, что ищет `absorb_slivers` (`geometry_cleanup.py`) при
 поглощении, но здесь ЧИСТО ДЛЯ ПРОВЕРКИ: ничего не меняет, не пишет
 файлы, только считает и (по флагу) рисует.
