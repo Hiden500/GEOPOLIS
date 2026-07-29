@@ -1,0 +1,71 @@
+/*
+ * Карточка приказа несёт ТОЛЬКО слова игрока. Результата здесь нет: приказы
+ * уходят пачкой при нажатии «Продолжить», и до этого момента ничего не
+ * произошло. Что вышло — покажет лента хода, вместе с остальными событиями
+ * месяца.
+ *
+ * Порядок карточек значим: движок применяет приказы сверху вниз, и каждый
+ * следующий видит мир после предыдущего (docs/PRIMITIVES.md §4). Поэтому у
+ * карточки есть ручка перетаскивания — это рычаг, а не украшение.
+ */
+
+.card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--surface-raised);
+  border: var(--edge-width) solid var(--divider);
+  border-radius: var(--radius-inner);
+}
+
+.handle {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-faint);
+  cursor: grab;
+}
+
+.handle:hover {
+  color: var(--text-dim);
+}
+
+.index {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.text {
+  font-family: var(--font-narrative);
+  font-size: var(--text-sm);
+  line-height: var(--leading-prose);
+  color: var(--text);
+}
+
+/*
+ * Длинный указ сворачивается до двух строк, пока список составляется:
+ * восемь развёрнутых приказов уводят и поле ввода, и кнопку хода за экран.
+ */
+.clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.toggle {
+  margin-top: var(--space-1);
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: var(--text-xs);
+  color: var(--accent);
+}
+
+.toggle:hover {
+  color: var(--accent-hover);
+}

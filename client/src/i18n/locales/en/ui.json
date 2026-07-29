@@ -1,0 +1,33 @@
+{
+  "close": "Close",
+  "threshold": {
+    "near": "near threshold",
+    "over": "past threshold"
+  },
+  "delta": {
+    "good": "change for the better",
+    "bad": "change for the worse",
+    "neutral": "no change"
+  },
+  "factuality": {
+    "partial": "partly confirmed",
+    "unconfirmed": "unconfirmed"
+  },
+  "byOrder": {
+    "mark": "from your order",
+    "reveal": "show the order",
+    "prefix": "from your order:"
+  },
+  "order": {
+    "drag": "reorder this order",
+    "remove": "remove this order",
+    "expand": "expand",
+    "collapse": "collapse"
+  },
+  "capability": "can design",
+  "readiness": "in service",
+  "forbidden": "forbidden by doctrine",
+  "even": "fleet is current",
+  "gap_one": "{{count}} generation behind",
+  "gap_other": "{{count}} generations behind"
+}

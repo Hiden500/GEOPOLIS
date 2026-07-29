@@ -1,0 +1,107 @@
+/*
+ * Показатель несёт ДВА независимых сигнала, и они не имеют права делить
+ * один канал:
+ *   направление изменения — цветом дельты,
+ *   состояние относительно порога — подчёркиванием самого значения.
+ *
+ * Иначе интерфейс врёт: долг умеет расти зелёными шагами прямо к дефолту.
+ * Пороги заданы концептом (§5.9): дефицит хуже −10% ВВП, промвыпуск ниже
+ * 30% от США, безработица выше 10%.
+ */
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.icon {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--text-faint);
+}
+
+.figures {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.value {
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
+  align-self: flex-start;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 1px;
+}
+
+.md .value {
+  font-size: var(--text-lg);
+}
+
+.lg .value {
+  font-size: var(--text-xl);
+}
+
+.near {
+  border-bottom-color: var(--near);
+}
+
+.over {
+  border-bottom-color: var(--over);
+}
+
+.delta {
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  color: var(--text-faint);
+}
+
+.good {
+  color: var(--rise);
+}
+
+.bad {
+  color: var(--fall);
+}
+
+.label {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+/*
+ * В верхней панели подпись держится в резерве: на узком окне её место
+ * нужнее карте, а роль ярлыка играет иконка. На широком — подпись
+ * возвращается, потому что иконка без слова учится плохо.
+ */
+.labelWide {
+  display: none;
+}
+
+@media (min-width: 1600px) {
+  .labelWide {
+    display: block;
+  }
+}
+
+.interactive {
+  border: none;
+  background: none;
+  padding: var(--space-1);
+  margin: calc(var(--space-1) * -1);
+  border-radius: var(--radius-inner);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.interactive:hover {
+  background: var(--surface-raised);
+}
