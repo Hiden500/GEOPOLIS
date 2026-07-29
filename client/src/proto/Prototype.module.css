@@ -1,0 +1,440 @@
+/*
+ * Раскладка игрового экрана. Карта под всем и никогда не исчезает; всё
+ * остальное — панели по краям, которые её обрамляют.
+ *
+ * Правая колонка собрана одним флекс-столбцом (ход → лента → режимы), а не
+ * тремя абсолютными блоками: так они физически не могут наехать друг на
+ * друга ни при какой высоте окна и ни при каком масштабе.
+ */
+
+.shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--surface-sunken);
+}
+
+/* ── Верхняя панель ───────────────────────────────────────────── */
+
+.topLeft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: var(--z-frame);
+}
+
+.topInner {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.flagCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-2) var(--space-4) 0;
+}
+
+.flagButton {
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 3px;
+}
+
+.flag {
+  display: block;
+  width: 4.5rem;
+  height: 3rem;
+  border-radius: 3px;
+  /* Контур обязателен: без него белые и светлые флаги растворяются в фоне. */
+  box-shadow: 0 0 0 1px var(--divider);
+  overflow: hidden;
+}
+
+.rankBox {
+  padding: 0 var(--space-4) var(--space-2);
+  text-align: center;
+  border: none;
+  background: none;
+}
+
+.rankLabel {
+  display: block;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.rank {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  color: var(--text);
+}
+
+.statsCell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) 0;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.books {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding-top: var(--space-1);
+  border-top: var(--edge-width) solid var(--divider);
+}
+
+/* ── Правая колонка ───────────────────────────────────────────── */
+
+.rightColumn {
+  position: absolute;
+  top: var(--frame-gap);
+  right: var(--frame-gap);
+  bottom: var(--frame-gap);
+  z-index: var(--z-surface);
+  width: var(--feed-col);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 0;
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--space-2) * -1);
+  width: var(--space-2);
+  cursor: ew-resize;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: none;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.resizer:hover,
+.resizer:focus-visible {
+  background: var(--edge-strong);
+}
+
+.turnMeta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.date {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+
+.modelState {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+.modelDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rise);
+}
+
+.modelDotBusy {
+  background: var(--near);
+}
+
+.turnButton {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.tools {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.feed {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.feedBody {
+  padding: 0 var(--space-3);
+}
+
+.modeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* ── Кризис ───────────────────────────────────────────────────── */
+
+.crisis {
+  margin: var(--space-3) var(--space-3) 0;
+  padding: var(--space-3);
+  border: var(--edge-width) solid var(--over);
+  border-radius: var(--radius-inner);
+  background: var(--over-tint);
+}
+
+.crisisTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+
+.crisisBody {
+  margin: var(--space-2) 0 var(--space-3);
+  font-family: var(--font-narrative);
+  font-size: var(--text-md);
+  line-height: var(--leading-prose);
+  color: var(--text-dim);
+}
+
+.crisisOptions {
+  display: grid;
+  gap: var(--space-1);
+}
+
+/* ── Выдвижные поверхности слева ──────────────────────────────── */
+
+.surface {
+  position: absolute;
+  left: var(--frame-gap);
+  top: calc(var(--top-h, 13rem) + var(--frame-gap));
+  bottom: calc(var(--bottom-h, 8rem) + var(--frame-gap) * 2);
+  z-index: var(--z-surface);
+  display: flex;
+  animation: slideIn var(--dur) var(--ease);
+}
+
+.drawer {
+  width: clamp(var(--surface-min), 34vw, var(--surface-max));
+  max-width: calc(100vw - var(--feed-col) - var(--frame-gap) * 3);
+}
+
+.ledgerSurface {
+  width: var(--ledger-width);
+  max-width: calc(100vw - var(--feed-col) - var(--frame-gap) * 3);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Нижняя стопка ────────────────────────────────────────────── */
+
+/*
+ * Приказы и полоса региона стоят ПО ЦЕНТРУ свободной части экрана — то
+ * есть по центру между левым краем и лентой. Центрировать по всему окну
+ * нельзя: на узком экране блок уехал бы под ленту.
+ */
+.bottom {
+  position: absolute;
+  bottom: var(--frame-gap);
+  left: 0;
+  right: calc(var(--feed-col) + var(--frame-gap) * 2);
+  z-index: var(--z-surface);
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.bottomInner {
+  width: var(--bottom-width);
+  max-width: calc(100% - var(--frame-gap) * 2);
+  display: grid;
+  gap: var(--space-2);
+  pointer-events: auto;
+}
+
+.regionStrip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: var(--edge-width) solid var(--edge);
+  border-radius: var(--radius-panel);
+}
+
+.regionName {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.regionFacts {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.regionFact {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.grow {
+  flex: 1 1 auto;
+}
+
+.orderList {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.dragging {
+  opacity: 0.4;
+}
+
+.input {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.field {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border: var(--edge-width) solid var(--divider);
+  border-radius: var(--radius-inner);
+  color: var(--text);
+  font-family: var(--font-narrative);
+  font-size: var(--text-md);
+}
+
+.field::placeholder {
+  color: var(--text-faint);
+}
+
+.field:focus {
+  border-color: var(--edge-strong);
+  outline: none;
+}
+
+.empty {
+  padding: var(--space-2) 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+}
+
+/* ── Модальное: только необратимое ────────────────────────────── */
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  background: var(--scrim);
+}
+
+.modal {
+  width: min(34rem, calc(100% - var(--space-7)));
+}
+
+.modalText {
+  font-family: var(--font-narrative);
+  font-size: var(--text-md);
+  line-height: var(--leading-prose);
+  color: var(--text-dim);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+/* ── Поиск ────────────────────────────────────────────────────── */
+
+.searchWrap {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding-top: 12vh;
+  background: var(--scrim);
+}
+
+.searchPanel {
+  width: min(32rem, calc(100% - var(--space-7)));
+}
+
+.searchResults {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.searchItem {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-inner);
+  background: none;
+  color: var(--text);
+  font-size: var(--text-md);
+  text-align: left;
+}
+
+.searchItem:hover {
+  background: var(--surface-raised);
+}
+
+.searchKind {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}

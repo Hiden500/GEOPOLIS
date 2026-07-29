@@ -71,6 +71,15 @@
 
 /* ── Макеты экрана ────────────────────────────────────────────── */
 
+.link {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: var(--accent-hover);
+}
+
 .screens {
   display: grid;
   gap: var(--space-5);

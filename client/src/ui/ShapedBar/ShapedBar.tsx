@@ -48,7 +48,14 @@ export function ShapedBar({ children, tab, tabOffset = 24, className }: ShapedBa
     const observer = new ResizeObserver(measure);
     observer.observe(body);
     observer.observe(tabNode);
-    return () => observer.disconnect();
+
+    // Медиазапрос меняет содержимое панели, не трогая наблюдаемые узлы
+    // немедленно: подстраховываемся ещё и окном.
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   const { width: w, height: h, tabWidth: tw, tabHeight: th } = box;
