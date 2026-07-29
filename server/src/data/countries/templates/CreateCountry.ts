@@ -88,7 +88,11 @@ export function createCountry(input: CountryInput): Country {
     },
     diplomacy: { ...emptyDiplomacy, ...input.diplomacy },
     politics: {
-      governmentType: "Unknown",
+      // powerStructure/sovereigntyStatus/overlordIds здесь НЕ дефолтятся:
+      // они приходят слоем сценария (`government.json`), и страна без разметки
+      // обязана остаться без ярлыка. Прежнее поле `governmentType` дефолтилось
+      // литералом "Unknown" — ни один сценарий его не задавал, и игрок видел
+      // этот литерал в интерфейсе (удалено 2026-07-29).
       stability: 50,
       legitimacy: 50,
       corruption: 30,

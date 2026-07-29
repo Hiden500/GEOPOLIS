@@ -42,10 +42,14 @@ from ideology_zones import ZONE_ANCHORS, zone_for
 GROUPS_PATH = SCENARIO_DIR / "groups.json"
 DEMOGRAPHICS_PATH = SCENARIO_DIR / "demographics.json"
 IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
+GOVERNMENT_PATH = SCENARIO_DIR / "government.json"
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 DISCONTENT_TS_PATH = (
     Path(__file__).resolve().parents[2] / "shared" / "src" / "defines" / "discontent.ts"
+)
+GOVERNMENT_TS_PATH = (
+    Path(__file__).resolve().parents[2] / "shared" / "src" / "types" / "politics" / "Government.ts"
 )
 
 # Доминант + до 3 меньшинств (docs/CONCEPT.md §4.1 — «лёгкий демо-состав»,
@@ -78,15 +82,19 @@ def _axis_violations(label: str, coords: dict) -> list[str]:
 
 
 def validate(groups: dict, demographics: dict, ideology: dict,
-             region_ids: set, countries: list) -> list[str]:
-    """Инварианты трёх слоёв. Работает на любых данных (в т.ч. синтетических),
+             region_ids: set, countries: list, government: dict | None = None) -> list[str]:
+    """Инварианты слоёв. Работает на любых данных (в т.ч. синтетических),
     не завязан на конкретно сценарий 1946 — кроме множества существующих
     region_id и списка стран.
 
     `countries` — записи countries.json целиком (не только id): из них берётся
-    и множество существующих стран, и ярлык politics.ideology для сверки с
-    координатами. Пустой список выключает страновые проверки — так синтетическая
-    фикстура может проверять только слой регионов."""
+    и множество существующих стран, ярлык politics.ideology для сверки с
+    координатами и diplomacy.puppets для сверки с юридическим статусом. Пустой
+    список выключает страновые проверки — так синтетическая фикстура может
+    проверять только слой регионов.
+
+    `government` — слой форм правления; `None` выключает его проверки (слой
+    опционален так же, как на загрузке движком)."""
     violations: list[str] = []
     country_ids = {c.get("id") for c in countries}
 
@@ -191,6 +199,144 @@ def validate(groups: dict, demographics: dict, ideology: dict,
                 "перегенерируй реестр (scripts/map/generate_country_registry.py)"
             )
 
+    # --- government.json ---
+    if government is not None:
+        ts_text = GOVERNMENT_TS_PATH.read_text(encoding="utf-8") if GOVERNMENT_TS_PATH.exists() else ""
+        power_structures = _ts_const_list(ts_text, "POWER_STRUCTURES")
+        statuses = _ts_const_list(ts_text, "SOVEREIGNTY_STATUSES")
+        violations.extend(government_enum_violations(power_structures, statuses))
+        violations.extend(government_violations(government, countries, power_structures, statuses))
+
+    return violations
+
+
+def _ts_const_list(text: str, name: str) -> list[str]:
+    """Читает литерал `export const NAME = [...] as const` из TS-файла.
+
+    Разбор регуляркой, а не импортом — тот же приём и та же причина, что у
+    `zone_anchor_parity_violations` ниже: тащить node в data-валидатор ради
+    списка строк дороже, чем прочитать литерал. Перечень при этом ОДИН
+    (TS-файл), а не продублирован в Python — дублю было бы нечем помешать
+    разъехаться."""
+    block = re.search(rf"export const {name}\s*=\s*\[(.*?)\]\s*as const", text, re.DOTALL)
+    if not block:
+        return []
+    return re.findall(r"'([^']+)'", block.group(1))
+
+
+def government_enum_violations(power_structures: list, statuses: list) -> list[str]:
+    """Перечни обязаны читаться: пустой список означает, что литерал в
+    Government.ts переименован или переформатирован, а валидатор молча
+    перестал проверять принадлежность значений."""
+    out: list[str] = []
+    if not power_structures:
+        out.append(f"{GOVERNMENT_TS_PATH.name}: не найден литерал POWER_STRUCTURES")
+    if not statuses:
+        out.append(f"{GOVERNMENT_TS_PATH.name}: не найден литерал SOVEREIGNTY_STATUSES")
+    return out
+
+
+def government_violations(government: dict, countries: list,
+                          power_structures: list, statuses: list) -> list[str]:
+    """Инварианты слоя government.json и его непротиворечивость с diplomacy.puppets.
+
+    Главное здесь — ПОСЛЕДНИЕ две проверки. Юридический статус и `puppets` —
+    разные предикаты (разбор — shared/src/types/politics/Government.ts), их
+    множества не равны и равными быть не обязаны. Но противоречить они не
+    могут: марионетка не бывает юридически суверенной, и сюзерен, который её
+    держит, обязан быть тем же, кого называет её собственная запись. Без этих
+    двух проверок два представления зависимости расходятся молча — ровно то,
+    ради чего слой и сводился.
+
+    Обратное требование («несуверенный ⇒ марионетка») НЕ проверяется и не
+    должно: зона оккупации и спорная администрация подчинены, но внешней
+    политике сюзерена не следуют (см. NON_VASSAL_SUBORDINATION_STATUSES)."""
+    violations: list[str] = []
+    country_ids = {c.get("id") for c in countries}
+    power_set, status_set = set(power_structures), set(statuses)
+
+    seen: set = set()
+    record_by_country: dict = {}
+    for entry in government.get("countries", []):
+        cid = entry.get("countryId")
+        if not cid:
+            violations.append(f"government.json: запись без countryId ({entry!r})")
+            continue
+        if cid in seen:
+            violations.append(f"government.json: дубль страны '{cid}'")
+        seen.add(cid)
+        if country_ids and cid not in country_ids:
+            violations.append(f"government.json: страна '{cid}' не существует в сценарии")
+        record_by_country[cid] = entry
+
+        structure = entry.get("powerStructure")
+        if power_set and structure not in power_set:
+            violations.append(
+                f"government.json: у '{cid}' powerStructure = {structure!r} вне перечня POWER_STRUCTURES"
+            )
+        status = entry.get("sovereigntyStatus")
+        if status_set and status not in status_set:
+            violations.append(
+                f"government.json: у '{cid}' sovereigntyStatus = {status!r} вне перечня SOVEREIGNTY_STATUSES"
+            )
+
+        overlords = entry.get("overlordIds")
+        if not isinstance(overlords, list):
+            violations.append(f"government.json: у '{cid}' overlordIds не список ({overlords!r})")
+            continue
+        if len(set(overlords)) != len(overlords):
+            violations.append(f"government.json: у '{cid}' дубль в overlordIds {overlords!r}")
+        if cid in overlords:
+            violations.append(f"government.json: '{cid}' назначен сюзереном самому себе")
+        for oid in overlords:
+            if country_ids and oid not in country_ids:
+                violations.append(
+                    f"government.json: у '{cid}' сюзерен '{oid}' не существует в сценарии"
+                )
+
+        # Форма подчинения обязана соответствовать статусу: суверен без
+        # сюзерена, кондоминиум ровно с двумя, остальные зависимые — ровно с
+        # одним. Иначе «зависимость» перестаёт быть проверяемой.
+        if status == "sovereign":
+            if overlords:
+                violations.append(f"government.json: суверенный '{cid}' имеет сюзерена {overlords!r}")
+        elif status == "condominium":
+            if len(overlords) != 2:
+                violations.append(
+                    f"government.json: кондоминиум '{cid}' имеет {len(overlords)} сюзеренов, ожидается 2"
+                )
+        elif status in status_set:
+            if len(overlords) != 1:
+                violations.append(
+                    f"government.json: зависимый '{cid}' (статус {status!r}) имеет "
+                    f"{len(overlords)} сюзеренов, ожидается 1"
+                )
+
+    # Покрытие полное — свойством, а не сравнением с числом стран.
+    for cid in sorted(country_ids - seen):
+        violations.append(
+            f"government.json: у страны '{cid}' нет записи — покрытие обязано быть полным"
+        )
+
+    # --- непротиворечивость с diplomacy.puppets ---
+    for country in countries:
+        suzerain = country.get("id")
+        for subject in (country.get("diplomacy") or {}).get("puppets", []):
+            record = record_by_country.get(subject)
+            if record is None:
+                continue
+            if record.get("sovereigntyStatus") == "sovereign":
+                violations.append(
+                    f"противоречие: '{subject}' — марионетка '{suzerain}' в countries.json, "
+                    f"но sovereigntyStatus = 'sovereign' в government.json"
+                )
+            overlords = record.get("overlordIds") or []
+            if suzerain not in overlords:
+                violations.append(
+                    f"противоречие: '{subject}' — марионетка '{suzerain}' в countries.json, "
+                    f"а её overlordIds = {overlords!r} — сюзерен не совпадает"
+                )
+
     return violations
 
 
@@ -229,7 +375,11 @@ def zone_anchor_parity_violations() -> list[str]:
 
 
 def main() -> int:
-    missing = [p.name for p in (GROUPS_PATH, DEMOGRAPHICS_PATH, IDEOLOGY_PATH) if not p.exists()]
+    missing = [
+        p.name
+        for p in (GROUPS_PATH, DEMOGRAPHICS_PATH, IDEOLOGY_PATH, GOVERNMENT_PATH)
+        if not p.exists()
+    ]
     if missing:
         print(f"ОШИБКА: нет файлов {', '.join(missing)} — запусти scripts/map/generate_demographics_1946.py")
         return 1
@@ -237,10 +387,11 @@ def main() -> int:
     groups = load_json(GROUPS_PATH)
     demographics = load_json(DEMOGRAPHICS_PATH)
     ideology = load_json(IDEOLOGY_PATH)
+    government = load_json(GOVERNMENT_PATH)
     region_ids = {r["id"] for r in load_json(REGIONS_CORE_PATH)}
     countries = load_json(COUNTRIES_PATH)
 
-    violations = validate(groups, demographics, ideology, region_ids, countries)
+    violations = validate(groups, demographics, ideology, region_ids, countries, government)
     violations.extend(zone_anchor_parity_violations())
 
     if violations:
@@ -251,12 +402,16 @@ def main() -> int:
 
     marked_regions = len(demographics.get("regions", []))
     marked_countries = len(ideology.get("countries", []))
+    gov_entries = government.get("countries", [])
+    dependent = sum(1 for e in gov_entries if e.get("sovereigntyStatus") != "sovereign")
     print(
         f"OK: групп {len(groups.get('groups', []))}, "
         f"размечено регионов {marked_regions}/{len(region_ids)} "
         f"(частичное покрытие — штатное состояние), "
         f"стран с координатами {marked_countries}/{len(countries)} "
-        f"(покрытие полное, ярлыки сверены с координатами)"
+        f"(покрытие полное, ярлыки сверены с координатами), "
+        f"стран с формой правления {len(gov_entries)}/{len(countries)} "
+        f"(из них зависимых {dependent}, непротиворечивость с diplomacy.puppets проверена)"
     )
     return 0
 

@@ -24,12 +24,45 @@ Last updated: 2026-07-28 (идеологический гейт союзов с�
 ```
 ideology: string
 ideologyCoordinates?: { economic: number; political: number }   // 2026-07-26
-governmentType: string
+powerStructure?: PowerStructure                                 // 2026-07-29
+sovereigntyStatus?: SovereigntyStatus                           // 2026-07-29
+overlordIds?: string[]                                          // 2026-07-29
 stability: number
 legitimacy: number
 corruption: number
 governmentSupport: number
 ```
+
+### Форма правления и юридический статус (2026-07-29)
+
+Два свойства государства, которых модель раньше не различала вовсе: **кто
+фактически правит** (`powerStructure`, 12 значений) и **кому государство
+юридически подчинено** (`sovereigntyStatus`, 11 значений, плюс `overlordIds`).
+Перечни — `shared/src/types/politics/Government.ts`, там же разбор границы с
+`diplomacy.puppets`. Данные: вход `scripts/map/config/government_1946.json`,
+выход `server/data/scenarios/1946/government.json`, провенанс
+`docs/GOVERNMENT_1946_PROVENANCE.md` (157 стран, из них 89 зависимых).
+
+Поля опциональны по тому же принципу, что и координаты идеологии: слой
+покрывает 1946 целиком, но сценарии 1836/2000 его не имеют, и страна без
+записи остаётся без ярлыка. Дефолта у них нет намеренно.
+
+`overlordIds` хранится ПОДЧИНЁННЫМ: у субъекта сюзерен один (у кондоминиума
+два), у державы клиентов десятки, и обратный список пришлось бы держать
+согласованным вручную. Поле зарегистрировано как место ссылок на страны в
+`server/src/primitives/countryRefs.ts` — исчезнувшая метрополия не оставляет
+висячей ссылки (`CONCEPT.md` §7.1).
+
+Механики, которые их читают, пока НЕТ: сегодня оба поля только показываются
+игроку (InspectorPanel, ContextPanel, PoliticsBook). Разметка заведена под
+перевороты, легитимность и деколонизацию — см. `docs/TODO.md`.
+
+**`governmentType` удалён (2026-07-29).** Строковое поле того же смыслового
+слота: ни один сценарий его не задавал, `createCountry` ставил литерал
+`"Unknown"`, и все три места показа выводили этот литерал игроку. Ни один тик
+его не читал — вопреки имени, `GOVERNMENT_TYPE_CORRUPTION_BASE`
+(`shared/src/defines/politics.ts`) ключуется по `politics.ideology`. Его место
+занял `powerStructure`.
 
 ### Кто читает и кто пишет
 

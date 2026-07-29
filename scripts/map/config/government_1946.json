@@ -1,0 +1,1299 @@
+{
+  "_meta": {
+    "snapshotDate": "1946-01-01",
+    "purpose": "Authored government form (powerStructure) and legal standing (sovereigntyStatus + overlordIds) for every country of the 1946 scenario. Single source for server/data/scenarios/1946/government.json.",
+    "fields": {
+      "powerStructure": "Кто фактически осуществляет власть. Перечень — shared/src/types/politics/Government.ts::POWER_STRUCTURES.",
+      "sovereigntyStatus": "Юридическое положение субъекта. Перечень — shared/src/types/politics/Government.ts::SOVEREIGNTY_STATUSES.",
+      "overlordIds": "Держава(ы), которым субъект юридически подчинён. Пусто у суверенных, ровно две записи у кондоминиума.",
+      "confidence": "Уверенность разметки записи (высокая/средняя/низкая) — провенанс, в игровое состояние не попадает.",
+      "note": "Причина расхождения с общеизвестной датой (см. JOR/PHL) — провенанс, в игровое состояние не попадает."
+    },
+    "relationToPuppets": "НЕ дубликат diplomacy.puppets. Статус — юридическое положение, puppets — эффективное следование внешней политике сюзерена. Множества не равны (зоны оккупации и спорные администрации не марионетки), но противоречить не могут: марионетка обязана быть несуверенной, её сюзерен обязан входить в overlordIds. Держит scripts/map/validate_demographics_1946.py и server/src/scenarios/__tests__/government1946.test.ts.",
+    "provenance": "docs/GOVERNMENT_1946_PROVENANCE.md",
+    "editing": "Hand-authored input, not generated output. После ЛЮБОЙ правки перезапустить scripts/map/generate_demographics_1946.py."
+  },
+  "countries": [
+    {
+      "countryId": "AFG",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "AGO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ALA",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FIN"
+      ],
+      "confidence": "низкая"
+    },
+    {
+      "countryId": "ALB",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "AND",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "низкая"
+    },
+    {
+      "countryId": "ARE",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ARG",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "AUS",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "BEL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "BGR",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "BHR",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "BOL",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "BRA",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "BRN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "BTN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "CAN",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "CHE",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "CHL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "CHN",
+      "powerStructure": "fragmented",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "CMR",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "COD",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "BEL"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "COK",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "NZL"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "COL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "CRI",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "CSK",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "CUB",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "DNK",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "DOM",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ECU",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "EGY",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "ESP",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ETH",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "FIN",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "FRA",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "GBR",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "GHA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "GLP",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "низкая"
+    },
+    {
+      "countryId": "GRC",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "GRL",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "DNK"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "GTM",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "HKG",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "HND",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "HTI",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "HUN",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "IDN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "NLD"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "IND",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "IRL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "IRN",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "IRQ",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "ISL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ITA",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "JOR",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая",
+      "note": "на 1946-01-01 — британская подмандатная территория; независимость 25.05.1946"
+    },
+    {
+      "countryId": "JPN",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupied_territory",
+      "overlordIds": [
+        "USA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "KEN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "KHM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "KWT",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "LAO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "LBN",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "LBR",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "LIE",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "LKA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "LUX",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MAC",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MAR",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MCO",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "MDG",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MEX",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MMR",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "MNG",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MOZ",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MTQ",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "низкая"
+    },
+    {
+      "countryId": "MWI",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "MYS",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "NAM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "ZAF"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "NFD",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "NFK",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "AUS"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "NGA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "NIC",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "NLD",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "NOR",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "NPL",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "NRU",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "AUS"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "NZL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "OMN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "PAN",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "PER",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "PHL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "USA"
+      ],
+      "confidence": "средняя",
+      "note": "на 1946-01-01 — Содружество Филиппин под суверенитетом США; независимость 04.07.1946"
+    },
+    {
+      "countryId": "PNG",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "AUS"
+      ],
+      "confidence": "низкая"
+    },
+    {
+      "countryId": "POL",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "PRT",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "PRY",
+      "powerStructure": "military",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "PSE",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QAD",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "низкая"
+    },
+    {
+      "countryId": "QAT",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QAZ",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "SUN"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "QDV",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "QFE",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QFI",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QFW",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QGA",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "USA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QGB",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QGF",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QGS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "SUN"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QJK",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QKA",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "USA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QKS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "SUN"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QLB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QMH",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "SUN"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "QMS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupied_territory",
+      "overlordIds": [
+        "SUN"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "QNB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QND",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "NLD"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QOA",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "USA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QOB",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QOF",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QOS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "SUN"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QPI",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QPS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupied_territory",
+      "overlordIds": [
+        "USA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QRI",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "NLD"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QRU",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "BEL"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QSI",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QSO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QSR",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QTB",
+      "powerStructure": "clerical",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "QWL",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QWW",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "QZN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "ROU",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "SAU",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "SDN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "condominium",
+      "overlordIds": [
+        "EGY",
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "SGP",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "SLB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "SLE",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "низкая"
+    },
+    {
+      "countryId": "SLV",
+      "powerStructure": "military",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "SMR",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "SUN",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "SWE",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "SYR",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "TGO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "THA",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "TON",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "TUN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "TUR",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "TWN",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "TZA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "UGA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "URY",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "USA",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "VAT",
+      "powerStructure": "clerical",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "VEN",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "VNM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "FRA"
+      ],
+      "confidence": "средняя"
+    },
+    {
+      "countryId": "VUT",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "condominium",
+      "overlordIds": [
+        "FRA",
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "WSM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "NZL"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "YEM",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "YUG",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": [],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ZAF",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ZMB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    },
+    {
+      "countryId": "ZWE",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ],
+      "confidence": "высокая"
+    }
+  ]
+}

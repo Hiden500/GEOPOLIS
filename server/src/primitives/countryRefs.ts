@@ -248,6 +248,20 @@ export function remapCountryReferences(game: GameState, resolve: CountryRefResol
       remapIdList(diplomacy[field], `countries[*].diplomacy.${field}[*]`, resolve, country.id);
     }
 
+    // Сюзерены (`PoliticsState.overlordIds`) — такое же место ссылок на страны,
+    // как списки дипломатии: метрополия исчезает при разделе или поглощении, и
+    // запись о подчинении обязана переехать вместе с ней, а не остаться указывать
+    // в пустоту (§7.1). Самоссылка снимается тем же аргументом — страна не бывает
+    // сюзереном самой себе (то же требование держит Zod-схема слоя на загрузке).
+    if (country.politics.overlordIds !== undefined) {
+      remapIdList(
+        country.politics.overlordIds,
+        "countries[*].politics.overlordIds[*]",
+        resolve,
+        country.id
+      );
+    }
+
     // Отношения и влияние: при столкновении побеждает значение ВЫЖИВШЕЙ страны.
     // Отношение третьей страны к B прожито и накоплено, отношение к исчезнувшей
     // A — запись о том, кого больше нет; складывать или усреднять их значило бы

@@ -88,7 +88,6 @@ describe('MapFeatureService', () => {
         },
         politics: {
           ideology: 'democracy',
-          governmentType: 'republic',
           stability: 0.8,
           legitimacy: 0.7,
           corruption: 0.2,

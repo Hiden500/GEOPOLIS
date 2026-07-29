@@ -31,7 +31,6 @@ function countryAt(economic: number, political: number): Country {
     politics: {
       ideology: "Communism",
       ideologyCoordinates: { economic, political },
-      governmentType: "",
       stability: 50,
       legitimacy: 50,
       corruption: 20,
@@ -40,8 +39,11 @@ function countryAt(economic: number, political: number): Country {
   } as unknown as Country;
 }
 
-function textOf(country: Country, anchors: IdeologyAnchor[]): string {
-  return render(<PoliticsBook country={country} ideologyAnchors={anchors} />).container.textContent ?? "";
+function textOf(country: Country, anchors: IdeologyAnchor[], roster: Country[] = []): string {
+  return (
+    render(<PoliticsBook country={country} ideologyAnchors={anchors} countries={[country, ...roster]} />)
+      .container.textContent ?? ""
+  );
 }
 
 describe("ярлык идеологии в панели политики", () => {
@@ -68,6 +70,76 @@ describe("ярлык идеологии в панели политики", () =>
     const text = textOf(countryAt(-0.96, -0.95), []);
     expect(text).toContain("Командная экономика");
     expect(text).toContain("Закрытая диктатура");
+  });
+
+  it("суверенная страна не подписывается суверенитетом — только формой власти", () => {
+    const country = countryAt(-0.96, -0.95);
+    country.politics.powerStructure = "one_party";
+    country.politics.sovereigntyStatus = "sovereign";
+    country.politics.overlordIds = [];
+
+    const text = textOf(country, [ANCHOR]);
+
+    expect(text).toContain("Однопартийный режим");
+    // Подписывать суверенитетом большинство стран значит писать «обычное» там,
+    // где строка должна сообщать особенное.
+    expect(text).not.toContain("Суверенное государство");
+  });
+
+  it("зависимая страна названа статусом и метрополией по имени, а не по коду", () => {
+    const overlord = { ...countryAt(0.4, 0.9), id: "GBR", shortName: { ru: "Великобритания", en: "United Kingdom" } };
+    const colony = countryAt(0.2, -0.8);
+    colony.politics.powerStructure = "colonial_administration";
+    colony.politics.sovereigntyStatus = "colony";
+    colony.politics.overlordIds = ["GBR"];
+
+    const text = textOf(colony, [ANCHOR], [overlord]);
+
+    expect(text).toContain("Колония");
+    expect(text).toContain("Великобритания");
+    expect(text).not.toContain("GBR");
+  });
+
+  it("кондоминиум называет обе державы", () => {
+    const a = { ...countryAt(0.4, 0.9), id: "GBR", shortName: { ru: "Великобритания", en: "United Kingdom" } };
+    const b = { ...countryAt(0.3, -0.1), id: "EGY", shortName: { ru: "Египет", en: "Egypt" } };
+    const subject = countryAt(0.2, -0.6);
+    subject.politics.powerStructure = "colonial_administration";
+    subject.politics.sovereigntyStatus = "condominium";
+    subject.politics.overlordIds = ["GBR", "EGY"];
+
+    const text = textOf(subject, [ANCHOR], [a, b]);
+
+    expect(text).toContain("Великобритания");
+    expect(text).toContain("Египет");
+  });
+
+  it("форма власти и статус переводятся вместе с интерфейсом", async () => {
+    const previous = i18n.language;
+    try {
+      await i18n.changeLanguage("en");
+      const overlord = { ...countryAt(0.4, 0.9), id: "GBR", shortName: { ru: "Великобритания", en: "United Kingdom" } };
+      const colony = countryAt(0.2, -0.8);
+      colony.politics.powerStructure = "colonial_administration";
+      colony.politics.sovereigntyStatus = "colony";
+      colony.politics.overlordIds = ["GBR"];
+
+      const text = textOf(colony, [ANCHOR], [overlord]);
+
+      expect(text).toContain("Colonial administration");
+      expect(text).toContain("Colony");
+      expect(text).toContain("United Kingdom");
+    } finally {
+      await i18n.changeLanguage(previous);
+    }
+  });
+
+  it("страна без разметки не показывает ни формы власти, ни статуса", () => {
+    // Сценарии без слоя government.json (1836/2000) обязаны остаться без
+    // ярлыка, а не получить выдуманный — как было с литералом "Unknown".
+    const text = textOf(countryAt(-0.96, -0.95), [ANCHOR]);
+    expect(text).not.toContain("Unknown");
+    expect(text).not.toContain("Суверенное государство");
   });
 
   it("обе половины ярлыка переводятся: имя якоря из данных, ступени из словаря", async () => {

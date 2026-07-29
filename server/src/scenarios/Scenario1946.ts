@@ -15,6 +15,7 @@ import {
   groupsFileSchema,
   demographicsFileSchema,
   ideologyFileSchema,
+  governmentFileSchema,
   ideologyZonesFileSchema,
   type RegionCoreEntry,
   type RegionStateEntry,
@@ -217,7 +218,56 @@ function applyDemographicLayers(
     };
   }
 
+  applyGovernmentLayer(baseDir, countries, countryById);
+
   return groups;
+}
+
+/**
+ * Формы правления и юридический статус (`government.json`,
+ * `shared/src/types/politics/Government.ts`). Слой независимый и опциональный:
+ * сценарий без файла работает, страна без записи остаётся без ярлыка — тот же
+ * принцип частичного покрытия, что у остальных слоёв фундамента.
+ *
+ * Zod проверил форму записи (перечни, число сюзеренов по статусу); здесь —
+ * ссылочная целостность МЕЖДУ файлами, которую схема выразить не может: и
+ * страна, и каждый её сюзерен обязаны существовать в ростере.
+ *
+ * СВЕРКА С `diplomacy.puppets` здесь НЕ делается, и это осознанно. Она стоит в
+ * `scripts/map/validate_demographics_1946.py` (до запуска игры) и в
+ * `server/src/scenarios/__tests__/government1946.test.ts` (по загруженному
+ * сценарию). Ронять загрузку партии из-за того, что рантайм-отношение разошлось
+ * с юридическим статусом, значило бы сделать невозможным сохранение мира, в
+ * котором игрок кого-то освободил, — а механики, синхронизирующей эти два поля,
+ * ещё нет (`docs/TODO.md`).
+ */
+function applyGovernmentLayer(
+  baseDir: string,
+  countries: Country[],
+  countryById: Map<string, Country>
+): void {
+  const governmentFile = readOptionalJsonFile(
+    path.join(baseDir, 'government.json'), governmentFileSchema, 'government.json'
+  );
+  if (!governmentFile) return;
+
+  const roster = new Set(countries.map(c => c.id));
+  for (const entry of governmentFile.countries) {
+    const country = countryById.get(entry.countryId);
+    if (!country) {
+      throw new ScenarioDataError(`government.json: нет страны id="${entry.countryId}" в сценарии`);
+    }
+    for (const overlordId of entry.overlordIds) {
+      if (!roster.has(overlordId)) {
+        throw new ScenarioDataError(
+          `government.json: страна "${entry.countryId}" ссылается на несуществующего сюзерена "${overlordId}"`
+        );
+      }
+    }
+    country.politics.powerStructure = entry.powerStructure;
+    country.politics.sovereigntyStatus = entry.sovereigntyStatus;
+    country.politics.overlordIds = [...entry.overlordIds];
+  }
 }
 
 /**

@@ -6,9 +6,10 @@
 docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
 
 Выход (не редактировать вручную — правь ИСТОЧНИК и перегенерируй):
-    server/data/scenarios/1946/groups.json        <- таблица GROUPS ниже
-    server/data/scenarios/1946/demographics.json  <- таблица DEMOGRAPHICS ниже
+    server/data/scenarios/1946/groups.json        <- scripts/map/config/groups_1946.json
+    server/data/scenarios/1946/demographics.json  <- scripts/map/config/demographics_1946.json
     server/data/scenarios/1946/ideology.json      <- scripts/map/config/ideology_1946.json
+    server/data/scenarios/1946/government.json    <- scripts/map/config/government_1946.json
 
 Запуск из корня: python scripts/map/generate_demographics_1946.py
 После записи прогоняет scripts/map/validate_demographics_1946.py.
@@ -41,6 +42,13 @@ docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
 неразмеченный. Расширение покрытия — отдельная задача наполнения данными, схему
 менять не нужно.
 
+Формы правления и юридический статус (`government.json`, наполнение 2026-07-29)
+покрывают страны ПОЛНОСТЬЮ и живут тем же способом: авторский вход в
+`config/government_1946.json`, провенанс — `docs/GOVERNMENT_1946_PROVENANCE.md`.
+Слой сверх собственных инвариантов проверяется на непротиворечивость с
+`diplomacy.puppets`: это два разных предиката, но противоречить друг другу они
+не могут (разбор — `shared/src/types/politics/Government.ts`).
+
 Покрытие стран — ПОЛНОЕ (157/157, наполнение 2026-07-27): координаты больше не
 живут в таблице этого файла, а читаются из `scripts/map/config/ideology_1946.json`
 (см. ideology_zones.py — там же обратное отображение координат в именованную
@@ -66,6 +74,7 @@ from validate_demographics_1946 import validate
 GROUPS_PATH = SCENARIO_DIR / "groups.json"
 DEMOGRAPHICS_PATH = SCENARIO_DIR / "demographics.json"
 IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
+GOVERNMENT_PATH = SCENARIO_DIR / "government.json"
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 
@@ -77,6 +86,7 @@ COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 CONFIG_DIR = Path(__file__).resolve().parent / "config"
 GROUPS_CONFIG = CONFIG_DIR / "groups_1946.json"
 DEMOGRAPHICS_CONFIG = CONFIG_DIR / "demographics_1946.json"
+GOVERNMENT_CONFIG = CONFIG_DIR / "government_1946.json"
 
 # Координаты идеологии стран живут в scripts/map/config/ideology_1946.json —
 # авторский вход, а не таблица этого файла (см. шапку). Пообъектное обоснование,
@@ -108,6 +118,27 @@ def build_ideology(coordinates: dict) -> dict:
     }
 
 
+#: Поля записи government_1946.json, попадающие в игровое состояние. Остальное
+#: (`confidence`, `note`) — провенанс: он нужен рецензенту входа, а не движку,
+#: и в сценарий не переносится, чтобы не раздувать состояние тем, что никто не
+#: читает (docs/GOVERNMENT_1946_PROVENANCE.md).
+GOVERNMENT_GAMEPLAY_FIELDS = ("countryId", "powerStructure", "sovereigntyStatus", "overlordIds")
+
+
+def build_government() -> dict:
+    """Формы правления и юридический статус из входного конфига.
+
+    Порядок по countryId — стабильный diff при перегенерации (как у ideology).
+    """
+    entries = load_json(GOVERNMENT_CONFIG)["countries"]
+    return {
+        "countries": [
+            {field: entry[field] for field in GOVERNMENT_GAMEPLAY_FIELDS}
+            for entry in sorted(entries, key=lambda e: e["countryId"])
+        ]
+    }
+
+
 def write_json(path: Path, payload: dict) -> None:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
@@ -118,6 +149,7 @@ def main() -> int:
     groups = build_groups()
     demographics = build_demographics()
     ideology = build_ideology(load_coordinates())
+    government = build_government()
 
     region_ids = {r["id"] for r in load_json(REGIONS_CORE_PATH)}
     countries = load_json(COUNTRIES_PATH)
@@ -127,7 +159,7 @@ def main() -> int:
     # Сюда же попадает сверка ярлыка politics.ideology с координатами — если
     # countries.json собран из более старой версии config/ideology_1946.json,
     # прогон падает вместо того, чтобы развести два файла по разным данным.
-    violations = validate(groups, demographics, ideology, region_ids, countries)
+    violations = validate(groups, demographics, ideology, region_ids, countries, government)
     if violations:
         print(f"НЕ ЗАПИСАНО — нарушений: {len(violations)}")
         for v in violations:
@@ -137,11 +169,13 @@ def main() -> int:
     write_json(GROUPS_PATH, groups)
     write_json(DEMOGRAPHICS_PATH, demographics)
     write_json(IDEOLOGY_PATH, ideology)
+    write_json(GOVERNMENT_PATH, government)
 
     print(
         f"Записано: groups.json ({len(groups['groups'])} групп), "
         f"demographics.json ({len(demographics['regions'])} регионов), "
-        f"ideology.json ({len(ideology['countries'])} стран)"
+        f"ideology.json ({len(ideology['countries'])} стран), "
+        f"government.json ({len(government['countries'])} стран)"
     )
     return 0
 

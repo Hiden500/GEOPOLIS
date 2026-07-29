@@ -111,7 +111,6 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
     },
     politics: {
       ideology: "democracy",
-      governmentType: "republic",
       stability: 70,
       legitimacy: 60,
       corruption: 30,

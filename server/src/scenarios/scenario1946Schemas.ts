@@ -1,5 +1,11 @@
 import { z } from "zod";
 import { RESOURCE_IDS } from "@shared/data/resources/resourceCatalog";
+import {
+  POWER_STRUCTURES,
+  SOVEREIGNTY_STATUSES,
+  SOVEREIGN_STATUS,
+  CONDOMINIUM_STATUS,
+} from "@shared/types/politics/Government";
 
 /**
  * Схемы расслоённых файлов сценария 1946 (docs/plans/05_DATA_LAYOUT.md).
@@ -130,6 +136,46 @@ export const ideologyZonesFileSchema = z.object({
 });
 export type IdeologyZonesFile = z.infer<typeof ideologyZonesFileSchema>;
 
+/**
+ * Формы правления и юридический статус (`government.json`).
+ *
+ * Перечни берутся из shared (`POWER_STRUCTURES`/`SOVEREIGNTY_STATUSES`), а не
+ * переписываются здесь: `z.enum()` умеет вывести литералы из `as const`
+ * массива, и второй копии списка, способной разойтись с типом, не заводится
+ * (тот же приём, что у `SANCTION_TYPES`).
+ *
+ * Форма подчинения проверяется схемой, а не только валидатором пайплайна:
+ * пайплайн стоит до запуска игры, схема — на загрузке сценария и сейва. Файл,
+ * собранный мимо пайплайна, обязан отвергаться так же.
+ */
+export const countryGovernmentSchema = z.object({
+  countryId: z.string().min(1),
+  powerStructure: z.enum(POWER_STRUCTURES),
+  sovereigntyStatus: z.enum(SOVEREIGNTY_STATUSES),
+  overlordIds: z.array(z.string().min(1)),
+}).superRefine((entry, ctx) => {
+  const { sovereigntyStatus: status, overlordIds: overlords, countryId } = entry;
+  const expected = status === SOVEREIGN_STATUS ? 0 : status === CONDOMINIUM_STATUS ? 2 : 1;
+  if (overlords.length !== expected) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        `"${countryId}": статус "${status}" требует ${expected} сюзерен(ов), ` +
+        `указано ${overlords.length}`,
+    });
+  }
+  if (new Set(overlords).size !== overlords.length) {
+    ctx.addIssue({ code: "custom", message: `"${countryId}": дубль в overlordIds` });
+  }
+  if (overlords.includes(countryId)) {
+    ctx.addIssue({ code: "custom", message: `"${countryId}": страна назначена сюзереном самой себе` });
+  }
+});
+export const governmentFileSchema = z.object({
+  countries: z.array(countryGovernmentSchema),
+});
+export type GovernmentFile = z.infer<typeof governmentFileSchema>;
+
 /** region_id (geoJsonId) → имя. Частичное покрытие допустимо (см. getText fallback). */
 export const namesFileSchema = z.record(z.string(), z.string());
 export type NamesFile = z.infer<typeof namesFileSchema>;
@@ -204,7 +250,6 @@ export const authoredCountrySchema = z.object({
   diplomacy: authoredDiplomacySchema.optional(),
   politics: z.object({
     ideology: z.string().min(1),
-    governmentType: z.string().optional(),
     stability: z.number().optional(),
     legitimacy: z.number().optional(),
     corruption: z.number().optional(),
