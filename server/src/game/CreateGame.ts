@@ -154,6 +154,7 @@ export function createGame(
     // сценария (у 1836/2000 его нет — пустой, и это не ошибка), память
     // воздействий и латч кризисов стартуют пустыми — прошлого у новой партии нет.
     ethnicGroups: structuredClone(scenario.ethnicGroups ?? []),
+    ideologyAnchors: structuredClone(scenario.ideologyAnchors ?? []),
     groupImpactMemory: [],
     regionCrisisLatch: [],
     // Журналы idempotency-ключей батчей примитивов (docs/CONCEPT.md §7.2) — у

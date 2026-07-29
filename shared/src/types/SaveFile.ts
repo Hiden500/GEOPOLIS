@@ -74,7 +74,7 @@ import { type GameState } from "./GameState";
  * не устоявшегося (алфавит расширяется с 5 глаголов до 18 в следующей сессии),
  * пришлось бы переписывать вместе с ним.
  */
-export const SAVE_VERSION = 10;
+export const SAVE_VERSION = 11;
 
 export interface SaveFile {
   version: number;

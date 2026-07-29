@@ -12,6 +12,7 @@ import {
 } from "@shared/utils/discontent";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { usePrimitiveOutcomeText } from "../../components/primitiveOutcomeText";
+import { useIdeologyLabel } from "../../i18n/ideologyLabel";
 import { RESOURCE_CODES, RESOURCE_ICONS, formatResourceAmount } from "../../utils/resourceDisplay";
 import { Meter, Tag } from "../../primitives";
 import { type Selection } from "../types";
@@ -286,9 +287,12 @@ function CountryContext({
   onCompare: () => void;
 }) {
   const { t, i18n } = useTranslation("hud");
+  const ideologyLabel = useIdeologyLabel();
   const country = game.countries.find(c => c.id === countryId);
   if (!country) return null;
-  const govLabel = [country.politics.ideology, country.politics.governmentType].filter(Boolean).join(" · ");
+  const govLabel = [ideologyLabel(country.politics, game.ideologyAnchors), country.politics.governmentType]
+    .filter(Boolean)
+    .join(" · ");
   const relationEntries = Object.entries(country.diplomacy.relations)
     .map(([id, value]) => ({ id, value, other: game.countries.find(c => c.id === id) }))
     .filter((e): e is { id: string; value: number; other: Country } => e.other != null)

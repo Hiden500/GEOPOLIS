@@ -114,6 +114,22 @@ export const ideologyFileSchema = z.object({
 });
 export type IdeologyFile = z.infer<typeof ideologyFileSchema>;
 
+/**
+ * Именованные точки спектра эпохи (`ideology_zones.json`). Радиус ограничен
+ * сверху половиной оси: якорь шире накрыл бы четверть спектра и подменил бы
+ * собой шкалу, ради выразительности которой он и заведён.
+ */
+export const ideologyAnchorSchema = z.object({
+  id: z.string().min(1),
+  center: ideologyCoordinatesSchema,
+  radius: z.number().gt(0).max(0.5),
+  name: localizedTextSchema,
+});
+export const ideologyZonesFileSchema = z.object({
+  anchors: z.array(ideologyAnchorSchema),
+});
+export type IdeologyZonesFile = z.infer<typeof ideologyZonesFileSchema>;
+
 /** region_id (geoJsonId) → имя. Частичное покрытие допустимо (см. getText fallback). */
 export const namesFileSchema = z.record(z.string(), z.string());
 export type NamesFile = z.infer<typeof namesFileSchema>;

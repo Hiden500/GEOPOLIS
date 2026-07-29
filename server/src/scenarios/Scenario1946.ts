@@ -1,6 +1,7 @@
 import { type Scenario } from "./types/Scenario";
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
+import { type IdeologyAnchor } from "@shared/types/politics/IdeologyAnchor";
 import { ERAS } from "@shared/data/eras";
 import fs from 'fs';
 import path from 'path';
@@ -14,6 +15,7 @@ import {
   groupsFileSchema,
   demographicsFileSchema,
   ideologyFileSchema,
+  ideologyZonesFileSchema,
   type RegionCoreEntry,
   type RegionStateEntry,
 } from "./scenario1946Schemas";
@@ -218,14 +220,44 @@ function applyDemographicLayers(
   return groups;
 }
 
+/**
+ * Именованные точки спектра эпохи. Слой независимый: без файла игрок видит
+ * склейку ступеней шкалы, и это рабочее состояние, а не ошибка данных —
+ * шкала покрывает спектр целиком сама по себе.
+ *
+ * Дубликат id — ошибка: ярлык выбирается ближайшим якорем, и два якоря с
+ * одним id сделали бы результат зависящим от порядка в файле.
+ */
+function loadIdeologyAnchors(baseDir: string): IdeologyAnchor[] {
+  const file = readOptionalJsonFile(
+    path.join(baseDir, 'ideology_zones.json'), ideologyZonesFileSchema, 'ideology_zones.json'
+  );
+  if (!file) return [];
+
+  const anchors: IdeologyAnchor[] = file.anchors.map(a => {
+    // Под exactOptionalPropertyTypes явный undefined не равен отсутствию
+    // ключа — тот же приём, что в buildRegions и в каталоге групп.
+    const name: IdeologyAnchor["name"] = { en: a.name.en };
+    if (a.name.ru !== undefined) name.ru = a.name.ru;
+    return { id: a.id, center: a.center, radius: a.radius, name };
+  });
+
+  if (new Set(anchors.map(a => a.id)).size !== anchors.length) {
+    throw new ScenarioDataError('ideology_zones.json: дублирующиеся id якорей');
+  }
+  return anchors;
+}
+
 export function buildScenario1946(baseDir: string): Scenario {
   const regions = buildRegions(baseDir);
   const countries = buildCountries(baseDir);
   const ethnicGroups = applyDemographicLayers(baseDir, regions, countries);
+  const ideologyAnchors = loadIdeologyAnchors(baseDir);
 
   return {
     id: "1946",
     ethnicGroups,
+    ideologyAnchors,
     name: "Холодная война",
     startDate: "1946-01-01",
     endDate: "2000-12-31",

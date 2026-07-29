@@ -5,10 +5,10 @@
 регионов и координаты идеологии стран (docs/CONCEPT.md §4.1/§4.2,
 docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
 
-Выход (не редактировать вручную — правь таблицы ниже и перегенерируй):
-    server/data/scenarios/1946/groups.json
-    server/data/scenarios/1946/demographics.json
-    server/data/scenarios/1946/ideology.json
+Выход (не редактировать вручную — правь ИСТОЧНИК и перегенерируй):
+    server/data/scenarios/1946/groups.json        <- таблица GROUPS ниже
+    server/data/scenarios/1946/demographics.json  <- таблица DEMOGRAPHICS ниже
+    server/data/scenarios/1946/ideology.json      <- scripts/map/config/ideology_1946.json
 
 Запуск из корня: python scripts/map/generate_demographics_1946.py
 После записи прогоняет scripts/map/validate_demographics_1946.py.
@@ -18,9 +18,10 @@ docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
 ------------------------------------------------------------------------------
 Таблицы ниже — НЕ первичный seed, а внешнее историческое наполнение
 (2026-07-26), заменившее прежние оценки разработчика. Пообъектный провенанс —
-основа оценки, уверенность и обоснование по КАЖДОМУ региону, КАЖДОЙ группе и
-КАЖДОЙ стране — вынесен в `docs/DEMOGRAPHICS_1946_PROVENANCE.md`; здесь он не
-дублируется, чтобы не разъезжаться в двух местах.
+основа оценки, уверенность и обоснование по КАЖДОМУ региону и КАЖДОЙ группе —
+вынесен в `docs/DEMOGRAPHICS_1946_PROVENANCE.md`, по КАЖДОЙ СТРАНЕ — в
+`docs/IDEOLOGY_1946_PROVENANCE.md`; здесь он не дублируется, чтобы не
+разъезжаться в двух местах.
 
 Общая рамка: переписи населения СССР 1946 года не было. Ближайшие опорные
 точки — довоенные национальные переписи Литвы (1923), Латвии и Эстонии
@@ -35,11 +36,19 @@ docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
 игровой агрегат, а не результат опроса. Проверяемость обеспечивают именованные
 зоны спектра, а не точность до сотых.
 
-Покрытие СОЗНАТЕЛЬНО частичное: 14 регионов (Прибалтика + славянские соседи и
-Калининград), 9 групп и 7 стран. Регион без записи трактуется движком как
-неразмеченный, страна без координат — фолбэк по ярлыку politics.ideology.
-Расширение покрытия — отдельная задача наполнения данными, схему менять не
-нужно.
+Покрытие регионов СОЗНАТЕЛЬНО частичное: 14 регионов (Прибалтика + славянские
+соседи и Калининград) и 9 групп. Регион без записи трактуется движком как
+неразмеченный. Расширение покрытия — отдельная задача наполнения данными, схему
+менять не нужно.
+
+Покрытие стран — ПОЛНОЕ (157/157, наполнение 2026-07-27): координаты больше не
+живут в таблице этого файла, а читаются из `scripts/map/config/ideology_1946.json`
+(см. ideology_zones.py — там же обратное отображение координат в именованную
+зону и объяснение, почему источник вынесен наружу). Сто пятьдесят семь строк в
+теле скрипта были бы нечитаемой стеной, а главное — тот же файл нужен второму
+генератору (generate_country_registry.py выводит из него ярлык
+politics.ideology), и держать его внутри одного из двух потребителей значило бы
+сделать второго зависимым от чужого выхода.
 
 Тесты движка НЕ опираются на конкретные доли и номера регионов из этих таблиц
 (server/src/simulation/__tests__/campaignSmoke.test.ts проверяет монотонность
@@ -51,6 +60,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.region_files import SCENARIO_DIR, load_json
+from ideology_zones import load_coordinates
 from validate_demographics_1946 import validate
 
 GROUPS_PATH = SCENARIO_DIR / "groups.json"
@@ -68,32 +78,9 @@ CONFIG_DIR = Path(__file__).resolve().parent / "config"
 GROUPS_CONFIG = CONFIG_DIR / "groups_1946.json"
 DEMOGRAPHICS_CONFIG = CONFIG_DIR / "demographics_1946.json"
 
-# ---------------------------------------------------------------------------
-# Координаты идеологии стран: country_id -> (economic, political).
-# ---------------------------------------------------------------------------
-IDEOLOGY = {
-    # Сталинский СССР 1946: плановая экономика без частного сектора +
-    # однопартийный режим на пике послевоенной централизации.
-    "SUN": (-0.96, -0.95),
-    # ПНР 1946: режим, установленный при советской поддержке; чуть менее
-    # крайний, чем метрополия (частный сектор и оппозиция ещё не добиты).
-    "POL": (-0.72, -0.68),
-    # США 1946: рыночная экономика с наследием New Deal + устойчивая
-    # электоральная демократия. Контрольная точка на другом конце спектра.
-    "USA": (0.70, 0.78),
-    # Кабинет Эттли: парламентская демократия + национализация ключевых
-    # отраслей — демократичнее США, но заметно левее по экономике.
-    "GBR": (-0.25, 0.90),
-    # Четвёртая республика: послевоенные национализации и планирование.
-    "FRA": (-0.30, 0.85),
-    # Титовская Югославия: коммунистический авторитаризм, но огосударствление
-    # в 1946 менее завершено, чем в СССР.
-    "YUG": (-0.88, -0.86),
-    # Гоминьдановский Китай: смешанная экономика с крупным частным сектором +
-    # доминирование одной партии в условиях гражданской войны. Наименее
-    # уверенная координата набора (разумный диапазон economic -0.10..0.15).
-    "CHN": (0.10, -0.40),
-}
+# Координаты идеологии стран живут в scripts/map/config/ideology_1946.json —
+# авторский вход, а не таблица этого файла (см. шапку). Пообъектное обоснование,
+# уверенность и источники — docs/IDEOLOGY_1946_PROVENANCE.md.
 
 
 def build_groups() -> dict:
@@ -111,11 +98,12 @@ def build_demographics() -> dict:
     return {"regions": sorted(regions, key=lambda r: r["regionId"])}
 
 
-def build_ideology() -> dict:
+def build_ideology(coordinates: dict) -> dict:
     return {
         "countries": [
             {"countryId": country_id, "economic": economic, "political": political}
-            for country_id, (economic, political) in sorted(IDEOLOGY.items())
+            # Порядок по country_id — стабильный diff при перегенерации.
+            for country_id, (economic, political) in sorted(coordinates.items())
         ]
     }
 
@@ -129,14 +117,17 @@ def write_json(path: Path, payload: dict) -> None:
 def main() -> int:
     groups = build_groups()
     demographics = build_demographics()
-    ideology = build_ideology()
+    ideology = build_ideology(load_coordinates())
 
     region_ids = {r["id"] for r in load_json(REGIONS_CORE_PATH)}
-    country_ids = {c["id"] for c in load_json(COUNTRIES_PATH)}
+    countries = load_json(COUNTRIES_PATH)
 
     # Валидируем ДО записи: битые данные не должны попадать на диск даже на
     # один прогон (тот же принцип, что у остальных валидаторов пайплайна).
-    violations = validate(groups, demographics, ideology, region_ids, country_ids)
+    # Сюда же попадает сверка ярлыка politics.ideology с координатами — если
+    # countries.json собран из более старой версии config/ideology_1946.json,
+    # прогон падает вместо того, чтобы развести два файла по разным данным.
+    violations = validate(groups, demographics, ideology, region_ids, countries)
     if violations:
         print(f"НЕ ЗАПИСАНО — нарушений: {len(violations)}")
         for v in violations:

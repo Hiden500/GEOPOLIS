@@ -8,11 +8,21 @@
     server/data/scenarios/1946/demographics.json  — доли групп по регионам
     server/data/scenarios/1946/ideology.json      — координаты идеологии стран
 
-Покрытие СОЗНАТЕЛЬНО частичное: размечены не все 1399 регионов и не все 157
-стран. Регион без записи — «неразмечен» (движок не выводит для него
-недовольство), страна без координат — фолбэк по ярлыку politics.ideology. Это
-штатное состояние, а не нарушение; валидатор проверяет только корректность
-того, что размечено.
+Покрытие РЕГИОНОВ сознательно частичное: размечены не все 1399 регионов. Регион
+без записи — «неразмечен» (движок не выводит для него недовольство). Это
+штатное состояние, а не нарушение.
+
+Покрытие СТРАН, наоборот, обязано быть полным (с 2026-07-27): координаты есть у
+каждой страны сценария, поэтому фолбэк «нет координат — читаем ярлык»
+(shared/src/utils/discontent.ts) для 1946 больше не должен срабатывать ни разу.
+Проверяется как свойство «у каждой страны countries.json есть запись в
+ideology.json», а не сравнением с числом 157.
+
+Сверх этого валидатор держит инвариант «ярлык — производное от координат»:
+politics.ideology каждой страны обязан совпадать с зоной, в которую попадают её
+координаты (scripts/map/ideology_zones.py). Без этой проверки два файла
+разъезжаются молча при первой же правке координат без перегенерации реестра —
+ровно та ловушка, из-за которой ярлык и перестал быть авторским полем.
 
 Дублирует (намеренно) инварианты Zod-схемы загрузки
 (server/src/scenarios/scenario1946Schemas.ts): схема ловит их в рантайме игры,
@@ -21,17 +31,22 @@
 Запуск: python scripts/map/validate_demographics_1946.py
 Exit code 0 — нарушений нет, 1 — есть.
 """
+import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from economy_1946.region_files import SCENARIO_DIR, load_json
+from ideology_zones import ZONE_ANCHORS, zone_for
 
 GROUPS_PATH = SCENARIO_DIR / "groups.json"
 DEMOGRAPHICS_PATH = SCENARIO_DIR / "demographics.json"
 IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
+DISCONTENT_TS_PATH = (
+    Path(__file__).resolve().parents[2] / "shared" / "src" / "defines" / "discontent.ts"
+)
 
 # Доминант + до 3 меньшинств (docs/CONCEPT.md §4.1 — «лёгкий демо-состав»,
 # не Victoria-pops).
@@ -63,10 +78,17 @@ def _axis_violations(label: str, coords: dict) -> list[str]:
 
 
 def validate(groups: dict, demographics: dict, ideology: dict,
-             region_ids: set, country_ids: set) -> list[str]:
+             region_ids: set, countries: list) -> list[str]:
     """Инварианты трёх слоёв. Работает на любых данных (в т.ч. синтетических),
-    не завязан на конкретно сценарий 1946 — кроме множеств существующих id."""
+    не завязан на конкретно сценарий 1946 — кроме множества существующих
+    region_id и списка стран.
+
+    `countries` — записи countries.json целиком (не только id): из них берётся
+    и множество существующих стран, и ярлык politics.ideology для сверки с
+    координатами. Пустой список выключает страновые проверки — так синтетическая
+    фикстура может проверять только слой регионов."""
     violations: list[str] = []
+    country_ids = {c.get("id") for c in countries}
 
     # --- groups.json ---
     group_entries = groups.get("groups", [])
@@ -127,6 +149,7 @@ def validate(groups: dict, demographics: dict, ideology: dict,
             )
 
     # --- ideology.json ---
+    coordinates_by_country: dict = {}
     seen_countries: set = set()
     for entry in ideology.get("countries", []):
         cid = entry.get("countryId")
@@ -138,9 +161,71 @@ def validate(groups: dict, demographics: dict, ideology: dict,
         seen_countries.add(cid)
         if country_ids and cid not in country_ids:
             violations.append(f"ideology.json: страна '{cid}' не существует в сценарии")
-        violations.extend(_axis_violations(f"ideology.json/{cid}", entry))
+        axis_violations = _axis_violations(f"ideology.json/{cid}", entry)
+        violations.extend(axis_violations)
+        if not axis_violations:
+            coordinates_by_country[cid] = (entry["economic"], entry["political"])
+
+    # Полное покрытие: свойство «у каждой страны есть координаты», а не
+    # сравнение с числом стран — следующее наполнение сценария не должно
+    # требовать правки валидатора.
+    for cid in sorted(country_ids - seen_countries):
+        violations.append(
+            f"ideology.json: у страны '{cid}' нет координат — покрытие обязано быть полным"
+        )
+
+    # Ярлык — производное от координат (scripts/map/ideology_zones.py).
+    # Расхождение означает, что countries.json собран из другой версии
+    # config/ideology_1946.json, чем ideology.json.
+    for country in countries:
+        cid = country.get("id")
+        coords = coordinates_by_country.get(cid)
+        if coords is None:
+            continue
+        label = (country.get("politics") or {}).get("ideology")
+        expected = zone_for(*coords)
+        if label != expected:
+            violations.append(
+                f"countries.json: у страны '{cid}' ярлык politics.ideology = {label!r}, "
+                f"а координаты {coords} лежат в зоне {expected!r} — "
+                "перегенерируй реестр (scripts/map/generate_country_registry.py)"
+            )
 
     return violations
+
+
+def zone_anchor_parity_violations() -> list[str]:
+    """Каталог зон продублирован в двух языках намеренно: TS-таблица
+    IDEOLOGY_LABEL_COORDINATES читается движком (ярлык -> координаты, фолбэк),
+    Python-таблица ZONE_ANCHORS — генераторами (координаты -> ярлык). Пока это
+    один и тот же каталог, прямой и обратный ход согласованы; разъедутся —
+    ярлыки в данных перестанут соответствовать тому, как их понимает движок.
+
+    Разбор TS регуляркой, а не импортом: тащить node в data-валидатор ради
+    пяти пар чисел дороже, чем прочитать литерал (тот же приём, что у
+    остального пайплайна для TS/Python-каталогов)."""
+    if not DISCONTENT_TS_PATH.exists():
+        return [f"{DISCONTENT_TS_PATH.name}: файл не найден — каталог зон не с чем сверить"]
+    text = DISCONTENT_TS_PATH.read_text(encoding="utf-8")
+    block = re.search(
+        r"IDEOLOGY_LABEL_COORDINATES[^=]*=\s*\{(.*?)\}\s*;", text, re.DOTALL
+    )
+    if not block:
+        return [f"{DISCONTENT_TS_PATH.name}: не найден литерал IDEOLOGY_LABEL_COORDINATES"]
+    ts_anchors = {
+        m.group(1): (float(m.group(2)), float(m.group(3)))
+        for m in re.finditer(
+            r'"([^"]+)":\s*\{\s*economic:\s*(-?[\d.]+),\s*political:\s*(-?[\d.]+)\s*\}',
+            block.group(1),
+        )
+    }
+    if ts_anchors == ZONE_ANCHORS:
+        return []
+    return [
+        "каталог зон разъехался: ideology_zones.ZONE_ANCHORS "
+        f"{sorted(ZONE_ANCHORS.items())} != "
+        f"{DISCONTENT_TS_PATH.name}:IDEOLOGY_LABEL_COORDINATES {sorted(ts_anchors.items())}"
+    ]
 
 
 def main() -> int:
@@ -153,9 +238,10 @@ def main() -> int:
     demographics = load_json(DEMOGRAPHICS_PATH)
     ideology = load_json(IDEOLOGY_PATH)
     region_ids = {r["id"] for r in load_json(REGIONS_CORE_PATH)}
-    country_ids = {c["id"] for c in load_json(COUNTRIES_PATH)}
+    countries = load_json(COUNTRIES_PATH)
 
-    violations = validate(groups, demographics, ideology, region_ids, country_ids)
+    violations = validate(groups, demographics, ideology, region_ids, countries)
+    violations.extend(zone_anchor_parity_violations())
 
     if violations:
         print(f"НАРУШЕНИЙ: {len(violations)}")
@@ -167,9 +253,10 @@ def main() -> int:
     marked_countries = len(ideology.get("countries", []))
     print(
         f"OK: групп {len(groups.get('groups', []))}, "
-        f"размечено регионов {marked_regions}/{len(region_ids)}, "
-        f"стран с координатами {marked_countries}/{len(country_ids)} "
-        f"(частичное покрытие — штатное состояние)"
+        f"размечено регионов {marked_regions}/{len(region_ids)} "
+        f"(частичное покрытие — штатное состояние), "
+        f"стран с координатами {marked_countries}/{len(countries)} "
+        f"(покрытие полное, ярлыки сверены с координатами)"
     )
     return 0
 

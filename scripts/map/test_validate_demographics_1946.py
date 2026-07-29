@@ -18,10 +18,21 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from validate_demographics_1946 import validate, MAX_GROUPS_PER_REGION
+from validate_demographics_1946 import (
+    validate,
+    zone_anchor_parity_violations,
+    MAX_GROUPS_PER_REGION,
+)
+from ideology_zones import ZONE_ANCHORS, zone_for
 
 REGION_IDS = {1, 2}
-COUNTRY_IDS = {"AAA", "BBB"}
+# Страны фикстуры: ярлык обязан соответствовать координатам ниже, иначе сработает
+# инвариант «ярлык — производное от координат» (AAA — зона Communism,
+# BBB — зона Liberal Democracy).
+COUNTRIES = [
+    {"id": "AAA", "politics": {"ideology": "Communism"}},
+    {"id": "BBB", "politics": {"ideology": "Liberal Democracy"}},
+]
 
 
 def make_valid_fixture():
@@ -55,8 +66,14 @@ def make_valid_fixture():
     return groups, demographics, ideology
 
 
-def run(groups, demographics, ideology):
-    return validate(groups, demographics, ideology, REGION_IDS, COUNTRY_IDS)
+def run(groups, demographics, ideology, countries=None):
+    return validate(
+        groups,
+        demographics,
+        ideology,
+        REGION_IDS,
+        [dict(c, politics=dict(c["politics"])) for c in (countries or COUNTRIES)],
+    )
 
 
 class ValidateDemographicsTest(unittest.TestCase):
@@ -176,15 +193,57 @@ class ValidateDemographicsTest(unittest.TestCase):
 
         self.assertTrue(any("дубль региона" in v for v in violations), violations)
 
-    def test_partial_coverage_is_not_a_violation(self):
-        # Ключевое свойство слоя: размечать всё не требуется. Регион 2 и страна
-        # BBB просто отсутствуют — валидатор обязан молчать, иначе частичное
+    def test_partial_region_coverage_is_not_a_violation(self):
+        # Свойство слоя РЕГИОНОВ: размечать все 1399 не требуется. Регион 2
+        # просто отсутствует — валидатор обязан молчать, иначе частичное
         # покрытие (штатное состояние) выглядело бы как поломка данных.
         groups, demographics, ideology = make_valid_fixture()
         demographics["regions"] = demographics["regions"][:1]
-        ideology["countries"] = ideology["countries"][:1]
 
         self.assertEqual(run(groups, demographics, ideology), [])
+
+    def test_catches_country_without_coordinates(self):
+        # Страны — наоборот: покрытие обязано быть полным (2026-07-27), иначе
+        # страна молча уезжает на фолбэк по ярлыку и оказывается в точке
+        # каталога вместо своей исторической позиции.
+        groups, demographics, ideology = make_valid_fixture()
+        ideology["countries"] = ideology["countries"][:1]
+
+        violations = run(groups, demographics, ideology)
+
+        self.assertTrue(
+            any("BBB" in v and "нет координат" in v for v in violations), violations
+        )
+
+    def test_catches_label_diverged_from_coordinates(self):
+        # Инвариант «ярлык — производное от координат». Ровно этот случай
+        # (координаты описывают диктатуру, ярлык говорит «демократия») и был
+        # причиной перевода ярлыка в производные.
+        groups, demographics, ideology = make_valid_fixture()
+        countries = [
+            {"id": "AAA", "politics": {"ideology": "Liberal Democracy"}},
+            {"id": "BBB", "politics": {"ideology": "Liberal Democracy"}},
+        ]
+
+        violations = run(groups, demographics, ideology, countries)
+
+        self.assertTrue(
+            any("AAA" in v and "Communism" in v for v in violations), violations
+        )
+
+    def test_every_zone_anchor_lands_in_its_own_zone(self):
+        # Round-trip каталога: прямой ход (ярлык -> координаты, фолбэк движка) и
+        # обратный (координаты -> ярлык, генераторы) обязаны быть согласованы,
+        # иначе перегенерация реестра переименовывала бы страну, стоящую ровно
+        # в точке своей же зоны.
+        for label, (economic, political) in ZONE_ANCHORS.items():
+            with self.subTest(label=label):
+                self.assertEqual(zone_for(economic, political), label)
+
+    def test_zone_catalog_matches_typescript_table(self):
+        # Каталог продублирован в TS (движок) и Python (генераторы) намеренно;
+        # эта проверка держит их одинаковыми на реальных файлах репозитория.
+        self.assertEqual(zone_anchor_parity_violations(), [])
 
     def test_mutation_does_not_leak_between_cases(self):
         groups_a, *_ = make_valid_fixture()

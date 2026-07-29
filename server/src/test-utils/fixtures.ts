@@ -192,6 +192,7 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     modifiers: [],
     pendingWorldFacts: [],
     ethnicGroups: [],
+    ideologyAnchors: [],
     groupImpactMemory: [],
     regionCrisisLatch: [],
     primitiveBatchKeys: [],

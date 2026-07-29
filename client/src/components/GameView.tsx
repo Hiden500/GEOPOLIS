@@ -242,7 +242,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           />
         );
       case "politics":
-        return <PoliticsBook country={playerCountry!} />;
+        return <PoliticsBook country={playerCountry!} ideologyAnchors={game.ideologyAnchors} />;
       case "diplomacy":
         return <DiplomacyBook country={playerCountry!} game={game} onSelectCountry={handleSelectCountry} />;
       case "rankings":
