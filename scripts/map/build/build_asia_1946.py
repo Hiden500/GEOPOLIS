@@ -521,6 +521,27 @@ def make_output_feature(cluster, iso2, source="?"):
     }
 
 
+# group_by_region раньше слепо unary_union'ил ВСЕ сырые фичи одного region-
+# поля в 1 кластер, даже если конкретная провинция физически не касается
+# остальной группы. Найдено 2026-07-29 (пользователь, Филиппины): "Northern
+# Mindanao (Region X)" включал Misamis Occidental (реальная, administratively
+# верная провинция этого региона), но она физически КАСАЕТСЯ Zamboanga
+# Peninsula (Region IX) и отстоит от собственного "материка" Region X на
+# ~3 км — не разрыв/баг, а реальная административная граница 2020-х годов,
+# которая для 1946-геймплея просто выглядит как "остров приклеен не туда" +
+# "регион разбит". Тот же класс — Kanto (Япония, Ogasawara/Izu Islands,
+# админ. часть Токио/Kanto, но физически в 1000+ км) уже был виден в
+# diagnose_scattered_regions.py (разброс 17.3°) до этого фикса.
+# Порог ниже отделяет "настоящую провинцию, просто административно попавшую
+# в другой регион" (выделяется отдельной фичей под своим именем) от
+# "мелкого острова архипелага" (остаётся слитым с материком region-группы,
+# как везде в этом файле) — не по касанию с соседним регионом (слишком
+# специфично для одного случая), а по абсолютному размеру: реальная
+# провинция/остров такого масштаба заслуживает быть отдельным регионом
+# независимо от того, кого он касается.
+DISCONNECTED_SPLIT_AREA_KM2 = 300.0
+
+
 def group_by_region(items, exclude_region=None):
     exclude_region = exclude_region or set()
     buckets = {}
@@ -538,13 +559,40 @@ def group_by_region(items, exclude_region=None):
 
     clusters = []
     for key, grp in buckets.items():
-        geom = unary_union([g["geom"] for g in grp]) if len(grp) > 1 else grp[0]["geom"]
+        if len(grp) == 1:
+            clusters.append({
+                "codes": [grp[0]["adm1_code"]], "names": [key],
+                "geom": grp[0]["geom"], "area": grp[0]["area"],
+            })
+            continue
+        # anchor = крупнейшая сырая фича бакета - остальные мержатся в неё,
+        # ЕСЛИ касаются (или почти касаются, machine noise) её самой ИЛИ
+        # уже смерженной группы; крупные несвязанные (>= порога) выходят
+        # отдельными фичами под собственным именем, не растворяются в
+        # чужом на вид "материке".
+        grp_sorted = sorted(grp, key=lambda g: -g["area"])
+        anchor_geoms = [grp_sorted[0]["geom"]]
+        anchor_codes = [grp_sorted[0]["adm1_code"]]
+        anchor_area = grp_sorted[0]["area"]
+        split_off = []
+        for g in grp_sorted[1:]:
+            near_anchor = any(g["geom"].distance(a) < 0.01 for a in anchor_geoms)
+            if near_anchor or g["area"] < DISCONNECTED_SPLIT_AREA_KM2:
+                anchor_geoms.append(g["geom"])
+                anchor_codes.append(g["adm1_code"])
+                anchor_area += g["area"]
+            else:
+                split_off.append(g)
         clusters.append({
-            "codes": [g["adm1_code"] for g in grp],
-            "names": [key],
-            "geom": geom,
-            "area": sum(g["area"] for g in grp),
+            "codes": anchor_codes, "names": [key],
+            "geom": unary_union(anchor_geoms) if len(anchor_geoms) > 1 else anchor_geoms[0],
+            "area": anchor_area,
         })
+        for g in split_off:
+            clusters.append({
+                "codes": [g["adm1_code"]], "names": [g["name"]],
+                "geom": g["geom"], "area": g["area"],
+            })
 
     for it in singles:
         clusters.append({

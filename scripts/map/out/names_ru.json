@@ -12406,5 +12406,205 @@
     "iso_a2": "FM",
     "name_en": "Pohnpei",
     "name_ru": "Понпеи"
+  },
+  {
+    "region_id": "ASI-0420",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "JP",
+    "name_en": "Kumamoto",
+    "name_ru": "Кумамото"
+  },
+  {
+    "region_id": "ASI-0421",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "JP",
+    "name_en": "Kagoshima",
+    "name_ru": "Кагосима"
+  },
+  {
+    "region_id": "ASI-0422",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "JP",
+    "name_en": "Hyōgo",
+    "name_ru": "Хёго"
+  },
+  {
+    "region_id": "ASI-0423",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "JP",
+    "name_en": "Niigata",
+    "name_ru": "Ниигата"
+  },
+  {
+    "region_id": "ASI-0424",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "JP",
+    "name_en": "Okinawa",
+    "name_ru": "Окинава"
+  },
+  {
+    "region_id": "ASI-0425",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "JP",
+    "name_en": "Nagasaki",
+    "name_ru": "Нагасаки"
+  },
+  {
+    "region_id": "ASI-0426",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Basilan",
+    "name_ru": "Басилан"
+  },
+  {
+    "region_id": "ASI-0427",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Sulu",
+    "name_ru": "Сулу"
+  },
+  {
+    "region_id": "ASI-0428",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Tawi-Tawi",
+    "name_ru": "Тави-Тави"
+  },
+  {
+    "region_id": "ASI-0429",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Mindoro Occidental",
+    "name_ru": "Западный Миндоро"
+  },
+  {
+    "region_id": "ASI-0430",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Palawan",
+    "name_ru": "Палаван"
+  },
+  {
+    "region_id": "ASI-0431",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Marinduque",
+    "name_ru": "Мариндуке"
+  },
+  {
+    "region_id": "ASI-0432",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Romblon",
+    "name_ru": "Ромблон"
+  },
+  {
+    "region_id": "ASI-0433",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Surigao del Norte",
+    "name_ru": "Северный Суригао"
+  },
+  {
+    "region_id": "ASI-0434",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Misamis Occidental",
+    "name_ru": "Западный Мисамис"
+  },
+  {
+    "region_id": "ASI-0435",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Leyte",
+    "name_ru": "Лейте"
+  },
+  {
+    "region_id": "ASI-0436",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Biliran",
+    "name_ru": "Билиран"
+  },
+  {
+    "region_id": "ASI-0437",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Quezon",
+    "name_ru": "Кесон"
+  },
+  {
+    "region_id": "ASI-0438",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Masbate",
+    "name_ru": "Масбате"
+  },
+  {
+    "region_id": "ASI-0439",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Catanduanes",
+    "name_ru": "Катандуанес"
+  },
+  {
+    "region_id": "ASI-0440",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Cebu",
+    "name_ru": "Себу"
+  },
+  {
+    "region_id": "ASI-0441",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Bohol",
+    "name_ru": "Бохоль"
+  },
+  {
+    "region_id": "ASI-0442",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Siquijor",
+    "name_ru": "Сикихор"
+  },
+  {
+    "region_id": "ASI-0443",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Negros Occidental",
+    "name_ru": "Западный Негрос"
+  },
+  {
+    "region_id": "ASI-0444",
+    "continent": "Asia",
+    "region_type": "land",
+    "iso_a2": "PH",
+    "name_en": "Guimaras",
+    "name_ru": "Гимарас"
   }
 ]
