@@ -1,9 +1,8 @@
 import { type Country } from "@shared/types/Country";
+import { corruptionBase, legitimacyBase } from "@shared/utils/politics";
+import { resolveIdeologyCoordinates } from "@shared/utils/discontent";
 import {
-  IDEOLOGY_LEGITIMACY_BASE,
-  GOVERNMENT_TYPE_CORRUPTION_BASE,
   CORRUPTION_TREASURY_DRAIN,
-  CORRUPTION_EQUILIBRIUM_DEFAULT,
   CORRUPTION_LOW_STABILITY_THRESHOLD,
   CORRUPTION_LOW_STABILITY_PENALTY,
   CORRUPTION_HIGH_STABILITY_THRESHOLD,
@@ -31,7 +30,6 @@ import {
   GOV_SUPPORT_DEFICIT_PENALTY,
   GOV_SUPPORT_GENEROUS_WELFARE_FLOOR_RATIO,
   GOV_SUPPORT_GENEROUS_WELFARE_BONUS,
-  LEGITIMACY_DEFAULT,
   CORRUPTION_DRIFT_RATE,
   STABILITY_DRIFT_RATE,
   GOV_SUPPORT_DRIFT_RATE,
@@ -50,7 +48,9 @@ function corruptionEquilibrium(country: Country): number {
         + country.economy.stateEnterpriseIncome
         + country.economy.otherIncome;
 
-    let eq = GOVERNMENT_TYPE_CORRUPTION_BASE[p.ideology] ?? CORRUPTION_EQUILIBRIUM_DEFAULT;
+    // Базис — по МЕХАНИЗМУ удержания власти, а не по ярлыку идеологии
+    // (переведено 2026-07-30: по ярлыку 78 стран из 157 падали в дефолт).
+    let eq = corruptionBase(p.powerStructure);
 
     if (p.stability < CORRUPTION_LOW_STABILITY_THRESHOLD) eq += CORRUPTION_LOW_STABILITY_PENALTY;
     else if (p.stability > CORRUPTION_HIGH_STABILITY_THRESHOLD) eq += CORRUPTION_HIGH_STABILITY_ADJUSTMENT;
@@ -103,10 +103,6 @@ function governmentSupportEquilibrium(country: Country): number {
     return clamp(eq, 0, 100);
 }
 
-function legitimacyBase(ideology: string): number {
-    return IDEOLOGY_LEGITIMACY_BASE[ideology] ?? LEGITIMACY_DEFAULT;
-}
-
 export function politicsTick(country: Country): void {
     const p = country.politics;
     const e = country.economy;
@@ -132,8 +128,11 @@ export function politicsTick(country: Country): void {
     p.governmentSupport += (supportEq - p.governmentSupport) * GOV_SUPPORT_DRIFT_RATE;
     p.governmentSupport = clamp(p.governmentSupport, 0, 100);
 
-    // legitimacy: почти статична в мирное время
-    const legitBase = legitimacyBase(p.ideology);
+    // legitimacy: почти статична в мирное время. База — позиция на спектре
+    // (координаты, у страны без них — фолбэк по ярлыку) плюс поправка на
+    // происхождение власти: у колониальной и оккупационной администрации
+    // мандата нет, каким бы либеральным ни был их метрополийный оригинал.
+    const legitBase = legitimacyBase(resolveIdeologyCoordinates(p), p.powerStructure);
     p.legitimacy += (legitBase - p.legitimacy) * LEGITIMACY_DRIFT_RATE;
     p.legitimacy = clamp(p.legitimacy, 0, 100);
 }
