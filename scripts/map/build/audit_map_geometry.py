@@ -66,6 +66,7 @@ find_holes) и несут собственный рендер; отдельны�
 """
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -119,6 +120,32 @@ def valid(g):
 
 def parts_of(g):
     return list(g.geoms) if g.geom_type == "MultiPolygon" else [g]
+
+
+def planar_km2(g):
+    """Грубая площадь по планарным градусам с поправкой на широту — тот же
+    приём, что `km2()` в diagnose_sea_holes.py.
+
+    Нужна как ЗДРАВАЯ ОЦЕНКА против геодезической `area_km2`, которая на
+    фигурах, вытянутых вдоль параллели, даёт абсурд: геодезическая линия
+    между двумя точками одной широты идёт СЕВЕРНЕЕ параллели, и pyproj
+    считает площадь серпа между ними. Поймано 2026-07-30 на British
+    Columbia: часть площадью 0.0000636 deg² с bounds
+    (-139.06, 59.992, -120.0, 60.0) — полоса вдоль ровно 60-й параллели
+    (граница BC/Юкон) — дала геодезические 25 070 км² при реальных ~0.4,
+    то есть «часть» вышла больше целого (весь diff был 25 047 км²)."""
+    b = g.bounds
+    lat = (b[1] + b[3]) / 2.0
+    return g.area * 111.0 * 111.0 * abs(math.cos(math.radians(lat)))
+
+
+def safe_area_km2(g):
+    """Геодезическая площадь, но не больше здравой планарной оценки.
+
+    Артефакт «вдоль параллели» всегда ЗАВЫШАЕТ, поэтому минимум из двух
+    оценок отсекает его, не мешая нормальным фигурам (у них планарная
+    оценка грубее и обычно больше геодезической)."""
+    return min(area_km2(g), planar_km2(g))
 
 
 def finding(cls, fid, name, value, detail):
@@ -333,7 +360,10 @@ def check_spikes(world):
         if diff.is_empty:
             continue
         for piece in parts_of(diff):
-            a = area_km2(piece)
+            # safe_area_km2, а не area_km2: на полосе вдоль параллели
+            # геодезическая площадь даёт абсурд (см. её докстринг —
+            # British Columbia, 25 070 км² вместо ~0.4).
+            a = safe_area_km2(piece)
             if a >= SPIKE_MIN_KM2:
                 res.append(finding(
                     "SPIKE", p.get("region_id"), p.get("name"), a,
