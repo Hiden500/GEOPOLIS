@@ -45,8 +45,15 @@ DEMOGRAPHICS_PATH = SCENARIO_DIR / "demographics.json"
 IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
 GOVERNMENT_PATH = SCENARIO_DIR / "government.json"
 INFLUENCE_PATH = SCENARIO_DIR / "influence.json"
+DIPLOMACY_PATH = SCENARIO_DIR / "diplomacy.json"
+DIPLOMACY_TS_PATH = (
+    Path(__file__).resolve().parents[2] / "shared" / "src" / "defines" / "diplomacy.ts"
+)
 #: Курируемые исторические факты — данные, не код (см. их `_meta`).
 SPOT_CHECKS_PATH = Path(__file__).resolve().parent / "data" / "historical_spot_checks_1946.json"
+DIPLOMACY_SPOT_CHECKS_PATH = (
+    Path(__file__).resolve().parent / "data" / "diplomacy_spot_checks_1946.json"
+)
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 DISCONTENT_TS_PATH = (
@@ -647,6 +654,307 @@ def single_use_groups(demographics: dict) -> list[str]:
     return sorted(gid for gid, n in counts.items() if n == 1)
 
 
+
+# ---------------------------------------------------------------------------
+# ДИПЛОМАТИЧЕСКИЙ СЛОЙ (`diplomacy.json`).
+#
+# Слой опциональный, как остальные слои фундамента: файла нет — проверки не
+# выполняются, и это штатное состояние. Но если файл есть, покрытие СТРАН
+# полное по построению (все 157 существуют), поэтому отсутствие пары —
+# утверждение «связи нет», а не пробел разметки.
+#
+# ГРАНИЦА С МЕХАНИКОЙ, НАЗВАННАЯ ПРЯМО. Пороги союза парные и считаются от
+# идеологической дистанции (`allianceThreshold`, `allianceBreakThreshold` в
+# server/src/simulation/diplomacy/affinity.ts). Воспроизводить эти формулы в
+# Python нельзя: копия разойдётся с оригиналом при первой правке калибровки.
+# Здесь проверяется только то, что верно при ЛЮБЫХ координатах — границы,
+# которые формула не может пересечь. Точная сверка «этот союз выживет при этих
+# координатах» — дело серверного теста по загруженному сценарию, где формула
+# настоящая.
+# ---------------------------------------------------------------------------
+
+
+def _ts_const_number(text: str, name: str) -> float | None:
+    """Читает `export const NAME = <число>` из TS-файла.
+
+    Тот же приём и та же причина, что у `_ts_const_list`: число живёт в ОДНОМ
+    месте (TS), а не продублировано здесь. Не прочиталось — вернётся None, и
+    вызывающий обязан сделать из этого ошибку, а не тихо продолжить с
+    захардкоженным значением.
+    """
+    match = re.search(rf"export const {name}\s*=\s*(-?[\d.]+)", text)
+    return float(match.group(1)) if match else None
+
+
+def _pair_key(a: str, b: str) -> tuple:
+    """Ключ пары без направления: отношения взаимны, и (A,B) — та же связь,
+    что (B,A). Дрейф ведёт ОБЕ стороны к одной цели (`driftRelations`), поэтому
+    два разных стартовых числа на пару хранить бессмысленно."""
+    return tuple(sorted((a, b)))
+
+
+def diplomacy_thresholds(ts_text: str) -> tuple:
+    """Границы, при которых стартовые данные обессмысливаются движком.
+
+    `break_floor` — минимум порога распада союза по всей шкале идеологической
+    дистанции: `ALLY_BREAK_THRESHOLD - ALLY_BREAK_IDEOLOGY_SPAN / 2`. Союз с
+    отношениями ниже него распадётся на первом тике при ЛЮБЫХ координатах, то
+    есть такие данные движок отменяет сразу.
+
+    `break_ceiling` — тот же порог при максимальной дистанции; между ним и полом
+    исход зависит от координат, и это уже предупреждение, а не ошибка.
+    """
+    names = (
+        "RELATION_SCALE_MIN", "RELATION_SCALE_MAX",
+        "ALLY_BREAK_THRESHOLD", "ALLY_BREAK_IDEOLOGY_SPAN",
+        "RIVAL_RECONCILE_THRESHOLD",
+    )
+    values = {n: _ts_const_number(ts_text, n) for n in names}
+    missing = sorted(n for n, v in values.items() if v is None)
+    if missing:
+        return (None, missing)
+    span = values["ALLY_BREAK_IDEOLOGY_SPAN"]
+    base = values["ALLY_BREAK_THRESHOLD"]
+    return ({
+        "scale_min": values["RELATION_SCALE_MIN"],
+        "scale_max": values["RELATION_SCALE_MAX"],
+        "break_floor": base - span / 2,
+        "break_ceiling": base + span / 2,
+        "rival_reconcile": values["RIVAL_RECONCILE_THRESHOLD"],
+    }, [])
+
+
+def _collect_pairs(entries: list, label: str, country_ids: set) -> tuple:
+    """Общая часть разбора списка пар: ссылочная целостность, самопара, дубль."""
+    out: list[str] = []
+    seen: dict = {}
+    for entry in entries or []:
+        pair = entry.get("pair") or []
+        if len(pair) != 2:
+            out.append(f"{label}: запись {pair} — не пара из двух стран")
+            continue
+        a, b = pair
+        for cid in (a, b):
+            if cid not in country_ids:
+                out.append(f"{label}: страна \"{cid}\" отсутствует в countries.json")
+        if a == b:
+            out.append(f"{label}: пара \"{a}\" сама с собой")
+            continue
+        key = _pair_key(a, b)
+        if key in seen:
+            out.append(f"{label}: пара {key[0]}—{key[1]} встречается дважды")
+        seen[key] = entry
+    return seen, out
+
+
+def diplomacy_violations(diplomacy: dict, country_ids: set, ts_text: str) -> list[str]:
+    """Инварианты дипломатического слоя (ERROR).
+
+    Главный класс здесь — «данные, которые движок отменяет на первом тике».
+    Союз без отношений и соперничество при тёплых отношениях формально
+    допустимы, но `DiplomacyTick` снимает их немедленно: такая разметка
+    описывает не мир, а собственное исчезновение.
+    """
+    thresholds, missing = diplomacy_thresholds(ts_text)
+    if thresholds is None:
+        return [
+            f"{DIPLOMACY_TS_PATH.name}: не прочитаны константы {missing} — "
+            "проверки дипломатии остались бы без границ"
+        ]
+
+    out: list[str] = []
+    relations, rel_errors = _collect_pairs(diplomacy.get("relations"), "relations", country_ids)
+    alliances, ally_errors = _collect_pairs(diplomacy.get("alliances"), "alliances", country_ids)
+    rivalries, rival_errors = _collect_pairs(diplomacy.get("rivalries"), "rivalries", country_ids)
+    out.extend(rel_errors + ally_errors + rival_errors)
+
+    for key, entry in relations.items():
+        value = entry.get("value")
+        if not isinstance(value, (int, float)):
+            out.append(f"relations: пара {key[0]}—{key[1]} без числового value")
+            continue
+        if not thresholds["scale_min"] <= value <= thresholds["scale_max"]:
+            out.append(
+                "relations: пара {0}—{1} со значением {2} вне шкалы [{3}, {4}]".format(
+                    key[0], key[1], value,
+                    thresholds["scale_min"], thresholds["scale_max"]))
+
+    for key in alliances:
+        if key in rivalries:
+            out.append(
+                f"пара {key[0]}—{key[1]} одновременно в alliances и rivalries")
+        entry = relations.get(key)
+        if entry is None:
+            out.append(
+                "alliances: пара {0}—{1} без записи в relations — отношения по "
+                "умолчанию 0, союз распадётся на первом тике (порог распада не "
+                "ниже {2})".format(key[0], key[1], thresholds["break_floor"]))
+            continue
+        value = entry.get("value")
+        if isinstance(value, (int, float)) and value < thresholds["break_floor"]:
+            out.append(
+                "alliances: пара {0}—{1} при отношениях {2} — ниже минимума порога "
+                "распада {3}, союз не выживет ни при каких координатах".format(
+                    key[0], key[1], value, thresholds["break_floor"]))
+
+    for key in rivalries:
+        entry = relations.get(key)
+        value = entry.get("value") if entry else 0
+        if isinstance(value, (int, float)) and value > thresholds["rival_reconcile"]:
+            out.append(
+                "rivalries: пара {0}—{1} при отношениях {2} — выше порога примирения "
+                "{3}, соперничество будет снято на первом тике".format(
+                    key[0], key[1], value, thresholds["rival_reconcile"]))
+
+    for entry in diplomacy.get("guarantees") or []:
+        guarantor = entry.get("guarantor")
+        protected = entry.get("protected")
+        for cid in (guarantor, protected):
+            if cid not in country_ids:
+                out.append(f"guarantees: страна \"{cid}\" отсутствует в countries.json")
+        if guarantor == protected:
+            out.append(f"guarantees: \"{guarantor}\" гарантирует сама себе")
+
+    return out
+
+
+def diplomacy_warnings(diplomacy: dict, ts_text: str) -> list[str]:
+    """Правдоподобие дипломатического слоя (WARNING)."""
+    thresholds, missing = diplomacy_thresholds(ts_text)
+    if thresholds is None:
+        return []
+
+    out: list[str] = []
+    relations = {}
+    for entry in diplomacy.get("relations") or []:
+        pair = entry.get("pair") or []
+        if len(pair) == 2 and pair[0] != pair[1]:
+            relations[_pair_key(pair[0], pair[1])] = entry
+
+    for entry in diplomacy.get("alliances") or []:
+        pair = entry.get("pair") or []
+        if len(pair) != 2:
+            continue
+        key = _pair_key(pair[0], pair[1])
+        value = (relations.get(key) or {}).get("value")
+        if not isinstance(value, (int, float)):
+            continue
+        if thresholds["break_floor"] <= value < thresholds["break_ceiling"]:
+            out.append(
+                "alliances: союз {0}—{1} при отношениях {2} выживет только у "
+                "идеологически близких (порог распада {3}…{4}) — распад задуман?".format(
+                    key[0], key[1], value,
+                    thresholds["break_floor"], thresholds["break_ceiling"]))
+
+    values = [
+        e.get("value") for e in (diplomacy.get("relations") or [])
+        if isinstance(e.get("value"), (int, float))
+    ]
+    for entry in diplomacy.get("relations") or []:
+        value = entry.get("value")
+        pair = entry.get("pair") or ["?", "?"]
+        if value in (thresholds["scale_min"], thresholds["scale_max"]):
+            out.append(
+                "relations: пара {0}—{1} на самом краю шкалы ({2}) — назначено, "
+                "а не оценено".format(pair[0], pair[1], value))
+
+    if values and len(values) > 1 and all(v % 5 == 0 for v in values):
+        out.append(
+            "relations: все {0} значений кратны 5 — набор выглядит назначенным, "
+            "а не оценённым".format(len(values)))
+
+    return out
+
+
+def diplomacy_spot_check_violations(
+    diplomacy: dict, checks: dict, country_ids: set
+) -> list[str]:
+    """Проверка дипломатии по курируемым историческим фактам (ERROR).
+
+    Отсутствие пары в данных — не пропуск, а утверждение «связи нет»: страны
+    существуют все, поэтому факт, требующий союза, падает на его отсутствии.
+    Это отличие от демографии, где неразмеченный регион пропускается.
+    """
+    out: list[str] = []
+    relations = {}
+    for entry in diplomacy.get("relations") or []:
+        pair = entry.get("pair") or []
+        if len(pair) == 2:
+            relations[_pair_key(pair[0], pair[1])] = entry.get("value")
+    alliances = set()
+    for entry in diplomacy.get("alliances") or []:
+        pair = entry.get("pair") or []
+        if len(pair) == 2:
+            alliances.add(_pair_key(pair[0], pair[1]))
+
+    for check in checks.get("checks", []):
+        cid = check.get("id", "?")
+        predicate = check.get("assert")
+        why = check.get("why", "")
+        pair = check.get("pair") or []
+        key = _pair_key(pair[0], pair[1]) if len(pair) == 2 else None
+
+        if predicate == "alliedPair":
+            if key not in alliances:
+                out.append(
+                    "спот-чек {0}: союз {1}—{2} отсутствует в данных ({3})".format(
+                        cid, pair[0], pair[1], why))
+        elif predicate == "notAlliedPair":
+            if key in alliances:
+                out.append(
+                    "спот-чек {0}: союз {1}—{2} присутствует, хотя его не было ({3})".format(
+                        cid, pair[0], pair[1], why))
+        elif predicate == "relationAtLeast":
+            value = relations.get(key)
+            floor = check.get("minValue", 0)
+            if value is None:
+                out.append(
+                    "спот-чек {0}: нет отношений {1}—{2}, ожидалось не ниже {3} ({4})".format(
+                        cid, pair[0], pair[1], floor, why))
+            elif value < floor:
+                out.append(
+                    "спот-чек {0}: отношения {1}—{2} равны {3}, ожидалось не ниже {4} ({5})".format(
+                        cid, pair[0], pair[1], value, floor, why))
+        elif predicate == "relationAtMost":
+            value = relations.get(key)
+            ceiling = check.get("maxValue", 0)
+            if value is None:
+                out.append(
+                    "спот-чек {0}: нет отношений {1}—{2}, ожидалось не выше {3} ({4})".format(
+                        cid, pair[0], pair[1], ceiling, why))
+            elif value > ceiling:
+                out.append(
+                    "спот-чек {0}: отношения {1}—{2} равны {3}, ожидалось не выше {4} ({5})".format(
+                        cid, pair[0], pair[1], value, ceiling, why))
+        elif predicate == "mutuallyPositive":
+            group = check.get("group") or []
+            for i, a in enumerate(group):
+                for b in group[i + 1:]:
+                    value = relations.get(_pair_key(a, b))
+                    if value is not None and value < 0:
+                        out.append(
+                            "спот-чек {0}: отношения {1}—{2} отрицательны ({3}) ({4})".format(
+                                cid, a, b, value, why))
+        else:
+            out.append(f"спот-чек {cid}: неизвестный предикат {predicate}")
+
+    return out
+
+
+def diplomacy_spot_check_catalog_violations(checks: dict, country_ids: set) -> list[str]:
+    """Набор фактов не должен ссылаться на страны вне ростера — иначе он молча
+    перестаёт проверять то, что заявляет."""
+    out: list[str] = []
+    for check in checks.get("checks", []):
+        named = list(check.get("pair") or []) + list(check.get("group") or [])
+        for cid in named:
+            if cid not in country_ids:
+                out.append(
+                    "спот-чек {0}: страна {1} отсутствует в countries.json".format(
+                        check.get("id", "?"), cid))
+    return out
+
+
 def main() -> int:
     missing = [
         p.name
@@ -681,6 +989,25 @@ def main() -> int:
     violations.extend(historical_spot_check_violations(demographics, spot_checks))
     violations.extend(spot_check_catalog_violations(spot_checks, known_group_ids))
 
+    # Дипломатический слой. Отсутствие файла — «слоя нет», но об этом сказано
+    # вслух: молчание сделало бы «не проверено» неотличимым от «проверено чисто».
+    diplomacy = load_json(DIPLOMACY_PATH) if DIPLOMACY_PATH.exists() else None
+    diplomacy_checks = (
+        load_json(DIPLOMACY_SPOT_CHECKS_PATH)
+        if DIPLOMACY_SPOT_CHECKS_PATH.exists() else {"checks": []}
+    )
+    diplomacy_ts = (
+        DIPLOMACY_TS_PATH.read_text(encoding="utf-8") if DIPLOMACY_TS_PATH.exists() else ""
+    )
+    if diplomacy is not None:
+        violations.extend(diplomacy_violations(diplomacy, country_ids, diplomacy_ts))
+        violations.extend(
+            diplomacy_spot_check_violations(diplomacy, diplomacy_checks, country_ids)
+        )
+        violations.extend(
+            diplomacy_spot_check_catalog_violations(diplomacy_checks, country_ids)
+        )
+
     # Сверка с составом карты. «Потерянные» — ошибка (загрузка партии упадёт),
     # «неразмеченные» — штатное частичное покрытие, показывается по флагу.
     lost, unmarked = layer_sync_report(
@@ -689,6 +1016,8 @@ def main() -> int:
     violations.extend(lost)
 
     warnings = plausibility_warnings(demographics, region_core)
+    if diplomacy is not None:
+        warnings.extend(diplomacy_warnings(diplomacy, diplomacy_ts))
     singles = single_use_groups(demographics)
 
     report_path = None
@@ -711,6 +1040,17 @@ def main() -> int:
                 "regionsTotal": len(region_ids),
                 "groups": len(groups.get("groups", [])),
                 "spotChecks": len(spot_checks.get("checks", [])),
+                # null, а не 0: «слоя нет» и «слой пуст» — разные состояния, и
+                # обработчик отчёта обязан их различать.
+                "diplomacyRelations": (
+                    len(diplomacy.get("relations", [])) if diplomacy is not None else None
+                ),
+                "diplomacyAlliances": (
+                    len(diplomacy.get("alliances", [])) if diplomacy is not None else None
+                ),
+                "diplomacySpotChecks": (
+                    len(diplomacy_checks.get("checks", [])) if diplomacy is not None else None
+                ),
             },
         }
         report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -748,6 +1088,24 @@ def main() -> int:
             " (эндемичные общности или артефакт генерации — смотреть при ревизии каталога)"
         )
         print()
+
+    # Статус дипломатического слоя печатается ВСЕГДА, включая его отсутствие:
+    # иначе «слой не проверялся» выглядит в отчёте так же, как «слой чист».
+    if diplomacy is None:
+        print(
+            f"Дипломатический слой: файла {DIPLOMACY_PATH.name} нет — "
+            f"{len(diplomacy_checks.get('checks', []))} исторических фактов НЕ проверялись."
+        )
+    else:
+        print(
+            "Дипломатический слой: {0} пар отношений, {1} союзов, "
+            "{2} фактов проверено.".format(
+                len(diplomacy.get("relations", [])),
+                len(diplomacy.get("alliances", [])),
+                len(diplomacy_checks.get("checks", [])),
+            )
+        )
+    print()
 
     if "--show-unmarked" in sys.argv:
         print(f"Без разметки: {len(unmarked)}")

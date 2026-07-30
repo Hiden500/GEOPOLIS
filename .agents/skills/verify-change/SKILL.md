@@ -47,6 +47,12 @@ baseline failure with no new diagnostics. Never call a failed gate green. Stop
 and report when dependencies, runtime, services, browser, or permissions are
 missing; do not install or weaken checks implicitly.
 
+Independent verification passes yield diminishing returns: whatever is critical
+surfaces in the first passes, the rest is detail. Threshold — fix what is
+critical, file what is moderate to the backlog, do not chase what is cosmetic.
+This decides how many passes are enough; it does not license skipping a check
+the changed scope requires.
+
 ## Output
 
 List selected scope, command/cwd, exit code, observed result, and duration when

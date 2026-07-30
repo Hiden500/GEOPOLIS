@@ -27,6 +27,12 @@ from validate_demographics_1946 import (
     spot_check_catalog_violations,
     plausibility_warnings,
     single_use_groups,
+    diplomacy_thresholds,
+    diplomacy_violations,
+    diplomacy_warnings,
+    diplomacy_spot_check_violations,
+    diplomacy_spot_check_catalog_violations,
+    DIPLOMACY_TS_PATH,
     MAX_GROUPS_PER_REGION,
     INFLUENCE_MIN_RECORDED,
 )
@@ -519,6 +525,222 @@ class PlausibilityHeuristicsTest(unittest.TestCase):
             {"regionId": 2, "groups": [{"groupId": "common", "share": 1.0}]},
         ]}
         self.assertEqual(single_use_groups(data), ["rare"])
+
+
+
+#: Реальные константы из shared/src/defines/diplomacy.ts. Тесты дипломатии
+#: используют ИХ, а не свои числа: захардкоженный порог сделал бы тесты
+#: зелёными после правки калибровки, которая ломает данные.
+DIPLOMACY_TS = DIPLOMACY_TS_PATH.read_text(encoding="utf-8")
+ROSTER = {"AAA", "BBB", "CCC", "DDD"}
+
+
+class DiplomacyLayerTest(unittest.TestCase):
+    """
+    Инварианты дипломатического слоя (ERROR).
+
+    Главный проверяемый класс — «данные, которые движок отменяет на первом
+    тике». Союз без отношений и соперничество при тёплых отношениях формально
+    валидны, но `DiplomacyTick` снимает их немедленно: такая разметка описывает
+    не мир, а собственное исчезновение.
+    """
+
+    def check(self, layer):
+        return diplomacy_violations(layer, ROSTER, DIPLOMACY_TS)
+
+    def test_unknown_country_is_reported(self):
+        out = self.check({"relations": [{"pair": ["AAA", "ZZZ"], "value": 50}]})
+        self.assertTrue(any("ZZZ" in v for v in out), out)
+
+    def test_self_pair_is_reported(self):
+        out = self.check({"relations": [{"pair": ["AAA", "AAA"], "value": 50}]})
+        self.assertTrue(any("сама с собой" in v for v in out), out)
+
+    def test_duplicate_pair_in_reverse_order_is_reported(self):
+        # Направление у отношений не значимо (дрейф ведёт обе стороны к одной
+        # цели), поэтому (A,B) и (B,A) — одна связь и дубль.
+        out = self.check({"relations": [
+            {"pair": ["AAA", "BBB"], "value": 50},
+            {"pair": ["BBB", "AAA"], "value": 20},
+        ]})
+        self.assertTrue(any("дважды" in v for v in out), out)
+
+    def test_value_out_of_scale_is_reported(self):
+        out = self.check({"relations": [{"pair": ["AAA", "BBB"], "value": 150}]})
+        self.assertTrue(any("вне шкалы" in v for v in out), out)
+
+    def test_alliance_without_relations_is_reported(self):
+        out = self.check({"alliances": [{"pair": ["AAA", "BBB"]}]})
+        self.assertTrue(any("без записи в relations" in v for v in out), out)
+
+    def test_alliance_below_break_floor_is_reported(self):
+        thresholds, _ = diplomacy_thresholds(DIPLOMACY_TS)
+        out = self.check({
+            "relations": [{"pair": ["AAA", "BBB"], "value": thresholds["break_floor"] - 1}],
+            "alliances": [{"pair": ["AAA", "BBB"]}],
+        })
+        self.assertTrue(any("не выживет" in v for v in out), out)
+
+    def test_alliance_above_break_ceiling_is_clean(self):
+        # Обратная сторона: союз, который переживёт любую идеологическую
+        # дистанцию, не должен давать ни ошибки, ни предупреждения.
+        thresholds, _ = diplomacy_thresholds(DIPLOMACY_TS)
+        layer = {
+            "relations": [{"pair": ["AAA", "BBB"], "value": thresholds["break_ceiling"] + 11}],
+            "alliances": [{"pair": ["AAA", "BBB"]}],
+        }
+        self.assertEqual(self.check(layer), [])
+        self.assertEqual(diplomacy_warnings(layer, DIPLOMACY_TS), [])
+
+    def test_alliance_and_rivalry_on_same_pair_is_reported(self):
+        out = self.check({
+            "relations": [{"pair": ["AAA", "BBB"], "value": 60}],
+            "alliances": [{"pair": ["AAA", "BBB"]}],
+            "rivalries": [{"pair": ["AAA", "BBB"]}],
+        })
+        self.assertTrue(any("одновременно" in v for v in out), out)
+
+    def test_rivalry_with_warm_relations_is_reported(self):
+        thresholds, _ = diplomacy_thresholds(DIPLOMACY_TS)
+        out = self.check({
+            "relations": [{"pair": ["AAA", "BBB"], "value": thresholds["rival_reconcile"] + 1}],
+            "rivalries": [{"pair": ["AAA", "BBB"]}],
+        })
+        self.assertTrue(any("порога примирения" in v for v in out), out)
+
+    def test_rivalry_below_reconcile_threshold_is_clean(self):
+        thresholds, _ = diplomacy_thresholds(DIPLOMACY_TS)
+        out = self.check({
+            "relations": [{"pair": ["AAA", "BBB"], "value": thresholds["rival_reconcile"] - 10}],
+            "rivalries": [{"pair": ["AAA", "BBB"]}],
+        })
+        self.assertEqual(out, [])
+
+    def test_guarantee_to_self_is_reported(self):
+        out = self.check({"guarantees": [{"guarantor": "AAA", "protected": "AAA"}]})
+        self.assertTrue(any("сама себе" in v for v in out), out)
+
+    def test_unreadable_ts_constants_are_reported(self):
+        # Самая опасная поломка: литерал переименован, границы не прочитались,
+        # и проверки молча стали пустыми. Тогда отчёт «0 ошибок» ничего не
+        # означает, поэтому непрочитанные константы — сами ошибка.
+        out = diplomacy_violations({"relations": []}, ROSTER, "")
+        self.assertTrue(any("не прочитаны константы" in v for v in out), out)
+
+
+class DiplomacyWarningsTest(unittest.TestCase):
+    """Правдоподобие дипломатического слоя (WARNING) — обе стороны."""
+
+    def test_coordinate_dependent_alliance_warns(self):
+        thresholds, _ = diplomacy_thresholds(DIPLOMACY_TS)
+        middle = (thresholds["break_floor"] + thresholds["break_ceiling"]) / 2
+        out = diplomacy_warnings({
+            "relations": [{"pair": ["AAA", "BBB"], "value": middle}],
+            "alliances": [{"pair": ["AAA", "BBB"]}],
+        }, DIPLOMACY_TS)
+        self.assertTrue(any("идеологически близких" in w for w in out), out)
+
+    def test_scale_edge_warns(self):
+        thresholds, _ = diplomacy_thresholds(DIPLOMACY_TS)
+        out = diplomacy_warnings(
+            {"relations": [{"pair": ["AAA", "BBB"], "value": thresholds["scale_max"]}]},
+            DIPLOMACY_TS,
+        )
+        self.assertTrue(any("краю шкалы" in w for w in out), out)
+
+    def test_all_multiples_of_five_warn(self):
+        out = diplomacy_warnings({"relations": [
+            {"pair": ["AAA", "BBB"], "value": 60},
+            {"pair": ["CCC", "DDD"], "value": 25},
+        ]}, DIPLOMACY_TS)
+        self.assertTrue(any("кратны 5" in w for w in out), out)
+
+    def test_uneven_values_do_not_warn(self):
+        out = diplomacy_warnings({"relations": [
+            {"pair": ["AAA", "BBB"], "value": 63},
+            {"pair": ["CCC", "DDD"], "value": 22},
+        ]}, DIPLOMACY_TS)
+        self.assertEqual([w for w in out if "кратны 5" in w], [])
+
+
+class DiplomacySpotCheckTest(unittest.TestCase):
+    """
+    Курируемые дипломатические факты (ERROR).
+
+    Отличие от демографии: отсутствие пары — не пробел разметки, а утверждение
+    «связи нет». Страны существуют все 157, поэтому пропускать нечего.
+    """
+
+    def check(self, layer, checks):
+        return diplomacy_spot_check_violations(layer, checks, ROSTER)
+
+    def test_allied_pair_missing_is_reported(self):
+        out = self.check({"alliances": []}, {"checks": [
+            {"id": "x", "assert": "alliedPair", "pair": ["AAA", "BBB"], "why": "договор"},
+        ]})
+        self.assertTrue(any("отсутствует в данных" in v for v in out), out)
+
+    def test_allied_pair_present_passes_in_either_order(self):
+        out = self.check({"alliances": [{"pair": ["BBB", "AAA"]}]}, {"checks": [
+            {"id": "x", "assert": "alliedPair", "pair": ["AAA", "BBB"], "why": "договор"},
+        ]})
+        self.assertEqual(out, [])
+
+    def test_invented_alliance_is_reported(self):
+        out = self.check({"alliances": [{"pair": ["AAA", "BBB"]}]}, {"checks": [
+            {"id": "x", "assert": "notAlliedPair", "pair": ["AAA", "BBB"], "why": "договора не было"},
+        ]})
+        self.assertTrue(any("хотя его не было" in v for v in out), out)
+
+    def test_relation_floor_catches_low_value(self):
+        out = self.check({"relations": [{"pair": ["AAA", "BBB"], "value": 10}]}, {"checks": [
+            {"id": "x", "assert": "relationAtLeast", "pair": ["AAA", "BBB"], "minValue": 60},
+        ]})
+        self.assertTrue(out)
+
+    def test_relation_floor_catches_absent_pair(self):
+        # Отсутствие связи — утверждение о её отсутствии, а не пропуск.
+        out = self.check({"relations": []}, {"checks": [
+            {"id": "x", "assert": "relationAtLeast", "pair": ["AAA", "BBB"], "minValue": 60},
+        ]})
+        self.assertTrue(any("нет отношений" in v for v in out), out)
+
+    def test_relation_ceiling_catches_high_value(self):
+        out = self.check({"relations": [{"pair": ["AAA", "BBB"], "value": 80}]}, {"checks": [
+            {"id": "x", "assert": "relationAtMost", "pair": ["AAA", "BBB"], "maxValue": 0},
+        ]})
+        self.assertTrue(out)
+
+    def test_mutually_positive_catches_hostile_pair(self):
+        out = self.check({"relations": [{"pair": ["AAA", "CCC"], "value": -20}]}, {"checks": [
+            {"id": "x", "assert": "mutuallyPositive", "group": ["AAA", "BBB", "CCC"]},
+        ]})
+        self.assertTrue(any("отрицательны" in v for v in out), out)
+
+    def test_unknown_predicate_is_reported(self):
+        out = self.check({}, {"checks": [{"id": "x", "assert": "somethingNew"}]})
+        self.assertTrue(out)
+
+    def test_catalog_drift_is_reported(self):
+        out = diplomacy_spot_check_catalog_violations(
+            {"checks": [{"id": "x", "assert": "alliedPair", "pair": ["AAA", "GONE"]}]}, ROSTER
+        )
+        self.assertTrue(any("GONE" in v for v in out), out)
+
+    def test_real_spot_check_file_matches_real_roster(self):
+        # Проверка на живых файлах: набор фактов и ростер стран не разошлись.
+        import json
+        from pathlib import Path
+        from validate_demographics_1946 import DIPLOMACY_SPOT_CHECKS_PATH, COUNTRIES_PATH
+
+        if not DIPLOMACY_SPOT_CHECKS_PATH.exists() or not COUNTRIES_PATH.exists():
+            self.skipTest("файлы сценария недоступны")
+        checks = json.loads(Path(DIPLOMACY_SPOT_CHECKS_PATH).read_text(encoding="utf-8"))
+        countries = json.loads(Path(COUNTRIES_PATH).read_text(encoding="utf-8"))
+        entries = countries["countries"] if isinstance(countries, dict) else countries
+        roster = {c.get("id") for c in entries}
+        self.assertEqual(diplomacy_spot_check_catalog_violations(checks, roster), [])
+        self.assertTrue(checks.get("checks"), "набор фактов пуст — проверять нечего")
 
 
 if __name__ == "__main__":
