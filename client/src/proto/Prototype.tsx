@@ -5,8 +5,8 @@ import {
   IconArmies,
   IconBalance,
   IconBlocs,
-  IconChevronDown,
-  IconChevronUp,
+  IconChevronLeft,
+  IconChevronRight,
   IconClose,
   IconDebt,
   IconDefence,
@@ -174,13 +174,22 @@ export function Prototype() {
   const [mapMode, setMapMode] = useState<MapModeId>("powers");
   const [legendOpen, setLegendOpen] = useState(false);
   const [lentaOpen, setLentaOpen] = useState(true);
+  /*
+   * РЕЕСТР сворачивает ЛЕНТУ и возвращает её при закрытии.
+   *
+   * Причина арифметическая, не вкусовая: таблица на шесть колонок требует
+   * ~1300px, ЛЕНТА забирает 320, и на минимальном 1366×768 «по центру, без
+   * горизонтальной прокрутки и не перекрывая ленту» одновременно невыполнимо.
+   * Реестр — это «мир на бумаге», и лента в этот момент не нужна; молча
+   * перекрывать её было бы хуже, чем убрать и вернуть.
+   */
+  const lentaBeforeLedger = useRef<boolean | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [thinking, setThinking] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [feedWidth, setFeedWidth] = useState<number | null>(null);
-  const [yashikWidth, setYashikWidth] = useState<number | null>(null);
   const [turnCount, setTurnCount] = useState(0);
   /** C3: наука отдельным ТОМОМ или внутри ОБОРОНЫ — смотрим оба варианта. */
   const [scienceSeparate, setScienceSeparate] = useState(true);
@@ -244,6 +253,21 @@ export function Prototype() {
     };
   });
 
+  useEffect(() => {
+    if (yashik.kind === "ledger") {
+      if (lentaBeforeLedger.current === null) {
+        lentaBeforeLedger.current = lentaOpen;
+        setLentaOpen(false);
+      }
+    } else if (lentaBeforeLedger.current !== null) {
+      setLentaOpen(lentaBeforeLedger.current);
+      lentaBeforeLedger.current = null;
+    }
+    // lentaOpen читается только в момент открытия РЕЕСТРА и в зависимостях не
+    // нужен: иначе ручное сворачивание при открытом реестре стирало бы память.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [yashik.kind]);
+
   const monthLabel = `${MONTHS_NOMINATIVE[monthIndex]} ${year}`;
 
   const tomes: TomeId[] = scienceSeparate
@@ -277,26 +301,21 @@ export function Prototype() {
    * во время рендера — это то, что запрещает react-hooks/refs.
    */
   const onDragStart = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
-    const target = event.currentTarget.dataset.target;
-    dragTarget.current = target === "yashik" ? "yashik" : "lenta";
+    dragTarget.current = "lenta";
     event.currentTarget.setPointerCapture(event.pointerId);
   }, []);
 
   const onDragMove = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
-    if (dragTarget.current === null) return;
+    if (dragTarget.current === null || lentaRef.current === null) return;
     const unit = rootSize();
-    if (dragTarget.current === "lenta" && lentaRef.current !== null) {
-      const right = lentaRef.current.getBoundingClientRect().right;
-      setFeedWidth(Math.max(17 * unit, Math.min(right - event.clientX, window.innerWidth * 0.45)));
-      return;
-    }
-    if (dragTarget.current === "yashik" && yashikRef.current !== null) {
-      const left = yashikRef.current.getBoundingClientRect().left;
-      const feed = lentaRef.current?.getBoundingClientRect().width ?? 0;
-      // Потолок: ЯЩИК не имеет права дойти до ЛЕНТЫ — карта не должна исчезать.
-      const cap = window.innerWidth - feed - 4 * unit;
-      setYashikWidth(Math.max(24 * unit, Math.min(event.clientX - left, cap)));
-    }
+    const right = lentaRef.current.getBoundingClientRect().right;
+    /*
+     * Потолок — левая граница ЛИСТА: ЛЕНТА вправе дорасти до него и не
+     * дальше, иначе она поедет поверх приказов.
+     */
+    const listW = parseFloat(getComputedStyle(shellRef.current!).getPropertyValue("--bottom-width")) || 0;
+    const cap = (window.innerWidth - listW) / 2 - 2 * unit;
+    setFeedWidth(Math.max(17 * unit, Math.min(right - event.clientX, cap)));
   }, []);
 
   const onDragEnd = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
@@ -431,7 +450,7 @@ export function Prototype() {
       <div ref={shapkaRef}>
         <ShapedBar
           className={styles.shapka}
-          tabOffset={16}
+          tabOffset={0}
           tabRound
           left={
             <div className={styles.flagCell}>
@@ -556,26 +575,8 @@ export function Prototype() {
       {yashik.kind !== "none" && (
         <div
           ref={yashikRef}
-          className={styles.yashik}
-          style={{
-            width:
-              yashikWidth !== null
-                ? `${yashikWidth}px`
-                : yashik.kind === "ledger"
-                  ? "var(--ledger-width)"
-                  : "clamp(var(--surface-min), 34vw, var(--surface-max))",
-          }}
+          className={cx(styles.yashik, yashik.kind === "ledger" ? styles.yashikCenter : styles.yashikDock)}
         >
-          <button
-            type="button"
-            className={styles.resizerRight}
-            aria-label="Ширина панели"
-            data-target="yashik"
-            onPointerDown={onDragStart}
-            onPointerMove={onDragMove}
-            onPointerUp={onDragEnd}
-          />
-
           {yashik.kind === "tome" && (
             <Panel
               title={TOME_NAMES[yashik.id]}
@@ -643,36 +644,30 @@ export function Prototype() {
 
       {/* ── ЛЕНТА и РЕЖИМЫ ──────────────────────────────────── */}
       <div className={styles.rightStack}>
-        <div ref={lentaRef} className={cx(styles.lenta, !lentaOpen && styles.lentaCollapsed)}>
-          <button
-            type="button"
-            className={styles.resizerLeft}
-            aria-label="Ширина ленты"
-            data-target="lenta"
-            onPointerDown={onDragStart}
-            onPointerMove={onDragMove}
-            onPointerUp={onDragEnd}
-          />
-          <Panel
-            title="Этот ход"
-            meta={`${events.length} событий`}
-            density="flush"
-            scroll={lentaOpen}
-            className={styles.lentaPanel}
-            actions={
-              <Button
-                size="sm"
-                variant="quiet"
-                iconOnly
-                aria-label={lentaOpen ? "Свернуть ленту" : "Развернуть ленту"}
-                title={lentaOpen ? "Свернуть" : "Развернуть"}
-                onClick={() => setLentaOpen((open) => !open)}
-              >
-                {lentaOpen ? <IconChevronUp /> : <IconChevronDown />}
-              </Button>
-            }
-          >
-            {lentaOpen && (
+        {lentaOpen ? (
+          <div ref={lentaRef} className={styles.lenta}>
+            <button
+              type="button"
+              className={styles.resizerLeft}
+              aria-label="Ширина ленты"
+              onPointerDown={onDragStart}
+              onPointerMove={onDragMove}
+              onPointerUp={onDragEnd}
+            />
+            <Panel
+              title="Этот ход"
+              meta={`${events.length} событий`}
+              density="flush"
+              scroll
+              className={styles.lentaPanel}
+              actions={
+                <Tooltip label="Убрать ленту к правому краю">
+                  <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть ленту" onClick={() => setLentaOpen(false)}>
+                    <IconChevronRight />
+                  </Button>
+                </Tooltip>
+              }
+            >
               <div className={styles.lentaBody}>
                 {events.map((event) => (
                   <EventItem
@@ -687,9 +682,20 @@ export function Prototype() {
                   />
                 ))}
               </div>
-            )}
-          </Panel>
-        </div>
+            </Panel>
+          </div>
+        ) : (
+          /*
+           * Свёрнутая ЛЕНТА уходит ВПРАВО узким корешком, а не остаётся
+           * заголовком на полэкрана: сворачивают её, чтобы освободить карту.
+           */
+          <Tooltip label={`Развернуть ленту · событий: ${events.length}`}>
+            <button type="button" className={styles.lentaTab} aria-label="Развернуть ленту" onClick={() => setLentaOpen(true)}>
+              <IconChevronLeft />
+              <span className={styles.lentaTabCount}>{events.length}</span>
+            </button>
+          </Tooltip>
+        )}
 
         {legendOpen && legend !== undefined && (
           <Panel density="instrument" className={styles.legenda}>

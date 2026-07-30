@@ -24,8 +24,9 @@
   --turn-w: 13.5rem;
 
   /* Размер значка РАНГА. От него же считается верх ЯЩИКА. */
-  --rank-w: 2.75rem;
-  --rank-h: 2.25rem;
+  --lenta-tab-w: 2.25rem;
+  --rank-w: 3rem;
+  --rank-h: 2.5rem;
 }
 
 /* ── ШАПКА ────────────────────────────────────────────────────── */
@@ -90,7 +91,7 @@
   place-items: center;
   width: var(--rank-w);
   height: var(--rank-h);
-  padding: 0 0 var(--space-1);
+  padding: 0 0 var(--space-2);
   border: none;
   background: none;
   color: var(--text);
@@ -232,15 +233,41 @@
   flex: 1 1 auto;
   min-height: 0;
   width: var(--feed-col, var(--feed-width));
+  /*
+   * Потолок — левая граница ЛИСТА, который стоит по центру окна. Дальше
+   * ЛЕНТА поехала бы поверх приказов.
+   */
+  max-width: calc((100vw - var(--bottom-width)) / 2 - var(--frame-gap) * 2);
+}
+
+/* Свёрнутая ЛЕНТА — узкий корешок у правого края. */
+.lentaTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+  padding: var(--space-3) var(--space-2);
+  background: var(--surface);
+  border: var(--edge-width) solid var(--edge);
+  border-radius: var(--radius-panel);
+  color: var(--text-dim);
+}
+
+.lentaTab:hover {
+  color: var(--text);
+  border-color: var(--edge-strong);
+}
+
+.lentaTabCount {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text);
 }
 
 .lentaPanel {
   flex: 1 1 auto;
   min-width: 0;
-}
-
-.lentaCollapsed {
-  flex: 0 0 auto;
 }
 
 .lentaBody {
@@ -312,12 +339,41 @@
 
 .yashik {
   position: absolute;
-  left: var(--frame-gap);
   top: calc(var(--frame-h, 6rem) + var(--rank-h) + var(--frame-gap));
   bottom: calc(var(--bottom-h, 8rem) + var(--frame-gap) * 2);
   z-index: var(--z-surface);
   display: flex;
-  animation: slideIn var(--dur) var(--ease);
+  animation: appear var(--dur) var(--ease);
+}
+
+/*
+ * ТОМ, РЕГИОН и ДОСЬЕ пристыкованы к левому краю: их открывают, продолжая
+ * смотреть на карту. Ширина только автоматическая — ручка оказалась
+ * лишней привычкой возить мышью вместо игры.
+ */
+.yashikDock {
+  left: var(--frame-gap);
+  width: clamp(var(--surface-min), 32vw, var(--surface-max));
+}
+
+/*
+ * РЕЕСТР — по центру и по содержимому: таблице нужна ровно та ширина, при
+ * которой не появляется горизонтальная прокрутка, и ни пикселем больше.
+ */
+.yashikCenter {
+  left: var(--frame-gap);
+  right: var(--frame-gap);
+  justify-content: center;
+}
+
+.yashikCenter > * {
+  flex: 0 1 auto;
+  width: max-content;
+  /*
+   * Потолок оставляет место корешку свёрнутой ЛЕНТЫ. Симметрично с двух
+   * сторон, иначе центрирование сломается.
+   */
+  max-width: calc(100% - (var(--lenta-tab-w) + var(--space-3)) * 2);
 }
 
 .yashikPanel {
@@ -325,36 +381,12 @@
   min-width: 0;
 }
 
-/*
- * Ширина ЯЩИКА тянется, но с потолком: он не имеет права дойти до ЛЕНТЫ,
- * иначе карта исчезает совсем, а она главный экран.
- */
-.resizerRight {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: calc(var(--space-2) * -1);
-  width: var(--space-2);
-  cursor: ew-resize;
-  border: none;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  transition: background var(--dur-fast) var(--ease);
-}
-
-.resizerRight:hover,
-.resizerRight:focus-visible {
-  background: var(--edge-strong);
-}
-
-@keyframes slideIn {
+@keyframes appear {
   from {
     opacity: 0;
-    transform: translateX(-1rem);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 
@@ -368,7 +400,7 @@
   position: absolute;
   bottom: var(--frame-gap);
   left: 0;
-  right: calc(var(--feed-col, var(--feed-width)) + var(--frame-gap) * 2);
+  right: 0;
   z-index: var(--z-surface);
   display: flex;
   justify-content: center;

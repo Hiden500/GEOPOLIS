@@ -125,3 +125,24 @@
 .interactive:hover {
   background: var(--surface-raised);
 }
+
+/*
+ * Табличная раскладка: значение в колонке фиксированной ширины, подпись
+ * следом. Несколько таких ПОКАЗАТЕЛЕЙ подряд выстраиваются колонками сами —
+ * а во строчной раскладке значения разной длины сдвигали подписи, и ряд
+ * читался лесенкой.
+ */
+.table {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--space-2);
+}
+
+.table .figures {
+  align-items: flex-end;
+}
+
+.table .label {
+  white-space: normal;
+}

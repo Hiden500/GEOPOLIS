@@ -40,12 +40,12 @@ interface Box {
   topW: number;
   topH: number;
   botW: number;
-  botH: number;
+  gridH: number;
   tabW: number;
   tabH: number;
 }
 
-const EMPTY: Box = { leftW: 0, topW: 0, topH: 0, botW: 0, botH: 0, tabW: 0, tabH: 0 };
+const EMPTY: Box = { leftW: 0, topW: 0, topH: 0, botW: 0, gridH: 0, tabW: 0, tabH: 0 };
 
 export function ShapedBar({
   left,
@@ -56,6 +56,7 @@ export function ShapedBar({
   tabRound = false,
   className,
 }: ShapedBarProps) {
+  const gridRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
   const botRef = useRef<HTMLDivElement>(null);
@@ -69,7 +70,13 @@ export function ShapedBar({
         topW: topRef.current?.offsetWidth ?? 0,
         topH: topRef.current?.offsetHeight ?? 0,
         botW: botRef.current?.offsetWidth ?? 0,
-        botH: botRef.current?.offsetHeight ?? 0,
+        /*
+         * Полная высота берётся у СЕТКИ, а не суммой полос. Панель может быть
+         * растянута снаружи (выравнивание по соседней), и тогда сумма
+         * измеренных полос отстаёт от факта: силуэт рисовался короче панели, и
+         * низ выступа обрезался.
+         */
+        gridH: gridRef.current?.offsetHeight ?? 0,
         tabW: tabRef.current?.offsetWidth ?? 0,
         tabH: tabRef.current?.offsetHeight ?? 0,
       });
@@ -77,7 +84,7 @@ export function ShapedBar({
     measure();
 
     const observer = new ResizeObserver(measure);
-    for (const node of [leftRef.current, topRef.current, botRef.current, tabRef.current]) {
+    for (const node of [gridRef.current, leftRef.current, topRef.current, botRef.current, tabRef.current]) {
       if (node !== null) observer.observe(node);
     }
     // Медиазапрос меняет содержимое полос, не трогая наблюдаемые узлы сразу.
@@ -96,7 +103,7 @@ export function ShapedBar({
   const w1 = box.leftW + box.topW;
   const w2 = box.leftW + box.botW;
   const h1 = box.topH;
-  const h = box.topH + box.botH;
+  const h = box.gridH;
   const tabH = box.tabH;
   const t1 = tabOffset;
   const t2 = tabOffset + box.tabW;
@@ -129,14 +136,23 @@ export function ShapedBar({
       `A ${n} ${n} 0 0 0 ${t2} ${h + n}`,
       `L ${t2} ${h + tabH - tr}`,
       `A ${tr} ${tr} 0 0 1 ${t2 - tr} ${h + tabH}`,
-      `L ${t1 + tr} ${h + tabH}`,
-      `A ${tr} ${tr} 0 0 1 ${t1} ${h + tabH - tr}`,
-      `L ${t1} ${h + n}`,
-      `A ${n} ${n} 0 0 0 ${t1 - n} ${h}`,
     );
+    if (t1 === 0) {
+      // Выступ прижат к левому краю: вырез слева не нужен — выступ там просто
+      // продолжает левую границу панели.
+      parts.push(`L 0 ${h + tabH}`);
+    } else {
+      parts.push(
+        `L ${t1 + tr} ${h + tabH}`,
+        `A ${tr} ${tr} 0 0 1 ${t1} ${h + tabH - tr}`,
+        `L ${t1} ${h + n}`,
+        `A ${n} ${n} 0 0 0 ${t1 - n} ${h}`,
+      );
+    }
   }
 
-  parts.push("L 0 " + h, "Z");
+  if (!(tab !== undefined && box.tabW > 0 && t1 === 0)) parts.push("L 0 " + h);
+  parts.push("Z");
   const path = parts.join(" ");
   const totalH = h + (tab !== undefined ? tabH : 0);
 
@@ -154,7 +170,7 @@ export function ShapedBar({
         </svg>
       )}
 
-      <div className={styles.grid}>
+      <div ref={gridRef} className={styles.grid}>
         {left !== undefined && (
           <div ref={leftRef} className={styles.left}>
             {left}

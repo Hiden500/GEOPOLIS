@@ -28,6 +28,21 @@
   gap: var(--space-2);
 }
 
+/*
+ * Показатели в ТОМЕ стоят колонками друг под другом, а не строкой: в строке
+ * значения разной длины сдвигали подписи, и ряд читался лесенкой.
+ */
+.statTable {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3) var(--space-5);
+}
+
+.axes {
+  display: grid;
+  gap: var(--space-4);
+}
+
 .row {
   display: flex;
   align-items: baseline;
@@ -123,17 +138,26 @@
   max-height: 52vh;
 }
 
+/*
+ * Ширина по содержимому, но не меньше контейнера: РЕЕСТР открывается по
+ * центру ровно такой ширины, при которой горизонтальной прокрутки нет.
+ */
 .table {
-  width: 100%;
+  width: max-content;
   border-collapse: collapse;
   font-size: var(--text-sm);
 }
 
+/*
+ * Поля ячеек по горизонтали урезаны: на минимальном 1366 таблица на шесть
+ * колонок иначе не влезает в отведённую ширину, и появляется горизонтальная
+ * прокрутка — то, чего быть не должно.
+ */
 .table th {
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   background: var(--surface);
   border-bottom: var(--edge-width) solid var(--divider);
   text-align: left;
@@ -150,7 +174,7 @@
 }
 
 .table td {
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   border-bottom: var(--edge-width) solid var(--divider);
   color: var(--text-dim);
   white-space: nowrap;

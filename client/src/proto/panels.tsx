@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { Button, ResourceBar, Stat, Tag, TechScale, cx } from "../ui";
+import { Axis, Button, ResourceBar, Stat, Tag, TechScale, cx } from "../ui";
 import {
   BUDGET,
   COUNTRIES,
@@ -57,11 +57,11 @@ function EconomyTome() {
   return (
     <>
       <Section title="Ключевые показатели">
-        <div style={{ display: "flex", gap: "var(--space-5)", flexWrap: "wrap" }}>
-          <Stat label="ВВП" value="1,46T" delta={{ text: "+3,2%", tone: "good" }} size="lg" />
-          <Stat label="Баланс" value="+12,4B" delta={{ text: "+1,8B", tone: "good" }} size="lg" />
-          <Stat label="Долг к ВВП" value="0,94" delta={{ text: "+0,03", tone: "bad" }} threshold="near" size="lg" />
-          <Stat label="Инфляция" value="6,1%" delta={{ text: "+0,4", tone: "bad" }} size="lg" />
+        <div className={styles.statTable}>
+          <Stat layout="table" label="ВВП" value="1,46T" delta={{ text: "+3,2%", tone: "good" }} size="lg" />
+          <Stat layout="table" label="Баланс" value="+12,4B" delta={{ text: "+1,8B", tone: "good" }} size="lg" />
+          <Stat layout="table" label="Долг к ВВП" value="0,94" delta={{ text: "+0,03", tone: "bad" }} threshold="near" size="lg" />
+          <Stat layout="table" label="Инфляция" value="6,1%" delta={{ text: "+0,4", tone: "bad" }} size="lg" />
         </div>
       </Section>
 
@@ -183,29 +183,23 @@ function PoliticsTome() {
   return (
     <>
       <Section title="Оси власти">
-        <div style={{ display: "flex", gap: "var(--space-5)", flexWrap: "wrap" }}>
-          <Stat label="Стабильность" value="71" delta={{ text: "−1", tone: "bad" }} size="lg" />
-          <Stat label="Легитимность" value="83" delta={{ text: "+2", tone: "good" }} size="lg" />
-          <Stat label="Коррупция" value="34" delta={{ text: "0", tone: "neutral" }} size="lg" />
-          <Stat label="Поддержка" value="66" delta={{ text: "−3", tone: "bad" }} size="lg" />
+        <div className={styles.statTable}>
+          <Stat layout="table" label="Стабильность" value="71" delta={{ text: "−1", tone: "bad" }} size="lg" />
+          <Stat layout="table" label="Легитимность" value="83" delta={{ text: "+2", tone: "good" }} size="lg" />
+          <Stat layout="table" label="Коррупция" value="34" delta={{ text: "0", tone: "neutral" }} size="lg" />
+          <Stat layout="table" label="Поддержка" value="66" delta={{ text: "−3", tone: "bad" }} size="lg" />
         </div>
       </Section>
 
       <Section title="Курс">
-        <div className={styles.rows}>
-          <div className={styles.row}>
-            <span className={styles.rowName}>Экономическая ось</span>
-            <span className={styles.rowValue}>−0,82 · плановая</span>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.rowName}>Политическая ось</span>
-            <span className={styles.rowValue}>−0,91 · авторитаризм</span>
-          </div>
-          <p className={styles.rowNote}>
-            Зона на спектре: коммунизм. Реформа двигает координаты постепенно и стоит политического
-            капитала.
-          </p>
+        <div className={styles.axes}>
+          <Axis label="Экономическая ось" value={-0.82} from="плановая" to="рыночная" zone="плановая" />
+          <Axis label="Политическая ось" value={-0.91} from="авторитаризм" to="демократия" zone="авторитаризм" />
         </div>
+        <p className={styles.rowNote} style={{ marginTop: "var(--space-3)" }}>
+          Зона на спектре: коммунизм. Реформа двигает координаты постепенно и стоит политического
+          капитала.
+        </p>
       </Section>
 
       <Section title="Очаги недовольства">

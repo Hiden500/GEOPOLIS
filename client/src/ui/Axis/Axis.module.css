@@ -1,0 +1,73 @@
+/*
+ * ОСЬ — координата с точкой на ней. Идеология в игре хранится не ярлыком, а
+ * координатами на двух непрерывных осях, и союзы с недовольством считаются
+ * как РАССТОЯНИЕ между позициями (docs/CONCEPT.md §4.2). Число «−0,82»
+ * этого не показывает; положение точки на отрезке — показывает, и сразу
+ * видно, сколько ещё осталось до края.
+ */
+
+.axis {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.label {
+  font-size: var(--text-md);
+  color: var(--text);
+}
+
+.zone {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+
+.track {
+  position: relative;
+  height: 18px;
+  display: flex;
+  align-items: center;
+}
+
+.line {
+  width: 100%;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--divider);
+}
+
+/* Середина отмечена: без неё «немного левее центра» не отличить от «в центре». */
+.middle {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: var(--text-faint);
+}
+
+.dot {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}

@@ -26,6 +26,8 @@ export interface StatProps {
   size?: "md" | "lg";
   /** `wide` — подпись появляется только на широком окне (верхняя панель). */
   labelMode?: "always" | "wide" | "hidden";
+  /** `table` — значение в колонке фиксированной ширины, подписи выравниваются. */
+  layout?: "inline" | "table";
   onClick?: () => void;
   className?: string;
 }
@@ -38,6 +40,7 @@ export function Stat({
   icon,
   size = "md",
   labelMode = "always",
+  layout = "inline",
   onClick,
   className,
 }: StatProps) {
@@ -68,7 +71,7 @@ export function Stat({
     </>
   );
 
-  const rootClass = cx(styles.stat, styles[size], className);
+  const rootClass = cx(styles.stat, styles[size], layout === "table" && styles.table, className);
 
   const body =
     onClick !== undefined ? (
