@@ -1,5 +1,5 @@
 # База легитимности и коррупции — с ярлыка идеологии на координаты и форму власти
-Status: active
+Status: complete
 Owner: Claude (worktree `politics-coordinates`, ветка `claude/politics-coordinates`)
 Starting commit: 91468ab
 
@@ -54,10 +54,10 @@ Starting commit: 91468ab
 ## Progress
 - [x] Подсчёт фактического дефолта на живых данных: 78 из 157 по обеим таблицам
 - [x] Baseline: server tsc = 0, 1246 passed / 1 skipped
-- [ ] Константы и функции в `shared/`
-- [ ] Читатели в `PoliticsTick`
-- [ ] Тесты + негативный контроль
-- [ ] Docs
+- [x] Константы и функции в `shared/` (`defines/politics.ts`, `utils/politics.ts`)
+- [x] Читатели в `PoliticsTick`
+- [x] Тесты (+18) и два негативных контроля
+- [x] Docs: `POLITICS.md`, `TODO.md`, `DECISIONS.md`
 
 ## Discoveries
 
@@ -88,4 +88,32 @@ cwd server: npm test
 
 ## Final outcome
 
-<заполняется по завершении>
+Status: complete.
+
+Изменено: `shared/src/defines/politics.ts` (обе таблицы переведены и
+типизированы по `PowerStructure`, `LEGITIMACY_DEFAULT` удалён),
+`shared/src/utils/politics.ts` + `.test.ts` (новые), `PoliticsTick.ts` и его
+тест, `docs/POLITICS.md`/`TODO.md`/`DECISIONS.md`.
+
+Доказательства (движок, сценарий 1946, 157 стран): в дефолт падало 78 стран по
+каждой таблице — стало 0 (`powerStructure` и координаты размечены у всех).
+Легитимность 50…70 → 23…72.6, различных значений 4 → 92, sd 7.34 → 13.71,
+среднее 58.7 → 47.3. Коррупция 20…55 → 20…70, различных 4 → 11.
+
+Проверено: `npx tsc --noEmit -p tsconfig.json` = 0; `npm test` — 76 файлов,
+1264 passed / 1 skipped (baseline был 1246 / 1, регрессий нет).
+
+Негативный контроль (два):
+1. Тик возвращён к чтению по ярлыку (`PoliticsTick.ts` из HEAD~1 + старые
+   таблицы) — падают 5 новых тестов, включая «различает страны тоньше, чем
+   ярлык идеологии» (4 значения против 5 ярлыков) и «страны под одним ярлыком
+   расходятся» (0 групп).
+2. `Math.abs` убран из формулы (U-образная → линейная) — падает ровно тест
+   «консолидированная автократия ТОЖЕ легитимнее гибридного режима».
+Оба патча откачены, финальный прогон зелёный.
+
+Baseline failures: нет.
+
+Unresolved: величины не калиброваны на длинной кампании; удаление
+`Country.politics.ideology` требует свежей сессии, когда освободятся
+`Scenario1946.ts`/`scenario1946Schemas.ts`.
