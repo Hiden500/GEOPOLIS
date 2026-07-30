@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Geopolis — словарь интерфейса</title>
+<!--
+  Рабочий словарь имён элементов интерфейса. Открывается двойным щелчком,
+  сервер не нужен: файл самодостаточный, без внешних шрифтов и скриптов.
+
+  Зачем: чтобы точечно указывать на элемент — «ЛЕНТА уже», «в ШАПКЕ третий
+  ПОКАЗАТЕЛЬ лишний» — вместо описания словами. Имена те же, что в коде
+  (client/src/proto/Prototype.module.css) и в переписке.
+
+  Обновлять вместе с переименованием элементов. Расхождение словаря с кодом
+  дороже отсутствия словаря: указание перестанет попадать в цель.
+-->
+<style>
+  :root {
+    --sunken: #0e0f10;
+    --surface: #1a1c1e;
+    --raised: #26282b;
+    --divider: #3a3d41;
+    --text: #f0f2f3;
+    --dim: #b2b7bb;
+    --faint: #8a9096;
+    --accent: #35d0bb;
+    --edge: rgba(53, 208, 187, .34);
+    --near: #f2b23c;
+    --over: #e8483c;
+    --r: 16px;
+    --r2: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+
+  body {
+    background: var(--sunken);
+    color: var(--text);
+    font: 15px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    padding: 32px clamp(16px, 4vw, 48px) 64px;
+  }
+
+  h1 {
+    font-size: 30px;
+    line-height: 1.15;
+    letter-spacing: -.01em;
+  }
+
+  .sub { color: var(--faint); font-size: 14px; margin-top: 6px; }
+
+  /* ── Поиск ─────────────────────────────────────────────────── */
+
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 24px 0 8px;
+    padding: 12px 0;
+    background: var(--sunken);
+    border-bottom: 1px solid var(--divider);
+  }
+
+  input[type=search] {
+    flex: 1 1 260px;
+    min-width: 0;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--r2);
+    color: var(--text);
+    font: inherit;
+  }
+
+  input[type=search]:focus { outline: 2px solid var(--accent); outline-offset: 2px; border-color: var(--edge); }
+
+  .count { color: var(--faint); font-size: 13px; white-space: nowrap; }
+
+  /* ── Схема экрана ──────────────────────────────────────────── */
+
+  .schema {
+    margin: 20px 0 8px;
+    padding: 10px;
+    background: var(--surface);
+    border: 1px solid var(--edge);
+    border-radius: var(--r);
+  }
+
+  .screen {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 200px;
+    grid-template-rows: auto 1fr auto auto;
+    gap: 6px;
+    min-height: 300px;
+    padding: 6px;
+    background: #16202b;
+    border-radius: var(--r2);
+  }
+
+  .box {
+    padding: 8px 10px;
+    border: 1px dashed var(--divider);
+    border-radius: 6px;
+    background: rgba(26, 28, 30, .82);
+    color: var(--dim);
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .12s, color .12s, background .12s;
+  }
+
+  .box:hover, .box:focus-visible {
+    border-color: var(--accent);
+    border-style: solid;
+    color: var(--text);
+    background: var(--raised);
+    outline: none;
+  }
+
+  .box small { display: block; margin-top: 3px; font-size: 10px; letter-spacing: 0; color: var(--faint); }
+
+  .b-shapka  { grid-column: 1 / 3; grid-row: 1; }
+  .b-map     { grid-column: 2 / 4; grid-row: 2 / 4; border-style: none; background: none; cursor: default; color: var(--faint); align-self: center; }
+  .b-hod     { grid-column: 4;     grid-row: 1; }
+  .b-yashik  { grid-column: 1;     grid-row: 2 / 4; }
+  .b-lenta   { grid-column: 4;     grid-row: 2; }
+  .b-rezhimy { grid-column: 4;     grid-row: 3; }
+  .b-bottom  { grid-column: 1 / 4; grid-row: 4; }
+  .b-over    { grid-column: 4;     grid-row: 4; }
+
+  .hint { margin-top: 8px; color: var(--faint); font-size: 12px; }
+
+  /* ── Группы и записи ───────────────────────────────────────── */
+
+  .group { margin-top: 28px; }
+
+  .group > h2 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--divider);
+  }
+
+  .group > .about { margin: 8px 0 0; color: var(--faint); font-size: 13px; }
+
+  dl { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 0; margin-top: 4px; }
+
+  dt, dd { padding: 9px 0; border-bottom: 1px solid var(--divider); }
+
+  dt { font-weight: 600; letter-spacing: .04em; }
+  dd { color: var(--dim); }
+
+  dt.hit, dd.hit { background: rgba(53, 208, 187, .08); }
+
+  .tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0;
+    vertical-align: 1px;
+  }
+
+  .tag-open { border: 1px dashed var(--near); color: var(--near); }
+  .tag-off  { border: 1px dotted var(--faint); color: var(--faint); }
+
+  .rules { margin-top: 10px; display: grid; gap: 8px; }
+  .rules li { list-style: none; padding-left: 18px; position: relative; color: var(--dim); }
+  .rules li::before { content: "—"; position: absolute; left: 0; color: var(--accent); }
+
+  .empty { padding: 24px 0; color: var(--faint); }
+  [hidden] { display: none !important; }
+
+  @media (max-width: 760px) {
+    dl { grid-template-columns: 1fr; }
+    dt { border-bottom: none; padding-bottom: 0; }
+    .screen { grid-template-columns: 1fr 1fr; }
+    .b-shapka, .b-map, .b-hod, .b-yashik, .b-lenta, .b-rezhimy, .b-bottom, .b-over { grid-column: auto; grid-row: auto; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Словарь интерфейса</h1>
+<p class="sub">
+  Имена элементов, чтобы указывать точечно: «ЛЕНТА уже», «в ШАПКЕ третий ПОКАЗАТЕЛЬ лишний».
+  Те же имена в коде и в переписке.
+</p>
+
+<div class="schema">
+  <div class="screen">
+    <div class="box b-shapka" tabindex="0" data-find="ШАПКА">ШАПКА<small>флаг · приборы · корешки · ранг</small></div>
+    <div class="box b-hod" tabindex="0" data-find="ХОД">ХОД<small>дата · режиссёр · кнопка · инструменты</small></div>
+    <div class="box b-yashik" tabindex="0" data-find="ЯЩИК">ЯЩИК<small>том · реестр · регион · досье</small></div>
+    <div class="b-map box" aria-hidden="true">К А Р Т А</div>
+    <div class="box b-lenta" tabindex="0" data-find="ЛЕНТА">ЛЕНТА<small>события · точка · знак · ярлыки</small></div>
+    <div class="box b-rezhimy" tabindex="0" data-find="РЕЖИМЫ">РЕЖИМЫ<small>легенда</small></div>
+    <div class="box b-bottom" tabindex="0" data-find="ЛИСТ">ПОЛОСА и ЛИСТ<small>регион · приказы · ввод · счётчик</small></div>
+    <div class="box b-over" tabindex="0" data-find="ПОДТВЕРЖДЕНИЕ">поверх всего<small>подтверждение · поиск · меню</small></div>
+  </div>
+  <p class="hint">Нажми на блок — словарь отфильтруется по нему.</p>
+</div>
+
+<div class="bar">
+  <input type="search" id="q" placeholder="Найти элемент или слово в описании…" autofocus>
+  <span class="count" id="count"></span>
+</div>
+
+<p class="empty" id="empty" hidden>Ничего не нашлось. Escape очищает фильтр.</p>
+
+<section class="group" data-group>
+  <h2>Рама — приклеена к краю, не исчезает</h2>
+  <p class="about">Прижата к краю экрана без отступа. По отступу видно, что приклеено навсегда, а что появилось и уйдёт.</p>
+  <dl>
+    <dt>ШАПКА</dt><dd>Верхняя левая панель целиком: ФЛАГ, ПРИБОРЫ, КОРЕШКИ и висящий РАНГ. Две строки, 615×97 при масштабе 1.</dd>
+    <dt>ФЛАГ</dt><dd>Флаг державы. Кликается — открывает ДОСЬЕ своей державы. Колонка фиксированной ширины под пропорцию 1:2, чтобы ШАПКА не дышала при смене державы.</dd>
+    <dt>РАНГ</dt><dd>Число в ВЫРЕЗЕ под ФЛАГОМ — место в мире по совокупной мощи. Ведёт в РЕЕСТР держав.</dd>
+    <dt>ПРИБОРЫ</dt><dd>Первая строка ШАПКИ: шесть ПОКАЗАТЕЛЕЙ, разделённых на группы «деньги · сила · прочность».</dd>
+    <dt>ПОКАЗАТЕЛЬ</dt><dd>Иконка, число и дельта. Текстовой подписи нет — есть подсказка при наведении. Дельта красит направление, порог подчёркивает значение.</dd>
+    <dt>ТРЕВОГА <span class="tag tag-off">не введена</span></dt><dd>Переменный слот «что сейчас за порогом». Решено оставить шесть постоянных ПОКАЗАТЕЛЕЙ вместо трёх плюс этот слот.</dd>
+    <dt>КОРЕШКИ</dt><dd>Вторая строка ШАПКИ: иконки ТОМОВ плюс РЕЕСТР. Только иконки, подсказка при наведении.</dd>
+    <dt>КОРЕШОК</dt><dd>Одна иконка в КОРЕШКАХ. Активный выглядит ТУМБЛЕРОМ.</dd>
+    <dt>ХОД</dt><dd>Верхняя правая панель. Ширина фиксирована (216 px) под самую длинную надпись КНОПКИ, высота равна ШАПКЕ.</dd>
+    <dt>ДАТА</dt><dd>Месяц и год в ХОДЕ.</dd>
+    <dt>РЕЖИССЁР</dt><dd>Точка состояния модели рядом с ДАТОЙ: готов или думает.</dd>
+    <dt>КНОПКА</dt><dd>Главная кнопка экрана. Два состояния: «Продолжить · N» и «Режиссёр думает…». Третье, «Требуется решение», вернётся вместе с КРИЗИСОМ.</dd>
+    <dt>ИНСТРУМЕНТЫ</dt><dd>Сохранить, ПОИСК, МЕНЮ — иконками в ХОДЕ.</dd>
+  </dl>
+</section>
+
+<section class="group" data-group>
+  <h2>Правый край</h2>
+  <dl>
+    <dt>ЛЕНТА</dt><dd>События этого хода. Единственное, что тянется по высоте, и единственное с ручкой ширины (слева). Сворачивается в свой заголовок.</dd>
+    <dt>СОБЫТИЕ</dt><dd>Одна запись в ЛЕНТЕ: дата надстрочником, заголовок, текст.</dd>
+    <dt>ТОЧКА</dt><dd>Метка слева у СОБЫТИЯ — «по вашему приказу». Нажимается: показывает, какой именно приказ это породил. Колонка отведена всегда, поэтому точки складываются в вертикальный ряд.</dd>
+    <dt>ЗНАК</dt><dd>Метка справа у СОБЫТИЯ — достоверность. <code>~</code> штриховой — частично, <code>?</code> пунктирный — не подтверждено. У подтверждённого пусто: отсутствие метки это утверждение, а не молчание.</dd>
+    <dt>ЯРЛЫКИ</dt><dd>Переходы под СОБЫТИЕМ: регион на карте, держава, объект. Есть не у каждого события — ставятся из фактически применённого, а чистый нарратив никуда не ведёт.</dd>
+    <dt>КРИЗИС <span class="tag tag-open">отложен</span></dt><dd>Карточка развилки в ЛЕНТЕ: что случилось, где, и не меньше двух различимых путей с ценой, включая «ничего не делать». Отложена форма подачи, не механика.</dd>
+    <dt>РЕЖИМЫ</dt><dd>Переключатель раскраски карты: восемь иконок в два ряда, прижат к правому нижнему углу.</dd>
+    <dt>ЛЕГЕНДА</dt><dd>Расшифровка цвета. Раскрывается повторным нажатием на активный РЕЖИМ и есть только там, где цвет означает величину.</dd>
+  </dl>
+</section>
+
+<section class="group" data-group>
+  <h2>Низ — по центру свободной части</h2>
+  <p class="about">Центр берётся между левым краем и ЛЕНТОЙ, а не по всему окну: иначе на узком экране блок уезжает под ленту.</p>
+  <dl>
+    <dt>ПОЛОСА</dt><dd>Строка выделенного региона: имя, держава, население, главная группа, недовольство. Замок фиксирует, «Подробно» открывает ЯЩИК, крестик снимает выделение.</dd>
+    <dt>ЛИСТ</dt><dd>Панель приказов месяца. Сворачивается до строки ВВОДА, когда приказов нет.</dd>
+    <dt>ПРИКАЗ</dt><dd>Одна карточка в ЛИСТЕ. Несёт только слова игрока — результата здесь нет: приказы уходят пачкой при нажатии КНОПКИ. Перетаскивается, потому что порядок значим механически.</dd>
+    <dt>ВВОД</dt><dd>Поле «Введите приказ…» и кнопка добавления.</dd>
+    <dt>СЧЁТЧИК</dt><dd>«3 из 10» в шапке ЛИСТА — бюджет приказов на месяц.</dd>
+  </dl>
+</section>
+
+<section class="group" data-group>
+  <h2>Выдвигается слева — одно за раз</h2>
+  <p class="about">Правило одной тяжёлой поверхности держится состоянием, а не дисциплиной: два ТОМА открытыми быть не могут физически. Ширина тянется, но с потолком — до ЛЕНТЫ ЯЩИК дойти не может.</p>
+  <dl>
+    <dt>ЯЩИК</dt><dd>Сама выдвижная поверхность. В ней живут ТОМ, РЕЕСТР, РЕГИОН или ДОСЬЕ.</dd>
+    <dt>ТОМ</dt><dd>ЭКОНОМИКА · ПОЛИТИКА · ОБОРОНА · НАУКА · ДИПЛОМАТИЯ · ЦЕЛИ. Наука отдельным томом или внутри обороны — переключается в МЕНЮ, смотрим оба варианта.</dd>
+    <dt>РЕЕСТР</dt><dd>Таблицы мира: ДЕРЖАВЫ · РЕГИОНЫ · БЛОКИ · ЛЕТОПИСЬ. Сортировка по столбцу, переход по строке. Шире ТОМА — таблице нужна ширина.</dd>
+    <dt>РЕГИОН</dt><dd>Инспектор выделенного региона: состав населения, недовольство, добыча, история места.</dd>
+    <dt>ДОСЬЕ</dt><dd>Панель державы, своей или чужой. Один компонент на обе: у своей рычаги, у чужой оценки разведки.</dd>
+    <dt>СРАВНЕНИЕ</dt><dd>ДОСЬЕ в две колонки с дельтой. Максимум две державы: «кто сильнее» — вопрос парный, «кто лидер» решается РЕЕСТРОМ.</dd>
+    <dt>ЛЕТОПИСЬ</dt><dd>Вкладка РЕЕСТРА: вся история кампании с фильтрами «мои приказы · события мира · отказы». Единственный архив — вторая история разошлась бы с первой.</dd>
+  </dl>
+</section>
+
+<section class="group" data-group>
+  <h2>Поверх всего</h2>
+  <dl>
+    <dt>ПОДТВЕРЖДЕНИЕ</dt><dd>Единственное модальное окно. Только необратимое: война, смена режима, раскол, ядерное, вход и выход из блока, разрыв альянса, объявление гарантии.</dd>
+    <dt>ПОИСК</dt><dd>Наложение поиска по державам и регионам с прыжком к найденному.</dd>
+    <dt>МЕНЮ</dt><dd>Тумблеры макета: наука отдельно или вместе с обороной, выбор палитры.</dd>
+  </dl>
+</section>
+
+<section class="group" data-group>
+  <h2>Части дизайн-системы</h2>
+  <dl>
+    <dt>ПАНЕЛЬ</dt><dd>Единственный контейнер системы. ТОМ, РЕЕСТР, ЛЕНТА, ЛИСТ и ПОЛОСА — это одна ПАНЕЛЬ с разным содержимым; поэтому два экрана читаются как один продукт.</dd>
+    <dt>ВЫРЕЗ</dt><dd>Вогнутое сопряжение: «принадлежит панели, но вынесено наружу». Ставится только там, где это правда — сейчас у РАНГА. Появится как узор, и язык формы умрёт.</dd>
+    <dt>ШКАЛА</dt><dd>Полоса поколений слота техники: парк, разрыв, умение, запрет доктрины. Дерева технологий в игре нет.</dd>
+    <dt>ТУМБЛЕР</dt><dd>Кнопка-механизм: нажал — произойдёт ровно это. Так выглядят быстрые приказы, активный КОРЕШОК и активный РЕЖИМ.</dd>
+    <dt>ГЛАВНАЯ</dt><dd>Заливка акцентом. На экране ровно одна такая кнопка; сейчас это КНОПКА хода.</dd>
+    <dt>ТАБЛИЦА</dt><dd>Числа в колонках, табличные цифры, вариант «сравнение» с дельтой.</dd>
+  </dl>
+</section>
+
+<section class="group" data-group>
+  <h2>Правила, из которых всё выводится</h2>
+  <ul class="rules">
+    <li>Цвет принадлежит карте. Хрома почти бесцветна, цветов смысла ровно пять: выделение, рост, падение, у порога, за порогом.</li>
+    <li>Рама приклеена к краю, плавающие поверхности отступают.</li>
+    <li>Одна тяжёлая поверхность за раз.</li>
+    <li>Кнопка — механизм, произойдёт ровно это. Поле свободного текста — распоряжение, произойдёт то, как тебя поняли. Выглядеть должны по-разному.</li>
+    <li>Механику прячем до применения, последствия показываем после.</li>
+    <li>Esc снимает верхний слой по одному: ПОДТВЕРЖДЕНИЕ → МЕНЮ → ПОИСК → ЯЩИК → выделение.</li>
+    <li>Радиусов два: 16 у панелей, 8 внутри. Отступы кратны четырём. Шрифтовых ступеней шесть.</li>
+    <li>Всё в rem: физический размер интерфейса задаётся одним числом (масштаб), а не правкой значений.</li>
+  </ul>
+</section>
+
+<section class="group" data-group>
+  <h2>Открыто</h2>
+  <dl>
+    <dt>Проекты <span class="tag tag-open">C4</span></dt><dd>Что делает кнопка «Проверить» на карточке проекта. «Ускорить» читается как приоритет вложения.</dd>
+    <dt>ПОЛОСА <span class="tag tag-open">B5</span></dt><dd>Окончательный состав фактов — смотрим по реальным данным.</dd>
+    <dt>КРИЗИС <span class="tag tag-open">A9</span></dt><dd>Форма подачи развилки.</dd>
+    <dt>Палитра <span class="tag tag-open"></span></dt><dd>Четыре варианта в коде: графит, сталь, тушь, хаки. Выбор отложен до подключения карты — панели могут с ней сливаться.</dd>
+    <dt>Нарратив <span class="tag tag-open"></span></dt><dd>Второй гарнитуры с кириллицей нет. Кандидат — IBM Plex Serif, требует добавления шрифтовых файлов.</dd>
+    <dt>Старт кампании <span class="tag tag-open">D1</span></dt><dd>Экран выбора державы, сложности и языка — отдельным шагом.</dd>
+  </dl>
+</section>
+
+<script>
+  const q = document.getElementById('q');
+  const count = document.getElementById('count');
+  const empty = document.getElementById('empty');
+  const groups = [...document.querySelectorAll('[data-group]')];
+
+  /*
+   * Русская плюрализация: три формы, а не две. «2 совпадений» читается как
+   * недоделка — ровно та причина, по которой в самой игре взят i18next
+   * вместо самодельного решения.
+   */
+  function plural(n, one, few, many) {
+    const d = n % 10;
+    const h = n % 100;
+    if (d === 1 && h !== 11) return one;
+    if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return few;
+    return many;
+  }
+
+  /* Записи хранятся парами dt+dd: скрывать и показывать нужно обе половины. */
+  const pairs = groups.flatMap(group => {
+    const dts = [...group.querySelectorAll('dt')];
+    return dts.map(dt => ({ group, dt, dd: dt.nextElementSibling }));
+  });
+  const rules = groups.flatMap(group => [...group.querySelectorAll('.rules li')].map(li => ({ group, li })));
+
+  function apply(raw) {
+    const needle = raw.trim().toLowerCase();
+    let shown = 0;
+
+    for (const { dt, dd } of pairs) {
+      const hit = needle === '' || (dt.textContent + ' ' + dd.textContent).toLowerCase().includes(needle);
+      dt.hidden = dd.hidden = !hit;
+      dt.classList.toggle('hit', hit && needle !== '');
+      dd.classList.toggle('hit', hit && needle !== '');
+      if (hit) shown++;
+    }
+
+    for (const { li } of rules) {
+      const hit = needle === '' || li.textContent.toLowerCase().includes(needle);
+      li.hidden = !hit;
+      if (hit) shown++;
+    }
+
+    /* Группа без единого попадания уходит целиком — иначе остаются пустые заголовки. */
+    for (const group of groups) {
+      const any = [...group.querySelectorAll('dt, .rules li')].some(node => !node.hidden);
+      group.hidden = !any;
+    }
+
+    count.textContent = needle === ''
+      ? `${pairs.length} ${plural(pairs.length, 'имя', 'имени', 'имён')}`
+      : `${shown} ${plural(shown, 'совпадение', 'совпадения', 'совпадений')}`;
+    empty.hidden = shown !== 0;
+  }
+
+  q.addEventListener('input', () => apply(q.value));
+
+  for (const box of document.querySelectorAll('[data-find]')) {
+    const run = () => { q.value = box.dataset.find; apply(q.value); q.focus(); };
+    box.addEventListener('click', run);
+    box.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); run(); }
+    });
+  }
+
+  /* Escape очищает фильтр — то же правило, что в самой игре. */
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && q.value !== '') { q.value = ''; apply(''); }
+  });
+
+  apply('');
+</script>
+
+</body>
+</html>
