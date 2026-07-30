@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../Button/Button";
 import { IconClose } from "../icons";
@@ -25,6 +25,8 @@ export interface PanelProps {
   scroll?: boolean;
   className?: string;
   bodyClassName?: string;
+  /** Атрибуты шапки: за неё таскают окно, поэтому обработчики нужны именно там. */
+  headerProps?: HTMLAttributes<HTMLElement>;
   children: ReactNode;
 }
 
@@ -37,6 +39,7 @@ export function Panel({
   scroll = false,
   className,
   bodyClassName,
+  headerProps,
   children,
 }: PanelProps) {
   const { t } = useTranslation("ui");
@@ -45,7 +48,7 @@ export function Panel({
   return (
     <section className={cx(styles.panel, className)}>
       {hasHeader && (
-        <header className={styles.header}>
+        <header {...headerProps} className={cx(styles.header, headerProps?.className)}>
           {title !== undefined && <h2 className={styles.title}>{title}</h2>}
           {meta !== undefined && <span className={styles.meta}>{meta}</span>}
           <span className={styles.spacer} />

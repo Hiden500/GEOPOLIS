@@ -162,7 +162,11 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-2) var(--space-4) var(--space-2) 0;
+  /*
+   * Слева отступ равен размаху сопряжения: там полосы ещё нет, там клин.
+   * Кнопка, попавшая в клин, выглядит выпавшей из полосы.
+   */
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--band-slant, 0px);
 }
 
 .koreshki svg {
@@ -387,6 +391,12 @@
   bottom: var(--frame-gap);
   z-index: var(--z-surface);
   display: flex;
+  /*
+   * По содержимому, а не во всю отведённую высоту: короткое ДОСЬЕ в панели
+   * на весь экран — это огромное пустое окно. Длинный ТОМ упрётся в потолок и
+   * начнёт прокручиваться внутри себя.
+   */
+  align-items: flex-start;
   animation: appear var(--dur) var(--ease);
 }
 
@@ -407,40 +417,62 @@
 }
 
 /*
- * РЕЕСТР — по центру и по содержимому: таблице нужна ровно та ширина, при
- * которой не появляется горизонтальная прокрутка, и ни пикселем больше.
+ * РЕЕСТР — самостоятельное ОКНО: не привязан ни к ЛЕНТЕ, ни к левому краю,
+ * уживается с открытым ТОМОМ и таскается за шапку. Это единственное окно в
+ * интерфейсе, и собрано оно из той же ПАНЕЛИ — набора разъезжающихся окон,
+ * против которого я возражал, здесь не возникает.
+ *
+ * Начальное положение — по центру сверху; дальше его помнит состояние.
  */
-.yashikCenter {
-  left: var(--frame-gap);
-  right: calc(var(--feed-col, var(--feed-width)) + var(--frame-gap) * 2);
-  justify-content: center;
-  /*
-   * По содержимому, а не во всю отведённую высоту: реестр из шести строк в
-   * панели на весь экран — это огромное пустое окно.
-   */
-  align-items: flex-start;
+.ledgerWindow {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  z-index: var(--z-crisis);
+  display: flex;
+  max-width: calc(100vw - var(--frame-gap) * 2);
+  max-height: calc(100vh - var(--frame-gap) * 2);
+  animation: appear var(--dur) var(--ease);
+}
+
+/*
+ * Сдвинутое окно центрировать уже нечем — снимаем компенсацию. Класс, а не
+ * селектор по наличию инлайнового стиля: под [style] попадает ЛЮБОЙ
+ * инлайновый стиль, вплоть до выставленного анимацией или отладкой, и окно
+ * прыгало вправо на ровном месте.
+ */
+.ledgerMoved {
+  transform: none;
 }
 
 /*
  * Отдельный класс, а не переопределение .yashikPanel: у них одинаковая
- * специфичность, и `flex: 1 1 auto` растягивал реестр на всю доступную
+ * специфичность, и `flex: 1 1 auto` растягивал панель на всю доступную
  * ширину — отсюда огромное пустое окно вокруг таблицы из шести строк.
  */
 .ledgerPanel {
   flex: 0 1 auto;
   min-width: 0;
   width: max-content;
-  /*
-   * Потолок оставляет место корешку свёрнутой ЛЕНТЫ. Симметрично с двух
-   * сторон, иначе центрирование сломается.
-   */
   max-width: 100%;
   max-height: 100%;
+  box-shadow: var(--panel-bevel), 0 18px 44px rgba(0, 0, 0, 0.6);
+}
+
+.ledgerHeader {
+  cursor: grab;
+  user-select: none;
+}
+
+.ledgerHeader:active {
+  cursor: grabbing;
 }
 
 .yashikPanel {
   flex: 1 1 auto;
   min-width: 0;
+  max-height: 100%;
 }
 
 @keyframes appear {

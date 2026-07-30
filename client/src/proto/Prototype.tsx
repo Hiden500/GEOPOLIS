@@ -66,7 +66,6 @@ import styles from "./Prototype.module.css";
 type Yashik =
   | { kind: "none" }
   | { kind: "tome"; id: TomeId }
-  | { kind: "ledger" }
   | { kind: "country"; id: CountryId }
   | { kind: "region"; id: string };
 
@@ -171,6 +170,16 @@ export function Prototype() {
   const [selectedCountryId, setSelectedCountryId] = useState<CountryId | null>(null);
   const [pinned, setPinned] = useState(false);
   const [ledgerTab, setLedgerTab] = useState<LedgerTabId>("powers");
+  /*
+   * РЕЕСТР — отдельное ОКНО, а не поверхность ЯЩИКА. Он не привязан ни к
+   * ЛЕНТЕ, ни к левому краю: его открывают, чтобы сверить мир с тем, что
+   * открыто рядом, поэтому он и живёт поверх, и уживается с ТОМОМ.
+   * Это сознательное исключение из правила «одна тяжёлая поверхность за раз».
+   */
+  const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [ledgerPos, setLedgerPos] = useState<{ x: number; y: number } | null>(null);
+  const ledgerRef = useRef<HTMLDivElement>(null);
+  const ledgerDrag = useRef<{ dx: number; dy: number } | null>(null);
   const [compareId, setCompareId] = useState<CountryId | null>(null);
   const [mapMode, setMapMode] = useState<MapModeId>("powers");
   const [lentaOpen, setLentaOpen] = useState(true);
@@ -266,6 +275,7 @@ export function Prototype() {
       if (confirming !== null) return setConfirming(null);
       if (menuOpen) return setMenuOpen(false);
       if (searchOpen) return setSearchOpen(false);
+      if (ledgerOpen) return setLedgerOpen(false);
       if (yashik.kind !== "none") return setYashik({ kind: "none" });
       if (selectedRegionId !== null || selectedCountryId !== null) {
         setSelectedRegionId(null);
@@ -275,7 +285,7 @@ export function Prototype() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [confirming, menuOpen, searchOpen, yashik, selectedRegionId, selectedCountryId]);
+  }, [confirming, menuOpen, searchOpen, ledgerOpen, yashik, selectedRegionId, selectedCountryId]);
 
   /* ── Ручки ширины ───────────────────────────────────────────── */
   const rootSize = () => parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -305,6 +315,30 @@ export function Prototype() {
 
   const onDragEnd = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
     dragTarget.current = null;
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  }, []);
+
+  const onLedgerDown = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    const node = ledgerRef.current;
+    if (node === null) return;
+    const box = node.getBoundingClientRect();
+    ledgerDrag.current = { dx: event.clientX - box.left, dy: event.clientY - box.top };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }, []);
+
+  const onLedgerMove = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    const drag = ledgerDrag.current;
+    const node = ledgerRef.current;
+    if (drag === null || node === null) return;
+    const box = node.getBoundingClientRect();
+    // Окно не выпускается за экран целиком: заголовок обязан остаться видимым.
+    const x = Math.max(8 - box.width + 80, Math.min(event.clientX - drag.dx, window.innerWidth - 80));
+    const y = Math.max(0, Math.min(event.clientY - drag.dy, window.innerHeight - 48));
+    setLedgerPos({ x, y });
+  }, []);
+
+  const onLedgerUp = useCallback((event: React.PointerEvent<HTMLElement>) => {
+    ledgerDrag.current = null;
     event.currentTarget.releasePointerCapture(event.pointerId);
   }, []);
 
@@ -419,6 +453,9 @@ export function Prototype() {
 
   const shellStyle: React.CSSProperties = {
     ["--feed-col" as string]: feedWidth === null ? "var(--feed-width)" : `${feedWidth}px`,
+    // Ряд КОРЕШКОВ сдвигается вправо ровно на размах сопряжения: иначе первые
+    // кнопки попадают в клин, где полосы ещё нет.
+    ["--band-slant" as string]: `${slant}px`,
   };
 
   return (
@@ -457,7 +494,7 @@ export function Prototype() {
                 className={styles.rankBox}
                 onClick={() => {
                   setLedgerTab("powers");
-                  setYashik({ kind: "ledger" });
+                  setLedgerOpen(true);
                 }}
               >
                 <span
@@ -523,8 +560,8 @@ export function Prototype() {
                   size="md"
                   iconOnly
                   aria-label="Реестр"
-                  variant={yashik.kind === "ledger" ? "order" : "quiet"}
-                  onClick={() => setYashik((prev) => (prev.kind === "ledger" ? { kind: "none" } : { kind: "ledger" }))}
+                  variant={ledgerOpen ? "order" : "quiet"}
+                  onClick={() => setLedgerOpen((open) => !open)}
                 >
                   <IconLedger />
                 </Button>
@@ -570,7 +607,7 @@ export function Prototype() {
       {yashik.kind !== "none" && (
         <div
           ref={yashikRef}
-          className={cx(styles.yashik, yashik.kind === "ledger" ? styles.yashikCenter : styles.yashikDock)}
+          className={cx(styles.yashik, styles.yashikDock)}
         >
           {yashik.kind === "tome" && (
             <Panel
@@ -584,22 +621,6 @@ export function Prototype() {
                 id={yashik.id}
                 withScience={yashik.id === "defence" && !scienceSeparate}
                 onSelectCountry={selectCountry}
-              />
-            </Panel>
-          )}
-
-          {yashik.kind === "ledger" && (
-            <Panel title="Реестр" onClose={() => setYashik({ kind: "none" })} density="control" className={styles.ledgerPanel}>
-              <LedgerBody
-                tab={ledgerTab}
-                onTab={setLedgerTab}
-                onSelectCountry={selectCountry}
-                onSelectRegion={(regionId) => {
-                  setPinned(false);
-                  setSelectedRegionId(regionId);
-                  setYashik({ kind: "region", id: regionId });
-                }}
-                events={events}
               />
             </Panel>
           )}
@@ -634,6 +655,41 @@ export function Prototype() {
               <RegionDetail region={REGIONS[yashik.id]} onSelectCountry={selectCountry} />
             </Panel>
           )}
+        </div>
+      )}
+
+      {/* ── РЕЕСТР: самостоятельное окно ─────────────────────── */}
+      {ledgerOpen && (
+        <div
+          ref={ledgerRef}
+          className={cx(styles.ledgerWindow, ledgerPos !== null && styles.ledgerMoved)}
+          style={ledgerPos === null ? undefined : { left: ledgerPos.x, top: ledgerPos.y }}
+        >
+          <Panel
+            title="Реестр"
+            meta="окно · тащить за шапку"
+            onClose={() => setLedgerOpen(false)}
+            density="control"
+            className={styles.ledgerPanel}
+            headerProps={{
+              className: styles.ledgerHeader,
+              onPointerDown: onLedgerDown,
+              onPointerMove: onLedgerMove,
+              onPointerUp: onLedgerUp,
+            }}
+          >
+            <LedgerBody
+              tab={ledgerTab}
+              onTab={setLedgerTab}
+              onSelectCountry={selectCountry}
+              onSelectRegion={(regionId) => {
+                setPinned(false);
+                setSelectedRegionId(regionId);
+                setYashik({ kind: "region", id: regionId });
+              }}
+              events={events}
+            />
+          </Panel>
         </div>
       )}
 
