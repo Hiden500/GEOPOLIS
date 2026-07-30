@@ -960,6 +960,19 @@ in ${LANGUAGE_NAMES[this.game.locale]}. This applies only to the prose you write
 country ids, region ids, and other identifiers elsewhere in this prompt are
 never translated, copy them verbatim.
 
+## Narrative Style
+Write the prose as a fragment of a historical chronicle of the period. Three
+things are forbidden, because each one breaks the fiction from inside:
+- quoting exact figures or sums taken from the data above — write "the largest
+  economy in the world", never "$118.69B". The engine owns numbers; the
+  chronicle owns meaning;
+- carrying technical identifiers into the prose — write the country's name
+  alone, never the name followed by its id in brackets. Ids belong in the
+  structured fields, where they are read by the engine;
+- mentioning the simulation, the campaign, the game, the turn, or "the data" —
+  inside this world none of them exist.
+Ground the narrative in the real events, people, and decisions of the period.
+
 ## Player Country
 ${this.getPlayerCountryInfo()}
 

@@ -93,6 +93,53 @@ export function parseGeminiUsage(payload: unknown): TokenUsage | undefined {
 }
 
 /**
+ * Тот же расход, но в OpenAI-совместимом формате (локальный рантайм, см.
+ * `LocalOpenAIProvider`).
+ *
+ * Отдельная функция, а не общий разбор с Gemini: имена полей различаются
+ * целиком (`prompt_tokens` против `promptTokenCount`), и попытка угадывать оба
+ * набора в одном месте дала бы разбор, который молча возвращает undefined при
+ * переименовании у любого из двух провайдеров.
+ *
+ * Размышление у reasoning-моделей лежит ВНУТРИ `completion_tokens`, в отличие
+ * от Gemini, где `thoughtsTokenCount` идёт отдельной статьёй сверх ответа.
+ * Поэтому `responseTokens` здесь уменьшается на размышление: иначе один и тот
+ * же ход считался бы по-разному в зависимости от провайдера, и перцентили в
+ * отчёте перестали бы быть сравнимыми.
+ */
+export function parseOpenAIUsage(payload: unknown): TokenUsage | undefined {
+  if (typeof payload !== "object" || payload === null) return undefined;
+  const meta = (payload as { usage?: unknown }).usage;
+  if (typeof meta !== "object" || meta === null) return undefined;
+
+  const raw = meta as Record<string, unknown>;
+  const num = (key: string): number | undefined =>
+    typeof raw[key] === "number" && Number.isFinite(raw[key]) ? (raw[key] as number) : undefined;
+
+  const promptTokens = num("prompt_tokens");
+  const totalTokens = num("total_tokens");
+  if (promptTokens === undefined || totalTokens === undefined) return undefined;
+
+  const completionTokens = num("completion_tokens") ?? 0;
+  const details = raw.completion_tokens_details;
+  const reasoning =
+    typeof details === "object" && details !== null &&
+    typeof (details as Record<string, unknown>).reasoning_tokens === "number"
+      ? ((details as Record<string, unknown>).reasoning_tokens as number)
+      : undefined;
+
+  const usage: TokenUsage = {
+    promptTokens,
+    // Math.max, а не вычитание в лоб: сервер, сообщивший размышление больше
+    // ответа, не должен давать отрицательный расход в журнале.
+    responseTokens: reasoning === undefined ? completionTokens : Math.max(0, completionTokens - reasoning),
+    totalTokens,
+  };
+  if (reasoning !== undefined) usage.thoughtTokens = reasoning;
+  return usage;
+}
+
+/**
  * Дописывает строку в журнал.
  *
  * Сбой записи проглатывается намеренно и возвращается как `false`: недоступный

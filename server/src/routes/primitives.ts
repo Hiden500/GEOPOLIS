@@ -7,7 +7,7 @@ import {
 import { ValidationError, GameError, LLMProviderError } from "../errors/AppError";
 import { getGame, setGame } from "../game/GameStore";
 import { effectiveController } from "@shared/utils/regionControl";
-import { GeminiProvider, toProviderSchema } from "../llm/providers/GeminiProvider";
+import { createLLMProvider } from "../llm/providers/createProvider";
 import { recordUsage } from "../llm/recordUsage";
 import {
   buildPrimitiveTranslationPrompt,
@@ -20,10 +20,9 @@ import { applyPrimitiveTurn } from "../primitives/turnBatch";
 import { chooseSuccessor } from "../primitives/campaign";
 
 const router = express.Router();
-const geminiProvider = new GeminiProvider(usage =>
+const translationProvider = createLLMProvider(usage =>
   recordUsage(usage, "intent-translation")
 );
-const TRANSLATION_RESPONSE_SCHEMA = toProviderSchema(primitiveTranslationSchema);
 
 /**
  * Путь игрока к примитивам (docs/PRIMITIVES.md §1, гибридный интерфейс).
@@ -75,7 +74,7 @@ router.post("/translate", async (req, res) => {
     }
 
     const prompt = buildPrimitiveTranslationPrompt(game, parsed.data.intent, selectedRegionId);
-    const raw = await geminiProvider.generateResponse(prompt, TRANSLATION_RESPONSE_SCHEMA);
+    const raw = await translationProvider.generateResponse(prompt, primitiveTranslationSchema);
     const translation = parsePrimitiveTranslation(raw, game.playerCountryId);
 
     if ("error" in translation) {

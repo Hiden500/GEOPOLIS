@@ -228,8 +228,14 @@ export class GeminiProvider implements LLMProvider {
 
   async generateResponse(
     prompt: string,
-    responseSchema: Record<string, unknown> = RESPONSE_SCHEMA
+    schema: z.ZodType = GeminiResponseSchema
   ): Promise<string> {
+    // Конвертация переехала сюда из вызывающего слоя вместе с появлением
+    // второго провайдера: диалект — свойство API, а не запроса (см.
+    // `LLMProvider`). Схема мирового цикла берётся из готовой константы, чтобы
+    // самый частый вызов не пересобирал её на каждый ход.
+    const responseSchema =
+      schema === GeminiResponseSchema ? RESPONSE_SCHEMA : toProviderSchema(schema);
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new LLMProviderError(
