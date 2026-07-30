@@ -194,6 +194,15 @@ export function Prototype() {
   const [turnCount, setTurnCount] = useState(0);
   /** C3: наука отдельным ТОМОМ или внутри ОБОРОНЫ — смотрим оба варианта. */
   const [scienceSeparate, setScienceSeparate] = useState(true);
+  /*
+   * Плавность S-сопряжения ШАПКИ. Вынесена в состояние и в МЕНЮ, чтобы её
+   * крутил пользователь и называл число, — подбирать такое на глаз перепиской
+   * дороже, чем дать ползунок.
+   */
+  const [slant, setSlant] = useState(() => {
+    const raw = Number(new URLSearchParams(window.location.search).get("slant"));
+    return Number.isFinite(raw) && raw > 0 ? raw : 28;
+  });
 
   const shellRef = useRef<HTMLDivElement>(null);
   const shapkaRef = useRef<HTMLDivElement>(null);
@@ -453,6 +462,8 @@ export function Prototype() {
           className={styles.shapka}
           tabOffset={0}
           tabRound
+          bandTint
+          bandSlant={slant}
           left={
             <div className={styles.flagCell}>
               <Tooltip label={`${COUNTRIES[PLAYER].short} — панель державы`}>
@@ -909,6 +920,18 @@ export function Prototype() {
                   Вместе с обороной
                 </Button>
               </div>
+
+              <p className={styles.empty}>Плавность сопряжения ШАПКИ: {slant} px</p>
+              <input
+                type="range"
+                min={8}
+                max={96}
+                step={2}
+                value={slant}
+                aria-label="Плавность сопряжения"
+                onChange={(event) => setSlant(Number(event.target.value))}
+                style={{ width: "100%", accentColor: "var(--accent)", marginBottom: "var(--space-4)" }}
+              />
 
               <p className={styles.empty}>Оформление — материал панелей, а не цвет.</p>
               <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", marginBottom: "var(--space-4)" }}>

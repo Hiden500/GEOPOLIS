@@ -32,6 +32,19 @@ export interface ShapedBarProps {
   tabOffset?: number;
   /** Полукруглый низ выступа вместо скругления по радиусу панели. */
   tabRound?: boolean;
+  /**
+   * Тонировать нижнюю полосу. Её левый край становится ЗЕРКАЛОМ правой
+   * ступеньки: S-кривая от нижней кромки вверх к границе полос, сразу за
+   * левой колонкой. Получается «слот», врезанный в панель между ФЛАГОМ и
+   * ступенькой, — граница читается формой, а не разделительной линией.
+   */
+  bandTint?: boolean;
+  /**
+   * Горизонтальный размах S-сопряжения, в пикселях. Это ЕДИНСТВЕННОЕ число,
+   * управляющее плавностью перехода: чем больше, тем положе кривая при той же
+   * высоте полосы. Крутит его пользователь — в МЕНЮ макета есть ползунок.
+   */
+  bandSlant?: number;
   className?: string;
 }
 
@@ -54,6 +67,8 @@ export function ShapedBar({
   tab,
   tabOffset = 16,
   tabRound = false,
+  bandTint = false,
+  bandSlant = 28,
   className,
 }: ShapedBarProps) {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -110,9 +125,25 @@ export function ShapedBar({
   const tr = tabRound ? tabH / 2 : r;
 
   const ready = w1 > 0 && h > 0;
-  // Ступенька рисуется только если сужение вмещает обе дуги; иначе правый
-  // край идёт ровно по узкой полосе — «почти ступенька» читалась бы как брак.
-  const stepped = bottom !== undefined && w1 - w2 >= 2 * n;
+  /*
+   * Сопряжение — ОДНА кубическая кривая во всю высоту нижней полосы, а не
+   * пара коротких дуг в углу. Пара дуг даёт перелом на стыке и читается как
+   * «уголок»; сплошная S идёт от кромки до кромки и потому плавная. Наклон у
+   * обоих концов полосы ОДИНАКОВЫЙ, а не зеркальный: верх правее низа с обеих
+   * сторон.
+   */
+  const slant = bandSlant;
+  /** Сверху вниз: из (x, yTop) в (x − slant, yBottom). */
+  const sDown = (x: number, yTop: number, yBottom: number) =>
+    `C ${x - slant / 2} ${yTop}, ${x - slant / 2} ${yBottom}, ${x - slant} ${yBottom}`;
+  /** Снизу вверх: из (x, yBottom) в (x + slant, yTop). Тот же наклон, не зеркало. */
+  const sUp = (x: number, yBottom: number, yTop: number) =>
+    `C ${x + slant / 2} ${yBottom}, ${x + slant / 2} ${yTop}, ${x + slant} ${yTop}`;
+
+  // Ступенька рисуется, только если сужение вмещает размах кривой; иначе
+  // правый край идёт ровно по узкой полосе — «почти ступенька» читалась бы
+  // как брак.
+  const stepped = bottom !== undefined && w1 - w2 >= slant;
   const rightW = stepped ? w1 : Math.min(w1, w2 > 0 ? w2 : w1);
 
   const parts: string[] = ["M 0 0"];
@@ -121,10 +152,8 @@ export function ShapedBar({
       `L ${w1} 0`,
       `L ${w1} ${h1 - r}`,
       `A ${r} ${r} 0 0 1 ${w1 - r} ${h1}`,
-      `L ${w2 + n} ${h1}`,
-      `A ${n} ${n} 0 0 0 ${w2} ${h1 + n}`,
-      `L ${w2} ${h - r}`,
-      `A ${r} ${r} 0 0 1 ${w2 - r} ${h}`,
+      `L ${w2 + slant} ${h1}`,
+      sDown(w2 + slant, h1, h),
     );
   } else {
     parts.push(`L ${rightW} 0`, `L ${rightW} ${h - r}`, `A ${r} ${r} 0 0 1 ${rightW - r} ${h}`);
@@ -156,6 +185,33 @@ export function ShapedBar({
   const path = parts.join(" ");
   const totalH = h + (tab !== undefined ? tabH : 0);
 
+  /*
+   * Тонированная полоса. Заливка и обводка — РАЗНЫЕ пути: справа и снизу
+   * граница полосы совпадает с контуром самой панели, и обводить её второй
+   * раз значило бы удвоить линию. Обводится только то, чего в контуре нет:
+   * верхняя кромка и левое S-сопряжение.
+   */
+  const L = box.leftW;
+  const bandReady = bandTint && stepped && ready && L > 0 && w2 - L > 2 * slant;
+
+  const bandFill = bandReady
+    ? [
+        `M ${L + slant} ${h1}`,
+        `L ${w2 + slant} ${h1}`,
+        sDown(w2 + slant, h1, h),
+        `L ${L} ${h}`,
+        sUp(L, h, h1),
+        "Z",
+      ].join(" ")
+    : "";
+
+  // Обводится только то, чего нет в контуре панели: верхняя кромка и левое
+  // сопряжение. Справа и снизу граница полосы совпадает с контуром, и вторая
+  // линия там дала бы удвоение.
+  const bandEdge = bandReady
+    ? [`M ${L} ${h}`, sUp(L, h, h1), `L ${w2 + slant} ${h1}`].join(" ")
+    : "";
+
   return (
     <div className={className} style={{ position: "relative", width: "max-content" }}>
       {ready && (
@@ -167,6 +223,12 @@ export function ShapedBar({
           aria-hidden="true"
         >
           <path d={path} className={styles.path} />
+          {bandReady && (
+            <>
+              <path d={bandFill} className={styles.band} />
+              <path d={bandEdge} className={styles.bandEdge} />
+            </>
+          )}
         </svg>
       )}
 
