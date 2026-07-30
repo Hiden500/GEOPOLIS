@@ -98,7 +98,7 @@ function EconomyTome() {
   );
 }
 
-function DefenceTome() {
+function DefenceTome({ withScience = false }: { withScience?: boolean }) {
   return (
     <>
       <Section title="Слоты, парк и количество">
@@ -128,6 +128,13 @@ function DefenceTome() {
           Носителей нет. Программа РДС даст первый заряд не раньше 1949 года.
         </p>
       </Section>
+
+      {/*
+       * Вариант «наука внутри обороны»: домены и проекты приезжают сюда, и
+       * причина (тир домена) оказывается в одном томе со следствием
+       * (разрыв парка). Переключается в МЕНЮ — смотрим оба.
+       */}
+      {withScience && <ScienceTome />}
     </>
   );
 }
@@ -298,16 +305,19 @@ function GoalsTome() {
 
 export function TomeBody({
   id,
+  withScience = false,
   onSelectCountry,
 }: {
   id: TomeId;
+  /** Наука не отдельным ТОМОМ, а разделами внутри ОБОРОНЫ. */
+  withScience?: boolean;
   onSelectCountry: (countryId: CountryId) => void;
 }) {
   switch (id) {
     case "economy":
       return <EconomyTome />;
     case "defence":
-      return <DefenceTome />;
+      return <DefenceTome withScience={withScience} />;
     case "science":
       return <ScienceTome />;
     case "politics":

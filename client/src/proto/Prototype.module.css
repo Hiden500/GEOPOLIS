@@ -1,10 +1,12 @@
 /*
- * Раскладка игрового экрана. Карта под всем и никогда не исчезает; всё
- * остальное — панели по краям, которые её обрамляют.
+ * Раскладка игрового экрана.
  *
- * Правая колонка собрана одним флекс-столбцом (ход → лента → режимы), а не
- * тремя абсолютными блоками: так они физически не могут наехать друг на
- * друга ни при какой высоте окна и ни при каком масштабе.
+ * Рама (ШАПКА и ХОД) ПРИКЛЕЕНА к краю экрана и не исчезает. Плавающие
+ * поверхности (ЯЩИК, ЛЕНТА, РЕЖИМЫ, ЛИСТ, ПОЛОСА) отступают от края —
+ * по этому отступу видно, что приклеено навсегда, а что появилось и уйдёт.
+ *
+ * ШАПКА и ХОД выровнены по общей высоте: они одного рода, и «почти
+ * одинаковая» высота читалась бы как небрежность.
  */
 
 .shell {
@@ -13,27 +15,42 @@
   height: 100%;
   overflow: hidden;
   background: var(--surface-sunken);
+
+  /*
+   * Ширина ХОДА фиксирована и подобрана под самую длинную надпись КНОПКИ
+   * («Режиссёр думает…»). Ширина по содержимому заставляла бы главную
+   * кнопку экрана менять размер каждый ход и уезжать из-под курсора.
+   */
+  --turn-w: 13.5rem;
 }
 
-/* ── Верхняя панель ───────────────────────────────────────────── */
+/* ── ШАПКА ────────────────────────────────────────────────────── */
 
-.topLeft {
+.shapka {
   position: absolute;
   top: 0;
   left: 0;
   z-index: var(--z-frame);
 }
 
-.topInner {
+.shapkaInner {
+  min-height: var(--frame-h, 6rem);
   display: grid;
   grid-template-columns: auto auto;
+  align-items: stretch;
 }
 
+/*
+ * Колонка ФЛАГА фиксированной ширины — под самый широкий случай (1:2,
+ * Британия). Пропорции флага сохраняются, а ШАПКА не меняет ширину при
+ * смене державы. Цена — воздух вокруг квадратных флагов.
+ */
 .flagCell {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: var(--space-2) var(--space-4) 0;
+  justify-content: center;
+  width: 7.5rem;
+  padding: var(--space-2) var(--space-3);
 }
 
 .flagButton {
@@ -41,12 +58,14 @@
   border: none;
   background: none;
   border-radius: 3px;
+  line-height: 0;
 }
 
 .flag {
   display: block;
-  width: 4.5rem;
   height: 3rem;
+  width: auto;
+  max-width: 6rem;
   border-radius: 3px;
   /* Контур обязателен: без него белые и светлые флаги растворяются в фоне. */
   box-shadow: 0 0 0 1px var(--divider);
@@ -75,7 +94,7 @@
   color: var(--text);
 }
 
-.statsCell {
+.shapkaRows {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -83,13 +102,30 @@
   padding: var(--space-2) var(--space-4) var(--space-2) 0;
 }
 
-.stats {
+/*
+ * ПРИБОРЫ разделены на смысловые группы: деньги · сила · прочность.
+ * Подписей у ПОКАЗАТЕЛЕЙ нет, поэтому позиция в группе — второй носитель
+ * смысла помимо рисунка иконки.
+ */
+.pribory {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
-.books {
+.priboryGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.priborySplit {
+  align-self: stretch;
+  width: var(--edge-width);
+  background: var(--divider);
+}
+
+.koreshki {
   display: flex;
   align-items: center;
   gap: var(--space-1);
@@ -97,43 +133,33 @@
   border-top: var(--edge-width) solid var(--divider);
 }
 
-/* ── Правая колонка ───────────────────────────────────────────── */
-
-.rightColumn {
-  position: absolute;
-  top: var(--frame-gap);
-  right: var(--frame-gap);
-  bottom: var(--frame-gap);
-  z-index: var(--z-surface);
-  width: var(--feed-col);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-height: 0;
+.koreshkiSplit {
+  width: var(--space-2);
 }
 
-.resizer {
+/* ── ХОД ──────────────────────────────────────────────────────── */
+
+.hod {
   position: absolute;
   top: 0;
-  bottom: 0;
-  left: calc(var(--space-2) * -1);
-  width: var(--space-2);
-  cursor: ew-resize;
-  border-radius: var(--radius-pill);
-  background: transparent;
-  border: none;
-  transition: background var(--dur-fast) var(--ease);
-}
-
-.resizer:hover,
-.resizer:focus-visible {
-  background: var(--edge-strong);
-}
-
-.turnMeta {
+  right: 0;
+  z-index: var(--z-frame);
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  width: var(--turn-w);
+  min-height: var(--frame-h, 6rem);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border-left: var(--edge-width) solid var(--edge);
+  border-bottom: var(--edge-width) solid var(--edge);
+  border-bottom-left-radius: var(--radius-panel);
+}
+
+.hodTop {
+  display: flex;
+  align-items: center;
   gap: var(--space-2);
 }
 
@@ -141,105 +167,176 @@
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
   color: var(--text);
+  white-space: nowrap;
 }
 
-.modelState {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--text-faint);
-}
-
-.modelDot {
-  width: 7px;
-  height: 7px;
+.rezhisser {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
   border-radius: 50%;
   background: var(--rise);
 }
 
-.modelDotBusy {
+.rezhisserBusy {
   background: var(--near);
 }
 
-.turnButton {
-  width: 100%;
-  margin-top: var(--space-2);
-}
-
-.tools {
+.instruments {
   display: flex;
   gap: var(--space-1);
-  margin-top: var(--space-2);
+  margin-left: auto;
 }
 
-.feed {
+.knopka {
+  width: 100%;
+}
+
+/* ── Правая сторона под ХОДОМ: ЛЕНТА и РЕЖИМЫ ─────────────────── */
+
+.rightStack {
+  position: absolute;
+  top: calc(var(--frame-h, 6rem) + var(--frame-gap));
+  right: var(--frame-gap);
+  bottom: var(--frame-gap);
+  z-index: var(--z-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  min-height: 0;
+  /* Столбец не ловит клики сам — только его панели. */
+  pointer-events: none;
+}
+
+.rightStack > * {
+  pointer-events: auto;
+}
+
+/*
+ * ЛЕНТА — единственное, что тянется. Остальные панели правой стороны
+ * своего размера: у КНОПКИ и у иконок РЕЖИМОВ есть естественная ширина,
+ * и наследовать её от ленты незачем.
+ */
+.lenta {
+  position: relative;
+  display: flex;
   flex: 1 1 auto;
   min-height: 0;
+  width: var(--feed-col, var(--feed-width));
 }
 
-.feedBody {
+.lentaPanel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.lentaCollapsed {
+  flex: 0 0 auto;
+}
+
+.lentaBody {
   padding: 0 var(--space-3);
 }
 
-.modeList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
+.resizerLeft {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--space-2) * -1);
+  width: var(--space-2);
+  cursor: ew-resize;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  transition: background var(--dur-fast) var(--ease);
 }
 
-/* ── Кризис ───────────────────────────────────────────────────── */
-
-.crisis {
-  margin: var(--space-3) var(--space-3) 0;
-  padding: var(--space-3);
-  border: var(--edge-width) solid var(--over);
-  border-radius: var(--radius-inner);
-  background: var(--over-tint);
+.resizerLeft:hover,
+.resizerLeft:focus-visible {
+  background: var(--edge-strong);
 }
 
-.crisisTitle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-md);
-  font-weight: var(--weight-bold);
-  color: var(--text);
+/* ── РЕЖИМЫ ───────────────────────────────────────────────────── */
+
+/*
+ * РЕЖИМЫ прижаты к низу столбца. Без этого при свёрнутой ЛЕНТЕ они
+ * поднимались к верху экрана: панель, которая переезжает через полэкрана от
+ * сворачивания соседа, — это потерянная привычка «режимы всегда в углу».
+ */
+.rezhimy {
+  flex: 0 0 auto;
+  margin-top: auto;
 }
 
-.crisisBody {
-  margin: var(--space-2) 0 var(--space-3);
-  font-family: var(--font-narrative);
-  font-size: var(--text-md);
-  line-height: var(--leading-prose);
-  color: var(--text-dim);
+/* ЛЕГЕНДА держится вплотную над РЕЖИМАМИ, а не отрывается к верху. */
+.legenda + .rezhimy {
+  margin-top: 0;
 }
 
-.crisisOptions {
+.rezhimyGrid {
   display: grid;
+  grid-template-columns: repeat(4, auto);
   gap: var(--space-1);
 }
 
-/* ── Выдвижные поверхности слева ──────────────────────────────── */
+.legenda {
+  flex: 0 0 auto;
+  margin-top: auto;
+  width: max-content;
+  max-width: var(--feed-col, var(--feed-width));
+}
 
-.surface {
+.legendaRamp {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  margin: var(--space-1) 0;
+}
+
+.legendaEnds {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+/* ── ЯЩИК ─────────────────────────────────────────────────────── */
+
+.yashik {
   position: absolute;
   left: var(--frame-gap);
-  top: calc(var(--top-h, 13rem) + var(--frame-gap));
+  top: calc(var(--frame-h, 6rem) + var(--frame-gap));
   bottom: calc(var(--bottom-h, 8rem) + var(--frame-gap) * 2);
   z-index: var(--z-surface);
   display: flex;
   animation: slideIn var(--dur) var(--ease);
 }
 
-.drawer {
-  width: clamp(var(--surface-min), 34vw, var(--surface-max));
-  max-width: calc(100vw - var(--feed-col) - var(--frame-gap) * 3);
+.yashikPanel {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.ledgerSurface {
-  width: var(--ledger-width);
-  max-width: calc(100vw - var(--feed-col) - var(--frame-gap) * 3);
+/*
+ * Ширина ЯЩИКА тянется, но с потолком: он не имеет права дойти до ЛЕНТЫ,
+ * иначе карта исчезает совсем, а она главный экран.
+ */
+.resizerRight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: calc(var(--space-2) * -1);
+  width: var(--space-2);
+  cursor: ew-resize;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.resizerRight:hover,
+.resizerRight:focus-visible {
+  background: var(--edge-strong);
 }
 
 @keyframes slideIn {
@@ -253,18 +350,17 @@
   }
 }
 
-/* ── Нижняя стопка ────────────────────────────────────────────── */
+/* ── Низ: ПОЛОСА и ЛИСТ ───────────────────────────────────────── */
 
 /*
- * Приказы и полоса региона стоят ПО ЦЕНТРУ свободной части экрана — то
- * есть по центру между левым краем и лентой. Центрировать по всему окну
- * нельзя: на узком экране блок уехал бы под ленту.
+ * По центру СВОБОДНОЙ части экрана — между левым краем и ЛЕНТОЙ.
+ * Центрирование по всему окну уводило бы блок под ленту.
  */
 .bottom {
   position: absolute;
   bottom: var(--frame-gap);
   left: 0;
-  right: calc(var(--feed-col) + var(--frame-gap) * 2);
+  right: calc(var(--feed-col, var(--feed-width)) + var(--frame-gap) * 2);
   z-index: var(--z-surface);
   display: flex;
   justify-content: center;
@@ -279,7 +375,7 @@
   pointer-events: auto;
 }
 
-.regionStrip {
+.polosa {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -289,14 +385,14 @@
   border-radius: var(--radius-panel);
 }
 
-.regionName {
+.polosaName {
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
   color: var(--text);
   white-space: nowrap;
 }
 
-.regionFacts {
+.polosaFacts {
   display: flex;
   align-items: baseline;
   gap: var(--space-3);
@@ -304,7 +400,7 @@
   overflow: hidden;
 }
 
-.regionFact {
+.fact {
   font-size: var(--text-sm);
   color: var(--text-dim);
   white-space: nowrap;
@@ -324,11 +420,7 @@
   overflow-y: auto;
 }
 
-.dragging {
-  opacity: 0.4;
-}
-
-.input {
+.vvod {
   display: flex;
   gap: var(--space-2);
   align-items: center;
@@ -355,13 +447,7 @@
   outline: none;
 }
 
-.empty {
-  padding: var(--space-2) 0 var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--text-faint);
-}
-
-/* ── Модальное: только необратимое ────────────────────────────── */
+/* ── ПОДТВЕРЖДЕНИЕ — единственное модальное ───────────────────── */
 
 .scrim {
   position: absolute;
@@ -390,7 +476,7 @@
   margin-top: var(--space-4);
 }
 
-/* ── Поиск ────────────────────────────────────────────────────── */
+/* ── ПОИСК ────────────────────────────────────────────────────── */
 
 .searchWrap {
   position: absolute;
@@ -438,3 +524,10 @@
   font-size: var(--text-xs);
   color: var(--text-faint);
 }
+
+.empty {
+  padding: var(--space-1) 0 var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+}
+

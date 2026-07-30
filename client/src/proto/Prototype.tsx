@@ -2,17 +2,39 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import {
   Button,
   EventItem,
-  IconArrowRight,
+  IconArmies,
+  IconBalance,
+  IconBlocs,
+  IconChevronDown,
+  IconChevronUp,
   IconClose,
+  IconDebt,
+  IconDefence,
+  IconDiplomacy,
+  IconEconomy,
+  IconFlagMode,
+  IconGoals,
+  IconLedger,
+  IconLegitimacy,
   IconLock,
+  IconMenu,
+  IconOutput,
+  IconPeople,
+  IconPolitics,
+  IconResources,
+  IconSave,
+  IconScience,
   IconSearch,
-  IconWarning,
+  IconStability,
+  IconTerrain,
+  IconUnrest,
   OrderCard,
   Panel,
-  ResourceBar,
   ShapedBar,
   Stat,
   cx,
+  type DeltaTone,
+  type ThresholdState,
 } from "../ui";
 import { HexMap } from "./HexMap";
 import { CountryDetail, LedgerBody, RegionDetail, TomeBody } from "./panels";
@@ -20,12 +42,9 @@ import {
   COUNTRIES,
   INITIAL_EVENTS,
   IRREVERSIBLE_WORDS,
-  MAP_MODES,
   MONTHS,
   MONTHS_NOMINATIVE,
   REGIONS,
-  RESOURCES,
-  TOMES,
   type CountryId,
   type LedgerTabId,
   type MapModeId,
@@ -35,16 +54,14 @@ import {
 import styles from "./Prototype.module.css";
 
 /**
- * Кликабельный макет интерфейса. Настоящей карты и сервера здесь нет,
- * данные шаблонные — проверяется ПОВЕДЕНИЕ: что откуда выдвигается, что
- * чем закрывается, что куда ведёт, как выглядит ход и кризис.
+ * Кликабельный макет интерфейса. Настоящей карты и сервера нет, данные
+ * шаблонные — проверяется ПОВЕДЕНИЕ рамы и поверхностей.
  *
- * Правило одной тяжёлой поверхности выполняется состоянием, а не
- * дисциплиной: `surface` — одно значение, поэтому два тома открытыми быть
- * не могут физически.
+ * Правило одной тяжёлой поверхности выполняется СОСТОЯНИЕМ: `yashik` —
+ * одно значение, поэтому два тома открытыми быть не могут физически.
  */
 
-type Surface =
+type Yashik =
   | { kind: "none" }
   | { kind: "tome"; id: TomeId }
   | { kind: "ledger" }
@@ -56,111 +73,190 @@ interface Order {
   text: string;
 }
 
-interface Crisis {
-  id: string;
-  title: string;
-  body: string;
-  regionId: string;
-  options: string[];
+const PLAYER: CountryId = "SUN";
+
+/*
+ * ПРИБОРЫ сгруппированы по смыслу: деньги · сила · прочность. Подписей у
+ * ПОКАЗАТЕЛЕЙ нет, поэтому позиция в группе работает вторым носителем
+ * смысла помимо рисунка иконки — иначе «71» и «83» под похожими значками
+ * неотличимы.
+ */
+interface Pribor {
+  key: string;
+  /** Подпись не видна, но её читает скринридер и показывает подсказка. */
+  label: string;
+  value: string;
+  delta: { text: string; tone: DeltaTone };
+  threshold?: ThresholdState;
+  icon: React.ReactNode;
+  /** Куда ведёт нажатие. У производных показателей тома может не быть. */
+  tome?: TomeId;
 }
 
-const PLAYER: CountryId = "SUN";
+const PRIBORY_GROUPS: Pribor[][] = [
+  [
+    { key: "gdp", label: "ВВП", value: "1,46T", delta: { text: "+3,2%", tone: "good" as const }, icon: <IconOutput />, tome: "economy" as TomeId },
+    { key: "balance", label: "Баланс", value: "+12,4B", delta: { text: "+1,8B", tone: "good" as const }, icon: <IconBalance />, tome: "economy" as TomeId },
+    { key: "debt", label: "Долг к ВВП", value: "0,94", delta: { text: "+0,03", tone: "bad" as const }, threshold: "near" as const, icon: <IconDebt />, tome: "economy" as TomeId },
+  ],
+  [
+    { key: "pop", label: "Население", value: "170,5M", delta: { text: "+0,6M", tone: "good" as const }, icon: <IconPeople />, tome: undefined },
+  ],
+  [
+    { key: "stab", label: "Стабильность", value: "71", delta: { text: "−1", tone: "bad" as const }, icon: <IconStability />, tome: "politics" as TomeId },
+    { key: "legit", label: "Легитимность", value: "83", delta: { text: "+2", tone: "good" as const }, icon: <IconLegitimacy />, tome: "politics" as TomeId },
+  ],
+];
+
+const TOME_ICONS: Record<TomeId, React.ReactNode> = {
+  economy: <IconEconomy />,
+  politics: <IconPolitics />,
+  defence: <IconDefence />,
+  science: <IconScience />,
+  diplomacy: <IconDiplomacy />,
+  goals: <IconGoals />,
+};
+
+const TOME_NAMES: Record<TomeId, string> = {
+  economy: "Экономика",
+  politics: "Политика",
+  defence: "Оборона",
+  science: "Наука",
+  diplomacy: "Дипломатия",
+  goals: "Цели",
+};
+
+const MODES: Array<{ id: MapModeId; name: string; icon: React.ReactNode }> = [
+  { id: "powers", name: "Державы", icon: <IconFlagMode /> },
+  { id: "blocs", name: "Блоки", icon: <IconBlocs /> },
+  { id: "population", name: "Население", icon: <IconPeople /> },
+  { id: "discontent", name: "Недовольство", icon: <IconUnrest /> },
+  { id: "industry", name: "Промышленность", icon: <IconEconomy /> },
+  { id: "resources", name: "Ресурсы", icon: <IconResources /> },
+  { id: "armies", name: "Армии", icon: <IconArmies /> },
+  { id: "terrain", name: "Рельеф", icon: <IconTerrain /> },
+];
+
+/** ЛЕГЕНДА есть только у режимов, где цвет означает величину. */
+const LEGENDS: Partial<Record<MapModeId, { from: string; to: string; ramp: string }>> = {
+  discontent: { from: "спокойно", to: "на грани", ramp: "linear-gradient(90deg, rgb(46,62,58), rgb(214,84,62))" },
+  industry: { from: "слабая", to: "сильная", ramp: "linear-gradient(90deg, rgb(40,48,58), rgb(92,176,214))" },
+  population: { from: "мало", to: "много", ramp: "linear-gradient(90deg, rgb(44,50,44), rgb(148,190,120))" },
+};
 
 function FlagSU() {
   return (
-    <svg viewBox="0 0 84 56" width="100%" height="100%" role="img" aria-label="Флаг СССР">
-      <rect width="84" height="56" fill="#c1272d" />
+    <svg viewBox="0 0 90 60" width="90" height="60" role="img" aria-label="Флаг СССР">
+      <rect width="90" height="60" fill="#c1272d" />
       <g fill="#f0c14b">
-        <path d="M17 12l1.6 4.6H23l-3.6 2.8 1.4 4.5-3.8-2.8-3.8 2.8 1.4-4.5-3.6-2.8h4.4z" />
-        <path d="M15.5 27.5c3.6 0 6.4 2.6 6.4 6 0 2.4-1.3 4.2-3.2 5.2l-1.1-1.9c1.3-.7 2.1-1.8 2.1-3.3 0-2.2-1.8-3.9-4.2-3.9v-2.1z" />
-        <path d="M20.6 29.6l2 2-9.4 9.4-2-2z" />
-        <path d="M12.4 37.2h6.2v2.2h-6.2z" transform="rotate(-45 15.5 38.3)" />
+        <path d="M18 13l1.7 4.9h5.1l-4.1 3 1.6 4.9-4.3-3-4.3 3 1.6-4.9-4.1-3h5.1z" />
+        <path d="M16.5 29.5c3.9 0 6.9 2.8 6.9 6.4 0 2.6-1.4 4.5-3.4 5.6l-1.2-2c1.4-.8 2.3-2 2.3-3.6 0-2.4-2-4.2-4.6-4.2v-2.2z" />
+        <path d="M22 31.7l2.2 2.2-10.1 10.1-2.2-2.2z" />
+        <path d="M13.2 40h6.7v2.4h-6.7z" transform="rotate(-45 16.5 41.2)" />
       </g>
     </svg>
   );
 }
 
 export function Prototype() {
-  const params = new URLSearchParams(window.location.search);
-
-  useEffect(() => {
-    const palette = params.get("palette");
-    const scale = params.get("scale");
-    if (palette !== null) document.documentElement.dataset.palette = palette;
-    if (scale !== null) document.documentElement.style.setProperty("--ui-scale", scale);
-    // params читается один раз при монтировании: адрес макета не меняется на лету.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const [monthIndex, setMonthIndex] = useState(2); // март
+  const [monthIndex, setMonthIndex] = useState(2);
   const year = 1946;
   const [events, setEvents] = useState<ProtoEvent[]>(INITIAL_EVENTS);
   const [orders, setOrders] = useState<Order[]>([]);
   const [draft, setDraft] = useState("");
-  const [surface, setSurface] = useState<Surface>({ kind: "none" });
+  const [yashik, setYashik] = useState<Yashik>({ kind: "none" });
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   const [selectedCountryId, setSelectedCountryId] = useState<CountryId | null>(null);
   const [pinned, setPinned] = useState(false);
   const [ledgerTab, setLedgerTab] = useState<LedgerTabId>("powers");
   const [compareId, setCompareId] = useState<CountryId | null>(null);
   const [mapMode, setMapMode] = useState<MapModeId>("powers");
-  const [crisis, setCrisis] = useState<Crisis | null>(null);
+  const [legendOpen, setLegendOpen] = useState(false);
+  const [lentaOpen, setLentaOpen] = useState(true);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [thinking, setThinking] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [feedWidth, setFeedWidth] = useState<number | null>(null);
+  const [yashikWidth, setYashikWidth] = useState<number | null>(null);
   const [turnCount, setTurnCount] = useState(0);
+  /** C3: наука отдельным ТОМОМ или внутри ОБОРОНЫ — смотрим оба варианта. */
+  const [scienceSeparate, setScienceSeparate] = useState(true);
 
-  const topRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const columnRef = useRef<HTMLDivElement>(null);
   const shellRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
+  const shapkaRef = useRef<HTMLDivElement>(null);
+  const hodRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const lentaRef = useRef<HTMLDivElement>(null);
+  const yashikRef = useRef<HTMLDivElement>(null);
+  const dragTarget = useRef<"lenta" | "yashik" | null>(null);
   const dragOrder = useRef<number | null>(null);
-  /*
-   * Счётчики id живут в ref, а не в модульной переменной: модульная
-   * переживает размонтирование и общая для всех экземпляров, а её правка
-   * во время рендера — побочный эффект (react-hooks/globals это и ловит).
-   */
   const seq = useRef(0);
   const nextId = (prefix: string) => {
     seq.current += 1;
     return `${prefix}${seq.current}`;
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const palette = params.get("palette");
+    const scale = params.get("scale");
+    if (palette !== null) document.documentElement.dataset.palette = palette;
+    if (scale !== null) document.documentElement.style.setProperty("--ui-scale", scale);
+  }, []);
+
   /*
-   * Высоты рамы измеряются, а не забиваются числом: они зависят от
-   * масштаба, локали и числа показателей. Выдвижная поверхность встаёт
-   * между ними и потому обязана знать обе.
+   * Высота рамы. ШАПКА и ХОД выровнены по ОБЩЕЙ высоте, и это делается
+   * замером обеих с выбором максимума, а не min-height от одной к другой:
+   * `min-height` умеет только растить, поэтому более высокая панель всё
+   * равно оставалась бы выше — те самые «94 против 97», которые читаются
+   * как небрежность.
+   *
+   * Цикла нет: после применения обе сообщают максимум, и максимум остаётся
+   * тем же.
+   *
+   * Забить числом нельзя вовсе — высота зависит от масштаба, локали и
+   * содержимого.
    */
   useLayoutEffect(() => {
     const shell = shellRef.current;
     if (shell === null) return;
     const apply = () => {
-      if (topRef.current !== null) {
-        shell.style.setProperty("--top-h", `${topRef.current.offsetHeight}px`);
-      }
+      const shapka = shapkaRef.current?.offsetHeight ?? 0;
+      const hod = hodRef.current?.offsetHeight ?? 0;
+      const frame = Math.max(shapka, hod);
+      if (frame > 0) shell.style.setProperty("--frame-h", `${frame}px`);
       if (bottomRef.current !== null) {
         shell.style.setProperty("--bottom-h", `${bottomRef.current.offsetHeight}px`);
       }
     };
     apply();
     const observer = new ResizeObserver(apply);
-    if (topRef.current !== null) observer.observe(topRef.current);
+    if (shapkaRef.current !== null) observer.observe(shapkaRef.current);
+    if (hodRef.current !== null) observer.observe(hodRef.current);
     if (bottomRef.current !== null) observer.observe(bottomRef.current);
-    return () => observer.disconnect();
+    window.addEventListener("resize", apply);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", apply);
+    };
   });
 
   const monthLabel = `${MONTHS_NOMINATIVE[monthIndex]} ${year}`;
+
+  const tomes: TomeId[] = scienceSeparate
+    ? ["economy", "politics", "defence", "science", "diplomacy", "goals"]
+    : ["economy", "politics", "defence", "diplomacy", "goals"];
 
   /* ── Esc снимает верхний слой по одному ─────────────────────── */
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       if (confirming !== null) return setConfirming(null);
+      if (menuOpen) return setMenuOpen(false);
       if (searchOpen) return setSearchOpen(false);
-      if (surface.kind !== "none") return setSurface({ kind: "none" });
+      if (yashik.kind !== "none") return setYashik({ kind: "none" });
       if (selectedRegionId !== null || selectedCountryId !== null) {
         setSelectedRegionId(null);
         setSelectedCountryId(null);
@@ -169,27 +265,45 @@ export function Prototype() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [confirming, searchOpen, surface, selectedRegionId, selectedCountryId]);
+  }, [confirming, menuOpen, searchOpen, yashik, selectedRegionId, selectedCountryId]);
 
-  /* ── Ширина ленты ───────────────────────────────────────────── */
-  const onResizeDown = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
-    dragging.current = true;
+  /* ── Ручки ширины ───────────────────────────────────────────── */
+  const rootSize = () => parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+  /*
+   * Цель перетаскивания читается из data-атрибута кнопки, а не замыкается
+   * в фабрике обработчиков: обработчик, созданный на рендере, трогал бы ref
+   * во время рендера — это то, что запрещает react-hooks/refs.
+   */
+  const onDragStart = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
+    const target = event.currentTarget.dataset.target;
+    dragTarget.current = target === "yashik" ? "yashik" : "lenta";
     event.currentTarget.setPointerCapture(event.pointerId);
   }, []);
 
-  const onResizeMove = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
-    if (!dragging.current || columnRef.current === null) return;
-    const right = columnRef.current.getBoundingClientRect().right;
-    const rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-    setFeedWidth(Math.max(17 * rootSize, Math.min(right - event.clientX, window.innerWidth * 0.5)));
+  const onDragMove = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
+    if (dragTarget.current === null) return;
+    const unit = rootSize();
+    if (dragTarget.current === "lenta" && lentaRef.current !== null) {
+      const right = lentaRef.current.getBoundingClientRect().right;
+      setFeedWidth(Math.max(17 * unit, Math.min(right - event.clientX, window.innerWidth * 0.45)));
+      return;
+    }
+    if (dragTarget.current === "yashik" && yashikRef.current !== null) {
+      const left = yashikRef.current.getBoundingClientRect().left;
+      const feed = lentaRef.current?.getBoundingClientRect().width ?? 0;
+      // Потолок: ЯЩИК не имеет права дойти до ЛЕНТЫ — карта не должна исчезать.
+      const cap = window.innerWidth - feed - 4 * unit;
+      setYashikWidth(Math.max(24 * unit, Math.min(event.clientX - left, cap)));
+    }
   }, []);
 
-  const onResizeUp = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
-    dragging.current = false;
+  const onDragEnd = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
+    dragTarget.current = null;
     event.currentTarget.releasePointerCapture(event.pointerId);
   }, []);
 
-  /* ── Выделение на карте ─────────────────────────────────────── */
+  /* ── Выделение ──────────────────────────────────────────────── */
   const selectRegion = (regionId: string) => {
     if (pinned) return;
     setSelectedRegionId(regionId);
@@ -199,7 +313,17 @@ export function Prototype() {
   const selectCountry = (countryId: CountryId) => {
     setSelectedCountryId(countryId);
     setCompareId(null);
-    setSurface({ kind: "country", id: countryId });
+    setYashik({ kind: "country", id: countryId });
+  };
+
+  const openTag = (id: string) => {
+    if (id in COUNTRIES) selectCountry(id as CountryId);
+    else if (id in REGIONS) {
+      setPinned(false);
+      setSelectedRegionId(id);
+      setSelectedCountryId(null);
+      setYashik({ kind: "region", id });
+    }
   };
 
   /* ── Приказы ────────────────────────────────────────────────── */
@@ -220,14 +344,10 @@ export function Prototype() {
   };
 
   const irreversible = useMemo(
-    () =>
-      orders.find((order) =>
-        IRREVERSIBLE_WORDS.some((word) => order.text.toLowerCase().includes(word)),
-      ),
+    () => orders.find((order) => IRREVERSIBLE_WORDS.some((word) => order.text.toLowerCase().includes(word))),
     [orders],
   );
 
-  /* ── Ход ────────────────────────────────────────────────────── */
   const advance = () => {
     setThinking(true);
     setConfirming(null);
@@ -235,8 +355,8 @@ export function Prototype() {
       const nextMonth = (monthIndex + 1) % 12;
       const day = 4 + ((turnCount * 7) % 20);
       const produced: ProtoEvent[] = orders.map((order, index) => {
-        // Каждый третий приказ прототип отклоняет — иначе не увидеть, как
-        // выглядит отказ, а он тут такая же часть правды, как исполнение.
+        // Каждый третий приказ отклоняется — иначе не увидеть, как выглядит
+        // отказ, а он такая же часть правды, как исполнение.
         const rejected = index > 0 && index % 3 === 2;
         return {
           id: nextId("e"),
@@ -250,14 +370,14 @@ export function Prototype() {
         };
       });
 
+      const worldIndex = turnCount % 4;
+      const worldCountry = (["GBR", "TUR", "FRA", "USA"] as CountryId[])[worldIndex];
       const worldEvent: ProtoEvent = {
         id: nextId("e"),
         date: `${day + 12} ${MONTHS[nextMonth]}`,
-        title: ["Нота из Лондона", "Переговоры в Анкаре", "Забастовки в Лионе", "Испытания в Неваде"][
-          turnCount % 4
-        ],
+        title: ["Нота из Лондона", "Переговоры в Анкаре", "Забастовки в Лионе", "Испытания в Неваде"][worldIndex],
         body: "Мир продолжает двигаться сам: державы преследуют свои цели, не спрашивая вашего согласия.",
-        tags: [{ id: (["GBR", "TUR", "FRA", "USA"] as CountryId[])[turnCount % 4], label: COUNTRIES[(["GBR", "TUR", "FRA", "USA"] as CountryId[])[turnCount % 4]].short, kind: "country" }],
+        tags: [{ id: worldCountry, label: COUNTRIES[worldCountry].short, kind: "country" }],
       };
 
       setEvents([...produced, worldEvent]);
@@ -265,47 +385,15 @@ export function Prototype() {
       setMonthIndex(nextMonth);
       setTurnCount((prev) => prev + 1);
       setThinking(false);
-
-      // Каждый второй ход мир поднимает кризис — чтобы состояние «требуется
-      // решение» можно было увидеть, а не поверить на слово.
-      if (turnCount % 2 === 1) {
-        setCrisis({
-          id: `c${turnCount}`,
-          title: "Волнения в Эстонии",
-          body: "Забастовка на сланцевых рудниках переросла в уличные шествия. Местный совет просит указаний, гарнизон ждёт приказа.",
-          regionId: "r25",
-          options: ["Подавить", "Дать автономию", "Ничего не делать"],
-        });
-      }
     }, 650);
   };
 
   const onTurn = () => {
-    if (crisis !== null) return;
     if (irreversible !== undefined) {
       setConfirming(irreversible.text);
       return;
     }
     advance();
-  };
-
-  const resolveCrisis = (option: string) => {
-    if (crisis === null) return;
-    setEvents((prev) => [
-      {
-        id: nextId("e"),
-        date: `${20} ${MONTHS[monthIndex]}`,
-        title: `Кризис в Эстонии: ${option.toLowerCase()}`,
-        body:
-          option === "Ничего не делать"
-            ? "Указаний не поступило. Давление никуда не делось и вернётся сильнее."
-            : "Решение принято и исполнено. Последствия отразятся в состоянии региона.",
-        order: option,
-        tags: [{ id: crisis.regionId, label: REGIONS[crisis.regionId].name, kind: "region" }],
-      },
-      ...prev,
-    ]);
-    setCrisis(null);
   };
 
   /* ── Поиск ──────────────────────────────────────────────────── */
@@ -314,37 +402,22 @@ export function Prototype() {
     if (q === "") return [];
     const countries = Object.values(COUNTRIES)
       .filter((country) => country.short.toLowerCase().includes(q))
-      .map((country) => ({ id: country.id, label: country.short, kind: "держава" as const }));
+      .map((country) => ({ id: country.id as string, label: country.short, kind: "держава" }));
     const regions = Object.values(REGIONS)
       .filter((region) => region.name.toLowerCase().includes(q))
-      .map((region) => ({ id: region.id, label: region.name, kind: "регион" as const }));
+      .map((region) => ({ id: region.id, label: region.name, kind: "регион" }));
     return [...countries, ...regions].slice(0, 12);
   }, [query]);
 
-  const openTag = (id: string) => {
-    if (id in COUNTRIES) selectCountry(id as CountryId);
-    else if (id in REGIONS) {
-      setPinned(false);
-      setSelectedRegionId(id);
-      setSelectedCountryId(null);
-      setSurface({ kind: "region", id });
-    }
+  const selectedRegion = selectedRegionId === null ? null : REGIONS[selectedRegionId];
+  const legend = LEGENDS[mapMode];
+
+  const shellStyle: React.CSSProperties = {
+    ["--feed-col" as string]: feedWidth === null ? "var(--feed-width)" : `${feedWidth}px`,
   };
 
-  const turnLabel = thinking
-    ? "Режиссёр думает…"
-    : crisis !== null
-      ? "Требуется решение"
-      : `Продолжить · ${orders.length}`;
-
-  const selectedRegion = selectedRegionId === null ? null : REGIONS[selectedRegionId];
-
   return (
-    <div
-      ref={shellRef}
-      className={styles.shell}
-      style={feedWidth === null ? { ["--feed-col" as string]: "var(--feed-width)" } : { ["--feed-col" as string]: `${feedWidth}px` }}
-    >
+    <div ref={shellRef} className={styles.shell} style={shellStyle}>
       <HexMap
         mode={mapMode}
         selectedRegionId={selectedRegionId}
@@ -353,11 +426,11 @@ export function Prototype() {
         onSelectCountry={selectCountry}
       />
 
-      {/* ── Верхняя панель ───────────────────────────────────── */}
-      <div ref={topRef}>
+      {/* ── ШАПКА ────────────────────────────────────────────── */}
+      <div ref={shapkaRef}>
         <ShapedBar
-          className={styles.topLeft}
-          tabOffset={28}
+          className={styles.shapka}
+          tabOffset={32}
           tab={
             <button
               type="button"
@@ -365,7 +438,7 @@ export function Prototype() {
               title="Ранг по совокупной мощи — открыть реестр держав"
               onClick={() => {
                 setLedgerTab("powers");
-                setSurface({ kind: "ledger" });
+                setYashik({ kind: "ledger" });
               }}
             >
               <span className={styles.rankLabel}>в мире</span>
@@ -373,12 +446,12 @@ export function Prototype() {
             </button>
           }
         >
-          <div className={styles.topInner}>
+          <div className={styles.shapkaInner}>
             <div className={styles.flagCell}>
               <button
                 type="button"
                 className={styles.flagButton}
-                title="Панель державы"
+                title={`${COUNTRIES[PLAYER].short} — панель державы`}
                 onClick={() => selectCountry(PLAYER)}
               >
                 <span className={styles.flag}>
@@ -387,43 +460,58 @@ export function Prototype() {
               </button>
             </div>
 
-            <div className={styles.statsCell}>
-              <div className={styles.stats}>
-                <Stat label="ВВП" value="1,46T" delta={{ text: "+3,2%", tone: "good" }} labelMode="wide" onClick={() => setSurface({ kind: "tome", id: "economy" })} />
-                <Stat label="Баланс" value="+12,4B" delta={{ text: "+1,8B", tone: "good" }} labelMode="wide" onClick={() => setSurface({ kind: "tome", id: "economy" })} />
-                <Stat label="Население" value="170,5M" delta={{ text: "+0,6M", tone: "good" }} labelMode="wide" />
-                <Stat label="Стабильность" value="71" delta={{ text: "−1", tone: "bad" }} labelMode="wide" onClick={() => setSurface({ kind: "tome", id: "politics" })} />
-                <Stat label="Легитимность" value="83" delta={{ text: "+2", tone: "good" }} labelMode="wide" onClick={() => setSurface({ kind: "tome", id: "politics" })} />
-                <Stat label="Долг" value="0,94" delta={{ text: "+0,03", tone: "bad" }} threshold="near" labelMode="wide" onClick={() => setSurface({ kind: "tome", id: "economy" })} />
+            <div className={styles.shapkaRows}>
+              <div className={styles.pribory}>
+                {PRIBORY_GROUPS.map((group, groupIndex) => (
+                  <div key={groupIndex} className={styles.priboryGroup}>
+                    {groupIndex > 0 && <span className={styles.priborySplit} />}
+                    {group.map((stat) => {
+                      // Локальная константа, иначе сужение типа не доживает
+                      // до тела замыкания и `tome` остаётся возможно-undefined.
+                      const tome = stat.tome;
+                      return (
+                        <Stat
+                          key={stat.key}
+                          label={stat.label}
+                          value={stat.value}
+                          delta={stat.delta}
+                          threshold={stat.threshold}
+                          icon={stat.icon}
+                          labelMode="hidden"
+                          onClick={tome === undefined ? undefined : () => setYashik({ kind: "tome", id: tome })}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
 
-              <ResourceBar items={RESOURCES} size="sm" />
-
-              <div className={styles.books}>
-                {TOMES.map((tome) => (
+              <div className={styles.koreshki}>
+                {tomes.map((id) => (
                   <Button
-                    key={tome.id}
+                    key={id}
                     size="sm"
-                    variant={surface.kind === "tome" && surface.id === tome.id ? "order" : "quiet"}
+                    iconOnly
+                    aria-label={TOME_NAMES[id]}
+                    title={TOME_NAMES[id]}
+                    variant={yashik.kind === "tome" && yashik.id === id ? "order" : "quiet"}
                     onClick={() =>
-                      setSurface((prev) =>
-                        prev.kind === "tome" && prev.id === tome.id
-                          ? { kind: "none" }
-                          : { kind: "tome", id: tome.id },
-                      )
+                      setYashik((prev) => (prev.kind === "tome" && prev.id === id ? { kind: "none" } : { kind: "tome", id }))
                     }
                   >
-                    {tome.name}
+                    {TOME_ICONS[id]}
                   </Button>
                 ))}
+                <span className={styles.koreshkiSplit} />
                 <Button
                   size="sm"
-                  variant={surface.kind === "ledger" ? "order" : "quiet"}
-                  onClick={() =>
-                    setSurface((prev) => (prev.kind === "ledger" ? { kind: "none" } : { kind: "ledger" }))
-                  }
+                  iconOnly
+                  aria-label="Реестр"
+                  title="Реестр"
+                  variant={yashik.kind === "ledger" ? "order" : "quiet"}
+                  onClick={() => setYashik((prev) => (prev.kind === "ledger" ? { kind: "none" } : { kind: "ledger" }))}
                 >
-                  Реестры
+                  <IconLedger />
                 </Button>
               </div>
             </div>
@@ -431,29 +519,74 @@ export function Prototype() {
         </ShapedBar>
       </div>
 
-      {/* ── Выдвижная поверхность ────────────────────────────── */}
-      {surface.kind !== "none" && (
-        <div className={cx(styles.surface, surface.kind === "ledger" ? styles.ledgerSurface : styles.drawer)}>
-          {surface.kind === "tome" && (
+      {/* ── ХОД ──────────────────────────────────────────────── */}
+      <div ref={hodRef} className={styles.hod}>
+        <div className={styles.hodTop}>
+          <span className={styles.date}>{monthLabel}</span>
+          <span
+            className={cx(styles.rezhisser, thinking && styles.rezhisserBusy)}
+            title={thinking ? "режиссёр думает" : "режиссёр готов"}
+          />
+          <div className={styles.instruments}>
+            <Button size="sm" variant="quiet" iconOnly aria-label="Сохранить" title="Сохранить">
+              <IconSave />
+            </Button>
+            <Button size="sm" variant="quiet" iconOnly aria-label="Поиск" title="Поиск" onClick={() => setSearchOpen(true)}>
+              <IconSearch />
+            </Button>
+            <Button size="sm" variant="quiet" iconOnly aria-label="Меню" title="Меню" onClick={() => setMenuOpen(true)}>
+              <IconMenu />
+            </Button>
+          </div>
+        </div>
+
+        <Button variant="primary" size="lg" className={styles.knopka} disabled={thinking} onClick={onTurn}>
+          {thinking ? "Режиссёр думает…" : `Продолжить · ${orders.length}`}
+        </Button>
+      </div>
+
+      {/* ── ЯЩИК ─────────────────────────────────────────────── */}
+      {yashik.kind !== "none" && (
+        <div
+          ref={yashikRef}
+          className={styles.yashik}
+          style={{
+            width:
+              yashikWidth !== null
+                ? `${yashikWidth}px`
+                : yashik.kind === "ledger"
+                  ? "var(--ledger-width)"
+                  : "clamp(var(--surface-min), 34vw, var(--surface-max))",
+          }}
+        >
+          <button
+            type="button"
+            className={styles.resizerRight}
+            aria-label="Ширина панели"
+            data-target="yashik"
+            onPointerDown={onDragStart}
+            onPointerMove={onDragMove}
+            onPointerUp={onDragEnd}
+          />
+
+          {yashik.kind === "tome" && (
             <Panel
-              title={TOMES.find((tome) => tome.id === surface.id)?.name ?? ""}
-              onClose={() => setSurface({ kind: "none" })}
+              title={TOME_NAMES[yashik.id]}
+              onClose={() => setYashik({ kind: "none" })}
               density="control"
               scroll
-              className={styles.grow}
+              className={styles.yashikPanel}
             >
-              <TomeBody id={surface.id} onSelectCountry={selectCountry} />
+              <TomeBody
+                id={yashik.id}
+                withScience={yashik.id === "defence" && !scienceSeparate}
+                onSelectCountry={selectCountry}
+              />
             </Panel>
           )}
 
-          {surface.kind === "ledger" && (
-            <Panel
-              title="Реестр"
-              onClose={() => setSurface({ kind: "none" })}
-              density="control"
-              scroll
-              className={styles.grow}
-            >
+          {yashik.kind === "ledger" && (
+            <Panel title="Реестр" onClose={() => setYashik({ kind: "none" })} density="control" scroll className={styles.yashikPanel}>
               <LedgerBody
                 tab={ledgerTab}
                 onTab={setLedgerTab}
@@ -461,24 +594,24 @@ export function Prototype() {
                 onSelectRegion={(regionId) => {
                   setPinned(false);
                   setSelectedRegionId(regionId);
-                  setSurface({ kind: "region", id: regionId });
+                  setYashik({ kind: "region", id: regionId });
                 }}
                 events={events}
               />
             </Panel>
           )}
 
-          {surface.kind === "country" && (
+          {yashik.kind === "country" && (
             <Panel
-              title={COUNTRIES[surface.id].short}
-              meta={COUNTRIES[surface.id].tier}
-              onClose={() => setSurface({ kind: "none" })}
+              title={COUNTRIES[yashik.id].short}
+              meta={COUNTRIES[yashik.id].tier}
+              onClose={() => setYashik({ kind: "none" })}
               density="control"
               scroll
-              className={styles.grow}
+              className={styles.yashikPanel}
             >
               <CountryDetail
-                country={COUNTRIES[surface.id]}
+                country={COUNTRIES[yashik.id]}
                 rival={compareId === null ? null : COUNTRIES[compareId]}
                 onCompare={setCompareId}
                 onClearCompare={() => setCompareId(null)}
@@ -486,128 +619,123 @@ export function Prototype() {
             </Panel>
           )}
 
-          {surface.kind === "region" && (
+          {yashik.kind === "region" && (
             <Panel
-              title={REGIONS[surface.id].name}
-              meta={COUNTRIES[REGIONS[surface.id].owner].short}
-              onClose={() => setSurface({ kind: "none" })}
+              title={REGIONS[yashik.id].name}
+              meta={COUNTRIES[REGIONS[yashik.id].owner].short}
+              onClose={() => setYashik({ kind: "none" })}
               density="control"
               scroll
-              className={styles.grow}
+              className={styles.yashikPanel}
             >
-              <RegionDetail region={REGIONS[surface.id]} onSelectCountry={selectCountry} />
+              <RegionDetail region={REGIONS[yashik.id]} onSelectCountry={selectCountry} />
             </Panel>
           )}
         </div>
       )}
 
-      {/* ── Правая колонка ───────────────────────────────────── */}
-      <div ref={columnRef} className={styles.rightColumn}>
-        <button
-          type="button"
-          className={styles.resizer}
-          aria-label="Ширина ленты"
-          onPointerDown={onResizeDown}
-          onPointerMove={onResizeMove}
-          onPointerUp={onResizeUp}
-        />
-
-        <Panel density="control">
-          <div className={styles.turnMeta}>
-            <span className={styles.date}>{monthLabel}</span>
-            <span className={styles.modelState}>
-              <span className={cx(styles.modelDot, thinking && styles.modelDotBusy)} />
-              {thinking ? "режиссёр думает" : "режиссёр готов"}
-            </span>
-          </div>
-          <Button
-            variant="primary"
-            size="lg"
-            className={styles.turnButton}
-            disabled={thinking}
-            onClick={onTurn}
+      {/* ── ЛЕНТА и РЕЖИМЫ ──────────────────────────────────── */}
+      <div className={styles.rightStack}>
+        <div ref={lentaRef} className={cx(styles.lenta, !lentaOpen && styles.lentaCollapsed)}>
+          <button
+            type="button"
+            className={styles.resizerLeft}
+            aria-label="Ширина ленты"
+            data-target="lenta"
+            onPointerDown={onDragStart}
+            onPointerMove={onDragMove}
+            onPointerUp={onDragEnd}
+          />
+          <Panel
+            title="Этот ход"
+            meta={`${events.length} событий`}
+            density="flush"
+            scroll={lentaOpen}
+            className={styles.lentaPanel}
+            actions={
+              <Button
+                size="sm"
+                variant="quiet"
+                iconOnly
+                aria-label={lentaOpen ? "Свернуть ленту" : "Развернуть ленту"}
+                title={lentaOpen ? "Свернуть" : "Развернуть"}
+                onClick={() => setLentaOpen((open) => !open)}
+              >
+                {lentaOpen ? <IconChevronUp /> : <IconChevronDown />}
+              </Button>
+            }
           >
-            {turnLabel} {crisis === null && !thinking && <IconArrowRight />}
-          </Button>
-          <div className={styles.tools}>
-            <Button size="sm" variant="default">Сохранить</Button>
-            <Button size="sm" variant="default">Меню</Button>
-            <Button size="sm" variant="default" iconOnly aria-label="Поиск" onClick={() => setSearchOpen(true)}>
-              <IconSearch />
-            </Button>
-          </div>
-        </Panel>
-
-        <Panel
-          title="Этот ход"
-          meta={`${events.length} событий`}
-          density="flush"
-          scroll
-          className={styles.feed}
-        >
-          {crisis !== null && (
-            <div className={styles.crisis}>
-              <p className={styles.crisisTitle}>
-                <IconWarning /> {crisis.title}
-              </p>
-              <p className={styles.crisisBody}>{crisis.body}</p>
-              <div className={styles.crisisOptions}>
-                {crisis.options.map((option) => (
-                  <Button key={option} variant="order" size="sm" onClick={() => resolveCrisis(option)}>
-                    {option}
-                  </Button>
+            {lentaOpen && (
+              <div className={styles.lentaBody}>
+                {events.map((event) => (
+                  <EventItem
+                    key={event.id}
+                    date={event.date}
+                    title={event.title}
+                    body={event.body}
+                    factuality={event.factuality}
+                    order={event.order === undefined ? undefined : { text: event.order }}
+                    tags={event.tags}
+                    onTagClick={openTag}
+                  />
                 ))}
               </div>
+            )}
+          </Panel>
+        </div>
+
+        {legendOpen && legend !== undefined && (
+          <Panel density="instrument" className={styles.legenda}>
+            <div className={styles.legendaRamp} style={{ background: legend.ramp }} />
+            <div className={styles.legendaEnds}>
+              <span>{legend.from}</span>
+              <span>{legend.to}</span>
             </div>
-          )}
+          </Panel>
+        )}
 
-          <div className={styles.feedBody}>
-            {events.map((event) => (
-              <EventItem
-                key={event.id}
-                date={event.date}
-                title={event.title}
-                body={event.body}
-                factuality={event.factuality}
-                order={event.order === undefined ? undefined : { text: event.order }}
-                tags={event.tags}
-                onTagClick={openTag}
-              />
-            ))}
-          </div>
-        </Panel>
-
-        <Panel title="Режим карты" meta={MAP_MODES.find((mode) => mode.id === mapMode)?.name} density="control">
-          <div className={styles.modeList}>
-            {MAP_MODES.map((mode) => (
+        <Panel density="instrument" className={styles.rezhimy}>
+          <div className={styles.rezhimyGrid}>
+            {MODES.map((mode) => (
               <Button
                 key={mode.id}
                 size="sm"
+                iconOnly
+                aria-label={mode.name}
+                title={
+                  mode.id === mapMode && LEGENDS[mode.id] !== undefined
+                    ? `${mode.name} — нажмите ещё раз для легенды`
+                    : mode.name
+                }
                 variant={mode.id === mapMode ? "order" : "quiet"}
-                onClick={() => setMapMode(mode.id)}
+                onClick={() => {
+                  if (mode.id === mapMode) setLegendOpen((open) => !open);
+                  else {
+                    setMapMode(mode.id);
+                    setLegendOpen(false);
+                  }
+                }}
               >
-                {mode.name}
+                {mode.icon}
               </Button>
             ))}
           </div>
         </Panel>
       </div>
 
-      {/* ── Нижняя стопка ────────────────────────────────────── */}
+      {/* ── Низ: ПОЛОСА и ЛИСТ ──────────────────────────────── */}
       <div className={styles.bottom}>
         <div ref={bottomRef} className={styles.bottomInner}>
           {selectedRegion !== null && (
-            <div className={styles.regionStrip}>
-              <span className={styles.regionName}>{selectedRegion.name}</span>
-              <div className={styles.regionFacts}>
-                <span className={styles.regionFact}>{COUNTRIES[selectedRegion.owner].short}</span>
-                <span className={styles.regionFact}>{selectedRegion.population}</span>
-                <span className={styles.regionFact}>
+            <div className={styles.polosa}>
+              <span className={styles.polosaName}>{selectedRegion.name}</span>
+              <div className={styles.polosaFacts}>
+                <span className={styles.fact}>{COUNTRIES[selectedRegion.owner].short}</span>
+                <span className={styles.fact}>{selectedRegion.population}</span>
+                <span className={styles.fact}>
                   {selectedRegion.groups[0].name} {Math.round(selectedRegion.groups[0].share * 100)}%
                 </span>
-                <span className={styles.regionFact}>
-                  недовольство {selectedRegion.discontent.toFixed(2)}
-                </span>
+                <span className={styles.fact}>недовольство {selectedRegion.discontent.toFixed(2)}</span>
               </div>
               <span className={styles.grow} />
               <Button
@@ -615,15 +743,12 @@ export function Prototype() {
                 variant={pinned ? "order" : "quiet"}
                 iconOnly
                 aria-label={pinned ? "Открепить" : "Закрепить"}
+                title={pinned ? "Открепить" : "Закрепить"}
                 onClick={() => setPinned((prev) => !prev)}
               >
                 <IconLock />
               </Button>
-              <Button
-                size="sm"
-                variant="default"
-                onClick={() => setSurface({ kind: "region", id: selectedRegion.id })}
-              >
+              <Button size="sm" variant="default" onClick={() => setYashik({ kind: "region", id: selectedRegion.id })}>
                 Подробно
               </Button>
               <Button
@@ -643,12 +768,10 @@ export function Prototype() {
 
           <Panel
             title="Приказы"
-            meta={`${monthLabel.toLowerCase()} · составлено ${orders.length} из 10`}
+            meta={orders.length === 0 ? monthLabel.toLowerCase() : `${monthLabel.toLowerCase()} · ${orders.length} из 10`}
             density="control"
           >
-            {orders.length === 0 ? (
-              <p className={styles.empty}>Приказов пока нет. Напишите, что делает держава.</p>
-            ) : (
+            {orders.length > 0 && (
               <ul className={styles.orderList}>
                 {orders.map((order, index) => (
                   <li
@@ -659,9 +782,7 @@ export function Prototype() {
                     }}
                     onDragOver={(event) => event.preventDefault()}
                     onDrop={() => {
-                      if (dragOrder.current !== null && dragOrder.current !== index) {
-                        moveOrder(dragOrder.current, index);
-                      }
+                      if (dragOrder.current !== null && dragOrder.current !== index) moveOrder(dragOrder.current, index);
                       dragOrder.current = null;
                     }}
                   >
@@ -675,7 +796,7 @@ export function Prototype() {
               </ul>
             )}
 
-            <div className={styles.input}>
+            <div className={styles.vvod}>
               <input
                 className={styles.field}
                 placeholder="Введите приказ…"
@@ -693,13 +814,12 @@ export function Prototype() {
         </div>
       </div>
 
-      {/* ── Подтверждение необратимого ───────────────────────── */}
+      {/* ── ПОДТВЕРЖДЕНИЕ ───────────────────────────────────── */}
       {confirming !== null && (
         <div className={styles.scrim}>
           <Panel title="Необратимое решение" density="prose" className={styles.modal}>
             <p className={styles.modalText}>
-              Среди приказов на {monthLabel.toLowerCase()} есть необратимое: «{confirming}».
-              Отменить это будет нельзя.
+              Среди приказов на {monthLabel.toLowerCase()} есть необратимое: «{confirming}». Отменить это будет нельзя.
             </p>
             <div className={styles.modalActions}>
               <Button variant="default" onClick={() => setConfirming(null)}>
@@ -713,7 +833,7 @@ export function Prototype() {
         </div>
       )}
 
-      {/* ── Поиск ────────────────────────────────────────────── */}
+      {/* ── ПОИСК ───────────────────────────────────────────── */}
       {searchOpen && (
         <div className={styles.searchWrap} onClick={() => setSearchOpen(false)}>
           <div className={styles.searchPanel} onClick={(event) => event.stopPropagation()}>
@@ -741,9 +861,48 @@ export function Prototype() {
                     <span className={styles.searchKind}>{result.kind}</span>
                   </button>
                 ))}
-                {query.trim() !== "" && searchResults.length === 0 && (
-                  <p className={styles.empty}>Ничего не найдено.</p>
-                )}
+                {query.trim() !== "" && searchResults.length === 0 && <p className={styles.empty}>Ничего не найдено.</p>}
+              </div>
+            </Panel>
+          </div>
+        </div>
+      )}
+
+      {/* ── МЕНЮ: тумблеры макета ───────────────────────────── */}
+      {menuOpen && (
+        <div className={styles.searchWrap} onClick={() => setMenuOpen(false)}>
+          <div className={styles.searchPanel} onClick={(event) => event.stopPropagation()}>
+            <Panel title="Меню" meta="тумблеры макета" onClose={() => setMenuOpen(false)} density="control">
+              <p className={styles.empty}>Наука отдельным томом или внутри обороны — смотрим оба варианта.</p>
+              <div style={{ display: "flex", gap: "var(--space-1)", marginBottom: "var(--space-4)" }}>
+                <Button size="sm" variant={scienceSeparate ? "order" : "quiet"} onClick={() => setScienceSeparate(true)}>
+                  Отдельно
+                </Button>
+                <Button size="sm" variant={!scienceSeparate ? "order" : "quiet"} onClick={() => setScienceSeparate(false)}>
+                  Вместе с обороной
+                </Button>
+              </div>
+
+              <p className={styles.empty}>Палитра — решение отложено до подключения карты.</p>
+              <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
+                {[
+                  ["graphite", "Графит"],
+                  ["steel", "Сталь"],
+                  ["ink", "Тушь"],
+                  ["khaki", "Хаки"],
+                ].map(([id, name]) => (
+                  <Button
+                    key={id}
+                    size="sm"
+                    variant={document.documentElement.dataset.palette === id ? "order" : "quiet"}
+                    onClick={() => {
+                      document.documentElement.dataset.palette = id;
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {name}
+                  </Button>
+                ))}
               </div>
             </Panel>
           </div>
