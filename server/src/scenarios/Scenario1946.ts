@@ -17,6 +17,7 @@ import {
   ideologyFileSchema,
   governmentFileSchema,
   influenceFileSchema,
+  diplomacyFileSchema,
   ideologyZonesFileSchema,
   type RegionCoreEntry,
   type RegionStateEntry,
@@ -317,6 +318,79 @@ function applyInfluenceLayer(
 }
 
 /**
+ * Стартовый дипломатический слой (`diplomacy.json`, docs/DIPLOMACY.md).
+ * Опциональный, как остальные слои: файла нет — «слоя нет», не ошибка. Самого
+ * файла в сценарии 1946 на момент написания ещё нет (его наполняет отдельная
+ * работа), поэтому «файла нет» — не теоретическая ветка, а текущий рабочий
+ * путь сценария.
+ *
+ * ЗАЧЕМ. `influence.json` дал дипломатии каркас влияния, но `relations`,
+ * `allies` и `rivals` остались пусты у всех стран: `DiplomacyTick` работает по
+ * УЖЕ существующим записям, а ни одного союза и ни одной вражды на старте не
+ * было.
+ *
+ * ПАРА КЛАДЁТСЯ ОБЕИМ СТОРОНАМ. В файле связь записана один раз, в состоянии
+ * она хранится у каждой стороны отдельно — иначе половина движка (дрейф,
+ * тяготение, коалиции) не увидела бы её со второй стороны. Гарантия,
+ * наоборот, направленная: она пишется ТОЛЬКО гаранту.
+ *
+ * Zod проверил форму (шкала, самопара, дубль пары в любом порядке); здесь —
+ * ссылочная целостность между файлами, которую схема выразить не может:
+ * каждая названная страна обязана существовать в ростере.
+ *
+ * Вызывается из `buildScenario1946` напрямую, а НЕ из `applyDemographicLayers`:
+ * тот возвращается рано, когда нет `groups.json`, и слой, повешенный на него,
+ * молча не грузился бы в сценарии без демо-каталога.
+ */
+function applyDiplomacyLayer(baseDir: string, countries: Country[]): void {
+  const file = readOptionalJsonFile(
+    path.join(baseDir, 'diplomacy.json'), diplomacyFileSchema, 'diplomacy.json'
+  );
+  if (!file) return;
+
+  const countryById = new Map<string, Country>(countries.map(c => [c.id, c]));
+  const resolve = (id: string, label: string): Country => {
+    const country = countryById.get(id);
+    if (!country) {
+      throw new ScenarioDataError(
+        `diplomacy.json: ${label} ссылается на несуществующую страну "${id}"`
+      );
+    }
+    return country;
+  };
+  // Слой ложится ПОВЕРХ авторских countries.json, где список уже мог быть
+  // непустым, поэтому связь добавляется без повторов.
+  const addUnique = (list: string[], id: string): void => {
+    if (!list.includes(id)) list.push(id);
+  };
+
+  for (const entry of file.relations ?? []) {
+    const [a, b] = entry.pair;
+    const first = resolve(a, 'relations');
+    const second = resolve(b, 'relations');
+    first.diplomacy.relations[b] = entry.value;
+    second.diplomacy.relations[a] = entry.value;
+  }
+
+  for (const entry of file.alliances ?? []) {
+    const [a, b] = entry.pair;
+    addUnique(resolve(a, 'alliances').diplomacy.allies, b);
+    addUnique(resolve(b, 'alliances').diplomacy.allies, a);
+  }
+
+  for (const entry of file.rivalries ?? []) {
+    const [a, b] = entry.pair;
+    addUnique(resolve(a, 'rivalries').diplomacy.rivals, b);
+    addUnique(resolve(b, 'rivalries').diplomacy.rivals, a);
+  }
+
+  for (const entry of file.guarantees ?? []) {
+    resolve(entry.protected, 'guarantees');
+    addUnique(resolve(entry.guarantor, 'guarantees').diplomacy.guarantees, entry.protected);
+  }
+}
+
+/**
  * Именованные точки спектра эпохи. Слой независимый: без файла игрок видит
  * склейку ступеней шкалы, и это рабочее состояние, а не ошибка данных —
  * шкала покрывает спектр целиком сама по себе.
@@ -348,6 +422,7 @@ export function buildScenario1946(baseDir: string): Scenario {
   const regions = buildRegions(baseDir);
   const countries = buildCountries(baseDir);
   const ethnicGroups = applyDemographicLayers(baseDir, regions, countries);
+  applyDiplomacyLayer(baseDir, countries);
   const ideologyAnchors = loadIdeologyAnchors(baseDir);
 
   return {

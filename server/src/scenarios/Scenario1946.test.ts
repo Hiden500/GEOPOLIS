@@ -3,6 +3,7 @@ import fs from "fs";
 import os from "os";
 import path from "path";
 import { buildScenario1946, ScenarioDataError } from "./Scenario1946";
+import { RELATION_SCALE_MIN, RELATION_SCALE_MAX } from "@shared/defines/diplomacy";
 
 /**
  * Расслоение regions.json (docs/plans/05_DATA_LAYOUT.md, Срез 1): core (география) +
@@ -313,6 +314,194 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
       });
 
       expect(() => buildScenario1946(dir)).toThrow(/ideology\.json/);
+    });
+  });
+
+  /**
+   * Стартовый дипломатический слой (`diplomacy.json`, docs/DIPLOMACY.md).
+   *
+   * Тесты идут на фикстурах, а не на боевых данных, и это не временная мера:
+   * самого файла в сценарии 1946 ещё нет — его наполняет отдельная работа.
+   * Поэтому «файла нет» здесь не крайний случай, а текущий штатный путь, и он
+   * покрыт наравне с остальными.
+   *
+   * Пороги шкалы берутся из `shared/src/defines/diplomacy.ts`: зашитое число
+   * пережило бы рекалибровку шкалы молча и перестало бы проверять границу.
+   */
+  describe("diplomacy.json (стартовый дипломатический слой)", () => {
+    const DIPLO_COUNTRIES = ["AAA", "BBB", "CCC"].map((id, index) => ({
+      id,
+      name: { en: id },
+      shortName: { en: id },
+      color: `#00000${index + 1}`,
+      capitalRegionId: 1,
+      economyType: "mixed",
+      politics: { ideology: "Liberal Democracy" },
+    }));
+
+    function writeDiplomacy(dir: string, diplomacy: unknown): void {
+      fs.writeFileSync(path.join(dir, "diplomacy.json"), JSON.stringify(diplomacy));
+    }
+
+    function loadWith(diplomacy: unknown) {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: DIPLO_COUNTRIES });
+      writeDiplomacy(dir, diplomacy);
+      return () => buildScenario1946(dir);
+    }
+
+    function countryOf(scenario: ReturnType<typeof buildScenario1946>, id: string) {
+      return scenario.countries.find(c => c.id === id)!;
+    }
+
+    it("отсутствие файла — штатный путь, а не ошибка (данных слоя ещё нет)", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: DIPLO_COUNTRIES });
+
+      const scenario = buildScenario1946(dir);
+
+      expect(scenario.countries).toHaveLength(DIPLO_COUNTRIES.length);
+      expect(scenario.countries.every(c =>
+        Object.keys(c.diplomacy.relations).length === 0 &&
+        c.diplomacy.allies.length === 0 &&
+        c.diplomacy.rivals.length === 0 &&
+        c.diplomacy.guarantees.length === 0
+      )).toBe(true);
+    });
+
+    it("одна запись пары кладёт отношения ОБЕИМ сторонам", () => {
+      const scenario = loadWith({
+        relations: [{ pair: ["AAA", "BBB"], value: 72 }],
+      })();
+
+      expect(countryOf(scenario, "AAA").diplomacy.relations["BBB"]).toBe(72);
+      expect(countryOf(scenario, "BBB").diplomacy.relations["AAA"]).toBe(72);
+      // Третья страна связи не получает: слой разреженный.
+      expect(countryOf(scenario, "CCC").diplomacy.relations).toEqual({});
+    });
+
+    it("порядок кодов в паре не значим — связь та же самая", () => {
+      const direct = loadWith({ relations: [{ pair: ["AAA", "BBB"], value: -40 }] })();
+      const reversed = loadWith({ relations: [{ pair: ["BBB", "AAA"], value: -40 }] })();
+
+      for (const scenario of [direct, reversed]) {
+        expect(countryOf(scenario, "AAA").diplomacy.relations["BBB"]).toBe(-40);
+        expect(countryOf(scenario, "BBB").diplomacy.relations["AAA"]).toBe(-40);
+      }
+    });
+
+    it("союз и соперничество попадают в списки обеих сторон", () => {
+      const scenario = loadWith({
+        alliances: [{ pair: ["AAA", "BBB"] }],
+        rivalries: [{ pair: ["AAA", "CCC"] }],
+      })();
+
+      expect(countryOf(scenario, "AAA").diplomacy.allies).toEqual(["BBB"]);
+      expect(countryOf(scenario, "BBB").diplomacy.allies).toEqual(["AAA"]);
+      expect(countryOf(scenario, "AAA").diplomacy.rivals).toEqual(["CCC"]);
+      expect(countryOf(scenario, "CCC").diplomacy.rivals).toEqual(["AAA"]);
+    });
+
+    it("гарантия направленная: пишется гаранту и НЕ пишется защищаемому", () => {
+      const scenario = loadWith({
+        guarantees: [{ guarantor: "AAA", protected: "BBB" }],
+      })();
+
+      expect(countryOf(scenario, "AAA").diplomacy.guarantees).toEqual(["BBB"]);
+      expect(countryOf(scenario, "BBB").diplomacy.guarantees).toEqual([]);
+    });
+
+    it("договор и политика независимы: союз при холодных отношениях грузится как есть", () => {
+      // Англо-советский договор 1942 жил до 1955-го, а отношения к 1946 уже
+      // портились. Загрузчик не вправе «поправить» такие данные: распад союза —
+      // дело DiplomacyTick, а не загрузки.
+      const scenario = loadWith({
+        relations: [{ pair: ["AAA", "BBB"], value: 5 }],
+        alliances: [{ pair: ["AAA", "BBB"] }],
+      })();
+
+      expect(countryOf(scenario, "AAA").diplomacy.allies).toEqual(["BBB"]);
+      expect(countryOf(scenario, "AAA").diplomacy.relations["BBB"]).toBe(5);
+    });
+
+    it("ссылка на несуществующую страну — ошибка с названием этой страны", () => {
+      for (const [layer, payload] of [
+        ["relations", { relations: [{ pair: ["AAA", "ZZZ"], value: 10 }] }],
+        ["alliances", { alliances: [{ pair: ["AAA", "ZZZ"] }] }],
+        ["rivalries", { rivalries: [{ pair: ["AAA", "ZZZ"] }] }],
+        ["guarantees", { guarantees: [{ guarantor: "AAA", protected: "ZZZ" }] }],
+        ["guarantees", { guarantees: [{ guarantor: "ZZZ", protected: "AAA" }] }],
+      ] as const) {
+        const load = loadWith(payload);
+        expect(load, layer).toThrow(ScenarioDataError);
+        expect(load, layer).toThrow(/несуществующую страну "ZZZ"/);
+      }
+    });
+
+    it("самопара отвергается во всех списках", () => {
+      for (const payload of [
+        { relations: [{ pair: ["AAA", "AAA"], value: 10 }] },
+        { alliances: [{ pair: ["AAA", "AAA"] }] },
+        { rivalries: [{ pair: ["AAA", "AAA"] }] },
+      ]) {
+        expect(loadWith(payload)).toThrow(/сама с собой/);
+      }
+      expect(loadWith({ guarantees: [{ guarantor: "AAA", protected: "AAA" }] }))
+        .toThrow(/гарантирует сама себе/);
+    });
+
+    it("дубль пары отвергается в ЛЮБОМ порядке кодов", () => {
+      expect(loadWith({
+        relations: [{ pair: ["AAA", "BBB"], value: 10 }, { pair: ["BBB", "AAA"], value: 60 }],
+      })).toThrow(/встречается дважды/);
+
+      expect(loadWith({
+        alliances: [{ pair: ["AAA", "BBB"] }, { pair: ["BBB", "AAA"] }],
+      })).toThrow(/встречается дважды/);
+
+      expect(loadWith({
+        guarantees: [
+          { guarantor: "AAA", protected: "BBB" },
+          { guarantor: "AAA", protected: "BBB" },
+        ],
+      })).toThrow(/встречается дважды/);
+    });
+
+    it("значение вне шкалы отношений отвергается с обеих границ", () => {
+      expect(loadWith({ relations: [{ pair: ["AAA", "BBB"], value: RELATION_SCALE_MAX + 1 }] }))
+        .toThrow(ScenarioDataError);
+      expect(loadWith({ relations: [{ pair: ["AAA", "BBB"], value: RELATION_SCALE_MIN - 1 }] }))
+        .toThrow(ScenarioDataError);
+
+      // Сами границы — валидные значения, а не запрещённые.
+      const edge = loadWith({
+        relations: [
+          { pair: ["AAA", "BBB"], value: RELATION_SCALE_MAX },
+          { pair: ["AAA", "CCC"], value: RELATION_SCALE_MIN },
+        ],
+      })();
+      expect(countryOf(edge, "AAA").diplomacy.relations["BBB"]).toBe(RELATION_SCALE_MAX);
+      expect(countryOf(edge, "AAA").diplomacy.relations["CCC"]).toBe(RELATION_SCALE_MIN);
+    });
+
+    it("пара одновременно в alliances и rivalries отвергается", () => {
+      // Иначе загрузка построила бы страну, у которой один и тот же сосед
+      // разом в allies и в rivals.
+      expect(loadWith({
+        alliances: [{ pair: ["AAA", "BBB"] }],
+        rivalries: [{ pair: ["BBB", "AAA"] }],
+      })).toThrow(/одновременно в alliances и rivalries/);
+    });
+
+    it("битый JSON и несовпадение формы падают как ScenarioDataError", () => {
+      const dir = makeTmpDir();
+      writeFixture(dir, { countries: DIPLO_COUNTRIES });
+      fs.writeFileSync(path.join(dir, "diplomacy.json"), "{ not json");
+      expect(() => buildScenario1946(dir)).toThrow(ScenarioDataError);
+      expect(() => buildScenario1946(dir)).toThrow(/diplomacy\.json/);
+
+      // Пара из одного кода — не пара.
+      expect(loadWith({ alliances: [{ pair: ["AAA"] }] })).toThrow(/diplomacy\.json/);
     });
   });
 });

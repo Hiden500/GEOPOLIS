@@ -6,7 +6,11 @@ import {
   SOVEREIGN_STATUS,
   CONDOMINIUM_STATUS,
 } from "@shared/types/politics/Government";
-import { INFLUENCE_SCALE_MAX } from "@shared/defines/diplomacy";
+import {
+  INFLUENCE_SCALE_MAX,
+  RELATION_SCALE_MIN,
+  RELATION_SCALE_MAX,
+} from "@shared/defines/diplomacy";
 
 /**
  * Схемы расслоённых файлов сценария 1946 (docs/plans/05_DATA_LAYOUT.md).
@@ -215,6 +219,125 @@ export const governmentFileSchema = z.object({
   countries: z.array(countryGovernmentSchema),
 });
 export type GovernmentFile = z.infer<typeof governmentFileSchema>;
+
+/**
+ * Стартовый дипломатический слой (`diplomacy.json`, docs/DIPLOMACY.md — раздел
+ * «Стартовый слой»). Заполняет то, что в сценарии пусто у всех стран:
+ * отношения, союзы, соперничества и гарантии. Слой разреженный, как
+ * `influence.json`: полная матрица 157 стран — 24 649 пар против правила о
+ * размере сохранений.
+ *
+ * ПАРА, А НЕ НАПРАВЛЕНИЕ. В состоянии `relations` направленные
+ * (`Record<countryId, number>` у каждой страны), но `driftRelations` ведёт ОБЕ
+ * стороны к одной цели `structuralAffinity` — два разных стартовых числа на
+ * пару движок сотрёт за несколько тиков. Поэтому запись одна, а порядок кодов в
+ * ней не значим: `["SUN","POL"]` и `["POL","SUN"]` — одна и та же связь, и
+ * вторая из них отвергается как дубль. Гарантии, наоборот, направленные по
+ * своей природе: гарант и защищаемый не взаимозаменяемы.
+ *
+ * ГРАНИЦА С `validate_demographics_1946.py`, НАЗВАННАЯ ПРЯМО. Там проверяется
+ * класс «данные, которые движок отменяет на первом тике» (союз без записи
+ * отношений, соперничество выше порога примирения) — он требует парных порогов
+ * от идеологической дистанции, и воспроизводить их здесь значило бы завести
+ * копию калибровки. Здесь — только форма записи, верная при любых
+ * координатах. Схема, а не только пайплайн: пайплайн стоит до запуска игры,
+ * схема — на загрузке (тот же довод, что у `countryGovernmentSchema`).
+ *
+ * Границы шкалы читаются из `shared/src/defines/diplomacy.ts` — числа не
+ * дублируются, иначе рекалибровка шкалы разошлась бы с проверкой молча.
+ */
+const countryPairSchema = z.tuple([z.string().min(1), z.string().min(1)]);
+
+/** Ключ пары без направления — им же ловятся дубли в обоих порядках. */
+function pairKey(a: string, b: string): string {
+  return a <= b ? `${a}|${b}` : `${b}|${a}`;
+}
+/** Читаемая форма того же ключа для текста ошибки. */
+function pairLabel(key: string): string {
+  return key.replace("|", "—");
+}
+
+export const relationEntrySchema = z.object({
+  pair: countryPairSchema,
+  value: z.number().min(RELATION_SCALE_MIN).max(RELATION_SCALE_MAX),
+});
+export const diplomacyPairSchema = z.object({ pair: countryPairSchema });
+export const guaranteeEntrySchema = z.object({
+  guarantor: z.string().min(1),
+  protected: z.string().min(1),
+});
+
+/**
+ * Общая часть разбора списка пар: самопара и дубль в любом порядке. Возвращает
+ * множество ключей, чтобы вызывающий мог сверить списки между собой.
+ */
+function collectPairs(
+  entries: { pair: [string, string] }[],
+  label: string,
+  ctx: z.RefinementCtx
+): Set<string> {
+  const seen = new Set<string>();
+  for (const entry of entries) {
+    const [a, b] = entry.pair;
+    if (a === b) {
+      ctx.addIssue({ code: "custom", message: `${label}: пара "${a}" сама с собой` });
+      continue;
+    }
+    const key = pairKey(a, b);
+    if (seen.has(key)) {
+      ctx.addIssue({ code: "custom", message: `${label}: пара ${pairLabel(key)} встречается дважды` });
+    }
+    seen.add(key);
+  }
+  return seen;
+}
+
+/**
+ * Все четыре ключа опциональны: слой наполняется по частям, и требовать
+ * `"guarantees": []` ради формы значило бы держать в данных пустышку. Файла нет
+ * вовсе — тоже штатное состояние, это решает `readOptionalJsonFile`.
+ */
+export const diplomacyFileSchema = z.object({
+  relations: z.array(relationEntrySchema).optional(),
+  alliances: z.array(diplomacyPairSchema).optional(),
+  rivalries: z.array(diplomacyPairSchema).optional(),
+  guarantees: z.array(guaranteeEntrySchema).optional(),
+}).superRefine((file, ctx) => {
+  collectPairs(file.relations ?? [], "relations", ctx);
+  const alliances = collectPairs(file.alliances ?? [], "alliances", ctx);
+  const rivalries = collectPairs(file.rivalries ?? [], "rivalries", ctx);
+
+  // Не порог и не калибровка, поэтому проверяется здесь, а не в Python:
+  // пара, стоящая в обоих списках, попала бы у обеих сторон разом в `allies` и
+  // в `rivals`, то есть загрузка построила бы состояние, невыразимое в мире.
+  for (const key of alliances) {
+    if (rivalries.has(key)) {
+      ctx.addIssue({
+        code: "custom",
+        message: `пара ${pairLabel(key)} одновременно в alliances и rivalries`,
+      });
+    }
+  }
+
+  const seenGuarantees = new Set<string>();
+  for (const entry of file.guarantees ?? []) {
+    if (entry.guarantor === entry.protected) {
+      ctx.addIssue({
+        code: "custom",
+        message: `guarantees: "${entry.guarantor}" гарантирует сама себе`,
+      });
+      continue;
+    }
+    // Направленный дубль: гарантия одна, а `guarantees` — массив, поэтому
+    // вторая запись дала бы тот же код в списке дважды.
+    const key = `${entry.guarantor}->${entry.protected}`;
+    if (seenGuarantees.has(key)) {
+      ctx.addIssue({ code: "custom", message: `guarantees: гарантия ${key} встречается дважды` });
+    }
+    seenGuarantees.add(key);
+  }
+});
+export type DiplomacyFile = z.infer<typeof diplomacyFileSchema>;
 
 /** region_id (geoJsonId) → имя. Частичное покрытие допустимо (см. getText fallback). */
 export const namesFileSchema = z.record(z.string(), z.string());
