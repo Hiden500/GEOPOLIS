@@ -1,0 +1,199 @@
+{
+  "$schema": "../run-record.schema.json",
+  "schema_version": 1,
+  "run_id": "local-llm-runtime-bench-2026-07-30",
+  "task_identifier": "Установка локального LLM-рантайма и замер двух моделей на конвейере Geopolis",
+  "agent": {
+    "client": "Claude Code",
+    "name": "claude",
+    "model": "claude-opus-5",
+    "reasoning_setting": "default"
+  },
+  "started_at": "2026-07-30T12:31:00+03:00",
+  "finished_at": "2026-07-30T16:05:00+03:00",
+  "elapsed_seconds": 12840,
+  "starting_commit": "b93d23ee52a9a674631c09a41f32b72ed5ddb9e2",
+  "ending_commit": "5c7a6119fc2c2a49647b9ee63806965a626f9f11",
+  "branch": "claude/local-llm-bench",
+  "sandbox_mode": "workspace-write",
+  "approval_mode": "on-request",
+  "network_mode": "enabled",
+  "tools_used": ["PowerShell", "Bash", "Read", "Write", "Edit", "Grep", "Glob"],
+  "commands": [
+    { "cmd": "winget show ElementLabs.LMStudio", "purpose": "версия и SHA256 установщика" },
+    { "cmd": "LM-Studio-0.4.20-1-x64.exe /S /D=D:\\ai-tools\\LMStudio", "purpose": "тихая установка мимо C:" },
+    { "cmd": "New-Item -ItemType Junction %USERPROFILE%\\.lmstudio -> D:\\ai-models\\lmstudio", "purpose": "перенос хранилища на D:" },
+    { "cmd": "lms load <model> -c <ctx> --gpu <ratio> --parallel 1", "purpose": "загрузка модели с контролем контекста" },
+    { "cmd": "npx tsx scripts/benchLocalModels.ts --model <id> --runs N --mode schema|free [--no-think]", "purpose": "замер на реальном промте хода" },
+    { "cmd": "nvidia-smi --query-gpu=...", "purpose": "независимый замер VRAM/температуры/частот" }
+  ],
+  "tests_executed": [
+    "server: npx tsc --noEmit -p tsconfig.json (дважды: после создания и после правок скрипта) — чисто"
+  ],
+  "baseline_failures": [],
+  "introduced_failures": [],
+  "human_interventions": 4,
+  "files_changed": ["server/scripts/benchLocalModels.ts"],
+  "agent_configuration_mutations": [],
+  "token_usage": null,
+  "cost": null,
+  "final_status": "completed",
+
+  "environment": {
+    "gpu": "NVIDIA RTX 3080, 10240 MiB VRAM, драйвер 596.49, CUDA 13.2, PCIe 4.0 x16",
+    "cpu": "AMD Ryzen 7 7800X3D",
+    "ram_total_gb": 63.1,
+    "runtime": "LM Studio 0.4.20 (build 0.4.20-1), установлен в D:\\ai-tools\\LMStudio",
+    "runtime_engine": "llama.cpp-win-x86_64-nvidia-cuda-avx2@2.25.2 (выбран автоматически)",
+    "server_port": 1234,
+    "server_api": "OpenAI-совместимый, http://localhost:1234/v1",
+    "models_path": "D:\\ai-models\\lmstudio\\models",
+    "storage_note": "%USERPROFILE%\\.lmstudio — NTFS-junction на D:\\ai-models\\lmstudio; на C: не пишутся ни модели, ни рантаймы",
+    "disk_free_after_gb": { "C": 6.5, "D": 135.0 },
+    "display_attached_to": "NVIDIA RTX 3080 (3840x2160) — НЕ iGPU, вопреки исходному предположению задания"
+  },
+
+  "vram_baseline": {
+    "at_start_mib": 2074,
+    "after_user_freed_apps_mib": 862,
+    "consumers_measured": {
+      "dwm": 855,
+      "browser": 658,
+      "steamwebhelper": 455,
+      "claude": 228,
+      "LM Studio (UI)": 155,
+      "explorer+csrss+прочее": 240
+    },
+    "method": "Get-Counter '\\GPU Process Memory(*)\\Dedicated Usage' — nvidia-smi в режиме WDDM не отдаёт память по процессам"
+  },
+
+  "prompt_under_test": {
+    "source": "createGame(\"1946\", \"USA\", \"ru\", seed=19460101) -> LLMService.generatePrompt()",
+    "chars": 21618,
+    "tokens_measured": 5342,
+    "note": "Задание предполагало 8-10k токенов. Фактический промт ПЕРВОГО хода — 5342 токена; до 8-10k он дорастает позже, когда накопятся eventHistory, отказы и кризисы. Замер сделан на фактическом, экстраполяция на разросшийся промт НЕ проверена."
+  },
+
+  "validation_chain": "JSON.parse -> LLMResponseEnvelopeSchema -> LLMActionSchema поштучно -> LLMResponseValidator.validateActionApplicability -> parsePrimitives (та же последовательность, что в LLMService.processResponse)",
+
+  "measurements": [
+    {
+      "model": "Qwen3.5-9B Q5_K_M (bartowski/Qwen_Qwen3.5-9B-GGUF)",
+      "file_gib": 6.62,
+      "mode": "json_schema + reasoning_effort=none",
+      "context": 12000,
+      "gpu_offload": "max (все слои в VRAM)",
+      "runs": 10,
+      "schema_valid_first_try": "10/10",
+      "schema_valid_after_one_retry": "10/10",
+      "turn_seconds_avg": 6.1,
+      "gen_tps": 93.1,
+      "prompt_eval_tps_cold": 2286,
+      "completion_tokens_avg": 538,
+      "vram_peak_mib": 9088,
+      "vram_delta_mib": 8263,
+      "load_seconds": 5.3,
+      "applicability_failures": 7,
+      "applicability_note": "выдуманные домены технологий: civilian_industry, aeronautics, Military_Industry, military_industrial_complex, nuclear_physics, military_tech, military_science"
+    },
+    {
+      "model": "Qwen3.5-9B Q5_K_M",
+      "mode": "json_schema + reasoning включён, max_tokens=8192",
+      "context": 16000,
+      "runs": 8,
+      "schema_valid_first_try": "8/8",
+      "turn_seconds_avg": 60.5,
+      "gen_tps": 81.4,
+      "prompt_eval_tps_cold": 2245,
+      "completion_tokens_avg": 4905,
+      "reasoning_chars_avg": 19579,
+      "vram_peak_mib": 9253,
+      "applicability_failures": 0,
+      "applicability_note": "с включённым reasoning модель ПЕРЕСТАЛА выдумывать домены — 0 против 7"
+    },
+    {
+      "model": "Qwen3.5-9B Q5_K_M",
+      "mode": "json_schema + reasoning включён, max_tokens=4096",
+      "context": 12000,
+      "runs": 10,
+      "schema_valid_first_try": "3/10",
+      "schema_valid_after_one_retry": "10/10",
+      "turn_seconds_avg": 49.1,
+      "break_kinds": { "truncated": 7, "empty_response": 7 },
+      "note": "провалы НЕ качественные: reasoning съедает лимит 4096 целиком, на JSON не остаётся. Поднятие лимита до 8192 убирает их полностью."
+    },
+    {
+      "model": "Qwen3.5-9B Q5_K_M",
+      "mode": "БЕЗ json_schema (свободная генерация) + reasoning_effort=none",
+      "runs": 10,
+      "schema_valid_first_try": "0/10",
+      "schema_valid_after_one_retry": "3/10",
+      "turn_seconds_avg": 8.4,
+      "break_kinds": { "invalid_json": 7, "envelope": 3 },
+      "note": "типичные поломки: обёртка ```json вокруг ответа, текст вокруг JSON, недостающие поля конверта. Грамматика json_schema обязательна."
+    },
+    {
+      "model": "Qwen3.6-35B-A3B Q4_K_M (lmstudio-community)",
+      "file_gib": 19.71,
+      "mode": "json_schema + reasoning_effort=none",
+      "context": 12000,
+      "gpu_offload": "auto (частичная: ~7.9 ГБ в VRAM, ~12.6 ГБ в RAM)",
+      "runs": 6,
+      "schema_valid_first_try": "6/6",
+      "turn_seconds_avg": 37.9,
+      "gen_tps": 20.0,
+      "prompt_eval_tps_cold": 552,
+      "completion_tokens_avg": 723,
+      "vram_peak_mib": 9551,
+      "vram_delta_mib": 8116,
+      "load_seconds": 10.8,
+      "applicability_failures": 5,
+      "applicability_note": "nuclear_physics четырежды, industrial_production — те же выдуманные домены, что у 9B"
+    },
+    {
+      "model": "Qwen3.6-35B-A3B Q4_K_M",
+      "mode": "json_schema + reasoning включён, max_tokens=8192",
+      "context": 16000,
+      "runs": 3,
+      "schema_valid_first_try": "3/3",
+      "turn_seconds_avg": 307.0,
+      "gen_tps": 18.0,
+      "completion_tokens_avg": 5461,
+      "reasoning_chars_avg": 20153,
+      "note": "5 минут на ход — практически непригодно"
+    }
+  ],
+
+  "thermal": {
+    "9b_full_vram": { "temp_c": 80, "power_w": 305, "power_limit_w": 320, "clocks_sm_mhz": "1725-1785", "gpu_util_pct": "76-85", "fan_pct": "70-80" },
+    "moe_partial_offload": { "temp_c": 61, "power_w": 79, "clocks_sm_mhz": "285-780", "gpu_util_pct": "22-54" },
+    "throttle_counters": "SW Thermal Slowdown 0 us, HW Thermal Slowdown 0 us — термотроттлинга не было ни разу. Активен SW Power Capping: 9B упирается в лимит мощности 320 Вт, не в температуру.",
+    "limits": { "slowdown_c": 95, "max_operating_c": 93, "shutdown_c": 98, "memory_temp_sensor": "N/A" },
+    "conclusion": "Тепло не ограничивает ничего. У MoE потолок скорости задаёт не GPU, а обмен с RAM — карта простаивает на 80 Вт."
+  },
+
+  "recommendation": {
+    "primary": "Qwen3.5-9B Q5_K_M",
+    "rationale": "10/10 схема-валидных при 6,1 с на ход против 6/6 при 37,9 с у MoE. MoE медленнее в 6 раз, не точнее по идентификаторам и в 10 ГБ VRAM целиком не помещается.",
+    "operating_modes": {
+      "обычный ход": "reasoning_effort=none, max_tokens 4096, json_schema — 6 с",
+      "сложный ход": "reasoning включён, max_tokens 8192, контекст 16k — 60 с, зато 0 выдуманных идентификаторов"
+    },
+    "mandatory_settings": [
+      "json_schema обязателен: без грамматики 0/10 против 10/10",
+      "max_tokens >= 8192 при включённом reasoning, иначе обрыв на середине JSON",
+      "--parallel 1: по умолчанию LM Studio берёт 4 слота и вчетверо раздувает KV-кэш"
+    ]
+  },
+
+  "unresolved_risks": [
+    "Промт замерен на первом ходу (5342 токена). На разросшемся до 8-10k промте prompt eval и KV-кэш вырастут — НЕ проверено, влезет ли 9B в VRAM при контексте 16k с полным промтом.",
+    "prompt eval взят с холодного прогона (2286 t/s у 9B, 552 у MoE); остальные прогоны били в кэш промта LM Studio (100-200 мс). В игре промт меняется частично, поэтому реальная величина лежит между этими краями и точно не измерена.",
+    "Замер на одной стране (USA), одном ходу (январь 1946), фиксированном сиде. Разнообразие игровых состояний не покрыто; доля схема-валидных на поздней партии с войнами и кризисами UNKNOWN.",
+    "Качество русского нарратива и осмысленность решений НЕ измерены — собраны только образцы для оценки пользователем. Замерена валидность формы, не польза содержания.",
+    "MoE прогонов всего 6 и 3 (против 10 у 9B) — доверительный интервал шире.",
+    "mmproj (vision-проектор, ~0,85 ГБ на модель) скачан вместе с обеими моделями; влияет ли он на занятую VRAM — не проверено. Возможна экономия.",
+    "Замер 9B в режиме reasoning@4096 шёл параллельно с докачкой MoE — влияние на дисковый I/O не изолировано (на GPU-метрики не влияет).",
+    "Выдуманные домены технологий — сигнал о том, что промт недостаточно жёстко подаёт список допустимых доменов, а схема принимает domain как свободную строку. Это данные о качестве схемы/промта; ослаблять их под локальную модель запрещено заданием, решение за пользователем."
+  ]
+}
