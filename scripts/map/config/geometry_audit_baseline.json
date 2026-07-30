@@ -267,8 +267,10 @@
       "SEA-0110",
       "SEA-0111"
     ],
-    "WATER_SHATTERED": [],
+    "UNION_HOLE": [],
+    "COVERAGE_INVALID": [],
     "ORPHAN_FOREIGN": [],
+    "WATER_SHATTERED": [],
     "SEA_HOLE": []
   }
 }

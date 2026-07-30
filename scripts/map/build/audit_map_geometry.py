@@ -76,7 +76,8 @@ if hasattr(sys.stdout, "reconfigure"):
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from paths import game_map, out  # noqa: E402
 from geometry_cleanup import area_km2  # noqa: E402
-from shapely.geometry import shape, box as shp_box  # noqa: E402
+import shapely  # noqa: E402
+from shapely.geometry import shape, box as shp_box, Polygon  # noqa: E402
 from shapely.ops import unary_union  # noqa: E402
 from shapely.strtree import STRtree  # noqa: E402
 
@@ -104,6 +105,10 @@ WATER_MIN_PARTS = 3
 # кусок площадью больше порога.
 SPIKE_ERODE_DEG = 0.004        # ~440 м
 SPIKE_MIN_KM2 = 3.0
+
+# Ниже этого дыра — машинный шум noding'а, а не география (тот же смысл,
+# что у MIN_CELL_AREA_DEG2 в geometry_cleanup.py).
+MIN_HOLE_AREA_DEG2 = 1e-12
 
 SCATTERED_THRESHOLD_DEG = 0.5
 ANTIMERIDIAN_DEG = 180.0       # разброс больше — артефакт склейки, не дефект
@@ -427,6 +432,74 @@ def check_missing_land(world, raw):
     return res
 
 
+def check_union_holes(world):
+    """Внутренние дыры в объединении карты — прямая проверка требования
+    «все полигоны прилипают друг к другу».
+
+    Почему нужен отдельный класс, хотя есть COASTLINE_GAP: тот считается
+    через `_gap_cells` с порогом `MIN_AREA_KM2 = 0.5` и отбрасывает
+    вытянутые полосы как `LAND_SEAM` (MRR aspect >= 8) — «шум несовпадения
+    независимо оцифрованных границ». Именно эти два фильтра скрывали 718
+    настоящих дыр суммарно 3312 км² с медианной шириной 156 м, пока их не
+    нашли прямым замером `interior_rings` глобального union (2026-07-30).
+    Здесь порогов формы нет вовсе: дыра — это дыра.
+
+    Отсекается только машинный шум noding'а (< MIN_HOLE_AREA_DEG2): union
+    такой площади лишь сдвигает координаты, порождая фантом на следующем
+    проходе — тот же механизм, что у `MIN_CELL_AREA_DEG2` в
+    geometry_cleanup.py."""
+    geoms = [valid(shape(ft["geometry"])) for ft in world]
+    u = unary_union(geoms)
+    parts = list(u.geoms) if u.geom_type == "MultiPolygon" else [u]
+    res = []
+    for pl in parts:
+        for ring in pl.interiors:
+            h = Polygon(ring)
+            if not h.is_valid:
+                h = h.buffer(0)
+            if h.is_empty or h.area < MIN_HOLE_AREA_DEG2:
+                continue
+            a = safe_area_km2(h)
+            c = h.centroid
+            per = h.length
+            w = (2 * h.area / per * 111000) if per else 0.0
+            res.append(finding(
+                "UNION_HOLE", f"{c.x:.2f},{c.y:.2f}", "union", a,
+                f"дыра {a:.3f} км² (ширина ~{w:.0f} м) — не принадлежит ни "
+                f"одной фиче, окружена картой"))
+    return res
+
+
+def check_coverage(world):
+    """Строгая топологическая валидность: граница двух соседей — одно ребро.
+
+    Прямая проверка второй половины требования. Дыр может не быть (площадь
+    сходится), а узлы соседей всё равно свои у каждого — и тогда клиент
+    рисует ложный берег: `TopologyBuilder.ts` считает отрезок береговым,
+    если он встречается ровно у ОДНОГО региона. До пересборки таких ложных
+    берегов было ~9200 при `coverage_is_valid=False` и 171° невалидных
+    рёбер на одном тайле."""
+    import numpy as np
+    arr = np.array([valid(shape(ft["geometry"])) for ft in world], dtype=object)
+    try:
+        if shapely.coverage_is_valid(arr, gap_width=0.0):
+            return []
+        edges = shapely.coverage_invalid_edges(arr, gap_width=0.0)
+    except Exception as exc:
+        print(f"      [COVERAGE] проверка не выполнена: {type(exc).__name__}: {exc}")
+        return []
+    res = []
+    for ft, e in zip(world, edges):
+        if e is None or e.is_empty:
+            continue
+        p = ft["properties"]
+        res.append(finding(
+            "COVERAGE_INVALID", p.get("region_id"), p.get("name"), e.length,
+            f"рёбра длиной {e.length:.6f}° не совпадают с соседними "
+            f"(граница не общая)"))
+    return res
+
+
 def check_coastline_gaps(world):
     """Переиспользует проверенный _gap_cells из diagnose_coastline_gaps.py
     (не переписан заново — своя реализация поиска ячеек уже однажды дала
@@ -509,9 +582,14 @@ CHECKS = {
     "SCATTERED": ("world", check_scattered),
     "MISSING_LAND": ("world+raw", check_missing_land),
     "COASTLINE_GAP": ("world", check_coastline_gaps),
+    # Прямые проверки требования «полигоны прилипают друг к другу»:
+    # дыр в объединении нет и границы соседей — общие рёбра.
+    "UNION_HOLE": ("world", check_union_holes),
+    "COVERAGE_INVALID": ("world", check_coverage),
     "SEA_HOLE": ("world+raw", check_sea_holes),
 }
-HEAVY = {"COASTLINE_GAP", "SEA_HOLE", "MISSING_LAND", "SPIKE"}
+HEAVY = {"COASTLINE_GAP", "SEA_HOLE", "MISSING_LAND", "SPIKE",
+         "UNION_HOLE", "COVERAGE_INVALID"}
 
 
 def load_baseline():

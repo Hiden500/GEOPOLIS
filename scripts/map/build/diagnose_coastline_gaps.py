@@ -285,19 +285,34 @@ def render(minx, miny, maxx, maxy, out_path, title=None):
     land_geoms, water_geoms = load_all_geoms(box)
 
     fig, ax = plt.subplots(figsize=(10, 10))
-    for g in land_geoms:
-        polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
-        for p in polys:
-            if p.is_empty:
-                continue
-            ax.add_patch(_polygon_patch(p, facecolor="wheat", zorder=2))
-            _exterior_line(p, ax, color="saddlebrown", linewidth=0.5, zorder=2.1)
+    # Фон осей = цвет воды, а НЕ белый (2026-07-30). Причина: соседние
+    # полигоны рисуются отдельными патчами, и на их стыке антиалиасинг
+    # оставляет субпиксельный зазор, через который просвечивает фон. При
+    # белом фоне это читается как «щель в карте» — пользователь несколько
+    # раз обводил такие места как дефект, хотя данные там сплошные
+    # (замер: непокрытая площадь 81 м² на 49 297 км² тайла). Тот же приём
+    # уже применён в клиенте: `background-color: '#1a3a5c'` подобран под
+    # тон океана (см. client/src/map/MapView.tsx).
+    ax.set_facecolor("#a8d8f0")
     for g in water_geoms:
         polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
         for p in polys:
             if p.is_empty:
                 continue
             ax.add_patch(_polygon_patch(p, facecolor="#a8d8f0", zorder=1))
+    for g in land_geoms:
+        polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
+        for p in polys:
+            if p.is_empty:
+                continue
+            # edgecolor = facecolor у самого патча: каждый полигон
+            # докрашивает свой край собственным цветом и шов между
+            # соседями не просвечивает. Отдельная тонкая линия контура
+            # рисуется поверх — она нужна, чтобы границы были видны, но
+            # уже не создаёт зазора.
+            ax.add_patch(_polygon_patch(p, facecolor="wheat", zorder=2))
+            _exterior_line(p, ax, color="wheat", linewidth=1.2, zorder=2.05)
+            _exterior_line(p, ax, color="saddlebrown", linewidth=0.5, zorder=2.1)
 
     gaps = _gap_cells(box, land_geoms, water_geoms)
     counts = {"COASTLINE": 0, "LAND_HOLE": 0, "LAND_SEAM": 0}
