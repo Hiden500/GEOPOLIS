@@ -181,9 +181,17 @@
 
 /* ── Сравнение ────────────────────────────────────────────────── */
 
+/*
+ * Колонка подписи — auto, колонки значений — minmax(0, 1fr).
+ *
+ * Было наоборот (подпись 1fr, значения auto) плюс nowrap у значений: длинный
+ * курс вроде «Либеральная демократия» раздувал колонку значения, сжимал
+ * подпись до нуля, и «Курс» наезжал на само значение. Ширину теперь
+ * ограничивают значения, а не подпись, и переносятся тоже они.
+ */
 .compare {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--space-2) var(--space-3);
   align-items: baseline;
 }
@@ -199,7 +207,8 @@
 .compareValue {
   font-weight: var(--weight-bold);
   text-align: right;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .flagChip {

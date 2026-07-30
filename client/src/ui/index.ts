@@ -26,6 +26,9 @@ export type { OrderCardProps } from "./OrderCard/OrderCard";
 export { ShapedBar } from "./ShapedBar/ShapedBar";
 export type { ShapedBarProps } from "./ShapedBar/ShapedBar";
 
+export { Tooltip } from "./Tooltip/Tooltip";
+export type { TooltipProps } from "./Tooltip/Tooltip";
+
 export { Tag } from "./Tag/Tag";
 export type { TagProps, TagKind } from "./Tag/Tag";
 

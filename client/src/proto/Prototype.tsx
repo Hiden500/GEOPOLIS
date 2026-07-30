@@ -32,6 +32,7 @@ import {
   Panel,
   ShapedBar,
   Stat,
+  Tooltip,
   cx,
   type DeltaTone,
   type ThresholdState,
@@ -430,93 +431,93 @@ export function Prototype() {
       <div ref={shapkaRef}>
         <ShapedBar
           className={styles.shapka}
-          tabOffset={32}
-          tab={
-            <button
-              type="button"
-              className={styles.rankBox}
-              title="Ранг по совокупной мощи — открыть реестр держав"
-              onClick={() => {
-                setLedgerTab("powers");
-                setYashik({ kind: "ledger" });
-              }}
-            >
-              <span className={styles.rankLabel}>в мире</span>
-              <span className={styles.rank}>{COUNTRIES[PLAYER].rank}</span>
-            </button>
-          }
-        >
-          <div className={styles.shapkaInner}>
+          tabOffset={16}
+          tabRound
+          left={
             <div className={styles.flagCell}>
+              <Tooltip label={`${COUNTRIES[PLAYER].short} — панель державы`}>
+                <button type="button" className={styles.flagButton} onClick={() => selectCountry(PLAYER)}>
+                  <span className={styles.flag}>
+                    <FlagSU />
+                  </span>
+                </button>
+              </Tooltip>
+            </div>
+          }
+          tab={
+            <Tooltip label={`Место в мире по совокупной мощи — открыть реестр держав`}>
               <button
                 type="button"
-                className={styles.flagButton}
-                title={`${COUNTRIES[PLAYER].short} — панель державы`}
-                onClick={() => selectCountry(PLAYER)}
+                className={styles.rankBox}
+                onClick={() => {
+                  setLedgerTab("powers");
+                  setYashik({ kind: "ledger" });
+                }}
               >
-                <span className={styles.flag}>
-                  <FlagSU />
-                </span>
+                {COUNTRIES[PLAYER].rank}
               </button>
+            </Tooltip>
+          }
+          top={
+            <div className={styles.pribory}>
+              {PRIBORY_GROUPS.map((group, groupIndex) => (
+                <div key={groupIndex} className={styles.priboryGroup}>
+                  {groupIndex > 0 && <span className={styles.priborySplit} />}
+                  {group.map((stat) => {
+                    // Локальная константа, иначе сужение типа не доживает
+                    // до тела замыкания и `tome` остаётся возможно-undefined.
+                    const tome = stat.tome;
+                    return (
+                      <Stat
+                        key={stat.key}
+                        label={stat.label}
+                        value={stat.value}
+                        delta={stat.delta}
+                        threshold={stat.threshold}
+                        icon={stat.icon}
+                        labelMode="hidden"
+                        onClick={tome === undefined ? undefined : () => setYashik({ kind: "tome", id: tome })}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
             </div>
-
-            <div className={styles.shapkaRows}>
-              <div className={styles.pribory}>
-                {PRIBORY_GROUPS.map((group, groupIndex) => (
-                  <div key={groupIndex} className={styles.priboryGroup}>
-                    {groupIndex > 0 && <span className={styles.priborySplit} />}
-                    {group.map((stat) => {
-                      // Локальная константа, иначе сужение типа не доживает
-                      // до тела замыкания и `tome` остаётся возможно-undefined.
-                      const tome = stat.tome;
-                      return (
-                        <Stat
-                          key={stat.key}
-                          label={stat.label}
-                          value={stat.value}
-                          delta={stat.delta}
-                          threshold={stat.threshold}
-                          icon={stat.icon}
-                          labelMode="hidden"
-                          onClick={tome === undefined ? undefined : () => setYashik({ kind: "tome", id: tome })}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-
-              <div className={styles.koreshki}>
-                {tomes.map((id) => (
+          }
+          bottom={
+            <div className={styles.koreshki}>
+              {tomes.map((id) => (
+                <Tooltip key={id} label={TOME_NAMES[id]}>
                   <Button
-                    key={id}
-                    size="sm"
+                    size="md"
                     iconOnly
                     aria-label={TOME_NAMES[id]}
-                    title={TOME_NAMES[id]}
                     variant={yashik.kind === "tome" && yashik.id === id ? "order" : "quiet"}
                     onClick={() =>
-                      setYashik((prev) => (prev.kind === "tome" && prev.id === id ? { kind: "none" } : { kind: "tome", id }))
+                      setYashik((prev) =>
+                        prev.kind === "tome" && prev.id === id ? { kind: "none" } : { kind: "tome", id },
+                      )
                     }
                   >
                     {TOME_ICONS[id]}
                   </Button>
-                ))}
-                <span className={styles.koreshkiSplit} />
+                </Tooltip>
+              ))}
+              <span className={styles.koreshkiSplit} />
+              <Tooltip label="Реестр — таблицы мира">
                 <Button
-                  size="sm"
+                  size="md"
                   iconOnly
                   aria-label="Реестр"
-                  title="Реестр"
                   variant={yashik.kind === "ledger" ? "order" : "quiet"}
                   onClick={() => setYashik((prev) => (prev.kind === "ledger" ? { kind: "none" } : { kind: "ledger" }))}
                 >
                   <IconLedger />
                 </Button>
-              </div>
+              </Tooltip>
             </div>
-          </div>
-        </ShapedBar>
+          }
+        />
       </div>
 
       {/* ── ХОД ──────────────────────────────────────────────── */}
@@ -528,15 +529,21 @@ export function Prototype() {
             title={thinking ? "режиссёр думает" : "режиссёр готов"}
           />
           <div className={styles.instruments}>
-            <Button size="sm" variant="quiet" iconOnly aria-label="Сохранить" title="Сохранить">
-              <IconSave />
-            </Button>
-            <Button size="sm" variant="quiet" iconOnly aria-label="Поиск" title="Поиск" onClick={() => setSearchOpen(true)}>
-              <IconSearch />
-            </Button>
-            <Button size="sm" variant="quiet" iconOnly aria-label="Меню" title="Меню" onClick={() => setMenuOpen(true)}>
-              <IconMenu />
-            </Button>
+            <Tooltip label="Сохранить партию">
+              <Button size="sm" variant="quiet" iconOnly aria-label="Сохранить">
+                <IconSave />
+              </Button>
+            </Tooltip>
+            <Tooltip label="Поиск по державам и регионам">
+              <Button size="sm" variant="quiet" iconOnly aria-label="Поиск" onClick={() => setSearchOpen(true)}>
+                <IconSearch />
+              </Button>
+            </Tooltip>
+            <Tooltip label="Меню">
+              <Button size="sm" variant="quiet" iconOnly aria-label="Меню" onClick={() => setMenuOpen(true)}>
+                <IconMenu />
+              </Button>
+            </Tooltip>
           </div>
         </div>
 
@@ -697,27 +704,30 @@ export function Prototype() {
         <Panel density="instrument" className={styles.rezhimy}>
           <div className={styles.rezhimyGrid}>
             {MODES.map((mode) => (
-              <Button
+              <Tooltip
                 key={mode.id}
-                size="sm"
-                iconOnly
-                aria-label={mode.name}
-                title={
+                label={
                   mode.id === mapMode && LEGENDS[mode.id] !== undefined
-                    ? `${mode.name} — нажмите ещё раз для легенды`
+                    ? `${mode.name} — нажмите ещё раз, чтобы показать легенду`
                     : mode.name
                 }
-                variant={mode.id === mapMode ? "order" : "quiet"}
-                onClick={() => {
-                  if (mode.id === mapMode) setLegendOpen((open) => !open);
-                  else {
-                    setMapMode(mode.id);
-                    setLegendOpen(false);
-                  }
-                }}
               >
-                {mode.icon}
-              </Button>
+                <Button
+                  size="sm"
+                  iconOnly
+                  aria-label={mode.name}
+                  variant={mode.id === mapMode ? "order" : "quiet"}
+                  onClick={() => {
+                    if (mode.id === mapMode) setLegendOpen((open) => !open);
+                    else {
+                      setMapMode(mode.id);
+                      setLegendOpen(false);
+                    }
+                  }}
+                >
+                  {mode.icon}
+                </Button>
+              </Tooltip>
             ))}
           </div>
         </Panel>

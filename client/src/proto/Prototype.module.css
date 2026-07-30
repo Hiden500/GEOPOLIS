@@ -22,6 +22,10 @@
    * кнопку экрана менять размер каждый ход и уезжать из-под курсора.
    */
   --turn-w: 13.5rem;
+
+  /* Размер значка РАНГА. От него же считается верх ЯЩИКА. */
+  --rank-w: 2.75rem;
+  --rank-h: 2.25rem;
 }
 
 /* ── ШАПКА ────────────────────────────────────────────────────── */
@@ -31,26 +35,16 @@
   top: 0;
   left: 0;
   z-index: var(--z-frame);
-}
-
-.shapkaInner {
+  /* Выравнивание по ХОДУ: max из обеих высот считает Prototype. */
   min-height: var(--frame-h, 6rem);
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: stretch;
 }
 
 /*
- * Колонка ФЛАГА фиксированной ширины — под самый широкий случай (1:2,
- * Британия). Пропорции флага сохраняются, а ШАПКА не меняет ширину при
- * смене державы. Цена — воздух вокруг квадратных флагов.
+ * Отступ от края экрана меньше, чем внутренние: рама приклеена, и большой
+ * зазор слева выглядел бы как непопадание в угол.
  */
 .flagCell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 7.5rem;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
 }
 
 .flagButton {
@@ -61,45 +55,48 @@
   line-height: 0;
 }
 
+/*
+ * Высота флага фиксирована, ширина плавает по пропорции — иначе флаги врут.
+ * Потолок ширины взят по самому широкому случаю (1:2, Британия).
+ */
 .flag {
   display: block;
-  height: 3rem;
-  width: auto;
-  max-width: 6rem;
+  height: 4.25rem;
+  max-width: 8.5rem;
   border-radius: 3px;
   /* Контур обязателен: без него белые и светлые флаги растворяются в фоне. */
   box-shadow: 0 0 0 1px var(--divider);
   overflow: hidden;
 }
 
+/*
+ * Размер задаёт ВЫСОТА, ширина следует пропорции самого флага. Без этого
+ * правила svg рисуется своими атрибутами width/height, и заданная высота
+ * ни на что не влияет.
+ */
+.flag svg {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+/*
+ * РАНГ — круглый значок, висящий у самого края под ФЛАГОМ. Размер задан
+ * жёстко (это значок, а не содержимое), и от него же считается верх ЯЩИКА:
+ * иначе выдвинутая панель накрывала бы значок, а он должен быть виден всегда.
+ */
 .rankBox {
-  padding: 0 var(--space-4) var(--space-2);
-  text-align: center;
+  display: grid;
+  place-items: center;
+  width: var(--rank-w);
+  height: var(--rank-h);
+  padding: 0 0 var(--space-1);
   border: none;
   background: none;
-}
-
-.rankLabel {
-  display: block;
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
-  color: var(--text-faint);
-}
-
-.rank {
-  font-size: var(--text-xl);
+  color: var(--text);
+  font-size: var(--text-lg);
   font-weight: var(--weight-bold);
   line-height: 1;
-  color: var(--text);
-}
-
-.shapkaRows {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-4) var(--space-2) 0;
 }
 
 /*
@@ -111,30 +108,41 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  padding: var(--space-2) var(--space-5) var(--space-1) 0;
 }
 
 .priboryGroup {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .priborySplit {
   align-self: stretch;
   width: var(--edge-width);
+  margin-right: var(--space-1);
   background: var(--divider);
 }
 
+/*
+ * КОРЕШКОВ меньше, чем ПРИБОРОВ, поэтому нижняя полоса уже верхней — и
+ * силуэт панели сужается ступенькой с S-образным сопряжением. Разделительной
+ * линии между полосами нет: её работу делает сама ступенька.
+ */
 .koreshki {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding-top: var(--space-1);
-  border-top: var(--edge-width) solid var(--divider);
+  padding: 0 var(--space-4) var(--space-2) 0;
+}
+
+.koreshki svg {
+  width: 20px;
+  height: 20px;
 }
 
 .koreshkiSplit {
-  width: var(--space-2);
+  width: var(--space-3);
 }
 
 /* ── ХОД ──────────────────────────────────────────────────────── */
@@ -305,7 +313,7 @@
 .yashik {
   position: absolute;
   left: var(--frame-gap);
-  top: calc(var(--frame-h, 6rem) + var(--frame-gap));
+  top: calc(var(--frame-h, 6rem) + var(--rank-h) + var(--frame-gap));
   bottom: calc(var(--bottom-h, 8rem) + var(--frame-gap) * 2);
   z-index: var(--z-surface);
   display: flex;

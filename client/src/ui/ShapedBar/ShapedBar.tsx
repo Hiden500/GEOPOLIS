@@ -2,55 +2,85 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./ShapedBar.module.css";
 
 /**
- * Панель с ВЫРЕЗОМ — тем самым сопряжением, которым верхняя панель
- * соединяется с вынесенным наружу элементом (рейтинг державы).
+ * Панель со СТУПЕНЧАТЫМ силуэтом и ВЫРЕЗАМИ.
+ *
+ * Форма: левая колонка (ФЛАГ) во всю высоту; справа две полосы — верхняя
+ * шире (ПРИБОРОВ больше), нижняя уже (КОРЕШКОВ меньше), и между ними
+ * S-образное сопряжение из выпуклой и вогнутой дуг. Под левой колонкой
+ * висит выступ (РАНГ), соединённый вогнутыми вырезами.
  *
  * Почему SVG, а не CSS. Вогнутый угол в CSS делается маской или
  * box-shadow-трюком, и оба дают залитую форму БЕЗ контура: рамка не умеет
  * идти по маске. Волосяная линия здесь — язык формы всей системы, и её
- * разрыв на самом заметном изгибе выглядел бы поломкой, а не стилем.
- * Один путь решает и заливку, и обводку сразу.
+ * разрыв на самом заметном изгибе выглядел бы поломкой. Один путь решает и
+ * заливку, и обводку сразу.
  *
- * Форма считается из ИЗМЕРЕННЫХ размеров: ширина панели зависит от числа
- * показателей и локали, положение выступа — от вёрстки. Захардкоженные
- * координаты разъехались бы на первом же переводе.
+ * Геометрия считается из ИЗМЕРЕННЫХ размеров: ширина полос зависит от числа
+ * элементов, локали и масштаба. Захардкоженные координаты разъехались бы на
+ * первом же переводе.
  */
 export interface ShapedBarProps {
-  /** Содержимое панели. */
-  children: ReactNode;
-  /** Содержимое выступа, висящего под нижним краем. */
-  tab: ReactNode;
+  /** Колонка во всю высоту слева. */
+  left?: ReactNode;
+  /** Верхняя полоса — обычно более широкая. */
+  top: ReactNode;
+  /** Нижняя полоса. Уже верхней — отсюда ступенька. */
+  bottom?: ReactNode;
+  /** Выступ, висящий под нижним краем. */
+  tab?: ReactNode;
   /** Отступ выступа от левого края панели, в пикселях. */
   tabOffset?: number;
+  /** Полукруглый низ выступа вместо скругления по радиусу панели. */
+  tabRound?: boolean;
   className?: string;
 }
 
-export function ShapedBar({ children, tab, tabOffset = 24, className }: ShapedBarProps) {
-  const bodyRef = useRef<HTMLDivElement>(null);
+interface Box {
+  leftW: number;
+  topW: number;
+  topH: number;
+  botW: number;
+  botH: number;
+  tabW: number;
+  tabH: number;
+}
+
+const EMPTY: Box = { leftW: 0, topW: 0, topH: 0, botW: 0, botH: 0, tabW: 0, tabH: 0 };
+
+export function ShapedBar({
+  left,
+  top,
+  bottom,
+  tab,
+  tabOffset = 16,
+  tabRound = false,
+  className,
+}: ShapedBarProps) {
+  const leftRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const botRef = useRef<HTMLDivElement>(null);
   const tabRef = useRef<HTMLDivElement>(null);
-  const [box, setBox] = useState({ width: 0, height: 0, tabWidth: 0, tabHeight: 0 });
+  const [box, setBox] = useState<Box>(EMPTY);
 
   useLayoutEffect(() => {
-    const body = bodyRef.current;
-    const tabNode = tabRef.current;
-    if (body === null || tabNode === null) return;
-
     const measure = () => {
       setBox({
-        width: body.offsetWidth,
-        height: body.offsetHeight,
-        tabWidth: tabNode.offsetWidth,
-        tabHeight: tabNode.offsetHeight,
+        leftW: leftRef.current?.offsetWidth ?? 0,
+        topW: topRef.current?.offsetWidth ?? 0,
+        topH: topRef.current?.offsetHeight ?? 0,
+        botW: botRef.current?.offsetWidth ?? 0,
+        botH: botRef.current?.offsetHeight ?? 0,
+        tabW: tabRef.current?.offsetWidth ?? 0,
+        tabH: tabRef.current?.offsetHeight ?? 0,
       });
     };
     measure();
 
     const observer = new ResizeObserver(measure);
-    observer.observe(body);
-    observer.observe(tabNode);
-
-    // Медиазапрос меняет содержимое панели, не трогая наблюдаемые узлы
-    // немедленно: подстраховываемся ещё и окном.
+    for (const node of [leftRef.current, topRef.current, botRef.current, tabRef.current]) {
+      if (node !== null) observer.observe(node);
+    }
+    // Медиазапрос меняет содержимое полос, не трогая наблюдаемые узлы сразу.
     window.addEventListener("resize", measure);
     return () => {
       observer.disconnect();
@@ -58,57 +88,95 @@ export function ShapedBar({ children, tab, tabOffset = 24, className }: ShapedBa
     };
   }, []);
 
-  const { width: w, height: h, tabWidth: tw, tabHeight: th } = box;
-  const root = typeof window === "undefined" ? 16 : parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const radius = root; // --radius-panel = 1rem
-  const notch = root; // --notch = 1rem
+  const unit =
+    typeof window === "undefined" ? 16 : parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const r = unit; // --radius-panel = 1rem
+  const n = unit; // --notch = 1rem
 
+  const w1 = box.leftW + box.topW;
+  const w2 = box.leftW + box.botW;
+  const h1 = box.topH;
+  const h = box.topH + box.botH;
+  const tabH = box.tabH;
   const t1 = tabOffset;
-  const t2 = tabOffset + tw;
-  const ready = w > 0 && h > 0 && tw > 0;
+  const t2 = tabOffset + box.tabW;
+  const tr = tabRound ? tabH / 2 : r;
 
-  // Обход по часовой стрелке от левого верхнего угла. Панель прижата к
-  // левому и верхнему краю экрана, поэтому там углы прямые.
-  const path = ready
-    ? [
-        `M 0 0`,
-        `L ${w} 0`,
-        `L ${w} ${h - radius}`,
-        `A ${radius} ${radius} 0 0 1 ${w - radius} ${h}`,
-        `L ${t2 + notch} ${h}`,
-        `A ${notch} ${notch} 0 0 0 ${t2} ${h + notch}`,
-        `L ${t2} ${h + th - radius}`,
-        `A ${radius} ${radius} 0 0 1 ${t2 - radius} ${h + th}`,
-        `L ${t1 + radius} ${h + th}`,
-        `A ${radius} ${radius} 0 0 1 ${t1} ${h + th - radius}`,
-        `L ${t1} ${h + notch}`,
-        `A ${notch} ${notch} 0 0 0 ${t1 - notch} ${h}`,
-        `L 0 ${h}`,
-        `Z`,
-      ].join(" ")
-    : "";
+  const ready = w1 > 0 && h > 0;
+  // Ступенька рисуется только если сужение вмещает обе дуги; иначе правый
+  // край идёт ровно по узкой полосе — «почти ступенька» читалась бы как брак.
+  const stepped = bottom !== undefined && w1 - w2 >= 2 * n;
+  const rightW = stepped ? w1 : Math.min(w1, w2 > 0 ? w2 : w1);
+
+  const parts: string[] = ["M 0 0"];
+  if (stepped) {
+    parts.push(
+      `L ${w1} 0`,
+      `L ${w1} ${h1 - r}`,
+      `A ${r} ${r} 0 0 1 ${w1 - r} ${h1}`,
+      `L ${w2 + n} ${h1}`,
+      `A ${n} ${n} 0 0 0 ${w2} ${h1 + n}`,
+      `L ${w2} ${h - r}`,
+      `A ${r} ${r} 0 0 1 ${w2 - r} ${h}`,
+    );
+  } else {
+    parts.push(`L ${rightW} 0`, `L ${rightW} ${h - r}`, `A ${r} ${r} 0 0 1 ${rightW - r} ${h}`);
+  }
+
+  if (tab !== undefined && box.tabW > 0) {
+    parts.push(
+      `L ${t2 + n} ${h}`,
+      `A ${n} ${n} 0 0 0 ${t2} ${h + n}`,
+      `L ${t2} ${h + tabH - tr}`,
+      `A ${tr} ${tr} 0 0 1 ${t2 - tr} ${h + tabH}`,
+      `L ${t1 + tr} ${h + tabH}`,
+      `A ${tr} ${tr} 0 0 1 ${t1} ${h + tabH - tr}`,
+      `L ${t1} ${h + n}`,
+      `A ${n} ${n} 0 0 0 ${t1 - n} ${h}`,
+    );
+  }
+
+  parts.push("L 0 " + h, "Z");
+  const path = parts.join(" ");
+  const totalH = h + (tab !== undefined ? tabH : 0);
 
   return (
     <div className={className} style={{ position: "relative", width: "max-content" }}>
       {ready && (
         <svg
           className={styles.shape}
-          width={w}
-          height={h + th}
-          viewBox={`0 0 ${w} ${h + th}`}
+          width={stepped ? w1 : rightW}
+          height={totalH}
+          viewBox={`0 0 ${stepped ? w1 : rightW} ${totalH}`}
           aria-hidden="true"
         >
           <path d={path} className={styles.path} />
         </svg>
       )}
 
-      <div ref={bodyRef} className={styles.body}>
-        {children}
+      <div className={styles.grid}>
+        {left !== undefined && (
+          <div ref={leftRef} className={styles.left}>
+            {left}
+          </div>
+        )}
+        <div className={styles.bands}>
+          <div ref={topRef} className={styles.band}>
+            {top}
+          </div>
+          {bottom !== undefined && (
+            <div ref={botRef} className={styles.band}>
+              {bottom}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div ref={tabRef} className={styles.tab} style={{ left: tabOffset }}>
-        {tab}
-      </div>
+      {tab !== undefined && (
+        <div ref={tabRef} className={styles.tab} style={{ left: tabOffset }}>
+          {tab}
+        </div>
+      )}
     </div>
   );
 }

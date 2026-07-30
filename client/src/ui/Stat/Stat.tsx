@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { Tooltip } from "../Tooltip/Tooltip";
 import { cx } from "../cx";
 import styles from "./Stat.module.css";
 
@@ -69,17 +70,19 @@ export function Stat({
 
   const rootClass = cx(styles.stat, styles[size], className);
 
-  if (onClick !== undefined) {
-    return (
-      <button type="button" className={cx(rootClass, styles.interactive)} onClick={onClick} title={label}>
+  const body =
+    onClick !== undefined ? (
+      <button type="button" className={cx(rootClass, styles.interactive)} onClick={onClick}>
         {content}
       </button>
+    ) : (
+      <div className={rootClass}>{content}</div>
     );
-  }
 
-  return (
-    <div className={rootClass} title={label}>
-      {content}
-    </div>
-  );
+  /*
+   * Когда подпись скрыта, подсказка — единственный способ узнать, что это за
+   * число, поэтому она системная (оформленная и читаемая), а не браузерная.
+   * При видимой подписи подсказка была бы дублем.
+   */
+  return labelMode === "hidden" ? <Tooltip label={label}>{body}</Tooltip> : body;
 }

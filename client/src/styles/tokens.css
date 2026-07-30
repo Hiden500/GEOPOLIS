@@ -88,7 +88,11 @@
    */
   --frame-gap: var(--space-3);
   --feed-width: clamp(20rem, 22vw, 34rem);
-  --bottom-width: clamp(28rem, 46vw, 52rem);
+  /*
+   * ПОЛОСА и ЛИСТ занимают меньше, чем помещается: они стоят поверх карты по
+   * центру, и лишняя ширина здесь — это закрытая карта, а не польза.
+   */
+  --bottom-width: clamp(22rem, 32vw, 38rem);
   --surface-min: 32rem;
   --surface-max: 52rem;
   --ledger-width: clamp(48rem, 72vw, 80rem);

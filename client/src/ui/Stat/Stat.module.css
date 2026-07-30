@@ -16,10 +16,25 @@
   min-width: 0;
 }
 
+/*
+ * Иконка крупнее самой по себе, потому что после снятия подписей она
+ * осталась единственным видимым носителем смысла. Цвет ярче погашенного —
+ * по той же причине.
+ */
 .icon {
   display: flex;
   flex: 0 0 auto;
-  color: var(--text-faint);
+  color: var(--text-dim);
+}
+
+.md .icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.lg .icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 /*
