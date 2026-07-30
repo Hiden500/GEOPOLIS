@@ -1,0 +1,39 @@
+{
+  "_comment": "Мастер-карта: единственный стартовый источник геометрии. Геометрия согласована один раз (weld_map_gaps.py + rebuild_shared_edges.py); пайплайн читает этот файл вместо повторного согласования источников. Менять только осознанно, вместе с записью в docs/DECISIONS.md.",
+  "frozen_at": "2026-07-30T10:26:50Z",
+  "built_from_commit": "a9530ea2254cd8ce30202dbd78652259bc5f5b4f",
+  "built_from_branch": "claude/1946-map-coastline-fixes",
+  "source": "scripts/map/out/world_1946.geojson",
+  "produced_by": [
+    "build/weld_map_gaps.py",
+    "build/rebuild_shared_edges.py",
+    "build/merge_world_1946.py",
+    "build/translate_world.py"
+  ],
+  "checks": {
+    "features": 1577,
+    "by_prefix": {
+      "AFR": 208,
+      "ANT": 7,
+      "ASI": 444,
+      "EUR": 377,
+      "LAK": 13,
+      "NAM": 267,
+      "OCE": 70,
+      "SAM": 78,
+      "SEA": 113
+    },
+    "by_region_type": {
+      "lake": 13,
+      "land": 1451,
+      "sea": 113
+    },
+    "land_area_km2": 146325864.1,
+    "water_area_km2": 363739434.3,
+    "invalid_geometries": 0,
+    "union_holes": 0,
+    "union_hole_area_km2": 0.0,
+    "coverage_is_valid": true,
+    "coverage_invalid_edge_length_deg": 0.0
+  }
+}

@@ -47,6 +47,23 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "scripts" / "map" / "out"
 CONFIG_DIR = REPO_ROOT / "scripts" / "map" / "config"
+MASTER_DIR = REPO_ROOT / "scripts" / "map" / "master"
+
+# Геометрия читается из МАСТЕРА, если он есть (2026-07-30). Мастер —
+# единственный стартовый источник: геометрия в нём согласована один раз
+# (build/weld_map_gaps.py + build/rebuild_shared_edges.py) и зафиксирована в
+# git, поэтому обычная сборка больше не прогоняет 31 шаг согласования
+# несовпадающих источников. Fallback на out/world_1946.geojson оставлен
+# осознанно: он нужен ровно в тот момент, когда мастер пересобирают
+# (MASTER_REBUILD_STEPS) и он ещё не заморожен.
+MASTER_GEOJSON = MASTER_DIR / "world_1946.master.geojson"
+
+
+def world_geojson_path() -> Path:
+    """Путь к исходной геометрии: мастер, иначе — свежесобранный out/."""
+    if MASTER_GEOJSON.exists():
+        return MASTER_GEOJSON
+    return OUT_DIR / "world_1946.geojson"
 
 CLIENT_GEOJSON_OUT = REPO_ROOT / "client" / "public" / "world_1946.geojson"
 SCENARIO_DIR = REPO_ROOT / "server" / "data" / "scenarios" / "1946"
@@ -131,7 +148,9 @@ def load_historical_region_overrides() -> dict[str, str]:
 
 
 def main():
-    world = load_json(OUT_DIR / "world_1946.geojson")
+    world_src = world_geojson_path()
+    print(f"Геометрия из: {world_src.relative_to(REPO_ROOT)}")
+    world = load_json(world_src)
     ownership = load_json(OUT_DIR / "ownership_1946.json")
     neighbors = load_json(OUT_DIR / "neighbor_graph.json")["neighbors"]
     names = {n["region_id"]: n for n in load_json(OUT_DIR / "names_ru.json")}

@@ -659,10 +659,33 @@ Pipeline формирует геометрию, ownership, соседство, �
 python scripts/map/make_1946.py
 ```
 
-Команда использует готовые inputs из `scripts/map/out/`, экспортирует каталог
-ресурсов из server и последовательно запускает import, country registry,
-economy fill и validators. Она изменяет generated scenario files — сначала
-проверь `git status` и ожидаемый scope.
+Геометрию команда берёт из **мастера**
+`scripts/map/master/world_1946.master.geojson` (2026-07-30) — не из
+`out/*.geojson`. Мастер отслеживается git и является единственным стартовым
+источником: вся геометрия согласована один раз (`build/weld_map_gaps.py`
+закрыл 718 внутренних дыр, `build/rebuild_shared_edges.py` сделал границы
+соседей общими рёбрами), поэтому обычная сборка больше не прогоняет 31 шаг
+согласования несовпадающих источников. Проверено: пайплайн проходит целиком
+при полностью удалённых `out/*.geojson`.
+
+Остальное берётся как раньше: `out/ownership_1946.json`,
+`out/names_ru.json`, `out/neighbor_graph.json` (все отслеживаются git, кроме
+neighbor_graph, который регенерируется), каталог ресурсов из server. Команда
+изменяет generated scenario files — сначала проверь `git status` и ожидаемый
+scope.
+
+Пересобирать геометрию нужно ТОЛЬКО при правке самих границ:
+
+```powershell
+python scripts/map/make_1946.py --rebuild-master
+```
+
+Это прогоняет все 31 шаг из `MASTER_REBUILD_STEPS`, затем сшивку и
+`build/freeze_master_map.py`, который проверяет «0 внутренних дыр +
+coverage_is_valid» и лишь потом перезаписывает мастер. Нужны внешние
+источники из `scripts/map/sources/` — в linked worktree их нет (каталог
+gitignored), путь к основному checkout задаётся через `PAXMAP_SOURCES`, см.
+`build/paths.py`.
 
 Минимальные non-generating checks:
 

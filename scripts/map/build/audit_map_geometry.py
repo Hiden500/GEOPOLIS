@@ -427,19 +427,42 @@ def check_missing_land(world, raw):
     return res
 
 
-def check_coastline_gaps():
+def check_coastline_gaps(world):
     """Переиспользует проверенный _gap_cells из diagnose_coastline_gaps.py
     (не переписан заново — своя реализация поиска ячеек уже однажды дала
     0 находок там, где настоящая нашла реальные разрывы).
 
     TILES там — СПИСОК пар (label, bbox), не словарь: первая версия этой
     обёртки вызывала .items() по памяти и падала. Сверяться с реальной
-    сигнатурой, а не с воспоминанием о ней."""
-    from diagnose_coastline_gaps import TILES, load_all_geoms, _gap_cells
+    сигнатурой, а не с воспоминанием о ней.
+
+    Геометрия берётся из УЖЕ ЗАГРУЖЕННОГО world, а не через
+    `load_all_geoms()` (2026-07-30). Тот читает континентальные
+    `out/*.geojson`, из-за чего аудит мастера частично проверял бы другой
+    файл — и мастер перестал бы быть самодостаточным источником: удали
+    `out/`, и эта проверка развалилась бы, хотя игре `out/` больше не нужен.
+    Разделение на сушу и воду делается по `region_type`, который в мастере
+    есть у каждой фичи."""
+    from diagnose_coastline_gaps import TILES, _gap_cells
+
+    land_all, water_all = [], []
+    for ft in world:
+        g = valid(shape(ft["geometry"]))
+        if ft["properties"].get("region_type") in ("sea", "lake"):
+            water_all.append(g)
+        else:
+            land_all.append(g)
+    land_tree, water_tree = STRtree(land_all), STRtree(water_all)
+
     res = []
     for label, (minx, miny, maxx, maxy) in TILES:
         b = shp_box(minx, miny, maxx, maxy)
-        land, water = load_all_geoms(b)
+        # клип по тайлу — как в load_all_geoms: иначе polygonize получает
+        # геометрию всего мира и рождает фантомные ячейки у далёких берегов
+        land = [g for g in (land_all[int(i)].intersection(b) for i in land_tree.query(b))
+                if not g.is_empty]
+        water = [g for g in (water_all[int(i)].intersection(b) for i in water_tree.query(b))
+                 if not g.is_empty]
         for cell, a, pt, cat in _gap_cells(b, land, water):
             if cat != "COASTLINE":
                 continue
@@ -485,7 +508,7 @@ CHECKS = {
     "SPIKE": ("world", check_spikes),
     "SCATTERED": ("world", check_scattered),
     "MISSING_LAND": ("world+raw", check_missing_land),
-    "COASTLINE_GAP": ("none", check_coastline_gaps),
+    "COASTLINE_GAP": ("world", check_coastline_gaps),
     "SEA_HOLE": ("world+raw", check_sea_holes),
 }
 HEAVY = {"COASTLINE_GAP", "SEA_HOLE", "MISSING_LAND", "SPIKE"}
@@ -528,7 +551,14 @@ def main():
         kind, target = CHECKS[cls]
         to_run.add(target if kind == "alias" else cls)
 
-    world = load_features(args.world or out("world_1946.geojson"))
+    # По умолчанию проверяем МАСТЕР, если он заморожен: именно он —
+    # источник истины для игры (см. build/freeze_master_map.py). Пока
+    # мастер пересобирают, его ещё нет — тогда работаем по свежему out/.
+    master = Path(__file__).resolve().parents[1] / "master" / "world_1946.master.geojson"
+    default_world = str(master) if master.exists() else out("world_1946.geojson")
+    world_path = args.world or default_world
+    print(f"  геометрия: {Path(world_path).name}", flush=True)
+    world = load_features(world_path)
     need_raw = any(CHECKS[c][0] in ("raw", "world+raw") for c in to_run)
     raw = load_features(game_map()) if need_raw else []
     raw_geoms = [valid(shape(ft["geometry"])) for ft in raw]

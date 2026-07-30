@@ -5,22 +5,37 @@ make_1946.py — оркестратор пайплайна сценария 1946
 Срез 5). Падает на первом ненулевом коде возврата (subprocess check=True) —
 не продолжает цепочку по битым данным.
 
+ГЕОМЕТРИЯ БЕРЁТСЯ ИЗ МАСТЕРА (2026-07-30). `scripts/map/master/
+world_1946.master.geojson` — единственный стартовый источник: вся геометрия
+согласована ОДИН РАЗ (`build/weld_map_gaps.py` закрыл 718 внутренних дыр,
+`build/rebuild_shared_edges.py` сделал границы соседей общими рёбрами) и
+зафиксирована в git. Раньше каждая сборка заново прогоняла 31 шаг
+согласования несовпадающих источников, результат ложился в gitignored
+`out/*.geojson`, и следующая сборка начинала с нуля.
+
+Что это дало, помимо простоты: позиционные `region_id` перестали ездить (их
+порядок больше не пересчитывается — раньше это регулярно ломало
+`out/ownership_1946.json`, `out/names_ru.json`,
+`economy_1946/capital_overrides.py`), а откат стал возможен через
+`git checkout`.
+
 Два режима:
 
   python scripts/map/make_1946.py
-      Стандартный путь: из уже готовых scripts/map/out/*.geojson+*.json
-      (build_*/merge_world_1946/translate_world НЕ перезапускаются — по
-      умолчанию репозиторий держит готовые выходы, см. scripts/map/README.md)
-      до валидного сценария. Экспорт каталога ресурсов (Node/tsx) ->
-      import_to_game -> generate_country_registry -> fill_region_economy_1946 ->
-      validate_region_economy_1946 -> тест структурных инвариантов.
+      Обычный путь: мастер + ownership/names/экономика -> валидный сценарий.
+      Экспорт каталога ресурсов (Node/tsx) -> audit_map_geometry ->
+      import_to_game -> generate_country_registry -> fill_region_economy_1946
+      -> validate_region_economy_1946 -> тест структурных инвариантов.
+      Геометрию НЕ пересобирает.
 
-  python scripts/map/make_1946.py --full-rebuild
-      То же самое, но сначала полностью пересобирает геометрию из
-      scripts/map/sources/ (build_europe_1946.py -> ... -> translate_world.py).
-      Нужны shapely/pyproj/pyshp и внешние источники — см. README "Внешние
-      источники". Не нужно для рутинного изменения экономики/владения/каталога
-      ресурсов — только при правке самой геометрии/границ.
+  python scripts/map/make_1946.py --rebuild-master
+      Восстановление мастера с нуля из scripts/map/sources/ (31 шаг:
+      build_europe_1946.py -> ... -> translate_world.py -> сшивка). Нужны
+      shapely/pyproj/pyshp и внешние источники (лежат в ОСНОВНОМ checkout,
+      в linked worktree их нет — путь задаётся через PAXMAP_SOURCES, см.
+      build/paths.py). Требуется только при правке самой геометрии/границ;
+      после прогона мастер замораживается `build/freeze_master_map.py`.
+      `--full-rebuild` оставлен синонимом для совместимости.
 """
 import argparse
 import subprocess
@@ -31,8 +46,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 MAP_DIR = REPO_ROOT / "scripts" / "map"
 SERVER_DIR = REPO_ROOT / "server"
 
+# Восстановление МАСТЕРА с нуля — не часть обычной сборки (2026-07-30).
+# Запускается вручную через --rebuild-master, только когда правится сама
+# геометрия. Список не сокращён намеренно: в этих скриптах лежит всё знание о
+# согласовании несовпадающих источников (какой контур авторитетнее, чем
+# резать, где исторические исключения), и терять его нельзя — но и прогонять
+# при каждой сборке больше не нужно, результат зафиксирован в мастере.
 # Порядок — docs/plans/README.md/scripts/map/README.md "Порядок запуска".
-FULL_REBUILD_STEPS = [
+MASTER_REBUILD_STEPS = [
     "build/build_europe_1946.py",
     "build/merge_kiel_canal_zone.py",
     "build/build_china_1946_v2.py",
@@ -65,9 +86,19 @@ FULL_REBUILD_STEPS = [
     "build/fix_alaska_coastline_gaps_pointfix.py",
     "build/fix_washington_sanjuan_orphans.py",
     "build/fix_puget_sound_coastline_gaps.py",
+    # Сшивка — завершающая часть восстановления мастера. Ставится ПОСЛЕ всех
+    # точечных fix_*, потому что закрывает то, что они по построению не могут:
+    # weld_map_gaps берёт дыры из interior_rings глобального union (без
+    # порогов формы, в отличие от absorb_slivers), а rebuild_shared_edges
+    # делает границу двух соседей одним физическим ребром.
+    "build/weld_map_gaps.py",
+    "build/rebuild_shared_edges.py",
     "build/merge_world_1946.py",
     "build/build_neighbor_graph.py",
     "build/translate_world.py",
+    # Заморозка: проверяет 0 дыр + coverage_is_valid и только тогда пишет
+    # мастер. Отказывается писать рваную карту.
+    "build/freeze_master_map.py",
 ]
 
 STANDARD_STEPS = [
@@ -105,14 +136,18 @@ def run_resource_catalog_export() -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
-        "--full-rebuild", action="store_true",
-        help="Пересобрать геометрию из scripts/map/sources/ перед импортом (нужны внешние источники).",
+        "--rebuild-master", "--full-rebuild", dest="rebuild_master",
+        action="store_true",
+        help="Восстановить МАСТЕР с нуля из scripts/map/sources/ (нужны внешние "
+             "источники; в linked worktree задай PAXMAP_SOURCES на основной "
+             "checkout). Обычной сборке не требуется — геометрия берётся из "
+             "scripts/map/master/. `--full-rebuild` — синоним для совместимости.",
     )
     args = parser.parse_args()
 
     try:
-        if args.full_rebuild:
-            for rel_path in FULL_REBUILD_STEPS:
+        if args.rebuild_master:
+            for rel_path in MASTER_REBUILD_STEPS:
                 run_python_step(rel_path)
 
         run_resource_catalog_export()
