@@ -16756,12 +16756,12 @@
   {
     "id": 1004,
     "ownerCountryId": "USA",
-    "population": 210546,
+    "population": 210541,
     "urbanization": 0.168,
     "stability": 0.589,
     "infrastructure": 0.891,
     "development": 0.874,
-    "gdp": 163959329,
+    "gdp": 163955435,
     "deposits": {
       "food": 289,
       "timber": 18
@@ -16774,12 +16774,12 @@
   {
     "id": 1005,
     "ownerCountryId": "USA",
-    "population": 322544,
+    "population": 322549,
     "urbanization": 0.179,
     "stability": 0.626,
     "infrastructure": 0.817,
     "development": 0.781,
-    "gdp": 205807908,
+    "gdp": 205811098,
     "deposits": {
       "food": 413,
       "timber": 41
@@ -18266,12 +18266,12 @@
   {
     "id": 1090,
     "ownerCountryId": "BRA",
-    "population": 177804,
+    "population": 177803,
     "urbanization": 0.019,
     "stability": 0.484,
     "infrastructure": 0.157,
     "development": 0.174,
-    "gdp": 4857250,
+    "gdp": 4857222,
     "deposits": {
       "food": 120,
       "timber": 28
@@ -18336,12 +18336,12 @@
   {
     "id": 1094,
     "ownerCountryId": "BRA",
-    "population": 2433919,
+    "population": 2433916,
     "urbanization": 0.22,
     "stability": 0.519,
     "infrastructure": 0.379,
     "development": 0.501,
-    "gdp": 462150106,
+    "gdp": 462149536,
     "deposits": {
       "food": 2436,
       "timber": 20
@@ -18354,12 +18354,12 @@
   {
     "id": 1095,
     "ownerCountryId": "BRA",
-    "population": 833924,
+    "population": 833923,
     "urbanization": 0.133,
     "stability": 0.465,
     "infrastructure": 0.338,
     "development": 0.363,
-    "gdp": 102317471,
+    "gdp": 102317349,
     "deposits": {
       "food": 720
     },
@@ -18370,12 +18370,12 @@
   {
     "id": 1096,
     "ownerCountryId": "BRA",
-    "population": 566944,
+    "population": 566943,
     "urbanization": 0.02,
     "stability": 0.438,
     "infrastructure": 0.172,
     "development": 0.191,
-    "gdp": 18625244,
+    "gdp": 18625211,
     "deposits": {
       "food": 392,
       "timber": 242
@@ -18388,12 +18388,12 @@
   {
     "id": 1097,
     "ownerCountryId": "BRA",
-    "population": 1024211,
+    "population": 1024209,
     "urbanization": 0.118,
     "stability": 0.474,
     "infrastructure": 0.317,
     "development": 0.351,
-    "gdp": 113960885,
+    "gdp": 113960663,
     "deposits": {
       "food": 872,
       "timber": 13
@@ -18406,12 +18406,12 @@
   {
     "id": 1098,
     "ownerCountryId": "BRA",
-    "population": 1408597,
+    "population": 1408596,
     "urbanization": 0.128,
     "stability": 0.488,
     "infrastructure": 0.325,
     "development": 0.396,
-    "gdp": 181286434,
+    "gdp": 181286305,
     "deposits": {
       "food": 1262,
       "timber": 29
@@ -18424,12 +18424,12 @@
   {
     "id": 1099,
     "ownerCountryId": "BRA",
-    "population": 1123826,
+    "population": 1123825,
     "urbanization": 0.124,
     "stability": 0.478,
     "infrastructure": 0.308,
     "development": 0.384,
-    "gdp": 132917149,
+    "gdp": 132917030,
     "deposits": {
       "food": 993,
       "timber": 17
@@ -18460,12 +18460,12 @@
   {
     "id": 1101,
     "ownerCountryId": "BRA",
-    "population": 502866,
+    "population": 502914,
     "urbanization": 0.409,
     "stability": 0.559,
     "infrastructure": 0.474,
     "development": 0.515,
-    "gdp": 122754619,
+    "gdp": 122766337,
     "deposits": {
       "food": 510
     },
@@ -18476,12 +18476,12 @@
   {
     "id": 1102,
     "ownerCountryId": "BRA",
-    "population": 1523512,
+    "population": 1523510,
     "urbanization": 0.21,
     "stability": 0.505,
     "infrastructure": 0.423,
     "development": 0.507,
-    "gdp": 326733907,
+    "gdp": 326733478,
     "deposits": {
       "food": 1534
     },
@@ -18492,12 +18492,12 @@
   {
     "id": 1103,
     "ownerCountryId": "BRA",
-    "population": 4522439,
+    "population": 4522434,
     "urbanization": 0.211,
     "stability": 0.475,
     "infrastructure": 0.404,
     "development": 0.515,
-    "gdp": 940938658,
+    "gdp": 940937618,
     "deposits": {
       "food": 4590,
       "timber": 54
@@ -18510,12 +18510,12 @@
   {
     "id": 1104,
     "ownerCountryId": "BRA",
-    "population": 542909,
+    "population": 542908,
     "urbanization": 0.019,
     "stability": 0.478,
     "infrastructure": 0.154,
     "development": 0.194,
-    "gdp": 16219949,
+    "gdp": 16219919,
     "deposits": {
       "food": 377,
       "timber": 246
@@ -18528,12 +18528,12 @@
   {
     "id": 1105,
     "ownerCountryId": "BRA",
-    "population": 663131,
+    "population": 663130,
     "urbanization": 0.022,
     "stability": 0.437,
     "infrastructure": 0.171,
     "development": 0.192,
-    "gdp": 21771917,
+    "gdp": 21771884,
     "deposits": {
       "food": 459,
       "timber": 313
@@ -18546,12 +18546,12 @@
   {
     "id": 1106,
     "ownerCountryId": "BRA",
-    "population": 2130516,
+    "population": 2130514,
     "urbanization": 0.115,
     "stability": 0.477,
     "infrastructure": 0.329,
     "development": 0.376,
-    "gdp": 263553351,
+    "gdp": 263553104,
     "deposits": {
       "food": 1866,
       "timber": 65
@@ -18564,12 +18564,12 @@
   {
     "id": 1107,
     "ownerCountryId": "BRA",
-    "population": 1839851,
+    "population": 1839850,
     "urbanization": 0.119,
     "stability": 0.499,
     "infrastructure": 0.321,
     "development": 0.384,
-    "gdp": 226787394,
+    "gdp": 226787270,
     "deposits": {
       "food": 1626,
       "timber": 50
@@ -18582,12 +18582,12 @@
   {
     "id": 1108,
     "ownerCountryId": "BRA",
-    "population": 3087947,
+    "population": 3087943,
     "urbanization": 0.233,
     "stability": 0.511,
     "infrastructure": 0.369,
     "development": 0.49,
-    "gdp": 558331697,
+    "gdp": 558330974,
     "deposits": {
       "food": 3057,
       "timber": 30
@@ -18600,12 +18600,12 @@
   {
     "id": 1109,
     "ownerCountryId": "BRA",
-    "population": 901851,
+    "population": 901850,
     "urbanization": 0.124,
     "stability": 0.475,
     "infrastructure": 0.333,
     "development": 0.375,
-    "gdp": 112618644,
+    "gdp": 112618519,
     "deposits": {
       "food": 789,
       "timber": 11
@@ -18618,12 +18618,12 @@
   {
     "id": 1110,
     "ownerCountryId": "BRA",
-    "population": 1836033,
+    "population": 1836031,
     "urbanization": 0.239,
     "stability": 0.526,
     "infrastructure": 0.435,
     "development": 0.466,
-    "gdp": 372182249,
+    "gdp": 372181844,
     "deposits": {
       "food": 1774,
       "timber": 11
@@ -18636,12 +18636,12 @@
   {
     "id": 1111,
     "ownerCountryId": "BRA",
-    "population": 1379723,
+    "population": 1379722,
     "urbanization": 0.205,
     "stability": 0.524,
     "infrastructure": 0.364,
     "development": 0.48,
-    "gdp": 241065203,
+    "gdp": 241065028,
     "deposits": {
       "food": 1352
     },
@@ -18652,12 +18652,12 @@
   {
     "id": 1112,
     "ownerCountryId": "BRA",
-    "population": 1215008,
+    "population": 1215007,
     "urbanization": 0.212,
     "stability": 0.507,
     "infrastructure": 0.429,
     "development": 0.437,
-    "gdp": 227781195,
+    "gdp": 227781007,
     "deposits": {
       "food": 1138
     },
@@ -18668,12 +18668,12 @@
   {
     "id": 1113,
     "ownerCountryId": "BRA",
-    "population": 6591721,
+    "population": 6591714,
     "urbanization": 0.245,
     "stability": 0.504,
     "infrastructure": 0.396,
     "development": 0.474,
-    "gdp": 1237292399,
+    "gdp": 1237291085,
     "deposits": {
       "food": 6420,
       "timber": 112
@@ -18686,12 +18686,12 @@
   {
     "id": 1114,
     "ownerCountryId": "BRA",
-    "population": 766905,
+    "population": 766904,
     "urbanization": 0.115,
     "stability": 0.515,
     "infrastructure": 0.329,
     "development": 0.343,
-    "gdp": 86542929,
+    "gdp": 86542816,
     "deposits": {
       "food": 647
     },
@@ -18702,12 +18702,12 @@
   {
     "id": 1115,
     "ownerCountryId": "BRA",
-    "population": 4412726,
+    "population": 4412721,
     "urbanization": 0.21,
     "stability": 0.541,
     "infrastructure": 0.361,
     "development": 0.45,
-    "gdp": 716847339,
+    "gdp": 716846526,
     "deposits": {
       "food": 4192,
       "timber": 50
@@ -18720,12 +18720,12 @@
   {
     "id": 1116,
     "ownerCountryId": "BRA",
-    "population": 6813120,
+    "population": 6813113,
     "urbanization": 0.218,
     "stability": 0.531,
     "infrastructure": 0.364,
     "development": 0.491,
-    "gdp": 1217668059,
+    "gdp": 1217666808,
     "deposits": {
       "food": 6752,
       "timber": 117
