@@ -3,7 +3,7 @@
 @../AGENTS.md
 
 Выше импортирован общий слой правил (корневой `AGENTS.md` — тот же файл
-нативно загружают Codex и Gemini). Этот адаптер не вводит отдельных
+нативно загружает Antigravity). Этот адаптер не вводит отдельных
 process/ownership/trust правил. Если импорт не подхватился (в контексте нет
 раздела «Geopolis — правила работы агента») — прочитай `AGENTS.md` явно до
 первой правки.
@@ -12,7 +12,8 @@ Claude Code не подхватывает вложенные `AGENTS.md` авт�
 правками в `client/`, `server/`, `shared/`, `scripts/map/` прочитай
 соответствующий `<модуль>/AGENTS.md`.
 
-Skills: канонические workflows — в `.agents/skills/` (общие с Codex); каждое
+Skills: канонические workflows — в `.agents/skills/` (их же монтирует
+Antigravity); каждое
 зеркало `.claude/skills/<name>/SKILL.md` с существующим каноном
 `.agents/skills/<name>/SKILL.md` обязано побайтно ему соответствовать — public
 eval проверяет parity по всем таким парам автоматически, а не по одному
