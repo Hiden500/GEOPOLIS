@@ -77,7 +77,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from paths import game_map, out  # noqa: E402
 from geometry_cleanup import area_km2  # noqa: E402
 import shapely  # noqa: E402
-from shapely.geometry import shape, box as shp_box, Polygon  # noqa: E402
+from shapely.geometry import (shape, box as shp_box, Polygon,  # noqa: E402
+                             Point, LineString)
 from shapely.ops import unary_union  # noqa: E402
 from shapely.strtree import STRtree  # noqa: E402
 
@@ -112,6 +113,11 @@ MIN_HOLE_AREA_DEG2 = 1e-12
 
 SCATTERED_THRESHOLD_DEG = 0.5
 ANTIMERIDIAN_DEG = 180.0       # разброс больше — артефакт склейки, не дефект
+
+# Радиус пробы вокруг середины отрезка в FALSE_COAST: ~22 м. Больше —
+# начнёт задевать регион через узкий пролив и объявит настоящий берег
+# ложным; меньше — не заметит соседа, отстоящего на округление клиента.
+FALSE_COAST_PROBE_DEG = 2e-4
 
 
 def load_features(path):
@@ -500,6 +506,111 @@ def check_coverage(world):
     return res
 
 
+def _is_water(props):
+    """Вода по любому из признаков, встречающихся в наших файлах.
+
+    Мастер несёт `region_type`, экспорт для клиента — `type: "ocean"`, а
+    исторические срезы (для негативного контроля) — только `region_id` с
+    префиксом. Проверка по одному полю на другом формате молча считает
+    океан сушей: так первый прогон FALSE_COAST нашёл 149 858 «дефектов» на
+    границах морских секторов по 60°E и 125°W."""
+    if props.get("region_type") in ("sea", "lake"):
+        return True
+    if props.get("type") == "ocean":
+        return True
+    rid = props.get("region_id")
+    return isinstance(rid, str) and rid.startswith(("SEA-", "LAK-"))
+
+
+def check_false_coast(world):
+    """Отрезки, которые КЛИЕНТ нарисует берегом внутри суши.
+
+    Зачем отдельно от COVERAGE_INVALID: тот спрашивает GEOS «совпадают ли
+    рёбра», и на текущем мастере ответ «да» (0 невалидных рёбер). Клиент же
+    сравнивает не рёбра, а отрезки по округлённым до 1e-5 концам
+    (`getSegmentKey` в client/src/map/engine/TopologyBuilder.ts) и считает
+    отрезок берегом, если тот встретился ровно у ОДНОГО региона. Достаточно
+    соседу иметь на том же ребре лишнюю вершину — ключи разойдутся, и внутри
+    материка появится чёрная линия `coastline-solid` (2.5px) с glow (4px).
+    Геометрически валидная карта такой артефакт не исключает, поэтому
+    проверка воспроизводит клиентскую логику, а не геометрическую.
+
+    Вырожденные отрезки (после округления концы слиплись) пропускаем: длины
+    у них нет, линию из одной точки MapLibre не рисует (line-cap butt)."""
+    from collections import defaultdict
+
+    land_seg = defaultdict(set)
+    water_keys = set()
+    seg_pts = {}
+    land_geoms, land_ids, land_names = [], [], {}
+
+    def js_round5(v):
+        # именно как клиентский roundCoord: Math.round(c*1e5)/1e5. Питоновский
+        # round() округляет половину к ЧЁТНОМУ (round(0.5)==0), Math.round —
+        # всегда вверх; на координате, попавшей ровно на половину 1e-5, ключи
+        # разошлись бы, и проверка искала бы не то, что рисует клиент.
+        return math.floor(v * 100000 + 0.5) / 100000
+
+    def key(p1, p2):
+        # тот же ключ, что в клиенте: округление до 5 знаков (~1.1 м) и
+        # нормализация направления
+        x1, y1 = js_round5(p1[0]), js_round5(p1[1])
+        x2, y2 = js_round5(p2[0]), js_round5(p2[1])
+        if x1 < x2 or (x1 == x2 and y1 <= y2):
+            return (x1, y1, x2, y2)
+        return (x2, y2, x1, y1)
+
+    def rings_of(geom):
+        if geom.geom_type == "Polygon":
+            return [geom.exterior] + list(geom.interiors)
+        out = []
+        for part in geom.geoms:
+            out.append(part.exterior)
+            out.extend(part.interiors)
+        return out
+
+    for ft in world:
+        p = ft["properties"]
+        g = valid(shape(ft["geometry"]))
+        is_water = _is_water(p)
+        if not is_water:
+            land_geoms.append(g)
+            land_ids.append(p.get("region_id"))
+            land_names[p.get("region_id")] = p.get("name")
+        for ring in rings_of(g):
+            cs = list(ring.coords)
+            for i in range(len(cs) - 1):
+                k = key(cs[i], cs[i + 1])
+                if is_water:
+                    water_keys.add(k)
+                else:
+                    land_seg[k].add(p.get("region_id"))
+                    seg_pts.setdefault(k, (cs[i], cs[i + 1]))
+
+    tree = STRtree(land_geoms)
+    res = []
+    for k, regs in land_seg.items():
+        if len(regs) != 1 or k in water_keys:
+            continue
+        if k[0] == k[2] and k[1] == k[3]:
+            continue                       # вырожденный: рисовать нечего
+        rid = next(iter(regs))
+        a, b = seg_pts[k]
+        mid = Point((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        probe = mid.buffer(FALSE_COAST_PROBE_DEG)
+        neigh = [land_ids[int(i)] for i in tree.query(probe)
+                 if land_ids[int(i)] != rid and land_geoms[int(i)].intersects(probe)]
+        if not neigh:
+            continue                       # настоящий берег/край карты
+        length_m = LineString([a, b]).length * 111000.0
+        res.append(finding(
+            "FALSE_COAST", f"{rid}@{mid.x:.4f},{mid.y:.4f}", land_names.get(rid),
+            length_m,
+            f"отрезок {length_m:.0f} м внутри суши (рядом {neigh[0]}) клиент "
+            f"нарисует берегом: узлы соседей не совпали"))
+    return res
+
+
 def check_coastline_gaps(world):
     """Переиспользует проверенный _gap_cells из diagnose_coastline_gaps.py
     (не переписан заново — своя реализация поиска ячеек уже однажды дала
@@ -586,10 +697,13 @@ CHECKS = {
     # дыр в объединении нет и границы соседей — общие рёбра.
     "UNION_HOLE": ("world", check_union_holes),
     "COVERAGE_INVALID": ("world", check_coverage),
+    # Геометрия может быть валидна, а клиент всё равно нарисует берег внутри
+    # суши — проверяем это отдельно, клиентской же логикой.
+    "FALSE_COAST": ("world", check_false_coast),
     "SEA_HOLE": ("world+raw", check_sea_holes),
 }
 HEAVY = {"COASTLINE_GAP", "SEA_HOLE", "MISSING_LAND", "SPIKE",
-         "UNION_HOLE", "COVERAGE_INVALID"}
+         "UNION_HOLE", "COVERAGE_INVALID", "FALSE_COAST"}
 
 
 def load_baseline():

@@ -618,10 +618,11 @@ Pipeline формирует геометрию, ownership, соседство, �
     `clip_sea_by_land.py` покорно резал МОРЕ по этой ложной суше, разбив
     `North Pacific — American Sector` с 1 куска до 17 (1 в `628a3bd` → 15
     в `main` → 17 к 2026-07-29 — дефект молча РОС с каждой серией фиксов
-    берега). Замена: `build/audit_map_geometry.py` — один вход, восемь
+    берега). Замена: `build/audit_map_geometry.py` — один вход, двенадцать
     классов (`INFLATED`, `ORPHAN_FOREIGN`, `ORPHAN_UNSOURCED`,
     `WATER_SHATTERED`, `SPIKE`, `SCATTERED`, `MISSING_LAND`,
-    `COASTLINE_GAP`, `SEA_HOLE`), общий отчёт и — главное — baseline
+    `COASTLINE_GAP`, `SEA_HOLE`, `UNION_HOLE`, `COVERAGE_INVALID`,
+    `FALSE_COAST`), общий отчёт и — главное — baseline
     (`config/geometry_audit_baseline.json`): находка, которой в нём нет,
     даёт ненулевой exit. Стоит в `STANDARD_STEPS` перед
     `import_to_game.py`, то есть валит пайплайн сразу, а не через три
