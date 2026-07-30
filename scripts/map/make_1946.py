@@ -39,8 +39,14 @@ FULL_REBUILD_STEPS = [
     "build/build_asia_1946.py",
     "build/build_namerica_1946.py",
     "build/build_us_states_split_1946.py",
+    # Сразу после сборки county-кластеров: границы округов США юридически
+    # идут ПО ВОДЕ, поэтому акватория попадает в карту как суша (San Juan
+    # 9706 км² при 412 км² настоящей земли). Должен стоять до любых
+    # clip_*/fix_*, которые доверяют собранной суше как истине.
+    "build/clip_us_counties_to_raw_land.py",
     "build/fill_us_border_gaps.py",
     "build/restore_panama_canal_zone.py",
+    "build/give_canal_zone_spike_to_water.py",
     "build/build_brazil_1946.py",
     "build/build_southamerica_1946.py",
     "build/build_africa_1946.py",

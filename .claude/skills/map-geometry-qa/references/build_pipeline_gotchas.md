@@ -129,6 +129,30 @@ data-sourcing traps, and live-server verification pitfalls.
   PSE/CYP, via `media.githubusercontent.com` not `raw.` — same Git-LFS trap
   documented for CYP-ADM1) was the correct call, not skipping the step.
 
+- **"External source is missing" checked only inside the WORKTREE is a false
+  conclusion — `scripts/map/sources/` is gitignored, so a linked worktree
+  starts EMPTY of it while the main checkout has everything.** This one cost
+  real damage (2026-07-29): `build_us_states_split_1946.py` failed on a
+  missing `geoBoundaries-USA-ADM2.geojson`, and the session concluded "cannot
+  be regenerated in this worktree" — then, acting on that conclusion,
+  substituted `D:\MAP\namerica_1946.geojson` as a replacement base, which
+  triggered a cascade of positional shifts across `ownership_1946.json`,
+  `names_ru.json` and `CAPITAL_REGION_OVERRIDES` (~33 + 213 + 26 entries) that
+  took the rest of the session to repair. The user pointed out the file was
+  simply there, in `D:\Pax Historia LOCAL\scripts\map\sources\` (10.5 MB),
+  along with `palestine_hist/geoBoundaries-ISR-ADM2.geojson` (the "missing"
+  Golan source that made `build_asia_1946.py` look unrunnable too) and
+  `geoBoundaries-CHN-ADM2.geojson`. Only the Virtual Shanghai shapefile for
+  `build_china_1946_v2.py` is genuinely absent everywhere.
+  **Before ever concluding a source is unavailable: `ls` the MAIN checkout's
+  `scripts/map/sources/`, not just the worktree's.** No copying needed —
+  `build/paths.py` reads `PAXMAP_SOURCES`, so
+  `PAXMAP_SOURCES="D:/Pax Historia LOCAL/scripts/map/sources" python build/...`
+  runs the real builder against the real source. This is exactly the
+  `find-existing-solutions` protocol applied to a *path* rather than to code:
+  one `ls` in the right directory would have prevented the entire positional
+  cascade.
+
 - **Whole small territories drop silently during country-filtered builds — a
   raw-vs-output land-coverage diagnostic catches them; a manual world scan
   never will.** Akrotiri (adm0_a3=WSB) was never in the map at all; Maldives
