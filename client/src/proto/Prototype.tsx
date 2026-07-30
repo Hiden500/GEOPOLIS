@@ -175,16 +175,6 @@ export function Prototype() {
   const [mapMode, setMapMode] = useState<MapModeId>("powers");
   const [lentaOpen, setLentaOpen] = useState(true);
   const [listOpen, setListOpen] = useState(true);
-  /*
-   * РЕЕСТР сворачивает ЛЕНТУ и возвращает её при закрытии.
-   *
-   * Причина арифметическая, не вкусовая: таблица на шесть колонок требует
-   * ~1300px, ЛЕНТА забирает 320, и на минимальном 1366×768 «по центру, без
-   * горизонтальной прокрутки и не перекрывая ленту» одновременно невыполнимо.
-   * Реестр — это «мир на бумаге», и лента в этот момент не нужна; молча
-   * перекрывать её было бы хуже, чем убрать и вернуть.
-   */
-  const lentaBeforeLedger = useRef<boolean | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [thinking, setThinking] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -201,7 +191,7 @@ export function Prototype() {
    */
   const [slant, setSlant] = useState(() => {
     const raw = Number(new URLSearchParams(window.location.search).get("slant"));
-    return Number.isFinite(raw) && raw > 0 ? raw : 28;
+    return Number.isFinite(raw) && raw > 0 ? raw : 70;
   });
 
   const shellRef = useRef<HTMLDivElement>(null);
@@ -262,21 +252,6 @@ export function Prototype() {
       window.removeEventListener("resize", apply);
     };
   });
-
-  useEffect(() => {
-    if (yashik.kind === "ledger") {
-      if (lentaBeforeLedger.current === null) {
-        lentaBeforeLedger.current = lentaOpen;
-        setLentaOpen(false);
-      }
-    } else if (lentaBeforeLedger.current !== null) {
-      setLentaOpen(lentaBeforeLedger.current);
-      lentaBeforeLedger.current = null;
-    }
-    // lentaOpen читается только в момент открытия РЕЕСТРА и в зависимостях не
-    // нужен: иначе ручное сворачивание при открытом реестре стирало бы память.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [yashik.kind]);
 
   const monthLabel = `${MONTHS_NOMINATIVE[monthIndex]} ${year}`;
 

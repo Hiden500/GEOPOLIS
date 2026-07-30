@@ -15,8 +15,12 @@
 
 .path {
   fill: var(--surface);
-  stroke: var(--edge);
-  stroke-width: var(--panel-edge-width);
+  /*
+   * Контур ШАПКИ ярче и толще обычной панельной кромки: это единственная
+   * фигура сложной формы, и слабая линия на её изгибах пропадает.
+   */
+  stroke: var(--edge-strong);
+  stroke-width: calc(var(--panel-edge-width) + 0.5px);
   /* Обводка внутрь: половина линии наружу срезалась бы краем экрана. */
   paint-order: stroke fill;
 }
@@ -90,6 +94,6 @@
 /* Обводится только то, чего нет в контуре панели: верх и левое сопряжение. */
 .bandEdge {
   fill: none;
-  stroke: var(--divider);
+  stroke: var(--edge);
   stroke-width: 1;
 }

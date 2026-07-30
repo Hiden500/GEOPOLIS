@@ -191,16 +191,22 @@ export function ShapedBar({
    * раз значило бы удвоить линию. Обводится только то, чего в контуре нет:
    * верхняя кромка и левое S-сопряжение.
    */
-  const L = box.leftW;
-  const bandReady = bandTint && stepped && ready && L > 0 && w2 - L > 2 * slant;
+  /*
+   * Верхняя кромка полосы встаёт РОВНО на границу колонки ФЛАГА, а нижняя
+   * уходит левее на размах сопряжения. Иначе при большом размахе первые
+   * КОРЕШКИ оказывались в незакрашенном клине и «не попадали» в полосу.
+   * Ноль снизу — предел: дальше полоса вылезла бы за левый край панели.
+   */
+  const L = Math.max(slant, box.leftW);
+  const bandReady = bandTint && stepped && ready && L > 0 && w2 - L > slant;
 
   const bandFill = bandReady
     ? [
-        `M ${L + slant} ${h1}`,
+        `M ${L} ${h1}`,
         `L ${w2 + slant} ${h1}`,
         sDown(w2 + slant, h1, h),
-        `L ${L} ${h}`,
-        sUp(L, h, h1),
+        `L ${L - slant} ${h}`,
+        sUp(L - slant, h, h1),
         "Z",
       ].join(" ")
     : "";
@@ -209,7 +215,7 @@ export function ShapedBar({
   // сопряжение. Справа и снизу граница полосы совпадает с контуром, и вторая
   // линия там дала бы удвоение.
   const bandEdge = bandReady
-    ? [`M ${L} ${h}`, sUp(L, h, h1), `L ${w2 + slant} ${h1}`].join(" ")
+    ? [`M ${L - slant} ${h}`, sUp(L - slant, h, h1), `L ${w2 + slant} ${h1}`].join(" ")
     : "";
 
   return (

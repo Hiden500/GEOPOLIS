@@ -154,11 +154,15 @@
  * силуэт панели сужается ступенькой с S-образным сопряжением. Разделительной
  * линии между полосами нет: её работу делает сама ступенька.
  */
+/*
+ * Отступ сверху обязателен: без него кромка кнопки касалась верхней границы
+ * полосы, и две линии сливались.
+ */
 .koreshki {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 0 var(--space-4) var(--space-2) 0;
+  padding: var(--space-2) var(--space-4) var(--space-2) 0;
 }
 
 .koreshki svg {
@@ -398,7 +402,7 @@
  */
 .yashikDock {
   left: var(--frame-gap);
-  width: clamp(30rem, 40vw, 52rem);
+  width: clamp(24rem, 30vw, 38rem);
   max-width: calc((100vw - var(--bottom-width)) / 2 - var(--frame-gap) * 2);
 }
 
@@ -408,7 +412,7 @@
  */
 .yashikCenter {
   left: var(--frame-gap);
-  right: var(--frame-gap);
+  right: calc(var(--feed-col, var(--feed-width)) + var(--frame-gap) * 2);
   justify-content: center;
   /*
    * По содержимому, а не во всю отведённую высоту: реестр из шести строк в
@@ -430,7 +434,7 @@
    * Потолок оставляет место корешку свёрнутой ЛЕНТЫ. Симметрично с двух
    * сторон, иначе центрирование сломается.
    */
-  max-width: calc(100% - (var(--lenta-tab-w) + var(--space-3)) * 2);
+  max-width: 100%;
   max-height: 100%;
 }
 
