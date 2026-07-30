@@ -23,6 +23,10 @@ from validate_demographics_1946 import (
     zone_anchor_parity_violations,
     influence_violations,
     layer_sync_report,
+    historical_spot_check_violations,
+    spot_check_catalog_violations,
+    plausibility_warnings,
+    single_use_groups,
     MAX_GROUPS_PER_REGION,
     INFLUENCE_MIN_RECORDED,
 )
@@ -341,6 +345,180 @@ class LayerSyncTest(unittest.TestCase):
         demographics, ideology, government, influence = self.layers()
         lost, _ = layer_sync_report({1}, {"AAA", "BBB"}, demographics, ideology, government, influence)
         self.assertEqual(lost, [])
+
+
+
+class HistoricalSpotCheckTest(unittest.TestCase):
+    """
+    Курируемые исторические факты (ERROR).
+
+    Тесты здесь проверяют не «валидатор что-то вернул», а что КАЖДЫЙ предикат
+    ловит свою поломку. Спот-чек, который проходит любые данные, — единственная
+    проверка, чей отказ работать невидим: формальные инварианты хотя бы упадут
+    на битой сумме, а этот молча пропустит выдуманный состав.
+    """
+
+    def demographics(self, groups):
+        return {"regions": [{"regionId": 1, "groups": groups}]}
+
+    def test_dominant_group_is_catches_wrong_dominant(self):
+        checks = {"checks": [{
+            "id": "x", "regions": [1], "assert": "dominantGroupIs", "group": "estonians",
+            "why": "тест",
+        }]}
+        data = self.demographics([{"groupId": "russians", "share": 0.9},
+                                  {"groupId": "estonians", "share": 0.1}])
+        violations = historical_spot_check_violations(data, checks)
+        self.assertTrue(any("russians" in v for v in violations), violations)
+
+    def test_dominant_group_not_in_catches_forbidden_dominant(self):
+        checks = {"checks": [{
+            "id": "baltic", "regions": [1], "assert": "dominantGroupNotIn",
+            "groups": ["russians"], "why": "титульная нация",
+        }]}
+        data = self.demographics([{"groupId": "russians", "share": 0.8},
+                                  {"groupId": "estonians", "share": 0.2}])
+        self.assertTrue(historical_spot_check_violations(data, checks))
+
+    def test_dominant_group_not_in_passes_when_titular_dominates(self):
+        checks = {"checks": [{
+            "id": "baltic", "regions": [1], "assert": "dominantGroupNotIn",
+            "groups": ["russians"], "why": "титульная нация",
+        }]}
+        data = self.demographics([{"groupId": "estonians", "share": 0.9},
+                                  {"groupId": "russians", "share": 0.1}])
+        self.assertEqual(historical_spot_check_violations(data, checks), [])
+
+    def test_share_floor_catches_erased_minority(self):
+        # Классический вид галлюцинации: группа, которой в регионе было
+        # большинство, просто исчезает из состава.
+        checks = {"checks": [{
+            "id": "sakhalin", "regions": [1], "assert": "groupShareAtLeast",
+            "groups": ["japanese"], "minShare": 0.3, "why": "до репатриации",
+        }]}
+        data = self.demographics([{"groupId": "russians", "share": 0.95},
+                                  {"groupId": "japanese", "share": 0.05}])
+        self.assertTrue(historical_spot_check_violations(data, checks))
+
+    def test_share_ceiling_catches_inflated_group(self):
+        checks = {"checks": [{
+            "id": "gaza", "regions": [1], "assert": "groupShareAtMost",
+            "groups": ["yishuv_jews"], "maxShare": 0.1, "why": "почти целиком арабский",
+        }]}
+        data = self.demographics([{"groupId": "yishuv_jews", "share": 0.5},
+                                  {"groupId": "palestinian_muslims", "share": 0.5}])
+        self.assertTrue(historical_spot_check_violations(data, checks))
+
+    def test_group_present_catches_missing_community(self):
+        checks = {"checks": [{
+            "id": "mandate", "regions": [1], "assert": "groupPresent",
+            "groups": ["yishuv_jews"], "why": "обе общины присутствовали",
+        }]}
+        data = self.demographics([{"groupId": "palestinian_muslims", "share": 1.0}])
+        self.assertTrue(historical_spot_check_violations(data, checks))
+
+    def test_unmarked_region_is_skipped_not_failed(self):
+        # Покрытие слоя — предмет отдельной проверки. Падать здесь второй раз
+        # значит удваивать один сигнал и мешать частичному наполнению.
+        checks = {"checks": [{
+            "id": "x", "regions": [999], "assert": "dominantGroupIs", "group": "estonians",
+            "why": "тест",
+        }]}
+        self.assertEqual(historical_spot_check_violations(self.demographics([
+            {"groupId": "estonians", "share": 1.0}]), checks), [])
+
+    def test_unknown_predicate_is_reported(self):
+        checks = {"checks": [{"id": "x", "regions": [1], "assert": "somethingNew"}]}
+        data = self.demographics([{"groupId": "estonians", "share": 1.0}])
+        self.assertTrue(historical_spot_check_violations(data, checks))
+
+    def test_catalog_drift_is_reported(self):
+        # Набор фактов, ссылающийся на исчезнувшую группу, перестаёт проверять
+        # то, что заявляет, — и делает это молча.
+        checks = {"checks": [{"id": "x", "regions": [1], "assert": "dominantGroupIs",
+                              "group": "gone_group"}]}
+        violations = spot_check_catalog_violations(checks, {"estonians"})
+        self.assertTrue(any("gone_group" in v for v in violations), violations)
+
+    def test_real_spot_check_file_is_consistent_with_catalog(self):
+        # Проверка на реальных файлах репозитория: набор фактов и каталог групп
+        # не разошлись.
+        import json
+        from pathlib import Path
+        from validate_demographics_1946 import SPOT_CHECKS_PATH, GROUPS_PATH
+
+        if not SPOT_CHECKS_PATH.exists() or not GROUPS_PATH.exists():
+            self.skipTest("файлы сценария недоступны")
+        checks = json.loads(Path(SPOT_CHECKS_PATH).read_text(encoding="utf-8"))
+        groups = json.loads(Path(GROUPS_PATH).read_text(encoding="utf-8"))
+        known = {g.get("id") for g in groups.get("groups", [])}
+        self.assertEqual(spot_check_catalog_violations(checks, known), [])
+
+
+class PlausibilityHeuristicsTest(unittest.TestCase):
+    """
+    Эвристики правдоподобия (WARNING).
+
+    Обе стороны важны: эвристика обязана срабатывать на подозрительном И
+    молчать на нормальном. Односторонняя проверка вырождается либо в шум, либо
+    в бесполезное молчание.
+    """
+
+    def core(self, neighbours):
+        return [{"id": rid, "neighboringRegionIds": nb} for rid, nb in neighbours.items()]
+
+    def test_all_round_shares_warns(self):
+        data = {"regions": [{"regionId": 1, "groups": [
+            {"groupId": "a", "share": 0.6}, {"groupId": "b", "share": 0.4}]}]}
+        warnings = plausibility_warnings(data, self.core({1: []}))
+        self.assertTrue(any("кратны" in w for w in warnings), warnings)
+
+    def test_uneven_shares_do_not_warn(self):
+        data = {"regions": [{"regionId": 1, "groups": [
+            {"groupId": "a", "share": 0.63}, {"groupId": "b", "share": 0.37}]}]}
+        warnings = plausibility_warnings(data, self.core({1: []}))
+        self.assertEqual([w for w in warnings if "кратны" in w], [])
+
+    def test_single_group_warns(self):
+        data = {"regions": [{"regionId": 1, "groups": [{"groupId": "a", "share": 1.0}]}]}
+        warnings = plausibility_warnings(data, self.core({1: []}))
+        self.assertTrue(any("единственная группа" in w for w in warnings), warnings)
+
+    def test_dominant_absent_from_all_neighbours_warns(self):
+        data = {"regions": [
+            {"regionId": 1, "groups": [{"groupId": "island", "share": 0.99},
+                                       {"groupId": "x", "share": 0.01}]},
+            {"regionId": 2, "groups": [{"groupId": "mainland", "share": 0.99},
+                                       {"groupId": "x", "share": 0.01}]},
+        ]}
+        warnings = plausibility_warnings(data, self.core({1: [2], 2: [1]}))
+        self.assertTrue(any("island" in w and "соседей" in w for w in warnings), warnings)
+
+    def test_dominant_shared_with_neighbour_does_not_warn(self):
+        data = {"regions": [
+            {"regionId": 1, "groups": [{"groupId": "same", "share": 0.99},
+                                       {"groupId": "x", "share": 0.01}]},
+            {"regionId": 2, "groups": [{"groupId": "same", "share": 0.99},
+                                       {"groupId": "x", "share": 0.01}]},
+        ]}
+        warnings = plausibility_warnings(data, self.core({1: [2], 2: [1]}))
+        self.assertEqual([w for w in warnings if "соседей" in w], [])
+
+    def test_region_without_neighbours_does_not_warn_about_isolation(self):
+        # Остров без размеченных соседей: сравнивать не с чем, и молчать здесь
+        # правильнее, чем предупреждать обо всём побережье мира.
+        data = {"regions": [{"regionId": 1, "groups": [
+            {"groupId": "island", "share": 0.99}, {"groupId": "x", "share": 0.01}]}]}
+        warnings = plausibility_warnings(data, self.core({1: []}))
+        self.assertEqual([w for w in warnings if "соседей" in w], [])
+
+    def test_single_use_groups_listed_separately(self):
+        data = {"regions": [
+            {"regionId": 1, "groups": [{"groupId": "common", "share": 0.99},
+                                       {"groupId": "rare", "share": 0.01}]},
+            {"regionId": 2, "groups": [{"groupId": "common", "share": 1.0}]},
+        ]}
+        self.assertEqual(single_use_groups(data), ["rare"])
 
 
 if __name__ == "__main__":

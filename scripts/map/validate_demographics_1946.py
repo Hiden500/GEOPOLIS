@@ -31,6 +31,7 @@ politics.ideology каждой страны обязан совпадать с �
 Запуск: python scripts/map/validate_demographics_1946.py
 Exit code 0 — нарушений нет, 1 — есть.
 """
+import json
 import re
 import sys
 from pathlib import Path
@@ -44,6 +45,8 @@ DEMOGRAPHICS_PATH = SCENARIO_DIR / "demographics.json"
 IDEOLOGY_PATH = SCENARIO_DIR / "ideology.json"
 GOVERNMENT_PATH = SCENARIO_DIR / "government.json"
 INFLUENCE_PATH = SCENARIO_DIR / "influence.json"
+#: Курируемые исторические факты — данные, не код (см. их `_meta`).
+SPOT_CHECKS_PATH = Path(__file__).resolve().parent / "data" / "historical_spot_checks_1946.json"
 REGIONS_CORE_PATH = SCENARIO_DIR / "regions.core.json"
 COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 DISCONTENT_TS_PATH = (
@@ -472,6 +475,178 @@ def layer_sync_report(region_ids: set, country_ids: set, demographics: dict,
     return lost, unmarked
 
 
+
+# ---------------------------------------------------------------------------
+# УРОВНИ. ERROR блокирует приёмку данных, WARNING требует просмотра человеком.
+#
+# Смешивать нельзя: эвристики правдоподобия ошибаются по построению — они ищут
+# ПОДОЗРИТЕЛЬНОЕ, а не неверное. Эвристика, способная заблокировать корректные
+# данные, будет отключена при первом ложном срабатывании, и вместе с ней
+# исчезнут настоящие находки.
+# ---------------------------------------------------------------------------
+
+
+def historical_spot_check_violations(demographics: dict, checks: dict | None = None) -> list[str]:
+    """
+    Проверка по курируемым историческим фактам (ERROR).
+
+    Главная сеть против галлюцинаций: остальные проверки ловят формальную
+    поломку — сумму долей, ссылку в пустоту, — а правдоподобно выдуманный состав
+    проходит их все. Здесь сверяются заведомо известные факты.
+
+    Запись, чей регион не размечен, ПРОПУСКАЕТСЯ: покрытие слоя — предмет
+    отдельной проверки, и падать здесь второй раз значит удваивать один сигнал.
+    """
+    if checks is None:
+        checks = load_json(SPOT_CHECKS_PATH) if SPOT_CHECKS_PATH.exists() else {"checks": []}
+
+    by_region = {entry.get("regionId"): entry for entry in demographics.get("regions", [])}
+    violations: list[str] = []
+
+    for check in checks.get("checks", []):
+        cid = check.get("id", "?")
+        predicate = check.get("assert")
+        why = check.get("why", "")
+        for region_id in check.get("regions", []):
+            entry = by_region.get(region_id)
+            if entry is None:
+                continue
+            shares = {g.get("groupId"): g.get("share", 0) for g in entry.get("groups", [])}
+            if not shares:
+                continue
+            dominant = max(shares, key=lambda gid: shares[gid])
+            named = check.get("groups") or []
+
+            if predicate == "dominantGroupIs":
+                expected = check.get("group")
+                if dominant != expected:
+                    violations.append(
+                        "спот-чек {0}: регион {1} — доминант {2}, ожидался {3} ({4})".format(
+                            cid, region_id, dominant, expected, why))
+            elif predicate == "dominantGroupNotIn":
+                if dominant in named:
+                    violations.append(
+                        "спот-чек {0}: регион {1} — доминант {2}, чего быть не должно ({3})".format(
+                            cid, region_id, dominant, why))
+            elif predicate == "groupShareAtLeast":
+                total = sum(shares.get(gid, 0) for gid in named)
+                floor = check.get("minShare", 0)
+                if total < floor:
+                    violations.append(
+                        "спот-чек {0}: регион {1} — доля {2:.2f} ниже минимума {3} ({4})".format(
+                            cid, region_id, total, floor, why))
+            elif predicate == "groupShareAtMost":
+                total = sum(shares.get(gid, 0) for gid in named)
+                ceiling = check.get("maxShare", 1)
+                if total > ceiling:
+                    violations.append(
+                        "спот-чек {0}: регион {1} — доля {2:.2f} выше максимума {3} ({4})".format(
+                            cid, region_id, total, ceiling, why))
+            elif predicate == "groupPresent":
+                absent = [gid for gid in named if gid not in shares]
+                if absent:
+                    violations.append(
+                        "спот-чек {0}: регион {1} — отсутствуют группы {2} ({3})".format(
+                            cid, region_id, absent, why))
+            else:
+                violations.append(
+                    "спот-чек {0}: неизвестный предикат {1}".format(cid, predicate))
+
+    return violations
+
+
+def spot_check_catalog_violations(checks: dict, known_group_ids: set) -> list[str]:
+    """Набор фактов не должен ссылаться на группы, которых нет в каталоге."""
+    violations: list[str] = []
+    for check in checks.get("checks", []):
+        named = list(check.get("groups") or [])
+        if check.get("group"):
+            named.append(check["group"])
+        for gid in named:
+            if gid not in known_group_ids:
+                violations.append(
+                    "спот-чек {0}: группа {1} отсутствует в groups.json".format(
+                        check.get("id", "?"), gid))
+    return violations
+
+
+#: Доля считается круглой, если кратна этому шагу. 0.05, а не 0.01: округление до
+#: сотых естественно и само по себе ни о чём не говорит.
+ROUND_SHARE_STEP = 0.05
+
+
+def _is_round(share: float) -> bool:
+    scaled = round(share * 100)
+    return abs(share * 100 - scaled) < 1e-6 and scaled % round(ROUND_SHARE_STEP * 100) == 0
+
+
+def plausibility_warnings(demographics: dict, region_core: list) -> list[str]:
+    """
+    Эвристики правдоподобия (WARNING).
+
+    Каждая откалибрована на фактических данных так, чтобы давать обозримый
+    список, а не поток. Отброшено намеренно: «группа встречается один раз во всём
+    мире» — таких 99 из 460, они утопили бы остальное и выносятся отдельной
+    секцией; «выброс доли относительно соседей» — без порога даёт сотни
+    срабатываний, с порогом превращается в подгонку под текущие данные.
+    """
+    warnings: list[str] = []
+    regions = demographics.get("regions", [])
+    neighbours = {r["id"]: (r.get("neighboringRegionIds") or []) for r in region_core}
+    by_region = {r.get("regionId"): r for r in regions}
+
+    for entry in regions:
+        rid = entry.get("regionId")
+        groups = entry.get("groups") or []
+        if not groups:
+            continue
+        shares = [g.get("share", 0) for g in groups]
+
+        # 1. Все доли круглые — признак назначенного, а не оценённого состава.
+        if len(groups) > 1 and all(_is_round(s) for s in shares):
+            warnings.append(
+                "регион {0}: все доли кратны {1} — состав выглядит назначенным, а не оценённым".format(
+                    rid, ROUND_SHARE_STEP))
+
+        # 2. Единственная группа. Бывает (изолированный остров), но 100% почти
+        #    всегда означает «не стали разбираться».
+        if len(groups) == 1:
+            warnings.append(
+                "регион {0}: единственная группа {1} с долей 1.0".format(
+                    rid, groups[0].get("groupId")))
+
+        # 3. Доминант не встречается ни у одного размеченного соседа. Анклав
+        #    возможен, ошибка привязки региона вероятнее.
+        dominant = max(groups, key=lambda g: g.get("share", 0)).get("groupId")
+        near = set()
+        for nid in neighbours.get(rid, []):
+            neighbour = by_region.get(nid)
+            if neighbour:
+                near.update(g.get("groupId") for g in (neighbour.get("groups") or []))
+        if near and dominant not in near:
+            warnings.append(
+                "регион {0}: доминант {1} не встречается ни у одного из {2} соседей".format(
+                    rid, dominant, len(neighbours.get(rid, []))))
+
+    return warnings
+
+
+def single_use_groups(demographics: dict) -> list[str]:
+    """
+    Группы, встречающиеся ровно в одном регионе мира.
+
+    Отдельно от остальных предупреждений намеренно: их около сотни, и в общем
+    потоке они прячут единичные находки. Список полезен при просмотре каталога
+    («эндемичная группа или артефакт генерации?»), но не как строка отчёта.
+    """
+    counts: dict = {}
+    for entry in demographics.get("regions", []):
+        for g in entry.get("groups") or []:
+            gid = g.get("groupId")
+            counts[gid] = counts.get(gid, 0) + 1
+    return sorted(gid for gid, n in counts.items() if n == 1)
+
+
 def main() -> int:
     missing = [
         p.name
@@ -493,10 +668,18 @@ def main() -> int:
     countries = load_json(COUNTRIES_PATH)
     country_ids = {c.get("id") for c in countries}
 
+    region_core = load_json(REGIONS_CORE_PATH)
+    spot_checks = load_json(SPOT_CHECKS_PATH) if SPOT_CHECKS_PATH.exists() else {"checks": []}
+    known_group_ids = {g.get("id") for g in groups.get("groups", [])}
+
     violations = validate(groups, demographics, ideology, region_ids, countries, government)
     violations.extend(zone_anchor_parity_violations())
     if influence is not None:
         violations.extend(influence_violations(influence, country_ids))
+    # Курируемые факты — ERROR: правдоподобно выдуманный состав проходит все
+    # формальные проверки, и это единственная сеть против него.
+    violations.extend(historical_spot_check_violations(demographics, spot_checks))
+    violations.extend(spot_check_catalog_violations(spot_checks, known_group_ids))
 
     # Сверка с составом карты. «Потерянные» — ошибка (загрузка партии упадёт),
     # «неразмеченные» — штатное частичное покрытие, показывается по флагу.
@@ -505,10 +688,42 @@ def main() -> int:
     )
     violations.extend(lost)
 
+    warnings = plausibility_warnings(demographics, region_core)
+    singles = single_use_groups(demographics)
+
+    report_path = None
+    if "--json" in sys.argv:
+        index = sys.argv.index("--json")
+        if index + 1 < len(sys.argv):
+            report_path = Path(sys.argv[index + 1])
+
+    if report_path is not None:
+        # Машиночитаемый отчёт пишется ВСЕГДА, а не только при ошибках: обработчику
+        # нужен и чистый прогон, иначе «нет файла» и «нет проблем» неразличимы.
+        report = {
+            "errors": violations,
+            "warnings": warnings,
+            "singleUseGroups": singles,
+            "counts": {
+                "errors": len(violations),
+                "warnings": len(warnings),
+                "regionsMarked": len(demographics.get("regions", [])),
+                "regionsTotal": len(region_ids),
+                "groups": len(groups.get("groups", [])),
+                "spotChecks": len(spot_checks.get("checks", [])),
+            },
+        }
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(report_path, "w", encoding="utf-8") as handle:
+            json.dump(report, handle, ensure_ascii=False, indent=2)
+            handle.write("\n")
+
     if violations:
-        print(f"НАРУШЕНИЙ: {len(violations)}")
+        print(f"ОШИБОК (блокируют приёмку данных): {len(violations)}")
         for v in violations:
             print(f"  - {v}")
+        if warnings:
+            print(f"Предупреждений: {len(warnings)} (см. ниже после ошибок)")
         if lost:
             print()
             print(
@@ -518,6 +733,21 @@ def main() -> int:
                 "перегенерируй, а не выход."
             )
         return 1
+
+    if warnings:
+        print(f"ПРЕДУПРЕЖДЕНИЙ (не блокируют, требуют просмотра): {len(warnings)}")
+        for w in warnings:
+            print(f"  ~ {w}")
+        print()
+
+    if singles:
+        # Отдельной строкой, а не списком: их около сотни, и в потоке они прячут
+        # единичные находки.
+        print(
+            f"Групп, встречающихся ровно в одном регионе: {len(singles)}"
+            " (эндемичные общности или артефакт генерации — смотреть при ревизии каталога)"
+        )
+        print()
 
     if "--show-unmarked" in sys.argv:
         print(f"Без разметки: {len(unmarked)}")
