@@ -1,0 +1,110 @@
+/*
+ * ОФОРМЛЕНИЕ (skin) — как панель сделана материально, а не какого она цвета.
+ * Выбор живёт на <html data-skin="...">.
+ *
+ * Разделение с палитрой намеренное и важное: палитра меняет числа цвета и
+ * поэтому не может увести интерфейс от «плоского современного дашборда» —
+ * плоским он остаётся в любой палитре. Материал (фаска, фактура, утопленные
+ * окна под числа, толщина профиля) — это другой слой, и именно он отличает
+ * панель-предмет от панели-прямоугольника.
+ *
+ * Компоненты уже читают эти переменные, поэтому оформление добавляется
+ * набором значений, а не правкой компонентов.
+ */
+
+:root {
+  /* Плоское — то, что было: заливка, волосяная линия, ничего больше. */
+  --panel-texture: none;
+  --panel-bevel: none;
+  --panel-shadow: none;
+  --panel-edge-width: 1px;
+  --panel-radius: var(--radius-panel);
+
+  /* «Окно» под число: в плоском варианте его нет. */
+  --well-bg: transparent;
+  --well-bevel: none;
+  --well-pad: 0;
+  --well-radius: 0;
+
+  --heading-shadow: none;
+}
+
+/* ── Литая рама ─────────────────────────────────────────────────
+ * Панель — металлическая пластина: светлая грань сверху, тёмная снизу,
+ * профиль в два пикселя, лёгкий металлический наклон заливки.
+ */
+:root[data-skin="cast"] {
+  --panel-texture: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.055) 0%,
+    rgba(255, 255, 255, 0.012) 42%,
+    rgba(0, 0, 0, 0.16) 100%
+  );
+  --panel-bevel:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+    inset 1px 0 0 rgba(255, 255, 255, 0.05),
+    inset -1px 0 0 rgba(0, 0, 0, 0.35);
+  --panel-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --panel-edge-width: 2px;
+
+  /* Число сидит на приподнятой площадке, а не в утопленном окне. */
+  --well-bg: rgba(255, 255, 255, 0.035);
+  --well-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --well-pad: var(--space-1) var(--space-2);
+  --well-radius: var(--radius-inner);
+
+  --heading-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* ── Бумага под стеклом ─────────────────────────────────────────
+ * Панель — лист, положенный поверх карты: тонкая волокнистая фактура,
+ * мягкая широкая тень, профиль почти без блеска.
+ */
+:root[data-skin="paper"] {
+  --panel-texture:
+    repeating-linear-gradient(
+      92deg,
+      rgba(255, 255, 255, 0.016) 0 1px,
+      transparent 1px 3px
+    ),
+    repeating-linear-gradient(
+      3deg,
+      rgba(0, 0, 0, 0.05) 0 1px,
+      transparent 1px 4px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.06));
+  --panel-bevel: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --panel-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  --panel-edge-width: 1px;
+  --panel-radius: 6px;
+
+  --well-bg: transparent;
+  --well-bevel: none;
+  --well-pad: 0;
+  --well-radius: 0;
+
+  --heading-shadow: none;
+}
+
+/* ── Приборная панель ───────────────────────────────────────────
+ * Панель — корпус прибора: матовая поверхность, а числа сидят в УТОПЛЕННЫХ
+ * окнах. Это единственное оформление, которое помогает содержимому, а не
+ * украшает контейнер: чисел в игре много, и окно под числом отделяет
+ * показание от корпуса.
+ */
+:root[data-skin="gauge"] {
+  --panel-texture: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.1));
+  --panel-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  --panel-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --panel-edge-width: 1px;
+
+  --well-bg: rgba(0, 0, 0, 0.38);
+  --well-bevel:
+    inset 0 2px 3px rgba(0, 0, 0, 0.6),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  --well-pad: var(--space-1) var(--space-2);
+  --well-radius: var(--radius-inner);
+
+  --heading-shadow: none;
+}

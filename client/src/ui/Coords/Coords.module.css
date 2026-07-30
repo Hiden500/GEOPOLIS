@@ -1,0 +1,113 @@
+/*
+ * КООРДИНАТЫ — система координат, а не две отдельные линии.
+ *
+ * Идеология в игре хранится координатами на ДВУХ осях, а недовольство и
+ * союзы считаются как РАССТОЯНИЕ между позициями (docs/CONCEPT.md §4.2).
+ * Расстояние — величина плоская: на двух раздельных линиях его не увидеть,
+ * на плоскости оно есть буквально. Отсюда квадранты с именами зон: игрок
+ * видит не только где он, но и куда близко.
+ */
+
+.coords {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.plane {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-width: 20rem;
+  margin: 0 auto;
+  border: var(--edge-width) solid var(--divider);
+  border-radius: var(--radius-inner);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.grid {
+  position: absolute;
+  inset: 0;
+  /* Сетка по четвертям осей: без делений «немного левее» не отличить от «в центре». */
+  background-image:
+    linear-gradient(to right, var(--divider) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--divider) 1px, transparent 1px);
+  background-size: 25% 25%;
+  opacity: 0.45;
+}
+
+.middleX,
+.middleY {
+  position: absolute;
+  background: var(--text-faint);
+}
+
+.middleX {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.middleY {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+.zone {
+  position: absolute;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  padding: var(--space-1) var(--space-2);
+  max-width: 48%;
+  line-height: 1.2;
+}
+
+.zoneTL { top: 0; left: 0; }
+.zoneTR { top: 0; right: 0; text-align: right; }
+.zoneBL { bottom: 0; left: 0; }
+.zoneBR { bottom: 0; right: 0; text-align: right; }
+
+.dot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--surface-sunken), 0 0 12px var(--accent-tint);
+}
+
+/* Второй указатель — чужая держава. Расстояние между точками и есть смысл. */
+.dotRival {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  transform: rotate(45deg);
+  background: var(--surface-sunken);
+  box-shadow: 0 0 0 1.5px var(--text-dim);
+}
+
+.axisNames {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+.axisRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.axisValue {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  white-space: nowrap;
+}

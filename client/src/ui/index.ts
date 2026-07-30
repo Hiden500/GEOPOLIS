@@ -26,8 +26,8 @@ export type { OrderCardProps } from "./OrderCard/OrderCard";
 export { ShapedBar } from "./ShapedBar/ShapedBar";
 export type { ShapedBarProps } from "./ShapedBar/ShapedBar";
 
-export { Axis } from "./Axis/Axis";
-export type { AxisProps } from "./Axis/Axis";
+export { Coords } from "./Coords/Coords";
+export type { CoordsProps, CoordsPoint } from "./Coords/Coords";
 
 export { Tooltip } from "./Tooltip/Tooltip";
 export type { TooltipProps } from "./Tooltip/Tooltip";

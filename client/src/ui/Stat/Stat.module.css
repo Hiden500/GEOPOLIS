@@ -50,7 +50,15 @@
   min-width: 0;
 }
 
+/*
+ * Число сидит в «окне», если оформление его задаёт: у приборной панели окно
+ * утоплено, у литой рамы приподнято, у плоской и бумажной его нет вовсе.
+ */
 .value {
+  background: var(--well-bg);
+  box-shadow: var(--well-bevel);
+  padding: var(--well-pad);
+  border-radius: var(--well-radius);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);

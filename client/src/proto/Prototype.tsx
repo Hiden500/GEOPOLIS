@@ -5,6 +5,7 @@ import {
   IconArmies,
   IconBalance,
   IconBlocs,
+  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconClose,
@@ -172,8 +173,8 @@ export function Prototype() {
   const [ledgerTab, setLedgerTab] = useState<LedgerTabId>("powers");
   const [compareId, setCompareId] = useState<CountryId | null>(null);
   const [mapMode, setMapMode] = useState<MapModeId>("powers");
-  const [legendOpen, setLegendOpen] = useState(false);
   const [lentaOpen, setLentaOpen] = useState(true);
+  const [listOpen, setListOpen] = useState(true);
   /*
    * РЕЕСТР сворачивает ЛЕНТУ и возвращает её при закрытии.
    *
@@ -473,7 +474,15 @@ export function Prototype() {
                   setYashik({ kind: "ledger" });
                 }}
               >
-                {COUNTRIES[PLAYER].rank}
+                <span
+                  className={cx(
+                    styles.rankDisc,
+                    COUNTRIES[PLAYER].rank <= 3 && styles.rankGold,
+                    COUNTRIES[PLAYER].rank > 3 && COUNTRIES[PLAYER].rank <= 10 && styles.rankSilver,
+                  )}
+                >
+                  {COUNTRIES[PLAYER].rank}
+                </span>
               </button>
             </Tooltip>
           }
@@ -594,7 +603,7 @@ export function Prototype() {
           )}
 
           {yashik.kind === "ledger" && (
-            <Panel title="Реестр" onClose={() => setYashik({ kind: "none" })} density="control" scroll className={styles.yashikPanel}>
+            <Panel title="Реестр" onClose={() => setYashik({ kind: "none" })} density="control" className={styles.ledgerPanel}>
               <LedgerBody
                 tab={ledgerTab}
                 onTab={setLedgerTab}
@@ -697,44 +706,32 @@ export function Prototype() {
           </Tooltip>
         )}
 
-        {legendOpen && legend !== undefined && (
-          <Panel density="instrument" className={styles.legenda}>
-            <div className={styles.legendaRamp} style={{ background: legend.ramp }} />
-            <div className={styles.legendaEnds}>
-              <span>{legend.from}</span>
-              <span>{legend.to}</span>
-            </div>
-          </Panel>
-        )}
-
         <Panel density="instrument" className={styles.rezhimy}>
-          <div className={styles.rezhimyGrid}>
-            {MODES.map((mode) => (
-              <Tooltip
-                key={mode.id}
-                label={
-                  mode.id === mapMode && LEGENDS[mode.id] !== undefined
-                    ? `${mode.name} — нажмите ещё раз, чтобы показать легенду`
-                    : mode.name
-                }
-              >
-                <Button
-                  size="sm"
-                  iconOnly
-                  aria-label={mode.name}
-                  variant={mode.id === mapMode ? "order" : "quiet"}
-                  onClick={() => {
-                    if (mode.id === mapMode) setLegendOpen((open) => !open);
-                    else {
-                      setMapMode(mode.id);
-                      setLegendOpen(false);
-                    }
-                  }}
-                >
-                  {mode.icon}
-                </Button>
-              </Tooltip>
-            ))}
+          <div className={styles.rezhimyRow}>
+            {legend !== undefined && (
+              <div className={styles.legenda}>
+                <div className={styles.legendaRamp} style={{ background: legend.ramp }} />
+                <div className={styles.legendaEnds}>
+                  <span>{legend.from}</span>
+                  <span>{legend.to}</span>
+                </div>
+              </div>
+            )}
+            <div className={styles.rezhimyGrid}>
+              {MODES.map((mode) => (
+                <Tooltip key={mode.id} label={mode.name}>
+                  <Button
+                    size="sm"
+                    iconOnly
+                    aria-label={mode.name}
+                    variant={mode.id === mapMode ? "order" : "quiet"}
+                    onClick={() => setMapMode(mode.id)}
+                  >
+                    {mode.icon}
+                  </Button>
+                </Tooltip>
+              ))}
+            </div>
           </div>
         </Panel>
       </div>
@@ -782,51 +779,65 @@ export function Prototype() {
             </div>
           )}
 
-          <Panel
-            title="Приказы"
-            meta={orders.length === 0 ? monthLabel.toLowerCase() : `${monthLabel.toLowerCase()} · ${orders.length} из 10`}
-            density="control"
-          >
-            {orders.length > 0 && (
-              <ul className={styles.orderList}>
-                {orders.map((order, index) => (
-                  <li
-                    key={order.id}
-                    draggable
-                    onDragStart={() => {
-                      dragOrder.current = index;
-                    }}
-                    onDragOver={(event) => event.preventDefault()}
-                    onDrop={() => {
-                      if (dragOrder.current !== null && dragOrder.current !== index) moveOrder(dragOrder.current, index);
-                      dragOrder.current = null;
-                    }}
-                  >
-                    <OrderCard
-                      index={index + 1}
-                      text={order.text}
-                      onRemove={() => setOrders((prev) => prev.filter((item) => item.id !== order.id))}
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
+          {listOpen ? (
+            <Panel
+              title="Приказы"
+              meta={orders.length === 0 ? monthLabel.toLowerCase() : `${monthLabel.toLowerCase()} · ${orders.length} из 10`}
+              density="control"
+              actions={
+                <Tooltip label="Свернуть лист приказов">
+                  <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть приказы" onClick={() => setListOpen(false)}>
+                    <IconChevronDown />
+                  </Button>
+                </Tooltip>
+              }
+            >
+              {orders.length > 0 && (
+                <ul className={styles.orderList}>
+                  {orders.map((order, index) => (
+                    <li
+                      key={order.id}
+                      draggable
+                      onDragStart={() => {
+                        dragOrder.current = index;
+                      }}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={() => {
+                        if (dragOrder.current !== null && dragOrder.current !== index) moveOrder(dragOrder.current, index);
+                        dragOrder.current = null;
+                      }}
+                    >
+                      <OrderCard
+                        index={index + 1}
+                        text={order.text}
+                        onRemove={() => setOrders((prev) => prev.filter((item) => item.id !== order.id))}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-            <div className={styles.vvod}>
-              <input
-                className={styles.field}
-                placeholder="Введите приказ…"
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") addOrder();
-                }}
-              />
-              <Button variant="order" size="sm" onClick={addOrder} disabled={draft.trim() === ""}>
-                Добавить
-              </Button>
-            </div>
-          </Panel>
+              <div className={styles.vvod}>
+                <input
+                  className={styles.field}
+                  placeholder="Введите приказ…"
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") addOrder();
+                  }}
+                />
+                <Button variant="order" size="sm" onClick={addOrder} disabled={draft.trim() === ""}>
+                  Добавить
+                </Button>
+              </div>
+            </Panel>
+          ) : (
+            <button type="button" className={styles.listTab} onClick={() => setListOpen(true)}>
+              Приказы
+              <span className={styles.listTabCount}>{orders.length}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -897,6 +908,29 @@ export function Prototype() {
                 <Button size="sm" variant={!scienceSeparate ? "order" : "quiet"} onClick={() => setScienceSeparate(false)}>
                   Вместе с обороной
                 </Button>
+              </div>
+
+              <p className={styles.empty}>Оформление — материал панелей, а не цвет.</p>
+              <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", marginBottom: "var(--space-4)" }}>
+                {[
+                  ["flat", "Плоское"],
+                  ["cast", "Литая рама"],
+                  ["paper", "Бумага"],
+                  ["gauge", "Приборная"],
+                ].map(([id, name]) => (
+                  <Button
+                    key={id}
+                    size="sm"
+                    variant={(document.documentElement.dataset.skin ?? "flat") === id ? "order" : "quiet"}
+                    onClick={() => {
+                      if (id === "flat") delete document.documentElement.dataset.skin;
+                      else document.documentElement.dataset.skin = id;
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {name}
+                  </Button>
+                ))}
               </div>
 
               <p className={styles.empty}>Палитра — решение отложено до подключения карты.</p>

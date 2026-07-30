@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { Axis, Button, ResourceBar, Stat, Tag, TechScale, cx } from "../ui";
+import { Button, Coords, ResourceBar, Stat, Tag, TechScale, cx } from "../ui";
 import {
   BUDGET,
   COUNTRIES,
@@ -192,13 +192,18 @@ function PoliticsTome() {
       </Section>
 
       <Section title="Курс">
-        <div className={styles.axes}>
-          <Axis label="Экономическая ось" value={-0.82} from="плановая" to="рыночная" zone="плановая" />
-          <Axis label="Политическая ось" value={-0.91} from="авторитаризм" to="демократия" zone="авторитаризм" />
-        </div>
+        <Coords
+          point={{ x: -0.82, y: -0.91, label: "СССР" }}
+          rival={{ x: 0.74, y: 0.68, label: "США" }}
+          xFrom="лево"
+          xTo="право"
+          yFrom="авторитаризм"
+          yTo="демократия"
+          zones={["соц-демократия", "либеральная демократия", "консерватизм", "коммунизм"]}
+        />
         <p className={styles.rowNote} style={{ marginTop: "var(--space-3)" }}>
-          Зона на спектре: коммунизм. Реформа двигает координаты постепенно и стоит политического
-          капитала.
+          Точка — ваш курс, ромб — США. Недовольство групп и близость союзов считаются как
+          расстояние между позициями, поэтому важно не само число, а насколько вы далеко.
         </p>
       </Section>
 

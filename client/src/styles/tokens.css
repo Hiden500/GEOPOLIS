@@ -92,7 +92,7 @@
    * ПОЛОСА и ЛИСТ занимают меньше, чем помещается: они стоят поверх карты по
    * центру, и лишняя ширина здесь — это закрытая карта, а не польза.
    */
-  --bottom-width: clamp(22rem, 32vw, 38rem);
+  --bottom-width: clamp(19rem, 26vw, 32rem);
   --surface-min: 32rem;
   --surface-max: 52rem;
   --ledger-width: clamp(48rem, 72vw, 80rem);

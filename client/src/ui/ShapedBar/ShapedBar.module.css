@@ -16,7 +16,7 @@
 .path {
   fill: var(--surface);
   stroke: var(--edge);
-  stroke-width: 1;
+  stroke-width: var(--panel-edge-width);
   /* Обводка внутрь: половина линии наружу срезалась бы краем экрана. */
   paint-order: stroke fill;
 }

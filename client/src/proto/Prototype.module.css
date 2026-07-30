@@ -25,8 +25,8 @@
 
   /* Размер значка РАНГА. От него же считается верх ЯЩИКА. */
   --lenta-tab-w: 2.25rem;
-  --rank-w: 3rem;
-  --rank-h: 2.5rem;
+  --rank-w: 2.25rem;
+  --rank-h: 2rem;
 }
 
 /* ── ШАПКА ────────────────────────────────────────────────────── */
@@ -91,13 +91,37 @@
   place-items: center;
   width: var(--rank-w);
   height: var(--rank-h);
-  padding: 0 0 var(--space-2);
+  padding: 0 0 var(--space-1);
   border: none;
   background: none;
+}
+
+/*
+ * Кольцо вокруг числа зависит от РАНГА: у первых трёх держав оно золотое, у
+ * первой десятки серебряное, дальше служебное. Это единственное место в раме,
+ * где цвет несёт не состояние, а положение в мире, — и оно окупается: ранг
+ * читается, не читая числа.
+ */
+.rankDisc {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--surface-raised);
   color: var(--text);
-  font-size: var(--text-lg);
+  font-size: var(--text-sm);
   font-weight: var(--weight-bold);
   line-height: 1;
+  box-shadow: 0 0 0 2px var(--rank-ring, var(--divider));
+}
+
+.rankGold {
+  --rank-ring: #d9a441;
+}
+
+.rankSilver {
+  --rank-ring: #b6c0c8;
 }
 
 /*
@@ -304,35 +328,51 @@
   margin-top: auto;
 }
 
-/* ЛЕГЕНДА держится вплотную над РЕЖИМАМИ, а не отрывается к верху. */
-.legenda + .rezhimy {
-  margin-top: 0;
+.rezhimyRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 .rezhimyGrid {
   display: grid;
   grid-template-columns: repeat(4, auto);
   gap: var(--space-1);
+  flex: 0 0 auto;
 }
 
+/* ЛЕГЕНДА стоит СЛЕВА от иконок и видна всегда: раскраска без расшифровки —
+ * это просто цветные пятна. */
 .legenda {
-  flex: 0 0 auto;
-  margin-top: auto;
-  width: max-content;
-  max-width: var(--feed-col, var(--feed-width));
+  flex: 1 1 auto;
+  min-width: 6rem;
 }
 
 .legendaRamp {
   height: 8px;
   border-radius: var(--radius-pill);
-  margin: var(--space-1) 0;
+  margin-bottom: var(--space-1);
 }
 
+/*
+ * Между подписями концов — зазор и перенос: на узкой шкале «спокойно» и «на
+ * грани» слипались в одно слово.
+ */
 .legendaEnds {
   display: flex;
   justify-content: space-between;
+  gap: var(--space-3);
   font-size: var(--text-xs);
-  color: var(--text-faint);
+  line-height: 1.3;
+  color: var(--text-dim);
+}
+
+.legendaEnds > span {
+  max-width: 48%;
+}
+
+.legendaEnds > span:last-child {
+  text-align: right;
 }
 
 /* ── ЯЩИК ─────────────────────────────────────────────────────── */
@@ -340,7 +380,7 @@
 .yashik {
   position: absolute;
   top: calc(var(--frame-h, 6rem) + var(--rank-h) + var(--frame-gap));
-  bottom: calc(var(--bottom-h, 8rem) + var(--frame-gap) * 2);
+  bottom: var(--frame-gap);
   z-index: var(--z-surface);
   display: flex;
   animation: appear var(--dur) var(--ease);
@@ -351,9 +391,15 @@
  * смотреть на карту. Ширина только автоматическая — ручка оказалась
  * лишней привычкой возить мышью вместо игры.
  */
+/*
+ * Пропорция вытянута по горизонтали: ЯЩИК доходит до нижнего края, поэтому
+ * узкая колонка выглядела бы «жирной» вертикалью. Потолок — левая граница
+ * ЛИСТА, дальше он наехал бы на приказы.
+ */
 .yashikDock {
   left: var(--frame-gap);
-  width: clamp(var(--surface-min), 32vw, var(--surface-max));
+  width: clamp(30rem, 40vw, 52rem);
+  max-width: calc((100vw - var(--bottom-width)) / 2 - var(--frame-gap) * 2);
 }
 
 /*
@@ -364,16 +410,28 @@
   left: var(--frame-gap);
   right: var(--frame-gap);
   justify-content: center;
+  /*
+   * По содержимому, а не во всю отведённую высоту: реестр из шести строк в
+   * панели на весь экран — это огромное пустое окно.
+   */
+  align-items: flex-start;
 }
 
-.yashikCenter > * {
+/*
+ * Отдельный класс, а не переопределение .yashikPanel: у них одинаковая
+ * специфичность, и `flex: 1 1 auto` растягивал реестр на всю доступную
+ * ширину — отсюда огромное пустое окно вокруг таблицы из шести строк.
+ */
+.ledgerPanel {
   flex: 0 1 auto;
+  min-width: 0;
   width: max-content;
   /*
    * Потолок оставляет место корешку свёрнутой ЛЕНТЫ. Симметрично с двух
    * сторон, иначе центрирование сломается.
    */
   max-width: calc(100% - (var(--lenta-tab-w) + var(--space-3)) * 2);
+  max-height: 100%;
 }
 
 .yashikPanel {
@@ -413,6 +471,32 @@
   display: grid;
   gap: var(--space-2);
   pointer-events: auto;
+}
+
+/* Свёрнутый ЛИСТ — узкая плашка по центру, как корешок у ЛЕНТЫ. */
+.listTab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  background-image: var(--panel-texture);
+  border: var(--panel-edge-width) solid var(--edge);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--panel-bevel), var(--panel-shadow);
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+.listTab:hover {
+  color: var(--text);
+  border-color: var(--edge-strong);
+}
+
+.listTabCount {
+  font-weight: var(--weight-bold);
+  color: var(--text);
 }
 
 .polosa {

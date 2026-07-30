@@ -38,11 +38,6 @@
   gap: var(--space-3) var(--space-5);
 }
 
-.axes {
-  display: grid;
-  gap: var(--space-4);
-}
-
 .row {
   display: flex;
   align-items: baseline;
