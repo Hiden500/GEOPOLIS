@@ -42,7 +42,25 @@ interface Args {
   retry: boolean;
   /** Гасит reasoning через chat_template_kwargs — цена хода падает в разы. */
   noThink: boolean;
+  /**
+   * Добавка к промту ОТДЕЛЬНЫМ сообщением — проверяет, сколько даёт стилевая
+   * инструкция, не трогая `generatePrompt()`. Замер отвечает на вопрос
+   * «дефект от размера модели или от отсутствия запрета в промте», и ответ
+   * на него нужен ДО того, как править промт игры.
+   */
+  style: boolean;
 }
+
+/**
+ * Запрещает ровно те дефекты, что замечены в выводе Qwen3.5-9B: цитирование
+ * сырых чисел из промта, технические id в русской прозе, разрушение
+ * погружения словами «симуляция»/«кампания».
+ */
+const STYLE_HINT = `Пиши "descriptions" как фрагмент исторической хроники 1946 года.
+Запрещено: приводить точные числа и суммы из данных выше (пиши "крупнейшая экономика мира", а не "$118.69B");
+вставлять в русский текст технические идентификаторы стран (пиши "США", а не "США (USA)");
+упоминать симуляцию, кампанию, игру, ход или данные — внутри текста этого мира их не существует.
+Опирайся на реальные события, лица и решения января 1946 года.`;
 
 function parseArgs(): Args {
   const argv = process.argv.slice(2);
@@ -64,6 +82,7 @@ function parseArgs(): Args {
     out: get("out", ""),
     retry: !argv.includes("--no-retry"),
     noThink: argv.includes("--no-think"),
+    style: argv.includes("--style"),
   };
 }
 
@@ -297,7 +316,16 @@ async function main(): Promise<void> {
   for (let i = 0; i < args.runs; i++) {
     let outcome: StreamOutcome;
     try {
-      outcome = await ask(args, [{ role: "user", content: prompt }], schema);
+      outcome = await ask(
+        args,
+        args.style
+          ? [
+              { role: "user", content: prompt },
+              { role: "user", content: STYLE_HINT },
+            ]
+          : [{ role: "user", content: prompt }],
+        schema
+      );
     } catch (e) {
       results.push({
         index: i,
