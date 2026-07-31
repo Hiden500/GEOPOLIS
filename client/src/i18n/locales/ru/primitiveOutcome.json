@@ -3,7 +3,8 @@
     "headline": "Агитаторы работали среди группы «{{group}}» — {{region}}"
   },
   "repress": {
-    "headline": "Силовое подавление в регионе {{region}}: адресатов — {{addressed}}, без последствий — {{unaffected}}"
+    "headline": "Силовое подавление в регионе {{region}}: адресатов — {{addressed}}, без последствий — {{unaffected}}",
+    "nothingToLose": "Мандата, который можно было бы на это потратить, у режима не осталось"
   },
   "grantAutonomy": {
     "headline": "Автономия предоставлена — {{region}}",
