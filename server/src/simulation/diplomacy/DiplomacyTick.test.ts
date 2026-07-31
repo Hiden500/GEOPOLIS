@@ -7,6 +7,8 @@ import { type IdeologyCoordinates } from "@shared/types/politics/Ideology";
 import {
   RELATION_MATERIALIZE_MIN,
   ALLY_RELATION_THRESHOLD,
+  RIVAL_RELATION_THRESHOLD,
+  RIVAL_RECONCILE_THRESHOLD,
 } from "@shared/defines/diplomacy";
 
 /**
@@ -65,13 +67,20 @@ describe("diplomacyTick: дрейф отношений", () => {
   });
 
   it("тянет заниженные отношения вверх", () => {
-    const a = countryAt("A", LEFT_AUTHORITARIAN, { diplomacy: { ...createTestCountry().diplomacy, relations: { B: -50 } } });
+    // Старт задан ОТНОСИТЕЛЬНО порога соперничества, а не числом −50. Проверяется
+    // здесь один только дрейф, и стартовое значение обязано оставаться выше
+    // порога: ниже него тик в том же проходе заводит соперника, а `addRival`
+    // добавляет собственный сдвиг отношений — тест мерил бы уже не дрейф.
+    // Прежнее −50 было безопасно лишь потому, что порог стоял на −70, то есть
+    // недостижимо низко (`.agent/audits/formula-audit-2026-07-30.md`).
+    const start = RIVAL_RELATION_THRESHOLD / 2;
+    const a = countryAt("A", LEFT_AUTHORITARIAN, { diplomacy: { ...createTestCountry().diplomacy, relations: { B: start } } });
     const b = countryAt("B", LEFT_AUTHORITARIAN);
 
     diplomacyTick(worldOf([a, b]));
 
-    expect(a.diplomacy.relations["B"]).toBeGreaterThan(-50);
-    expect(a.diplomacy.relations["B"]).toBeLessThan(0);
+    expect(a.diplomacy.relations["B"]).toBeGreaterThan(start);
+    expect(a.diplomacy.rivals).not.toContain("B");
   });
 
   it("целью дрейфа служит НЕ ноль: соседи-антиподы уходят в минус с нуля", () => {
@@ -113,8 +122,13 @@ describe("diplomacyTick: дрейф отношений", () => {
 });
 
 describe("diplomacyTick: пороговые переходы", () => {
-  it("автоматически добавляет соперника при отношениях ниже -70", () => {
-    const a = countryAt("A", LEFT_AUTHORITARIAN, { diplomacy: { ...createTestCountry().diplomacy, relations: { B: -75 } } });
+  it("автоматически добавляет соперника ниже порога соперничества", () => {
+    // Порог берётся из константы, а не переписывается числом в названии теста:
+    // именно совпадение «−75 в фикстуре» с «−70 в коде» позволяло проверке
+    // оставаться зелёной, пока сам порог был недостижим на живых данных.
+    const a = countryAt("A", LEFT_AUTHORITARIAN, {
+      diplomacy: { ...createTestCountry().diplomacy, relations: { B: RIVAL_RELATION_THRESHOLD - 1 } },
+    });
     const b = countryAt("B", LEFT_AUTHORITARIAN);
 
     diplomacyTick(worldOf([a, b]));
@@ -135,9 +149,13 @@ describe("diplomacyTick: пороговые переходы", () => {
     expect(b.diplomacy.allies).not.toContain("A");
   });
 
-  it("снимает соперника при отношениях выше -30", () => {
+  it("снимает соперника выше порога примирения", () => {
     const a = countryAt("A", LEFT_AUTHORITARIAN, {
-      diplomacy: { ...createTestCountry().diplomacy, relations: { B: -20 }, rivals: ["B"] },
+      diplomacy: {
+        ...createTestCountry().diplomacy,
+        relations: { B: RIVAL_RECONCILE_THRESHOLD + 1 },
+        rivals: ["B"],
+      },
     });
     const b = countryAt("B", LEFT_AUTHORITARIAN);
 
