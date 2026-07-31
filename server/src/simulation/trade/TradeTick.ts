@@ -86,11 +86,27 @@ function getEmbargoPenalty(game: GameState, target: Country): number {
 }
 
 /**
- * Продаёт излишек ресурса сверх внутреннего резерва по мировой цене,
- * перезаписывает country.economy.exportIncome (было статичное число из
- * createGame). Физически списывает проданное со stockpile — прямое
- * прочтение docs/ECONOMY.md Q8 "как ресурс превращается в доход" (продажа
- * тратит запас, не дублирует его как одновременно "и резерв, и доход").
+ * Продаёт излишек ресурса сверх внутреннего резерва по мировой цене и
+ * складывает выручку с БАЗОВОЙ внешней торговлей страны. Физически списывает
+ * проданное со stockpile — прямое прочтение docs/ECONOMY.md Q8 "как ресурс
+ * превращается в доход" (продажа тратит запас, не дублирует его как
+ * одновременно "и резерв, и доход").
+ *
+ * СЛОЖЕНИЕ, А НЕ ПЕРЕЗАПИСЬ (исправлено 2026-07-31). До этого тик записывал в
+ * `exportIncome` только сырьевую выручку, затирая величину из `createGame` —
+ * а это были два РАЗНЫХ понятия в одном поле: `economyProfile.exportShare`
+ * означает всю внешнюю торговлю страны (3–6% ВВП, авторские данные), тик же
+ * считает продажу излишков сырья. Второе — крошечная часть первого, но
+ * записывалось на его место: фактическое отношение падало до ~0,0001 ВВП на
+ * первом же тике и таким оставалось 50 лет. У мира ежемесячно испарялись
+ * несколько процентов ВВП дохода, на который была расписана его бюджетная
+ * роспись (`.agent/audits/formula-audit-2026-07-30.md`, «Бюджетная петля»).
+ *
+ * Базовая часть проходит через ТЕ ЖЕ множители, что и сырьевая. Иначе страна
+ * под полной блокадой продолжала бы получать свои 3–6% ВВП нетронутыми, и поле
+ * означало бы «подарок от профиля», а не внешнюю торговлю. Множители вынесены
+ * за скобку суммы — они одинаковы для всех ресурсов, поэтому это тождественное
+ * преобразование, а не смена модели.
  */
 export function tradeTick(game: GameState, country: Country): void {
   const currentYear = Number(game.currentDate.split("-")[0]);
@@ -118,7 +134,7 @@ export function tradeTick(game: GameState, country: Country): void {
       if (sold <= 0) continue;
 
       country.stockpile[resourceId] -= sold;
-      totalExportIncome += sold * getWorldPrice(resourceId) * (1 - embargoPenalty) * exportZoneMultiplier;
+      totalExportIncome += sold * getWorldPrice(resourceId);
     } else {
       const deficit = reserveTarget - stock;
       const bought = deficit * IMPORT_RATE;
@@ -129,6 +145,12 @@ export function tradeTick(game: GameState, country: Country): void {
     }
   }
 
-  country.economy.exportIncome = totalExportIncome;
+  // Базовая внешняя торговля — доля ВВП из авторского профиля страны. Она НЕ
+  // хранится отдельным полем: величина производная (ВВП × доля), а лишнее поле
+  // состояния — это ещё одно место, где значение может разойтись с источником.
+  const baseExportIncome = country.economy.gdp * (country.economyProfile.exportShare ?? 0);
+
+  country.economy.exportIncome =
+    (baseExportIncome + totalExportIncome) * (1 - embargoPenalty) * exportZoneMultiplier;
   country.economy.importSpending = totalImportSpending;
 }
