@@ -89,6 +89,28 @@ def validate_toml() -> None:
         )
 
 
+def validate_living_docs() -> None:
+    """Живые документы не растут без предела.
+
+    Правило «TODO — только живой backlog, DECISIONS — только свежее плюс индекс»
+    существует с 2026-07-11 и за три недели не выполнилось НИ РАЗУ: журнал вырос
+    с ~560 до 6724 строк, потому что проверять его было некому, а само правило
+    живёт в шапке файла, а не в своде. Порог здесь — не эстетика, а механизм:
+    он превращает «когда вспомнится» в красный тест.
+
+    Лечение при срабатывании — не поднять порог, а перенести старое:
+    записи журнала уходят в `docs/decisions/<YYYY-MM>.md` дословно, завершённые
+    пункты backlog удаляются (их история уже в журнале).
+    """
+    for path, limit in (("docs/DECISIONS.md", 2_000), ("docs/TODO.md", 1_400)):
+        target = ROOT / path
+        if not target.is_file():
+            check(False, f"Living doc exists: {path}")
+            continue
+        lines = target.read_text(encoding="utf-8").count("\n") + 1
+        check(lines <= limit, f"{path} stays under {limit} lines (now {lines})")
+
+
 def validate_instructions_and_skills() -> None:
     root_agents = ROOT / "AGENTS.md"
     check(root_agents.stat().st_size <= 16_384, "Root AGENTS.md stays under 16 KiB")
@@ -280,6 +302,7 @@ def validate_documented_workflow() -> None:
 def main() -> int:
     validators = (
         validate_toml,
+        validate_living_docs,
         validate_instructions_and_skills,
         validate_experiment_layer,
         validate_markdown_links,

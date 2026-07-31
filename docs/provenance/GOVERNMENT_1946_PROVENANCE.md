@@ -6,8 +6,8 @@ Last updated: 2026-07-29
 набор, насколько ему можно верить и что в нём допущение. Стандарт сорсинга и
 общие принципы исторической достоверности — в `docs/HISTORICAL_ACCURACY.md`;
 этот файл его не повторяет, а наполняет конкретикой по одному слою. Соседние
-слои — `docs/IDEOLOGY_1946_PROVENANCE.md` и
-`docs/DEMOGRAPHICS_1946_PROVENANCE.md`.
+слои — `docs/provenance/IDEOLOGY_1946_PROVENANCE.md` и
+`docs/provenance/DEMOGRAPHICS_1946_PROVENANCE.md`.
 
 **Что покрывает:** `scripts/map/config/government_1946.json` — два свойства всех
 157 стран сценария, и производный от него

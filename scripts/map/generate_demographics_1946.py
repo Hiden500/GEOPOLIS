@@ -21,8 +21,8 @@ docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
 Таблицы ниже — НЕ первичный seed, а внешнее историческое наполнение
 (2026-07-26), заменившее прежние оценки разработчика. Пообъектный провенанс —
 основа оценки, уверенность и обоснование по КАЖДОМУ региону и КАЖДОЙ группе —
-вынесен в `docs/DEMOGRAPHICS_1946_PROVENANCE.md`, по КАЖДОЙ СТРАНЕ — в
-`docs/IDEOLOGY_1946_PROVENANCE.md`; здесь он не дублируется, чтобы не
+вынесен в `docs/provenance/DEMOGRAPHICS_1946_PROVENANCE.md`, по КАЖДОЙ СТРАНЕ — в
+`docs/provenance/IDEOLOGY_1946_PROVENANCE.md`; здесь он не дублируется, чтобы не
 разъезжаться в двух местах.
 
 Общая рамка: переписи населения СССР 1946 года не было. Ближайшие опорные
@@ -45,7 +45,7 @@ docs/plans/13_MILESTONE_0_VERTICAL_SLICE.md, сессия A).
 
 Формы правления и юридический статус (`government.json`, наполнение 2026-07-29)
 покрывают страны ПОЛНОСТЬЮ и живут тем же способом: авторский вход в
-`config/government_1946.json`, провенанс — `docs/GOVERNMENT_1946_PROVENANCE.md`.
+`config/government_1946.json`, провенанс — `docs/provenance/GOVERNMENT_1946_PROVENANCE.md`.
 Слой сверх собственных инвариантов проверяется на непротиворечивость с
 `diplomacy.puppets`: это два разных предиката, но противоречить друг другу они
 не могут (разбор — `shared/src/types/politics/Government.ts`).
@@ -84,7 +84,7 @@ COUNTRIES_PATH = SCENARIO_DIR / "countries.json"
 # регионов и 270 групп). Держать полтысячи регионов питоновскими литералами
 # нельзя: файл перестаёт читаться, а diff перестаёт быть обозримым. Тот же
 # приём, что у остальных наборов пайплайна в scripts/map/config/.
-# Провенанс — docs/DEMOGRAPHICS_1946_PROVENANCE.md.
+# Провенанс — docs/provenance/DEMOGRAPHICS_1946_PROVENANCE.md.
 CONFIG_DIR = Path(__file__).resolve().parent / "config"
 GROUPS_CONFIG = CONFIG_DIR / "groups_1946.json"
 DEMOGRAPHICS_CONFIG = CONFIG_DIR / "demographics_1946.json"
@@ -93,7 +93,7 @@ INFLUENCE_CONFIG = CONFIG_DIR / "influence_1946.json"
 
 # Координаты идеологии стран живут в scripts/map/config/ideology_1946.json —
 # авторский вход, а не таблица этого файла (см. шапку). Пообъектное обоснование,
-# уверенность и источники — docs/IDEOLOGY_1946_PROVENANCE.md.
+# уверенность и источники — docs/provenance/IDEOLOGY_1946_PROVENANCE.md.
 
 
 def build_groups() -> dict:
@@ -124,7 +124,7 @@ def build_ideology(coordinates: dict) -> dict:
 #: Поля записи government_1946.json, попадающие в игровое состояние. Остальное
 #: (`confidence`, `note`) — провенанс: он нужен рецензенту входа, а не движку,
 #: и в сценарий не переносится, чтобы не раздувать состояние тем, что никто не
-#: читает (docs/GOVERNMENT_1946_PROVENANCE.md).
+#: читает (docs/provenance/GOVERNMENT_1946_PROVENANCE.md).
 GOVERNMENT_GAMEPLAY_FIELDS = ("countryId", "powerStructure", "sovereigntyStatus", "overlordIds")
 
 
