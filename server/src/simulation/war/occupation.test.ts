@@ -2,15 +2,16 @@ import { describe, it, expect } from "vitest";
 import { setRegionOccupation, revertOccupationForWar } from "./occupation";
 import { createTestGameState, createTestRegion } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
+import { OCCUPATION_STABILITY_PENALTY } from "@shared/defines/occupation";
 
 function gameWithRegion(overrides: Parameters<typeof createTestRegion>[0] = {}) {
-  const region = createTestRegion({ id: 1, ownerCountryId: "USA", stability: 70, ...overrides });
+  const region = createTestRegion({ id: 1, ownerCountryId: "USA", ...overrides });
   const game = createTestGameState({ regions: [region] });
   return { game, region };
 }
 
 describe("setRegionOccupation", () => {
-  it("выставляет occupiedBy и вешает add-модификатор -20 на stability региона", () => {
+  it("выставляет occupiedBy и вешает add-модификатор штрафа на stability региона", () => {
     const { game, region } = gameWithRegion();
 
     setRegionOccupation(game, region, "USSR");
@@ -22,7 +23,7 @@ describe("setRegionOccupation", () => {
       target: { kind: "region", id: 1 },
       attribute: "stability",
       op: "add",
-      value: -20,
+      value: OCCUPATION_STABILITY_PENALTY,
     });
   });
 
