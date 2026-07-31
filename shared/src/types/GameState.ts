@@ -6,11 +6,12 @@ import { type MapFeature } from "./map/MapFeature";
 import { type Locale } from "./i18n/LocalizedText";
 import { type War } from "./War";
 import { type Modifier } from "./Modifier";
-import { type SanctionType } from "./DiplomacyState";
 import { type EquipmentType } from "./military/EquipmentType";
 import { type ResourceType } from "./resources/ResourcesType";
 import { type EthnicGroupDefinition, type GroupImpactMemory } from "./politics/Demographics";
+import { type IdeologyAnchor } from "./politics/IdeologyAnchor";
 import { type PrimitiveTurnBudget } from "./politics/PrimitiveTurnBudget";
+import { type CampaignState } from "./Campaign";
 
 export interface GameState {
   currentDate: string;
@@ -89,6 +90,19 @@ export interface GameState {
    * (`shift_mood`/`enact_reform`), и сейв обязан это пережить.
    */
   ethnicGroups: EthnicGroupDefinition[];
+
+  /**
+   * Именованные точки спектра идеологии для эпохи сценария (docs/CONCEPT.md
+   * §4.2). Живут в состоянии по той же причине, что и `ethnicGroups`: это
+   * контент сценария с готовыми переводами, а не словарь движка. «Перонизм»
+   * осмыслен в 1946 и бессмыслен в 1836, поэтому набор приходит вместе со
+   * сценарием, а не лежит в клиентских словарях.
+   *
+   * Страна на них не ссылается: ярлык ВЫЧИСЛЯЕТСЯ из координат
+   * (`shared/src/utils/ideologyLabel.ts`), а не хранится. Шестнадцать записей
+   * на партию против 1399 регионов — цена, названная явно.
+   */
+  ideologyAnchors: IdeologyAnchor[];
 
   /**
    * Разреженная память воздействий по парам (регион, группа) — см.
@@ -191,11 +205,31 @@ export interface GameState {
   llmResponse?: string; // последний ответ LLM
   llmTurn?: number; // номер хода для LLM симуляции
   pendingLlmActions?: LLMAction[]; // действия от LLM ожидающие применения
-  // Индекс ротации "Spotlight Countries" (детерминированный round-robin по
-  // не-major странам, id-sort) — расширение круга стран, реально ощущающих
-  // LLM (docs/DECISIONS.md, 2026-07-04, вопрос 11). Двигается только при
-  // успешном processResponse, не при простом generatePrompt.
-  llmSpotlightCursor?: number;
+  /**
+   * Позиция ротации "Spotlight Countries" — расширение круга стран, реально
+   * ощущающих LLM (docs/DECISIONS.md, 2026-07-04, вопрос 11). Двигается только
+   * при успешном processResponse, не при простом generatePrompt.
+   *
+   * Хранится ИДЕНТИФИКАТОР последней показанной страны, а не индекс в пуле
+   * (изменено Милстоуном 1, сессия жизненного цикла). Индекс был ссылкой на
+   * страну, замаскированной под число: пул — это не-major страны,
+   * отсортированные по id, поэтому появление или исчезновение любой страны
+   * молча сдвигало курсор на другую. Ротация «по всем без пропусков и
+   * повторов», ради которой сортировка по id и выбрана, при первом же расколе
+   * переставала выполняться — и заметить это было нечем. Id стабилен:
+   * следующий цикл начинается со страны, идущей за ним в текущем пуле, а если
+   * запомненной страны больше нет — с начала пула.
+   */
+  llmSpotlightCountryId?: string;
+
+  /**
+   * Состояние кампании (docs/CONCEPT.md §7.1, §6) — active /
+   * succession_choice_pending / defeated.
+   *
+   * Обязательное поле: «состояния нет» не должно читаться как «партия активна».
+   * Старые сейвы отклоняются по `SAVE_VERSION`, а не донабираются умолчаниями.
+   */
+  campaign: CampaignState;
 
   // Гейт хода (docs/DECISIONS.md, 2026-07-06): true после успешного
   // processResponse текущего цикла, сбрасывается в false при каждом
@@ -338,13 +372,22 @@ export interface LastTurnReport {
 // z.infer<...> (actionSchemas.ts) для .optional() всегда выводит `X | undefined`
 // явно. Без этого компайл-тайм проверка эквивалентности в actionSchemas.ts
 // не проходит на пустом месте — не убирать `| undefined` при правке.
+// `diplomacy`/`war`/`peace`/`sanction` УДАЛЕНЫ из старого канала (Милстоун 1,
+// дипломатический блок алфавита) — они стали примитивами воздействия
+// (`docs/PRIMITIVES.md` §2), и оставить их здесь значило бы сохранить ровно ту
+// дыру, ради закрытия которой перевод и делался: `diplomacy` принимал от модели
+// готовое число `relationChange`, то есть модель задавала ВЕЛИЧИНУ. Пока
+// работал этот путь, алфавит обходился одной строкой `actions`. Прецедент тот
+// же, что у `annex`/`puppet` (2026-07-27), но причина другая: те не имели
+// реализации, эти имели неправильный контракт.
 export type LLMAction =
-  | { type: "diplomacy"; sourceCountryId: string; targetCountryId: string; data: { relationChange: number } }
-  | { type: "war"; sourceCountryId: string; targetCountryId: string; data?: { warGoal?: string | undefined } | undefined }
-  | { type: "peace"; sourceCountryId: string; targetCountryId: string }
-  | { type: "sanction"; sourceCountryId: string; targetCountryId: string; data?: { sanctionType?: SanctionType | undefined } | undefined }
   | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
-  | { type: "influence"; sourceCountryId: string; targetCountryId: string; data?: { influenceChange?: number | undefined } | undefined }
+  // `influence` УДАЛЁН Милстоуном 1 (сессия мягких глаголов). Его контракт был
+  // уже исправлен — числовое поле сняли, шаг задавал движок, — но с появлением
+  // `send_aid`, который двигает ТО ЖЕ поле коридором от состояния, под капом
+  // цели и под сверкой результата, плоский шаг рядом стал обходом коридора
+  // сменой канала. Цена названа: «влияние без денег» недоступно вовсе
+  // (`docs/TODO.md`).
   | { type: "research_shift"; sourceCountryId: string; data: { domain: string; share: number } }
   | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } }
   | { type: "build_extraction"; sourceCountryId: string; data: { regionId: number; resource: ResourceType; delta: 1 | -1 } };

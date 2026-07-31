@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { GeminiProvider } from "../GeminiProvider";
+import { PRIMITIVE_VERBS } from "../../../primitives/types";
+import { LLMActionSchema } from "../../actionSchemas";
 import { LLMProviderError } from "../../../errors/AppError";
 
 describe("GeminiProvider", () => {
@@ -135,7 +137,7 @@ describe("GeminiProvider", () => {
       }
     });
 
-    it("actions.items — anyOf (не oneOf, документированный ключ Gemini для union), все 11 типов присутствуют", async () => {
+    it("actions.items — anyOf (не oneOf, документированный ключ Gemini для union), присутствуют РОВНО объявленные схемой типы", async () => {
       const schema = await captureResponseSchema();
       const items = schema.properties.actions.items;
 
@@ -144,25 +146,45 @@ describe("GeminiProvider", () => {
 
       // discriminant "type" литералы приходят как enum: [...] (не const, не
       // поддерживается этим REST-эндпоинтом Gemini — см. enrichForGemini).
-      // Ветки с идентичной формой (peace/guarantee) схлопнуты
+      // Ветки с идентичной формой (guarantee/influence) схлопнуты
       // mergeIdenticalShapeBranches в одну — enum там содержит несколько
-      // значений, не одно; flatMap разворачивает все девять обратно.
+      // значений, не одно; flatMap разворачивает все обратно.
+      //
+      // Список выведен из САМОЙ схемы, а не переписан руками: удаление или
+      // добавление типа в старом канале не должно требовать правки этого
+      // ожидания, иначе тест проверяет память автора, а не контракт.
       const types = items.anyOf.flatMap((branch: any) => branch.properties.type.enum);
-      expect(types.sort()).toEqual(
-        [
-          "build_extraction", "diplomacy", "guarantee", "influence", "peace",
-          "production_shift", "research_shift", "sanction", "war",
-        ].sort()
+      const declared = (LLMActionSchema.options as any[]).map(
+        (option: any) => option.shape.type.value
       );
+      expect(types.sort()).toEqual(declared.sort());
+      // Переведённые в алфавит типы схема провайдера предлагать не должна.
+      expect(types).not.toContain("diplomacy");
+      expect(types).not.toContain("war");
     });
 
-    it("ветки с идентичной формой (peace/guarantee) схлопнуты в одну — anyOf короче числа типов (подтверждённое живым вызовом ограничение Gemini)", async () => {
+    it("ветки с идентичной формой схлопнуты в одну — anyOf короче числа глаголов (подтверждённое живым вызовом ограничение Gemini)", async () => {
+      // ПРОВЕРКА ПЕРЕЕХАЛА со старого канала на примитивы (Милстоун 1, сессия
+      // мягких глаголов), и это следствие, а не смена вкуса: пара одинаковых по
+      // форме действий `guarantee`/`influence`, на которой она держалась,
+      // распалась — `influence` удалён, и в старом канале двустороннее действие
+      // осталось одно. Схлопывать там стало нечего, а само ограничение Gemini
+      // никуда не делось.
+      //
+      // В алфавите примитивов пар с идентичной формой теперь несколько
+      // (`send_aid`/`condemn`/`support_proxy` — цель-страна и один хинт), то
+      // есть носитель проверки стал не слабее, а сильнее: схлопывание
+      // проверяется там, где веток четырнадцать, а не четыре.
       const schema = await captureResponseSchema();
-      const items = schema.properties.actions.items;
-      expect(items.anyOf.length).toBeLessThan(9);
+      const items = schema.properties.primitives.items;
+      expect(items.anyOf.length).toBeLessThan(PRIMITIVE_VERBS.length);
 
-      const mergedBranch = items.anyOf.find((b: any) => b.properties.type.enum.length > 1);
-      expect(mergedBranch.properties.type.enum.sort()).toEqual(["guarantee", "peace"].sort());
+      const mergedBranch = items.anyOf.find((b: any) => b.properties.verb.enum.length > 1);
+      expect(mergedBranch.properties.verb.enum.length).toBeGreaterThan(1);
+      // Схлопнуты именно глаголы АЛФАВИТА, а не произвольные строки.
+      for (const verb of mergedBranch.properties.verb.enum) {
+        expect(PRIMITIVE_VERBS).toContain(verb);
+      }
     });
 
     it("нет const/additionalProperties — Gemini их не поддерживает (подтверждено живым вызовом 2026-07-10)", async () => {

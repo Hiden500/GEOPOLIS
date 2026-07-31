@@ -4,7 +4,15 @@ import {
   type PrimitiveOutcomeLine,
   type PrimitiveOutcomeRecord,
 } from "@shared/types/politics/PrimitiveOutcome";
-import { type AppliedPrimitive, type GroupImpactEffect, type Primitive } from "./types";
+import {
+  type AppliedPrimitive,
+  type CountryScalarEffect,
+  type CountryScalarField,
+  type GroupImpactEffect,
+  type InfluenceEffect,
+  type Primitive,
+  type RelationEffect,
+} from "./types";
 import { countryNames, groupNames, regionNames } from "./entityNames";
 
 /**
@@ -83,6 +91,106 @@ function impactLines(
           names,
         };
   });
+}
+
+/**
+ * Строки по фактическим сдвигам отношений — по КАЖДОЙ стороне пары.
+ *
+ * Обе стороны и нулевые дельты называются по тому же правилу, что у памяти
+ * воздействий: умолчать о стороне значит дать игроку симметрию, которой не
+ * было (`changeRelation` пишет адресату половину дельты инициатора).
+ */
+function relationLines(
+  game: GameState,
+  effects: readonly RelationEffect[]
+): PrimitiveOutcomeLine[] {
+  return effects.map(effect => {
+    const names: Record<string, LocalizedText> = {
+      source: countryNames(game, effect.fromCountryId),
+      country: countryNames(game, effect.toCountryId),
+    };
+    return effect.delta === 0
+      ? { key: "relation.unchanged", values: { value: effect.after.toFixed(1) }, names }
+      : {
+          key: "relation.changed",
+          values: {
+            delta: signed(effect.delta),
+            before: effect.before.toFixed(1),
+            after: effect.after.toFixed(1),
+          },
+          names,
+        };
+  });
+}
+
+/**
+ * Строки по фактическим сдвигам скалярных полей стран (казна, легитимность,
+ * живая сила).
+ *
+ * Ключ i18n строится ИЗ ИМЕНИ ПОЛЯ, а не по глаголу: одно и то же поле должно
+ * читаться игроком одинаково, чьей бы рукой его ни сдвинули. Нулевая дельта
+ * сюда не приходит вовсе — эти строки собираются из ДИФА состояния, а диф
+ * нулевых записей не содержит; «ничего не сдвинулось» глагол обязан назвать
+ * сам, своей строкой (см. `condemn.nothingToLose`).
+ */
+function scalarLines(
+  game: GameState,
+  effects: readonly CountryScalarEffect[]
+): PrimitiveOutcomeLine[] {
+  return effects.map(effect => ({
+    key: `scalar.${effect.field}`,
+    values: {
+      delta: signedAmount(effect.field, effect.delta),
+      before: amountOf(effect.field, effect.before),
+      after: amountOf(effect.field, effect.after),
+    },
+    names: { country: countryNames(game, effect.countryId) },
+  }));
+}
+
+/** Строки по фактическим сдвигам влияния — нулевая дельта называется нулевой. */
+function influenceLines(
+  game: GameState,
+  effects: readonly InfluenceEffect[]
+): PrimitiveOutcomeLine[] {
+  return effects.map(effect => {
+    const names: Record<string, LocalizedText> = {
+      source: countryNames(game, effect.fromCountryId),
+      country: countryNames(game, effect.toCountryId),
+    };
+    return effect.delta === 0
+      ? { key: "influence.unchanged", values: { value: effect.after.toFixed(1) }, names }
+      : {
+          key: "influence.changed",
+          values: {
+            delta: signed(effect.delta),
+            before: effect.before.toFixed(1),
+            after: effect.after.toFixed(1),
+          },
+          names,
+        };
+  });
+}
+
+/**
+ * Денежные и людские величины — целыми, без дробей.
+ *
+ * Шкалы здесь разные по природе: легитимность живёт в 0..100 и осмысленна с
+ * десятыми, казна измеряется миллиардами, а живая сила — людьми. Одно
+ * форматирование на все три давало бы либо «treasury −0.001», либо
+ * «legitimacy −3».
+ */
+function money(value: number): string {
+  return Math.round(value).toString();
+}
+
+function amountOf(field: CountryScalarField, value: number): string {
+  return field === "treasury" || field === "activePersonnel" ? money(value) : value.toFixed(1);
+}
+
+function signedAmount(field: CountryScalarField, value: number): string {
+  const sign = value >= 0 ? "+" : "−";
+  return `${sign}${amountOf(field, Math.abs(value))}`;
 }
 
 /** Сколько адресатов примитив реально сдвинул — считается по дельтам, не по составу региона. */
@@ -205,6 +313,351 @@ export function buildPrimitiveOutcome(
         details,
       };
     }
+
+    case "diplomacy":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: `diplomacy.headline.${applied.direction}`,
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: relationLines(game, applied.relationEffects),
+      };
+
+    case "sanction":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "sanction.headline",
+          values: { sanctionType: applied.sanctionType },
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          // Названо прямо, а не умолчано: три из четырёх видов санкций сегодня
+          // репутационные, и отклик обязан отличать блокаду от заявления.
+          { key: applied.cutsTrade ? "sanction.cutsTrade" : "sanction.reputationOnly" },
+          ...relationLines(game, applied.relationEffects),
+        ],
+      };
+
+    case "war": {
+      const dragged = applied.attackers.length + applied.defenders.length - 2;
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "war.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          // Втянутые договорами стороны — факт, который игрок обязан увидеть
+          // сразу: он не выбирал их, но воюет теперь и с ними.
+          ...(dragged > 0 ? [{ key: "war.draggedIn", values: { count: dragged } }] : []),
+          ...relationLines(game, applied.relationEffects),
+        ],
+      };
+    }
+
+    case "peace": {
+      const details: PrimitiveOutcomeLine[] = [
+        applied.annexedRegionIds.length > 0
+          ? { key: "peace.annexed", values: { count: applied.annexedRegionIds.length } }
+          : { key: "peace.borderUnchanged" },
+      ];
+      for (const move of applied.capitalMoves) {
+        details.push({
+          key: "peace.capitalMoved",
+          names: {
+            country: countryNames(game, move.countryId),
+            region: regionNames(game, move.to),
+          },
+        });
+      }
+      for (const effect of applied.countryScalarEffects) {
+        details.push({
+          key: `peace.${effect.field}`,
+          values: {
+            delta: signed(effect.delta),
+            before: effect.before.toFixed(1),
+            after: effect.after.toFixed(1),
+          },
+          names: { country: countryNames(game, effect.countryId) },
+        });
+      }
+      details.push(...relationLines(game, applied.relationEffects));
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "peace.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details,
+      };
+    }
+
+    case "send_aid":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "sendAid.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          ...scalarLines(game, applied.countryScalarEffects),
+          ...influenceLines(game, applied.influenceEffects),
+        ],
+      };
+
+    case "capital_flight": {
+      const region = applied.regionEffects[0];
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "capitalFlight.headline",
+          names: { region: regionNames(game, applied.regionId) },
+        },
+        details: [
+          // Региональный ВВП называется всегда, включая нулевую дельту: у
+          // отчёта та же гранулярность правдивости, что у памяти воздействий.
+          ...(region
+            ? [
+                region.delta === 0
+                  ? { key: "capitalFlight.output.unchanged", values: { value: money(region.after) } }
+                  : {
+                      key: "capitalFlight.output.changed",
+                      values: {
+                        delta: money(Math.abs(region.delta)),
+                        before: money(region.before),
+                        after: money(region.after),
+                      },
+                    },
+              ]
+            : []),
+          ...scalarLines(game, applied.countryScalarEffects),
+        ],
+      };
+    }
+
+    case "condemn":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "condemn.headline",
+          values: { audience: applied.audienceSize },
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        // Пустой список — не «нет данных», а факт: легитимности цели уже
+        // нечего терять, и отклик обязан сказать это словом.
+        details:
+          applied.countryScalarEffects.length > 0
+            ? scalarLines(game, applied.countryScalarEffects)
+            : [{ key: "condemn.nothingToLose" }],
+      };
+
+    case "support_proxy":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "supportProxy.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: [
+          // Названо прямо: патрон не стал стороной войны. Это ГЛАВНОЕ свойство
+          // глагола, и умолчать о нём значило бы дать игроку повод думать, что
+          // он только что вступил в войну.
+          { key: "supportProxy.notBelligerent" },
+          ...scalarLines(game, applied.countryScalarEffects),
+        ],
+      };
+
+    case "split_country": {
+      // Отклик перечисляет ФАКТ, а не оценку: сколько государств возникло,
+      // сколько регионов каждое забрало, пережила ли метрополия раскол.
+      const details: PrimitiveOutcomeLine[] = applied.shards.map(shard => ({
+        key: "split.shard",
+        values: { regions: shard.regionIds.length },
+        names: {
+          country: countryNames(game, shard.countryId),
+          group: groupNames(game, shard.groupId),
+        },
+      }));
+
+      if (applied.dissolved) {
+        details.push({
+          key: "split.dissolved",
+          names: { country: countryNames(game, applied.dissolved.successorCountryId) },
+        });
+      }
+      if (applied.capitalMoved) {
+        details.push({
+          key: "split.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoved.to) },
+        });
+      }
+      if (applied.closedWarIds.length > 0) {
+        details.push({
+          key: "split.warsClosed",
+          values: { count: applied.closedWarIds.length },
+        });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "splitCountry.headline",
+          values: { shards: applied.shards.length },
+          // Имя расколотой страны берётся из состояния, а распустившейся —
+          // из результата: в состоянии её уже нет, и резолвер имён вернул бы
+          // сырой идентификатор.
+          names: { country: countryNames(game, applied.countryId) },
+        },
+        details,
+      };
+    }
+
+    case "puppet":
+      return {
+        verb: applied.verb,
+        headline: {
+          // Ключ несёт РЫЧАГ, а не только факт: «подчинена силой» и «вошла в
+          // клиенты по влиянию» — разные события для игрока, и один заголовок
+          // на оба выдал бы капитуляцию за дипломатию.
+          key: `puppet.headline.${applied.leverage}`,
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        // Машинного имени статуса в отклике НЕТ намеренно: `values`
+        // подставляются клиентом дословно, и `protectorate` попал бы в русский
+        // текст как есть. Разница «стал зависимым впервые» / «был зависим и
+        // раньше» выражена ключом, а конкретный статус игрок читает там, где он
+        // и живёт, — в панели страны (`client/src/i18n/governmentLabel.ts`).
+        details: [
+          applied.statusBefore === applied.statusAfter
+            ? {
+                key: "puppet.statusKept",
+                names: { source: countryNames(game, applied.sourceCountryId) },
+              }
+            : {
+                key: "puppet.statusChanged",
+                names: { country: countryNames(game, applied.targetCountryId) },
+              },
+        ],
+      };
+
+    case "annex": {
+      const details: PrimitiveOutcomeLine[] = [
+        applied.targetRegionsLeft === 0
+          ? { key: "annex.noTerritoryLeft", names: { country: countryNames(game, applied.targetCountryId) } }
+          : {
+              key: "annex.territoryLeft",
+              values: { regions: applied.targetRegionsLeft },
+              names: { country: countryNames(game, applied.targetCountryId) },
+            },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "annex.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+      // Конец партии называется ЗДЕСЬ же, а не оставляется панели кампании:
+      // игрок читает отклик приказа первым, и узнать о поражении из другого
+      // места экраном ниже — не то же самое, что узнать из результата акта.
+      if (applied.campaignEnded) details.push({ key: "annex.campaignDefeated" });
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "annex.headline",
+          values: { regions: applied.annexedRegionIds.length },
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details,
+      };
+    }
+
+    case "merge_countries": {
+      const details: PrimitiveOutcomeLine[] = [
+        {
+          key: "merge.absorbed",
+          values: { regions: applied.absorbedRegionIds.length },
+          // Имя поглощённой страны берётся ИЗ РЕЗУЛЬТАТА, а не из состояния:
+          // её там уже нет, и резолвер вернул бы сырой идентификатор.
+          names: { country: applied.absorbedName },
+        },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "merge.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+      if (applied.closedWarIds.length > 0) {
+        details.push({ key: "merge.warsClosed", values: { count: applied.closedWarIds.length } });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "mergeCountries.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: applied.absorbedName,
+          },
+        },
+        details,
+      };
+    }
+
+    case "create_country": {
+      const details: PrimitiveOutcomeLine[] = [
+        { key: "create.regions", values: { regions: applied.regionIds.length } },
+      ];
+      if (applied.capitalMoves[0]) {
+        details.push({
+          key: "create.capitalMoved",
+          names: { region: regionNames(game, applied.capitalMoves[0].to) },
+        });
+      }
+
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "createCountry.headline",
+          names: {
+            source: countryNames(game, applied.parentCountryId),
+            country: countryNames(game, applied.createdCountryId),
+          },
+        },
+        details,
+      };
+    }
   }
 }
 
@@ -307,12 +760,72 @@ export function buildPrimitivePreview(
         }
         key = `preview.${primitive.verb}.${primitive.target.groupId ? "group" : "region"}`;
         break;
+      case "split_country":
+        // В показе распознанного НЕТ ни числа осколков, ни их состава: их
+        // выведет движок из состояния в момент применения, и обещать их заранее
+        // значило бы соврать при первом же изменении недовольства.
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.split_country";
+        break;
+      case "diplomacy":
+        // Направление — часть НАМЕРЕНИЯ и потому показывается; величина сдвига
+        // не показывается, потому что её ещё не существует.
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.diplomacy.${primitive.params?.direction ?? "unspecified"}`;
+        break;
+      case "sanction":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.sanction";
+        details.push({
+          key: `preview.sanctionType.${primitive.params?.sanctionType ?? "default"}`,
+        });
+        break;
+      case "war":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.war";
+        break;
+      case "peace":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.peace";
+        break;
+      // Мягкие воздействия Милстоуна 1. Величин в показе нет ни у одного, как и
+      // у всех остальных: сумму помощи, глубину оттока и силу удара по
+      // репутации движок посчитает из состояния в момент применения.
+      case "send_aid":
+      case "condemn":
+      case "support_proxy":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.${primitive.verb}`;
+        break;
+      case "capital_flight":
+        names.region = regionNames(game, primitive.target.regionId);
+        key = "preview.capital_flight";
+        break;
+      // Подчинение и поглощение: в показе распознанного нет ни рычага, ни
+      // состава регионов. Оба выведет движок из состояния в момент применения —
+      // между подтверждением и применением рычаг мог смениться, а земля
+      // перейти.
+      case "puppet":
+      case "annex":
+      case "merge_countries":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.${primitive.verb}`;
+        break;
+      case "create_country":
+        // Ни имени будущего государства, ни состава его земель: и то и другое
+        // выведет движок из демографии в момент применения.
+        names.region = regionNames(game, primitive.target.regionId);
+        key = "preview.create_country";
+        break;
     }
 
     // Интенсивность — качественный хинт, а не сила: подписывается словом и
-    // только тем, что модель действительно указала.
-    if (primitive.params?.intensity) {
-      details.push({ key: `preview.intensity.${primitive.params.intensity}` });
+    // только тем, что модель действительно указала. Читается через
+    // промежуточную переменную: у структурных `war`/`peace` поля `intensity` в
+    // форме нет вовсе, и это заявление о том, что у события величины не бывает.
+    const params = primitive.params;
+    if (params && "intensity" in params && params.intensity) {
+      details.push({ key: `preview.intensity.${params.intensity}` });
     }
 
     return { verb: primitive.verb, headline: { key, names }, details };

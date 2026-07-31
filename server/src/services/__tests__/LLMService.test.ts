@@ -3,6 +3,8 @@ import { LLMService } from "../LLMService";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
 import { emptyResponseReceipt } from "@shared/types/ResponseReceipt";
+import { MAX_RESEARCH_SHARE } from "@shared/defines/llmActionCaps";
+import { LLMActionSchema } from "../../llm/actionSchemas";
 
 function gameWithUsaUssr(overrides: Partial<GameState> = {}): GameState {
   return createTestGameState({
@@ -32,13 +34,19 @@ describe("LLMService", () => {
       expect(prompt).toContain('"title"');
       expect(prompt).toContain('"descriptions"');
       expect(prompt).toContain('"actions"');
-      // перечень допустимых типов действий присутствует в инструкции
-      // `annex`/`puppet` в списке типов больше нет (решение 2026-07-27): тип,
-      // существующий ради того, чтобы быть отклонённым, занимал место в
-      // контракте и в бюджете промта.
-      expect(prompt).toContain("diplomacy|war|peace|sanction|guarantee|influence");
-      expect(prompt).not.toContain("annex");
-      expect(prompt).not.toContain("puppet");
+      // Перечень допустимых типов СТАРОГО канала присутствует в инструкции.
+      // Проверяется он сам, а не отсутствие подстроки где угодно в промте:
+      // с возвращением `annex`/`puppet` глаголами алфавита (Милстоун 1, сессия
+      // структурных глаголов) их имена ЗАКОННО стоят в описании примитивов, и
+      // прежняя проверка `not.toContain("annex")` стала бы утверждать, что
+      // реализованный глагол модели не предлагается.
+      expect(prompt).toContain("guarantee|research_shift");
+      // Переведённые в алфавит типы из перечня УБРАНЫ: промт не вправе
+      // обещать модели канал, которого схема больше не принимает.
+      expect(prompt).not.toContain("diplomacy|war");
+      const legacyTypes = prompt.slice(prompt.indexOf('"type": "guarantee')).split("\n")[0]!;
+      expect(legacyTypes).not.toContain("annex");
+      expect(legacyTypes).not.toContain("puppet");
     });
 
     it("## Language: требует писать нарратив на языке локали игры (2026-07-05)", () => {
@@ -52,11 +60,16 @@ describe("LLMService", () => {
       expect(prompt).toContain("in English");
     });
 
-    it("сообщает LLM жёсткие пределы магнитуды (Hard limits)", () => {
+    it("сообщает LLM жёсткие пределы старого канала (Hard limits)", () => {
       const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("Hard limits");
-      expect(prompt).toContain("±40");
-      expect(prompt).toContain("±20");
+      // Пределы ±40/±20 исчезли вместе со своими действиями (Милстоун 1): они
+      // ограничивали ЧИСЛО ОТ МОДЕЛИ, то есть узаконивали её право это число
+      // прислать. Остались пределы долей бюджета — рычагов игрока.
+      expect(prompt).toContain(`0-${MAX_RESEARCH_SHARE}`);
+      // `influence` из перечня УБРАН вместе с действием (Милстоун 1, мягкие
+      // глаголы): промт не вправе обещать канал, которого схема не принимает.
+      expect(prompt).not.toContain("influence: no magnitude field");
     });
 
     it("Narrative requirements: требует минимум 3 абзаца и охват Spotlight-стран (2026-07-05, живой тест на Groq/Gemini)", () => {
@@ -250,7 +263,7 @@ describe("LLMService", () => {
     it("Instructions: упоминает research_shift и его пределы (2026-07-06)", () => {
       const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("research_shift");
-      expect(prompt).toContain("diplomacy|war|peace|sanction|guarantee|influence|research_shift|production_shift");
+      expect(prompt).toContain("guarantee|research_shift|production_shift");
     });
 
     it("Instructions: упоминает production_shift и категории техники (War Phase 2, 2026-07-06)", () => {
@@ -489,7 +502,7 @@ describe("LLMService", () => {
       const svc = new LLMService(g);
       svc.generatePrompt().prompt;
       svc.generatePrompt().prompt;
-      expect(g.llmSpotlightCursor ?? 0).toBe(0);
+      expect(g.llmSpotlightCountryId).toBeUndefined();
     });
 
     it("курсор двигается только после успешного processResponse, с оборачиванием пула", () => {
@@ -502,21 +515,58 @@ describe("LLMService", () => {
       const secondResponse = JSON.stringify({ descriptions: "y", actions: [] });
 
       svc.processResponse(response);
-      // Пул из 6 стран, шаг 5 → курсор 5
-      expect(g.llmSpotlightCursor).toBe(5);
+      // Пул по id: AAA..FFF, шаг 5 → последняя показанная EEE
+      expect(g.llmSpotlightCountryId).toBe("EEE");
 
       const promptAfter = svc.generatePrompt().prompt;
       const section = promptAfter.slice(
         promptAfter.indexOf("## Spotlight Countries"),
         promptAfter.indexOf("## Active Wars")
       );
-      // От курсора 5 в пуле из 6 (AAA..FFF): FFF, затем оборот на AAA..DDD
+      // За EEE в пуле из 6 идёт FFF, затем оборот на AAA..DDD
       expect(section).toContain("Foxtrot");
       expect(section).toContain("Alpha");
 
       svc.processResponse(secondResponse);
-      // (5 + 5) % 6 = 4
-      expect(g.llmSpotlightCursor).toBe(4);
+      // FFF, AAA, BBB, CCC, DDD — последняя показанная DDD
+      expect(g.llmSpotlightCountryId).toBe("DDD");
+    });
+
+    it("курсор ПЕРЕЖИВАЕТ изменение состава стран: продолжает за той же страной", () => {
+      // Свойство, ради которого курсор перестал быть индексом (Милстоун 1):
+      // пул пересобирается из состава, поэтому позиция в нём — ссылка на
+      // страну, замаскированная под число.
+      const g = gameWithRoster();
+      const svc = new LLMService(g);
+      svc.processResponse(JSON.stringify({ descriptions: "x", actions: [] }));
+      expect(g.llmSpotlightCountryId).toBe("EEE");
+
+      // Страна, стоящая в пуле РАНЬШЕ запомненной, исчезает — позиция
+      // запомненной сдвигается, идентификатор нет.
+      g.countries = g.countries.filter(c => c.id !== "AAA");
+
+      const prompt = svc.generatePrompt().prompt;
+      const section = prompt.slice(
+        prompt.indexOf("## Spotlight Countries"),
+        prompt.indexOf("## Active Wars")
+      );
+      // Продолжаем строго ЗА EEE: первой идёт FFF, дальше оборот на BBB…
+      // Позиционный курсор (5) в пуле, ужавшемся до пяти стран, дал бы BBB.
+      expect(section.indexOf("Foxtrot")).toBeGreaterThan(-1);
+      expect(section.indexOf("Foxtrot")).toBeLessThan(section.indexOf("Bravo"));
+    });
+
+    it("исчезнувшая запомненная страна даёт начало пула, а не случайную позицию", () => {
+      const g = gameWithRoster();
+      g.llmSpotlightCountryId = "ZZZ";
+      const svc = new LLMService(g);
+      const prompt = svc.generatePrompt().prompt;
+      const section = prompt.slice(
+        prompt.indexOf("## Spotlight Countries"),
+        prompt.indexOf("## Active Wars")
+      );
+      expect(section).toContain("Alpha");
+      expect(section).not.toContain("Foxtrot");
     });
 
     it("майоры никогда не попадают в пул ротации", () => {
@@ -555,60 +605,14 @@ describe("LLMService", () => {
     const usa = () => game.countries.find(c => c.id === "USA")!;
     const ussr = () => game.countries.find(c => c.id === "USSR")!;
 
-    it("diplomacy: применяет relationChange из data симметрично (половина обратной стороне)", () => {
-      service.applyLlmActions([
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 20 } },
-      ]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(20);
-      expect(ussr().diplomacy.relations["USA"]).toBe(10);
-    });
-
-    it("war: обрушивает отношения (delta -100, обратная сторона -50) и создаёт реальную War (2026-07-06)", () => {
-      service.applyLlmActions([{ type: "war", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(-100);
-      expect(ussr().diplomacy.relations["USA"]).toBe(-50);
-
-      const war = game.wars.find(w => w.attackers.includes("USA") && w.defenders.includes("USSR"));
-      expect(war).toBeDefined();
-      expect(war!.active).toBe(true);
-    });
-
-    it("war: сохраняет warGoal из data.warGoal, если передан (2026-07-06)", () => {
-      service.applyLlmActions([
-        { type: "war", sourceCountryId: "USA", targetCountryId: "USSR", data: { warGoal: "Liberate Manchuria" } },
-      ]);
-      const war = game.wars.find(w => w.attackers.includes("USA"));
-      expect(war!.warGoal).toBe("Liberate Manchuria");
-    });
-
-    it("peace: улучшает отношения (delta +50) и завершает реальную войну (2026-07-06)", () => {
-      service.applyLlmActions([{ type: "war", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      service.applyLlmActions([{ type: "peace", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(50 - 100);
-      expect(ussr().diplomacy.relations["USA"]).toBe(25 - 50);
-
-      const war = game.wars.find(w => w.attackers.includes("USA") && w.defenders.includes("USSR"));
-      expect(war!.active).toBe(false);
-    });
-
-    it("peace: не падает, если активной войны нет (2026-07-06)", () => {
-      service.applyLlmActions([{ type: "peace", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(50);
-      expect(game.wars).toHaveLength(0);
-    });
-
-    it("sanction: добавляет санкцию по умолчанию и ухудшает отношения на -25", () => {
-      service.applyLlmActions([{ type: "sanction", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.sanctions["USSR"]).toEqual(["economic_sanctions"]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(-25);
-    });
-
-    it("sanction: использует sanctionType из data, если передан", () => {
-      service.applyLlmActions([
-        { type: "sanction", sourceCountryId: "USA", targetCountryId: "USSR", data: { sanctionType: "military_sanctions" } },
-      ]);
-      expect(usa().diplomacy.sanctions["USSR"]).toEqual(["military_sanctions"]);
-    });
+    // Ветки `diplomacy`/`war`/`peace`/`sanction` УДАЛЕНЫ вместе со своими
+    // типами (Милстоун 1, дипломатический блок алфавита). Их покрытие —
+    // симметрия сдвига отношений, обвал при объявлении войны, создание и
+    // закрытие настоящей `War`, сохранение `warGoal`, вид санкции по умолчанию
+    // и явный — перенесено в
+    // `server/src/primitives/__tests__/diplomaticVerbs.test.ts` целиком, а не
+    // «в основном»: там проверяется тот же наблюдаемый результат ПЛЮС то, чего
+    // старый канал не умел, — что величину задаёт состояние, а не модель.
 
     it("guarantee: добавляет гарантию и улучшает отношения на +15", () => {
       service.applyLlmActions([{ type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" }]);
@@ -616,9 +620,17 @@ describe("LLMService", () => {
       expect(usa().diplomacy.relations["USSR"]).toBe(15);
     });
 
-    it("influence: применяет influenceChange по умолчанию (10)", () => {
-      service.applyLlmActions([{ type: "influence", sourceCountryId: "USA", targetCountryId: "USSR" }]);
-      expect(usa().diplomacy.influence["USSR"]).toBe(10);
+    it("influence: удалён из старого канала — схема его больше не принимает", () => {
+      // Милстоун 1, сессия мягких глаголов. Контракт `influence` был уже
+      // исправлен (числовое поле снято, шаг задавал движок), и дыра осталась
+      // ДРУГАЯ: `send_aid` двигает то же поле коридором от состояния, под капом
+      // цели и под сверкой результата, — плоский шаг рядом с коридором был бы
+      // обходом коридора сменой канала. Проверяется схемой, а не намерением.
+      expect(
+        LLMActionSchema.safeParse({
+          type: "influence", sourceCountryId: "USA", targetCountryId: "USSR",
+        }).success
+      ).toBe(false);
     });
 
     // "действие без targetCountryId/data — no-op" тесты удалены здесь (2026-07-10,
@@ -638,11 +650,11 @@ describe("LLMService", () => {
 
     it("применяет несколько действий подряд", () => {
       service.applyLlmActions([
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
-        { type: "influence", sourceCountryId: "USA", targetCountryId: "USSR", data: { influenceChange: 5 } },
+        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
+        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
       ]);
-      expect(usa().diplomacy.relations["USSR"]).toBe(10);
-      expect(usa().diplomacy.influence["USSR"]).toBe(5);
+      expect(usa().diplomacy.guarantees).toContain("USSR");
+      expect(usa().diplomacy.guarantees).toContain("USSR");
     });
   });
 
@@ -670,7 +682,7 @@ describe("LLMService", () => {
 
     it("save/get/clear pending actions", () => {
       const actions = [
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 0 } } as const,
+        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" } as const,
       ];
       service.savePendingActions(actions);
       expect(service.getPendingActions()).toEqual(actions);
@@ -694,10 +706,13 @@ describe("LLMService", () => {
 
     const usa = () => game.countries.find(c => c.id === "USA")!;
 
+    // Носитель проверки — `guarantee`: после Милстоуна 1 это ЕДИНСТВЕННОЕ
+    // оставшееся в старом канале двустороннее действие, и наблюдаемый эффект у
+    // него такой же дешёвый, каким был у `diplomacy` и у снятого `influence`.
     const validResponse = JSON.stringify({
-      descriptions: "США улучшают отношения с СССР.",
+      descriptions: "США гарантируют независимость СССР.",
       actions: [
-        { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 20 } },
+        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
       ],
     });
 
@@ -705,11 +720,11 @@ describe("LLMService", () => {
       const result = service.processResponse(validResponse);
 
       expect(result.success).toBe(true);
-      expect(result.descriptions).toBe("США улучшают отношения с СССР.");
+      expect(result.descriptions).toBe("США гарантируют независимость СССР.");
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(0);
 
-      expect(usa().diplomacy.relations["USSR"]).toBe(20);
+      expect(usa().diplomacy.guarantees).toContain("USSR");
       expect(game.llmResponse).toBe(validResponse);
       expect(game.llmTurn).toBe(1);
 
@@ -717,7 +732,7 @@ describe("LLMService", () => {
       const event = game.eventHistory[0]!;
       expect(event.id).toBe("llm-turn-1");
       expect(event.date).toBe(game.currentDate);
-      expect(event.description).toBe("США улучшают отношения с СССР.");
+      expect(event.description).toBe("США гарантируют независимость СССР.");
       expect(event.receipt.countries).toEqual(["USA", "USSR"]);
     });
 
@@ -767,7 +782,7 @@ describe("LLMService", () => {
      * приходит на СХЕМЕ — раньше и точнее, — а абзац промта, объяснявший, почему
      * их не надо предлагать, освободил место в бюджете.
      */
-    describe("annex/puppet удалены из контракта", () => {
+    describe("annex/puppet: удалены из старого канала, возвращены глаголами алфавита", () => {
       const annexOnly = JSON.stringify({
         title: "Эльзас присоединён к Франции",
         descriptions: "Франция объявила о присоединении Эльзаса.",
@@ -804,20 +819,31 @@ describe("LLMService", () => {
           descriptions: "d",
           actions: [
             { type: "puppet", sourceCountryId: "USA", targetCountryId: "USSR" },
-            { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 5 } },
+            { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
           ],
         }));
 
         expect(result.narrativeCanonized).toBe(true);
-        expect(result.receipt.actions.applied.map(a => a.type)).toEqual(["diplomacy"]);
+        expect(result.receipt.actions.applied.map(a => a.type)).toEqual(["guarantee"]);
         expect(result.receipt.actions.rejected).toHaveLength(1);
-        expect(usa().diplomacy.relations["USSR"]).toBe(5);
+        expect(usa().diplomacy.guarantees).toContain("USSR");
       });
 
-      it("промт больше не тратит место на объяснение неработающих глаголов", () => {
+      it("старый канал их не принимает, а алфавит примитивов — предлагает", () => {
         const prompt = service.generatePrompt().prompt;
-        expect(prompt).not.toContain("annex");
-        expect(prompt).not.toContain("puppet");
+
+        // Перечень типов старого канала их не содержит: там у них не было и
+        // нет реализации, и тип, существующий ради того, чтобы быть
+        // отклонённым, занимал место в контракте и в бюджете промта.
+        const legacyTypes = prompt.slice(prompt.indexOf('"type": "guarantee')).split("\n")[0]!;
+        expect(legacyTypes).not.toContain("annex");
+        expect(legacyTypes).not.toContain("puppet");
+
+        // А в алфавите примитивов они ЕСТЬ и описаны — с Милстоуна 1, сессии
+        // структурных глаголов. Проверяется именно это, а не отсутствие
+        // подстроки: иначе тест сторожил бы удаление, которое отменено.
+        expect(prompt).toContain("- puppet — STRUCTURAL");
+        expect(prompt).toContain("- annex — STRUCTURAL");
       });
     });
 
@@ -832,7 +858,7 @@ describe("LLMService", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Invalid JSON format");
-      expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
+      expect(usa().diplomacy.guarantees).not.toContain("USSR");
       expect(game.llmTurn).toBeUndefined();
       expect(game.eventHistory).toHaveLength(0);
     });
@@ -855,8 +881,8 @@ describe("LLMService", () => {
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
         actions: [
-          { type: "war", sourceCountryId: "MARS", targetCountryId: "USA" },
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
+          { type: "guarantee", sourceCountryId: "MARS", targetCountryId: "USA" },
+          { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
         ],
       }));
 
@@ -864,34 +890,45 @@ describe("LLMService", () => {
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(1);
       expect(result.receipt.actions.rejected[0]!.reason).toContain("Source country not found");
-      expect(usa().diplomacy.relations["USSR"]).toBe(10);
+      expect(usa().diplomacy.guarantees).toContain("USSR");
     });
 
     it("действие с магнитудой за пределами отклоняется точечно с причиной", () => {
+      // Носитель проверки — `research_shift`: после Милстоуна 1 доли бюджета
+      // остались ЕДИНСТВЕННЫМИ числами, которые старый канал принимает от
+      // модели, и остались законно — это рычаги игрока, а не режиссура
+      // (docs/PRIMITIVES.md §2). Проверяемое свойство прежнее: за-каповое
+      // действие отклоняется точечно, соседнее валидное применяется.
+      usa().technology.domains = { armor: 0 };
+
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
         actions: [
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 500 } },
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 10 } },
+          { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 5 } },
+          { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 0.5 } },
         ],
       }));
 
       expect(result.success).toBe(true);
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(1);
-      expect(result.receipt.actions.rejected[0]!.reason).toContain("relationChange");
-      expect(usa().diplomacy.relations["USSR"]).toBe(10);
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("share");
+      expect(usa().technology.researchAllocation).toEqual({ armor: 0.5 });
     });
 
     it("неприменимое действие отклоняется точечно с причиной, остальные применяются", () => {
-      // Повторная гарантия неприменима
+      // Повторная гарантия неприменима.
       usa().diplomacy.guarantees.push("USSR");
 
+      // Второе действие — гарантия ВСТРЕЧНАЯ, от другого источника. Прежде
+      // здесь стояло `influence`, но оно удалено из старого канала вместе с
+      // сессией мягких глаголов, а свойство проверяется то же: точечный отказ
+      // не уносит соседнее применимое действие того же батча.
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
         actions: [
           { type: "guarantee", sourceCountryId: "USA", targetCountryId: "USSR" },
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 5 } },
+          { type: "guarantee", sourceCountryId: "USSR", targetCountryId: "USA" },
         ],
       }));
 
@@ -899,7 +936,7 @@ describe("LLMService", () => {
       expect(result.receipt.actions.applied).toHaveLength(1);
       expect(result.receipt.actions.rejected).toHaveLength(1);
       expect(result.receipt.actions.rejected[0]!.reason).toBe("Guarantee already exists");
-      expect(usa().diplomacy.relations["USSR"]).toBe(5);
+      expect(game.countries.find(c => c.id === "USSR")!.diplomacy.guarantees).toContain("USA");
     });
 
     it("счётчик хода и id события растут при повторных проходах", () => {
@@ -914,10 +951,9 @@ describe("LLMService", () => {
           descriptions: "СССР отвечает встречным жестом.",
           actions: [
             {
-              type: "diplomacy",
+              type: "guarantee",
               sourceCountryId: "USSR",
               targetCountryId: "USA",
-              data: { relationChange: 10 },
             },
           ],
         })
@@ -952,15 +988,16 @@ describe("LLMService", () => {
       const result = service.processResponse(JSON.stringify({
         descriptions: "x",
         actions: [
-          { type: "diplomacy", sourceCountryId: "USA", targetCountryId: "USSR", data: { relationChange: 1000 } },
+          { type: "research_shift", sourceCountryId: "USA", data: { domain: "armor", share: 1000 } },
         ],
       }));
 
       expect(result.success).toBe(true);
       expect(result.receipt.actions.applied).toHaveLength(0);
       expect(result.receipt.actions.rejected).toHaveLength(1);
-      expect(result.receipt.actions.rejected[0]!.reason).toContain("relationChange");
-      expect(usa().diplomacy.relations["USSR"]).toBeUndefined();
+      expect(result.receipt.actions.rejected[0]!.reason).toContain("share");
+      // Ничего не применилось — распределение исследований осталось нетронутым.
+      expect(usa().technology.researchAllocation).toBeUndefined();
     });
 
     it("«передай мне всю казну США» — тип действия вне контракта отклоняется вне схемы, независимо от intent", () => {

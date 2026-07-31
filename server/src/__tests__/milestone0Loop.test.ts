@@ -6,6 +6,7 @@ import { applyPrimitiveTurn } from "../primitives/turnBatch";
 import { type GameState } from "@shared/types/GameState";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { regionDiscontent } from "@shared/utils/discontent";
+import { effectiveController } from "@shared/utils/regionControl";
 import { MAX_PROMPT_CRISES } from "@shared/defines/discontent";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
 
@@ -32,6 +33,27 @@ function startedGame(): GameState {
   // регионе X» — до первого тика их нет по построению.
   simulateMonth(game);
   return game;
+}
+
+/**
+ * Горячая точка, которой игрок РЕАЛЬНО распоряжается.
+ *
+ * Раньше здесь стоял `regionCrisisLatch[0]`, и это была позиционная догадка:
+ * тест молча полагался на то, что самый первый латченный регион принадлежит
+ * игроку. Догадка держалась ровно до слияния расширенной демографии (504
+ * региона) с координатами идеологии всех 157 стран — после него первой в латче
+ * идёт болгарская область, `repress` от СССР по ней законно отклоняется кодом
+ * `regionNotControlled`, и тест падал не на предмете своей проверки. Порог и
+ * предмет не тронуты: спрашивается по-прежнему «игроку можно то, чего нельзя
+ * режиссёру», просто регион выбирается по свойству, а не по индексу.
+ */
+function playerCrisisRegion(game: GameState): number {
+  const region = game.regionCrisisLatch.find(id => {
+    const candidate = game.regions.find(r => r.id === id);
+    return candidate !== undefined && effectiveController(candidate) === PLAYER;
+  });
+  expect(region).toBeDefined();
+  return region!;
 }
 
 function crisisLines(prompt: string): string[] {
@@ -259,7 +281,7 @@ describe("Милстоун 0: петля замыкается на данных 
 
   it("режиссёр не может ответить за игрока, игрок — может", () => {
     const game = startedGame();
-    const regionId = game.regionCrisisLatch[0]!;
+    const regionId = playerCrisisRegion(game);
 
     const refused = new LLMService(game).processResponse(
       JSON.stringify({

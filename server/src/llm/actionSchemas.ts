@@ -5,8 +5,6 @@ import { type LLMAction as SharedLLMAction } from "@shared/types/GameState";
 import { primitiveSchema, MAX_PRIMITIVES_PER_BATCH } from "../primitives/primitiveSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
-  MAX_RELATION_CHANGE,
-  MAX_INFLUENCE_CHANGE,
   MAX_RESEARCH_SHARE,
   MAX_PRODUCTION_SHARE,
 } from "@shared/defines/llmActionCaps";
@@ -18,17 +16,6 @@ import {
  * т.п.) остаётся в server/src/llm/LLMResponseValidator.ts::validateActionApplicability,
  * которая знает о конкретной партии, а не только о форме данных.
  */
-
-/** Дублирует shared/src/types/DiplomacyState.ts::SanctionType — тот голый TS
- * union, не as-const объект (как EquipmentType), z.enum() не может вывести
- * литералы из него рантаймово. Синхронизация — компайл-тайм проверка внизу
- * файла, не ручная сверка. */
-const SANCTION_TYPES = [
-  "trade_embargo",
-  "economic_sanctions",
-  "military_sanctions",
-  "diplomatic_sanctions",
-] as const;
 
 const EQUIPMENT_TYPES = Object.values(EquipmentType) as [EquipmentType, ...EquipmentType[]];
 const RESOURCE_TYPES = Object.values(ResourceType) as [ResourceType, ...ResourceType[]];
@@ -44,28 +31,6 @@ function noSelfTarget<T extends z.ZodRawShape>(shape: T) {
   });
 }
 
-const DiplomacyAction = noSelfTarget({
-  type: z.literal("diplomacy"),
-  sourceCountryId: z.string().min(1),
-  targetCountryId: z.string().min(1),
-  data: z.object({
-    relationChange: z.number().min(-MAX_RELATION_CHANGE).max(MAX_RELATION_CHANGE),
-  }),
-});
-
-const WarAction = noSelfTarget({
-  type: z.literal("war"),
-  sourceCountryId: z.string().min(1),
-  targetCountryId: z.string().min(1),
-  data: z.object({ warGoal: z.string().optional() }).optional(),
-});
-
-const PeaceAction = noSelfTarget({
-  type: z.literal("peace"),
-  sourceCountryId: z.string().min(1),
-  targetCountryId: z.string().min(1),
-});
-
 // `annex`/`puppet` УДАЛЕНЫ из контракта (решение пользователя 2026-07-27).
 // Они числились в схеме и в промте, но реализации не имели: с 2026-07-26
 // валидатор отклонял их как нереализованные, то есть они занимали место в
@@ -74,17 +39,15 @@ const PeaceAction = noSelfTarget({
 // ссылок, инварианты сумм населения/казны/регионов, docs/CONCEPT.md §7.1) и
 // вернутся настоящими глаголами алфавита в сессии lifecycle, а не пустыми
 // ветками старого канала.
-
-const SanctionAction = noSelfTarget({
-  type: z.literal("sanction"),
-  sourceCountryId: z.string().min(1),
-  targetCountryId: z.string().min(1),
-  data: z
-    .object({
-      sanctionType: z.enum(SANCTION_TYPES).optional(),
-    })
-    .optional(),
-});
+//
+// `diplomacy`/`war`/`peace`/`sanction` УДАЛЕНЫ Милстоуном 1 (дипломатический
+// блок алфавита) — по другой причине: реализация у них была, неправильным был
+// КОНТРАКТ. `diplomacy` принимал от модели готовое `relationChange`, а
+// `influence` — `influenceChange`, то есть величину задавала модель, прямо
+// против правила «модель решает что, движок решает насколько»
+// (`docs/PRIMITIVES.md` §1). Теперь это глаголы алфавита с коридором магнитуды
+// от состояния пары. Оставить их здесь значило бы оставить обход алфавита
+// одной строкой `actions` — тогда перевод не закрывал бы ничего.
 
 const GuaranteeAction = noSelfTarget({
   type: z.literal("guarantee"),
@@ -92,16 +55,18 @@ const GuaranteeAction = noSelfTarget({
   targetCountryId: z.string().min(1),
 });
 
-const InfluenceAction = noSelfTarget({
-  type: z.literal("influence"),
-  sourceCountryId: z.string().min(1),
-  targetCountryId: z.string().min(1),
-  data: z
-    .object({
-      influenceChange: z.number().min(-MAX_INFLUENCE_CHANGE).max(MAX_INFLUENCE_CHANGE).optional(),
-    })
-    .optional(),
-});
+// `influence` УДАЛЁН Милстоуном 1 (сессия мягких глаголов) — третьим способом,
+// не совпадающим ни с прецедентом `annex`/`puppet` (не было реализации), ни с
+// прецедентом `diplomacy` (был неверный контракт). Здесь контракт был уже
+// исправлен: числовое поле `influenceChange` сняли, шаг задавал движок. Дыра
+// осталась ДРУГАЯ и открылась только с появлением `send_aid`, который двигает
+// то же поле КОРИДОРОМ ОТ СОСТОЯНИЯ, под капом цели и под сверкой результата.
+// Плоский шаг рядом с коридором — это обход коридора сменой канала, ровно тот
+// класс, что закрывал общий слот пары внутри алфавита.
+//
+// Цена названа прямо: «влияние без денег» (пропаганда, ухаживание) стало
+// недоступно вовсе — `send_aid` покрывает влияние, КУПЛЕННОЕ помощью, и не
+// притворяется полной заменой (`docs/TODO.md`).
 
 // research_shift/production_shift — самодействие (self-action), нет
 // targetCountryId вообще (LLMResponseValidator.ts, текущий validateAction,
@@ -148,12 +113,8 @@ const BuildExtractionAction = z.object({
 });
 
 export const LLMActionSchema = z.discriminatedUnion("type", [
-  DiplomacyAction,
-  WarAction,
-  PeaceAction,
-  SanctionAction,
   GuaranteeAction,
-  InfluenceAction,
+
   ResearchShiftAction,
   ProductionShiftAction,
   BuildExtractionAction,

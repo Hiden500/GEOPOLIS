@@ -19,6 +19,24 @@ import {
   SPAWN_INCIDENT_MIN_DISCONTENT,
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
 } from "@shared/defines/discontent";
+import {
+  RELATION_SCALE_MIN,
+  RELATION_SCALE_MAX,
+  INFLUENCE_SCALE_MAX,
+  DIPLOMACY_GRIP_BASE,
+  DIPLOMACY_WAR_DAMPING,
+  SANCTION_BITE_BASE,
+  SEND_AID_MIN_TREASURY_SHARE,
+  SEND_AID_AMPLE_TREASURY_SHARE,
+  SEND_AID_VISIBLE_SHARE,
+  CONDEMN_PODIUM_BASE,
+  CONDEMN_FULL_AUDIENCE,
+  SUPPORT_PROXY_FORMAL_TIE_STRENGTH,
+  SUPPORT_PROXY_URGENCY_BASE,
+  SUPPORT_PROXY_FULL_PRESSURE_SHARE,
+} from "@shared/defines/diplomacy";
+import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
+import { type RelationDirection } from "./types";
 
 /**
  * Величина эффекта примитива — **коридор от состояния, позиция от хинта**
@@ -55,6 +73,20 @@ import {
  *   | incite_unrest             | дистанция ровно на пороге предпосылки        |
  *   | spawn_incident            | недовольство ровно на пороге предпосылки     |
  *   | enact_reform              | поддержка ровно на пороге предпосылки        |
+ *   | diplomacy · relations     | отношения на краю шкалы в сторону жеста      |
+ *   | sanction · relations      | отношения на нижней границе шкалы            |
+ *   | send_aid · сумма          | казна ровно на пороге платёжеспособности,    |
+ *   |                           | либо нулевой ВВП получателя                  |
+ *   | send_aid · influence      | влияние донора на цель уже равно 100         |
+ *   | capital_flight · оба      | стабильность ровно на пороге предпосылки,    |
+ *   |                           | либо нулевая развитость региона              |
+ *   | condemn · legitimacy      | легитимность цели равна нулю                 |
+ *   | support_proxy · оба       | влияние патрона на клиента ≈ 0 и нет         |
+ *   |                           | формальной связи                             |
+ *
+ * У `war`/`peace` строки в таблице нет, и это заявление: у структурного глагола
+ * величины не существует вовсе (тот же принцип, что у `split_country`) —
+ * сопутствующий сдвиг отношений там константа события, а не коридор.
  *
  * До калибровки 2026-07-26 таблица была неполной: у канала отчуждения
  * `stateFactor` был функцией одной только доли группы с жёстким полом 0.35, а
@@ -216,6 +248,264 @@ export function reformMandateFactor(governmentSupport: number): number {
   const span = COUNTRY_POLITICS_SCALE_MAX - ENACT_REFORM_MIN_GOVERNMENT_SUPPORT;
   if (span <= 0) return 0;
   return clamp01((governmentSupport - ENACT_REFORM_MIN_GOVERNMENT_SUPPORT) / span);
+}
+
+// --------------------------------------------------------------------------
+// Дипломатический блок (Милстоун 1)
+// --------------------------------------------------------------------------
+
+/**
+ * `diplomacy`, множитель №1 — СКОЛЬКО ШКАЛЕ ОСТАЛОСЬ в запрошенную сторону.
+ *
+ * Здесь живёт достижимое схлопывание коридора, обязательное по контракту этого
+ * модуля: пару, стоящую на `RELATION_SCALE_MAX`, улучшить нечем, и `severe` там
+ * буквально равен `mild`. Симметрично для `worsen` на нижней границе.
+ *
+ * Нормируется на ПОЛНУЮ ширину шкалы (200 пунктов), а не на расстояние до
+ * ближайшей границы: иначе фактор был бы равен 1 и у пары на нуле, и у пары в
+ * шаге от края, то есть «запас» перестал бы что-либо измерять.
+ */
+export function relationRoom(current: number, direction: RelationDirection): number {
+  const span = RELATION_SCALE_MAX - RELATION_SCALE_MIN;
+  if (span <= 0) return 0;
+  return clamp01(
+    direction === "improve"
+      ? (RELATION_SCALE_MAX - current) / span
+      : (current - RELATION_SCALE_MIN) / span
+  );
+}
+
+/**
+ * Живые связи пары — вход множителя «хватки». Булевы и нормированные значения, а
+ * не `GameState`: этот модуль про арифметику коридоров, и разбор состояния в нём
+ * означал бы, что фактор нельзя проверить на достижимость схлопывания без сборки
+ * мира вокруг одного числа (то же правило, что у `coerciveCapacity`).
+ */
+export interface DiplomaticTies {
+  /** Хотя бы один регион источника граничит с регионом цели. */
+  sharesBorder: boolean;
+  /** Влияние источника на цель, сырая шкала 0..100. */
+  influence: number;
+  /** Формальное обязательство любой из сторон: союз, гарантия, пуппет, сфера. */
+  formalTie: boolean;
+  /** Стороны воюют в одной войне НА ОДНОЙ стороне. */
+  coBelligerent: boolean;
+  /** Стороны воюют в одной войне ДРУГ ПРОТИВ ДРУГА. */
+  atWarWithEachOther: boolean;
+}
+
+/**
+ * `diplomacy`, множитель №2 — НАСКОЛЬКО СЛОВО ИСТОЧНИКА ДОЛЕТАЕТ до этой цели.
+ *
+ * Канал — максимум по четырём независимым признакам связи, а не их сумма:
+ * связь либо есть, либо её нет, и общая граница не становится «двумя связями»
+ * оттого, что рядом лежит формальное обязательство. Максимум же (а не «И»)
+ * потому, что признаки взаимозаменяемы: сюзерену не нужна общая граница с
+ * пуппетом, чтобы быть услышанным.
+ *
+ * ПОЛ `DIPLOMACY_GRIP_BASE` НЕ НОЛЬ, и это решение, а не смягчение. Нулевой пол
+ * означал бы, что две державы без общей границы, без влияния и без формальных
+ * связей физически не способны сдвинуть отношения — а именно так выглядит
+ * КАЖДАЯ пара поставляемого сценария 1946: прямой подсчёт (2026-07-27) даёт у
+ * всех 157 стран пустые `relations`, `influence`, `allies`, `guarantees` и
+ * непустые только `puppets`/`sphereOfInfluence` (по 13 стран). С нулевым полом
+ * дипломатия в январе 1946 не работала бы вовсе.
+ *
+ * Идущая между сторонами ВОЙНА гасит дружественный жест и не гасит враждебный:
+ * материальный факт войны обесценивает слова о сближении, но ничем не мешает
+ * ухудшать то, что и так плохо.
+ *
+ * Идеологическая близость сюда НЕ входит намеренно — это предмет отдельной
+ * работы (`docs/DECISIONS.md`, 2026-07-27: идеология становится модификатором
+ * отношений и порога союза), и занять её место здесь значило бы принять за неё
+ * решение в чужой ветке.
+ */
+export function diplomaticGrip(ties: DiplomaticTies, direction: RelationDirection): number {
+  const channel = Math.max(
+    ties.sharesBorder ? 1 : 0,
+    clamp01(ties.influence / INFLUENCE_SCALE_MAX),
+    ties.formalTie ? 1 : 0,
+    ties.coBelligerent ? 1 : 0
+  );
+  const reach = DIPLOMACY_GRIP_BASE + (1 - DIPLOMACY_GRIP_BASE) * channel;
+  const friction =
+    ties.atWarWithEachOther && direction === "improve" ? 1 - DIPLOMACY_WAR_DAMPING : 1;
+  return clamp01(reach * friction);
+}
+
+/**
+ * `sanction` — НАСКОЛЬКО САНКЦИОНЕР ВАЖЕН ЦЕЛИ экономически.
+ *
+ * Доля санкционера в суммарном ВВП пары: санкция от главного партнёра —
+ * катастрофа, от периферийного государства — жест. ВВП, а не военная сила,
+ * потому что у загружаемых стран 1946 блок `military` нулевой, и второй член
+ * формулы был бы мёртвым (та же причина, по которой он не входит в
+ * `coerciveCapacity`).
+ *
+ * Схлопывание коридора у этого глагола достигается не здесь, а множителем
+ * `relationRoom`: паре, чьи отношения уже на дне шкалы, санкция дипломатически
+ * добавить нечего. Пол `SANCTION_BITE_BASE` больше нуля осознанно — санкция
+ * ничтожного партнёра остаётся оскорблением, даже не будучи ущербом.
+ */
+export function sanctionBite(sanctionerGdp: number, targetGdp: number): number {
+  const total = sanctionerGdp + targetGdp;
+  if (!Number.isFinite(total) || total <= 0) return SANCTION_BITE_BASE;
+  return clamp01(
+    SANCTION_BITE_BASE + (1 - SANCTION_BITE_BASE) * clamp01(sanctionerGdp / total)
+  );
+}
+
+// --------------------------------------------------------------------------
+// Мягкие глаголы: send_aid, capital_flight, condemn, support_proxy (Милстоун 1)
+// --------------------------------------------------------------------------
+//
+// ОБЩЕЕ ОГРАНИЧЕНИЕ, из которого выведены все четыре формулы ниже. Прямой
+// подсчёт по `createGame("1946")` (2026-07-29) показал, какие поля состояния на
+// поставляемых данных являются КОНСТАНТАМИ: `treasury/gdp` = 0.04…0.05 у всех
+// 157 стран, `politics.legitimacy` = 50 у всех, весь блок `military` — ноль у
+// всех. Коридор, целиком построенный на них, был бы неотличим от константы, то
+// есть повторил бы дефект, ради исправления которого этот модуль и появился.
+// Поэтому в КАЖДОМ коридоре ниже есть множитель, живой уже сейчас: ВВП
+// (разброс шесть порядков), влияние (300 связей от 47 источников), развитость и
+// стабильность регионов (0.082…0.95 и 0.184…0.809).
+
+/**
+ * `send_aid`, множитель №1 — МОЖЕТ ЛИ ДОНОР ДАТЬ.
+ *
+ * Запас казны над порогом платёжеспособности, который примитив уже прошёл на
+ * фазе validate, — та же форма `headroomAbove`, что у `incite_unrest` и
+ * `spawn_incident`. Ровно на пороге запас нулевой, и коридор схлопывается: это
+ * и есть достижимое схлопывание канала.
+ *
+ * ЦЕНА НАЗВАНА ПРЯМО: на поставляемом сценарии этот множитель почти одинаков у
+ * всех (казна выведена из одной доли ВВП), и потому он НЕ единственный —
+ * различие между парами даёт `aidScale`. Живым он становится в партии, где
+ * бюджеты расходятся: `EconomyTick` пишет в казну баланс бюджета, а дефицит
+ * уводит её в долг.
+ */
+export function donorFiscalRoom(treasury: number, gdp: number): number {
+  if (!(gdp > 0)) return 0;
+  const span = SEND_AID_AMPLE_TREASURY_SHARE - SEND_AID_MIN_TREASURY_SHARE;
+  if (span <= 0) return 0;
+  return clamp01((treasury / gdp - SEND_AID_MIN_TREASURY_SHARE) / span);
+}
+
+/**
+ * `send_aid`, множитель №2 — НАСКОЛЬКО ВЕЛИКА ЗАДАЧА.
+ *
+ * Доля получателя в суммарном ВВП пары. Держава не отдаёт пятую часть казны
+ * микрогосударству; соизмеримой экономике помогают всерьёз. Это ЖИВОЙ вход:
+ * ВВП поставляемого сценария разбросан на шесть порядков.
+ *
+ * Пола здесь нет намеренно, в отличие от `sanctionBite`: санкция ничтожного
+ * партнёра остаётся оскорблением, а помощь, которой не хватит и на жест, — это
+ * просто отсутствие помощи. Схлопывание достижимо при нулевом ВВП получателя.
+ */
+export function aidScale(sourceGdp: number, targetGdp: number): number {
+  const total = sourceGdp + targetGdp;
+  if (!Number.isFinite(total) || total <= 0) return 0;
+  return clamp01(targetGdp / total);
+}
+
+/**
+ * Насколько помощь ЗАМЕТНА получателю — вход вторичных каналов (влияние).
+ *
+ * Считается от ФАКТИЧЕСКИ переведённой суммы, а не от запрошенной: получатель
+ * видит, что реально пришло. Тот же принцип, что у отклика соседей на уступку.
+ *
+ * Получатель без экономики считается замечающим помощь полностью: делить на
+ * ноль нечем, а «любые деньги для того, у кого нет ничего, — всё» верно по
+ * существу.
+ */
+export function aidVisibility(amount: number, targetGdp: number): number {
+  if (!(targetGdp > 0)) return amount > 0 ? 1 : 0;
+  return clamp01(amount / (targetGdp * SEND_AID_VISIBLE_SHARE));
+}
+
+/** Сколько шкале влияния осталось вверх — достижимое схлопывание при 100. */
+export function influenceRoom(current: number): number {
+  if (INFLUENCE_SCALE_MAX <= 0) return 0;
+  return clamp01((INFLUENCE_SCALE_MAX - current) / INFLUENCE_SCALE_MAX);
+}
+
+/**
+ * `capital_flight` — СКОЛЬКО КАПИТАЛА ЕСТЬ И НАСКОЛЬКО СЛОМАНО ДОВЕРИЕ.
+ *
+ * Два живых входа, каждый со своим вопросом и со своим схлопыванием:
+ *   - `development` — «есть ли чему бежать»: из неразвитого региона капитал не
+ *     утекает, потому что его там нет. Ноль развитости схлопывает коридор;
+ *   - запас стабильности ВНИЗ от порога предпосылки — «сломано ли доверие».
+ *     Ровно на пороге запас нулевой, и это второе достижимое схлопывание.
+ *
+ * Симметрия с `headroomAbove` намеренная: там примитив требует превышения
+ * порога, здесь — падения ниже него, и в обоих случаях у самой границы
+ * состояние не даёт свободы вовсе.
+ */
+export function capitalFlightExposure(development: number, stability: number): number {
+  const threshold = CAPITAL_FLIGHT_MAX_STABILITY;
+  if (threshold <= 0) return 0;
+  const distrust = clamp01((threshold - stability) / threshold);
+  return clamp01(clamp01(development) * distrust);
+}
+
+/**
+ * `condemn`, множитель №1 — ЧТО ЦЕЛИ ТЕРЯТЬ.
+ *
+ * Режиму с нулевой легитимностью репутационный удар нанести нечем: схлопывание
+ * достижимо и означает буквально «осуждать уже некого».
+ */
+export function legitimacyRoom(legitimacy: number): number {
+  return politicsShare(legitimacy);
+}
+
+/**
+ * `condemn`, множитель №2 — ЕСТЬ ЛИ КОМУ СЛУШАТЬ.
+ *
+ * Размер аудитории источника: число государств, на которые у него есть влияние
+ * или формальная связь. ЖИВОЙ вход — слой влияния наполнен (47 источников из
+ * 157, аудитории от 1 до 59), и именно он превратил `condemn` из «глагола без
+ * входов» в глагол с проверяемой предпосылкой.
+ *
+ * Пол больше нуля: предпосылка уже потребовала непустую аудиторию, и нулевой
+ * пол был бы второй, скрытой предпосылкой поверх явной.
+ */
+export function podiumReach(audienceSize: number): number {
+  if (CONDEMN_FULL_AUDIENCE <= 0) return 1;
+  const heard = clamp01(audienceSize / CONDEMN_FULL_AUDIENCE);
+  return clamp01(CONDEMN_PODIUM_BASE + (1 - CONDEMN_PODIUM_BASE) * heard);
+}
+
+/**
+ * `support_proxy`, множитель №1 — ЕСТЬ ЛИ КАНАЛ ПАТРОНАЖА.
+ *
+ * Максимум по влиянию и формальной связи, а не сумма: канал либо есть, либо
+ * нет, и сюзерену не нужно вдобавок влияние, чтобы дотянуться до собственного
+ * пуппета (тот же довод, что у `diplomaticGrip`).
+ *
+ * Здесь живёт достижимое схлопывание глагола: патрон, чьё влияние едва
+ * отличимо от нуля и не подкреплено формальной связью, поставляет минимум
+ * коридора при любом хинте.
+ */
+export function proxyTie(influence: number, formalTie: boolean): number {
+  return clamp01(
+    Math.max(
+      clamp01(influence / INFLUENCE_SCALE_MAX),
+      formalTie ? SUPPORT_PROXY_FORMAL_TIE_STRENGTH : 0
+    )
+  );
+}
+
+/**
+ * `support_proxy`, множитель №2 — НАСКОЛЬКО КЛИЕНТ ПРИЖАТ.
+ *
+ * Доля территории клиента под чужой оккупацией. Пол больше нуля намеренно: без
+ * него патрон не мог бы помочь клиенту до того, как тот начнёт терять землю, —
+ * то есть поддержка приходила бы ровно тогда, когда она уже бесполезна.
+ */
+export function proxyUrgency(occupiedShare: number): number {
+  if (SUPPORT_PROXY_FULL_PRESSURE_SHARE <= 0) return 1;
+  const pressure = clamp01(occupiedShare / SUPPORT_PROXY_FULL_PRESSURE_SHARE);
+  return clamp01(SUPPORT_PROXY_URGENCY_BASE + (1 - SUPPORT_PROXY_URGENCY_BASE) * pressure);
 }
 
 /** Средняя по долям величина — «фактическое число» для нарратива по группам. */

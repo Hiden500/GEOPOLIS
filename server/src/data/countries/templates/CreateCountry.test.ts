@@ -42,11 +42,14 @@ describe("createCountry (план 05, Срез 2 — авторский ввод
     expect(country.aiTraits).toEqual({ aggressiveness: 1, riskTolerance: 1 });
   });
 
-  it("politics: ideology обязательна, остальное дефолтится (50/50/30/50/Unknown)", () => {
+  // Форма власти и юридический статус СРЕДИ ДЕФОЛТОВ НЕ ЧИСЛЯТСЯ: они приходят
+  // слоем сценария (`government.json`), и страна без разметки обязана остаться
+  // без ярлыка. `toEqual` здесь и держит это свойство — литерал вроде прежнего
+  // `governmentType: "Unknown"`, добавленный в шаблон, провалит именно этот тест.
+  it("politics: ideology обязательна, остальное дефолтится (50/50/30/50)", () => {
     const country = createCountry(minimalInput());
     expect(country.politics).toEqual({
       ideology: "Liberal Democracy",
-      governmentType: "Unknown",
       stability: 50,
       legitimacy: 50,
       corruption: 30,

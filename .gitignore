@@ -88,6 +88,11 @@ savegames/
 !/server/data/scenarios/1946/groups.json
 !/server/data/scenarios/1946/demographics.json
 !/server/data/scenarios/1946/ideology.json
+!/server/data/scenarios/1946/ideology_zones.json
+# Формы правления и юридический статус (2026-07-29, docs/POLITICS.md) — тот же
+# генератор, то же явное отрицание.
+!/server/data/scenarios/1946/government.json
+!/server/data/scenarios/1946/influence.json
 /client/data/
 logs/
 

@@ -51,7 +51,7 @@ describe("SaveService", () => {
   it("не сохраняет llmContext/pendingLlmActions, но сохраняет llmResponse", () => {
     const game = createTestGameState({
       llmContext: "секретный промт",
-      pendingLlmActions: [{ type: "war", sourceCountryId: "USA", targetCountryId: "SUN" }],
+      pendingLlmActions: [{ type: "guarantee", sourceCountryId: "USA", targetCountryId: "SUN" }],
       llmResponse: "последний ответ LLM",
     });
 

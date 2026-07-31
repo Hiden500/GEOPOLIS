@@ -104,6 +104,125 @@
       "mild": "характер: мягко",
       "moderate": "характер: умеренно",
       "severe": "характер: жёстко"
+    },
+    "split_country": "Распад государства {{country}}",
+    "diplomacy": {
+      "improve": "Улучшить отношения с {{country}}",
+      "worsen": "Ухудшить отношения с {{country}}",
+      "unspecified": "Дипломатический жест в сторону {{country}} (направление не указано)"
+    },
+    "sanction": "Ввести санкции против {{country}}",
+    "sanctionType": {
+      "trade_embargo": "вид: торговое эмбарго",
+      "economic_sanctions": "вид: экономические санкции",
+      "military_sanctions": "вид: военные санкции",
+      "diplomatic_sanctions": "вид: дипломатические санкции",
+      "default": "вид: по умолчанию (экономические санкции)"
+    },
+    "war": "Объявить войну — {{country}}",
+    "peace": "Заключить мир — {{country}}",
+    "send_aid": "Направить помощь стране {{country}}",
+    "capital_flight": "Спровоцировать бегство капитала — {{region}}",
+    "condemn": "Публично осудить {{country}}",
+    "support_proxy": "Поддержать {{country}} в её войне, не вступая в неё",
+    "puppet": "Подчинить {{country}}",
+    "annex": "Присоединить земли {{country}}",
+    "merge_countries": "Присоединить {{country}} к своему составу",
+    "create_country": "Предоставить независимость региону {{region}}"
+  },
+  "splitCountry": {
+    "headline": "Государство {{country}} раскололось: новых государств — {{shards}}"
+  },
+  "split": {
+    "shard": "Отделилось: {{country}} (группа «{{group}}»), регионов — {{regions}}",
+    "dissolved": "Метрополия прекратила существование; правопреемник — {{country}}",
+    "capitalMoved": "Столица перенесена в регион {{region}}",
+    "warsClosed": "Войн закрыто: {{count}}"
+  },
+  "diplomacy": {
+    "headline": {
+      "improve": "Дипломатический жест: {{source}} — сближение с {{country}}",
+      "worsen": "Дипломатический демарш: {{source}} — охлаждение с {{country}}"
     }
+  },
+  "sanction": {
+    "headline": "{{source}} вводит санкции против {{country}} ({{sanctionType}})",
+    "cutsTrade": "Экспорт цели урезан со следующего месяца",
+    "reputationOnly": "Торговли не касается: сегодня её режет только торговое эмбарго"
+  },
+  "war": {
+    "headline": "{{source}} объявляет войну — {{country}}",
+    "draggedIn": "Договоры втянули в войну ещё государств: {{count}}"
+  },
+  "peace": {
+    "headline": "Мир заключён: {{source}} и {{country}}",
+    "annexed": "Регионов сменило владельца по договору: {{count}}",
+    "borderUnchanged": "Граница не изменилась",
+    "capitalMoved": "Столица {{country}} перенесена в регион {{region}}",
+    "governmentSupport": "Поддержка правительства {{country}}: {{delta}} ({{before}} → {{after}})",
+    "legitimacy": "Легитимность {{country}}: {{delta}} ({{before}} → {{after}})",
+    "treasury": "Казна {{country}}: {{delta}} ({{before}} → {{after}})"
+  },
+  "relation": {
+    "changed": "Отношения {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
+    "unchanged": "Отношения {{source}} → {{country}}: без изменений ({{value}})"
+  },
+  "sendAid": {
+    "headline": "{{source}} направляет помощь стране {{country}}"
+  },
+  "capitalFlight": {
+    "headline": "Капитал уходит из региона {{region}}",
+    "output": {
+      "changed": "Производство региона: −{{delta}} ({{before}} → {{after}})",
+      "unchanged": "Производство региона: без изменений ({{value}})"
+    }
+  },
+  "condemn": {
+    "headline": "{{source}} публично осуждает {{country}} — слушают {{audience}} гос-в",
+    "nothingToLose": "Легитимности терять уже нечего: удар не изменил ничего"
+  },
+  "supportProxy": {
+    "headline": "{{source}} поддерживает {{country}} в её войне",
+    "notBelligerent": "Патрон стороной войны не стал"
+  },
+  "scalar": {
+    "governmentSupport": "Поддержка правительства {{country}}: {{delta}} ({{before}} → {{after}})",
+    "legitimacy": "Легитимность {{country}}: {{delta}} ({{before}} → {{after}})",
+    "treasury": "Казна {{country}}: {{delta}} ({{before}} → {{after}})",
+    "activePersonnel": "Армия {{country}}: {{delta}} чел. ({{before}} → {{after}})"
+  },
+  "influence": {
+    "changed": "Влияние {{source}} → {{country}}: {{delta}} ({{before}} → {{after}})",
+    "unchanged": "Влияние {{source}} → {{country}}: без изменений ({{value}})"
+  },
+  "puppet": {
+    "headline": {
+      "occupation": "{{source}} подчиняет {{country}} силой: внешний курс теперь диктует {{source}}",
+      "influence": "{{source}} переводит {{country}} под своё покровительство: внешний курс теперь диктует {{source}}"
+    },
+    "statusChanged": "{{country}} теряет самостоятельность внешней политики",
+    "statusKept": "{{country}} и прежде была зависимой — теперь и от {{source}}"
+  },
+  "annex": {
+    "headline": "{{source}} присоединяет земли {{country}}: регионов — {{regions}}",
+    "noTerritoryLeft": "У {{country}} не осталось территории",
+    "territoryLeft": "За {{country}} остаётся регионов: {{regions}}",
+    "capitalMoved": "Столица переехала в регион {{region}}",
+    "campaignDefeated": "Ваше государство лишилось последней земли — кампания окончена"
+  },
+  "mergeCountries": {
+    "headline": "{{source}} присоединяет {{country}} к своему составу"
+  },
+  "merge": {
+    "absorbed": "{{country}} перестаёт существовать; регионов перешло: {{regions}}",
+    "capitalMoved": "Столица переехала в регион {{region}}",
+    "warsClosed": "Войн закрыто: {{count}}"
+  },
+  "createCountry": {
+    "headline": "{{country}} провозглашает независимость от {{source}}"
+  },
+  "create": {
+    "regions": "Регионов в составе нового государства: {{regions}}",
+    "capitalMoved": "Столица метрополии переехала в регион {{region}}"
   }
 }

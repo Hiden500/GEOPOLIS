@@ -86,6 +86,77 @@ export type PrimitiveRejection =
       uprisingThreshold: number;
     }
   | { code: "noDisputableBorder"; region: LocalizedText; controller: LocalizedText }
+  | { code: "splitNotSelf"; source: LocalizedText; country: LocalizedText }
+  | { code: "splitTooFewRegions"; country: LocalizedText; regions: number; required: number }
+  | {
+      code: "splitNoSeparatistRegion";
+      country: LocalizedText;
+      threshold: number;
+      /** Наибольшее недовольство группы-большинства в стране — насколько не хватило. */
+      best: number;
+    }
+
+  // --- validate: дипломатический блок ---
+  //
+  // Все пять кодов отвечают на вопрос «так не бывает», а не «мало». Отдельного
+  // отказа «отношения на краю шкалы» здесь НЕТ намеренно: коридор в этом случае
+  // схлопывается в свой минимум, команда клампит его в ноль, и результат
+  // честно сообщает нулевую дельту — тот же путь, что у репрессии по группе на
+  // потолке подавления. Отказывать за то, что состояние не оставило места,
+  // значило бы завести два разных ответа на одно и то же положение мира.
+  | { code: "bilateralSelfTarget"; verb: PrimitiveVerb; country: LocalizedText }
+  | { code: "diplomacyNoDirection"; country: LocalizedText }
+  | { code: "sanctionAlreadyImposed"; source: LocalizedText; target: LocalizedText; sanctionType: string }
+  | { code: "alreadyAtWar"; source: LocalizedText; target: LocalizedText }
+  | { code: "warOnAlly"; source: LocalizedText; target: LocalizedText }
+  | { code: "noActiveWar"; source: LocalizedText; target: LocalizedText }
+
+  // --- validate: мягкие воздействия (Милстоун 1) ---
+  //
+  // Все пять отвечают «так не бывает», а не «мало»: отдельного отказа «состояние
+  // не оставило места» здесь, как и у дипломатического блока, НЕТ — там коридор
+  // схлопывается в минимум, и результат честно сообщает крохотную дельту.
+  | {
+      code: "donorInsolvent";
+      source: LocalizedText;
+      treasuryShare: number;
+      threshold: number;
+    }
+  | {
+      code: "regionTooStableForFlight";
+      region: LocalizedText;
+      stability: number;
+      threshold: number;
+    }
+  | { code: "noPodium"; source: LocalizedText }
+  | { code: "proxyNotAtWar"; target: LocalizedText }
+  | { code: "proxyPatronIsBelligerent"; source: LocalizedText; target: LocalizedText }
+  | { code: "proxyNoPatronage"; source: LocalizedText; target: LocalizedText }
+
+  // --- validate: подчинение и поглощение (Милстоун 1, структурные глаголы) ---
+  //
+  // Все четыре отвечают «так не бывает». Отдельного отказа «цель слишком
+  // сильна» здесь нет: сила выражена самой предпосылкой рычага — либо войска
+  // стоят на земле, либо влияние дотягивается, третьего входа у подчинения в
+  // состоянии нет.
+  | { code: "alreadyVassal"; source: LocalizedText; target: LocalizedText }
+  | { code: "vassalageCycle"; source: LocalizedText; target: LocalizedText }
+  | {
+      code: "noVassalageLeverage";
+      source: LocalizedText;
+      target: LocalizedText;
+      /** Доля территории цели под контролем источника — насколько не хватило. */
+      heldShare: number;
+      heldThreshold: number;
+      influence: number;
+      influenceThreshold: number;
+    }
+  | { code: "annexNothingHeld"; source: LocalizedText; target: LocalizedText }
+  | { code: "mergeNotVassal"; source: LocalizedText; target: LocalizedText }
+  | { code: "mergePlayerCountry"; target: LocalizedText }
+  | { code: "independenceNotOwner"; source: LocalizedText; region: LocalizedText }
+  | { code: "independenceNoMajority"; region: LocalizedText; share: number }
+  | { code: "independenceWouldEmptyParent"; country: LocalizedText }
 
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
@@ -203,6 +274,131 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
       return (
         `${name(rejection.region)} has no border a dispute could be about: every neighbouring ` +
         `region is held by ${name(rejection.controller)} itself or by an ally`
+      );
+
+    case "splitNotSelf":
+      return (
+        `${name(rejection.source)} cannot split ${name(rejection.country)}: a state falls apart ` +
+        `from within, it is not split from outside (that is annexation or war)`
+      );
+    case "splitTooFewRegions":
+      return (
+        `${name(rejection.country)} holds ${rejection.regions} region(s) and cannot be split: ` +
+        `at least ${rejection.required} are required`
+      );
+    case "splitNoSeparatistRegion":
+      return (
+        `No region of ${name(rejection.country)} is held by a discontented majority: the highest ` +
+        `such discontent is ${rejection.best.toFixed(2)}, below the ` +
+        `${rejection.threshold.toFixed(2)} secession threshold`
+      );
+
+    case "bilateralSelfTarget":
+      return (
+        `${rejection.verb} needs a target country other than the source: ` +
+        `${name(rejection.country)} cannot address itself`
+      );
+    case "diplomacyNoDirection":
+      return (
+        `diplomacy towards ${name(rejection.country)} requires params.direction ` +
+        `("improve" or "worsen"): the engine decides how far the relation moves, ` +
+        `but not which way you meant it to`
+      );
+    case "sanctionAlreadyImposed":
+      return (
+        `${name(rejection.source)} already has ${rejection.sanctionType} in place against ` +
+        `${name(rejection.target)}: imposing it again would change nothing`
+      );
+    case "alreadyAtWar":
+      return `${name(rejection.source)} is already at war with ${name(rejection.target)}`;
+    case "warOnAlly":
+      return (
+        `${name(rejection.source)} cannot declare war on its ally ${name(rejection.target)}: ` +
+        `breaking an alliance is not modelled yet`
+      );
+    case "noActiveWar":
+      return `There is no active war between ${name(rejection.source)} and ${name(rejection.target)}`;
+
+    case "donorInsolvent":
+      return (
+        `${name(rejection.source)} cannot send aid: its treasury is ` +
+        `${(rejection.treasuryShare * 100).toFixed(1)}% of its GDP, below the ` +
+        `${(rejection.threshold * 100).toFixed(1)}% a donor needs to have anything to give`
+      );
+    case "regionTooStableForFlight":
+      return (
+        `Capital does not flee ${name(rejection.region)}: its stability is ` +
+        `${rejection.stability.toFixed(2)}, at or above the ${rejection.threshold} below which ` +
+        `confidence is broken enough for money to leave`
+      );
+    case "noPodium":
+      return (
+        `${name(rejection.source)} has no podium to condemn from: it holds no influence over any ` +
+        `state and has no formal tie to one, so there is nobody for whom its word carries weight`
+      );
+    case "proxyNotAtWar":
+      return `${name(rejection.target)} is not fighting any war: there is no proxy to support`;
+    case "proxyPatronIsBelligerent":
+      return (
+        `${name(rejection.source)} fights in the same war as ${name(rejection.target)}: ` +
+        `a patron who is already a belligerent supports the war directly, not by proxy`
+      );
+    case "proxyNoPatronage":
+      return (
+        `${name(rejection.source)} is no patron of ${name(rejection.target)}: supporting a proxy ` +
+        `requires influence over it or a formal tie (alliance, guarantee, client state, sphere)`
+      );
+
+    case "alreadyVassal":
+      return (
+        `${name(rejection.target)} already follows ${name(rejection.source)}'s foreign policy: ` +
+        `subjecting an existing client changes nothing`
+      );
+    case "vassalageCycle":
+      return (
+        `${name(rejection.source)} already follows ${name(rejection.target)} (directly or through ` +
+        `a chain of patrons): two states cannot each conduct the other's foreign policy`
+      );
+    case "noVassalageLeverage":
+      return (
+        `${name(rejection.source)} has no hold over ${name(rejection.target)}: it controls ` +
+        `${(rejection.heldShare * 100).toFixed(0)}% of its land (needs ` +
+        `${(rejection.heldThreshold * 100).toFixed(0)}%) and holds ${rejection.influence.toFixed(0)} ` +
+        `influence over it (needs ${rejection.influenceThreshold.toFixed(0)}). Subjection follows ` +
+        `either boots on the ground or long-built influence, and neither is there yet`
+      );
+    case "annexNothingHeld":
+      return (
+        `${name(rejection.source)} holds no region owned by ${name(rejection.target)}: annexation ` +
+        `converts land you actually control into land you own, it does not take land at a distance`
+      );
+    case "mergeNotVassal":
+      return (
+        `${name(rejection.target)} is not a client of ${name(rejection.source)}: a state is ` +
+        `absorbed into the one whose foreign policy it already follows — subject it first (puppet), ` +
+        `or take its land by war`
+      );
+    case "independenceNotOwner":
+      return (
+        `${name(rejection.source)} does not own ${name(rejection.region)}: independence is granted ` +
+        `by the state that holds the land, it is not declared over somebody else's territory`
+      );
+    case "independenceNoMajority":
+      return (
+        `${name(rejection.region)} has no majority group to found a state on (largest share ` +
+        `${rejection.share.toFixed(2)}): a new country is named after its people, and there is ` +
+        `nobody here to name it after`
+      );
+    case "independenceWouldEmptyParent":
+      return (
+        `Letting this territory go would leave ${name(rejection.country)} with no land at all: ` +
+        `that is a state dissolving itself, and it has its own verb (split_country)`
+      );
+    case "mergePlayerCountry":
+      return (
+        `${name(rejection.target)} is the state the human plays: it cannot be absorbed into another ` +
+        `country, because that would silently hand the player a different nation. A player loses ` +
+        `their state by losing all of its land, never by merger`
       );
 
     case "softTurnCapReached":
@@ -334,6 +530,88 @@ export function rejectionRecord(
       );
     case "noDisputableBorder":
       return of(undefined, { region: rejection.region, controller: rejection.controller });
+
+    case "splitNotSelf":
+      return of(undefined, { source: rejection.source, country: rejection.country });
+    case "splitTooFewRegions":
+      return of(
+        { regions: rejection.regions, required: rejection.required },
+        { country: rejection.country }
+      );
+    case "splitNoSeparatistRegion":
+      // Порог и текущее недовольство — свойства МИРА и ПРАВИЛ, игрок их видит
+      // и в интерфейсе (см. шапку модуля); магнитуды здесь нет вовсе.
+      return of(
+        { threshold: rejection.threshold.toFixed(2), best: rejection.best.toFixed(2) },
+        { country: rejection.country }
+      );
+
+    case "bilateralSelfTarget":
+      return of({ verb: rejection.verb }, { country: rejection.country });
+    case "diplomacyNoDirection":
+      return of(undefined, { country: rejection.country });
+    case "sanctionAlreadyImposed":
+      // Вид санкции — машинное имя: клиент подставляет его в свой словарь как
+      // ключ, ровно как оси у `reformAxisAtSpectrumEdge`.
+      return of({ sanctionType: rejection.sanctionType }, {
+        source: rejection.source,
+        target: rejection.target,
+      });
+    case "alreadyAtWar":
+    case "warOnAlly":
+    case "noActiveWar":
+    case "proxyPatronIsBelligerent":
+    case "proxyNoPatronage":
+      return of(undefined, { source: rejection.source, target: rejection.target });
+
+    case "alreadyVassal":
+    case "vassalageCycle":
+    case "annexNothingHeld":
+    case "mergeNotVassal":
+      return of(undefined, { source: rejection.source, target: rejection.target });
+    case "mergePlayerCountry":
+      return of(undefined, { target: rejection.target });
+    case "independenceNotOwner":
+      return of(undefined, { source: rejection.source, region: rejection.region });
+    case "independenceNoMajority":
+      // Доля — свойство МИРА: игрок видит демографию региона в интерфейсе.
+      return of({ share: rejection.share.toFixed(2) }, { region: rejection.region });
+    case "independenceWouldEmptyParent":
+      return of(undefined, { country: rejection.country });
+    case "noVassalageLeverage":
+      // Доля удержанной земли, влияние и оба порога — свойства МИРА и ПРАВИЛ,
+      // игрок видит их в интерфейсе; магнитуды несостоявшегося действия у
+      // структурного глагола нет вовсе (см. шапку модуля).
+      return of(
+        {
+          heldShare: (rejection.heldShare * 100).toFixed(0),
+          heldThreshold: (rejection.heldThreshold * 100).toFixed(0),
+          influence: rejection.influence.toFixed(0),
+          influenceThreshold: rejection.influenceThreshold.toFixed(0),
+        },
+        { source: rejection.source, target: rejection.target }
+      );
+
+    // Доля казны, стабильность региона и пороги — свойства МИРА и ПРАВИЛ:
+    // игрок видит их в интерфейсе, и магнитуды несостоявшегося действия среди
+    // них нет ни одной (см. шапку модуля).
+    case "donorInsolvent":
+      return of(
+        {
+          treasuryShare: (rejection.treasuryShare * 100).toFixed(1),
+          threshold: (rejection.threshold * 100).toFixed(1),
+        },
+        { source: rejection.source }
+      );
+    case "regionTooStableForFlight":
+      return of(
+        { stability: rejection.stability.toFixed(2), threshold: rejection.threshold },
+        { region: rejection.region }
+      );
+    case "noPodium":
+      return of(undefined, { source: rejection.source });
+    case "proxyNotAtWar":
+      return of(undefined, { target: rejection.target });
 
     case "softTurnCapReached":
     case "structuralTurnCapReached":

@@ -6,6 +6,7 @@ import { type Region } from '@shared/types/map/Region';
 import { ResourceType } from '@shared/types/resources/ResourcesType';
 import { EquipmentType } from '@shared/types/military/EquipmentType';
 import { emptyPrimitiveTurnBudget } from '@shared/types/politics/PrimitiveTurnBudget';
+import { activeCampaign } from "@shared/types/Campaign";
 
 describe('MapFeatureService', () => {
   let game: GameState;
@@ -87,7 +88,6 @@ describe('MapFeatureService', () => {
         },
         politics: {
           ideology: 'democracy',
-          governmentType: 'republic',
           stability: 0.8,
           legitimacy: 0.7,
           corruption: 0.2,
@@ -137,6 +137,7 @@ describe('MapFeatureService', () => {
     game = {
       currentDate: '1946-01-01',
       playerCountryId: 'USA',
+      campaign: activeCampaign(),
       era: {
         id: 'cold_war',
         name: 'Cold War',
@@ -157,6 +158,7 @@ describe('MapFeatureService', () => {
       modifiers: [],
       pendingWorldFacts: [],
       ethnicGroups: [],
+      ideologyAnchors: [],
       groupImpactMemory: [],
       regionCrisisLatch: [],
       primitiveBatchKeys: [],

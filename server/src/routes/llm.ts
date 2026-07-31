@@ -3,11 +3,12 @@ import { GameService } from "../services/GameService";
 import { LLMService } from "../services/LLMService";
 import { llmResponseSchema } from "../validation/schemas";
 import { ValidationError, GameError, LLMProviderError } from "../errors/AppError";
-import { GeminiProvider } from "../llm/providers/GeminiProvider";
+import { createLLMProvider } from "../llm/providers/createProvider";
+import { recordUsage } from "../llm/recordUsage";
 
 const router = express.Router();
 const gameService = new GameService();
-const geminiProvider = new GeminiProvider();
+const autoProvider = createLLMProvider(usage => recordUsage(usage, "world-cycle"));
 
 /**
  * Ручной LLM-цикл, шаг 1: отдать промт для копирования в внешнюю LLM.
@@ -94,7 +95,7 @@ router.post("/auto", async (req, res) => {
     // применить» здесь: генерация промта ПОТРЕБЛЯЕТ одноразовую диагностику, и
     // при сбое провайдера её нужно вернуть в состояние. Разложить это по роуту
     // значило бы продублировать бизнес-правило в transport-слое.
-    const result = await llmService.runAutoCycle(prompt => geminiProvider.generateResponse(prompt));
+    const result = await llmService.runAutoCycle(prompt => autoProvider.generateResponse(prompt));
 
     if (!result.success) {
       res.status(400).json({ error: result.error });

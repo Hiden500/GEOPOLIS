@@ -18,6 +18,9 @@ import ruInspectorPanel from "./locales/ru/inspectorPanel.json";
 import ruLlmPanel from "./locales/ru/llmPanel.json";
 import ruOnboarding from "./locales/ru/onboarding.json";
 import ruPrimitiveOrders from "./locales/ru/primitiveOrders.json";
+import ruCampaign from "./locales/ru/campaign.json";
+import ruIdeology from "./locales/ru/ideology.json";
+import ruGovernment from "./locales/ru/government.json";
 import ruPrimitiveOutcome from "./locales/ru/primitiveOutcome.json";
 import ruPrimitiveRejection from "./locales/ru/primitiveRejection.json";
 import ruPlayerIntentPanel from "./locales/ru/playerIntentPanel.json";
@@ -39,6 +42,9 @@ import enInspectorPanel from "./locales/en/inspectorPanel.json";
 import enLlmPanel from "./locales/en/llmPanel.json";
 import enOnboarding from "./locales/en/onboarding.json";
 import enPrimitiveOrders from "./locales/en/primitiveOrders.json";
+import enCampaign from "./locales/en/campaign.json";
+import enIdeology from "./locales/en/ideology.json";
+import enGovernment from "./locales/en/government.json";
 import enPrimitiveOutcome from "./locales/en/primitiveOutcome.json";
 import enPrimitiveRejection from "./locales/en/primitiveRejection.json";
 import enPlayerIntentPanel from "./locales/en/playerIntentPanel.json";
@@ -70,6 +76,9 @@ void i18n.use(initReactI18next).init({
       llmPanel: ruLlmPanel,
       onboarding: ruOnboarding,
       primitiveOrders: ruPrimitiveOrders,
+      campaign: ruCampaign,
+      ideology: ruIdeology,
+      government: ruGovernment,
       primitiveOutcome: ruPrimitiveOutcome,
       primitiveRejection: ruPrimitiveRejection,
       playerIntentPanel: ruPlayerIntentPanel,
@@ -92,6 +101,9 @@ void i18n.use(initReactI18next).init({
       llmPanel: enLlmPanel,
       onboarding: enOnboarding,
       primitiveOrders: enPrimitiveOrders,
+      campaign: enCampaign,
+      ideology: enIdeology,
+      government: enGovernment,
       primitiveOutcome: enPrimitiveOutcome,
       primitiveRejection: enPrimitiveRejection,
       playerIntentPanel: enPlayerIntentPanel,

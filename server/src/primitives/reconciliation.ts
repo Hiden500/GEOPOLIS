@@ -2,7 +2,13 @@ import { type GameState } from "@shared/types/GameState";
 import { IMPACT_MEMORY_FIELDS } from "@shared/types/politics/Demographics";
 import { resolveIdeologyCoordinates } from "@shared/utils/discontent";
 import { IDEOLOGY_AXES } from "@shared/types/politics/Ideology";
-import { type AppliedPrimitive, impactEffectsOf } from "./types";
+import {
+  type AppliedPrimitive,
+  type CountryScalarEffect,
+  type CountryScalarField,
+  type RelationEffect,
+  impactEffectsOf,
+} from "./types";
 
 /**
  * Сверка ОПУБЛИКОВАННОГО результата примитива с тем, что он реально сделал с
@@ -57,8 +63,79 @@ function ideologyCellKey(countryId: string, axis: string): string {
   return `ideology:${countryId}.${axis}`;
 }
 
+/**
+ * Ключ ячейки скалярного поля страны.
+ *
+ * Префикс `governmentSupport` остался историческим `support:` намеренно: ключи
+ * уезжают в текст расхождения и в тесты, и переименование ради симметрии
+ * стоило бы правок там, где ничего не меняется по существу.
+ */
+const COUNTRY_SCALAR_CELL_PREFIX: Record<CountryScalarField, string> = {
+  governmentSupport: "support",
+  legitimacy: "legitimacy",
+  treasury: "treasury",
+  activePersonnel: "personnel",
+};
+
+function countryScalarCellKey(countryId: string, field: CountryScalarField): string {
+  return `${COUNTRY_SCALAR_CELL_PREFIX[field]}:${countryId}`;
+}
+
 function supportCellKey(countryId: string): string {
-  return `support:${countryId}`;
+  return countryScalarCellKey(countryId, "governmentSupport");
+}
+
+/**
+ * Ключ ячейки одной СТОРОНЫ двусторонних отношений.
+ *
+ * Ячейка на упорядоченную пару, а не на пару-множество: `changeRelation` пишет
+ * инициатору полную дельту, а адресату половину, и одна ячейка на обе стороны
+ * означала бы, что сверка не отличит правдивый отчёт от отчёта, перепутавшего
+ * стороны местами.
+ */
+function relationCellKey(fromCountryId: string, toCountryId: string): string {
+  return `relation:${fromCountryId}->${toCountryId}`;
+}
+
+/**
+ * Ключ ячейки влияния — тоже на УПОРЯДОЧЕННУЮ пару, но по другой причине, чем
+ * у отношений.
+ *
+ * У отношений две записи потому, что `changeRelation` пишет обеим сторонам
+ * разные дельты. Влияние несимметрично ПО ОПРЕДЕЛЕНИЮ (`DiplomacyState`:
+ * «влияние на другие страны»): обратной записи у него не существует вовсе, и
+ * ячейка на пару-множество означала бы, что сверка не отличит влияние донора на
+ * получателя от обратного.
+ */
+function influenceCellKey(fromCountryId: string, toCountryId: string): string {
+  return `influence:${fromCountryId}->${toCountryId}`;
+}
+
+/**
+ * Ключ ячейки ВВП региона.
+ *
+ * Появилась вместе с `capital_flight`: он бьёт по региональному производству, а
+ * `country.economy.gdp` — агрегат, который тик перезаписывает из регионов.
+ *
+ * ЦЕНА НАЗВАНА: разложение состояния теперь обходит и регионы (1399 в
+ * поставляемом сценарии), а `findMisreportedChanges` строит его дважды на
+ * примитив. Верхняя граница расхода — кап примитивов на ход (11), то есть
+ * порядка 30 тысяч итераций на ответ модели, раз в игровой месяц. Это
+ * несопоставимо дешевле пост-инвариантов, которые обходят мир целиком.
+ */
+function regionGdpCellKey(regionId: number): string {
+  return `regionGdp:${regionId}`;
+}
+
+/**
+ * Ключ ячейки живой силы страны.
+ *
+ * `activePersonnel`, а не `armyStrength`: первое — единственное военное число,
+ * которое реально читает бой (`simulation/war/WarTick.ts::sideStrength`),
+ * второе статичный ноль во всех сгенерированных странах.
+ */
+function personnelCellKey(countryId: string): string {
+  return countryScalarCellKey(countryId, "activePersonnel");
 }
 
 /**
@@ -90,6 +167,29 @@ export function enumerateCells(game: GameState): StateCells {
       cells.set(ideologyCellKey(country.id, axis), coordinates[axis]);
     }
     cells.set(supportCellKey(country.id), country.politics.governmentSupport);
+    cells.set(countryScalarCellKey(country.id, "legitimacy"), country.politics.legitimacy);
+    cells.set(countryScalarCellKey(country.id, "treasury"), country.economy.treasury);
+
+    // Отношения перечисляются по ФАКТИЧЕСКИ существующим записям, а не по
+    // декартову произведению стран: словарь разрежен (в сценарии 1946 он пуст у
+    // всех 157 стран), и обход всех пар стоил бы O(n²) на каждый примитив ради
+    // ячеек, которых нет. Отсутствующая ячейка читается сверкой как ноль — для
+    // отношений это верно ровно так же, как для памяти воздействий: «записи
+    // нет» и «отношения нулевые» — одно утверждение о мире.
+    for (const [targetId, value] of Object.entries(country.diplomacy.relations)) {
+      cells.set(relationCellKey(country.id, targetId), value);
+    }
+    // Влияние перечисляется по фактическим записям по той же причине, что
+    // отношения: словарь разрежен (47 непустых из 157 в сценарии 1946), и
+    // отсутствующая ячейка честно читается сверкой как ноль.
+    for (const [targetId, value] of Object.entries(country.diplomacy.influence)) {
+      cells.set(influenceCellKey(country.id, targetId), value);
+    }
+    cells.set(personnelCellKey(country.id), country.military.activePersonnel);
+  }
+
+  for (const region of game.regions) {
+    cells.set(regionGdpCellKey(region.id), region.gdp);
   }
 
   return cells;
@@ -136,7 +236,36 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
     after: effect.after,
   }));
 
+  /** Общие для дипломатического блока каналы — объявляются одинаково. */
+  const pushRelations = (effects: readonly RelationEffect[]): void => {
+    for (const effect of effects) {
+      changes.push({
+        key: relationCellKey(effect.fromCountryId, effect.toCountryId),
+        before: effect.before,
+        after: effect.after,
+      });
+    }
+  };
+  const pushScalars = (effects: readonly CountryScalarEffect[]): void => {
+    for (const effect of effects) {
+      changes.push({
+        key: countryScalarCellKey(effect.countryId, effect.field),
+        before: effect.before,
+        after: effect.after,
+      });
+    }
+  };
+
   switch (applied.verb) {
+    case "diplomacy":
+    case "sanction":
+    case "war":
+      pushRelations(applied.relationEffects);
+      break;
+    case "peace":
+      pushRelations(applied.relationEffects);
+      pushScalars(applied.countryScalarEffects);
+      break;
     case "enact_reform":
       for (const shift of applied.ideologyShifts) {
         changes.push({
@@ -151,10 +280,80 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
         after: applied.politicalCost.after,
       });
       break;
+    // Раскол делит казну метрополии и потому ОДНУ ячейку всё же заявляет
+    // (Милстоун 1, дипломатический блок: ячейка `treasury:` появилась вместе с
+    // репарациями `peace`). Всё остальное в расколе — состав мира, а не
+    // значения полей: его правдивость держат сходимость сумм и ноль висячих
+    // ссылок, механизмы, которые о смысле `countries` знают больше плоской
+    // карты ячеек. Осколки в сверку не попадают вовсе: стран, которых не было
+    // в снимке «до», `findMisreportedChanges` исключает по построению.
+    case "split_country":
+      pushScalars(applied.countryScalarEffects);
+      break;
+    // Мягкие воздействия Милстоуна 1. Скалярный список у них общий (казна,
+    // легитимность, живая сила), поэтому три из четырёх разбираются одной
+    // веткой; `send_aid` добавляет к нему свой канал влияния.
+    case "capital_flight":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.regionEffects) {
+        changes.push({
+          key: regionGdpCellKey(effect.regionId),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
+      break;
+    case "condemn":
+    case "support_proxy":
+      pushScalars(applied.countryScalarEffects);
+      break;
+    case "send_aid":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.influenceEffects) {
+        changes.push({
+          key: influenceCellKey(effect.fromCountryId, effect.toCountryId),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
+      break;
     case "incite_unrest":
     case "repress":
     case "grant_autonomy":
     case "spawn_incident":
+    // Подчинение и поглощение не заявляют НИ ОДНОЙ числовой ячейки, и это
+    // свойство класса, а не пропуск: `puppet` меняет два поля-перечисления и
+    // список, `annex` — владение регионами и агрегаты, выводимые из них.
+    // Правдивость обоих держат пост-инварианты (согласованность подчинения,
+    // ноль висячих ссылок, столица среди своих регионов) — механизмы, знающие
+    // о смысле этих полей больше, чем плоская карта чисел. Агрегаты страны
+    // (`population`, `economy.gdp`) ячеек не имеют вовсе: их источник —
+    // регионы, а не заявление глагола.
+    case "puppet":
+    case "annex":
+      break;
+    // Объединение делит с расколом обе ячейки делимого имущества: там оно
+    // делится, здесь складывается, и заявить прирост обязаны оба — иначе
+    // сверка откатила бы примитив за молчание о том, что он честно сделал.
+    // Поглощённая страна в сверку не попадает: `findMisreportedChanges`
+    // исключает страны, существующие только по одну сторону снимка.
+    // Рождение государства делит имущество метрополии тем же ядром, что и
+    // раскол, — значит и заявляет то же самое. Канала влияния у него нет:
+    // страна не исчезает, а появляется, и записей влияния НА неё до этого не
+    // существовало (`findMisreportedChanges` исключает страны, которых не было
+    // в снимке «до»).
+    case "create_country":
+      pushScalars(applied.countryScalarEffects);
+      break;
+    case "merge_countries":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.influenceEffects) {
+        changes.push({
+          key: influenceCellKey(effect.fromCountryId, effect.toCountryId),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
       break;
     default:
       assertNeverVerb(applied);
@@ -185,6 +384,27 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     case "repress":
     case "grant_autonomy":
     case "enact_reform":
+    case "split_country":
+    case "diplomacy":
+    case "sanction":
+    case "war":
+    // Мир объекты карты только УДАЛЯЕТ (батальоны закрытой войны), а сверка
+    // здесь спрашивает про созданные. Удаление объявлено палитрой маркером
+    // `mapFeatures[-]`.
+    case "peace":
+    // Мягкие воздействия Милстоуна 1 карту не трогают вовсе — ни один из них
+    // не заявляет объекта в палитре.
+    case "send_aid":
+    case "capital_flight":
+    case "condemn":
+    case "support_proxy":
+    // Структурные глаголы подчинения и поглощения карту не трогают: объекты
+    // переживают смену флага региона (`mapFeatures[*].ownerId` в палитре
+    // раскола — это перенос владельца, а не создание).
+    case "puppet":
+    case "annex":
+    case "merge_countries":
+    case "create_country":
       return [];
   }
 }
@@ -214,7 +434,31 @@ export function findMisreportedChanges(
   before: GameState,
   after: GameState
 ): string[] {
-  const actual = totalsByKey(cellChanges(enumerateCells(before), enumerateCells(after)));
+  // Сверяются только страны, существующие ПО ОБЕ стороны (Милстоун 1, сессия
+  // жизненного цикла).
+  //
+  // Почему нельзя иначе. `cellChanges` считает отсутствующую ячейку нулём, и для
+  // памяти воздействий это ВЕРНО: она разрежена, «следа нет» и «след нулевой» —
+  // одно утверждение о мире. Для страны это неверно: у несуществующего
+  // государства нет координат идеологии, и ноль не является их значением.
+  // Появление страны читалось бы как «кто-то сдвинул её координаты с нуля до
+  // −0.10», и структурный глагол, честно не заявивший ни одной ячейки,
+  // откатывался бы за ложь о том, чего он не делал.
+  //
+  // Изменение СОСТАВА мира проверяется не здесь, а суммами и висячими ссылками
+  // (`polityLifecycle.ts`, `invariants.ts`) — механизмами, которые знают смысл
+  // `countries`, в отличие от плоской карты числовых ячеек.
+  const common = new Set(
+    after.countries.map(c => c.id).filter(id => before.countries.some(c => c.id === id))
+  );
+  const onlyCommon = (game: GameState): GameState => ({
+    ...game,
+    countries: game.countries.filter(c => common.has(c.id)),
+  });
+
+  const actual = totalsByKey(
+    cellChanges(enumerateCells(onlyCommon(before)), enumerateCells(onlyCommon(after)))
+  );
   const reported = totalsByKey(reportedCells(applied));
 
   const mismatches = [...new Set([...actual.keys(), ...reported.keys()])]

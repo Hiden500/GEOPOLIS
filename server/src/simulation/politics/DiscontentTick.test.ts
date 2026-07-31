@@ -56,7 +56,6 @@ describe("resolveIdeologyCoordinates — фолбэк по ярлыку", () => 
     const explicit = { economic: -0.95, political: -0.9 };
     const coords = resolveIdeologyCoordinates({
       ideology: "Liberal Democracy",
-      governmentType: "republic",
       stability: 50, legitimacy: 50, corruption: 20, governmentSupport: 50,
       ideologyCoordinates: explicit,
     });
@@ -66,7 +65,6 @@ describe("resolveIdeologyCoordinates — фолбэк по ярлыку", () => 
   it("страна без координат читается по ярлыку — это штатное поведение, не ошибка", () => {
     const coords = resolveIdeologyCoordinates({
       ideology: "Communism",
-      governmentType: "single-party",
       stability: 50, legitimacy: 50, corruption: 20, governmentSupport: 50,
     });
     expect(coords).toEqual(IDEOLOGY_LABEL_COORDINATES["Communism"]);
@@ -75,7 +73,6 @@ describe("resolveIdeologyCoordinates — фолбэк по ярлыку", () => 
   it("неизвестный ярлык даёт центр спектра, а не выдуманный уклон", () => {
     const coords = resolveIdeologyCoordinates({
       ideology: "Technocratic Anarcho-Monarchism",
-      governmentType: "?",
       stability: 50, legitimacy: 50, corruption: 20, governmentSupport: 50,
     });
     expect(coords).toEqual({ economic: 0, political: 0 });

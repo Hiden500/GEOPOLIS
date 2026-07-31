@@ -63,6 +63,10 @@ function baseGame(memory: GroupImpactMemory[], political = -0.9): GameState {
         ],
       },
     ] as unknown as GameState["regions"],
+    // Каталог именованных зон пуст намеренно: тест проверяет, что сдвиг
+    // координат виден игроку, а склейка ступеней шкалы показывает его так же,
+    // как имя якоря, и не зависит от содержимого каталога эпохи.
+    ideologyAnchors: [],
     ethnicGroups: [
       {
         id: "lithuanians",

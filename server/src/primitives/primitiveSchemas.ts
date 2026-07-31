@@ -5,6 +5,7 @@ import {
   REFORM_ECONOMIC_DIRECTIONS,
   REFORM_POLITICAL_DIRECTIONS,
   INCIDENT_KINDS,
+  RELATION_DIRECTIONS,
   type PrimitiveVerb,
 } from "./types";
 import {
@@ -12,6 +13,8 @@ import {
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
   MAX_PRIMITIVE_ID_LENGTH,
 } from "@shared/defines/discontent";
+import { MAX_WAR_GOAL_LENGTH } from "@shared/defines/diplomacy";
+import { SANCTION_TYPES } from "@shared/types/DiplomacyState";
 
 /**
  * Структурная форма примитива — ОДИН источник истины (docs/PRIMITIVES.md §1).
@@ -124,6 +127,43 @@ const incidentParamsSchema = z.object({
 }).strict();
 
 /**
+ * Санкция: вид — качественный выбор модели, а не величина. Необязателен;
+ * умолчание задаёт движок.
+ */
+const sanctionParamsSchema = z.object({
+  sanctionType: z.enum(SANCTION_TYPES).optional(),
+}).strict();
+
+/**
+ * Дипломатический жест: направление плюс интенсивность.
+ *
+ * Направление обязательно ПО СМЫСЛУ, но объявлено необязательным здесь и
+ * проверяется предпосылкой движка (`diplomacyNoDirection`) — ровно по той же
+ * причине и тем же способом, что «хотя бы одно направление» у реформы: сделать
+ * `params` обязательными означало бы завести вторую форму записи реестра ради
+ * одного глагола, а `.refine()` ломает `z.discriminatedUnion` и схему
+ * провайдера.
+ */
+const diplomacyParamsSchema = z.object({
+  intensity: intensitySchema.optional(),
+  direction: z.enum(RELATION_DIRECTIONS).optional(),
+}).strict();
+
+/**
+ * Объявление войны: цель войны свободным текстом и ничего больше.
+ *
+ * `intensity` здесь ОТСУТСТВУЕТ, и это заявление, а не упущение: у структурного
+ * глагола величины нет — война либо объявлена, либо нет. Приславший
+ * `params.intensity` получит ошибку схемы вместо молча проигнорированного поля.
+ */
+const warParamsSchema = z.object({
+  warGoal: z.string().min(1).max(MAX_WAR_GOAL_LENGTH).optional(),
+}).strict();
+
+/** Мир параметров не имеет вовсе — по той же причине, что и война. */
+const noParamsSchema = z.object({}).strict();
+
+/**
  * «Хотя бы одно направление» у реформы намеренно НЕ здесь, а предпосылкой
  * движка. Причина техническая и названа явно: `.refine()` превращает ветку в
  * `ZodEffects`, а `z.discriminatedUnion` и `z.toJSONSchema` (схема провайдера)
@@ -156,6 +196,39 @@ export const PRIMITIVE_SCHEMAS = {
   grant_autonomy: primitiveOf("grant_autonomy", regionOrGroupTargetSchema, intensityOnlyParamsSchema),
   enact_reform: primitiveOf("enact_reform", countryTargetSchema, reformParamsSchema),
   spawn_incident: primitiveOf("spawn_incident", regionTargetSchema, incidentParamsSchema),
+  split_country: primitiveOf("split_country", countryTargetSchema, intensityOnlyParamsSchema),
+  // Дипломатический блок: цель — ДРУГАЯ страна. Равенство цели источнику
+  // проверяет предпосылка движка (`bilateralSelfTarget`), а не схема: это
+  // свойство ПАРЫ, и правило класса «отказ структурного отклоняет весь ответ»
+  // требует, чтобы отказ нёс глагол, — что схема даёт только объектным веткам.
+  diplomacy: primitiveOf("diplomacy", countryTargetSchema, diplomacyParamsSchema),
+  sanction: primitiveOf("sanction", countryTargetSchema, sanctionParamsSchema),
+  war: primitiveOf("war", countryTargetSchema, warParamsSchema),
+  peace: primitiveOf("peace", countryTargetSchema, noParamsSchema),
+  // Мягкие воздействия Милстоуна 1. Три адресуются стране, `capital_flight` —
+  // региону: отток капитала бьёт по производству, а производство живёт в
+  // регионе (`docs/ECONOMY.md`).
+  send_aid: primitiveOf("send_aid", countryTargetSchema, intensityOnlyParamsSchema),
+  capital_flight: primitiveOf("capital_flight", regionTargetSchema, intensityOnlyParamsSchema),
+  condemn: primitiveOf("condemn", countryTargetSchema, intensityOnlyParamsSchema),
+  support_proxy: primitiveOf("support_proxy", countryTargetSchema, intensityOnlyParamsSchema),
+  // Подчинение и поглощение параметров не имеют ВОВСЕ — по той же причине, что
+  // `war` и `peace`: у структурного глагола величины нет. Государство либо
+  // подчинено, либо нет; земля либо перешла, либо не перешла. `intensity` здесь
+  // нечему двигать даже как порог — какие именно регионы переходят, решает
+  // фактический контроль, а не хинт, и приславший `params.intensity` получит
+  // ошибку схемы вместо молча проигнорированного поля.
+  puppet: primitiveOf("puppet", countryTargetSchema, noParamsSchema),
+  annex: primitiveOf("annex", countryTargetSchema, noParamsSchema),
+  // Объединение: цель — ПОГЛОЩАЕМОЕ государство, источник — поглотитель.
+  // Параметров нет по той же причине: страна либо вошла в состав другой, либо
+  // нет, промежуточной величины у этого не бывает.
+  merge_countries: primitiveOf("merge_countries", countryTargetSchema, noParamsSchema),
+  // Рождение государства адресуется РЕГИОНУ, а не стране: он и есть то, что
+  // отпускают. Какая именно территория уйдёт, решает демография (все регионы
+  // источника с тем же большинством) — тот же принцип, что у раскола: модель
+  // называет событие, карту рисует движок.
+  create_country: primitiveOf("create_country", regionTargetSchema, noParamsSchema),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -164,6 +237,19 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.grant_autonomy,
   PRIMITIVE_SCHEMAS.enact_reform,
   PRIMITIVE_SCHEMAS.spawn_incident,
+  PRIMITIVE_SCHEMAS.split_country,
+  PRIMITIVE_SCHEMAS.diplomacy,
+  PRIMITIVE_SCHEMAS.sanction,
+  PRIMITIVE_SCHEMAS.war,
+  PRIMITIVE_SCHEMAS.peace,
+  PRIMITIVE_SCHEMAS.send_aid,
+  PRIMITIVE_SCHEMAS.capital_flight,
+  PRIMITIVE_SCHEMAS.condemn,
+  PRIMITIVE_SCHEMAS.support_proxy,
+  PRIMITIVE_SCHEMAS.puppet,
+  PRIMITIVE_SCHEMAS.annex,
+  PRIMITIVE_SCHEMAS.merge_countries,
+  PRIMITIVE_SCHEMAS.create_country,
 ]);
 
 /**

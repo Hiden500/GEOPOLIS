@@ -18,7 +18,8 @@ import {
 import { applyPrimitiveTurn } from "../primitives/turnBatch";
 import * as politicsCommands from "../commands/politics";
 import { pushRejectionFact } from "../primitives/PrimitiveEngine";
-import { PRIMITIVE_VERBS } from "../primitives/types";
+import {
+  type PrimitiveVerb, PRIMITIVE_VERBS } from "../primitives/types";
 import { toProviderSchema } from "../llm/providers/GeminiProvider";
 import { primitiveTranslationSchema } from "../llm/primitiveTranslation";
 import {
@@ -36,7 +37,23 @@ import {
  * тексты — из рендеров, а не из хардкода.
  */
 
-function relation(game: GameState, from: string, to: string): number {
+/**
+ * Наблюдаемый след СТАРОГО канала.
+ *
+ * До Милстоуна 1 им были отношения: их двигало действие `diplomacy`. Дипломатия
+ * переехала в алфавит примитивов, носителем стало `influence`, а с сессией
+ * мягких глаголов — `guarantee`, ЕДИНСТВЕННОЕ оставшееся в старом канале
+ * двустороннее действие (влияние теперь покупается помощью, коридором от
+ * состояния). Проверяемое свойство от смены носителя не изменилось: оба канала
+ * лежат в ОДНОЙ транзакции ответа, и откат обязан уносить след старого канала
+ * вместе с примитивами.
+ *
+ * След читается ОТНОШЕНИЯМИ, а не списком гарантий, и это существенно:
+ * повторная гарантия в список ничего не добавляет, а сопутствующий сдвиг
+ * отношений накапливается — то есть только он отличает «применилось второй раз»
+ * от «применилось один раз», ради чего проверка и существует.
+ */
+function legacyTraceOf(game: GameState, from: string, to: string): number {
   return game.countries.find(c => c.id === from)!.diplomacy.relations[to] ?? 0;
 }
 
@@ -77,13 +94,12 @@ function resolveStatePath(state: unknown, path: string): unknown[] {
   return values;
 }
 
-/** Ответ, двигающий отношения старым каналом, — самый дешёвый видимый эффект. */
-function relationAction(change: number): Record<string, unknown> {
+/** Действие старого канала с самым дешёвым видимым эффектом. */
+function legacyAction(): Record<string, unknown> {
   return {
-    type: "diplomacy",
+    type: "guarantee",
     sourceCountryId: "SUN",
     targetCountryId: "USA",
-    data: { relationChange: change },
   };
 }
 
@@ -192,11 +208,11 @@ describe("контракт примитива: форма по глаголу, �
 describe("транзакция ответа: старый канал и примитивы коммитятся вместе", () => {
   it("отказ структурного откатывает и СТАРЫЙ канал, а не только примитивы", () => {
     const game = createDiscontentTestGame();
-    const before = relation(game, "SUN", "USA");
+    const before = legacyTraceOf(game, "SUN", "USA");
 
     const result = new LLMService(game).processResponse(
       llmResponse({
-        actions: [relationAction(20)],
+        actions: [legacyAction()],
         primitives: [
           // Реформа в ЧУЖОЙ стране: предпосылка движка не выполнена. Источник —
           // не страна игрока, иначе примитив снял бы ГРАНИЦА АГЕНТНОСТИ, а её
@@ -214,23 +230,23 @@ describe("транзакция ответа: старый канал и прим
     // До Милстоуна 1 `applyLlmActions` применялся ПРЯМО в состояние и до
     // примитивов, поэтому сдвиг отношений переживал отказ структурного: мир
     // оставался там, куда его никто не вёл.
-    expect(relation(game, "SUN", "USA")).toBe(before);
+    expect(legacyTraceOf(game, "SUN", "USA")).toBe(before);
     expect(result.receipt.primitives.applied).toEqual([]);
   });
 
   it("нарушенный пост-инвариант откатывает весь ответ целиком", () => {
     const game = createDiscontentTestGame();
-    const before = relation(game, "SUN", "USA");
+    const before = legacyTraceOf(game, "SUN", "USA");
 
     // Порча, которую ни один примитив не создаёт, но которую обязана поймать
     // ПОСЛЕДНЯЯ фаза: состояние заведомо непригодно ещё до ответа.
     game.primitiveTurnBudget = { ...game.primitiveTurnBudget, softUsed: -100 };
 
     const result = new LLMService(game).processResponse(
-      llmResponse({ actions: [relationAction(20)] })
+      llmResponse({ actions: [legacyAction()] })
     );
 
-    expect(relation(game, "SUN", "USA")).toBe(before);
+    expect(legacyTraceOf(game, "SUN", "USA")).toBe(before);
     expect(result.narrativeCanonized).toBe(false);
     expect(result.receipt.primitives.rejected.map(r => r.code)).toEqual([
       "postInvariantViolated",
@@ -242,7 +258,7 @@ describe("транзакция ответа: старый канал и прим
   it("квитанция события и квитанция ответа — одно и то же", () => {
     const game = createDiscontentTestGame();
     const result = new LLMService(game).processResponse(
-      llmResponse({ actions: [relationAction(20)] })
+      llmResponse({ actions: [legacyAction()] })
     );
 
     expect(result.narrativeCanonized).toBe(true);
@@ -288,7 +304,7 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
     {
       name: "с примитивами",
       body: {
-        actions: [relationAction(20)],
+        actions: [legacyAction()],
         primitives: [
           {
             verb: "incite_unrest",
@@ -298,8 +314,8 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
         ],
       },
     },
-    { name: "БЕЗ поля primitives вовсе", body: { actions: [relationAction(20)] } },
-    { name: "с пустым массивом примитивов", body: { actions: [relationAction(20)], primitives: [] } },
+    { name: "БЕЗ поля primitives вовсе", body: { actions: [legacyAction()] } },
+    { name: "с пустым массивом примитивов", body: { actions: [legacyAction()], primitives: [] } },
   ];
 
   for (const { name, body } of repeatedResponses) {
@@ -308,14 +324,14 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
       const raw = llmResponse(body);
 
       new LLMService(game).processResponse(raw);
-      const afterFirst = relation(game, "SUN", "USA");
+      const afterFirst = legacyTraceOf(game, "SUN", "USA");
       // Первый ответ действительно что-то сделал — иначе «не двинулось второй
       // раз» выполнялось бы по построению.
       expect(afterFirst).not.toBe(0);
 
       const second = new LLMService(game).processResponse(raw);
 
-      expect(relation(game, "SUN", "USA")).toBe(afterFirst);
+      expect(legacyTraceOf(game, "SUN", "USA")).toBe(afterFirst);
       expect(second.receipt.duplicate).toBe(true);
       expect(second.receipt.primitives.rejected.map(r => r.code)).toEqual(["duplicateResponse"]);
     });
@@ -365,10 +381,9 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
         // Битое действие старого канала: его причина тоже теряется при откате.
         actions: [
           {
-            type: "diplomacy",
+            type: "guarantee",
             sourceCountryId: "SUN",
             targetCountryId: "NOWHERE",
-            data: { relationChange: 5 },
           },
         ],
         primitives: [
@@ -395,21 +410,29 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
     expect(promptLine).not.toContain(code);
     expect(promptLine.length).toBeGreaterThan(`Attempt rejected (enact_reform): ${code}`.length);
     // Отказ СТАРОГО канала на пути отката тоже доезжает.
-    expect(section).toContain("Action rejected (diplomacy)");
+    expect(section).toContain("Action rejected (guarantee)");
   });
 
   it("тот же текст в ДРУГОМ месяце — законный ответ, а не дубль", () => {
     const game = createDiscontentTestGame();
-    const raw = llmResponse({ actions: [relationAction(5)] });
+    const raw = llmResponse({ actions: [legacyAction()] });
 
     new LLMService(game).processResponse(raw);
-    const afterFirst = relation(game, "SUN", "USA");
+    const afterFirst = legacyTraceOf(game, "SUN", "USA");
 
     game.currentDate = "1946-02-01";
     const second = new LLMService(game).processResponse(raw);
 
     expect(second.receipt.duplicate).toBe(false);
-    expect(relation(game, "SUN", "USA")).not.toBe(afterFirst);
+    // Проверяется, что старый канал ОТРАБОТАЛ второй раз, а не что его след
+    // накопился: `guarantee` идемпотентен по эффекту (повторная гарантия
+    // отклоняется как уже существующая), и требовать от него накопления
+    // значило бы проверять свойство носителя, а не свойство idempotency-ключа.
+    // Ключ отвечает ровно на один вопрос — «этот запрос уже приходил?», — и
+    // ответ «нет» виден по тому, что ответ дошёл до канала повторно.
+    expect(second.receipt.actions.applied.length + second.receipt.actions.rejected.length)
+      .toBe(1);
+    expect(legacyTraceOf(game, "SUN", "USA")).toBe(afterFirst);
   });
 });
 
@@ -508,7 +531,22 @@ describe("сверка результата покрывает все число
     // оставил след. Засеваем след, а не подставляем ожидание.
     applyPrimitiveTurn(
       game,
-      [{ verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } }],
+      [
+        { verb: "repress", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL } },
+        // Словарь отношений в фикстуре пуст, как и в поставляемом сценарии 1946
+        // (прямой подсчёт 2026-07-27: ноль непустых `relations` у всех 157
+        // стран). Ячейка канала `relation:` существует только там, где запись
+        // уже материализована, поэтому её тоже засеваем примитивом, а не
+        // подставляем ожидание.
+        {
+          verb: "diplomacy", sourceCountryId: "SUN",
+          target: { countryId: "USA" }, params: { direction: "improve" },
+        },
+        // Словарь ВЛИЯНИЯ разрежен ровно так же, как отношения (в сценарии 1946
+        // непустых 47 из 157), поэтому ячейка канала `influence:` тоже
+        // засевается примитивом, а не подставляется ожиданием.
+        { verb: "send_aid", sourceCountryId: "SUN", target: { countryId: "USA" } },
+      ],
       "seed-cells"
     );
     const cellPrefixes = new Set(
@@ -526,29 +564,136 @@ describe("сверка результата покрывает все число
         IDEOLOGY_AXES.map(axis => [`countries[*].politics.ideologyCoordinates.${axis}`, "ideology"])
       ),
       "countries[*].politics.governmentSupport": "support",
+      // Каналы дипломатического блока (Милстоун 1). `relations` — та самая
+      // ячейка, ради которой сверка и обобщалась на этот домен: глагол,
+      // соврав о величине сдвига отношений, обязан откатываться рантаймом.
+      // `legitimacy` и `treasury` появились вместе с `peace`, который платит
+      // цену исхода войны штрафом легитимности и репарациями.
+      "countries[*].diplomacy.relations.{*}": "relation",
+      "countries[*].politics.legitimacy": "legitimacy",
+      "countries[*].economy.treasury": "treasury",
+      // Каналы мягких воздействий (Милстоун 1). `influence` появилось вместе с
+      // `send_aid` — это то самое поле, которое до него двигалось плоским шагом
+      // из старого канала мимо всякой сверки. `regions[*].gdp` — с
+      // `capital_flight`: удар по производству живёт в регионе, потому что ВВП
+      // страны агрегат, который тик перезаписывает. `activePersonnel` — с
+      // `support_proxy`, и с ним же раскол государства обязан заявлять деление
+      // живой силы метрополии.
+      "countries[*].diplomacy.influence.{*}": "influence",
+      "regions[*].gdp": "regionGdp",
+      "countries[*].military.activePersonnel": "personnel",
     };
 
-    /** Пути вне разложения на ячейки — каждый с причиной, а не общей корзиной. */
-    const outsideCellReconciliation = (path: string): boolean =>
+    /**
+     * Пути вне разложения на ячейки — каждый с причиной, а не общей корзиной.
+     *
+     * Исключение ключуется ПАРОЙ (глагол, путь), а не одним путём (уточнено
+     * Милстоуном 1, сессия жизненного цикла). Разница содержательна:
+     * `countries[*].economy.treasury` законно стоит вне сверки у структурного
+     * `split_country`, чью правдивость держит проверка СХОДИМОСТИ СУММ, но
+     * стоял бы там незаконно у мягкого глагола, который просто двигает казну.
+     * Исключение на весь алфавит открыло бы вторую дверь первому же такому
+     * глаголу — молча.
+     */
+    const outsideCellReconciliation = (verb: PrimitiveVerb, path: string): boolean => {
       // Объекты карты сверяются фактом создания («заявленный создан, созданный
-      // заявлен»), а не числовыми ячейками — включая числовой `regionId`.
-      path.startsWith("mapFeatures[") ||
+      // заявлен»), а не числовыми ячейками.
+      if (path.startsWith("mapFeatures[")) return true;
       // Счётчик, а не заявление о мире: его правдивость держит палитра
       // (JSDoc `reconciliation.ts`).
-      path === "nextFeatureId" ||
-      // Идентификаторы записи памяти воздействий — АДРЕС ячейки, а не величина
-      // в ней; сами величины перечислены выше.
-      path === "groupImpactMemory[*].regionId" ||
-      path === "groupImpactMemory[*].groupId";
+      if (path === "nextFeatureId") return true;
+      // Появление и исчезновение элемента массива — заявление о СОСТАВЕ мира, а
+      // не величина: содержимое созданного объекта проверяют пост-инварианты.
+      if (path.endsWith("[+]") || path.endsWith("[-]")) return true;
 
-    const palettePaths = [...new Set(Object.values(PRIMITIVE_PALETTE).flat())];
-    expect(palettePaths.length).toBeGreaterThan(0);
+      // ЖИЗНЕННЫЙ ЦИКЛ ГОСУДАРСТВ (`CONCEPT.md` §7.1) — правило КЛАССА, а не
+      // список глаголов (обобщено Милстоуном 1, сессия структурных глаголов;
+      // предсказано в `docs/TODO.md` при первом же глаголе этого класса).
+      //
+      // Операции, меняющие СОСТАВ стран, заявляют ровно те ячейки, которые
+      // соответствуют ДЕЛИМОМУ ИМУЩЕСТВУ (`commands/lifecycle.ts`), и ничего
+      // сверх: раскол это имущество делит, объединение складывает, и обе
+      // обязаны о своей арифметике отчитаться. Всё остальное, что они двигают
+      // (население, ВВП, состав регионов и стран, перенесённые ссылки),
+      // остаётся вне поячеечной сверки: её держат сходимость сумм и ноль
+      // висячих ссылок — механизмы, которые знают смысл полей, в отличие от
+      // плоской карты ячеек.
+      //
+      // Исключение сформулировано «всё КРОМЕ заявляемых ячеек», а не «весь
+      // глагол», намеренно: иначе оно молча покрыло бы и те каналы, которые
+      // обязаны сверяться. Их список растёт вместе с разложением состояния —
+      // `treasury:` пришла с репарациями `peace`, `personnel:` с
+      // `support_proxy`, и каждая обязала жизненный цикл заявлять своё деление.
+      const LIFECYCLE_VERBS: PrimitiveVerb[] = [
+        "split_country",
+        "merge_countries",
+        "create_country",
+      ];
+      const LIFECYCLE_REPORTED_PATHS = [
+        "countries[*].economy.treasury",
+        "countries[*].military.activePersonnel",
+        // Влияние — третья заявляемая ячейка, добавлена Милстоуном 1 по находке
+        // на боевых данных 1946: поглощение клиента снимает влияние поглотителя
+        // на него как самоссылку, и это такая же дельта, как сложение казны.
+        "countries[*].diplomacy.influence.{*}",
+      ];
+      if (LIFECYCLE_VERBS.includes(verb) && !LIFECYCLE_REPORTED_PATHS.includes(path)) {
+        return true;
+      }
+
+      // Идентификаторы и флаги — не величины, и сверять их ячейками нечем.
+      // Перечислены поимённо, с причиной у каждого, а не общей корзиной
+      // «нечисловое»: иначе первое же ЧИСЛОВОЕ поле, случайно похожее на
+      // идентификатор, проехало бы мимо сверки молча.
+      const NOT_A_MAGNITUDE: Record<string, string> = {
+        // Флаг «война идёт» — состояние сущности, а не величина.
+        "wars[*].active": "peace гасит войну",
+        // Владение и оккупация — ссылки на страну.
+        "regions[*].ownerCountryId": "аннексия по мирному договору",
+        "regions[*].occupiedBy": "снятие оккупации по мирному договору",
+        // Число, но идентификатор региона: «столица переехала» не величина.
+        "countries[*].capitalRegionId": "перенос столицы, потерянной по договору",
+        // Строковый элемент массива видов санкций.
+        "countries[*].diplomacy.sanctions.{*}[*]": "введённый режим санкций",
+        // Юридическое положение — перечисление и список ссылок на страны, а не
+        // величины. Их правдивость держит пост-инвариант согласованности
+        // подчинения (`primitives/subordination.ts`), который знает смысл обоих
+        // полей: поячеечная сверка на них сказала бы только «строка изменилась».
+        "countries[*].politics.sovereigntyStatus": "puppet меняет юридический статус",
+        "countries[*].diplomacy.puppets[*]": "рантайм-половина зависимости — ссылка на страну",
+        "countries[*].politics.overlordIds[*]": "перенос сюзерена жизненным циклом",
+        "countries[*].politics.overlordIds": "появление списка сюзеренов у суверенной страны",
+      };
+      if (path in NOT_A_MAGNITUDE) return true;
+
+      // АГРЕГАТЫ, выводимые из регионов, — не заявления глагола, а пересчёт.
+      // Их источник истины один (`aggregateCountryFromRegions`), и требовать от
+      // примитива заявлять их дельту значило бы завести второе мнение о числе,
+      // которое и так вычисляется из состояния. Причина общая для всего
+      // алфавита, поэтому и правило общее, а не по глаголу.
+      if (path === "countries[*].population" || path === "countries[*].economy.gdp") return true;
+
+      // Состояние КАМПАНИИ — не мир, а партия (`primitives/campaign.ts`).
+      // Его вычисляет движок из состава мира, и правило §6 «game over считает
+      // движок, а не объявляет текст модели» держится именно тем, что примитив
+      // не вправе его ЗАЯВИТЬ — только вызвать вычисление.
+      if (path.startsWith("campaign.")) return true;
+
+      return false;
+    };
+
+    const paletteEntries = Object.entries(PRIMITIVE_PALETTE) as [PrimitiveVerb, readonly string[]][];
+    expect(paletteEntries.length).toBeGreaterThan(0);
 
     // 1. Классификация полная: путь, которого нет ни в одном канале и ни в
     //    одном исключении, обязан уронить тест — это и есть «канал объявлен
     //    палитрой, но сверке неизвестен».
     expect(
-      palettePaths.filter(path => !(path in numericPathChannel) && !outsideCellReconciliation(path))
+      paletteEntries.flatMap(([verb, paths]) =>
+        paths
+          .filter(path => !(path in numericPathChannel) && !outsideCellReconciliation(verb, path))
+          .map(path => `${verb}: ${path}`)
+      )
     ).toEqual([]);
 
     for (const [path, channel] of Object.entries(numericPathChannel)) {

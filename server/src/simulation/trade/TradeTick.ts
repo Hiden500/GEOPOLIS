@@ -39,11 +39,35 @@ function getWorldPrice(resourceId: ResourceType): number {
   return WORLD_PRICE_OVERRIDES[resourceId] ?? WORLD_PRICE_BY_CATEGORY[RESOURCE_CATALOG[resourceId].category];
 }
 
-/** Тот же якорь или один из двух — член зоны другого. */
-function isZoneMate(a: Country, b: Country): boolean {
-  if (a.currencyZoneAnchor !== undefined && a.currencyZoneAnchor === b.currencyZoneAnchor) return true;
-  if (a.currencyZoneAnchor === b.id) return true;
-  if (b.currencyZoneAnchor === a.id) return true;
+/**
+ * Живой ли якорь валютной зоны страны — и если да, то какой.
+ *
+ * Проверка существования якоря добавлена Милстоуном 1 (сессия жизненного цикла).
+ * До неё зона выводилась ИЗ ПОЛЯ, а не из мира: сравнивались якоря двух стран,
+ * и вопрос «а якорь-то ещё существует?» не задавался нигде. Пока страны не
+ * исчезали, разницы не было. С роспуском страны бывшие члены её зоны остались
+ * бы привязаны к идентификатору-призраку — и продолжали бы получать бонус
+ * экспорта, скидку импорта и защиту от санкций от государства, которого нет.
+ * Это тихая поломка, а не падение: числа остаются правдоподобными.
+ *
+ * Перенос ссылок (`countryRefs.ts`) чистит это поле в момент операции, поэтому
+ * штатным путём призрака не возникает. Проверка здесь — вторая линия для
+ * сейва и данных сценария, собранных мимо движка: подсистема не обязана
+ * доверять тому, что все входы прошли через жизненный цикл.
+ */
+function livingAnchorOf(game: GameState, country: Country): string | undefined {
+  const anchor = country.currencyZoneAnchor;
+  if (anchor === undefined) return undefined;
+  return game.countries.some(c => c.id === anchor) ? anchor : undefined;
+}
+
+/** Тот же живой якорь или один из двух — член зоны другого. */
+function isZoneMate(game: GameState, a: Country, b: Country): boolean {
+  const anchorA = livingAnchorOf(game, a);
+  const anchorB = livingAnchorOf(game, b);
+  if (anchorA !== undefined && anchorA === anchorB) return true;
+  if (anchorA === b.id) return true;
+  if (anchorB === a.id) return true;
   return false;
 }
 
@@ -52,7 +76,8 @@ function getEmbargoPenalty(game: GameState, target: Country): number {
   for (const embargoer of game.countries) {
     if (!embargoer.diplomacy.sanctions[target.id]?.includes("trade_embargo")) continue;
 
-    const protectedByZone = target.currencyZoneAnchor !== undefined && !isZoneMate(target, embargoer);
+    const protectedByZone =
+      livingAnchorOf(game, target) !== undefined && !isZoneMate(game, target, embargoer);
     penalty += protectedByZone
       ? SANCTION_EXPORT_PENALTY_PER_EMBARGO * (1 - CURRENCY_ZONE_SANCTION_PROTECTION)
       : SANCTION_EXPORT_PENALTY_PER_EMBARGO;
@@ -72,8 +97,9 @@ export function tradeTick(game: GameState, country: Country): void {
   const embargoPenalty = getEmbargoPenalty(game, country);
 
   // Бонус/скидка члена валютной зоны — сам якорь (currencyZoneAnchor не
-  // задан) их не получает.
-  const isZoneMember = country.currencyZoneAnchor !== undefined;
+  // задан) их не получает. Членство требует ЖИВОГО якоря: ссылка на
+  // распавшееся государство зоной не является (см. `livingAnchorOf`).
+  const isZoneMember = livingAnchorOf(game, country) !== undefined;
   const exportZoneMultiplier = isZoneMember ? 1 + CURRENCY_ZONE_EXPORT_BONUS : 1;
   const importZoneMultiplier = isZoneMember ? 1 - CURRENCY_ZONE_IMPORT_DISCOUNT : 1;
 

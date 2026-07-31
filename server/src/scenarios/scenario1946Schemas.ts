@@ -1,5 +1,16 @@
 import { z } from "zod";
 import { RESOURCE_IDS } from "@shared/data/resources/resourceCatalog";
+import {
+  POWER_STRUCTURES,
+  SOVEREIGNTY_STATUSES,
+  SOVEREIGN_STATUS,
+  CONDOMINIUM_STATUS,
+} from "@shared/types/politics/Government";
+import {
+  INFLUENCE_SCALE_MAX,
+  RELATION_SCALE_MIN,
+  RELATION_SCALE_MAX,
+} from "@shared/defines/diplomacy";
 
 /**
  * Схемы расслоённых файлов сценария 1946 (docs/plans/05_DATA_LAYOUT.md).
@@ -114,6 +125,220 @@ export const ideologyFileSchema = z.object({
 });
 export type IdeologyFile = z.infer<typeof ideologyFileSchema>;
 
+/**
+ * Именованные точки спектра эпохи (`ideology_zones.json`). Радиус ограничен
+ * сверху половиной оси: якорь шире накрыл бы четверть спектра и подменил бы
+ * собой шкалу, ради выразительности которой он и заведён.
+ */
+export const ideologyAnchorSchema = z.object({
+  id: z.string().min(1),
+  center: ideologyCoordinatesSchema,
+  radius: z.number().gt(0).max(0.5),
+  name: localizedTextSchema,
+});
+export const ideologyZonesFileSchema = z.object({
+  anchors: z.array(ideologyAnchorSchema),
+});
+export type IdeologyZonesFile = z.infer<typeof ideologyZonesFileSchema>;
+
+/**
+ * Формы правления и юридический статус (`government.json`).
+ *
+ * Перечни берутся из shared (`POWER_STRUCTURES`/`SOVEREIGNTY_STATUSES`), а не
+ * переписываются здесь: `z.enum()` умеет вывести литералы из `as const`
+ * массива, и второй копии списка, способной разойтись с типом, не заводится
+ * (тот же приём, что у `SANCTION_TYPES`).
+ *
+ * Форма подчинения проверяется схемой, а не только валидатором пайплайна:
+ * пайплайн стоит до запуска игры, схема — на загрузке сценария и сейва. Файл,
+ * собранный мимо пайплайна, обязан отвергаться так же.
+ */
+export const countryGovernmentSchema = z.object({
+  countryId: z.string().min(1),
+  powerStructure: z.enum(POWER_STRUCTURES),
+  sovereigntyStatus: z.enum(SOVEREIGNTY_STATUSES),
+  overlordIds: z.array(z.string().min(1)),
+}).superRefine((entry, ctx) => {
+  const { sovereigntyStatus: status, overlordIds: overlords, countryId } = entry;
+  const expected = status === SOVEREIGN_STATUS ? 0 : status === CONDOMINIUM_STATUS ? 2 : 1;
+  if (overlords.length !== expected) {
+    ctx.addIssue({
+      code: "custom",
+      message:
+        `"${countryId}": статус "${status}" требует ${expected} сюзерен(ов), ` +
+        `указано ${overlords.length}`,
+    });
+  }
+  if (new Set(overlords).size !== overlords.length) {
+    ctx.addIssue({ code: "custom", message: `"${countryId}": дубль в overlordIds` });
+  }
+  if (overlords.includes(countryId)) {
+    ctx.addIssue({ code: "custom", message: `"${countryId}": страна назначена сюзереном самой себе` });
+  }
+});
+/**
+ * Стартовое влияние держав (`influence.json`).
+ *
+ * Влияние НАПРАВЛЕННОЕ и несимметричное: СССР влияет на Польшу сильно, Польша
+ * на СССР — почти никак, и обе стороны, если значимы, записываются отдельно.
+ *
+ * Нижняя граница 10 — не техническая, а смысловая: связь слабее в движке
+ * неотличима от её отсутствия, поэтому запись со значением 3 означала бы
+ * данные, которые никто не прочтёт. Ноль тоже запрещён — отсутствие связи
+ * выражается отсутствием ключа, а не нулём (иначе разреженная карта перестаёт
+ * быть разреженной).
+ */
+export const INFLUENCE_MIN_RECORDED = 10;
+
+export const countryInfluenceSchema = z.object({
+  sourceCountryId: z.string().min(1),
+  targets: z.record(
+    z.string().min(1),
+    z.number().int().min(INFLUENCE_MIN_RECORDED).max(INFLUENCE_SCALE_MAX)
+  ),
+}).superRefine((entry, ctx) => {
+  if (entry.targets[entry.sourceCountryId] !== undefined) {
+    ctx.addIssue({
+      code: "custom",
+      message: `"${entry.sourceCountryId}": страна влияет сама на себя`,
+    });
+  }
+  if (Object.keys(entry.targets).length === 0) {
+    ctx.addIssue({
+      code: "custom",
+      message: `"${entry.sourceCountryId}": источник без единой цели — запись без смысла`,
+    });
+  }
+});
+export const influenceFileSchema = z.object({
+  influence: z.array(countryInfluenceSchema),
+});
+export type InfluenceFile = z.infer<typeof influenceFileSchema>;
+
+export const governmentFileSchema = z.object({
+  countries: z.array(countryGovernmentSchema),
+});
+export type GovernmentFile = z.infer<typeof governmentFileSchema>;
+
+/**
+ * Стартовый дипломатический слой (`diplomacy.json`, docs/DIPLOMACY.md — раздел
+ * «Стартовый слой»). Заполняет то, что в сценарии пусто у всех стран:
+ * отношения, союзы, соперничества и гарантии. Слой разреженный, как
+ * `influence.json`: полная матрица 157 стран — 24 649 пар против правила о
+ * размере сохранений.
+ *
+ * ПАРА, А НЕ НАПРАВЛЕНИЕ. В состоянии `relations` направленные
+ * (`Record<countryId, number>` у каждой страны), но `driftRelations` ведёт ОБЕ
+ * стороны к одной цели `structuralAffinity` — два разных стартовых числа на
+ * пару движок сотрёт за несколько тиков. Поэтому запись одна, а порядок кодов в
+ * ней не значим: `["SUN","POL"]` и `["POL","SUN"]` — одна и та же связь, и
+ * вторая из них отвергается как дубль. Гарантии, наоборот, направленные по
+ * своей природе: гарант и защищаемый не взаимозаменяемы.
+ *
+ * ГРАНИЦА С `validate_demographics_1946.py`, НАЗВАННАЯ ПРЯМО. Там проверяется
+ * класс «данные, которые движок отменяет на первом тике» (союз без записи
+ * отношений, соперничество выше порога примирения) — он требует парных порогов
+ * от идеологической дистанции, и воспроизводить их здесь значило бы завести
+ * копию калибровки. Здесь — только форма записи, верная при любых
+ * координатах. Схема, а не только пайплайн: пайплайн стоит до запуска игры,
+ * схема — на загрузке (тот же довод, что у `countryGovernmentSchema`).
+ *
+ * Границы шкалы читаются из `shared/src/defines/diplomacy.ts` — числа не
+ * дублируются, иначе рекалибровка шкалы разошлась бы с проверкой молча.
+ */
+const countryPairSchema = z.tuple([z.string().min(1), z.string().min(1)]);
+
+/** Ключ пары без направления — им же ловятся дубли в обоих порядках. */
+function pairKey(a: string, b: string): string {
+  return a <= b ? `${a}|${b}` : `${b}|${a}`;
+}
+/** Читаемая форма того же ключа для текста ошибки. */
+function pairLabel(key: string): string {
+  return key.replace("|", "—");
+}
+
+export const relationEntrySchema = z.object({
+  pair: countryPairSchema,
+  value: z.number().min(RELATION_SCALE_MIN).max(RELATION_SCALE_MAX),
+});
+export const diplomacyPairSchema = z.object({ pair: countryPairSchema });
+export const guaranteeEntrySchema = z.object({
+  guarantor: z.string().min(1),
+  protected: z.string().min(1),
+});
+
+/**
+ * Общая часть разбора списка пар: самопара и дубль в любом порядке. Возвращает
+ * множество ключей, чтобы вызывающий мог сверить списки между собой.
+ */
+function collectPairs(
+  entries: { pair: [string, string] }[],
+  label: string,
+  ctx: z.RefinementCtx
+): Set<string> {
+  const seen = new Set<string>();
+  for (const entry of entries) {
+    const [a, b] = entry.pair;
+    if (a === b) {
+      ctx.addIssue({ code: "custom", message: `${label}: пара "${a}" сама с собой` });
+      continue;
+    }
+    const key = pairKey(a, b);
+    if (seen.has(key)) {
+      ctx.addIssue({ code: "custom", message: `${label}: пара ${pairLabel(key)} встречается дважды` });
+    }
+    seen.add(key);
+  }
+  return seen;
+}
+
+/**
+ * Все четыре ключа опциональны: слой наполняется по частям, и требовать
+ * `"guarantees": []` ради формы значило бы держать в данных пустышку. Файла нет
+ * вовсе — тоже штатное состояние, это решает `readOptionalJsonFile`.
+ */
+export const diplomacyFileSchema = z.object({
+  relations: z.array(relationEntrySchema).optional(),
+  alliances: z.array(diplomacyPairSchema).optional(),
+  rivalries: z.array(diplomacyPairSchema).optional(),
+  guarantees: z.array(guaranteeEntrySchema).optional(),
+}).superRefine((file, ctx) => {
+  collectPairs(file.relations ?? [], "relations", ctx);
+  const alliances = collectPairs(file.alliances ?? [], "alliances", ctx);
+  const rivalries = collectPairs(file.rivalries ?? [], "rivalries", ctx);
+
+  // Не порог и не калибровка, поэтому проверяется здесь, а не в Python:
+  // пара, стоящая в обоих списках, попала бы у обеих сторон разом в `allies` и
+  // в `rivals`, то есть загрузка построила бы состояние, невыразимое в мире.
+  for (const key of alliances) {
+    if (rivalries.has(key)) {
+      ctx.addIssue({
+        code: "custom",
+        message: `пара ${pairLabel(key)} одновременно в alliances и rivalries`,
+      });
+    }
+  }
+
+  const seenGuarantees = new Set<string>();
+  for (const entry of file.guarantees ?? []) {
+    if (entry.guarantor === entry.protected) {
+      ctx.addIssue({
+        code: "custom",
+        message: `guarantees: "${entry.guarantor}" гарантирует сама себе`,
+      });
+      continue;
+    }
+    // Направленный дубль: гарантия одна, а `guarantees` — массив, поэтому
+    // вторая запись дала бы тот же код в списке дважды.
+    const key = `${entry.guarantor}->${entry.protected}`;
+    if (seenGuarantees.has(key)) {
+      ctx.addIssue({ code: "custom", message: `guarantees: гарантия ${key} встречается дважды` });
+    }
+    seenGuarantees.add(key);
+  }
+});
+export type DiplomacyFile = z.infer<typeof diplomacyFileSchema>;
+
 /** region_id (geoJsonId) → имя. Частичное покрытие допустимо (см. getText fallback). */
 export const namesFileSchema = z.record(z.string(), z.string());
 export type NamesFile = z.infer<typeof namesFileSchema>;
@@ -188,7 +413,6 @@ export const authoredCountrySchema = z.object({
   diplomacy: authoredDiplomacySchema.optional(),
   politics: z.object({
     ideology: z.string().min(1),
-    governmentType: z.string().optional(),
     stability: z.number().optional(),
     legitimacy: z.number().optional(),
     corruption: z.number().optional(),

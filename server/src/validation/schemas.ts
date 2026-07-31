@@ -3,6 +3,7 @@ import { BUDGET_SPENDING_SHARE_CAPS } from "@shared/defines/budgetSpendingShareC
 import { DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { SAVE_SLOT_PATTERN } from "../game/SaveService";
 import { primitiveBatchSchema } from "../primitives/primitiveSchemas";
+import { MAX_PRIMITIVE_ID_LENGTH } from "@shared/defines/discontent";
 
 /**
  * Схема для создания игры. locale — язык генерируемого LLM-текста на весь
@@ -67,6 +68,17 @@ export const translateIntentSchema = z.object({
 export const applyPrimitivesSchema = z.object({
   primitives: primitiveBatchSchema,
   idempotencyKey: z.string().min(1).max(128),
+});
+
+/**
+ * Вход выбора осколка после распада страны игрока (docs/CONCEPT.md §7.1).
+ *
+ * Только идентификатор: принадлежность его к объявленным преемникам проверяет
+ * движок (`chooseSuccessor`), а не транспорт. Так ручка не превращается во
+ * «сменить страну на любую» ни при каком клиенте.
+ */
+export const chooseSuccessorSchema = z.object({
+  countryId: z.string().min(1).max(MAX_PRIMITIVE_ID_LENGTH),
 });
 
 /**

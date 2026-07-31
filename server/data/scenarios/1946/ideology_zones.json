@@ -1,0 +1,196 @@
+{
+  "anchors": [
+    {
+      "id": "state_socialism",
+      "center": {
+        "economic": -0.9,
+        "political": -0.91
+      },
+      "radius": 0.14,
+      "name": {
+        "ru": "Государственный социализм",
+        "en": "State socialism"
+      }
+    },
+    {
+      "id": "peoples_democracy",
+      "center": {
+        "economic": -0.64,
+        "political": -0.66
+      },
+      "radius": 0.092,
+      "name": {
+        "ru": "Народная демократия",
+        "en": "People's democracy"
+      }
+    },
+    {
+      "id": "national_corporatism",
+      "center": {
+        "economic": -0.2,
+        "political": -0.86
+      },
+      "radius": 0.072,
+      "name": {
+        "ru": "Национальный корпоративизм",
+        "en": "National corporatism"
+      }
+    },
+    {
+      "id": "kuomintang_party_state",
+      "center": {
+        "economic": 0.1,
+        "political": -0.4
+      },
+      "radius": 0.035,
+      "name": {
+        "ru": "Партийное государство Гоминьдана",
+        "en": "Kuomintang party-state"
+      }
+    },
+    {
+      "id": "colonial_administration",
+      "center": {
+        "economic": 0.23,
+        "political": -0.7
+      },
+      "radius": 0.045,
+      "name": {
+        "ru": "Колониальная администрация",
+        "en": "Colonial administration"
+      }
+    },
+    {
+      "id": "french_colonial_system",
+      "center": {
+        "economic": 0.07,
+        "political": -0.57
+      },
+      "radius": 0.045,
+      "name": {
+        "ru": "Французская колониальная система",
+        "en": "French colonial system"
+      }
+    },
+    {
+      "id": "papal_theocracy",
+      "center": {
+        "economic": 0.2,
+        "political": -0.88
+      },
+      "radius": 0.045,
+      "name": {
+        "ru": "Папская теократия",
+        "en": "Papal theocracy"
+      }
+    },
+    {
+      "id": "peronism",
+      "center": {
+        "economic": -0.25,
+        "political": 0.05
+      },
+      "radius": 0.045,
+      "name": {
+        "ru": "Перонизм",
+        "en": "Peronism"
+      }
+    },
+    {
+      "id": "kemalism",
+      "center": {
+        "economic": -0.25,
+        "political": -0.1
+      },
+      "radius": 0.055,
+      "name": {
+        "ru": "Кемализм",
+        "en": "Kemalism"
+      }
+    },
+    {
+      "id": "french_dirigisme",
+      "center": {
+        "economic": -0.3,
+        "political": 0.85
+      },
+      "radius": 0.03,
+      "name": {
+        "ru": "Французский дирижизм",
+        "en": "French dirigisme"
+      }
+    },
+    {
+      "id": "labour_social_democracy",
+      "center": {
+        "economic": -0.25,
+        "political": 0.9
+      },
+      "radius": 0.03,
+      "name": {
+        "ru": "Лейбористская социал-демократия",
+        "en": "Labour social democracy"
+      }
+    },
+    {
+      "id": "nordic_social_democracy",
+      "center": {
+        "economic": 0.13,
+        "political": 0.9
+      },
+      "radius": 0.095,
+      "name": {
+        "ru": "Скандинавская социал-демократия",
+        "en": "Nordic social democracy"
+      }
+    },
+    {
+      "id": "new_deal_liberalism",
+      "center": {
+        "economic": 0.7,
+        "political": 0.78
+      },
+      "radius": 0.06,
+      "name": {
+        "ru": "Либерализм Нового курса",
+        "en": "New Deal liberalism"
+      }
+    },
+    {
+      "id": "swiss_federal_democracy",
+      "center": {
+        "economic": 0.55,
+        "political": 0.75
+      },
+      "radius": 0.06,
+      "name": {
+        "ru": "Швейцарская прямая демократия",
+        "en": "Swiss direct democracy"
+      }
+    },
+    {
+      "id": "czechoslovak_national_front",
+      "center": {
+        "economic": -0.55,
+        "political": 0.55
+      },
+      "radius": 0.05,
+      "name": {
+        "ru": "Чехословацкий Национальный фронт",
+        "en": "Czechoslovak National Front"
+      }
+    },
+    {
+      "id": "mexican_revolutionary_state",
+      "center": {
+        "economic": -0.15,
+        "political": 0.1
+      },
+      "radius": 0.05,
+      "name": {
+        "ru": "Режим Мексиканской революции",
+        "en": "Mexican Revolutionary regime"
+      }
+    }
+  ]
+}

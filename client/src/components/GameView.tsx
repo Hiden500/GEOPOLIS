@@ -26,6 +26,7 @@ import { BudgetPanel } from "./BudgetPanel";
 import { ResearchPanel } from "./ResearchPanel";
 import { PlayerIntentPanel } from "./PlayerIntentPanel";
 import { PrimitiveOrdersPanel } from "./PrimitiveOrdersPanel";
+import { CampaignStatePanel } from "./CampaignStatePanel";
 import { WorldRankingPanel } from "./WorldRankingPanel";
 import { TerritoriesPanel } from "./TerritoriesPanel";
 import { LLMPanel } from "./LLMPanel";
@@ -241,7 +242,7 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
           />
         );
       case "politics":
-        return <PoliticsBook country={playerCountry!} />;
+        return <PoliticsBook country={playerCountry!} ideologyAnchors={game.ideologyAnchors} countries={game.countries} />;
       case "diplomacy":
         return <DiplomacyBook country={playerCountry!} game={game} onSelectCountry={handleSelectCountry} />;
       case "rankings":
@@ -310,6 +311,11 @@ export function GameView({ game, onGameUpdate, onBack }: GameViewProps) {
             onSelectCountry={handleSelectCountry}
             onCompare={handleCompare}
           />
+
+          {/* Состояние кампании (docs/CONCEPT.md §6, §7.1) — поверх остального:
+              распад государства и конец партии не должны теряться среди
+              обычных панелей. Пока кампания активна, панель не рендерится. */}
+          <CampaignStatePanel game={game} onChosen={handleLlmApplied} />
 
           <OrdersBox>
             <PlayerIntentPanel

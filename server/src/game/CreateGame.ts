@@ -10,6 +10,7 @@ import { nextRandom } from "@shared/utils/rng";
 import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
 import { computePlayerStanding } from "@shared/utils/nationalPower";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
+import { activeCampaign } from "@shared/types/Campaign";
 
 /**
  * Выводит денежные поля economy из economyProfile (масштаб-свободные доли,
@@ -142,6 +143,7 @@ export function createGame(
     nextFeatureId: 0,
     locale,
     playerIntent: "",
+    campaign: activeCampaign(),
     eventHistory: [],
     chronicle: [],
     mapFeatures: [],
@@ -152,6 +154,7 @@ export function createGame(
     // сценария (у 1836/2000 его нет — пустой, и это не ошибка), память
     // воздействий и латч кризисов стартуют пустыми — прошлого у новой партии нет.
     ethnicGroups: structuredClone(scenario.ethnicGroups ?? []),
+    ideologyAnchors: structuredClone(scenario.ideologyAnchors ?? []),
     groupImpactMemory: [],
     regionCrisisLatch: [],
     // Журналы idempotency-ключей батчей примитивов (docs/CONCEPT.md §7.2) — у

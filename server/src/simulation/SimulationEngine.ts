@@ -18,6 +18,7 @@ import { tradeTick } from "./trade/TradeTick";
 import { chronicleTick } from "./chronicle/ChronicleTick";
 import { removeExpiredModifiers } from "../commands/modifiers";
 import { objectiveTick } from "./ObjectiveTick";
+import { evaluateCampaign } from "../primitives/campaign";
 import { STABILITY_HIGH_INFLATION_THRESHOLD, POLITICAL_CRISIS_STABILITY_THRESHOLD } from "@shared/defines/politics";
 import { DEBT_CRISIS_GDP_THRESHOLD } from "@shared/defines/economy";
 
@@ -141,7 +142,7 @@ export function simulateMonth(
     discontentTick(game);
 
     // Дипломатические изменения
-    diplomacyTick(game.countries);
+    diplomacyTick(game);
 
     // Фронт активных войн (docs/WAR.md, Phase 1) — до aiBehaviorTick, чтобы
     // новые войны от ИИ-порога стартовали с чистого состояния фронта.
@@ -162,6 +163,12 @@ export function simulateMonth(
     // Целевой слой (docs/OBJECTIVES.md): позиция игрока в рейтинге силы + оценка
     // самопоставленных целей — после боевых тиков, по состоянию на конец месяца.
     objectiveTick(game);
+
+    // Состояние кампании (docs/CONCEPT.md §6, §7.1) — ПОСЛЕ всего, что способно
+    // отнять у игрока последний регион (мир по итогам войны в `warTick`), и по
+    // состоянию на конец месяца. Здесь и только здесь вычисляется game over:
+    // §6 требует, чтобы его считал движок, а не объявлял текст модели.
+    evaluateCampaign(game);
 
     // Продвигаем дату на один месяц
     const parts = game.currentDate.split("-");

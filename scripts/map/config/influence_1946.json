@@ -1,0 +1,545 @@
+{
+  "_meta": {
+    "snapshotDate": "1946-01-01",
+    "purpose": "Authored starting political influence between countries of the 1946 scenario. Single source for server/data/scenarios/1946/influence.json.",
+    "scale": "10..100, directed and asymmetric. Below 10 the link is not recorded at all: an empty link and a link of strength three are indistinguishable to the engine.",
+    "provenance": "docs/INFLUENCE_1946_PROVENANCE.md"
+  },
+  "influence": [
+    {
+      "sourceCountryId": "AFG",
+      "targets": {
+        "IND": 20,
+        "IRN": 20
+      }
+    },
+    {
+      "sourceCountryId": "ARG",
+      "targets": {
+        "PRY": 30,
+        "BOL": 20,
+        "BRA": 20,
+        "CHL": 20,
+        "URY": 20,
+        "ESP": 15
+      }
+    },
+    {
+      "sourceCountryId": "AUS",
+      "targets": {
+        "NFK": 95,
+        "PNG": 88,
+        "NRU": 85,
+        "SLB": 25,
+        "NZL": 20,
+        "GBR": 15
+      }
+    },
+    {
+      "sourceCountryId": "BEL",
+      "targets": {
+        "COD": 95,
+        "QRU": 85,
+        "LUX": 25,
+        "NLD": 20
+      }
+    },
+    {
+      "sourceCountryId": "BRA",
+      "targets": {
+        "PRY": 25,
+        "URY": 25,
+        "ARG": 20,
+        "BOL": 20,
+        "USA": 20
+      }
+    },
+    {
+      "sourceCountryId": "CAN",
+      "targets": {
+        "NFD": 45,
+        "USA": 25,
+        "GBR": 20
+      }
+    },
+    {
+      "sourceCountryId": "CHE",
+      "targets": {
+        "LIE": 85,
+        "FRA": 15,
+        "ITA": 15
+      }
+    },
+    {
+      "sourceCountryId": "CHL",
+      "targets": {
+        "ARG": 20,
+        "BOL": 20,
+        "PER": 20
+      }
+    },
+    {
+      "sourceCountryId": "CHN",
+      "targets": {
+        "QMS": 35,
+        "TWN": 20
+      }
+    },
+    {
+      "sourceCountryId": "COL",
+      "targets": {
+        "VEN": 20,
+        "ECU": 15
+      }
+    },
+    {
+      "sourceCountryId": "CSK",
+      "targets": {
+        "POL": 25,
+        "HUN": 20,
+        "YUG": 20
+      }
+    },
+    {
+      "sourceCountryId": "CUB",
+      "targets": {
+        "USA": 20
+      }
+    },
+    {
+      "sourceCountryId": "DNK",
+      "targets": {
+        "GRL": 95,
+        "ISL": 25,
+        "NOR": 20,
+        "SWE": 20
+      }
+    },
+    {
+      "sourceCountryId": "EGY",
+      "targets": {
+        "SDN": 30,
+        "PSE": 25,
+        "IRQ": 20,
+        "JOR": 20,
+        "LBN": 15,
+        "SAU": 15,
+        "SYR": 15
+      }
+    },
+    {
+      "sourceCountryId": "ESP",
+      "targets": {
+        "AND": 60,
+        "PRT": 30,
+        "ARG": 20,
+        "MAR": 15
+      }
+    },
+    {
+      "sourceCountryId": "ETH",
+      "targets": {
+        "QSO": 20
+      }
+    },
+    {
+      "sourceCountryId": "FIN",
+      "targets": {
+        "ALA": 95,
+        "SWE": 30,
+        "SUN": 15
+      }
+    },
+    {
+      "sourceCountryId": "FRA",
+      "targets": {
+        "QGF": 95,
+        "QOF": 95,
+        "GLP": 90,
+        "MDG": 90,
+        "MTQ": 90,
+        "QFE": 90,
+        "QFI": 90,
+        "QFW": 90,
+        "CMR": 85,
+        "MAR": 85,
+        "MCO": 85,
+        "TGO": 85,
+        "TUN": 85,
+        "KHM": 82,
+        "LAO": 82,
+        "VNM": 75,
+        "VUT": 70,
+        "AND": 60,
+        "LBN": 40,
+        "SYR": 40,
+        "LUX": 25,
+        "BEL": 20,
+        "ITA": 20,
+        "QDV": 20,
+        "ESP": 15
+      }
+    },
+    {
+      "sourceCountryId": "GBR",
+      "targets": {
+        "HKG": 95,
+        "PSE": 95,
+        "QGB": 95,
+        "QOB": 95,
+        "SGP": 95,
+        "IND": 92,
+        "BHR": 90,
+        "GHA": 90,
+        "JOR": 90,
+        "KEN": 90,
+        "KWT": 90,
+        "MYS": 90,
+        "NFD": 90,
+        "QAD": 90,
+        "QAT": 90,
+        "QLB": 90,
+        "QNB": 90,
+        "QSR": 90,
+        "QWL": 90,
+        "QWW": 90,
+        "LKA": 88,
+        "NGA": 88,
+        "SLE": 88,
+        "ARE": 85,
+        "BRN": 85,
+        "MMR": 85,
+        "MWI": 85,
+        "QJK": 85,
+        "QSI": 85,
+        "QSO": 85,
+        "QZN": 85,
+        "SLB": 85,
+        "TZA": 85,
+        "UGA": 85,
+        "ZMB": 85,
+        "ZWE": 85,
+        "OMN": 80,
+        "SDN": 80,
+        "TON": 80,
+        "BTN": 75,
+        "GRC": 70,
+        "VUT": 70,
+        "EGY": 60,
+        "IRQ": 60,
+        "NPL": 50,
+        "AUS": 45,
+        "IDN": 45,
+        "NZL": 45,
+        "THA": 45,
+        "CAN": 40,
+        "ETH": 40,
+        "IRN": 40,
+        "ZAF": 40,
+        "QRI": 35,
+        "SAU": 25,
+        "AFG": 20,
+        "PRT": 20,
+        "YEM": 20,
+        "IRL": 15
+      }
+    },
+    {
+      "sourceCountryId": "GRC",
+      "targets": {
+        "ALB": 25,
+        "TUR": 25,
+        "YUG": 20,
+        "EGY": 15
+      }
+    },
+    {
+      "sourceCountryId": "IND",
+      "targets": {
+        "QSI": 75,
+        "QJK": 65,
+        "BTN": 60,
+        "NPL": 45,
+        "MMR": 30,
+        "AFG": 20,
+        "QTB": 15
+      }
+    },
+    {
+      "sourceCountryId": "IRL",
+      "targets": {
+        "GBR": 20,
+        "USA": 15
+      }
+    },
+    {
+      "sourceCountryId": "IRN",
+      "targets": {
+        "QAZ": 35,
+        "IRQ": 20,
+        "QMH": 20,
+        "AFG": 15,
+        "TUR": 15
+      }
+    },
+    {
+      "sourceCountryId": "IRQ",
+      "targets": {
+        "JOR": 25,
+        "SYR": 25,
+        "EGY": 20,
+        "SAU": 20
+      }
+    },
+    {
+      "sourceCountryId": "ITA",
+      "targets": {
+        "SMR": 70,
+        "VAT": 45,
+        "CHE": 15,
+        "YUG": 15
+      }
+    },
+    {
+      "sourceCountryId": "LBR",
+      "targets": {
+        "USA": 10
+      }
+    },
+    {
+      "sourceCountryId": "MEX",
+      "targets": {
+        "GTM": 25,
+        "CUB": 15,
+        "USA": 15
+      }
+    },
+    {
+      "sourceCountryId": "NLD",
+      "targets": {
+        "QND": 90,
+        "IDN": 60,
+        "QRI": 30,
+        "BEL": 20,
+        "LUX": 15
+      }
+    },
+    {
+      "sourceCountryId": "NOR",
+      "targets": {
+        "DNK": 20,
+        "SWE": 20
+      }
+    },
+    {
+      "sourceCountryId": "NPL",
+      "targets": {
+        "IND": 25
+      }
+    },
+    {
+      "sourceCountryId": "NZL",
+      "targets": {
+        "WSM": 88,
+        "COK": 85,
+        "AUS": 20,
+        "TON": 20,
+        "GBR": 15
+      }
+    },
+    {
+      "sourceCountryId": "PER",
+      "targets": {
+        "ECU": 25,
+        "BOL": 20,
+        "CHL": 15
+      }
+    },
+    {
+      "sourceCountryId": "PHL",
+      "targets": {
+        "USA": 10
+      }
+    },
+    {
+      "sourceCountryId": "POL",
+      "targets": {
+        "CSK": 25,
+        "HUN": 20,
+        "ROU": 15
+      }
+    },
+    {
+      "sourceCountryId": "PRT",
+      "targets": {
+        "AGO": 95,
+        "MOZ": 95,
+        "MAC": 90,
+        "QPI": 90,
+        "BRA": 20,
+        "ESP": 20
+      }
+    },
+    {
+      "sourceCountryId": "QRI",
+      "targets": {
+        "IDN": 30,
+        "NLD": 15
+      }
+    },
+    {
+      "sourceCountryId": "SAU",
+      "targets": {
+        "YEM": 25,
+        "BHR": 20,
+        "JOR": 20,
+        "KWT": 20,
+        "QAT": 20,
+        "EGY": 15,
+        "IRQ": 15
+      }
+    },
+    {
+      "sourceCountryId": "SUN",
+      "targets": {
+        "QGS": 95,
+        "QKS": 95,
+        "QOS": 95,
+        "MNG": 92,
+        "QAZ": 90,
+        "QMS": 90,
+        "POL": 88,
+        "ROU": 82,
+        "BGR": 80,
+        "QMH": 75,
+        "HUN": 70,
+        "CSK": 55,
+        "YUG": 55,
+        "FIN": 50,
+        "IRN": 50,
+        "ALB": 45,
+        "CHN": 45,
+        "FRA": 25,
+        "ITA": 25,
+        "TWN": 25,
+        "TUR": 20
+      }
+    },
+    {
+      "sourceCountryId": "SWE",
+      "targets": {
+        "FIN": 30,
+        "DNK": 25,
+        "NOR": 25
+      }
+    },
+    {
+      "sourceCountryId": "THA",
+      "targets": {
+        "KHM": 20,
+        "LAO": 20
+      }
+    },
+    {
+      "sourceCountryId": "TUR",
+      "targets": {
+        "GRC": 20,
+        "IRN": 20,
+        "IRQ": 20,
+        "BGR": 15,
+        "SYR": 15
+      }
+    },
+    {
+      "sourceCountryId": "TWN",
+      "targets": {
+        "QDV": 45,
+        "QMS": 25,
+        "VNM": 25,
+        "CHN": 20
+      }
+    },
+    {
+      "sourceCountryId": "USA",
+      "targets": {
+        "JPN": 98,
+        "QGA": 95,
+        "QKA": 95,
+        "QOA": 95,
+        "QPS": 95,
+        "PHL": 90,
+        "PAN": 60,
+        "TWN": 60,
+        "LBR": 55,
+        "NIC": 50,
+        "BRA": 45,
+        "CUB": 45,
+        "DOM": 45,
+        "GBR": 45,
+        "ISL": 45,
+        "CAN": 40,
+        "GRL": 40,
+        "HND": 40,
+        "ITA": 40,
+        "VEN": 40,
+        "COL": 35,
+        "GTM": 35,
+        "HTI": 35,
+        "IRN": 35,
+        "MEX": 35,
+        "SAU": 35,
+        "SLV": 35,
+        "BOL": 30,
+        "CHL": 30,
+        "CRI": 30,
+        "ECU": 30,
+        "FRA": 30,
+        "GRC": 30,
+        "PER": 30,
+        "TUR": 30,
+        "AUS": 25,
+        "NZL": 25,
+        "THA": 25,
+        "URY": 25,
+        "CHN": 20,
+        "ETH": 20,
+        "PRY": 20,
+        "ARG": 15
+      }
+    },
+    {
+      "sourceCountryId": "VAT",
+      "targets": {
+        "ITA": 40,
+        "ESP": 25
+      }
+    },
+    {
+      "sourceCountryId": "VEN",
+      "targets": {
+        "COL": 20,
+        "USA": 15
+      }
+    },
+    {
+      "sourceCountryId": "YUG",
+      "targets": {
+        "ALB": 70,
+        "BGR": 25,
+        "GRC": 20,
+        "HUN": 15,
+        "ITA": 15,
+        "ROU": 15
+      }
+    },
+    {
+      "sourceCountryId": "ZAF",
+      "targets": {
+        "NAM": 90,
+        "ZWE": 35,
+        "ZMB": 30,
+        "GBR": 15
+      }
+    }
+  ]
+}

@@ -1,9 +1,12 @@
 import { z } from "zod";
 import { LLMProviderError } from "../../errors/AppError";
 import { type LLMProvider } from "./LLMProvider";
+import { parseGeminiUsage, type TokenUsage } from "../tokenTelemetry";
 import { GeminiResponseSchema } from "../actionSchemas";
 
-const DEFAULT_MODEL = "gemini-3.1-flash-lite";
+/** Модель по умолчанию. Экспортируется, чтобы журнал расхода назывался тем же
+ * именем, каким сделан вызов: расход несопоставим между моделями. */
+export const DEFAULT_MODEL = "gemini-3.1-flash-lite";
 
 /**
  * Gemini structured output (generateContent, модели ниже "Interactions API" —
@@ -215,10 +218,24 @@ const RESPONSE_SCHEMA = toProviderSchema(GeminiResponseSchema);
  * живым тестом gemini-3.1-flash-lite.
  */
 export class GeminiProvider implements LLMProvider {
+  /**
+   * Наблюдатель расхода токенов. Провайдер сам никуда не пишет намеренно:
+   * запись на диск — обязанность вызывающего слоя, иначе юнит-тесты
+   * провайдера начали бы трогать файловую систему, а сбой записи мог бы
+   * уронить игровой ход. Без наблюдателя поведение прежнее.
+   */
+  constructor(private readonly onUsage?: (usage: TokenUsage) => void) {}
+
   async generateResponse(
     prompt: string,
-    responseSchema: Record<string, unknown> = RESPONSE_SCHEMA
+    schema: z.ZodType = GeminiResponseSchema
   ): Promise<string> {
+    // Конвертация переехала сюда из вызывающего слоя вместе с появлением
+    // второго провайдера: диалект — свойство API, а не запроса (см.
+    // `LLMProvider`). Схема мирового цикла берётся из готовой константы, чтобы
+    // самый частый вызов не пересобирал её на каждый ход.
+    const responseSchema =
+      schema === GeminiResponseSchema ? RESPONSE_SCHEMA : toProviderSchema(schema);
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new LLMProviderError(
@@ -258,6 +275,14 @@ export class GeminiProvider implements LLMProvider {
     }
 
     const data = await response.json();
+
+    // Расход снимается ДО проверки текста: вызов, заблокированный фильтром
+    // безопасности, токены всё равно потратил, и в бюджет он входит.
+    if (this.onUsage) {
+      const usage = parseGeminiUsage(data);
+      if (usage) this.onUsage(usage);
+    }
+
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (typeof text !== "string" || text.length === 0) {
       throw new LLMProviderError(

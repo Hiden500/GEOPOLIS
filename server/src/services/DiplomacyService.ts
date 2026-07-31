@@ -210,7 +210,40 @@ export class DiplomacyService {
   }
 
   /**
-   * Добавляет санкции против страны.
+   * Записывает режим санкций в состояние — И БОЛЬШЕ НИЧЕГО.
+   *
+   * Отделено от `addSanction` Милстоуном 1 (дипломатический блок алфавита).
+   * Причина: у примитива `sanction` величину удара по отношениям считает
+   * коридор магнитуды из состояния пары (`magnitude.ts`), а `addSanction`
+   * вшивает в тот же вызов фиксированные −25. Позвать его значило бы получить
+   * константу поверх коридора, то есть обойти собственную защиту глагола.
+   *
+   * Возвращает `true`, если режим действительно появился. Ложь здесь — не
+   * удобство, а требование правила «действие без реализации не считается
+   * применённым» (docs/PRIMITIVES.md §3): повторное наложение уже
+   * действующей санкции состояние не меняет, и вызывающий обязан это узнать.
+   */
+  recordSanction(
+    countries: Country[],
+    sanctionerId: string,
+    targetId: string,
+    sanctionType: SanctionType
+  ): boolean {
+    const sanctioner = countries.find(c => c.id === sanctionerId);
+    if (!sanctioner) return false;
+
+    const existing = sanctioner.diplomacy.sanctions[targetId];
+    if (existing?.includes(sanctionType)) return false;
+
+    if (existing) existing.push(sanctionType);
+    else sanctioner.diplomacy.sanctions[targetId] = [sanctionType];
+    return true;
+  }
+
+  /**
+   * Санкция вместе с фиксированной дипломатической ценой — парная к
+   * `removeSanction`. Цену задаёт сервис, поэтому примитив алфавита её НЕ
+   * использует (см. `recordSanction`).
    */
   addSanction(
     countries: Country[],
@@ -218,16 +251,7 @@ export class DiplomacyService {
     targetId: string,
     sanctionType: SanctionType
   ): void {
-    const sanctioner = countries.find(c => c.id === sanctionerId);
-    if (!sanctioner) return;
-
-    if (!sanctioner.diplomacy.sanctions[targetId]) {
-      sanctioner.diplomacy.sanctions[targetId] = [];
-    }
-
-    if (!sanctioner.diplomacy.sanctions[targetId].includes(sanctionType)) {
-      sanctioner.diplomacy.sanctions[targetId].push(sanctionType);
-    }
+    this.recordSanction(countries, sanctionerId, targetId, sanctionType);
 
     // Ухудшаем отношения
     this.changeRelation(countries, sanctionerId, targetId, -25);

@@ -16,7 +16,12 @@ import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOut
 import { type PrimitiveRejectionRecord } from "@shared/types/politics/PrimitiveRejection";
 import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
-import { type AppliedPrimitive, type RejectedPrimitive, isStructural } from "../primitives/types";
+import {
+  type AppliedPrimitive,
+  type RejectedPrimitive,
+  isStructural,
+  PRIMITIVE_VERBS,
+} from "../primitives/types";
 import { countryNames } from "../primitives/entityNames";
 import { rejectionRecord } from "../primitives/rejections";
 import { findStateViolations } from "../primitives/invariants";
@@ -45,8 +50,6 @@ import { deriveEventFactuality } from "../llm/eventFactuality";
 import { LLMActionSchema, LLMResponseEnvelopeSchema } from "../llm/actionSchemas";
 import {
   MAX_ACTIONS_PER_RESPONSE,
-  MAX_RELATION_CHANGE,
-  MAX_INFLUENCE_CHANGE,
   MAX_RESEARCH_SHARE,
   MAX_PRODUCTION_SHARE,
 } from "@shared/defines/llmActionCaps";
@@ -604,11 +607,25 @@ export class LLMService {
     rejectedActions: readonly RejectedAction[]
   ): void {
     for (const rejection of rejectedActions) {
+      // Факт приписывается СУЩЕСТВУЮЩЕЙ стране (уточнено Милстоуном 1, сессия
+      // жизненного цикла). Источник отклонённого действия — то, что назвала
+      // модель, и он вполне может не существовать вовсе: именно за это
+      // действие и отклонили. Приписывать диагностику галлюцинации значило
+      // сразу две вещи, обе плохие: висячая ссылка в состоянии (её теперь
+      // ловит инвариант §7.1 и откатывает ВЕСЬ ответ) и потерянная
+      // диагностика — секции промта у несуществующей страны нет, то есть
+      // объяснение отказа не доезжает до модели, ради чего факт и пишется.
+      const source = rejection.sourceCountryId;
+      const attributedTo =
+        source !== undefined && target.countries.some(c => c.id === source)
+          ? source
+          : target.playerCountryId;
+
       pushRejectionFact(
         target,
         "action_rejected",
         {
-          countryId: rejection.sourceCountryId ?? target.playerCountryId,
+          countryId: attributedTo,
           text: `Action rejected (${rejection.type ?? "malformed action"}): ${rejection.reason}`,
         },
         "director"
@@ -715,6 +732,67 @@ export class LLMService {
         case "incite_unrest":
         case "repress":
           addRegion(primitive.regionId);
+          break;
+        case "split_country":
+          // Раскол касается и метрополии, и каждого осколка, и каждого
+          // отделившегося региона: «память страны» осколка обязана начинаться
+          // с собственного рождения.
+          countries.add(primitive.countryId);
+          for (const shard of primitive.shards) {
+            countries.add(shard.countryId);
+            for (const regionId of shard.regionIds) addRegion(regionId);
+          }
+          break;
+        case "diplomacy":
+        case "sanction":
+        // Помощь, осуждение и патронаж — тоже акты между двумя государствами:
+        // места у них нет, а не «не найдено».
+        case "send_aid":
+        case "condemn":
+        case "support_proxy":
+          countries.add(primitive.targetCountryId);
+          break;
+        case "capital_flight":
+          // Отток капитала происходит В РЕГИОНЕ, и `addRegion` сам добавит его
+          // фактического контролёра — ту страну, чья казна и пострадала.
+          addRegion(primitive.regionId);
+          break;
+        case "war":
+          // Война касается не пары, а ВСЕХ сторон: коалиции втянуты договорами,
+          // и их «память страны» обязана начинаться с того, что их втянули.
+          for (const id of [...primitive.attackers, ...primitive.defenders]) countries.add(id);
+          break;
+        case "peace":
+          countries.add(primitive.targetCountryId);
+          // Регионы, сменившие владельца по договору: событие фактически
+          // произошло и с ними, а их новые контролёры попадают через `addRegion`.
+          for (const regionId of primitive.annexedRegionIds) addRegion(regionId);
+          break;
+        case "puppet":
+          // Подчинение касается ровно двух государств и ни одного места: земля
+          // остаётся у субъекта, меняется его положение.
+          countries.add(primitive.targetCountryId);
+          break;
+        case "annex":
+          countries.add(primitive.targetCountryId);
+          // Аннексированные регионы — то же, что у мира с условиями: событие
+          // произошло и с ними, а новый владелец попадает через `addRegion`.
+          for (const regionId of primitive.annexedRegionIds) addRegion(regionId);
+          break;
+        case "create_country":
+          // Новое государство и его регионы: «память страны» новорождённого
+          // обязана начинаться с собственного рождения — то же требование, что
+          // у осколков раскола.
+          countries.add(primitive.createdCountryId);
+          for (const regionId of primitive.regionIds) addRegion(regionId);
+          break;
+        case "merge_countries":
+          // Поглощённой страны в состоянии уже нет, но событие касается её
+          // буквально: её идентификатор остаётся в квитанции как запись о
+          // прошлом — ровно тот случай, который `countryRefs.ts` выводит из
+          // реестра ссылок («история не переписывается»).
+          countries.add(primitive.absorbedCountryId);
+          for (const regionId of primitive.absorbedRegionIds) addRegion(regionId);
           break;
         default:
           // Явная проверка на недостижимость: ветки здесь заканчиваются
@@ -882,6 +960,19 @@ in ${LANGUAGE_NAMES[this.game.locale]}. This applies only to the prose you write
 country ids, region ids, and other identifiers elsewhere in this prompt are
 never translated, copy them verbatim.
 
+## Narrative Style
+Write the prose as a fragment of a historical chronicle of the period. Three
+things are forbidden, because each one breaks the fiction from inside:
+- quoting exact figures or sums taken from the data above — write "the largest
+  economy in the world", never "$118.69B". The engine owns numbers; the
+  chronicle owns meaning;
+- carrying technical identifiers into the prose — write the country's name
+  alone, never the name followed by its id in brackets. Ids belong in the
+  structured fields, where they are read by the engine;
+- mentioning the simulation, the campaign, the game, the turn, or "the data" —
+  inside this world none of them exist.
+Ground the narrative in the real events, people, and decisions of the period.
+
 ## Player Country
 ${this.getPlayerCountryInfo()}
 
@@ -972,7 +1063,7 @@ Narrative requirements (strict):
   this point forward — do not silently ignore, downplay, or normalize it
   back to plausible history. Historical grounding remains the default; an
   explicit player intent overrides it for everything that follows.
-- Avoid a direct "war" action between two nuclear-armed Major Powers unless
+- Avoid a direct "war" primitive between two nuclear-armed Major Powers unless
   strongly, explicitly grounded in real historical events — prefer narrating
   proxy support (a patron backing a client state's own conflict) over direct
   war between such powers.
@@ -1002,7 +1093,7 @@ Return your response in JSON format with the following structure:
   "descriptions": "Narrative description of world events",
   "actions": [
     {
-      "type": "diplomacy|war|peace|sanction|guarantee|influence|research_shift|production_shift|build_extraction",
+      "type": "guarantee|research_shift|production_shift|build_extraction",
       "sourceCountryId": "country_id",
       "targetCountryId": "country_id",
       "data": {}
@@ -1010,7 +1101,7 @@ Return your response in JSON format with the following structure:
   ],
   "primitives": [
     {
-      "verb": "incite_unrest|repress|grant_autonomy|enact_reform|spawn_incident",
+      "verb": "${PRIMITIVE_VERBS.join("|")}",
       "sourceCountryId": "country_id",
       "target": "shape depends on the verb — see the alphabet above",
       "params": "shape depends on the verb — see the alphabet above"
@@ -1018,10 +1109,15 @@ Return your response in JSON format with the following structure:
   ]
 }
 
+Diplomacy between states lives ENTIRELY in the primitives channel now: relations,
+sanctions, war, peace, aid, condemnation and support for a proxy are verbs of the
+alphabet, not "actions". They are not listed above because the engine no longer
+accepts them there — a diplomacy "action" is a rejected action, not a shortcut.
+That now includes influence: it is bought with aid (send_aid), and there is no
+flat-step "action" for it any more.
+
 Hard limits (actions violating them are rejected):
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
-- data.relationChange: number within ±${MAX_RELATION_CHANGE}.
-- data.influenceChange: number within ±${MAX_INFLUENCE_CHANGE}.
 - research_shift: data.domain must be a real domain of the source country
   (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
 - production_shift: data.equipmentType must be one of rifles/trucks/tanks/
@@ -1050,23 +1146,8 @@ Hard limits (actions violating them are rejected):
   applyLlmActions(actions: LLMAction[], game: GameState = this.game): void {
     for (const action of actions) {
       switch (action.type) {
-        case 'diplomacy':
-          this.applyDiplomacyAction(action, game);
-          break;
-        case 'war':
-          this.applyWarAction(action, game);
-          break;
-        case 'peace':
-          this.applyPeaceAction(action, game);
-          break;
-        case 'sanction':
-          this.applySanctionAction(action, game);
-          break;
         case 'guarantee':
           this.applyGuaranteeAction(action, game);
-          break;
-        case 'influence':
-          this.applyInfluenceAction(action, game);
           break;
         case 'research_shift':
           this.applyResearchShiftAction(action, game);
@@ -1081,57 +1162,13 @@ Hard limits (actions violating them are rejected):
     }
   }
 
-  /**
-   * Применяет дипломатическое действие.
-   */
-  private applyDiplomacyAction(
-    action: Extract<LLMAction, { type: "diplomacy" }>,
-    game: GameState
-  ): void {
-    diplomacyCommands.setRelation(
-      game,
-      action.sourceCountryId,
-      action.targetCountryId,
-      action.data.relationChange
-    );
-  }
-
-  /**
-   * Применяет действие войны.
-   */
-  private applyWarAction(
-    action: Extract<LLMAction, { type: "war" }>,
-    game: GameState
-  ): void {
-    warCommands.declareWar(game, action.sourceCountryId, action.targetCountryId, action.data?.warGoal);
-
-    // Ухудшаем отношения
-    diplomacyCommands.setRelation(game, action.sourceCountryId, action.targetCountryId, -100);
-  }
-
-  /**
-   * Применяет действие мира.
-   */
-  private applyPeaceAction(
-    action: Extract<LLMAction, { type: "peace" }>,
-    game: GameState
-  ): void {
-    warCommands.makePeaceBetween(game, action.sourceCountryId, action.targetCountryId);
-
-    // Улучшаем отношения
-    diplomacyCommands.setRelation(game, action.sourceCountryId, action.targetCountryId, 50);
-  }
-
-  /**
-   * Применяет действие санкций.
-   */
-  private applySanctionAction(
-    action: Extract<LLMAction, { type: "sanction" }>,
-    game: GameState
-  ): void {
-    const sanctionType = action.data?.sanctionType || 'economic_sanctions';
-    diplomacyCommands.applySanction(game, action.sourceCountryId, action.targetCountryId, sanctionType);
-  }
+  // `applyDiplomacyAction`/`applyWarAction`/`applyPeaceAction`/
+  // `applySanctionAction` УДАЛЕНЫ вместе со своими типами (Милстоун 1,
+  // дипломатический блок алфавита): те же четыре воздействия существуют теперь
+  // примитивами, где величину считает движок из состояния пары, а не присылает
+  // модель. Сопутствующие сдвиги отношений (−100 при объявлении войны, +50 при
+  // мире) перенесены в обработчики глаголов БЕЗ изменения значений, чтобы
+  // перевод не оказался ещё и тихой рекалибровкой.
 
   /**
    * Применяет действие гарантии.
@@ -1141,17 +1178,6 @@ Hard limits (actions violating them are rejected):
     game: GameState
   ): void {
     diplomacyCommands.setGuarantee(game, action.sourceCountryId, action.targetCountryId);
-  }
-
-  /**
-   * Применяет действие влияния.
-   */
-  private applyInfluenceAction(
-    action: Extract<LLMAction, { type: "influence" }>,
-    game: GameState
-  ): void {
-    const influenceChange = action.data?.influenceChange || 10;
-    diplomacyCommands.setInfluence(game, action.sourceCountryId, action.targetCountryId, influenceChange);
   }
 
   /**
@@ -1292,27 +1318,43 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
-   * Следующие LLM_SPOTLIGHT_COUNT стран пула начиная с llmSpotlightCursor
-   * (round-robin с оборачиванием). Не двигает курсор — генерация промта
-   * должна быть идемпотентной; курсор двигает только advanceSpotlightCursor
+   * Позиция курсора в ТЕКУЩЕМ пуле: индекс страны, следующей за последней
+   * показанной.
+   *
+   * Курсор хранится идентификатором, а не индексом (Милстоун 1, сессия
+   * жизненного цикла): пул пересобирается из состава стран каждый цикл, и
+   * индекс молча указывал бы на другую страну после любого раскола или
+   * объединения. Страна, которой в пуле больше нет (распалась либо выросла до
+   * major), даёт начало пула — это честное «продолжить с начала», а не
+   * попадание в случайную позицию.
+   */
+  private spotlightStart(pool: readonly Country[]): number {
+    const last = this.game.llmSpotlightCountryId;
+    if (last === undefined) return 0;
+    const index = pool.findIndex(c => c.id === last);
+    return index < 0 ? 0 : (index + 1) % pool.length;
+  }
+
+  /**
+   * Следующие LLM_SPOTLIGHT_COUNT стран пула, начиная за последней показанной
+   * (round-robin с оборачиванием). Не двигает курсор — генерация промта должна
+   * быть идемпотентной; курсор двигает только advanceSpotlightCursor
    * (вызывается из processResponse при успешном проходе цикла).
    */
   private getSpotlightCountries(): Country[] {
     const pool = this.getSpotlightPool();
     if (pool.length === 0) return [];
 
-    const cursor = (this.game.llmSpotlightCursor ?? 0) % pool.length;
+    const start = this.spotlightStart(pool);
     const count = Math.min(LLM_SPOTLIGHT_COUNT, pool.length);
-    return Array.from({ length: count }, (_, i) => pool[(cursor + i) % pool.length]!);
+    return Array.from({ length: count }, (_, i) => pool[(start + i) % pool.length]!);
   }
 
-  /** Продвигает курсор ротации на LLM_SPOTLIGHT_COUNT, с оборачиванием. */
+  /** Запоминает последнюю показанную страну цикла — с неё продолжится счёт. */
   private advanceSpotlightCursor(): void {
-    const pool = this.getSpotlightPool();
-    if (pool.length === 0) return;
-
-    const cursor = (this.game.llmSpotlightCursor ?? 0) % pool.length;
-    this.game.llmSpotlightCursor = (cursor + LLM_SPOTLIGHT_COUNT) % pool.length;
+    const shown = this.getSpotlightCountries();
+    const last = shown[shown.length - 1];
+    if (last) this.game.llmSpotlightCountryId = last.id;
   }
 
   /**

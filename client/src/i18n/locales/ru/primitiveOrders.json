@@ -35,7 +35,20 @@
     "grant_autonomy": "автономия",
     "enact_reform": "реформа",
     "spawn_incident": "инцидент",
-    "unknown": "приказ"
+    "unknown": "приказ",
+    "diplomacy": "дипломатия",
+    "sanction": "санкции",
+    "war": "объявление войны",
+    "peace": "заключение мира",
+    "split_country": "распад государства",
+    "send_aid": "помощь",
+    "capital_flight": "бегство капитала",
+    "condemn": "осуждение",
+    "support_proxy": "поддержка союзника",
+    "puppet": "Подчинение",
+    "annex": "Присоединение",
+    "merge_countries": "Присоединение",
+    "create_country": "Независимость"
   },
   "errors": {
     "translateFailed": "Не удалось распознать приказ. Проверьте, настроен ли доступ к модели.",

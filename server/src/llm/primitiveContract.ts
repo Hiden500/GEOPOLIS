@@ -6,7 +6,16 @@ import {
   MAX_SOFT_PRIMITIVES_PER_TURN,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
   MAX_PRIMITIVES_PER_TARGET_PER_TURN,
+  SPLIT_MIN_GROUP_SHARE,
+  SPLIT_MIN_DISCONTENT_LOOSE,
+  SPLIT_MIN_DISCONTENT_STRICT,
 } from "@shared/defines/discontent";
+import {
+  SEND_AID_MIN_TREASURY_SHARE,
+  VASSALAGE_MIN_HELD_SHARE,
+  VASSALAGE_MIN_INFLUENCE,
+} from "@shared/defines/diplomacy";
+import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
 
 /**
  * Контракт примитивов, как он предъявляется модели (docs/PRIMITIVES.md §1-§4).
@@ -58,6 +67,115 @@ required target field is missing.
   additionally needs ${SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT} (a region in
   crisis is not yet a region in revolt); "border_dispute" additionally needs a
   neighbouring region held by someone who is not an ally.
+- split_country — target {countryId}, required and MUST equal sourceCountryId:
+  a state falls apart from WITHIN. Breaking up someone else's country is
+  conquest or war, not this verb. params {intensity}. The engine decides
+  entirely on its own WHICH regions leave and HOW MANY states appear: a region
+  secedes when a group holding at least ${SPLIT_MIN_GROUP_SHARE} of it has
+  passed the secession threshold, and every seceding region joins the state of
+  its own group. You name the event; you do not draw the map. intensity moves
+  the THRESHOLD inside a hard corridor (${SPLIT_MIN_DISCONTENT_LOOSE} at
+  "severe", ${SPLIT_MIN_DISCONTENT_STRICT} at "mild"), so a calm country cannot
+  be broken apart by calling the split severe. That threshold sits ABOVE the one
+  an uprising needs: a region ready to revolt is not yet a region leaving the
+  country.
+
+Relations between states are primitives too — there is no "actions" shortcut for
+them any more. All four take target {countryId}, which must NOT equal
+sourceCountryId.
+
+- diplomacy — params {direction, intensity}, direction ("improve"/"worsen") is
+  REQUIRED: improving and breaking a relationship are different events, not
+  different sizes of one, and the engine will not guess which you meant. How FAR
+  the relation moves is decided by the pair's state — how much room is left on
+  the scale towards the direction you asked for, and how far the source's word
+  reaches this target at all (a shared border, existing influence, a formal tie
+  such as an alliance, a guarantee, a client state or a sphere relationship, or
+  fighting on the same side).
+  A war between the two damps a friendly gesture and does not damp a hostile
+  one. Where the scale has no room left, "severe" equals "mild".
+- sanction — params {sanctionType} — imposes a sanctions regime and damages
+  relations. Only "trade_embargo" actually cuts the target's exports today; the
+  other three kinds are reputational and the engine says so in the result. A
+  regime already in force is refused: imposing it twice changes nothing.
+- war — STRUCTURAL — params {warGoal}, a short free-text aim. Declaring war
+  drags in the allies, guarantors and client states of both sides automatically,
+  and collapses relations. Refused against a country you already fight, and against
+  a formal ally (breaking an alliance is not modelled yet).
+- peace — STRUCTURAL — no params at all. Requires an active war between the two.
+  The engine settles the terms itself from the war score: the winner keeps the
+  ground it occupies, the rest of the occupation is lifted, the loser pays with
+  legitimacy, and a decisive victory adds reparations. You name the peace; you
+  do not write the treaty.
+
+Four more soft verbs act on money, reputation and other people's wars. None of
+them takes a magnitude either; all take params {intensity} only.
+
+- send_aid — target {countryId} — the donor pays out of its own treasury and the
+  recipient's treasury grows by the same amount. How much is decided by the
+  donor's fiscal room and by how large the recipient's economy is next to its
+  own: nobody spends a fifth of the treasury on a micro-state. Requires the
+  donor to hold at least ${(SEND_AID_MIN_TREASURY_SHARE * 100).toFixed(0)}% of
+  its GDP in the treasury.
+  Aid also buys INFLUENCE over the recipient, in proportion to how visible the
+  money is against the recipient's economy. Influence is the only path to it —
+  there is no "influence" action any more. Note what aid does NOT do: it does
+  not move relations directly. Warmth follows later, through the sphere of
+  influence and the drift of relations, because that is how patronage works.
+- capital_flight — target {regionId} — money leaves a region: its output drops
+  and the treasury of whoever controls it takes a hit weighted by how much of
+  that economy the region is. Requires the region's stability to be BELOW
+  ${CAPITAL_FLIGHT_MAX_STABILITY}: capital flees broken confidence, it does not
+  flee on command. How much leaves is decided by how developed the region is
+  (there must be capital to flee) and how far its stability has fallen.
+- condemn — target {countryId} — a purely reputational strike: it lowers the
+  target's LEGITIMACY and touches nothing material, not relations and not trade.
+  Requires a PODIUM: the source must hold influence over at least one state or
+  have a formal tie to one, otherwise there is nobody for whom its word carries
+  weight. How hard it lands is decided by how much legitimacy the target still
+  has to lose and how large the source's audience is.
+- support_proxy — target {countryId} — the patron pays out of its treasury and
+  the client's army grows, without the patron joining the war. Requires all
+  three: the client is in an active war, the source is NOT a belligerent in that
+  same war, and the source is actually its patron (influence over it or a formal
+  tie). How much is decided by the strength of that patronage and by how much of
+  the client's land is currently occupied.
+
+Two structural verbs change who commands a state and who owns its land. Neither
+takes params at all: a state is either subjected or it is not, land either
+changes hands or it does not.
+
+- puppet — STRUCTURAL — target {countryId} — the target keeps its territory and
+  its statehood but loses command of its own foreign policy. This writes BOTH
+  halves of dependence at once: the runtime tie (the client is dragged into the
+  patron's wars and gravitates towards it) and the legal status (a sovereign
+  target becomes a protectorate; one already subordinate keeps whatever status
+  it has and simply gains another overlord). Requires LEVERAGE, and there are
+  exactly two kinds: the source actually controls at least
+  ${(VASSALAGE_MIN_HELD_SHARE * 100).toFixed(0)}% of the target's land, or it
+  holds at least ${VASSALAGE_MIN_INFLUENCE} influence over it. A state cannot
+  subject its own patron, directly or through a chain.
+- annex — STRUCTURAL — target {countryId} — every region the target OWNS and the
+  source actually CONTROLS passes into the source's ownership; the occupation on
+  it is lifted because it has become its own land. Requires holding at least one
+  such region: annexation converts ground you already hold, it does not reach
+  across a map. A state that loses its last region is NOT deleted and does not
+  become part of the winner — it continues as a government without territory,
+  and whether the campaign is over is decided by the engine, never by your text.
+- merge_countries — STRUCTURAL — target {countryId} — the target ceases to exist
+  and everything it had passes to the source: its regions, its treasury, its
+  manpower, and every reference the world held to it. Requires the target to be
+  a CLIENT of the source already (puppet it first): a state is absorbed into the
+  one whose foreign policy it already conducts, not into whoever asks. The state
+  the human plays can never be absorbed — the player loses their country by
+  losing all of its land, never by merger.
+- create_country — STRUCTURAL — target {regionId} — the state that OWNS that
+  region lets it go, and a new country is born on it. Which land leaves is
+  decided by demography, not by you: every region of the owner where the same
+  group holds the majority goes with it, and the new state is named after that
+  group. Requires the source to own the region, the region to have a majority
+  group at all, and the source to keep at least one region — a state letting go
+  of everything is dissolving itself, and that is split_country.
 
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —
@@ -65,14 +183,29 @@ Rules the engine enforces, not requests:
   inside a corridor whose width the world state decides. Where the state gives
   no room, "severe" equals "mild". Any numeric field inside params is a schema
   error that rejects the primitive.
-- A structural primitive (enact_reform) rejected by the ENGINE — on the schema,
-  on the preconditions, or on the turn budget — rejects the WHOLE response,
-  including the soft primitives you sent with it. Send a structural one only
-  when the rest of the response is meant to happen together with it.
+- A structural primitive (enact_reform, split_country, war, peace) rejected by
+  the ENGINE — on the schema, on the preconditions, or on the turn budget —
+  rejects the WHOLE response, including the soft primitives you sent with it.
+  Send a structural one only when the rest of the response is meant to happen
+  together with it. All four share the SAME single structural slot of the turn:
+  a month that declares a war cannot also enact a reform.
+- The soft diplomatic verbs (diplomacy, sanction) share ONE slot per ordered
+  pair of countries per turn. Sanctioning a country you have already addressed
+  diplomatically this month is refused — not because the verb is wrong, but
+  because that month is over for that pair. Changing the verb does not widen
+  what one month may do to one relationship.
+- condemn and capital_flight are counted PER TARGET, not per source. They cost
+  the source nothing, so a second condemnation of the same country in the same
+  month is refused even when it comes from a different state — otherwise ten
+  states could stack ten strikes on one reputation for free. One month, one
+  blow to a given reputation; one month, one flight of capital from a given
+  region.
 - Order is execution order: each primitive sees the effect of the previous one,
   so incite_unrest followed by spawn_incident is a legitimate chain.
-- At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one (enact_reform) per game
-  turn, and at most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} use of the same verb against the same target per turn.
+- At most ${MAX_SOFT_PRIMITIVES_PER_TURN} soft primitives and ${MAX_STRUCTURAL_PRIMITIVES_PER_TURN} structural one per game
+  turn (enact_reform, split_country, war and peace all draw on that single
+  structural slot), and at
+  most ${MAX_PRIMITIVES_PER_TARGET_PER_TURN} use of the same verb against the same target per turn.
   These are budgets of the TURN, not of your response: the player's own orders
   this month draw on the same budget, so a target they have already acted on is
   spent for you too. A refusal that says the budget is spent is not a mistake to

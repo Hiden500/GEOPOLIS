@@ -1,0 +1,1126 @@
+{
+  "countries": [
+    {
+      "countryId": "AFG",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "AGO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ]
+    },
+    {
+      "countryId": "ALA",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FIN"
+      ]
+    },
+    {
+      "countryId": "ALB",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "AND",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "ARE",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "ARG",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "AUS",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "BEL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "BGR",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "BHR",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "BOL",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "BRA",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "BRN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "BTN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "CAN",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "CHE",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "CHL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "CHN",
+      "powerStructure": "fragmented",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "CMR",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "COD",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "BEL"
+      ]
+    },
+    {
+      "countryId": "COK",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "NZL"
+      ]
+    },
+    {
+      "countryId": "COL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "CRI",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "CSK",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "CUB",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "DNK",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "DOM",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "ECU",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "EGY",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "ESP",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "ETH",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "FIN",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "FRA",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "GBR",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "GHA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "GLP",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "GRC",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "GRL",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "DNK"
+      ]
+    },
+    {
+      "countryId": "GTM",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "HKG",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "HND",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "HTI",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "HUN",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "IDN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "NLD"
+      ]
+    },
+    {
+      "countryId": "IND",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "IRL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "IRN",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "IRQ",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "ISL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "ITA",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "JOR",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "JPN",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupied_territory",
+      "overlordIds": [
+        "USA"
+      ]
+    },
+    {
+      "countryId": "KEN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "KHM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "KWT",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "LAO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "LBN",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "LBR",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "LIE",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "LKA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "LUX",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "MAC",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ]
+    },
+    {
+      "countryId": "MAR",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "MCO",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "MDG",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "MEX",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "MMR",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "MNG",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "MOZ",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ]
+    },
+    {
+      "countryId": "MTQ",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "MWI",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "MYS",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "NAM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "ZAF"
+      ]
+    },
+    {
+      "countryId": "NFD",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "NFK",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "AUS"
+      ]
+    },
+    {
+      "countryId": "NGA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "NIC",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "NLD",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "NOR",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "NPL",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "NRU",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "AUS"
+      ]
+    },
+    {
+      "countryId": "NZL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "OMN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "PAN",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "PER",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "PHL",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "USA"
+      ]
+    },
+    {
+      "countryId": "PNG",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "AUS"
+      ]
+    },
+    {
+      "countryId": "POL",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "PRT",
+      "powerStructure": "personalist",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "PRY",
+      "powerStructure": "military",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "PSE",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "mandate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QAD",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QAT",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QAZ",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "SUN"
+      ]
+    },
+    {
+      "countryId": "QDV",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "QFE",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "QFI",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "QFW",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "QGA",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "USA"
+      ]
+    },
+    {
+      "countryId": "QGB",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QGF",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "QGS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "SUN"
+      ]
+    },
+    {
+      "countryId": "QJK",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QKA",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "USA"
+      ]
+    },
+    {
+      "countryId": "QKS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "SUN"
+      ]
+    },
+    {
+      "countryId": "QLB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QMH",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "SUN"
+      ]
+    },
+    {
+      "countryId": "QMS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupied_territory",
+      "overlordIds": [
+        "SUN"
+      ]
+    },
+    {
+      "countryId": "QNB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QND",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "NLD"
+      ]
+    },
+    {
+      "countryId": "QOA",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "USA"
+      ]
+    },
+    {
+      "countryId": "QOB",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QOF",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "QOS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupation_zone",
+      "overlordIds": [
+        "SUN"
+      ]
+    },
+    {
+      "countryId": "QPI",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "PRT"
+      ]
+    },
+    {
+      "countryId": "QPS",
+      "powerStructure": "occupation_administration",
+      "sovereigntyStatus": "occupied_territory",
+      "overlordIds": [
+        "USA"
+      ]
+    },
+    {
+      "countryId": "QRI",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "NLD"
+      ]
+    },
+    {
+      "countryId": "QRU",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "BEL"
+      ]
+    },
+    {
+      "countryId": "QSI",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QSO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QSR",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QTB",
+      "powerStructure": "clerical",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "QWL",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QWW",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "QZN",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "ROU",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "SAU",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "SDN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "condominium",
+      "overlordIds": [
+        "EGY",
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "SGP",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "SLB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "SLE",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "SLV",
+      "powerStructure": "military",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "SMR",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "SUN",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "SWE",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "SYR",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "TGO",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "THA",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "TON",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "TUN",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "TUR",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "TWN",
+      "powerStructure": "dominant_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "TZA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "UGA",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "URY",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "USA",
+      "powerStructure": "competitive_multiparty",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "VAT",
+      "powerStructure": "clerical",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "VEN",
+      "powerStructure": "provisional_coalition",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "VNM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "disputed_administration",
+      "overlordIds": [
+        "FRA"
+      ]
+    },
+    {
+      "countryId": "VUT",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "condominium",
+      "overlordIds": [
+        "FRA",
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "WSM",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "trust_territory",
+      "overlordIds": [
+        "NZL"
+      ]
+    },
+    {
+      "countryId": "YEM",
+      "powerStructure": "dynastic_court",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "YUG",
+      "powerStructure": "one_party",
+      "sovereigntyStatus": "sovereign",
+      "overlordIds": []
+    },
+    {
+      "countryId": "ZAF",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "dominion",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "ZMB",
+      "powerStructure": "colonial_administration",
+      "sovereigntyStatus": "protectorate",
+      "overlordIds": [
+        "GBR"
+      ]
+    },
+    {
+      "countryId": "ZWE",
+      "powerStructure": "limited_multiparty",
+      "sovereigntyStatus": "colony",
+      "overlordIds": [
+        "GBR"
+      ]
+    }
+  ]
+}

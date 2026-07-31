@@ -14,10 +14,6 @@ export function aggregateCountryFromRegions(
     r => r.ownerCountryId === country.id
   );
 
-  if (countryRegions.length === 0) {
-    return;
-  }
-
   // Population: сумма населения всех регионов
   const totalPopulation = countryRegions.reduce(
     (sum, region) => sum + region.population,
@@ -31,6 +27,22 @@ export function aggregateCountryFromRegions(
     0
   );
   country.economy.gdp = totalGdp;
+
+  // Страна БЕЗ регионов (или без населения) обнуляется, а не выходит с
+  // прежними числами (исправлено Милстоуном 1, сессия жизненного цикла).
+  //
+  // Раньше здесь стоял ранний `return` при пустом списке регионов: население и
+  // ВВП оставались на последнем посчитанном значении. Пока страны не
+  // появлялись и не исчезали, до этой ветки было не доехать. Жизненный цикл
+  // (`CONCEPT.md` §7.1) открывает её штатным путём — и молча, а не падением:
+  // осколок, созданный до передачи ему регионов, унаследовал бы численность
+  // метрополии и с ней ушёл бы в индекс силы, в промт и в проверку сумм.
+  // Разделение «суммы считаем всегда, средние — только когда есть на что
+  // делить» и есть починка: обнуление должно быть ЯВНЫМ результатом, а
+  // деление на ноль не должно давать NaN.
+  if (countryRegions.length === 0 || totalPopulation <= 0) {
+    return;
+  }
 
   // Infrastructure: среднее значение по регионам
   const avgInfrastructure = countryRegions.reduce(

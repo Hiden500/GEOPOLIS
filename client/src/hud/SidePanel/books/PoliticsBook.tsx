@@ -1,21 +1,35 @@
 import { useTranslation } from "react-i18next";
 import { type Country } from "@shared/types/Country";
+import { type IdeologyAnchor } from "@shared/types/politics/IdeologyAnchor";
+import { useIdeologyLabel } from "../../../i18n/ideologyLabel";
+import { useGovernmentLabel } from "../../../i18n/governmentLabel";
 import { Meter } from "../../../primitives";
 import styles from "./bookLayout.module.css";
 
 export interface PoliticsBookProps {
   country: Country;
+  /** Каталог именованных зон партии: ярлык вычисляется, а не хранится. */
+  ideologyAnchors: readonly IdeologyAnchor[];
+  /**
+   * Ростер партии — нужен, чтобы назвать метрополию по `politics.overlordIds`
+   * её собственным именем, а не кодом страны. Книга показывает страну игрока,
+   * и она может быть зависимой (сценарий 1946 даёт 89 таких субъектов).
+   */
+  countries: readonly Country[];
 }
 
 /**
  * Политика (docs/plans/12_UI_REDESIGN.md, Срез 3в) — реальные
  * Country.politics.*, включая поля, которых нет больше нигде в HUD
- * (corruption, governmentSupport, ideology, governmentType).
+ * (corruption, governmentSupport, ideology, форма власти и статус).
  */
-export function PoliticsBook({ country }: PoliticsBookProps) {
+export function PoliticsBook({ country, ideologyAnchors, countries }: PoliticsBookProps) {
   const { t } = useTranslation("hud");
+  const ideologyLabel = useIdeologyLabel();
+  const governmentLabel = useGovernmentLabel();
   const { politics } = country;
-  const govLabel = [politics.ideology, politics.governmentType].filter(Boolean).join(" · ");
+  const ideology = ideologyLabel(politics, ideologyAnchors);
+  const govLabel = [ideology, governmentLabel(politics, countries)].filter(Boolean).join(" · ");
 
   return (
     <>
@@ -41,7 +55,7 @@ export function PoliticsBook({ country }: PoliticsBookProps) {
         <div className={styles.kpi}>
           <span className={styles.kpiLabel}>{t("books.politics.ideology")}</span>
           <span className={styles.kpiValue} style={{ fontSize: 13 }}>
-            {politics.ideology || "—"}
+            {ideology || "—"}
           </span>
         </div>
       </div>

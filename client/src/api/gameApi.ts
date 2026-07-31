@@ -189,3 +189,20 @@ export async function applyPrimitives(
   });
   return handleResponse(response);
 }
+
+/**
+ * Выбор осколка после распада страны игрока (docs/CONCEPT.md §7.1).
+ *
+ * Отдельная ручка, а не приказ-примитив: это ОТВЕТ игрока на вопрос движка, и
+ * проходить через границу хода ему незачем — мир при выборе не меняется.
+ */
+export async function chooseSuccessor(countryId: string): Promise<{
+  playerCountryId: string;
+}> {
+  const response = await fetch(`${API}/primitives/succession`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ countryId }),
+  });
+  return handleResponse(response);
+}

@@ -107,7 +107,6 @@ describe('RegionEconomyService', () => {
       },
       politics: {
         ideology: 'democracy',
-        governmentType: 'republic',
         stability: 0.7,
         legitimacy: 0.6,
         corruption: 0.3,

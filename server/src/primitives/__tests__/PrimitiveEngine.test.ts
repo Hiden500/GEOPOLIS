@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { applyPrimitiveBatch, restore } from "../PrimitiveEngine";
 import * as politicsCommands from "../../commands/politics";
-import { PRIMITIVE_PALETTE } from "../palette";
+import { PRIMITIVE_PALETTE, pathMatchesPaletteEntry } from "../palette";
+import { WarService } from "../../services/WarService";
 import { collectChangedPaths } from "../statePaths";
 import {
   PRIMITIVE_VERBS,
@@ -39,6 +40,12 @@ import {
   TEST_REGION_NATIONAL,
   TEST_REGION_NEIGHBOUR,
   TEST_REGION_CONTROL,
+  seedSeparatistDiscontent,
+  destabilizeRegion,
+  giveAudience,
+  giveVassalageLeverage,
+  holdTerritoryOf,
+  addProxyClientWar,
 } from "../../test-utils/discontentFixtures";
 import { createTestRegion } from "../../test-utils/fixtures";
 import { createGame } from "../../game/CreateGame";
@@ -115,7 +122,20 @@ const inciteTitular: Primitive = {
  * покрывающий весь алфавит, обязан быть один, иначе новый глагол попадёт в одну
  * проверку и проскочит мимо второй.
  */
-const SCENARIOS: { verb: PrimitiveVerb; primitive: Primitive }[] = [
+/**
+ * Сценарий палитры: глагол, примитив и — при необходимости — подготовка мира.
+ *
+ * `setup` добавлен Милстоуном 1 (сессия жизненного цикла). Структурный
+ * `split_country` по построению недостижим на спокойном мире: порог отделения
+ * выше порога восстания, и дойти до него можно только накопленным следом
+ * воздействий. Это не неудобство теста, а сама механика §6 — распад стоит в
+ * КОНЦЕ драматургической дуги, а не доступен с первого хода.
+ */
+const SCENARIOS: {
+  verb: PrimitiveVerb;
+  primitive: Primitive;
+  setup?: (state: GameState) => void;
+}[] = [
   { verb: "incite_unrest", primitive: inciteTitular },
   {
     verb: "repress",
@@ -140,6 +160,113 @@ const SCENARIOS: { verb: PrimitiveVerb; primitive: Primitive }[] = [
     primitive: {
       verb: "spawn_incident", sourceCountryId: "SUN", target: { regionId: TEST_REGION_NATIONAL },
     },
+  },
+  {
+    verb: "split_country",
+    primitive: {
+      verb: "split_country", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { intensity: "severe" },
+    },
+    setup: seedSeparatistDiscontent,
+  },
+  // Дипломатический блок (Милстоун 1). Цель — USA: `createDiscontentTestGame`
+  // держит её второй страной мира, и все четыре глагола двусторонние.
+  {
+    verb: "diplomacy",
+    primitive: {
+      verb: "diplomacy", sourceCountryId: "SUN",
+      target: { countryId: "USA" }, params: { direction: "improve" },
+    },
+  },
+  {
+    verb: "sanction",
+    primitive: {
+      verb: "sanction", sourceCountryId: "SUN",
+      target: { countryId: "USA" }, params: { sanctionType: "trade_embargo" },
+    },
+  },
+  {
+    verb: "war",
+    primitive: { verb: "war", sourceCountryId: "SUN", target: { countryId: "USA" } },
+  },
+  {
+    verb: "peace",
+    primitive: { verb: "peace", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Мир требует идущей войны: без неё предпосылка не выполнена, и сценарий
+    // проверял бы отказ вместо палитры.
+    setup: state => { new WarService(state).declareWar("SUN", "USA"); },
+  },
+  // Мягкие воздействия (Милстоун 1).
+  {
+    verb: "send_aid",
+    primitive: { verb: "send_aid", sourceCountryId: "SUN", target: { countryId: "USA" } },
+  },
+  {
+    verb: "capital_flight",
+    primitive: {
+      verb: "capital_flight", sourceCountryId: "USA", target: { regionId: TEST_REGION_NATIONAL },
+    },
+    // Предпосылка глагола — сломанное доверие: регион спокойнее порога капитал
+    // не покидает, и сценарий проверял бы отказ вместо палитры.
+    setup: state => { destabilizeRegion(state, TEST_REGION_NATIONAL); },
+  },
+  {
+    verb: "condemn",
+    primitive: { verb: "condemn", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Предпосылка — трибуна: без единой связи осуждающего никто не слышит.
+    setup: state => { giveAudience(state, "SUN", "USA"); },
+  },
+  {
+    verb: "support_proxy",
+    primitive: { verb: "support_proxy", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Три предпосылки сразу: у клиента идёт война, патрон в ней не участвует,
+    // между ними есть патронаж. Третья страна нужна именно для второй — иначе
+    // единственным противником USA оказался бы сам патрон.
+    setup: state => {
+      addProxyClientWar(state, "USA");
+      giveAudience(state, "SUN", "USA");
+    },
+  },
+  // Структурные глаголы подчинения и поглощения (Милстоун 1).
+  {
+    verb: "puppet",
+    primitive: { verb: "puppet", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Рычаг влияния, а не оккупации: он единственный доступен без войны, и
+    // именно он живой на данных 1946 (оккупированных регионов там ноль).
+    setup: state => { giveVassalageLeverage(state, "SUN", "USA"); },
+  },
+  {
+    verb: "annex",
+    primitive: { verb: "annex", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Аннексировать можно только то, что держишь: без региона под чужим
+    // владением и своим контролем сценарий проверял бы отказ вместо палитры.
+    setup: state => { holdTerritoryOf(state, "SUN", "USA", TEST_REGION_NEIGHBOUR); },
+  },
+  {
+    verb: "merge_countries",
+    primitive: { verb: "merge_countries", sourceCountryId: "SUN", target: { countryId: "USA" } },
+    // Поглощается тот, чью внешнюю политику источник уже ведёт, и у цели
+    // должна быть земля — иначе объединение не тронуло бы ни одного региона и
+    // палитра осталась бы непроверенной на своей главной записи.
+    setup: state => {
+      const region = state.regions.find(r => r.id === TEST_REGION_NEIGHBOUR)!;
+      region.ownerCountryId = "USA";
+      const usa = state.countries.find(c => c.id === "USA")!;
+      usa.capitalRegionId = region.id;
+      usa.politics.sovereigntyStatus = "protectorate";
+      usa.politics.overlordIds = ["SUN"];
+      state.countries.find(c => c.id === "SUN")!.diplomacy.puppets = ["USA"];
+    },
+  },
+  {
+    verb: "create_country",
+    primitive: {
+      verb: "create_country", sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL },
+    },
+    // Предпосылок у него три, и все выполняет сама фикстура: SUN владеет
+    // регионом, у региона есть группа-большинство, и после отделения
+    // национальных регионов у метрополии остаётся контрольный.
   },
 ];
 
@@ -556,21 +683,28 @@ describe("spawn_incident", () => {
 
     /**
      * Порог восстания обязан быть ДОСТИЖИМ в реальном сценарии, иначе вид
-     * `uprising` просто мёртв, — но недоступен с первого месяца, иначе он
-     * выдаётся «за так».
+     * `uprising` просто мёртв, — и не должен быть доступен ПОВСЕМЕСТНО, иначе
+     * он выдаётся «за так».
      *
-     * Проверяемое свойство — про МАКСИМУМ по всем размеченным регионам, а не про
-     * один регион (внешнее ревью 2026-07-26). До правки тест смотрел только на
-     * 187 (0.6320), а следом за ним идут 68 и 69 на 0.6243: точечная правка их
-     * разметки открыла бы `uprising` на первом ходу молча, не уронив ни одной
-     * проверки. Теперь порог сравнивается с пиком, и «самый напряжённый регион»
-     * не зашит числом — он вычисляется, и цепочка строится по нему же.
+     * ФОРМУЛИРОВКА ИЗМЕНЕНА 2026-07-27, решение пользователя. Прежняя редакция
+     * требовала «недоступно НИ В ОДНОМ регионе» и держалась на том, что мир был
+     * размечен на 1%: четырнадцать регионов с пиком 0.6320 при пороге 0.65.
+     * Расширение разметки до 504 регионов вывело Южный Сахалин (55% японского
+     * населения под советской властью) на 0.6716 — и это не дефект данных, а
+     * историчная горячая точка. Требование «нигде» было отпечатком бедного
+     * датасета, а не свойством механики: в реальном 1946 во Вьетнаме и
+     * Индонезии уже шли бои.
      *
-     * Тест на реальных данных, а не на фикстуре, именно ради этого: он падает и
-     * если калибровка загонит порог выше достижимого, и если разметка датасета
-     * уедет так, что подводить станет не к чему.
+     * Что охраняется теперь: горячих точек — ЕДИНИЦЫ, доля от размеченного
+     * мира, а не абсолютное число (иначе следующее расширение датасета снова
+     * сделает тест ложным). Список печатается в сообщении об ошибке, поэтому
+     * молча открыть десять точек нельзя — падение назовёт каждую.
+     *
+     * Порог 0.65 при этом НЕ двигался: он остаётся плейсхолдером под калибровку
+     * (`shared/src/defines/discontent.ts`), и подгонять его под данные значило бы
+     * повторять ту же ошибку с другой стороны.
      */
-    it("на данных 1946 восстание недоступно сразу ни в одном регионе, но достижимо цепочкой", () => {
+    it("на данных 1946 восстание доступно лишь в единичных горячих точках, а обычный регион подводится цепочкой", () => {
       /** Все регионы, у которых недовольство вообще определено (есть демо-разметка). */
       const scored = (state: GameState) =>
         state.regions
@@ -579,12 +713,25 @@ describe("spawn_incident", () => {
 
       const alone = createGame("1946", "SUN", "ru", 1);
       const annotated = scored(alone);
-      // Пустой список молча выполнил бы любое утверждение о максимуме.
+      // Пустой список молча выполнил бы любое утверждение о доле.
       expect(annotated.length).toBeGreaterThan(0);
 
-      const peak = annotated.reduce((a, b) => (b.discontent > a.discontent ? b : a));
-      expect(Math.max(...annotated.map(r => r.discontent)))
-        .toBeLessThan(SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
+      const hot = annotated
+        .filter(r => r.discontent >= SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT)
+        .sort((a, b) => b.discontent - a.discontent);
+      /** Доля, а не число: кап обязан пережить расширение разметки. */
+      const hotCap = Math.max(1, Math.ceil(annotated.length * 0.02));
+      expect(
+        hot.length,
+        `горячих точек ${hot.length} при капе ${hotCap} из ${annotated.length} размеченных: ` +
+          hot.map(r => `${r.id} (${r.discontent.toFixed(4)})`).join(", ")
+      ).toBeLessThanOrEqual(hotCap);
+
+      // Обычный регион — самый напряжённый из ХОЛОДНЫХ: именно на нём проверяется,
+      // что без подготовки восстание не выдаётся, а цепочка §4 к нему подводит.
+      const cold = annotated.filter(r => r.discontent < SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
+      expect(cold.length).toBeGreaterThan(0);
+      const peak = cold.reduce((a, b) => (b.discontent > a.discontent ? b : a));
 
       const straight = applyPrimitiveBatch(alone, [{
         verb: "spawn_incident", sourceCountryId: "USA",
@@ -612,6 +759,23 @@ describe("spawn_incident", () => {
       expect(result.applied.map(a => a.verb)).toEqual(["incite_unrest", "spawn_incident"]);
       expect(regionDiscontent(chained, peakRegion)!)
         .toBeGreaterThanOrEqual(SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT);
+    });
+
+    /**
+     * Вторая половина того же свойства: горячая точка — исключение, а не
+     * правило. Без этой проверки кап из теста выше выполнялся бы и в мире, где
+     * восстание недоступно вообще нигде, то есть охранял бы только одну
+     * границу из двух.
+     */
+    it("горячая точка остаётся исключением: подавляющее большинство регионов к восстанию не готово", () => {
+      const game = createGame("1946", "SUN", "ru", 1);
+      const scored = game.regions
+        .map(r => regionDiscontent(game, r))
+        .filter((d): d is number => d !== undefined);
+      expect(scored.length).toBeGreaterThan(0);
+
+      const ready = scored.filter(d => d >= SPAWN_INCIDENT_UPRISING_MIN_DISCONTENT).length;
+      expect(ready / scored.length).toBeLessThan(0.05);
     });
 
     it("вид не заявлен — протест: самый слабый вид, а не самый удобный", () => {
@@ -1103,8 +1267,9 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
     expect(SCENARIOS.map(s => s.verb).sort()).toEqual([...PRIMITIVE_VERBS].sort());
   });
 
-  it.each(SCENARIOS)("$verb меняет только задекларированные пути состояния", ({ verb, primitive }) => {
+  it.each(SCENARIOS)("$verb меняет только задекларированные пути состояния", ({ verb, primitive, setup }) => {
     const state = game();
+    setup?.(state);
     const before = structuredClone(state);
 
     const result = applyPrimitiveBatch(state, [primitive]);
@@ -1117,7 +1282,15 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
 
     const changed = collectChangedPaths(before, state);
     expect(changed.length).toBeGreaterThan(0);
-    expect(changed.filter(p => !PRIMITIVE_PALETTE[verb].includes(p))).toEqual([]);
+    // Сверяется ТЕМ ЖЕ матчером, каким палитру проверяет движок, а не
+    // строковым равенством (исправлено Милстоуном 1). Прежнее `includes`
+    // работало лишь потому, что ни один из шести глаголов не писал в словари:
+    // запись-шаблон `relations.{*}` дословному сравнению не равна никогда, и
+    // первый же дипломатический глагол валил бы тест на разнице между
+    // проверкой и её имитацией.
+    expect(
+      changed.filter(p => !PRIMITIVE_PALETTE[verb].some(entry => pathMatchesPaletteEntry(entry, p)))
+    ).toEqual([]);
   });
 
   it("рантайм-проверка кусается: эффект вне палитры откатывает примитив целиком", () => {
@@ -1125,10 +1298,9 @@ describe("палитра эффектов (docs/PRIMITIVES.md §3, защита 
     const original = PRIMITIVE_PALETTE.repress;
     // Сужаем палитру так, что законный эффект перестаёт быть законным —
     // движок обязан откатить примитив, а не применить его «почти».
-    (PRIMITIVE_PALETTE as Record<PrimitiveVerb, readonly string[]>).repress = [
-      "groupImpactMemory[*].regionId",
-      "groupImpactMemory[*].groupId",
-    ];
+    // Пустая палитра: законный эффект перестаёт быть законным целиком, включая
+    // само появление записи памяти.
+    (PRIMITIVE_PALETTE as Record<PrimitiveVerb, readonly string[]>).repress = [];
 
     try {
       const result = applyPrimitiveBatch(state, [{
@@ -1327,11 +1499,20 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
    * инвариант, который движок проверяет в рантайме, — но проверенный снаружи,
    * на каждом verb, а не только на том, где о нём вспомнили.
    */
-  it.each(PRIMITIVE_VERBS.filter(v => v !== "enact_reform"))(
+  // Список глаголов ВЫВОДИТСЯ из палитры, а не перечисляется руками: глагол,
+  // который пишет в память воздействий, попадает под проверку сам, а тот, что
+  // не пишет (реформа, раскол), не заставляет её ждать изменений, которых по
+  // контракту не будет.
+  it.each(
+    PRIMITIVE_VERBS.filter(v =>
+      PRIMITIVE_PALETTE[v].some(path => path.startsWith("groupImpactMemory"))
+    )
+  )(
     "%s: отчёт покрывает каждое фактическое изменение памяти",
     (verb) => {
       const scenario = SCENARIOS.find(s => s.verb === verb)!;
       const state = game();
+      scenario.setup?.(state);
       const before = structuredClone(state.groupImpactMemory);
 
       const result = applyPrimitiveBatch(state, [scenario.primitive]);
@@ -1450,8 +1631,9 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
    * Проверяется буквально: каждое опубликованное `after` совпадает с тем, что
    * реально лежит в мире после commit'а.
    */
-  it.each(SCENARIOS)("$verb: опубликованное «стало» совпадает с состоянием мира", ({ primitive }) => {
+  it.each(SCENARIOS)("$verb: опубликованное «стало» совпадает с состоянием мира", ({ primitive, setup }) => {
     const state = game();
+    setup?.(state);
     const result = applyPrimitiveBatch(state, [primitive]);
     expect(result.applied).toHaveLength(1);
     const applied = result.applied[0]!;
@@ -1483,8 +1665,11 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
    * Проверяется структурно и на всех глаголах сразу: каждый факт из результата
    * даёт ровно одно «for <цель>» в тексте. Пропажа любой цели роняет счёт.
    */
-  it.each(SCENARIOS)("$verb: резюме называет каждую пару (цель, поле) из результата", ({ primitive }) => {
+  it.each(SCENARIOS)("$verb: резюме называет каждую пару (цель, поле) из результата", ({ primitive, setup }) => {
     const state = game();
+    // Подготовка сценария идёт ПЕРВОЙ: у `peace` она заводит войну, без которой
+    // предпосылка не выполнена и тест мерил бы отказ вместо резюме.
+    setup?.(state);
     // Насыщаются ровно те два канала, которые недовольство ПОДНИМАЮТ: тогда у
     // каждого глагола появляется хотя бы одна нулевая пара (у `repress` —
     // отчуждение, у `grant_autonomy` — отклик соседа), и при этом ни одна
@@ -1493,6 +1678,13 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     // `spawn_incident` перестал бы проходить порог.
     for (const region of state.regions) {
       for (const share of region.demographics ?? []) {
+        // Пару, которую уже завела подготовка сценария, не дублируем: две
+        // записи на одну (регион, группу) — не состояние мира, и первая из них
+        // молча победила бы во всех чтениях.
+        const seeded = state.groupImpactMemory.some(
+          m => m.regionId === region.id && m.groupId === share.groupId
+        );
+        if (seeded) continue;
         state.groupImpactMemory.push({
           regionId: region.id, groupId: share.groupId,
           suppression: 0, alienation: 1, concession: 0, emboldenment: 1,
@@ -1788,5 +1980,42 @@ describe("commit не отрывает ссылки от состояния", ()
     restore(target, source);
 
     expect("lastTurnReport" in target).toBe(false);
+  });
+
+  it("перенос сохраняет идентичность элемента, ПЕРЕЕХАВШЕГО в другую позицию", () => {
+    // Милстоун 1, сессия жизненного цикла. Раньше идентичность держалась
+    // позиционно, и глагол, вставивший страну в середину ростера, молча
+    // переселял бы взятую ранее ссылку на СОСЕДНЮЮ страну: запись через неё
+    // уходила бы не туда, а чтение отдавало бы чужие числа.
+    const target = game();
+    const sun = target.countries.find(c => c.id === "SUN")!;
+    const usa = target.countries.find(c => c.id === "USA")!;
+
+    const source = structuredClone(target);
+    // Источник: тот же состав в ДРУГОМ порядке — ровно то, что делает вставка
+    // осколка в отсортированный ростер.
+    source.countries.reverse();
+    source.countries.find(c => c.id === "SUN")!.politics.stability = 11;
+    expect(source.countries[0]!.id).not.toBe(target.countries[0]!.id);
+
+    restore(target, source);
+
+    // Тот же объект, хотя его индекс изменился, — и он несёт новое значение.
+    expect(target.countries.find(c => c.id === "SUN")).toBe(sun);
+    expect(sun.politics.stability).toBe(11);
+    expect(target.countries.find(c => c.id === "USA")).toBe(usa);
+  });
+
+  it("перенос удаляет элемент, которого в источнике нет, не трогая соседей", () => {
+    const target = game();
+    const sun = target.countries.find(c => c.id === "SUN")!;
+
+    const source = structuredClone(target);
+    source.countries = source.countries.filter(c => c.id !== "USA");
+
+    restore(target, source);
+
+    expect(target.countries.map(c => c.id)).toEqual(["SUN"]);
+    expect(target.countries[0]).toBe(sun);
   });
 });

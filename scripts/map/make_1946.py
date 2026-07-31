@@ -113,9 +113,16 @@ STANDARD_STEPS = [
     "build/audit_map_geometry.py",
     "import_to_game.py",
     "generate_country_registry.py",
+    # Строго ПОСЛЕ реестра: генератор демографии валидирует ideology.json против
+    # countries.json, а ярлык politics.ideology в реестре выводится из тех же
+    # координат (scripts/map/config/ideology_1946.json). Обратный порядок падал
+    # бы на сверке ярлыка с координатами при любой правке конфига.
+    "generate_demographics_1946.py",
     "fill_region_economy_1946.py",
     "validate_region_economy_1946.py",
     "test_validate_region_economy_1946.py",
+    "validate_demographics_1946.py",
+    "test_validate_demographics_1946.py",
 ]
 
 

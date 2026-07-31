@@ -140,11 +140,19 @@ const saveGameShapeSchema = z.object({
   modifiers: z.array(z.unknown()),
   pendingWorldFacts: z.array(z.unknown()),
   ethnicGroups: z.array(z.unknown()),
+  ideologyAnchors: z.array(z.unknown()),
   groupImpactMemory: z.array(z.unknown()),
   regionCrisisLatch: z.array(z.number()),
   primitiveBatchKeys: z.array(z.string()),
   primitiveNoopBatchKeys: z.array(z.string()),
   primitiveTurnBudget: z.object({}).loose(),
+  // Состояние кампании — каркасом, не полной формой: содержательную проверку
+  // (осколки существуют, дата на месте) делают инварианты, как и у остальных
+  // полей. Здесь достаточно, чтобы `status` вообще был известным словом:
+  // сейв без него сделал бы «партия окончена?» неотвечаемым вопросом.
+  campaign: z.object({
+    status: z.enum(["active", "succession_choice_pending", "defeated"]),
+  }).loose(),
   hingePointShowCount: z.object({}).loose(),
   rngState: z.number(),
   nextFeatureId: z.number(),
