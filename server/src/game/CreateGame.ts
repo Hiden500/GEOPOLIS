@@ -9,6 +9,8 @@ import { assignInitialTiers } from "../simulation/tier/TierTick";
 import { nextRandom } from "@shared/utils/rng";
 import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
 import { computePlayerStanding } from "@shared/utils/nationalPower";
+import { corruptionBase, legitimacyBase } from "@shared/utils/politics";
+import { resolveIdeologyCoordinates } from "@shared/utils/discontent";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
 import { activeCampaign } from "@shared/types/Campaign";
 
@@ -30,15 +32,28 @@ function deriveCountryEconomy(country: Country): void {
   e.stateEnterpriseIncome = gdp * (p.stateEnterpriseShare ?? 0);
   e.otherIncome = gdp * (p.otherIncomeShare ?? 0);
 
-  const income = e.taxRevenue + e.exportIncome + e.stateEnterpriseIncome + e.otherIncome;
+  // Расходы калибруются от ВНУТРЕННЕГО дохода, без exportIncome. Причина не
+  // экономическая, а механическая: `exportIncome` здесь — оценка из профиля
+  // (3–6% ВВП), но на ПЕРВОМ же тике `tradeTick` перезаписывает его физически
+  // посчитанным числом, а `stockpile` стартует нулевым, поэтому фактическое
+  // отношение падает до ~0,0001 ВВП и таким остаётся. Расходы, назначенные от
+  // дохода с экспортом, оставались бы завышенными навсегда: замер до правки —
+  // баланс −3,9% ВВП в месяц и 156 стран из 157 в долгах к концу первого года
+  // (`.agent/audits/formula-audit-2026-07-30.md`, «Бюджетная петля»).
+  // Экспорт — премия сверху, а не база бюджета.
+  const domesticIncome = e.taxRevenue + e.stateEnterpriseIncome + e.otherIncome;
 
-  e.militarySpending = income * p.spending.military;
-  e.researchSpending = income * p.spending.research;
-  e.educationSpending = income * p.spending.education;
-  e.infrastructureSpending = income * p.spending.infrastructure;
-  e.welfareSpending = income * p.spending.welfare;
-  e.otherExpenses = income * p.spending.other;
-  e.debtInterest = income * (p.debtInterestShare ?? 0);
+  e.militarySpending = domesticIncome * p.spending.military;
+  e.researchSpending = domesticIncome * p.spending.research;
+  e.educationSpending = domesticIncome * p.spending.education;
+  e.infrastructureSpending = domesticIncome * p.spending.infrastructure;
+  e.welfareSpending = domesticIncome * p.spending.welfare;
+  e.otherExpenses = domesticIncome * p.spending.other;
+  e.debtInterest = domesticIncome * (p.debtInterestShare ?? 0);
+
+  // Баланс считается от ПОЛНОГО дохода: экспорт стартового месяца — реальные
+  // деньги, просто не основание для обязательств.
+  const income = domesticIncome + e.exportIncome;
 
   e.treasury = gdp * (p.treasuryShare ?? 0.05);
 
@@ -55,6 +70,30 @@ function deriveCountryEconomy(country: Country): void {
     infrastructureSpending: e.infrastructureSpending * 0.5,
     welfareSpending: e.welfareSpending * 0.5,
   };
+}
+
+/**
+ * Сеет стартовые legitimacy/corruption из структурных базисов вместо литералов
+ * 50/30 в шаблоне страны (`CreateCountry.ts`).
+ *
+ * ЗАЧЕМ. Базисы (`legitimacyBase` по координатам + происхождению власти,
+ * `corruptionBase` по механизму удержания власти) уже влиты и уже работают —
+ * но только как РАВНОВЕСИЕ, к которому `PoliticsTick` дрейфует со скоростью
+ * 0,005/0,003 в месяц. Стартуя от одинаковых 50/30, мир выражает влитую
+ * разметку на 6% за первый игровой год и на 26% за пять лет
+ * (`.agent/audits/formula-audit-2026-07-30.md`, «Стартовые 50/30»). Легитимность
+ * — главный вход каналов `repress`/`grant_autonomy`/`condemn`, то есть весь
+ * первый год партии эти каналы работали на почти одинаковых числах у всех.
+ *
+ * Страна без разметки формы власти получает фолбэк ТЕХ ЖЕ функций, а не прежний
+ * литерал: «не размечено» решается в одном месте, а не двумя разными числами.
+ */
+function seedPoliticsFromStructure(countries: Country[]): void {
+  for (const country of countries) {
+    const p = country.politics;
+    p.legitimacy = legitimacyBase(resolveIdeologyCoordinates(p), p.powerStructure);
+    p.corruption = corruptionBase(p.powerStructure);
+  }
 }
 
 /**
@@ -123,6 +162,8 @@ export function createGame(
   for (const country of countries) {
     deriveCountryEconomy(country);
   }
+
+  seedPoliticsFromStructure(countries);
 
   // Выставляем начальные тиры (исторические для 1946, иначе minor)
   assignInitialTiers(countries, scenarioId);

@@ -134,7 +134,11 @@ export function createTestRegion(overrides: Partial<Region> = {}): Region {
     population: 1_000_000,
     area: 100_000,
     urbanization: 0.5,
-    stability: 70,
+    // Шкала 0..1, как у urbanization/development рядом и как в схеме сценария
+    // (`scenario1946Schemas.ts`). Прежние `70` были из конвенции
+    // `country.politics.stability` (0..100) и делали фикстуру написанной ПОД БАГ
+    // `region.stability / 100` в PopulationTick (исправлен 2026-07-31).
+    stability: 0.7,
     infrastructure: 0.6,
     development: 0.5,
     gdp: 50_000_000_000,

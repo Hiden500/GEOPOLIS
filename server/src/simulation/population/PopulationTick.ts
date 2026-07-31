@@ -1,6 +1,7 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { getGdpPerCapita, GDP_PER_CAPITA_REFERENCE } from "@shared/utils/countryMetrics";
+import { getDomainTier } from "@shared/utils/technology";
 import {
   BASE_BIRTH_RATE_PER_MONTH,
   BASE_DEATH_RATE_PER_MONTH,
@@ -55,9 +56,22 @@ export function populationTick(
   // домена медицины эры 1946 (см. shared/src/data/eras.ts); другие эры
   // используют другой ключ ("medicine" в 1836, "biotechnology" в 2000) —
   // не обобщаем на них сейчас, единственный играбельный сценарий — 1946.
-  const medicineTechLevel = country.technology.domains["biology"] || 0;
+  // ТИР, а не сырой прогресс: `MEDICINE_TECH_BONUS_RATE` откалиброван «на
+  // единицу уровня» (тир 0–10), тогда как `domains[...]` — накопленный прогресс
+  // (100 за тир, потолка нет). До правки формула читала прогресс: делитель
+  // смертности достигал 13× за 10 лет и населения мира — 16,8 млрд за 50 при
+  // старте 2,3 (`.agent/audits/formula-audit-2026-07-30.md`). Остальной проект
+  // читает эту величину через `getDomainTier` — конвенция была, из неё выпали
+  // два места (второе — ResourceTick.ts).
+  const medicineTechLevel = getDomainTier(country.technology.domains["biology"] ?? 0);
   const medicineBonus = 1 + (medicineTechLevel * MEDICINE_TECH_BONUS_RATE);
 
+  // ШКАЛА: `region.stability` — доля 0..1 (`scenario1946Schemas.ts`, фактический
+  // разброс 0,184…0,809), в отличие от `country.politics.stability` (0..100).
+  // Деление на 100 здесь было переносом чужой конвенции и сжимало разброс
+  // множителя рождаемости до 0,31% вместо задуманных 28,6%
+  // (`.agent/audits/formula-audit-2026-07-30.md`). Тесты дефект не видели,
+  // потому что фикстура задавала `stability: 70` — то есть была написана под баг.
   for (const region of countryRegions) {
     // Рождаемость региона
     // Чем выше уровень жизни, медицина и образование - тем выше рождаемость (до определённого предела)
@@ -65,7 +79,7 @@ export function populationTick(
       (BIRTH_RATE_LIVING_STANDARD_BASE + birthStandardOfLiving * BIRTH_RATE_LIVING_STANDARD_COEFFICIENT) *
       (BIRTH_RATE_EDUCATION_BASE + educationFactor * BIRTH_RATE_EDUCATION_COEFFICIENT) *
       (BIRTH_RATE_WELFARE_BASE + welfareFactor * BIRTH_RATE_WELFARE_COEFFICIENT) *
-      (BIRTH_RATE_STABILITY_BASE + region.stability / 100 * BIRTH_RATE_STABILITY_COEFFICIENT);
+      (BIRTH_RATE_STABILITY_BASE + region.stability * BIRTH_RATE_STABILITY_COEFFICIENT);
 
     const births = Math.floor(region.population * regionBirthRate);
 
@@ -73,7 +87,7 @@ export function populationTick(
     // Чем выше медицина и стабильность - тем ниже смертность
     const regionDeathRate = BASE_DEATH_RATE_PER_MONTH /
       medicineBonus /
-      (DEATH_RATE_STABILITY_BASE + region.stability / 100 * DEATH_RATE_STABILITY_COEFFICIENT);
+      (DEATH_RATE_STABILITY_BASE + region.stability * DEATH_RATE_STABILITY_COEFFICIENT);
 
     const deaths = Math.floor(region.population * regionDeathRate);
 

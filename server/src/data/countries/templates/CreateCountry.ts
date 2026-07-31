@@ -94,6 +94,10 @@ export function createCountry(input: CountryInput): Country {
       // литералом "Unknown" — ни один сценарий его не задавал, и игрок видел
       // этот литерал в интерфейсе (удалено 2026-07-29).
       stability: 50,
+      // legitimacy/corruption здесь — только страховка для страны, созданной
+      // мимо сценария (тесты, ручные фикстуры). В реальной партии их
+      // ПЕРЕЗАПИСЫВАЕТ `seedPoliticsFromStructure` в CreateGame.ts из
+      // структурных базисов; источник истины — там, не эти литералы.
       legitimacy: 50,
       corruption: 30,
       governmentSupport: 50,
