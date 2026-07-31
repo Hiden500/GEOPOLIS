@@ -2,7 +2,6 @@ import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
 import * as diplomacyCommands from "../../commands/diplomacy";
-import * as warCommands from "../../commands/war";
 import * as economyCommands from "../../commands/economy";
 import { type SpendKey } from "../../commands/economy";
 import { effectiveValue } from "@shared/utils/modifiers";
@@ -17,7 +16,6 @@ import {
   STABILITY_LOW,
   WELFARE_SHIFT_RATE,
   WELFARE_CAP_SHARE,
-  WAR_RELATION_THRESHOLD,
 } from "@shared/defines/ai";
 import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 
@@ -28,9 +26,8 @@ import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
  *  - Правило B: ответ на угрозу с полной балансировкой (военный ответ +
  *    контр-блок соперников + power→influence→сфера для бандвагонинга).
  *  - Правило C: при низкой stability сдвиг расходов с military → welfare.
- *  - Правило D (docs/WAR.md, 2026-07-06): порог объявления войны для
- *    non-major стран — топ-державы объявляют войну только через LLM
- *    (решение A), это правило их не трогает.
+ *  - Правило D УДАЛЕНО 2026-07-31 (разбор — ниже, у места, где оно стояло):
+ *    объявление войны осталось только за игроком и режиссёром-LLM.
  *
  * Применяется только к ИИ-странам (id !== playerCountryId). Баланс-константы
  * — shared/src/defines/ai.ts.
@@ -148,36 +145,32 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
 }
 
 /**
- * Правило D — порог объявления войны для non-major (топ-державы — только
- * через LLM, см. docs/WAR.md решение A). Соперник (`rivals`) с отношениями
- * ниже почти-дна шкалы И при манпауэр-перевесе инициатора ("нет другого
- * выхода", черновик docs/WAR.md) — объявляется война. `WarService.declareWar`
- * идемпотентен (не дублирует уже идущую войну), доп. проверка не нужна.
+ * ПРАВИЛО D УДАЛЕНО 2026-07-31 — решение пользователя, `docs/DECISIONS.md`.
  *
- * Вариативность характера (`Country.aiTraits`, docs/AI_RULES.md) смещает оба
- * порога независимо: `aggressiveness` — порог отношений (агрессивные страны
- * решаются на войну при менее плохих отношениях, миролюбивые — только на
- * настоящем дне шкалы); `riskTolerance` — требуемый манпауэр-перевес (более
- * рисковые страны считают достаточным меньший перевес).
+ * Правило объявляло войну соперникам среди non-major при отношениях ниже
+ * `WAR_RELATION_THRESHOLD` и манпауэр-перевесе. За всё время существования оно
+ * не объявило ни одной войны, и замер (`server/scripts/probeWarReach.ts`)
+ * показал три независимых барьера, каждого из которых хватило бы:
+ *
+ *  1. У правила НОЛЬ кандидатов. Все 18 соперничеств мира к 120-му месяцу
+ *     включают major-державу, а правило смотрело только пары, где обе стороны
+ *     non-major. До порогов дело не доходило вовсе.
+ *  2. Порог практически недостижим — но, в отличие от первого барьера, не
+ *     абсолютно. Отношения соперников на 120-м месяце лежат в −23,1…−7,9, а
+ *     самому агрессивному ИИ требуется −57,1; при этом на 60-м месяце дно
+ *     доходило до −57,4, то есть порог КАСАЕТСЯ края распределения у одной
+ *     пары. Это уточнение важнее, чем кажется: «недостижим» из прежних
+ *     отчётов было выведено из констант, а измерение показало границу.
+ *  3. Манпауэр-условие барьером НЕ было — вопреки прежним отчётам:
+ *     `activePersonnel` нулевой только в месяц 0, к концу первого года медиана
+ *     3826.
+ *
+ * Вместо починки трёх барьеров выбран отказ от механики: войну начинают игрок
+ * (`POST /primitives/apply`) и режиссёр-LLM — оба через примитив `war`
+ * (`PrimitiveEngine.ts`), оба пути живые и покрыты тестами. Цена решения
+ * названа прямо: без LLM мир остаётся вечно мирным, и вся военная механика
+ * (фронты, потери, мирные договоры) не запускается ничем.
  */
-function applyWarThreshold(game: GameState, aiCountries: Country[]): void {
-  const nonMajor = aiCountries.filter(c => c.tier !== "major");
-
-  for (const c of nonMajor) {
-    const relationThreshold = WAR_RELATION_THRESHOLD / c.aiTraits.aggressiveness;
-
-    for (const rivalId of c.diplomacy.rivals) {
-      const rival = nonMajor.find(r => r.id === rivalId);
-      if (!rival) continue; // major-тир соперник — войну решает только LLM
-
-      const relation = c.diplomacy.relations[rivalId] ?? 0;
-      if (relation > relationThreshold) continue;
-      if (c.military.activePersonnel <= rival.military.activePersonnel / c.aiTraits.riskTolerance) continue;
-
-      warCommands.declareWar(game, c.id, rivalId);
-    }
-  }
-}
 
 export function aiBehaviorTick(game: GameState): void {
   const player = game.countries.find(c => c.id === game.playerCountryId);
@@ -191,6 +184,4 @@ export function aiBehaviorTick(game: GameState): void {
   if (player) {
     applyThreatResponse(game, player, aiCountries);
   }
-
-  applyWarThreshold(game, aiCountries);
 }
