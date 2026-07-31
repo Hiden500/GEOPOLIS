@@ -783,12 +783,19 @@ python scripts/map/make_1946.py --full-rebuild
 геометрическим проходом нужно добавить provenance и dependency manifest, затем
 выполнить pipeline end-to-end и проверить geometry/output diff.
 
+**Провенанс внешних источников геометрии — `docs/provenance/MAP_GEOMETRY_PROVENANCE.md`**
+(заполнен 2026-07-31). Там же перечислено, что в нём ещё не закрыто: версии,
+даты получения и лицензии. Ниже — исторический список этого файла; при
+расхождении верен документ провенанса.
+
 Ожидаемые external inputs (имена, не достаточная provenance):
 
 - `geoBoundaries-BRA-ADM2.geojson`;
 - `geoBoundaries-CHN-ADM2.geojson`;
 - `china_hist/1947-49/1947_1949`;
-- Antarctica/seas/lakes overlays.
+- Antarctica/seas/lakes overlays — **формулировка неточна:** Антарктида не
+  внешний overlay, а фичи `game_map.json` с `iso_a2 == "AQ"`; моря — IHO Sea
+  Areas v3, озёра — Natural Earth 10m (см. документ провенанса).
 - `palestine_hist/geoBoundaries-ISR-ADM2.geojson` (15 израильских округов,
   CC0 1.0 Public Domain) и `palestine_hist/geoBoundaries-PSE-ADM2.geojson`
   (16 палестинских губернаторств, CC BY 4.0) — точная provenance ЕСТЬ
