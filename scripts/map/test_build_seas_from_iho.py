@@ -22,9 +22,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "build"))
 from shapely.geometry import box
+from shapely.ops import unary_union
 from shapely.strtree import STRtree
 
-from build_seas_from_iho import subtract_local
+from build_seas_from_iho import (subtract_local, nearest_source_idx,
+                                  assign_adaptive, keep_real_water, world_tiles)
 from geometry_cleanup import area_km2
 
 
@@ -64,6 +66,77 @@ class SubtractLandTest(unittest.TestCase):
                          "море не должно разваливаться на части из-за острова")
         self.assertGreaterEqual(len(water.interiors), 2,
                                 "оба острова внутри обязаны стать дырами")
+
+
+class NearestSourceTest(unittest.TestCase):
+    """Правило «остаток достаётся ближайшей ИСХОДНОЙ акватории».
+
+    Держит то, ради чего правило и вводилось: линия раздела двух акваторий
+    продолжается ПРЯМОЙ через заполненный остаток, а не обходит остров зубцом.
+    Раньше остаток раздавался по «самой длинной общей границе» с уже выросшим
+    соседом — исход решала форма острова.
+    """
+
+    def setUp(self):
+        # два моря, сходящиеся по прямой x = 0
+        self.west = box(-10.0, -5.0, 0.0, 5.0)
+        self.east = box(0.0, -5.0, 10.0, 5.0)
+        self.cands = [(0, self.west), (1, self.east)]
+
+    def test_side_of_line_decides(self):
+        """Точка достаётся морю со своей стороны прямой, а не по форме соседа."""
+        self.assertEqual(nearest_source_idx(box(-3.0, 6.0, -2.0, 7.0), self.cands), 0)
+        self.assertEqual(nearest_source_idx(box(2.0, 6.0, 3.0, 7.0), self.cands), 1)
+
+    def test_divide_continues_straight(self):
+        """Заполненный остаток делится ровно по продолжению прямой x = 0."""
+        gap = box(-4.0, 5.0, 4.0, 9.0)          # полоса над обоими морями
+        out = {}
+        assign_adaptive(gap, self.cands, out)
+        west_part = unary_union(out.get(0, []))
+        east_part = unary_union(out.get(1, []))
+        self.assertFalse(west_part.is_empty)
+        self.assertFalse(east_part.is_empty)
+        # ни одна доля не перелезла на чужую сторону дальше допуска дробления
+        self.assertLess(west_part.bounds[2], 1e-3, "западная доля перешла прямую")
+        self.assertGreater(east_part.bounds[0], -1e-3, "восточная доля перешла прямую")
+        # и вместе они покрывают весь остаток
+        self.assertAlmostEqual(west_part.area + east_part.area, gap.area, places=6)
+
+
+class KeepRealWaterTest(unittest.TestCase):
+    """Фильтр по ФОРМЕ, а не по размеру."""
+
+    def test_small_compact_survives(self):
+        """Залив между островами в ~1 км² — настоящая вода, не шум."""
+        from shapely.geometry import MultiPolygon
+        big = box(0.0, 0.0, 1.0, 1.0)
+        small = box(5.0, 0.0, 5.009, 0.009)     # ниже DEGENERATE_AREA_DEG2
+        kept = keep_real_water(MultiPolygon([big, small]))
+        self.assertAlmostEqual(kept.area, big.area + small.area, places=12)
+
+    def test_thread_dropped(self):
+        """Длинная нить нулевой ширины — шум, выбрасывается."""
+        from shapely.geometry import MultiPolygon
+        big = box(0.0, 0.0, 1.0, 1.0)
+        thread = box(5.0, 0.0, 15.0, 5e-5)      # полуширина много ниже порога
+        kept = keep_real_water(MultiPolygon([big, thread]))
+        self.assertAlmostEqual(kept.area, big.area, places=12)
+
+
+class WorldTilesTest(unittest.TestCase):
+    def test_tiles_cover_the_whole_world(self):
+        """Обход обязан покрывать мир целиком.
+
+        Негативный контроль этого теста — исходный `TILES` из
+        `fix_sea_coastline_gaps.py`: он покрывает 79.4%, и Кергелен с
+        Гренландией остались с разрывами именно поэтому.
+        """
+        world = box(-180.0, -90.0, 180.0, 90.0)
+        covered = unary_union([box(*t) for _, t in world_tiles()])
+        self.assertAlmostEqual(covered.area, world.area, places=6)
+        self.assertTrue(covered.contains(box(67.5, -50.5, 71.5, -47.5)),
+                        "Кергелен обязан попадать в обход")
 
 
 if __name__ == "__main__":

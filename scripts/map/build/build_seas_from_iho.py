@@ -35,10 +35,21 @@ build_seas_from_iho.py — водный слой, построенный из и
 3. снимаются наложения море-море: площадь достаётся тому морю, что встретилось
    раньше по списку, у последующих вычитается (IHO-полигоны местами
    перекрываются, а `merge_world_1946.py` считает наложения ошибкой);
-4. закрываются прибрежные разрывы: непокрытая ячейка, касающаяся суши,
-   отдаётся географически верному морю — переиспользуется существующий движок
-   `absorb_compact_gaps_multi`/`absorb_slivers_until_stable` из
-   `fix_sea_coastline_gaps.py`, а не пишется свой.
+4. заполняется остаток — прибрежная полоса между генерализованным берегом
+   IHO и реальным берегом `game_map`, плюс дыры самого источника. Кусок
+   достаётся БЛИЖАЙШЕЙ ИСХОДНОЙ акватории IHO.
+
+Пункт 4 — единственное правило вместо набора частных случаев. Расстояние
+меряется до полигона ИСТОЧНИКА, а не до уже выросшего соседа, и отсюда само
+собой получается то, что раньше приходилось чинить поштучно: если два моря
+сходятся по прямой, точки остатка ближе к тому, на чьей стороне прямой лежат,
+а точки на самой прямой равноудалены — значит граница заполнения СОВПАДАЕТ с
+исходной линией раздела и продолжается прямой. Спецкода на Сан-Томе,
+Гибралтар или Кергелен нет.
+
+Прежняя версия раздавала остаток по «самой длинной общей границе» с уже
+выросшим соседом: исход решала форма острова, линия раздела превращалась в
+зубец, а ошибка накапливалась вдоль берега.
 
 Запуск:
 
@@ -53,7 +64,7 @@ from paths import game_map, out, source
 import json
 import sys
 import time
-from shapely.geometry import shape, mapping, box as shp_box
+from shapely.geometry import shape, mapping, box as shp_box, Point as ShpPoint
 from shapely.strtree import STRtree
 from shapely.ops import unary_union
 
@@ -62,8 +73,31 @@ if hasattr(sys.stdout, "reconfigure"):
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
 from geometry_cleanup import area_km2, to_polygonal
-from fix_sea_coastline_gaps import safe_clip, absorb_compact_gaps_multi, TILES, BUFFER_DEG
-from geometry_cleanup import absorb_slivers_until_stable
+from fix_sea_coastline_gaps import safe_clip
+
+
+def world_tiles(step_lon=60.0, step_lat=45.0):
+    """ПОЛНОЕ покрытие мира тайлами, без дыр.
+
+    Намеренно НЕ используется `TILES` из `fix_sea_coastline_gaps.py`: тот
+    список покрывает лишь 79.4% мира (проверено), и всё, что в дыры попадает,
+    ни одним проходом не обрабатывается. Кергелен лежит там на 100%,
+    Гренландия на 53.8% — оба и остались с разрывами на первой версии слоя.
+    Дефект унаследованный: та же дыра есть у действующего пайплайна.
+    """
+    tiles = []
+    lon = -180.0
+    while lon < 180.0:
+        lat = -90.0
+        while lat < 90.0:
+            tiles.append((f"{lon:+.0f}..{lon + step_lon:+.0f} / {lat:+.0f}..{lat + step_lat:+.0f}",
+                          (lon, lat, min(lon + step_lon, 180.0), min(lat + step_lat, 90.0))))
+            lat += step_lat
+        lon += step_lon
+    return tiles
+
+
+TILES = world_tiles()
 
 IHO_SOURCE = source("iho/oceans-seas.geo.json")
 OUT_NAME = "seas_iho_coastline.geojson"
@@ -72,6 +106,31 @@ OUT_NAME = "seas_iho_coastline.geojson"
 # Порог `merge_world_1946.py` (0.0003 deg2) взят как верхняя граница
 # допустимого, здесь на порядок строже, чтобы до слияния доходило чистое.
 OVERLAP_EPS_DEG2 = 3e-5
+
+# Кусок остатка считается прилегающим к воде, если отстоит от неё не дальше
+# этого. Не ноль: контуры двух независимых источников не совпадают узлами.
+TOUCH_EPS_DEG = 1e-6
+
+# В какой окрестности куска искать моря-претенденты.
+CANDIDATE_DEG = 0.5
+
+# Полуширина ниже этой — нить, а не акватория (та же величина, что в
+# diagnose_seas_iho.py::THREAD). ~22 м.
+THREAD_HALFWIDTH_DEG = 2e-4
+
+# Запас за границей тайла: кусок, разрезанный швом, должен целиком помещаться
+# в рабочую рамку того тайла, который его присваивает.
+SEAM_MARGIN_DEG = 2.0
+
+# Проходы заполнения и порог «сошлось».
+FILL_PASSES = 4
+FILL_SETTLED_KM2 = 1.0
+
+# Предел дробления на линии раздела: ~22 м. Заведомо мельче допуска, с
+# которым диагностика сверяет границу с источником (1e-3 град ≈ 111 м).
+DIVIDE_MIN_CELL_DEG = 2e-4
+# Страховка от бесконечной рекурсии на вырожденных стыках.
+DIVIDE_MAX_DEPTH = 12
 
 
 def load_features(path):
@@ -102,6 +161,36 @@ def load_lakes():
     return geoms, (STRtree(geoms) if geoms else None)
 
 
+def keep_real_water(geom):
+    """Нормализация, отличающая настоящую воду от машинного шума ПО ФОРМЕ.
+
+    `to_polygonal` из `geometry_cleanup` выбрасывает части меньше
+    DEGENERATE_AREA_DEG2 (1e-4 deg²) — на широте Фуцзяни это ~1.1 км², на
+    широте Гренландии ~0.5 км². Для суши порог разумен, для воды губителен:
+    залив между островами площадью 0.9 км² — настоящая вода, и выбрасывание
+    возвращало ровно те разрывы, которые заполнение только что закрыло
+    (проверено: 6 кусков 0.20–1.00 км², все касаются моря).
+
+    Здесь фильтр по форме, а не по размеру: выбрасывается неполигональное,
+    нулевое и НИТЕВИДНОЕ (полуширина = площадь/периметр ниже порога). Мелкий
+    компактный кусок остаётся, длинная нить нулевой ширины — нет.
+    """
+    if geom.is_empty:
+        return geom
+    if geom.geom_type == "GeometryCollection":
+        polys = [g for g in geom.geoms if g.geom_type in ("Polygon", "MultiPolygon")]
+        if not polys:
+            return geom
+        geom = unary_union(polys)
+    if geom.geom_type == "MultiPolygon":
+        keep = [p for p in geom.geoms
+                if p.area > 0 and p.length > 0 and (p.area / p.length) >= THREAD_HALFWIDTH_DEG]
+        if not keep:
+            return geom
+        geom = unary_union(keep) if len(keep) > 1 else keep[0]
+    return geom
+
+
 def subtract_local(geom, tree, geoms):
     """Вычитает из geom только те фичи индекса, что реально его задевают.
 
@@ -120,7 +209,7 @@ def subtract_local(geom, tree, geoms):
     cut = geom.difference(unary_union(hits))
     if not cut.is_valid:
         cut = cut.buffer(0)
-    return to_polygonal(cut)
+    return keep_real_water(cut)
 
 
 def main():
@@ -140,6 +229,7 @@ def main():
     print(f"  озёра (авторитетны, не изменяются): {len(lake_geoms)} фич")
 
     feats = []
+    orig_geoms = []         # исходные полигоны IHO, выровнены по feats
     claimed = None          # уже занятая другими морями площадь
     dropped_land = 0.0
     dropped_lake = 0.0
@@ -153,6 +243,7 @@ def main():
         if not g.is_valid:
             g = g.buffer(0)
         g = to_polygonal(g)
+        original = g            # до вычитаний — по нему меряется «ближайшая акватория»
         before = area_km2(g)
 
         # 1. суша авторитетна — вода не может лежать поверх неё
@@ -178,6 +269,7 @@ def main():
             continue
 
         claimed = g if claimed is None else to_polygonal(unary_union([claimed, g]))
+        orig_geoms.append(original)
         feats.append({
             "type": "Feature",
             "properties": {"name": name,
@@ -192,7 +284,19 @@ def main():
           f"наложений море-море: {dropped_overlap:,.1f}")
 
     if not no_absorb and not only:
-        absorb_coastal_gaps(feats, land_geoms, land_tree, lake_geoms)
+        # Проходов несколько: тайл считает остаток по состоянию воды НА СВОЙ
+        # момент, и кусок, который станет прилегающим только после роста в
+        # соседнем тайле, на первом проходе отбрасывается защитой «не море».
+        # Так терялись 7487 км² у берега Антарктиды. Повтор до неподвижной
+        # точки, а не ослабление порога: ослабление залило бы внутренние дыры
+        # суши, которые эта же защита и бережёт.
+        for p in range(1, FILL_PASSES + 1):
+            print(f"\n--- проход {p} ---")
+            added = fill_by_nearest_source(feats, orig_geoms, land_geoms,
+                                            land_tree, lake_geoms)
+            print(f"--- проход {p}: добавлено {added:,.1f} km2 ---")
+            if added < FILL_SETTLED_KM2:
+                break
 
     path = out(OUT_NAME)
     with open(path, "w", encoding="utf-8") as f:
@@ -200,65 +304,163 @@ def main():
     print(f"\nЗаписано: {path} ({len(feats)} фич)")
 
 
-def absorb_coastal_gaps(feats, land_geoms, land_tree, lake_geoms):
-    """Прибрежные разрывы отдаются географически верному морю.
+def assign_adaptive(piece, cands, out, min_cell=None, depth=0):
+    """Делит спорный кусок по ближайшей исходной акватории, уточняя ТОЛЬКО линию.
 
-    Вычитание суши убирает воду ПОВЕРХ берега, но не закрывает полосы, где
-    полигон IHO до берега не достаёт. Движок тот же, что уже используется
-    пайплайном для этого класса, — свой не пишется.
+    Равномерная сетка здесь не годится: она оставляет лестницу с амплитудой в
+    половину ячейки на всей линии раздела (на первой версии — 21.5 км «изогнутой»
+    границы у Гибралтара, 30.8 км у Восточно-Китайского моря). Адаптивное
+    дробление проверяет, согласны ли углы и центр куска насчёт ближайшей
+    акватории: если согласны — кусок уходит целиком, дробить нечего; если нет —
+    режется на четверти и рекурсия идёт только там, где проходит сама линия.
+    Однородная вода стоит одну проверку, точность тратится на границу.
     """
-    print("\nЗакрытие прибрежных разрывов (тайлами)...")
+    if min_cell is None:
+        min_cell = DIVIDE_MIN_CELL_DEG
+    minx, miny, maxx, maxy = piece.bounds
+    span = max(maxx - minx, maxy - miny)
+
+    probes = [piece.representative_point(),
+              ShpPoint(minx, miny), ShpPoint(minx, maxy),
+              ShpPoint(maxx, miny), ShpPoint(maxx, maxy)]
+    verdicts = {nearest_source_idx(p, cands) for p in probes}
+
+    if len(verdicts) == 1 or span <= min_cell or depth >= DIVIDE_MAX_DEPTH:
+        idx = nearest_source_idx(piece.representative_point(), cands)
+        if idx is not None:
+            out.setdefault(idx, []).append(piece)
+        return
+
+    midx, midy = (minx + maxx) / 2.0, (miny + maxy) / 2.0
+    for q in (shp_box(minx, miny, midx, midy), shp_box(midx, miny, maxx, midy),
+              shp_box(minx, midy, midx, maxy), shp_box(midx, midy, maxx, maxy)):
+        sub = piece.intersection(q)
+        if sub.is_empty or sub.area <= 0:
+            continue
+        for part in (sub.geoms if sub.geom_type == "MultiPolygon" else [sub]):
+            if part.area > 0:
+                assign_adaptive(part, cands, out, min_cell, depth + 1)
+
+
+def nearest_source_idx(geom, cands):
+    """Индекс ближайшей ИСХОДНОЙ акватории IHO.
+
+    Расстояние меряется до полигона ИСТОЧНИКА, а не до уже выросшего моря.
+    В этом вся суть: если два моря сходятся по прямой, точки остатка ближе к
+    тому, на чьей стороне прямой лежат, а точки на самой прямой равноудалены —
+    значит граница заполнения совпадает с исходной линией раздела и
+    продолжается прямой сама собой, без спецкода на конкретные острова.
+    """
+    best, best_d = None, None
+    for i, g in cands:
+        d = g.distance(geom)
+        if best_d is None or d < best_d:
+            best, best_d = i, d
+    return best
+
+
+def fill_by_nearest_source(feats, orig_geoms, land_geoms, land_tree, lake_geoms):
+    """Остаток воды достаётся БЛИЖАЙШЕЙ исходной акватории IHO.
+
+    Остаток бывает двух видов, и правило для обоих одно:
+
+    1. прибрежная полоса между генерализованным берегом IHO и реальным берегом
+       `game_map.json` — источник до берега просто не достаёт;
+    2. дыры внутри воды, доставшиеся от самого источника (например стык с
+       BRA-594 в Южной Атлантике).
+
+    Заполняется только то, что КАСАЕТСЯ воды. Это защита, а не формальность:
+    внутренние дыры суши (известный класс LAND_HOLE в стыках провинций) воды
+    не касаются и морем не становятся.
+    """
+    orig_tree = STRtree(orig_geoms)
+    total_added = 0.0
+
     for tile_label, tile in TILES:
         t0 = time.time()
-        tile_box = shp_box(*tile)
+        core_box = shp_box(*tile)
+        # Работаем с запасом за границей тайла, а присваиваем только куски,
+        # чей центр в ядре. Иначе кусок, разрезанный швом, в каждой половине
+        # не касается воды и обе отбрасываются как «внутренняя дыра суши»:
+        # так в Восточно-Китайском море терялось 44.7 км² ровно на lon=120.
+        tile_box = shp_box(max(tile[0] - SEAM_MARGIN_DEG, -180.0),
+                           max(tile[1] - SEAM_MARGIN_DEG, -90.0),
+                           min(tile[2] + SEAM_MARGIN_DEG, 180.0),
+                           min(tile[3] + SEAM_MARGIN_DEG, 90.0))
 
-        relevant = [i for i, ft in enumerate(feats)
-                    if shape(ft["geometry"]).intersects(tile_box)]
-        if not relevant:
-            print(f"[{tile_label}] морей: 0, пропущено")
-            continue
-
-        mutable, orig_idx = [], []
-        for i in relevant:
-            clipped = safe_clip(shape(feats[i]["geometry"]), tile_box)
-            if clipped is None:
+        sea_local = {}
+        for i, ft in enumerate(feats):
+            g = shape(ft["geometry"])
+            if not g.intersects(tile_box):
                 continue
-            mutable.append({"type": "Feature",
-                            "properties": dict(feats[i]["properties"]),
-                            "geometry": mapping(clipped)})
-            orig_idx.append(i)
-        if not mutable:
+            c = safe_clip(g, tile_box)
+            if c is not None:
+                sea_local[i] = c
+        if not sea_local:
             print(f"[{tile_label}] морей: 0, пропущено")
             continue
 
-        context = []
+        covered = [*sea_local.values()]
         for j in land_tree.query(tile_box):
             c = safe_clip(land_geoms[int(j)], tile_box)
             if c is not None:
-                context.append(c)
-        water = []
+                covered.append(c)
         for lg in lake_geoms:
             c = safe_clip(lg, tile_box)
             if c is not None:
-                water.append(c)
+                covered.append(c)
 
-        absorb_slivers_until_stable(mutable, context, water, tile_box, label=tile_label)
-        absorb_compact_gaps_multi(mutable, context, water, tile_box, label=tile_label)
+        leftover = tile_box.difference(unary_union(covered))
+        if leftover.is_empty:
+            print(f"[{tile_label}] остатка нет")
+            continue
+
+        seas_union = unary_union(list(sea_local.values()))
+        pieces = list(leftover.geoms) if leftover.geom_type == "MultiPolygon" else [leftover]
+
+        additions = {}
+        skipped_inland = 0
+        contested = 0
+        for piece in pieces:
+            if piece.area <= 0:
+                continue
+            # кусок обрабатывает тот тайл, в чьём ЯДРЕ его центр — ровно один раз
+            if not core_box.contains(piece.representative_point()):
+                continue
+            # не касается воды -> это внутренняя дыра суши, не море
+            if piece.distance(seas_union) > TOUCH_EPS_DEG:
+                skipped_inland += 1
+                continue
+            cands = [(int(j), orig_geoms[int(j)])
+                     for j in orig_tree.query(piece.buffer(CANDIDATE_DEG))]
+            cands = [(i, g) for i, g in cands if i in sea_local]
+            if not cands:
+                continue
+            if len(cands) == 1:
+                additions.setdefault(cands[0][0], []).append(piece)
+                continue
+            # кусок оспаривают несколько морей — делим по линии, а не целиком
+            contested += 1
+            assign_adaptive(piece, cands, additions)
 
         added = 0.0
-        for pos, i in enumerate(orig_idx):
-            full_before = shape(feats[i]["geometry"])
-            grown = unary_union([full_before, shape(mutable[pos]["geometry"])])
+        for i, parts in additions.items():
+            before = shape(feats[i]["geometry"])
+            grown = unary_union([before, *parts])
             if not grown.is_valid:
                 grown = grown.buffer(0)
-            grown = to_polygonal(grown)
-            # берег авторитетен и после роста: движок мог зацепить сушу
+            grown = keep_real_water(grown)
             grown = subtract_local(grown, land_tree, land_geoms)
-            added += area_km2(grown) - area_km2(to_polygonal(full_before))
+            added += area_km2(grown) - area_km2(to_polygonal(before))
             feats[i]["geometry"] = mapping(grown)
             feats[i]["properties"]["area_km2"] = round(area_km2(grown), 1)
-        print(f"[{tile_label}] морей: {len(mutable)}, {added:+,.1f} km2, "
-              f"{time.time() - t0:.1f}s")
+
+        total_added += added
+        if abs(added) > 0.05 or skipped_inland:
+            print(f"[{tile_label}] морей: {len(sea_local)}, кусков: {len(pieces)} "
+                  f"(спорных {contested}, дыр суши пропущено {skipped_inland}), "
+                  f"{added:+,.1f} km2, {time.time() - t0:.1f}s")
+    return total_added
 
 
 if __name__ == "__main__":
