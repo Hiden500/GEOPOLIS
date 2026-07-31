@@ -1,5 +1,9 @@
 import { type Country } from "@shared/types/Country";
 import { type SanctionType } from "@shared/types/DiplomacyState";
+import {
+  RIVAL_ENTRY_RELATION_SHIFT,
+  RIVAL_EXIT_RELATION_SHIFT,
+} from "@shared/defines/diplomacy";
 
 /**
  * Сервис для управления дипломатическими отношениями между странами.
@@ -83,6 +87,11 @@ export class DiplomacyService {
 
   /**
    * Добавляет страну в список соперников.
+   *
+   * Величина сдвига — константа `RIVAL_ENTRY_RELATION_SHIFT`, а не литерал: она
+   * откалибрована вместе с порогом перехода, который её вызывает, и обязана
+   * меняться вместе с ним. Литерал −40 пережил опускание порога −70 → −2,5
+   * именно потому, что жил здесь, вдали от своей пары.
    */
   addRival(
     countries: Country[],
@@ -97,11 +106,14 @@ export class DiplomacyService {
     }
 
     // Ухудшаем отношения
-    this.changeRelation(countries, countryId, rivalId, -40);
+    this.changeRelation(countries, countryId, rivalId, RIVAL_ENTRY_RELATION_SHIFT);
   }
 
   /**
    * Удаляет страну из списка соперников.
+   *
+   * Сдвиг зеркален входному: полный цикл «поссорились → помирились» не должен
+   * оставлять паре отношений ниоткуда (см. `RIVAL_EXIT_RELATION_SHIFT`).
    */
   removeRival(
     countries: Country[],
@@ -114,7 +126,7 @@ export class DiplomacyService {
     country.diplomacy.rivals = country.diplomacy.rivals.filter(id => id !== rivalId);
 
     // Улучшаем отношения
-    this.changeRelation(countries, countryId, rivalId, 20);
+    this.changeRelation(countries, countryId, rivalId, RIVAL_EXIT_RELATION_SHIFT);
   }
 
   /**

@@ -112,6 +112,47 @@ def validate_living_docs() -> None:
         check(lines <= limit, f"{path} stays under {limit} lines (now {lines})")
 
 
+def validate_no_conflict_markers() -> None:
+    """Неразрешённые маркеры конфликта в отслеживаемых текстовых файлах.
+
+    Заведено 2026-07-31 по факту: в `main` три часа пролежал `docs/DECISIONS.md`
+    с четырьмя маркерами и продублированной записью. Мерж сообщил о конфликте,
+    но сообщение потерялось в обрезанном выводе, а `git add -A docs` внёс файл
+    как есть — ни один тест такого не видит, потому что для кода маркеры лежали
+    в документации, а для документации их никто не читал.
+
+    Проверка дешёвая и абсолютная: `<<<<<<< `, `>>>>>>> ` и одинокий `=======`
+    в начале строки не встречаются в осмысленном тексте проекта. Исключение —
+    сам этот файл, где они записаны как данные.
+    """
+    markers = ("<<<<<<< ", ">>>>>>> ")
+    skip_dirs = {".git", "node_modules", "dist", "build", ".vite"}
+    suffixes = {".md", ".ts", ".tsx", ".js", ".json", ".py", ".yml", ".yaml"}
+    hits: list[str] = []
+
+    for candidate in ROOT.rglob("*"):
+        if not candidate.is_file() or candidate.suffix not in suffixes:
+            continue
+        if any(part in skip_dirs for part in candidate.parts):
+            continue
+        if candidate.resolve() == Path(__file__).resolve():
+            continue
+        try:
+            text = candidate.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for number, line in enumerate(text.splitlines(), start=1):
+            if line.startswith(markers) or line.rstrip() == "=======":
+                hits.append(f"{candidate.relative_to(ROOT)}:{number}")
+                break
+
+    check(
+        not hits,
+        "no unresolved merge conflict markers"
+        + (f" (found in {', '.join(hits[:5])})" if hits else ""),
+    )
+
+
 def validate_rot() -> None:
     """Гниение документации: ссылки на код, которого нет, и просроченные срезы.
 
@@ -412,6 +453,7 @@ def main() -> int:
     validators = (
         validate_toml,
         validate_living_docs,
+        validate_no_conflict_markers,
         validate_rot,
         validate_audit_freshness,
         validate_instructions_and_skills,

@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { DiplomacyService } from "../DiplomacyService";
 import { createTestCountry } from "../../test-utils/fixtures";
+import {
+  RIVAL_ENTRY_RELATION_SHIFT,
+  RIVAL_EXIT_RELATION_SHIFT,
+} from "@shared/defines/diplomacy";
 
 describe("DiplomacyService", () => {
   describe("changeRelation", () => {
@@ -68,7 +72,10 @@ describe("DiplomacyService", () => {
       service.addRival([a, b], "A", "B");
 
       expect(a.diplomacy.rivals).toContain("B");
-      expect(a.diplomacy.relations["B"]).toBe(-40);
+      // Число берётся из константы, а не переписывается сюда: совпадение
+      // литерала в тесте с литералом в сервисе — ровно то, из-за чего −40
+      // пережило опускание порога, который его вызывает.
+      expect(a.diplomacy.relations["B"]).toBe(RIVAL_ENTRY_RELATION_SHIFT);
     });
 
     it("removes a rival and improves relations", () => {
@@ -79,7 +86,28 @@ describe("DiplomacyService", () => {
       service.removeRival([a, b], "A", "B");
 
       expect(a.diplomacy.rivals).not.toContain("B");
-      expect(a.diplomacy.relations["B"]).toBe(20);
+      expect(a.diplomacy.relations["B"]).toBe(RIVAL_EXIT_RELATION_SHIFT);
+    });
+
+    it("полный цикл соперничество → примирение нейтрален по отношениям", () => {
+      // Соперничество ВЫВОДИТСЯ из отношений тиком, а не объявляется отдельным
+      // глаголом. Значит выведенный ярлык не имеет права работать насосом:
+      // пара, поссорившаяся и помирившаяся, обязана вернуться туда, где была.
+      // До 2026-07-31 вход стоил −40, а выход давал +20, и каждый цикл списывал
+      // паре 30 пунктов ниоткуда — при пороге −70 это было незаметно, потому что
+      // цикла не случалось ни разу.
+      const service = new DiplomacyService();
+      const a = createTestCountry({ id: "A" });
+      const b = createTestCountry({ id: "B" });
+
+      // Обе стороны заводят соперника сами — так это и происходит в тике.
+      service.addRival([a, b], "A", "B");
+      service.addRival([a, b], "B", "A");
+      service.removeRival([a, b], "A", "B");
+      service.removeRival([a, b], "B", "A");
+
+      expect(a.diplomacy.relations["B"]).toBeCloseTo(0, 10);
+      expect(b.diplomacy.relations["A"]).toBeCloseTo(0, 10);
     });
   });
 
