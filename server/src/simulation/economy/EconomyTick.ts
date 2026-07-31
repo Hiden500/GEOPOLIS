@@ -11,6 +11,10 @@ import {
   SECTOR_INDUSTRY_GROWTH_COEFFICIENT,
   SECTOR_SERVICES_GROWTH_COEFFICIENT,
   MAX_MONTHLY_GROWTH_RATE,
+  INFRASTRUCTURE_BUILD_RATE,
+  INFRASTRUCTURE_DECAY_RATE,
+  INFRASTRUCTURE_MAX,
+  INFRASTRUCTURE_MIN,
   INFLATION_DEFICIT_COEFFICIENT,
   UNEMPLOYMENT_DEFICIT_COEFFICIENT,
   DEBT_BASE_MONTHLY_INTEREST_RATE,
@@ -140,6 +144,20 @@ function computeGrowthRate(economy: EconomyState, countryRegions: Region[], hasG
     ? (debtBurden - DEBT_GDP_PENALTY_THRESHOLD) * DEBT_GDP_GROWTH_PENALTY_COEFFICIENT
     : 0;
 
+  // ПОЛ ОСТАЁТСЯ НУЛЁМ, и это решение, а не недосмотр (2026-07-31).
+  //
+  // Двусторонний рост был реализован в этой же ветке и снят по замеру: пол
+  // −1,25%/мес запускает спираль, а не «показывает рецессию». Падение ВВП режет
+  // налоговую базу, дефицит превращается в долг, долг даёт `debtPenalty`, тот
+  // углубляет падение — и так далее, потому что штраф ничем не ограничен
+  // сверху, а дефолта в игре нет. Числа опыта на одной стране, 120 месяцев:
+  // с полом −1,25% долг/ВВП 18,8 и ВВП ×0,238; с полом 0 — долг/ВВП 0,00 и ВВП
+  // ×1,500. По миру спираль забирала 22 страны из 157 в коллапс ×0,236.
+  //
+  // Рецессия нужна — экономика, умеющая только вверх, обесценивает решения. Но
+  // включать её можно лишь вместе с ограничителем долговой петли (кап
+  // `debtPenalty` или механизм дефолта, `docs/TODO.md`). Одна строка, когда
+  // ограничитель появится.
   return Math.min(
     MAX_MONTHLY_GROWTH_RATE,
     Math.max(0, baseGrowthRate + infrastructureBonus - deficitPenalty - debtPenalty)
@@ -156,6 +174,43 @@ function applyGrowthToRegions(countryRegions: Region[], growthRate: number): voi
         region.economy.services * SECTOR_SERVICES_GROWTH_COEFFICIENT;
     }
     region.gdp *= (1 + growthRate + sectorBonus);
+  }
+}
+
+/**
+ * Накопление и износ инфраструктуры — замыкает петлю «вложил → построилось →
+ * работает» (`shared/src/defines/economy.ts`, там же калибровка и её причины).
+ *
+ * Множитель считается ОДИН на страну и применяется к каждому её региону:
+ * вложения задаются страной, а разметка инфраструктуры авторская и порегионная,
+ * поэтому механика двигает общий уровень, не трогая относительные различия.
+ * Тянуть все регионы к одному числу значило бы за десяток лет стереть данные,
+ * ради которых их размечали.
+ */
+function updateInfrastructure(
+  economy: EconomyState,
+  countryRegions: Region[],
+  hasGdp: boolean
+): void {
+  if (!hasGdp || countryRegions.length === 0) return;
+
+  const avgInfrastructure =
+    countryRegions.reduce((sum, region) => sum + region.infrastructure, 0) / countryRegions.length;
+  // Страна без всякой инфраструктуры не имеет базы, на которую ложится вложение:
+  // множитель обратно пропорционален среднему, и при нуле он неопределён. Пол
+  // поля (INFRASTRUCTURE_MIN) гарантирует, что этого не случится, но защита
+  // остаётся на случай прямой записи в состояние мимо тика.
+  if (avgInfrastructure <= 0) return;
+
+  const intensity = economy.infrastructureSpending / economy.gdp;
+  const build = INFRASTRUCTURE_BUILD_RATE * intensity / avgInfrastructure;
+  const factor = 1 + build - INFRASTRUCTURE_DECAY_RATE;
+
+  for (const region of countryRegions) {
+    region.infrastructure = Math.min(
+      INFRASTRUCTURE_MAX,
+      Math.max(INFRASTRUCTURE_MIN, region.infrastructure * factor)
+    );
   }
 }
 
@@ -194,6 +249,11 @@ export function economyTick(
   const hasGdp = economy.gdp > 0;
   const growthRate = computeGrowthRate(economy, countryRegions, hasGdp);
   applyGrowthToRegions(countryRegions, growthRate);
+
+  // ПОСЛЕ роста: построенное в этом месяце работает со следующего тика. Иначе
+  // вложение окупалось бы в том же ходе, в котором сделано, и лаг между
+  // решением и последствием — то, ради чего строится стратегия, — исчез бы.
+  updateInfrastructure(economy, countryRegions, hasGdp);
   // ВВП страны обновится через агрегацию в SimulationEngine (aggregateAllCountries,
   // без пересчёта region.gdp — см. shared/src/utils/aggregateCountryData.ts)
 

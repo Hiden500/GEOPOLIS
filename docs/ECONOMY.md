@@ -38,16 +38,44 @@ Last updated: 2026-07-11 (Госдолг: план 08 Шаг 4)
 
 ВВП считается на уровне региона и агрегируется к стране
 (`shared/src/utils/aggregateCountryData.ts`). Формула роста региона —
-`EconomyTick.ts:59-77`:
+`EconomyTick.ts::computeGrowthRate`:
 
 ```
 baseGrowthRate = 0.001 + avgDevelopment×0.002 + avgInfrastructure×0.001
-infrastructureBonus = infrastructureSpending / gdp × 0.5
+infrastructureBonus = infrastructureSpending / gdp × 0.15
 deficitPenalty = budgetBalance < 0 ? |budgetBalance| / gdp × 0.3 : 0
-growthRate = min(MAX_MONTHLY_GROWTH_RATE, max(0, baseGrowthRate + infrastructureBonus - deficitPenalty))
+debtPenalty = debt/gdp > 0.6 ? (debt/gdp − 0.6) × 0.02 : 0
+growthRate = min(MAX_MONTHLY_GROWTH_RATE, max(0, base + infraBonus − deficitPenalty − debtPenalty))
 // MAX_MONTHLY_GROWTH_RATE = 0.05 — защитный потолок, не даёт архетипу разогнаться неограниченно
+// Пол — НОЛЬ: рецессия пробовалась 2026-07-31 и снята, она запускает долговую
+// спираль (числа и условие включения — docs/TODO.md, docs/DECISIONS.md)
 region.gdp *= (1 + growthRate + sectorBonus)   // sectorBonus от industry/services региона
 ```
+
+### Накопление инфраструктуры (`EconomyTick.ts::updateInfrastructure`)
+
+Вложение не только даёт разовый `infrastructureBonus` к росту, но и **строит
+актив**: `region.infrastructure` растёт от вложений и изнашивается со временем
+(модель капитала с амортизацией, введена 2026-07-31).
+
+```
+intensity = infrastructureSpending / gdp
+factor    = 1 + BUILD_RATE × intensity / avgInfrastructure − DECAY_RATE
+region.infrastructure = clamp(region.infrastructure × factor, MIN, MAX)
+```
+
+Множитель считается ОДИН на страну и применяется к каждому её региону:
+вложения задаёт страна, а инфраструктура размечена порегионно, и тянуть регионы
+к общему числу значило бы стереть авторскую разметку. Относительные различия
+сохраняются точно, меняется только уровень.
+
+Равновесие — `avg = BUILD_RATE × intensity / DECAY_RATE`. Константы подобраны
+так, чтобы при медианной интенсивности сценария 1946 (0,040 ВВП) равновесие
+совпало с медианной инфраструктурой (0,321): механика сохраняет стартовое
+состояние мира, а расходятся дальше те, кто менял бюджет.
+
+Соседние поля `development` и `urbanization` по-прежнему не пишет никто — это
+отдельные петли, требующие продуктового решения (`docs/TODO.md`).
 
 `country.economy.gdp` перезаписывается агрегацией (Σ `region.gdp`), не
 накапливается отдельно.
