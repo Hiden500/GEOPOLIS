@@ -41,7 +41,7 @@ governmentSupport: number
 Перечни — `shared/src/types/politics/Government.ts`, там же разбор границы с
 `diplomacy.puppets`. Данные: вход `scripts/map/config/government_1946.json`,
 выход `server/data/scenarios/1946/government.json`, провенанс
-`docs/GOVERNMENT_1946_PROVENANCE.md` (157 стран, из них 89 зависимых).
+`docs/provenance/GOVERNMENT_1946_PROVENANCE.md` (157 стран, из них 89 зависимых).
 
 Поля опциональны по тому же принципу, что и координаты идеологии: слой
 покрывает 1946 целиком, но сценарии 1836/2000 его не имеют, и страна без
