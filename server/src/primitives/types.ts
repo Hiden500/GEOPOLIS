@@ -258,6 +258,15 @@ export interface AppliedRepress extends AppliedPrimitiveBase {
   verb: "repress";
   regionId: number;
   targetEffects: GroupImpactEffect[];
+  /**
+   * Цена акта в мандате власти — отдельным полем, а не в общей куче с эффектами
+   * по группам, по той же причине, что отклик соседей у `grant_autonomy`: это
+   * ЦЕНА, и нарратив обязан отличать её от самого подавления.
+   *
+   * Пустой массив означает буквально «режиму нечего было терять» (легитимность
+   * уже на полу шкалы), а не «цены нет».
+   */
+  countryScalarEffects: CountryScalarEffect[];
 }
 
 export interface AppliedGrantAutonomy extends AppliedPrimitiveBase {

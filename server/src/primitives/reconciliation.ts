@@ -317,8 +317,14 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
         });
       }
       break;
-    case "incite_unrest":
+    // Репрессия заявляет ОДНУ скалярную ячейку — легитимность контролёра, цену
+    // акта силы (2026-07-31). Её память воздействий сюда не попадает и не
+    // должна: `impactEffectsOf` разобрал её ДО этого `switch`, общим для всех
+    // глаголов, работающих с памятью.
     case "repress":
+      pushScalars(applied.countryScalarEffects);
+      break;
+    case "incite_unrest":
     case "grant_autonomy":
     case "spawn_incident":
     // Подчинение и поглощение не заявляют НИ ОДНОЙ числовой ячейки, и это

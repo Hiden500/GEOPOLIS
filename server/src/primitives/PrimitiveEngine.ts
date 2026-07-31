@@ -41,6 +41,8 @@ import {
   REPRESS_SUPPRESSION_MAX,
   REPRESS_ALIENATION_MIN,
   REPRESS_ALIENATION_MAX,
+  REPRESS_LEGITIMACY_COST_MIN,
+  REPRESS_LEGITIMACY_COST_MAX,
   GRANT_AUTONOMY_CONCESSION_MIN,
   GRANT_AUTONOMY_CONCESSION_MAX,
   SPAWN_INCIDENT_MIN_DISCONTENT,
@@ -129,6 +131,7 @@ import {
   coerciveCapacity,
   repressSuppressionFactor,
   repressAlienationFactor,
+  repressLegitimacyCostFactor,
   concessionFactor,
   neighbourEmboldenment,
   inciteFactor,
@@ -1629,6 +1632,42 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         ),
       }));
 
+      // ЦЕНА АКТА — в мандате власти, а не в казне (docs/POLITICS.md, «Цена
+      // репрессии»; `REPRESS_LEGITIMACY_COST_MIN/MAX`). Коридор от ОХВАТА —
+      // суммарной доли населения региона, по которому ударили, — и от того, что
+      // режиму терять. Платит контролёр региона: предпосылка глагола уже
+      // потребовала, чтобы это был сам источник.
+      //
+      // Читается ДО списания та же `legitimacy`, что ушла в магнитуды выше:
+      // сила приказа определяется мандатом, который был в момент приказа, а цена
+      // платится за состоявшийся акт. Иначе репрессия удешевляла бы сама себя.
+      const coverage = perGroup.reduce((sum, g) => sum + g.share, 0);
+      const legitimacyCost = magnitudeFromState(
+        REPRESS_LEGITIMACY_COST_MIN,
+        REPRESS_LEGITIMACY_COST_MAX,
+        repressLegitimacyCostFactor(coverage, legitimacy),
+        hint
+      );
+
+      // Списывается ПЕРВОЙ и проверяется до записи в память: неконечная
+      // легитимность контролёра иначе доехала бы до `alienation` через
+      // `repressAlienationFactor`, а NaN в памяти воздействий глушит кризисный
+      // латч молча (см. `politicsCommands.addGroupImpact`).
+      //
+      // Цена КЛАМПИТСЯ полом шкалы, а не отклоняет примитив, и это то же
+      // решение, что у `condemn`: легитимность — не расходуемый ресурс, а
+      // положение. Режим без мандата не вправе отказаться от репрессии на том
+      // основании, что репутации у него уже нет; он просто больше ничего не
+      // теряет — и отчёт честно сообщает нулевую дельту.
+      const scalarsBefore = countryScalars(game);
+      const paid = politicsCommands.spendLegitimacy(
+        game,
+        effectiveController(region),
+        legitimacyCost
+      );
+      const paymentError = failIfCommandFailed([paid]);
+      if (paymentError) return commandFailure(primitive.verb, paymentError);
+
       const results = perGroup.map(g =>
         politicsCommands.addGroupImpact(game, region.id, g.groupId, {
           suppression: g.suppression,
@@ -1641,6 +1680,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       const targetEffects = perGroup.flatMap((g, i) =>
         impactEffects(game, region.id, g.groupId, results[i]!)
       );
+      const countryScalarEffects = countryScalarDiff(scalarsBefore, countryScalars(game));
       return {
         ok: true,
         applied: {
@@ -1648,10 +1688,11 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
           sourceCountryId: primitive.sourceCountryId,
           regionId: region.id,
           targetEffects,
+          countryScalarEffects,
           summary: joinSummary(
             `Security forces moved against ${perGroup.length} group(s) in ` +
             `${regionLabel(region)}${untouchedNote(targetEffects, perGroup.length)}`,
-            describeImpacts(game, targetEffects)
+            [...describeImpacts(game, targetEffects), ...describeScalars(game, countryScalarEffects)]
           ),
         },
       };
