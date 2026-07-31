@@ -21,6 +21,17 @@ function atReserveStockpile(): Record<ResourceType, number> {
   return Object.fromEntries(RESOURCE_IDS.map(id => [id, 100_000])) as Record<ResourceType, number>;
 }
 
+/**
+ * Базовая внешняя торговля страны — та часть `exportIncome`, которая не зависит
+ * от сырья вовсе (`ВВП × economyProfile.exportShare`). Тесты ниже проверяют
+ * СЫРЬЕВУЮ составляющую, поэтому сравнивают с этой величиной, а не с нулём: до
+ * 2026-07-31 тик затирал ею поле, и «ноль» означал «сырья не продано». Теперь
+ * ноль проданного сырья означает «осталась только база».
+ */
+function baseExportOf(country: ReturnType<typeof createTestCountry>): number {
+  return country.economy.gdp * (country.economyProfile.exportShare ?? 0);
+}
+
 describe("tradeTick (независимый гейм-дизайн разбор, 2026-07-06)", () => {
   it("продаёт излишек сверх резерва и списывает его со stockpile", () => {
     const country = createTestCountry(); // дефолтный stockpile — oil: 500_000, population: 10_000_000
@@ -40,7 +51,7 @@ describe("tradeTick (независимый гейм-дизайн разбор, 
 
     tradeTick(game, country);
 
-    expect(country.economy.exportIncome).toBe(0);
+    expect(country.economy.exportIncome).toBeCloseTo(baseExportOf(country), 5);
   });
 
   it("цена по категории: metal (iron) даёт больше дохода, чем energy (oil), при равном излишке", () => {
@@ -88,10 +99,16 @@ describe("tradeTick (независимый гейм-дизайн разбор, 
     tradeTick(game, country);
 
     expect(country.stockpile.rareEarths).toBe(1_000_000);
-    expect(country.economy.exportIncome).toBe(0);
+    expect(country.economy.exportIncome).toBeCloseTo(baseExportOf(country), 5);
   });
 
-  it("перезаписывает exportIncome, а не суммирует поверх старого значения", () => {
+  it("не накапливает exportIncome при повторных вызовах", () => {
+    // Прежняя редакция требовала, чтобы поле стало РОВНО нулём, и так косвенно
+    // проверяла идемпотентность: тик не должен прибавлять к прошлому значению
+    // поля, иначе повторный вызов удваивал бы доход. Свойство осталось
+    // обязательным, но выражается прямо — базовая часть вычисляется из ВВП и
+    // доли профиля, а не читается из поля, поэтому второй проход обязан дать
+    // то же число.
     const country = createTestCountry({
       stockpile: emptyStockpile(),
       economy: { ...createTestCountry().economy, exportIncome: 999_999_999 },
@@ -99,8 +116,11 @@ describe("tradeTick (независимый гейм-дизайн разбор, 
     const game = createTestGameState({ currentDate: "1946-01-01", countries: [country] });
 
     tradeTick(game, country);
+    const afterFirst = country.economy.exportIncome;
+    tradeTick(game, country);
 
-    expect(country.economy.exportIncome).toBe(0);
+    expect(afterFirst).toBeCloseTo(baseExportOf(country), 5);
+    expect(country.economy.exportIncome).toBeCloseTo(afterFirst, 5);
   });
 });
 
