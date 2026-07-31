@@ -49,7 +49,10 @@ required target field is missing.
   ${INCITE_UNREST_MIN_DISTANCE}.
 - repress — target {regionId} with optional {groupId} — params {intensity} —
   sourceCountryId must control the region. Without groupId it addresses every
-  group living there.
+  group living there, and that costs the most: the price is charged on how much
+  of the region was hit. Force is never free — every application spends the
+  controller's own legitimacy, and the spending accumulates, so a regime that
+  represses month after month rules with a cheaper and cheaper mandate.
 - grant_autonomy — target {regionId} with optional {groupId} —
   params {intensity} — same control requirement. The same group in neighbouring
   regions takes heart in proportion to what was actually granted.

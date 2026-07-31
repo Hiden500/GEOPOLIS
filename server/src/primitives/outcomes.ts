@@ -233,7 +233,16 @@ export function buildPrimitiveOutcome(
           },
           names: { region: regionNames(game, applied.regionId) },
         },
-        details: impactLines(game, applied.targetEffects, "target"),
+        // Цена акта идёт СТРОКОЙ ОТКЛИКА, а не молча в состояние: игрок обязан
+        // видеть, чем заплатил, — иначе накопительный штраф мандата выглядел бы
+        // необъяснимым дрейфом. Пустой список — не «нет данных», а факт: терять
+        // режиму уже нечего (та же трактовка, что у `condemn`).
+        details: [
+          ...impactLines(game, applied.targetEffects, "target"),
+          ...(applied.countryScalarEffects.length > 0
+            ? scalarLines(game, applied.countryScalarEffects)
+            : [{ key: "repress.nothingToLose" }]),
+        ],
       };
     }
 

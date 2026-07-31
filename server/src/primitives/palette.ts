@@ -27,10 +27,14 @@ export const PRIMITIVE_PALETTE: Record<PrimitiveVerb, readonly string[]> = {
 
   // Репрессии: недовольство вниз сейчас (suppression), отчуждение вверх
   // надолго (alienation) — цена, из-за которой «загнал вглубь» работает.
+  // Легитимность — вторая цена, и платит её сам режим: до 2026-07-31 акт силы
+  // не стоил стране НИЧЕГО, и «давить всегда» доминировало над остальным
+  // политическим алфавитом просто потому, что было бесплатным.
   repress: [
     "groupImpactMemory[+]",
     "groupImpactMemory[*].suppression",
     "groupImpactMemory[*].alienation",
+    "countries[*].politics.legitimacy",
   ],
 
   // Уступка: недовольство вниз у адресата (concession), но та же группа в
