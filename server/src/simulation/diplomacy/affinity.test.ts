@@ -11,7 +11,7 @@ import {
   RELATION_SCALE_MIN,
   RELATION_SCALE_MAX,
   RELATION_DRIFT_CAP,
-  RIVAL_RELATION_THRESHOLD,
+  IDEOLOGY_INDIFFERENCE_DISTANCE,
 } from "@shared/defines/diplomacy";
 
 /**
@@ -114,17 +114,42 @@ describe("инвариант 4: общий враг перевешивает и�
 });
 
 describe("кандидатный набор точен, а не приблизителен", () => {
-  it("пара без канала связи не достаёт ни до порога союза, ни до порога соперничества", () => {
-    // На этом держится право тика не обходить все 12 246 пар мира: пропущенная
-    // пара по построению не может пересечь ни один порог.
-    const contactless = everyStanding().filter(
-      s => s.contact === 0 && s.dependency === 0 && s.commonEnemyPressure === 0
-    );
+  /**
+   * ЧТО ИЗМЕНИЛОСЬ 2026-07-31. Здесь утверждалось, что пара без канала связи не
+   * достаёт НИ ДО ОДНОГО из порогов, и на этом держалось право тика не обходить
+   * все 12 246 пар мира. Для порога союза утверждение по-прежнему верно и
+   * проверяется ниже. Для порога соперничества оно перестало быть верным
+   * вместе с опусканием `RIVAL_RELATION_THRESHOLD` в достижимый диапазон
+   * (`.agent/audits/formula-audit-2026-07-30.md`): пропуск таких пар держится
+   * теперь не арифметикой, а продуктовым правилом — соперничество это
+   * отношение, а не рейтинг несходства, и двое без общей границы, влияния и
+   * формальных связей друг другу посторонние, а не соперники.
+   *
+   * Разница названа числом, а не спрятана: недостижимость порога союза
+   * доказывается, недостижимость порога соперничества — больше нет.
+   */
+  const contactless = everyStanding().filter(
+    s => s.contact === 0 && s.dependency === 0 && s.commonEnemyPressure === 0
+  );
+
+  it("пара без канала связи не достаёт до порога союза", () => {
     const reach = Math.max(...contactless.map(s => Math.abs(structuralAffinity(s))));
     const minAlliance = Math.min(...GRID.map(d => allianceThreshold(d, 0)));
 
     expect(reach).toBeLessThan(minAlliance);
-    expect(-reach).toBeGreaterThan(RIVAL_RELATION_THRESHOLD);
+  });
+
+  it("отсутствие канала ослабляет идеологию, а не отменяет её", () => {
+    // То, что осталось от прежнего утверждения и продолжает держать модель:
+    // тяготение пары без контакта строго слабее тяготения той же пары с
+    // контактом. Именно из-за этого «посторонние не соперники» — заявление о
+    // модели, а не отговорка.
+    for (const ideologyDistance of GRID) {
+      if (ideologyDistance === IDEOLOGY_INDIFFERENCE_DISTANCE) continue;
+      const far = Math.abs(structuralAffinity(standing({ ideologyDistance, contact: 0 })));
+      const near = Math.abs(structuralAffinity(standing({ ideologyDistance, contact: 1 })));
+      expect(far).toBeLessThan(near);
+    }
   });
 });
 
