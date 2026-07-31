@@ -126,14 +126,13 @@ def validate_no_conflict_markers() -> None:
     сам этот файл, где они записаны как данные.
     """
     markers = ("<<<<<<< ", ">>>>>>> ")
-    skip_dirs = {".git", "node_modules", "dist", "build", ".vite"}
     suffixes = {".md", ".ts", ".tsx", ".js", ".json", ".py", ".yml", ".yaml"}
     hits: list[str] = []
 
     for candidate in ROOT.rglob("*"):
         if not candidate.is_file() or candidate.suffix not in suffixes:
             continue
-        if any(part in skip_dirs for part in candidate.parts):
+        if any(part in SKIP_TREE_DIRS for part in candidate.parts):
             continue
         if candidate.resolve() == Path(__file__).resolve():
             continue
@@ -261,9 +260,22 @@ def validate_audit_freshness() -> None:
         check(age <= limit, f"audit fresh: {title} ({age}d / {limit}d)")
 
 
+def normalized_size(path: Path) -> int:
+    """Размер файла в байтах ПО СОДЕРЖИМОМУ, с окончаниями строк как в git (LF).
+
+    Заведено 2026-07-31 по факту расхождения: `core.autocrlf=true` выгружает
+    файлы с CRLF, и `AGENTS.md` весил 16 328 байт в репозитории и 16 526 на
+    диске. Один и тот же коммит был зелёным в linked worktree, куда файл попал
+    с LF, и красным в основном checkout — то есть проверка мерила настройку
+    git пользователя, а не текст правил.
+    """
+    raw = path.read_bytes()
+    return len(raw.replace(b"\r\n", b"\n"))
+
+
 def validate_instructions_and_skills() -> None:
     root_agents = ROOT / "AGENTS.md"
-    check(root_agents.stat().st_size <= 16_384, "Root AGENTS.md stays under 16 KiB")
+    check(normalized_size(root_agents) <= 16_384, "Root AGENTS.md stays under 16 KiB")
     for path in (
         "client/AGENTS.md",
         "server/AGENTS.md",
@@ -386,6 +398,17 @@ def validate_experiment_layer() -> None:
     check("Decision: `KEEP`" in evolution, "Evolution entry records final decision")
 
 
+"""
+Каталоги, которых проверки не касаются.
+
+`.reference` — локальные клоны ЧУЖИХ репозиториев (разбор Open-Historia,
+2026-07-30): они не отслеживаются git (`.git/info/exclude`), существуют
+только в основном checkout и ломали проверку ссылок своими внутренними
+ссылками. Проверка обязана оценивать этот проект, а не то, что лежит рядом
+в рабочем каталоге.
+"""
+SKIP_TREE_DIRS = {".git", "node_modules", "dist", "build", ".vite", ".repowise", ".reference"}
+
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 
 
@@ -393,7 +416,7 @@ def validate_markdown_links() -> None:
     broken: list[str] = []
     for path in ROOT.rglob("*.md"):
         relative = path.relative_to(ROOT)
-        if any(part in {".git", "node_modules", "dist", ".repowise"} for part in relative.parts) or (
+        if any(part in SKIP_TREE_DIRS for part in relative.parts) or (
             len(relative.parts) >= 2
             and relative.parts[0] == ".claude"
             and relative.parts[1] == "worktrees"
