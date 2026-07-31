@@ -229,10 +229,16 @@ warScore. LLM/игрок решает, КОГДА заключить мир (д�
    (`shared/src/types/War.ts`) — `attackers`/`defenders` (коалиции, [0] —
    инициатор/цель), `supporters` (Phase 3, пусто сейчас), `startDate`,
    `warGoal?`, `active`, `territoryFlips`.
-2. ~~Объявление войны~~ — **реализовано**: топ-державы (major+spotlight) —
-   через LLM (`LLMAction.type: 'war'/'peace'`, `LLMService.applyWarAction`);
-   не-major — детерминированный порог (`AiBehaviorTick.ts`, Правило D:
-   `rivals` + отношения ниже `WAR_RELATION_THRESHOLD` + манпауэр-перевес).
+2. ~~Объявление войны~~ — **реализовано, область сужена 2026-07-31**: войну
+   начинают только игрок (`POST /primitives/apply`) и режиссёр-LLM — оба через
+   примитив `war` (`PrimitiveEngine.ts`). Детерминированного пути больше нет:
+   Правило D (`AiBehaviorTick.ts`, порог для non-major) удалено решением
+   пользователя, потому что за всё время не объявило ни одной войны — у него не
+   было ни одного кандидата (все соперничества мира возникают с участием
+   великой державы, а правило смотрело только пары non-major↔non-major) и
+   вдобавок недостижимый порог. Замер — `server/scripts/probeWarReach.ts`,
+   разбор — `docs/DECISIONS.md` (2026-07-31). **Цена:** без LLM мир остаётся
+   вечно мирным, и вся военная механика ниже не запускается ничем.
 3. **Расчёт боя на границах — Phase 2 частично реализован (2026-07-06).**
    `WarTick.ts::sideStrength()` теперь = `activePersonnel × combined-arms
    мультипликатор` (широта вложений в военные домены) `+ getEquipmentPower ×
@@ -265,7 +271,6 @@ warScore. LLM/игрок решает, КОГДА заключить мир (д�
 - `server/src/simulation/war/WarTick.ts` — глобальный тик, контакт по
   `neighboringRegionIds`, флип `ownerCountryId`, `battalion` MapFeature на
   контактных регионах (убираются при `makePeace`).
-- `AiBehaviorTick.ts` Правило D — порог войны для non-major.
 - `LLMService.ts` — реальные `applyWarAction`/`applyPeaceAction`, секция
   `## Active Wars` в промте, инструкция избегать прямой войны между
   ядерными державами (не механика — только текст промта, полноценное
