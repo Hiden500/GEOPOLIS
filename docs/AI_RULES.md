@@ -206,7 +206,7 @@ Threat/Rivalry) и оставшиеся открытые вопросы (вкл�
 - **Вариативность характера** — **реализовано 2026-07-11**: `Country.aiTraits`
   (`{aggressiveness, riskTolerance}`) сеется один раз в `createGame()`
   (`seedAiTraits`, `shared/src/utils/rng.ts::nextRandom`, диапазон
-  `[AI_TRAIT_MIN, AI_TRAIT_MAX]` = `[0.6, 1.4]`, `shared/defines/ai.ts`) — не
+  `[AI_TRAIT_MIN, AI_TRAIT_MAX]` = `[0.6, 1.4]`, `shared/src/defines/ai.ts`) — не
   реальный ИИ, дешёвая иллюзия индивидуальности. Пока смещает только Правило D
   (`AiBehaviorTick.ts::applyWarThreshold`): `aggressiveness` делит порог
   отношений (агрессивная страна решается на войну при менее плохих

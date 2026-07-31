@@ -73,7 +73,7 @@ education, infrastructure, welfare }` (`PUT /budget`), каждый тик до 
 `expenses` пересчитываются абсолютные `militarySpending/researchSpending/
 educationSpending/infrastructureSpending/welfareSpending = income × доля` —
 тот же паттерн, что `taxRate → taxRevenue` выше. Потолки на каждую статью
-независимые (`shared/src/constants/budgetSpendingShareCaps.ts`,
+независимые (`shared/src/defines/budgetSpendingShareCaps.ts`,
 `BUDGET_SPENDING_SHARE_CAPS`), сумма долей может превышать 1 — разрешено
 осознанно. ИИ-страны `spendingShares` не имеют, их `*Spending` остаются
 абсолютными числами, которые двигает `AiBehaviorTick`. В интерфейсе — 4
