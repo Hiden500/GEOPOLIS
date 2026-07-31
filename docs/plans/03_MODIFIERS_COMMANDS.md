@@ -68,7 +68,7 @@ interface Modifier {
 
 - `shared/src/defines/defines.json` (или по файлу на подсистему:
   `economy.json`, `war.json`, `ai.json`, `trade.json`).
-- Загрузка через типизированный модуль `shared/src/defines/index.ts`
+- Загрузка через типизированный модуль `shared/src/defines/index.ts` — создать
   (as const + типы), чтобы автокомплит и проверки остались.
 - Перенести константы из: EconomyTick, AiBehaviorTick, TradeTick, WarTick,
   ResourceTick, LLMService (LLM_SPOTLIGHT_COUNT, окна заголовков),

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import re
 import sys
@@ -109,6 +110,114 @@ def validate_living_docs() -> None:
             continue
         lines = target.read_text(encoding="utf-8").count("\n") + 1
         check(lines <= limit, f"{path} stays under {limit} lines (now {lines})")
+
+
+def validate_rot() -> None:
+    """Гниение документации: ссылки на код, которого нет, и просроченные срезы.
+
+    Проверяется РАСПАД, а не поломка. Половина находок аудита 2026-07-30 — этот
+    класс: документ обещает расширять тест, документ называет «мёртвым кодом»
+    функции, которых никогда не существовало, раздел помечен «актуально на» и с
+    тех пор не пересматривался. Такие расхождения не роняют ни один тест и живут
+    месяцами, искажая оценку трудоёмкости следующей задачи.
+
+    Пути к ДАННЫМ намеренно не проверяются: слой сценария бывает не наполнен, и
+    это штатное состояние (`diplomacy.json` на 2026-07-30).
+    """
+    code_ref = re.compile(r"`([\w./-]+\.(?:ts|tsx|py))`")
+    # Документы часто пишут путь сокращённо («commands/economy.ts» вместо
+    # «server/src/commands/economy.ts»), и это законный стиль. Поэтому ссылка
+    # засчитана, если ей соответствует ХОТЬ ОДИН реальный файл по окончанию
+    # пути; ловим только те, которым не соответствует ничего.
+    existing = {
+        str(p.relative_to(ROOT)).replace("\\", "/")
+        for base in ("server/src", "client/src", "shared/src", "scripts", ".agent")
+        for p in (ROOT / base).rglob("*")
+        if p.is_file() and p.suffix in (".ts", ".tsx", ".py")
+    }
+    missing: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        # Архив и провенанс фиксируют ПРОШЛОЕ состояние: путь, верный на момент
+        # записи, там законно расходится с сегодняшним деревом.
+        rel = str(doc.relative_to(ROOT)).replace("\\", "/")
+        if rel.startswith(("docs/decisions/", "docs/provenance/", "docs/agent/")):
+            continue
+        text = doc.read_text(encoding="utf-8", errors="replace")
+        for line in text.splitlines():
+            for ref in set(code_ref.findall(line)):
+                if "/" not in ref or ref.startswith(("http", "<")):
+                    continue
+                if "*" in ref or "…" in ref:
+                    continue
+                if (ROOT / ref).exists():
+                    continue
+                if any(full.endswith("/" + ref) for full in existing):
+                    continue
+                # Документ, который САМ сообщает об исчезновении файла, не гниёт:
+                # «удалён целиком», «заменяет X», «X → новая шапка» — это история
+                # и планы замены, а не ссылка на несуществующее.
+                lowered = line.lower()
+                # Плюс планы: файл, который предлагается СОЗДАТЬ, ещё не обязан
+                # существовать — иначе проверка запретила бы планировать.
+                markers = (
+                    "удал", "заменя", "→", "устарел", "не существов",
+                    "создать", "предлаг", "планир",
+                )
+                if any(m in lowered for m in markers):
+                    continue
+                missing.append(f"{doc.relative_to(ROOT)} -> {ref}")
+    check(
+        not missing,
+        "docs reference only existing code files",
+        "; ".join(sorted(missing)[:5]),
+    )
+
+    stale_marker = re.compile(r"актуально на (\d{4})-(\d{2})-(\d{2})")
+    today = _dt.date.today()
+    stale: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        text = doc.read_text(encoding="utf-8", errors="replace")
+        for year, month, day in stale_marker.findall(text):
+            marked = _dt.date(int(year), int(month), int(day))
+            age = (today - marked).days
+            if age > 90:
+                stale.append(f"{doc.relative_to(ROOT)} ({age} дней)")
+    check(not stale, "no snapshot older than 90 days", "; ".join(sorted(stale)[:5]))
+
+
+def validate_audit_freshness() -> None:
+    """Область, которую давно не смотрели, называет тест, а не пользователь.
+
+    Правило чистки живых документов существовало три недели и не выполнилось ни
+    разу: напоминать было некому. Здесь тот же механизм для аудитов — срок жизни
+    у каждой области свой, потому что формулы гниют быстрее лицензий.
+
+    Красный тест лечится не поднятием срока, а прогоном скилла `project-health`
+    и записью результата в реестр.
+    """
+    registry_path = ROOT / ".agent/audits/registry.json"
+    if not registry_path.is_file():
+        check(False, "Audit registry exists")
+        return
+
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    areas = registry.get("areas", [])
+    check(bool(areas), "Audit registry lists areas")
+
+    today = _dt.date.today()
+    for area in areas:
+        title = area.get("id", "?")
+        report = area.get("report", "")
+        if report and "#" not in report:
+            check((ROOT / report).exists(), f"audit report exists: {title}")
+        try:
+            last = _dt.date.fromisoformat(area["lastAudited"])
+        except (KeyError, ValueError):
+            check(False, f"audit date is parseable: {title}")
+            continue
+        age = (today - last).days
+        limit = int(area.get("maxAgeDays", 60))
+        check(age <= limit, f"audit fresh: {title} ({age}d / {limit}d)")
 
 
 def validate_instructions_and_skills() -> None:
@@ -303,6 +412,8 @@ def main() -> int:
     validators = (
         validate_toml,
         validate_living_docs,
+        validate_rot,
+        validate_audit_freshness,
         validate_instructions_and_skills,
         validate_experiment_layer,
         validate_markdown_links,
