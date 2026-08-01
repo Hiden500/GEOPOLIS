@@ -1,4 +1,0 @@
-interface:
-  display_name: "Audit Agent Security"
-  short_description: "Read-only AI configuration audit"
-  default_prompt: "Use $security-audit to inspect agent and MCP configuration for security risks without exposing secrets."
