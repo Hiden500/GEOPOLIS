@@ -66,7 +66,7 @@ import os
 import sys
 import time
 from shapely.geometry import (shape, mapping, box as shp_box,
-                               Point as ShpPoint, LineString)
+                               Point as ShpPoint, LineString, Polygon)
 from shapely.strtree import STRtree
 from shapely.ops import unary_union, split as shp_split
 
@@ -146,6 +146,93 @@ FALLBACK_WHOLE_MAX_KM2 = 500.0
 DIVIDE_MIN_CELL_DEG = 2e-4
 # Страховка от бесконечной рекурсии на вырожденных стыках.
 DIVIDE_MAX_DEPTH = 12
+
+# Пролёт, короче которого точку на прямой можно убрать без смены геодезической
+# площади (~28 км). Артефакты нодинга GEOS все короче; крупные океанские
+# сегменты, где дуга расходится с хордой, остаются нетронутыми.
+REDUNDANT_MAX_SPAN_DEG = 0.25
+
+# Допуск гейта плоской идентичности. Точный ноль в плавающей точке недостижим:
+# наблюдались откаты на 1e-20 град² — квадрат со стороной в сотые доли
+# миллиметра. 1e-14 град² это ~1 см² на экваторе, заведомо ниже любой
+# значимости и на порядки ниже реального сдвига контура.
+PLANAR_IDENTITY_EPS_DEG2 = 1e-14
+
+
+def drop_redundant_vertices(geom):
+    """Убирает точки, лежащие ровно на прямой между соседями.
+
+    Это НЕ упрощение: такая точка не описывает ничего, её удаление не двигает
+    контур ни на микрон. Накапливаются они механически — каждый `union`/
+    `difference` в GEOS вставляет узлы в местах пересечения контуров, даже
+    когда линия остаётся прямой; за четыре прохода заполнения набралась
+    четверть файла (66 326 из 288 493 вершин, замерено).
+
+    Проверка коллинеарности точная (векторное произведение == 0), а не по
+    допуску: допуск двигал бы контур, а тут задача — не двигать.
+
+    Дубли (совпадающие подряд точки) убираются заодно — их в слое всего 2,
+    но стоят они столько же, сколько любая другая лишняя вершина.
+    """
+    def clean_ring(coords):
+        pts = list(coords)
+        closed = len(pts) > 1 and pts[0] == pts[-1]
+        if closed:
+            pts = pts[:-1]
+        # дубли
+        dedup = [p for i, p in enumerate(pts) if i == 0 or p != pts[i - 1]]
+        if len(dedup) > 1 and dedup[0] == dedup[-1]:
+            dedup.pop()
+        n = len(dedup)
+        if n < 3:
+            return None
+        keep = []
+        for i in range(n):
+            x0, y0 = dedup[i - 1]
+            x1, y1 = dedup[i]
+            x2, y2 = dedup[(i + 1) % n]
+            collinear = (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0) == 0.0
+            # Точка на прямой В ГРАДУСАХ не лежит на прямой НА СФЕРЕ: между
+            # вершинами геодезическая площадь считается по дуге. У океанских
+            # сегментов в тысячи километров удаление промежуточной точки меняет
+            # площадь всерьёз (замерено: Tasman Sea -1748 км², Coral +1298).
+            # У коротких сегментов от нодинга GEOS — не меняет. Поэтому убираем
+            # только те, чей пролёт короче порога.
+            span = max(abs(x2 - x0), abs(y2 - y0))
+            if not collinear or span > REDUNDANT_MAX_SPAN_DEG:
+                keep.append(dedup[i])
+        if len(keep) < 3:
+            return None
+        return keep + [keep[0]]
+
+    def clean_poly(p):
+        ext = clean_ring(p.exterior.coords)
+        if ext is None:
+            return None
+        ints = [r for r in (clean_ring(i.coords) for i in p.interiors) if r]
+        try:
+            q = Polygon(ext, ints)
+        except Exception:
+            return None
+        return q if q.is_valid else q.buffer(0)
+
+    if geom.geom_type == "Polygon":
+        return clean_poly(geom) or geom
+    if geom.geom_type == "MultiPolygon":
+        parts = [q for q in (clean_poly(p) for p in geom.geoms) if q is not None and not q.is_empty]
+        return unary_union(parts) if parts else geom
+    return geom
+
+
+def _vertex_count(feats):
+    n = 0
+    for ft in feats:
+        g = ft["geometry"]; c = g["coordinates"]
+        if g["type"] == "Polygon":
+            n += sum(len(r) for r in c)
+        else:
+            n += sum(len(r) for poly in c for r in poly)
+    return n
 
 
 def _debug_point():
@@ -337,6 +424,27 @@ def main():
             print(f"--- проход {p}: добавлено {added:,.1f} km2 ---")
             if added < FILL_SETTLED_KM2:
                 break
+
+    # Финальная чистка: точки на прямых ничего не описывают.
+    # Гейт — площадь: она обязана совпасть, иначе чистка сдвинула контур.
+    before_v = _vertex_count(feats)
+    for ft in feats:
+        g = shape(ft["geometry"])
+        cleaned = drop_redundant_vertices(g)
+        # Гейт — ПЛОСКАЯ идентичность, а не геодезическая площадь: операция
+        # обязана не двигать контур в тех же координатах, в которых он и
+        # рисуется. Геодезическая площадь — производная величина и на длинных
+        # дугах меняется законно, поэтому гейтом быть не может.
+        sd = g.symmetric_difference(cleaned)
+        if not sd.is_empty and sd.area > PLANAR_IDENTITY_EPS_DEG2:
+            print(f"  [ЧИСТКА] {ft['properties']['name']}: контур сдвинулся "
+                  f"на {sd.area:.3e} град², откат")
+            continue
+        ft["geometry"] = mapping(cleaned)
+        ft["properties"]["area_km2"] = round(area_km2(cleaned), 1)
+    after_v = _vertex_count(feats)
+    print(f"\nЛишних точек на прямых убрано: {before_v - after_v:,} "
+          f"({before_v:,} -> {after_v:,}, {(before_v - after_v) / before_v * 100:.1f}%)")
 
     path = out(OUT_NAME)
     with open(path, "w", encoding="utf-8") as f:
