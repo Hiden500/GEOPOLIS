@@ -14,6 +14,7 @@ import {
 import { type Country } from "@shared/types/Country";
 import { type PrimitiveOutcomeRecord } from "@shared/types/politics/PrimitiveOutcome";
 import { type PrimitiveRejectionRecord } from "@shared/types/politics/PrimitiveRejection";
+import { stripCodeFence } from "../llm/stripCodeFence";
 import { type Locale, getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
 import {
@@ -373,7 +374,11 @@ export class LLMService {
 
     let raw: unknown;
     try {
-      raw = JSON.parse(rawResponse);
+      // Забор ```json снимается ДО разбора: он ломает `JSON.parse`, хотя внутри
+      // лежит целый корректный ответ (замер — `stripCodeFence.ts`). Точка одна
+      // на оба цикла: автоматический и ручной, где игрок вставляет текст из
+      // чужого интерфейса — там забор ещё вероятнее.
+      raw = JSON.parse(stripCodeFence(rawResponse));
     } catch {
       return this.rejectedResponse("Invalid JSON format");
     }

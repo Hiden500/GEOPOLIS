@@ -33,6 +33,7 @@ import {
 import { parsePrimitives } from "../src/primitives/primitiveSchemas";
 import { type GameState } from "@shared/types/GameState";
 import { localBaseUrl, localHeaders } from "../src/llm/providers/localEndpoint";
+import { stripCodeFence } from "../src/llm/stripCodeFence";
 
 interface Args {
   model: string;
@@ -255,7 +256,9 @@ function validate(
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    // Тот же снос забора, что в `LLMService.processResponse`: замер обязан
+    // мерить БОЕВОЙ путь, иначе он покажет провалы, которых у игрока нет.
+    parsed = JSON.parse(stripCodeFence(raw));
   } catch (e) {
     return {
       breaks: [{ kind: "invalid_json", detail: (e as Error).message.slice(0, 160) }],
