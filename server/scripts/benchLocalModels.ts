@@ -16,7 +16,20 @@
  * прогонов отличались бы друг от друга.
  *
  * Запуск (из server/):
- *   npx tsx scripts/benchLocalModels.ts --model <id> --runs 10 --mode schema
+ *   npx tsx scripts/benchLocalModels.ts --model <id> --runs 10
+ *
+ * Оси замера независимы и сосуществуют, потому что вопрос «как просить JSON»
+ * не сводится к одному переключателю (замер:
+ * `.agent/runs/gemini-prompt-modes-2026-08-01/`):
+ *   --mode      способ запроса формата: schema | schema-loose | json-object | free
+ *   --hint      инструкция «только JSON» в конце промта: none | full | terse
+ *   --reasoning значение reasoning_effort (не задано — параметр не отправляется)
+ *
+ * Умолчания (`--mode free --hint full`) повторяют боевую конфигурацию
+ * провайдера. Сравнивать режимы по доле схема-валидных ответов БЕСПОЛЕЗНО:
+ * markdown-забор снимает `stripCodeFence` до валидации, и все режимы выглядят
+ * одинаково успешными. Различает их `fencedResponses` — доля ответов, пришедших
+ * в заборе.
  */
 // Первым: подхватывает server/.env до чтения любых переменных.
 import "./loadEnv";
@@ -33,18 +46,50 @@ import {
 import { parsePrimitives } from "../src/primitives/primitiveSchemas";
 import { type GameState } from "@shared/types/GameState";
 import { localBaseUrl, localHeaders } from "../src/llm/providers/localEndpoint";
+import { stripCodeFence } from "../src/llm/stripCodeFence";
+import { JSON_ONLY_INSTRUCTION, withJsonOnlyInstruction } from "../src/llm/jsonOnlyInstruction";
+
+/**
+ * Способ, которым у модели просят структурный ответ. Режимы сосуществуют,
+ * потому что сравнивать их можно только в один заход на одном промте: шлюз
+ * `json_schema` со `strict: true` ПРИНИМАЕТ, но не обязан применять, и по
+ * отправленному телу запроса о фактическом поведении сказать нечего.
+ */
+type Mode =
+  /** `json_schema` + `strict: true` — как в боевом провайдере до этого замера. */
+  | "schema"
+  /** Та же схема, `strict: false` — стоит ли строгость чего-нибудь на этом шлюзе. */
+  | "schema-loose"
+  /** `json_object` — свободный JSON-режим OpenAI, без схемы. */
+  | "json-object"
+  /** Никакого `response_format`: формат держит только промт. */
+  | "free";
+
+const MODES: Mode[] = ["schema", "schema-loose", "json-object", "free"];
+
+/** Инструкция «только JSON» в конце промта. `terse` — проверка чувствительности к формулировке. */
+type Hint = "none" | "full" | "terse";
+const HINTS: Hint[] = ["none", "full", "terse"];
+
+/**
+ * Короткая формулировка той же инструкции. Нужна не как вторая кандидатура на
+ * умолчание, а как замер чувствительности: если результат от длины текста не
+ * зависит, то дело в самом факте запрета, а не в удачных словах.
+ */
+const TERSE_HINT = `Return only the JSON object: no code fence, no text before or after it.`;
 
 interface Args {
   model: string;
   runs: number;
-  mode: "free" | "schema";
+  mode: Mode;
+  hint: Hint;
+  /** Значение `reasoning_effort`; пустая строка — параметр не отправляется вовсе. */
+  reasoning: string;
   base: string;
   player: string;
   maxTokens: number;
   out: string;
   retry: boolean;
-  /** Гасит reasoning через chat_template_kwargs — цена хода падает в разы. */
-  noThink: boolean;
   /**
    * Добавка к промту ОТДЕЛЬНЫМ сообщением — проверяет, сколько даёт стилевая
    * инструкция, не трогая `generatePrompt()`. Замер отвечает на вопрос
@@ -73,12 +118,22 @@ function parseArgs(): Args {
     if (fallback !== undefined) return fallback;
     throw new Error(`Missing required --${name}`);
   };
-  const mode = get("mode", "schema");
-  if (mode !== "free" && mode !== "schema") throw new Error(`--mode must be free|schema`);
+  // Умолчания повторяют БОЕВУЮ конфигурацию `LocalOpenAIProvider`
+  // (`LOCAL_LLM_RESPONSE_FORMAT=prompt`): запуск без флагов должен мерить то,
+  // чем ходит игра, иначе замер по умолчанию описывает режим, которого в игре нет.
+  const mode = get("mode", "free") as Mode;
+  if (!MODES.includes(mode)) throw new Error(`--mode must be one of ${MODES.join("|")}`);
+  const hint = get("hint", "full") as Hint;
+  if (!HINTS.includes(hint)) throw new Error(`--hint must be one of ${HINTS.join("|")}`);
+  // `--no-think` оставлен как псевдоним: на него ссылаются прошлые прогоны в
+  // `.agent/runs/`, и переименование сделало бы их команды невоспроизводимыми.
+  const reasoning = argv.includes("--no-think") ? "none" : get("reasoning", "");
   return {
     model: get("model"),
     runs: Number(get("runs", "10")),
     mode,
+    hint,
+    reasoning,
     // Дефолт — из LOCAL_LLM_BASE_URL, а не из литерала: иначе замер молча
     // ходил бы не на тот эндпоинт, что боевой провайдер.
     base: get("base", localBaseUrl()),
@@ -86,9 +141,15 @@ function parseArgs(): Args {
     maxTokens: Number(get("max-tokens", "4096")),
     out: get("out", ""),
     retry: !argv.includes("--no-retry"),
-    noThink: argv.includes("--no-think"),
     style: argv.includes("--style"),
   };
+}
+
+/** Промт хода плюс выбранная инструкция о формате — одним куском, как его увидит модель. */
+function promptWithHint(prompt: string, hint: Hint): string {
+  if (hint === "none") return prompt;
+  if (hint === "full") return withJsonOnlyInstruction(prompt);
+  return `${prompt.replace(/\s+$/, "")}\n\n${TERSE_HINT}\n`;
 }
 
 /** Категории поломок — то, ЧЕМ именно ответ не прошёл, а не только факт провала. */
@@ -115,7 +176,35 @@ interface RunResult {
   reasoningChars: number;
   retriedOk?: boolean;
   descriptions?: string;
+  title?: string;
   rawHead?: string;
+  /**
+   * СЫРАЯ форма ответа — до `stripCodeFence`. Без неё режимы неразличимы:
+   * забор снимается ДО валидации, поэтому `schemaValidFirstTry` показывает
+   * 10/10 и там, где модель каждый раз оборачивает ответ в ```` ```json ````.
+   * Именно эту привычку и должен был давить `response_format`, значит мерить
+   * его пользу надо здесь, а не по доле принятых ответов.
+   */
+  rawShape: RawShape;
+}
+
+interface RawShape {
+  /** Ответ пришёл в markdown-заборе (его снял `stripCodeFence`). */
+  fenced: boolean;
+  /** После снятия забора текст всё ещё не голый JSON-объект: есть проза вокруг. */
+  strayText: boolean;
+  /** Первые знаки сырого ответа — чтобы «забор» не приходилось принимать на слово. */
+  head: string;
+}
+
+function describeRaw(raw: string): RawShape {
+  const stripped = stripCodeFence(raw);
+  const trimmed = stripped.trim();
+  return {
+    fenced: stripped !== raw,
+    strayText: !(trimmed.startsWith("{") && trimmed.endsWith("}")),
+    head: raw.slice(0, 40),
+  };
 }
 
 interface StreamOutcome {
@@ -154,13 +243,17 @@ async function ask(
   // Замерено на LM Studio 0.4.20 + Qwen3.5-9B: из шести способов погасить
   // reasoning работает только этот. `chat_template_kwargs.enable_thinking`
   // ((документированный способ Qwen) и `/no_think` в тексте промта модель
-  // игнорирует — размышление остаётся полным.
-  if (args.noThink) body.reasoning_effort = "none";
-  if (schema) {
+  // игнорирует — размышление остаётся полным. Пустая строка означает «параметр
+  // не отправлять»: «не задан» и «задан как none» — разные запросы, и их
+  // различие само по себе предмет замера.
+  if (args.reasoning) body.reasoning_effort = args.reasoning;
+  if (args.mode === "schema" || args.mode === "schema-loose") {
     body.response_format = {
       type: "json_schema",
-      json_schema: { name: "geopolis_turn", strict: true, schema },
+      json_schema: { name: "geopolis_turn", strict: args.mode === "schema", schema },
     };
+  } else if (args.mode === "json-object") {
+    body.response_format = { type: "json_object" };
   }
 
   const started = Date.now();
@@ -245,7 +338,12 @@ async function ask(
 function validate(
   raw: string,
   game: GameState
-): { breaks: { kind: BreakKind; detail: string }[]; applicability: string[]; descriptions?: string } {
+): {
+  breaks: { kind: BreakKind; detail: string }[];
+  applicability: string[];
+  descriptions?: string;
+  title?: string;
+} {
   const breaks: { kind: BreakKind; detail: string }[] = [];
   const applicability: string[] = [];
 
@@ -255,7 +353,9 @@ function validate(
 
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    // Тот же снос забора, что в `LLMService.processResponse`: замер обязан
+    // мерить БОЕВОЙ путь, иначе он покажет провалы, которых у игрока нет.
+    parsed = JSON.parse(stripCodeFence(raw));
   } catch (e) {
     return {
       breaks: [{ kind: "invalid_json", detail: (e as Error).message.slice(0, 160) }],
@@ -273,7 +373,7 @@ function validate(
     };
   }
 
-  const { descriptions, actions, primitives } = envelope.data;
+  const { descriptions, title, actions, primitives } = envelope.data;
   const validator = new LLMResponseValidator(game);
 
   actions.forEach((rawAction, i) => {
@@ -302,7 +402,7 @@ function validate(
     }
   }
 
-  return { breaks, applicability, descriptions };
+  return { breaks, applicability, descriptions, ...(title ? { title } : {}) };
 }
 
 async function main(): Promise<void> {
@@ -312,11 +412,21 @@ async function main(): Promise<void> {
   // фиксации каждый ЗАПУСК скрипта мерил бы слегка другой промт, и сравнение
   // двух моделей между запусками перестало бы быть сравнением.
   const game = createGame("1946", args.player, "ru", 19460101);
-  const { prompt } = new LLMService(game).generatePrompt();
+  // `generatePrompt()` не переписан: инструкция о формате дописывается снаружи
+  // отдельным куском, поэтому «промт хода» во всех режимах остаётся один и тот
+  // же и режимы сравнимы между собой.
+  const { prompt: turnPrompt } = new LLMService(game).generatePrompt();
+  const prompt = promptWithHint(turnPrompt, args.hint);
 
-  const schema = args.mode === "schema" ? (z.toJSONSchema(GeminiResponseSchema) as Record<string, unknown>) : null;
+  const schema =
+    args.mode === "schema" || args.mode === "schema-loose"
+      ? (z.toJSONSchema(GeminiResponseSchema) as Record<string, unknown>)
+      : null;
 
-  console.log(`model=${args.model} mode=${args.mode} runs=${args.runs} player=${args.player}`);
+  console.log(
+    `model=${args.model} mode=${args.mode} hint=${args.hint} ` +
+      `reasoning=${args.reasoning || "(unset)"} runs=${args.runs} player=${args.player}`
+  );
   console.log(`prompt chars=${prompt.length} (~${Math.round(prompt.length / 3.2)} tok est)`);
 
   const results: RunResult[] = [];
@@ -346,12 +456,13 @@ async function main(): Promise<void> {
         totalMs: 0,
         finishReason: "error",
         reasoningChars: 0,
+        rawShape: { fenced: false, strayText: true, head: "" },
       });
       console.log(`  run ${i}: HTTP ERROR ${(e as Error).message.slice(0, 120)}`);
       continue;
     }
 
-    const { breaks, applicability, descriptions } = validate(outcome.text, game);
+    const { breaks, applicability, descriptions, title } = validate(outcome.text, game);
     if (outcome.finishReason === "length") {
       breaks.push({ kind: "truncated", detail: "finish_reason=length" });
     }
@@ -367,7 +478,12 @@ async function main(): Promise<void> {
       totalMs: outcome.totalMs,
       finishReason: outcome.finishReason,
       reasoningChars: outcome.reasoningChars,
-      ...(descriptions ? { descriptions: descriptions.slice(0, 1200) } : {}),
+      rawShape: describeRaw(outcome.text),
+      // Нарратив пишется ЦЕЛИКОМ, не первыми 1200 знаками: обрезанный текст
+      // годится для «поле присутствует», но не для чтения глазами, а качество
+      // прозы — половина того, ради чего режимы сравниваются.
+      ...(descriptions ? { descriptions } : {}),
+      ...(title ? { title } : {}),
       ...(breaks.length > 0 ? { rawHead: outcome.text.slice(0, 600) } : {}),
     };
 
@@ -420,11 +536,21 @@ async function main(): Promise<void> {
   const summary = {
     model: args.model,
     mode: args.mode,
+    hint: args.hint,
+    // Текст инструкции — в самом прогоне: без него файл через месяц не
+    // отличить от прогона с другой формулировкой, а формулировка тут переменная.
+    hintText: args.hint === "none" ? null : args.hint === "full" ? JSON_ONLY_INSTRUCTION : TERSE_HINT,
+    reasoning: args.reasoning || null,
     runs: args.runs,
     promptChars: prompt.length,
     promptTokens: usable[0]?.promptTokens ?? 0,
     schemaValidFirstTry: `${okCount}/${results.length}`,
     schemaValidAfterOneRetry: `${afterRetry}/${results.length}`,
+    // Доля ответов в markdown-заборе — ЕДИНСТВЕННАЯ метрика, по которой видно
+    // разницу между способами запроса формата: после `stripCodeFence` забор
+    // на схема-валидность уже не влияет, и все режимы выглядят одинаково.
+    fencedResponses: `${usable.filter(r => r.rawShape.fenced).length}/${usable.length}`,
+    strayTextResponses: `${usable.filter(r => r.rawShape.strayText).length}/${usable.length}`,
     avgTtftMs: Math.round(avg(usable.map(r => r.ttftMs))),
     avgTotalSec: Number(avg(usable.map(r => r.totalMs / 1000)).toFixed(1)),
     avgPromptEvalTps: Math.round(avg(usable.filter(r => r.ttftMs > 0).map(r => r.promptTokens / (r.ttftMs / 1000)))),
@@ -437,7 +563,6 @@ async function main(): Promise<void> {
     ),
     avgCompletionTokens: Math.round(avg(usable.map(r => r.completionTokens))),
     avgReasoningChars: Math.round(avg(usable.map(r => r.reasoningChars))),
-    thinkingDisabled: args.noThink,
     breakKinds: results
       .flatMap(r => r.breaks.map(b => b.kind))
       .reduce<Record<string, number>>((acc, k) => ({ ...acc, [k]: (acc[k] ?? 0) + 1 }), {}),

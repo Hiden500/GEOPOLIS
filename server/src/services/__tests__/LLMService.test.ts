@@ -867,6 +867,17 @@ describe("LLMService", () => {
       expect(game.eventHistory).toHaveLength(0);
     });
 
+    it("ответ в заборе ```json принимается: забор снимается до разбора", () => {
+      // Дословная форма живого провала gemini-3.6-flash-high через
+      // OpenAI-совместимый шлюз (2026-08-01): 3 из 10 ходов приходили так, и
+      // внутри лежал целый корректный JSON.
+      const body = JSON.stringify({ descriptions: "Январь 1946 года.", actions: [] });
+      const result = service.processResponse("```json\n" + body + "\n```");
+
+      expect(result.error).not.toBe("Invalid JSON format");
+      expect(result.success).toBe(true);
+    });
+
     it("невалидная структура (нет descriptions): отказ с причиной", () => {
       const result = service.processResponse(JSON.stringify({ actions: [] }));
 
