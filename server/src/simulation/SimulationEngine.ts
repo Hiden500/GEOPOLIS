@@ -77,7 +77,7 @@ export function simulateMonth(
 
         militaryTick(country, game.regions);
 
-        politicsTick(country);
+        politicsTick(country, game.regions);
 
         // Экономический кризис: inflation впервые пересекает уже
         // существующий порог "высокой инфляции" (STABILITY_HIGH_INFLATION_THRESHOLD,
