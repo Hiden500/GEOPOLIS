@@ -152,11 +152,95 @@ DIVIDE_MAX_DEPTH = 12
 # сегменты, где дуга расходится с хордой, остаются нетронутыми.
 REDUNDANT_MAX_SPAN_DEG = 0.25
 
+# Часть, покрытая соседями выше этой доли, дублирует их воду и удаляется.
+STRAY_COVERED_SHARE = 0.999
+
+# Признак разрыва по антимеридиану: центр близко к +-180 И плоское расстояние
+# до тела огромно. Один признак без другого даёт ложные срабатывания.
+ANTIMERIDIAN_DEG = 25.0
+ANTIMERIDIAN_MIN_SPLIT_DEG = 100.0
+
 # Допуск гейта плоской идентичности. Точный ноль в плавающей точке недостижим:
 # наблюдались откаты на 1e-20 град² — квадрат со стороной в сотые доли
 # миллиметра. 1e-14 град² это ~1 см² на экваторе, заведомо ниже любой
 # значимости и на порядки ниже реального сдвига контура.
 PLANAR_IDENTITY_EPS_DEG2 = 1e-14
+
+
+def resolve_stray_parts(feats):
+    """Разбирает неглавные части морей: лишнее удаляет, остальное вливает.
+
+    Три класса и три судьбы:
+
+    1. **Покрыта другими морями целиком** — та же вода уже принадлежит соседям,
+       часть дублирует её. Удаляется, вода не теряется по построению. Считать
+       покрытие надо ОБЪЕДИНЕНИЕМ соседей, а не лучшим из них по отдельности:
+       `South Pacific Ocean_3` лежит в Solomon Sea лишь на 58%, но в Solomon +
+       Bismarck — на 100% (найдено пользователем, у автора была ошибка).
+    2. **Разрыв по антимеридиану** — океан за ±180° ОБЯЗАН быть двумя кусками.
+       Плоское расстояние между ними десятки тысяч км и обманывает любую
+       проверку «далеко от тела». Не трогается.
+    3. **Касается соседа** — вливается в него: вода остаётся, а моря перестают
+       иметь пятна своего цвета вдали от себя.
+
+    Решение вливать принял пользователь 2026-07-31; состав акваторий — его
+    зона, не агента.
+    """
+    print("\nРазбор неглавных частей...")
+    dropped = merged = kept_anti = kept_iso = 0
+    dropped_km2 = merged_km2 = 0.0
+
+    geoms = [shape(ft["geometry"]) for ft in feats]
+    names = [ft["properties"]["name"] for ft in feats]
+
+    for idx, g in enumerate(geoms):
+        if g.geom_type != "MultiPolygon":
+            continue
+        parts = sorted(g.geoms, key=lambda p: -p.area)
+        main_part, keep = parts[0], [parts[0]]
+
+        for p in parts[1:]:
+            if p.area <= 0:
+                continue
+            c = p.centroid
+            if (abs(abs(c.x) - 180.0) < ANTIMERIDIAN_DEG
+                    and main_part.distance(p) > ANTIMERIDIAN_MIN_SPLIT_DEG):
+                keep.append(p)
+                kept_anti += 1
+                continue
+
+            cover, touch = [], None
+            for j, og in enumerate(geoms):
+                if j == idx or not og.intersects(p.buffer(TOUCH_EPS_DEG)):
+                    continue
+                inter = p.intersection(og)
+                if not inter.is_empty:
+                    cover.append(inter)
+                if touch is None and og.distance(p) <= TOUCH_EPS_DEG:
+                    touch = j
+
+            share = unary_union(cover).area / p.area if cover else 0.0
+            if share > STRAY_COVERED_SHARE:
+                dropped += 1
+                dropped_km2 += area_km2(p)
+                continue
+            if touch is not None:
+                geoms[touch] = keep_real_water(unary_union([geoms[touch], p]))
+                merged += 1
+                merged_km2 += area_km2(p)
+                continue
+            keep.append(p)
+            kept_iso += 1
+
+        geoms[idx] = keep[0] if len(keep) == 1 else unary_union(keep)
+
+    for i, ft in enumerate(feats):
+        ft["geometry"] = mapping(geoms[i])
+        ft["properties"]["area_km2"] = round(area_km2(geoms[i]), 1)
+
+    print(f"  удалено дублирующих: {dropped} ({dropped_km2:.3f} км², вода у соседей)")
+    print(f"  влито в соседей    : {merged} ({merged_km2:,.1f} км²)")
+    print(f"  оставлено: разрыв по антимеридиану {kept_anti}, изолированных {kept_iso}")
 
 
 def drop_redundant_vertices(geom):
@@ -424,6 +508,9 @@ def main():
             print(f"--- проход {p}: добавлено {added:,.1f} km2 ---")
             if added < FILL_SETTLED_KM2:
                 break
+
+    if not only:
+        resolve_stray_parts(feats)
 
     # Финальная чистка: точки на прямых ничего не описывают.
     # Гейт — площадь: она обязана совпасть, иначе чистка сдвинула контур.
