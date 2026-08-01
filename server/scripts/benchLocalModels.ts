@@ -18,6 +18,8 @@
  * Запуск (из server/):
  *   npx tsx scripts/benchLocalModels.ts --model <id> --runs 10 --mode schema
  */
+// Первым: подхватывает server/.env до чтения любых переменных.
+import "./loadEnv";
 import { writeFileSync } from "fs";
 import { z } from "zod";
 import { createGame } from "../src/game/CreateGame";
@@ -30,6 +32,7 @@ import {
 } from "../src/llm/actionSchemas";
 import { parsePrimitives } from "../src/primitives/primitiveSchemas";
 import { type GameState } from "@shared/types/GameState";
+import { localBaseUrl, localHeaders } from "../src/llm/providers/localEndpoint";
 
 interface Args {
   model: string;
@@ -76,7 +79,9 @@ function parseArgs(): Args {
     model: get("model"),
     runs: Number(get("runs", "10")),
     mode,
-    base: get("base", "http://localhost:1234/v1"),
+    // Дефолт — из LOCAL_LLM_BASE_URL, а не из литерала: иначе замер молча
+    // ходил бы не на тот эндпоинт, что боевой провайдер.
+    base: get("base", localBaseUrl()),
     player: get("player", "USA"),
     maxTokens: Number(get("max-tokens", "4096")),
     out: get("out", ""),
@@ -159,9 +164,12 @@ async function ask(
   }
 
   const started = Date.now();
+  // Заголовки — общие с провайдером (`localEndpoint.ts`): здесь стоял свой
+  // `Content-Type` без `Authorization`, и против шлюза с ключом замер падал
+  // 401 ещё до первого токена.
   const res = await fetch(`${args.base}/chat/completions`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: localHeaders(),
     body: JSON.stringify(body),
   });
   if (!res.ok || !res.body) {

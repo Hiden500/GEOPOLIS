@@ -3,6 +3,7 @@ import { LLMProviderError } from "../../errors/AppError";
 import { type LLMProvider } from "./LLMProvider";
 import { parseOpenAIUsage, type TokenUsage } from "../tokenTelemetry";
 import { GeminiResponseSchema } from "../actionSchemas";
+import { localBaseUrl, localHeaders, hasApiKey } from "./localEndpoint";
 
 /**
  * Локальный LLM-рантайм по OpenAI-совместимому протоколу (LM Studio, llama.cpp
@@ -14,8 +15,10 @@ import { GeminiResponseSchema } from "../actionSchemas";
  * цепочкой, что в `LLMService.processResponse`.
  */
 
-/** Дефолт совпадает с портом LM Studio по умолчанию. */
-const DEFAULT_BASE_URL = "http://localhost:1234/v1";
+/**
+ * Адрес и заголовки — из `localEndpoint.ts`: те же три строки стояли ещё в
+ * двух скриптах и разошлись с этим файлом (там `Authorization` не отправлялся).
+ */
 
 /**
  * Замер: `max_tokens` 4096 при включённом reasoning дал 3/10 схема-валидных,
@@ -94,7 +97,7 @@ export class LocalOpenAIProvider implements LLMProvider {
     prompt: string,
     responseSchema: z.ZodType = GeminiResponseSchema
   ): Promise<string> {
-    const baseUrl = (process.env.LOCAL_LLM_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+    const baseUrl = localBaseUrl();
     const model = process.env.LOCAL_LLM_MODEL || DEFAULT_MODEL;
     const maxTokens = positiveIntFromEnv("LOCAL_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS);
     const timeoutMs = positiveIntFromEnv("LOCAL_LLM_TIMEOUT_MS", DEFAULT_TIMEOUT_MS);
@@ -119,10 +122,7 @@ export class LocalOpenAIProvider implements LLMProvider {
     const reasoning = process.env.LOCAL_LLM_REASONING;
     if (reasoning) body.reasoning_effort = reasoning;
 
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (process.env.LOCAL_LLM_API_KEY) {
-      headers.Authorization = `Bearer ${process.env.LOCAL_LLM_API_KEY}`;
-    }
+    const headers = localHeaders();
 
     let response: Response;
     try {
@@ -143,8 +143,16 @@ export class LocalOpenAIProvider implements LLMProvider {
 
     if (!response.ok) {
       const text = await response.text().catch(() => "");
+      // 401/403 отделены от прочих ошибок: у шлюза с ключом это САМАЯ частая
+      // поломка, а по голому «вернул 401» её не отличить от отказа модели.
+      const hint =
+        response.status === 401 || response.status === 403
+          ? hasApiKey()
+            ? " Ключ задан, но отвергнут — проверьте LOCAL_LLM_API_KEY в server/.env."
+            : " Ключ не задан — добавьте LOCAL_LLM_API_KEY в server/.env."
+          : "";
       throw new LLMProviderError(
-        `Локальный LLM вернул ${response.status}: ${text.slice(0, 500)}`
+        `Локальный LLM вернул ${response.status}: ${text.slice(0, 500)}.${hint}`
       );
     }
 

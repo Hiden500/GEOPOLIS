@@ -25,12 +25,15 @@
  * Запуск:
  *   npx tsx scripts/runCampaignWithLLM.ts [--years 15] [--player USA] [--out ../.tmp/llm-campaign]
  */
+// Первым: подхватывает server/.env до чтения любых переменных.
+import "./loadEnv";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { createGame } from "../src/game/CreateGame";
 import { simulateMonth } from "../src/simulation/SimulationEngine";
 import { LLMService } from "../src/services/LLMService";
 import { createLLMProvider } from "../src/llm/providers/createProvider";
+import { localBaseUrl, listLocalModels, hasApiKey } from "../src/llm/providers/localEndpoint";
 import { effectiveController } from "@shared/utils/regionControl";
 import { type GameState } from "@shared/types/GameState";
 
@@ -100,25 +103,39 @@ function row(game: GameState, month: number, turn: TurnStats): (string | number)
   ];
 }
 
-/** Проверка ДО партии: сервер модели поднят и отвечает. */
+/**
+ * Проверка ДО партии: сервер модели поднят, ключ (если нужен) принят, и та
+ * модель, которой собираемся ходить, эндпоинту известна.
+ *
+ * Сверка имени добавлена 2026-08-01: на шлюзе с несколькими моделями опечатка в
+ * `LOCAL_LLM_MODEL` раньше всплывала только на первом ходе — партия к тому
+ * моменту уже шла, а ошибка приходила от чужого сервиса и выглядела как сбой
+ * модели, а не как опечатка в переменной.
+ */
 async function ensureProviderReachable(): Promise<void> {
-  const baseUrl = (process.env.LOCAL_LLM_BASE_URL || "http://localhost:1234/v1").replace(/\/+$/, "");
+  const baseUrl = localBaseUrl();
+  let ids: string[];
   try {
-    const response = await fetch(`${baseUrl}/models`, { signal: AbortSignal.timeout(5000) });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const body = (await response.json()) as { data?: { id?: string }[] };
-    const ids = (body.data ?? []).map(m => m.id).filter(Boolean);
-    console.log(`сервер модели отвечает: ${baseUrl}`);
-    console.log(`загружено моделей: ${ids.length}${ids.length ? ` (${ids.join(", ")})` : ""}`);
-    if (ids.length === 0) {
-      throw new Error("сервер отвечает, но ни одна модель не загружена");
-    }
+    ids = await listLocalModels(5000);
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `Локальная модель недоступна по ${baseUrl}: ${reason}\n` +
-      `Запусти LM Studio → вкладка Developer → Start Server и загрузи модель.\n` +
-      `Другой адрес задаётся переменной LOCAL_LLM_BASE_URL.`
+      `Модель недоступна по ${baseUrl}: ${reason}\n` +
+      `Локальный рантайм: LM Studio → вкладка Developer → Start Server, загрузи модель.\n` +
+      `Адрес задаётся LOCAL_LLM_BASE_URL, ключ (если сервер его требует) — LOCAL_LLM_API_KEY.`
+    );
+  }
+
+  console.log(`сервер модели отвечает: ${baseUrl} (ключ ${hasApiKey() ? "задан" : "не задан"})`);
+  console.log(`доступно моделей: ${ids.length}${ids.length ? ` (${ids.join(", ")})` : ""}`);
+  if (ids.length === 0) {
+    throw new Error("сервер отвечает, но не отдал ни одной модели");
+  }
+
+  const wanted = process.env.LOCAL_LLM_MODEL;
+  if (wanted && !ids.includes(wanted)) {
+    throw new Error(
+      `LOCAL_LLM_MODEL="${wanted}" — такой модели у эндпоинта нет. Доступные: ${ids.join(", ")}`
     );
   }
 }
