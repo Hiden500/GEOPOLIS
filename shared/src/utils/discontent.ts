@@ -20,6 +20,9 @@ import {
   DISCONTENT_CONCESSION_WEIGHT,
   ALIENATION_DISTANCE_WEIGHT,
   WELFARE_COUNTRY_PARITY_RATIO,
+  WELFARE_PARITY,
+  WELFARE_SATURATION_RATIO,
+  DISCONTENT_PROSPERITY_RELIEF,
 } from "../defines/discontent";
 
 /**
@@ -58,20 +61,41 @@ export function ideologyDistance(a: IdeologyCoordinates, b: IdeologyCoordinates)
 }
 
 /**
- * Относительное благосостояние региона 0..1: ВВП на душу региона к ВВП на душу
- * его страны. Мера относительная — недовольство рождает отставание от своей же
- * страны, а не абсолютная бедность 1946 года. Дышит от EconomyTick (тот растит
- * region.gdp с посекторным бонусом, то есть неравномерно), в отличие от
- * region.development, который тиками не меняется вовсе.
+ * Относительное положение региона 0..1: ВВП на душу региона против ВВП на душу
+ * его страны, по ЛОГАРИФМИЧЕСКОЙ шкале с паритетом в `WELFARE_PARITY` (0.5).
+ * Мера относительная — недовольство рождает отставание от своей же страны, а не
+ * абсолютная бедность 1946 года. Дышит от EconomyTick (тот растит region.gdp с
+ * посекторным бонусом, то есть неравномерно), в отличие от region.development,
+ * который тиками не меняется вовсе.
+ *
+ * ДВУСТОРОННЯЯ: 0.5 — ровно средний по стране, ниже — отстающий, выше —
+ * опережающий. До 2026-08-01 мера была `clamp01(отношение)`, и весь верх шкалы
+ * срезался в 1: у 536 регионов из 1399 экономический член недовольства был
+ * тождественным нулём (обоснование и замер — `WELFARE_PARITY` в
+ * `shared/src/defines/discontent.ts`).
+ *
+ * `country` здесь — ЭКОНОМИЧЕСКИЙ ориентир региона, а не его власть. При
+ * оккупации это разные страны, и путать их нельзя: агрегат оккупанта данный
+ * регион не включает вовсе (`ownerCountryId` — источник истины для агрегации),
+ * поэтому деление на его подушевой ВВП сравнивало бы регион с множеством, в
+ * которое он не входит. Кого подставлять — решает `regionWelfareReference`.
+ *
+ * Ориентир неизвестен или вырожден — возвращается ПАРИТЕТ, а не 1: единица
+ * теперь означает «регион втрое богаче своей страны» и дала бы такому региону
+ * максимальную скидку к недовольству из ниоткуда.
  */
 export function regionWelfare(region: Region, country: Country | undefined): number {
-  if (!country || region.population <= 0 || country.population <= 0) return 1;
+  if (!country || region.population <= 0 || country.population <= 0) return WELFARE_PARITY;
 
   const countryPerCapita = country.economy.gdp / country.population;
-  if (countryPerCapita <= 0) return 1;
+  if (countryPerCapita <= 0) return WELFARE_PARITY;
 
   const regionPerCapita = region.gdp / region.population;
-  return clamp01(regionPerCapita / (countryPerCapita * WELFARE_COUNTRY_PARITY_RATIO));
+  const ratio = regionPerCapita / (countryPerCapita * WELFARE_COUNTRY_PARITY_RATIO);
+  if (ratio <= 0) return 0;
+
+  const offset = Math.log(ratio) / Math.log(WELFARE_SATURATION_RATIO);
+  return clamp01(WELFARE_PARITY + WELFARE_PARITY * offset);
 }
 
 /** Память воздействий на пару (регион, группа); undefined — следов нет. */
@@ -106,15 +130,24 @@ export function groupDiscontent(
   welfare: number,
   memory: GroupImpactMemory | undefined
 ): number {
+  // Экономика входит ДВУСТОРОННЕ, но двумя РАЗНЫМИ способами, и это не
+  // симметрия ради красоты (см. `DISCONTENT_PROSPERITY_RELIEF`):
+  //   отставание ДОБАВЛЯЕТ недовольство — нищета зла сама по себе;
+  //   опережение УМНОЖАЕТ имеющееся на долю < 1 — благополучие не создаёт
+  //   довольство из ничего, оно смягчает то, что уже есть.
+  const standing = clamp01(welfare);
+  const shortfall = Math.max(0, (WELFARE_PARITY - standing) / WELFARE_PARITY);
+  const surplus = Math.max(0, (standing - WELFARE_PARITY) / WELFARE_PARITY);
+
   const raw =
     DISCONTENT_BASE +
     DISCONTENT_DISTANCE_WEIGHT * effectiveDistance(authority, desired, memory) +
-    DISCONTENT_WELFARE_WEIGHT * (1 - clamp01(welfare)) +
+    DISCONTENT_WELFARE_WEIGHT * shortfall +
     DISCONTENT_EMBOLDENMENT_WEIGHT * (memory?.emboldenment ?? 0) -
     DISCONTENT_SUPPRESSION_WEIGHT * (memory?.suppression ?? 0) -
     DISCONTENT_CONCESSION_WEIGHT * (memory?.concession ?? 0);
 
-  return clamp01(raw);
+  return clamp01(raw * (1 - DISCONTENT_PROSPERITY_RELIEF * surplus));
 }
 
 /** Разложение недовольства региона по группам — для UI, промта и диагностики. */
@@ -134,6 +167,30 @@ export function regionAuthority(game: GameState, region: Region): Country | unde
 }
 
 /**
+ * С кем регион СРАВНИВАЕТ свой уровень жизни — легальный владелец, а не
+ * фактический контролёр.
+ *
+ * Оккупация меняет власть (чью идеологию население терпит), но не меняет
+ * систему отсчёта достатка: житель оккупированной провинции сопоставляет себя
+ * со своей страной, а не со страной оккупанта. У этого есть и арифметическая
+ * причина: `country.economy.gdp` агрегируется по `ownerCountryId`, поэтому
+ * агрегат оккупанта оккупированный регион НЕ включает — деление на него
+ * сравнивало бы регион с множеством, в которое он не входит. Аудит формул
+ * 2026-07-30 намерил цену этой подмены: бедный регион под богатой державой
+ * получал до +0.25 недовольства ниоткуда, и ровно столько же скачком терял при
+ * освобождении.
+ *
+ * Владельца в партии не осталось (страну поглотили — `split_country`/аннексия) —
+ * откатываемся на контролёра: сравнивать не с чем, а паритет по умолчанию
+ * прятал бы реальную нищету присоединённой территории.
+ */
+export function regionWelfareReference(game: GameState, region: Region): Country | undefined {
+  return (
+    game.countries.find(c => c.id === region.ownerCountryId) ?? regionAuthority(game, region)
+  );
+}
+
+/**
  * Недовольство по каждой группе региона. Пустой массив — регион не размечен
  * демографией (частичное покрытие данных) либо в нём нет известных групп.
  */
@@ -147,7 +204,9 @@ export function regionGroupDiscontent(
   const authority = country
     ? resolveIdeologyCoordinates(country.politics)
     : IDEOLOGY_FALLBACK_COORDINATES;
-  const welfare = regionWelfare(region, country);
+  // Власть и экономический ориентир — РАЗНЫЕ страны при оккупации, см.
+  // regionWelfareReference.
+  const welfare = regionWelfare(region, regionWelfareReference(game, region));
 
   const groupsById = new Map<string, EthnicGroupDefinition>(
     game.ethnicGroups.map(g => [g.id, g])
