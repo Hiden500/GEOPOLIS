@@ -111,6 +111,38 @@ def validate_living_docs() -> None:
         lines = target.read_text(encoding="utf-8").count("\n") + 1
         check(lines <= limit, f"{path} stays under {limit} lines (now {lines})")
 
+    # Штамп свежести «Last updated:» — одна короткая строка, не сводка сессии.
+    #
+    # Заведено 2026-08-01 по факту: лимит выше меряет СТРОКИ, и сводки сессий
+    # переехали в однострочный штамп — мержи накопили в DECISIONS.md пять
+    # штампов по ~38 000 символов (в TODO.md — 9 400, в POLITICS.md — 1 100),
+    # файлы стали нечитаемы при зелёном пороге. Лимит строк без лимита длины
+    # строки — ворота для Гудхарта; содержимое штампов дублировало обычные
+    # записи журнала, то есть терялась только читаемость, не информация.
+    # Архив/провенанс/bootstrap исключены: они фиксируют прошлое как есть.
+    stamp_hits: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        rel = str(doc.relative_to(ROOT)).replace("\\", "/")
+        if rel.startswith(("docs/decisions/", "docs/provenance/", "docs/agent/")):
+            continue
+        stamps = [
+            (number, line)
+            for number, line in enumerate(
+                doc.read_text(encoding="utf-8", errors="replace").splitlines(), start=1
+            )
+            if line.startswith("Last updated:")
+        ]
+        if len(stamps) > 1:
+            stamp_hits.append(f"{rel}: {len(stamps)} stamps (expected 1)")
+        for number, line in stamps:
+            if len(line) > 300:
+                stamp_hits.append(f"{rel}:{number} ({len(line)} chars)")
+    check(
+        not stamp_hits,
+        "Last updated stamps are single and short (<=300 chars)",
+        "; ".join(stamp_hits[:5]),
+    )
+
 
 def validate_no_conflict_markers() -> None:
     """Неразрешённые маркеры конфликта в отслеживаемых текстовых файлах.
