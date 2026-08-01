@@ -165,6 +165,10 @@ async function main(): Promise<void> {
         success: result.success,
         narrativeCanonized: result.narrativeCanonized,
         title: result.title ?? null,
+        // Нарратив пишется в журнал целиком: оценивать его можно только читая,
+        // а не по факту наличия. Без него длинный прогон отвечает «сколько
+        // действий прошло» и молчит о том, каким игрок увидел мир.
+        descriptions: result.descriptions ?? null,
         receipt,
       }) + "\n");
     } catch (e) {

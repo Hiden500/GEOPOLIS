@@ -223,6 +223,38 @@ function describeRawAction(raw: unknown): Omit<RejectedAction, "reason"> {
  * Сервис для работы с LLM симуляцией.
  * Управляет генерацией промтов, применением ответов LLM и валидацией действий.
  */
+
+/**
+ * Дата хода в ЧИТАЕМОМ виде — «февраль 1946 года» / «February 1946».
+ *
+ * ЗАЧЕМ. Промт отдавал модели только ISO (`1946-02-01`), а раздел «Narrative
+ * Style» запрещает тащить в прозу технические идентификаторы — и модель, честно
+ * выполняя оба указания, переставала называть время вообще: заголовки выходили
+ * вида «Зима, когда мир держится на ниточке» вместо «Февраль 1946».
+ * Замер живого прогона 2026-08-01: ни в одном из 24 заголовков за два года
+ * период не назван.
+ *
+ * Приём взят из промтов Open-Historia (`.reference/`, разбор 2026-07-30): у них
+ * дата подаётся ДВАЖДЫ — машинной строкой и «грамматической» формой, которую
+ * модель вставляет в текст как есть. Идея дешёвая и снимает выбор между
+ * «нарушить запрет» и «промолчать».
+ */
+const MONTHS: Record<Locale, string[]> = {
+  // Именительный падеж: строка называет ПЕРИОД («февраль 1946 года»), а не дату
+  // события («12 февраля»), поэтому родительный здесь был бы ошибкой.
+  ru: ["январь", "февраль", "март", "апрель", "май", "июнь",
+       "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"],
+  en: ["January", "February", "March", "April", "May", "June",
+       "July", "August", "September", "October", "November", "December"],
+};
+
+export function readableDate(isoDate: string, locale: Locale): string {
+  const [year, month] = isoDate.split("-");
+  const index = Number.parseInt(month ?? "1", 10) - 1;
+  const name = MONTHS[locale]?.[index] ?? MONTHS.en[index] ?? month ?? "";
+  return locale === "ru" ? `${name} ${year} года` : `${name} ${year}`;
+}
+
 export class LLMService {
   private game: GameState;
 
@@ -952,7 +984,11 @@ export class LLMService {
 # Geopolis - World Simulation
 
 ## Current Date
-${this.game.currentDate}
+${this.game.currentDate} — ${readableDate(this.game.currentDate, this.game.locale)}
+
+This response covers exactly this one month. Name it in the prose the way it is
+written above after the dash: the chronicle of a period always says which period
+it describes. The ISO form is for the engine, never for the text.
 
 ## Language
 Write "title", "descriptions", and any other free-text narrative you generate
@@ -974,6 +1010,10 @@ things are forbidden, because each one breaks the fiction from inside:
 Ground the narrative in the real events, people, and decisions of the period.
 
 ## Player Country
+This country is played by a human. You never act for it: its state policy is the
+player's own decision, and any primitive you send with it as the source will be
+refused before it reaches the engine. Write about it in the narrative, react to
+what it does — but decide for everyone else.
 ${this.getPlayerCountryInfo()}
 
 ## Major Powers
@@ -1275,7 +1315,9 @@ Hard limits (actions violating them are rejected):
     if (relevant.length === 0) return '';
 
     const recent = relevant.slice(-limit).reverse();
-    const formatted = recent.map(e => `${e.title} (${e.date})`).join('; ');
+    const formatted = recent
+      .map(e => `${e.title} (${readableDate(e.date, this.game.locale)})`)
+      .join('; ');
     return `\n  Recent: ${formatted}`;
   }
 
