@@ -62,11 +62,13 @@ build_seas_from_iho.py — водный слой, построенный из и
 """
 from paths import game_map, out, source
 import json
+import os
 import sys
 import time
-from shapely.geometry import shape, mapping, box as shp_box, Point as ShpPoint
+from shapely.geometry import (shape, mapping, box as shp_box,
+                               Point as ShpPoint, LineString)
 from shapely.strtree import STRtree
-from shapely.ops import unary_union
+from shapely.ops import unary_union, split as shp_split
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -126,11 +128,45 @@ SEAM_MARGIN_DEG = 2.0
 FILL_PASSES = 4
 FILL_SETTLED_KM2 = 1.0
 
+# Насколько продлевать линию раздела, чтобы она заведомо пересекла кусок.
+DIVIDE_REACH_DEG = 30.0
+
+# Глубина рекурсии разреза и сколько ближайших акваторий перебирать парами
+# (при 5 кандидатах это 10 пар — дёшево, а больше и не бывает у берега).
+DIVIDE_SPLIT_MAX_DEPTH = 6
+DIVIDE_MAX_CANDS = 5
+
+# Кусок крупнее этого, который не удалось рассечь линией, идёт в сетку:
+# ошибка целого присвоения была бы там видна на карте. Мельче — отдаётся
+# целиком, потому что лишние точки видны, а сдвиг границы на 2 км² — нет.
+FALLBACK_WHOLE_MAX_KM2 = 500.0
+
 # Предел дробления на линии раздела: ~22 м. Заведомо мельче допуска, с
 # которым диагностика сверяет границу с источником (1e-3 град ≈ 111 м).
 DIVIDE_MIN_CELL_DEG = 2e-4
 # Страховка от бесконечной рекурсии на вырожденных стыках.
 DIVIDE_MAX_DEPTH = 12
+
+
+def _debug_point():
+    """Точка слежения из окружения: SEAS_DEBUG_POINT="lon,lat".
+
+    Нужна ровно для того, чтобы не гадать, каким путём пошёл конкретный
+    проблемный кусок. Трижды подряд правка механизма разреза не меняла
+    прибрежные хвосты ни на одну точку — значит правился не тот путь, и
+    установить это можно только печатью из живого прогона.
+    """
+    raw = os.environ.get("SEAS_DEBUG_POINT")
+    if not raw:
+        return None
+    try:
+        lon, lat = (float(v) for v in raw.split(","))
+    except ValueError:
+        return None
+    return ShpPoint(lon, lat)
+
+
+DEBUG_POINT = None          # ставится в main(), чтобы читать окружение один раз
 
 
 def load_features(path):
@@ -213,6 +249,10 @@ def subtract_local(geom, tree, geoms):
 
 
 def main():
+    global DEBUG_POINT
+    DEBUG_POINT = _debug_point()
+    if DEBUG_POINT is not None:
+        print(f"СЛЕЖЕНИЕ за точкой ({DEBUG_POINT.x}, {DEBUG_POINT.y})")
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     no_absorb = "--no-absorb" in sys.argv
     only = set(args) or None
@@ -302,6 +342,104 @@ def main():
     with open(path, "w", encoding="utf-8") as f:
         json.dump({"type": "FeatureCollection", "features": feats}, f, ensure_ascii=False)
     print(f"\nЗаписано: {path} ({len(feats)} фич)")
+
+
+def divide_line(a, b, reach_deg=DIVIDE_REACH_DEG):
+    """Линия раздела двух ИСХОДНЫХ акваторий, продлённая в обе стороны.
+
+    Общая граница двух полигонов IHO — это и есть линия делимитации. Продлеваем
+    её по направлению «конец-конец» настолько, чтобы гарантированно пересечь
+    заполняемый кусок целиком. Возвращает None, если акватории не соприкасаются
+    или общая граница вырождена.
+    """
+    try:
+        shared = a.boundary.intersection(b.boundary)
+    except Exception:
+        return None
+    if shared is None or shared.is_empty or shared.length <= 0:
+        return None
+    comps = [c for c in (shared.geoms if hasattr(shared, "geoms") else [shared])
+             if c.geom_type in ("LineString", "LinearRing") and c.length > 0]
+    if not comps:
+        return None
+    line = max(comps, key=lambda c: c.length)
+    (x1, y1), (x2, y2) = line.coords[0], line.coords[-1]
+    dx, dy = x2 - x1, y2 - y1
+    n = (dx * dx + dy * dy) ** 0.5
+    if n == 0:
+        return None
+    dx, dy = dx / n, dy / n
+    return LineString([(x1 - dx * reach_deg, y1 - dy * reach_deg),
+                       (x2 + dx * reach_deg, y2 + dy * reach_deg)])
+
+
+def assign_by_divide(piece, cands, out):
+    """Режет спорный кусок ПРЯМОЙ линией раздела, а не сеткой.
+
+    Квадрантное дробление даёт правильный ответ, но лестницей: граница идёт
+    ступеньками по осям, амплитуда — размер минимальной ячейки, и каждая
+    ступенька это две лишние точки. На реальных данных так набирались сотни
+    точек на одну линию раздела (и заметный рост размера файла).
+
+    Здесь кусок разрезается самой линией делимитации, продлённой в обе
+    стороны: для двух акваторий, сходящихся по прямой, это точная диагональ —
+    две новые точки вместо сотен. Возвращает True, если разрез удался.
+    """
+    return _divide_rec(piece, cands, out, 0)
+
+
+def _divide_rec(piece, cands, out, depth):
+    """Рекурсивный разрез: пара ближайших акваторий за раз.
+
+    Требовать РОВНО двух претендентов нельзя: у берега в радиусе поиска обычно
+    оказывается три моря и больше, и на реальных данных так отсекалось 1651
+    спорных куска из 1671 — почти всё уходило на запасную сетку, то есть
+    лестница оставалась. Режем по линии между двумя БЛИЖАЙШИМИ, затем каждый
+    осколок разбираем тем же способом, пока в нём не останется один хозяин.
+    """
+    probe = piece.representative_point()
+    minx, miny, maxx, maxy = piece.bounds
+    probes = [probe, ShpPoint(minx, miny), ShpPoint(minx, maxy),
+              ShpPoint(maxx, miny), ShpPoint(maxx, maxy)]
+    verdicts = {nearest_source_idx(p, cands) for p in probes}
+
+    # Кусок единодушен — отдаём целиком. Это не оптимизация, а условие
+    # малого числа точек: резать там, где спора нет, значит плодить вершины.
+    if len(verdicts) == 1:
+        idx = verdicts.pop()
+        if idx is None:
+            return False
+        out.setdefault(idx, []).append(piece)
+        return True
+
+    if depth > DIVIDE_SPLIT_MAX_DEPTH or len(cands) < 2:
+        return False
+
+    ordered = sorted(cands, key=lambda c: c[1].distance(piece))[:DIVIDE_MAX_CANDS]
+
+    # Перебираем ПАРЫ, а не только две ближайшие. У прибрежного хвоста две
+    # ближайшие акватории — не обязательно те, чья линия через него проходит:
+    # у Гибралтара хвост оспаривали Strait of Gibraltar и Alboran Sea, а
+    # ближайшими оказывались другие, их линия кусок не пересекала, разрез
+    # срывался, и хвост уходил в сетку — 298 точек на 3 км, 297 из них по осям.
+    for i in range(len(ordered)):
+        for j in range(i + 1, len(ordered)):
+            line = divide_line(ordered[i][1], ordered[j][1])
+            if line is None or not line.intersects(piece):
+                continue
+            try:
+                chunks = [c for c in shp_split(piece, line).geoms if c.area > 0]
+            except Exception:
+                continue
+            if len(chunks) < 2:
+                continue
+            for ch in chunks:
+                if not _divide_rec(ch, cands, out, depth + 1):
+                    idx = nearest_source_idx(ch.representative_point(), cands)
+                    if idx is not None:
+                        out.setdefault(idx, []).append(ch)
+            return True
+    return False
 
 
 def assign_adaptive(piece, cands, out, min_cell=None, depth=0):
@@ -421,6 +559,8 @@ def fill_by_nearest_source(feats, orig_geoms, land_geoms, land_tree, lake_geoms)
         additions = {}
         skipped_inland = 0
         contested = 0
+        fallback = 0
+        whole = 0
         for piece in pieces:
             if piece.area <= 0:
                 continue
@@ -439,9 +579,45 @@ def fill_by_nearest_source(feats, orig_geoms, land_geoms, land_tree, lake_geoms)
             if len(cands) == 1:
                 additions.setdefault(cands[0][0], []).append(piece)
                 continue
-            # кусок оспаривают несколько морей — делим по линии, а не целиком
+            # кусок оспаривают несколько морей — делим по линии, а не целиком.
+            # Сначала прямой разрез линией делимитации (диагональ, 2 точки),
+            # сетка — только запасной путь, когда акватории не соприкасаются
+            # или претендентов больше двух.
             contested += 1
-            assign_adaptive(piece, cands, additions)
+            watched = DEBUG_POINT is not None and piece.distance(DEBUG_POINT) < 0.02
+            before_n = sum(len(v) for v in additions.values()) if watched else 0
+            ok = assign_by_divide(piece, cands, additions)
+            if not ok:
+                # Ни одна линия раздела кусок не РАССЕКАЕТ — значит он лежит
+                # целиком с одной стороны и спорным только выглядит. Отдаём
+                # целиком: сетка здесь городит лестницу на ровном месте.
+                # Замерено на гибралтарском хвосте: кусок 2.744 км² давал 869
+                # осколков и 298 точек, из которых 297 строго по осям.
+                #
+                # Углы bbox тонкой косой полоски лежат ВНЕ самой фигуры и
+                # попадают по разные стороны линии — потому проверка
+                # «единодушен ли кусок» и объявляла его спорным.
+                #
+                # Сетка остаётся только для крупных кусков: там ошибка целого
+                # присвоения была бы видна на карте, а лишние точки — нет.
+                if area_km2(piece) > FALLBACK_WHOLE_MAX_KM2:
+                    assign_adaptive(piece, cands, additions)
+                    fallback += 1
+                    path = "СЕТКА"
+                else:
+                    idx = nearest_source_idx(piece.representative_point(), cands)
+                    if idx is not None:
+                        additions.setdefault(idx, []).append(piece)
+                    whole += 1
+                    path = "ЦЕЛИКОМ"
+            else:
+                path = "РАЗРЕЗ"
+            if watched:
+                got = sum(len(v) for v in additions.values()) - before_n
+                b = piece.bounds
+                print(f"  [DEBUG] тайл {tile_label}: кусок {area_km2(piece):.3f} км², "
+                      f"bbox=({b[0]:.3f},{b[1]:.3f})..({b[2]:.3f},{b[3]:.3f}), "
+                      f"кандидатов {len(cands)} -> {path}, осколков {got}")
 
         added = 0.0
         for i, parts in additions.items():
@@ -458,7 +634,8 @@ def fill_by_nearest_source(feats, orig_geoms, land_geoms, land_tree, lake_geoms)
         total_added += added
         if abs(added) > 0.05 or skipped_inland:
             print(f"[{tile_label}] морей: {len(sea_local)}, кусков: {len(pieces)} "
-                  f"(спорных {contested}, дыр суши пропущено {skipped_inland}), "
+                  f"(спорных {contested}, сеткой {fallback}, целиком {whole}, "
+                  f"дыр суши пропущено {skipped_inland}), "
                   f"{added:+,.1f} km2, {time.time() - t0:.1f}s")
     return total_added
 

@@ -29,7 +29,7 @@ import json
 import sys
 from shapely.geometry import shape, box as shp_box
 from shapely.strtree import STRtree
-from shapely.ops import unary_union
+from shapely.ops import unary_union, linemerge
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -54,6 +54,30 @@ WINDOWS = [
 # полуширину: у ленты она мала независимо от длины, поэтому порог по площади
 # такую фигуру не ловит (проверено на SPIKE/SLIVER в audit_map_geometry.py).
 THREAD_HALFWIDTH_DEG = 2e-4
+
+# В какой окрестности части искать её исходную акваторию.
+ORPHAN_SEARCH_DEG = 1.0
+
+# Часть, отстоящая от своего источника не дальше этого, выросла из него
+# законно и сиротой не считается.
+ORPHAN_TOUCH_EPS_DEG = 1e-9
+
+# Части мельче этого в отчёт о сиротах не идут — на игровом зуме не видны.
+ORPHAN_MIN_KM2 = 1.0
+
+# Дальше этого от собственного тела — оторванный фрагмент, а не залив.
+#
+# История порога — про то, как НЕ надо выбирать пороги. Начали с 0.3 (величина
+# CLUSTER_DIST_DEG в fix_sea_coastline_gaps.py) = 33 км: ленты во фьордах
+# Лабрадора и Карибского не ловились. Опустили до 0.05 = 5.5 км «чтобы не
+# завалило шумом». Потом ПОСЧИТАЛИ: отдельных частей во всём слое всего 137,
+# медиана расстояния 6.6 км, и порог 0.1 км даёт 135 против 78 у 5.5 км —
+# никакого взрыва, список читается целиком. Опасение было выдумано, а не
+# измерено; порог решал несуществующую проблему.
+#
+# Итог: отсекаем только то, что физически соприкасается (шум оцифровки), всё
+# остальное показываем и даём человеку судить.
+SCATTERED_DIST_DEG = 0.001
 
 # Извилистость выше этой — линия раздела перестала быть прямой. 1.0 — идеал;
 # 1.02 допускает ступеньку адаптивного дробления (~22 м) на линии в единицы км.
@@ -109,6 +133,77 @@ def divides(feats):
     return parts
 
 
+def orphans(seas_out, seas_src):
+    """Части, лежащие не у своей акватории.
+
+    Определение через источник, а не через «далеко от главного тела»: часть
+    моря X — сирота, если ближайший к ней ИСХОДНЫЙ полигон IHO принадлежит не
+    X. Это тот же принцип, по которому слой и строится («остаток достаётся
+    ближайшей исходной акватории»), поэтому проверка независима от размера
+    части и от того, связна ли она с основным телом.
+
+    Ловит именно то, на что жалуется пользователь: кусок Labrador Sea у
+    Гренландии, куски Hudson/Davis Strait и Caribbean Sea не на своём месте.
+    """
+    src_names = [n for n, _ in seas_src]
+    src_geoms = [g for _, g in seas_src]
+    own = {n: g for n, g in seas_src}
+    tree = STRtree(src_geoms)
+    found = []
+    for name, g in seas_out:
+        mine = own.get(name)
+        if mine is None:
+            continue
+        pieces = g.geoms if g.geom_type == "MultiPolygon" else [g]
+        for p in pieces:
+            if p.area <= 0:
+                continue
+            # Законная часть выросла из своей акватории и потому её КАСАЕТСЯ.
+            # Сирота лежит от собственного источника в стороне. Сравнивать
+            # «кто ближе» на касающихся частях бессмысленно: крупная часть
+            # касается сразу нескольких источников с расстоянием 0, и выбор
+            # становится произвольным — на этом первая версия проверки
+            # объявила сиротой сам Северный Атлантический океан.
+            if mine.distance(p) <= ORPHAN_TOUCH_EPS_DEG:
+                continue
+            cand = [int(j) for j in tree.query(p.buffer(ORPHAN_SEARCH_DEG))]
+            if not cand:
+                continue
+            best = min(cand, key=lambda j: src_geoms[j].distance(p))
+            if src_names[best] != name:
+                c = p.centroid
+                found.append((area_km2(p), name, src_names[best], c.x, c.y))
+    found.sort(reverse=True)
+    return found
+
+
+def scattered(seas_out):
+    """Оторванные фрагменты: части моря, лежащие в стороне от его тела.
+
+    Именно это пользователь называет «сиротами» (Labrador Sea у Гренландии,
+    Hudson/Davis Strait, Caribbean Sea): на карте это пятна цвета одного моря
+    вдали от самого моря. Отличается от `orphans` — там часть проверяется на
+    принадлежность СВОЕЙ исходной акватории, здесь на связность с собственным
+    телом. Класс известный: в действующем пайплайне его чистит
+    `cleanup_scattered_fragments` в `fix_sea_coastline_gaps.py`.
+    """
+    found = []
+    for name, g in seas_out:
+        if g.geom_type != "MultiPolygon":
+            continue
+        parts = sorted(g.geoms, key=lambda p: -p.area)
+        main = parts[0]
+        for p in parts[1:]:
+            if p.area <= 0:
+                continue
+            d = main.distance(p)
+            if d > SCATTERED_DIST_DEG and area_km2(p) >= ORPHAN_MIN_KM2:
+                c = p.centroid
+                found.append((area_km2(p), name, d, c.x, c.y))
+    found.sort(reverse=True)
+    return found
+
+
 def crookedness(parts, min_len_deg=0.02):
     """Извилистость линии раздела: длина / расстояние между концами.
 
@@ -118,8 +213,20 @@ def crookedness(parts, min_len_deg=0.02):
     заполненной прибрежной полосе у источника границы нет вовсе, и честное
     продолжение прямой выглядело бы там «отклонением».
     """
-    worst = []
+    # Компоненты сначала СЛИВАЮТСЯ: лестница распадается на множество коротких
+    # прямых отрезков, каждый из которых по отдельности «идеально прямой», и
+    # фильтр минимальной длины их отбрасывал. Метрика мерила ступеньки, а не
+    # линию, и показывала 1.000 там, где на рендере видна лестница.
+    merged = []
+    bypair = {}
     for a, b, c in parts:
+        bypair.setdefault((a, b), []).append(c)
+    for (a, b), cs in bypair.items():
+        m = linemerge(cs) if len(cs) > 1 else cs[0]
+        for c in (m.geoms if hasattr(m, "geoms") else [m]):
+            merged.append((a, b, c))
+    worst = []
+    for a, b, c in merged:
         if c.length < min_len_deg:
             continue
         pts = list(c.coords)
@@ -161,7 +268,16 @@ def report(label, win_box, land, lakes, seas_out, seas_src):
               f"| худшая {worst[0]:.3f} ({worst[1]} | {worst[2]})")
     else:
         print(f"  CROOKED_DIVIDE:    — линий раздела в окне нет")
-    return on_land, gap, len(threads), bent
+    scat = scattered(seas_out)
+    print(f"  SCATTERED     : {len(scat):4d} оторванных фрагментов" +
+          (f" (крупнейший {scat[0][0]:.1f} км² у '{scat[0][1]}', "
+           f"{scat[0][2]*111:.0f} км от тела @ {scat[0][3]:.2f},{scat[0][4]:.2f})" if scat else ""))
+    orph = orphans(seas_out, seas_src)
+    big = [o for o in orph if o[0] >= ORPHAN_MIN_KM2]
+    print(f"  ORPHAN        : {len(big):4d} частей не у своей акватории" +
+          (f" (крупнейшая {big[0][0]:.1f} км²: '{big[0][1]}' -> ближе к '{big[0][2]}'"
+           f" @ {big[0][3]:.2f},{big[0][4]:.2f})" if big else ""))
+    return on_land, gap, len(threads), bent + len(big) + len(scat)
 
 
 def main():

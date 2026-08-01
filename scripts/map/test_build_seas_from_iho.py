@@ -21,12 +21,13 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "build"))
-from shapely.geometry import box
+from shapely.geometry import box, Polygon
 from shapely.ops import unary_union
 from shapely.strtree import STRtree
 
 from build_seas_from_iho import (subtract_local, nearest_source_idx,
-                                  assign_adaptive, keep_real_water, world_tiles)
+                                  assign_adaptive, assign_by_divide,
+                                  keep_real_water, world_tiles)
 from geometry_cleanup import area_km2
 
 
@@ -102,6 +103,65 @@ class NearestSourceTest(unittest.TestCase):
         self.assertGreater(east_part.bounds[0], -1e-3, "восточная доля перешла прямую")
         # и вместе они покрывают весь остаток
         self.assertAlmostEqual(west_part.area + east_part.area, gap.area, places=6)
+
+
+class UncrossedPieceTest(unittest.TestCase):
+    """Кусок, который линия раздела не РАССЕКАЕТ, дробить нельзя.
+
+    Найдено инструментовкой живого прогона: прибрежный хвост у Гибралтара —
+    тонкая косая полоска 2.744 км², которой линия раздела касается лишь углом.
+    Разрез срывался, кусок уходил в сетку и давал 869 осколков, то есть 298
+    точек на границе, из них 297 строго по осям. После правила «не рассекли —
+    отдаём целиком» вершин в слое стало 288 498 против 674 275 (−57%).
+
+    Углы bbox тонкой диагональной фигуры лежат ВНЕ неё и попадают по разные
+    стороны линии — потому проверка единодушия и объявляла кусок спорным.
+    """
+
+    def setUp(self):
+        self.west = box(-10.0, -5.0, 0.0, 5.0)
+        self.east = box(0.0, -5.0, 10.0, 5.0)
+        self.cands = [(0, self.west), (1, self.east)]
+
+    def _corner_sliver(self):
+        """Тонкая полоска целиком слева от x=0, касающаяся линии углом."""
+        return Polygon([(0.0, 5.0), (-3.0, 5.6), (-3.05, 5.7), (-0.02, 5.05)])
+
+    def _assign_like_caller(self, piece):
+        """Та же развилка, что делает `fill_by_nearest_source`."""
+        out = {}
+        if not assign_by_divide(piece, self.cands, out):
+            idx = nearest_source_idx(piece.representative_point(), self.cands)
+            out.setdefault(idx, []).append(piece)
+        return out
+
+    def test_uncrossed_piece_stays_whole(self):
+        """Кусок, который линия не рассекает, остаётся ОДНОЙ фигурой.
+
+        Инвариант намеренно про результат, а не про внутренний путь: неважно, сработало
+        единодушие или запасное присвоение целиком — важно, что осколков не
+        появилось. Именно осколки давали 298 точек на 3 км у Гибралтара.
+        """
+        out = self._assign_like_caller(self._corner_sliver())
+        self.assertEqual(sum(len(v) for v in out.values()), 1)
+        self.assertIn(0, out, "полоска лежит слева от линии — море должно быть западное")
+
+    def test_grid_shatters_a_straddling_piece(self):
+        """Негативный контроль: сетка на РЕАЛЬНО спорном куске плодит осколки.
+
+        Держит не реализацию, а цену правила: там, где кусок пересекает линию,
+        сеточное дробление даёт десятки фигур — столько же лишних вершин.
+        Если этот тест перестанет падать на сетке, правило потеряет смысл.
+        """
+        out = {}
+        assign_adaptive(box(-4.0, 5.0, 4.0, 9.0), self.cands, out)
+        self.assertGreater(sum(len(v) for v in out.values()), 20)
+
+    def test_whole_assignment_picks_the_right_side(self):
+        """Отданный целиком кусок достаётся морю со своей стороны линии."""
+        sliver = self._corner_sliver()
+        self.assertEqual(nearest_source_idx(sliver.representative_point(),
+                                            self.cands), 0)
 
 
 class KeepRealWaterTest(unittest.TestCase):
