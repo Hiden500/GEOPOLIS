@@ -15,14 +15,18 @@
  *
  * Запуск:  npx tsx scripts/probeScales.ts [--months 120]
  */
+// Пороги безработицы переименованы веткой claude/stability-equilibrium
+// (ступени заменены непрерывным откликом), ЧИСЛА сохранены: прежний
+// LOW = 5 стал REFERENCE, прежний HIGH = 15 — это точка насыщения
+// REFERENCE + SATURATION. Смысл проверки не изменился.
 import { createGame } from "../src/game/CreateGame";
 import { simulateMonth } from "../src/simulation/SimulationEngine";
 import { computeScore, computeTierTotals } from "../src/simulation/tier/TierTick";
 import { type Country } from "@shared/types/Country";
 import { type GameState } from "@shared/types/GameState";
 import {
-  STABILITY_LOW_UNEMPLOYMENT_THRESHOLD,
-  STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD,
+  STABILITY_UNEMPLOYMENT_REFERENCE,
+  STABILITY_UNEMPLOYMENT_SATURATION,
   STABILITY_HIGH_INFLATION_THRESHOLD,
 } from "@shared/defines/politics";
 import { MAJOR_COUNT, REGIONAL_COUNT } from "@shared/defines/tier";
@@ -81,8 +85,8 @@ function inflationSnapshot(game: GameState, label: string): void {
 
   const crisis = inflation.filter(v => v > STABILITY_HIGH_INFLATION_THRESHOLD).length;
   const deflation = inflation.filter(v => v < 0).length;
-  const lowU = unemployment.filter(v => v < STABILITY_LOW_UNEMPLOYMENT_THRESHOLD).length;
-  const highU = unemployment.filter(v => v > STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD).length;
+  const lowU = unemployment.filter(v => v < STABILITY_UNEMPLOYMENT_REFERENCE).length;
+  const highU = unemployment.filter(v => v > (STABILITY_UNEMPLOYMENT_REFERENCE + STABILITY_UNEMPLOYMENT_SATURATION)).length;
 
   console.log(`\n=== ${label} (${live.length} стран с ВВП) ===`);
   console.log(
@@ -98,8 +102,8 @@ function inflationSnapshot(game: GameState, label: string): void {
     `медиана ${fmt(median(unemployment))}`
   );
   console.log(
-    `  ниже ${STABILITY_LOW_UNEMPLOYMENT_THRESHOLD} (бонус): ${lowU}; ` +
-    `выше ${STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD} (штраф): ${highU}`
+    `  ниже ${STABILITY_UNEMPLOYMENT_REFERENCE} (бонус): ${lowU}; ` +
+    `выше ${(STABILITY_UNEMPLOYMENT_REFERENCE + STABILITY_UNEMPLOYMENT_SATURATION)} (штраф): ${highU}`
   );
 }
 

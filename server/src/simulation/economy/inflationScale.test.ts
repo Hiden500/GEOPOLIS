@@ -13,10 +13,18 @@ import {
   UNEMPLOYMENT_MIN,
   UNEMPLOYMENT_MAX,
 } from "@shared/defines/economy";
+// Пороги безработицы переименованы веткой claude/stability-equilibrium
+// (ступени заменены непрерывным откликом), ЧИСЛА сохранены: прежний
+// LOW = 5 стал REFERENCE, прежний HIGH = 15 — это точка насыщения
+// REFERENCE + SATURATION. Смысл проверки не изменился.
 import {
   STABILITY_HIGH_INFLATION_THRESHOLD,
-  STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD,
+  STABILITY_UNEMPLOYMENT_REFERENCE,
+  STABILITY_UNEMPLOYMENT_SATURATION,
 } from "@shared/defines/politics";
+
+const UNEMPLOYMENT_PENALTY_POINT =
+  STABILITY_UNEMPLOYMENT_REFERENCE + STABILITY_UNEMPLOYMENT_SATURATION;
 import { type Country } from "@shared/types/Country";
 
 /**
@@ -97,18 +105,18 @@ describe("пороги инфляции и безработицы достижи
 
   it("устойчивый дефицит выводит безработицу за порог штрафа", () => {
     const ratio = deficitRatioAbove(
-      STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD,
+      UNEMPLOYMENT_PENALTY_POINT,
       UNEMPLOYMENT_BASELINE,
       UNEMPLOYMENT_DEFICIT_COEFFICIENT
     );
     const { unemployment } = runWithDeficitRatio(ratio, 120);
-    expect(unemployment).toBeGreaterThan(STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD);
+    expect(unemployment).toBeGreaterThan(UNEMPLOYMENT_PENALTY_POINT);
   });
 
   it("сбалансированный бюджет держит обе величины у базовой линии, а не у порога", () => {
     const { inflation, unemployment } = runWithDeficitRatio(0, 120);
     expect(inflation).toBeLessThan(STABILITY_HIGH_INFLATION_THRESHOLD);
-    expect(unemployment).toBeLessThan(STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD);
+    expect(unemployment).toBeLessThan(UNEMPLOYMENT_PENALTY_POINT);
     expect(inflation).toBeCloseTo(INFLATION_BASELINE, 1);
     expect(unemployment).toBeCloseTo(UNEMPLOYMENT_BASELINE, 1);
   });
@@ -145,7 +153,7 @@ describe("границы коридора не пробиваются", () => {
 
   it("потолок инфляции выше кризисного порога — иначе клип съел бы само событие", () => {
     expect(INFLATION_MAX).toBeGreaterThan(STABILITY_HIGH_INFLATION_THRESHOLD);
-    expect(UNEMPLOYMENT_MAX).toBeGreaterThan(STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD);
+    expect(UNEMPLOYMENT_MAX).toBeGreaterThan(UNEMPLOYMENT_PENALTY_POINT);
   });
 });
 

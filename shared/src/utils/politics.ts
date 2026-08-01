@@ -1,5 +1,6 @@
 import { type IdeologyCoordinates } from "../types/politics/Ideology";
 import { type PowerStructure } from "../types/politics/Government";
+import { type Region } from "../types/map/Region";
 import { COUNTRY_POLITICS_SCALE_MAX } from "../defines/discontent";
 import {
   POWER_STRUCTURE_CORRUPTION_BASE,
@@ -8,6 +9,8 @@ import {
   LEGITIMACY_SPECTRUM_BASE,
   LEGITIMACY_DEMOCRATIC_MANDATE_WEIGHT,
   LEGITIMACY_CONSOLIDATION_WEIGHT,
+  STABILITY_EQUILIBRIUM_DEFAULT,
+  STABILITY_REGION_ANCHOR_SCALE,
 } from "../defines/politics";
 
 /**
@@ -40,6 +43,33 @@ function clampToPoliticsScale(value: number): number {
 export function corruptionBase(powerStructure: PowerStructure | undefined): number {
   if (!powerStructure) return CORRUPTION_EQUILIBRIUM_DEFAULT;
   return POWER_STRUCTURE_CORRUPTION_BASE[powerStructure];
+}
+
+/**
+ * Структурный якорь стабильности — авторская стабильность сценария, поднятая с
+ * регионов на страну: средневзвешенная по населению `region.stability` (0..1) в
+ * шкале политики 0..100.
+ *
+ * Взвешивание по населению, а не простое среднее: сорок островных владений с
+ * тысячей жителей не должны определять стабильность метрополии. Тот же способ
+ * агрегации, что у `aggregateCountryFromRegions` — там он считается каждый тик
+ * и никуда не присваивается.
+ *
+ * `regions` — уже отфильтрованные регионы страны. Пустой список или нулевое
+ * население дают `STABILITY_EQUILIBRIUM_DEFAULT`: это «страна без размеченных
+ * регионов», а не «страна без стабильности», — та же трактовка отсутствия
+ * данных, что у `corruptionBase` для неразмеченной формы власти.
+ */
+export function stabilityBase(regions: readonly Region[]): number {
+  let population = 0;
+  let weighted = 0;
+  for (const region of regions) {
+    population += region.population;
+    weighted += region.stability * region.population;
+  }
+  if (population <= 0) return STABILITY_EQUILIBRIUM_DEFAULT;
+
+  return clampToPoliticsScale((weighted / population) * STABILITY_REGION_ANCHOR_SCALE);
 }
 
 /**

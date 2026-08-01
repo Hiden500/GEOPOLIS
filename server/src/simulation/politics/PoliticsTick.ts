@@ -1,6 +1,8 @@
 import { type Country } from "@shared/types/Country";
-import { corruptionBase, legitimacyBase } from "@shared/utils/politics";
+import { type Region } from "@shared/types/map/Region";
+import { corruptionBase, legitimacyBase, stabilityBase } from "@shared/utils/politics";
 import { resolveIdeologyCoordinates } from "@shared/utils/discontent";
+import { COUNTRY_POLITICS_SCALE_MAX } from "@shared/defines/discontent";
 import {
   CORRUPTION_TREASURY_DRAIN,
   CORRUPTION_LOW_STABILITY_THRESHOLD,
@@ -9,19 +11,16 @@ import {
   CORRUPTION_HIGH_STABILITY_ADJUSTMENT,
   CORRUPTION_LOW_EDUCATION_SHARE_THRESHOLD,
   CORRUPTION_LOW_EDUCATION_PENALTY,
-  STABILITY_EQUILIBRIUM_DEFAULT,
-  STABILITY_LOW_UNEMPLOYMENT_THRESHOLD,
-  STABILITY_LOW_UNEMPLOYMENT_BONUS,
-  STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD,
-  STABILITY_HIGH_UNEMPLOYMENT_PENALTY,
-  STABILITY_BALANCED_BUDGET_BONUS,
-  STABILITY_SEVERE_DEFICIT_GDP_SHARE,
-  STABILITY_SEVERE_DEFICIT_PENALTY,
-  STABILITY_MILD_DEFICIT_PENALTY,
+  STABILITY_LEGITIMACY_WEIGHT,
+  STABILITY_CORRUPTION_WEIGHT,
+  STABILITY_UNEMPLOYMENT_REFERENCE,
+  STABILITY_UNEMPLOYMENT_SATURATION,
+  STABILITY_UNEMPLOYMENT_WEIGHT,
+  STABILITY_BUDGET_SATURATION_INCOME_SHARE,
+  STABILITY_BUDGET_WEIGHT,
+  STABILITY_INFLATION_REFERENCE,
   STABILITY_HIGH_INFLATION_THRESHOLD,
-  STABILITY_HIGH_INFLATION_PENALTY,
-  STABILITY_HIGH_CORRUPTION_THRESHOLD,
-  STABILITY_HIGH_CORRUPTION_PENALTY,
+  STABILITY_INFLATION_WEIGHT,
   GOV_SUPPORT_EQUILIBRIUM_DEFAULT,
   GOV_SUPPORT_LOW_UNEMPLOYMENT_THRESHOLD,
   GOV_SUPPORT_LOW_UNEMPLOYMENT_BONUS,
@@ -63,25 +62,70 @@ function corruptionEquilibrium(country: Country): number {
     return clamp(eq, 0, 100);
 }
 
-function stabilityEquilibrium(country: Country): number {
-    const { unemployment, budgetBalance, gdp, inflation } = country.economy;
-    const corruption = country.politics.corruption;
+/**
+ * Отклик −1…+1: отклонение от опорной точки, поделённое на масштаб насыщения.
+ * Заменил пороговые ступени — разбор причины у констант в `defines/politics.ts`.
+ */
+function response(value: number, reference: number, saturation: number): number {
+    if (saturation <= 0) return 0;
+    return clamp((value - reference) / saturation, -1, 1);
+}
 
-    let eq = STABILITY_EQUILIBRIUM_DEFAULT;
+/**
+ * Равновесие стабильности: структурный якорь сценария плюс непрерывные поправки
+ * на мандат, институты и экономику.
+ *
+ * `countryRegions` — регионы этой страны; пустой список означает «регионы не
+ * размечены», якорь тогда фолбэчный (`stabilityBase`).
+ */
+export function stabilityEquilibrium(country: Country, countryRegions: readonly Region[]): number {
+    const { unemployment, budgetBalance, inflation } = country.economy;
+    const { corruption, legitimacy } = country.politics;
+    const scaleMidpoint = COUNTRY_POLITICS_SCALE_MAX / 2;
 
-    if (unemployment < STABILITY_LOW_UNEMPLOYMENT_THRESHOLD) eq += STABILITY_LOW_UNEMPLOYMENT_BONUS;
-    else if (unemployment > STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD) eq += STABILITY_HIGH_UNEMPLOYMENT_PENALTY;
+    // Якорь: авторская стабильность сценария. Он и задаёт разброс по миру —
+    // поправки ниже двигают страну вокруг её собственного стартового состояния,
+    // а не переписывают его.
+    let eq = stabilityBase(countryRegions);
 
-    if (budgetBalance >= 0) eq += STABILITY_BALANCED_BUDGET_BONUS;
-    else if (gdp > 0 && budgetBalance < -gdp * STABILITY_SEVERE_DEFICIT_GDP_SHARE) eq += STABILITY_SEVERE_DEFICIT_PENALTY;
-    else eq += STABILITY_MILD_DEFICIT_PENALTY;
+    // Мандат власти удерживает порядок дешевле принуждения; его отсутствие —
+    // дороже. Отклонение от середины шкалы, полный вклад на её краях.
+    eq += STABILITY_LEGITIMACY_WEIGHT * response(legitimacy, scaleMidpoint, scaleMidpoint);
 
-    if (inflation > STABILITY_HIGH_INFLATION_THRESHOLD) eq += STABILITY_HIGH_INFLATION_PENALTY;
+    // Коррупция подтачивает институты — знак обратный легитимности.
+    eq -= STABILITY_CORRUPTION_WEIGHT * response(corruption, scaleMidpoint, scaleMidpoint);
 
-    // Высокая коррупция подтачивает институты — давит на stability
-    if (corruption > STABILITY_HIGH_CORRUPTION_THRESHOLD) eq += STABILITY_HIGH_CORRUPTION_PENALTY;
+    // Безработица: ниже «естественного» уровня помогает, выше — давит, насыщение
+    // на прежнем пороге «высокой» (5 + 10 = 15).
+    eq -= STABILITY_UNEMPLOYMENT_WEIGHT * response(
+        unemployment,
+        STABILITY_UNEMPLOYMENT_REFERENCE,
+        STABILITY_UNEMPLOYMENT_SATURATION
+    );
 
-    return clamp(eq, 0, 100);
+    // Бюджет: доля ДОХОДА, симметрично в обе стороны. Страна без дохода
+    // (сценарные микровладения) бюджетной поправки не получает — делить не на что.
+    const income = country.economy.taxRevenue
+        + country.economy.exportIncome
+        + country.economy.stateEnterpriseIncome
+        + country.economy.otherIncome;
+    if (income > 0) {
+        eq += STABILITY_BUDGET_WEIGHT * response(
+            budgetBalance / income,
+            0,
+            STABILITY_BUDGET_SATURATION_INCOME_SHARE
+        );
+    }
+
+    // Инфляция односторонняя: дефляция 1946 года — не заслуга власти, а
+    // следствие разрушенного спроса, и премии за неё быть не должно.
+    eq -= STABILITY_INFLATION_WEIGHT * Math.max(0, response(
+        inflation,
+        STABILITY_INFLATION_REFERENCE,
+        STABILITY_HIGH_INFLATION_THRESHOLD - STABILITY_INFLATION_REFERENCE
+    ));
+
+    return clamp(eq, 0, COUNTRY_POLITICS_SCALE_MAX);
 }
 
 function governmentSupportEquilibrium(country: Country): number {
@@ -103,9 +147,20 @@ function governmentSupportEquilibrium(country: Country): number {
     return clamp(eq, 0, 100);
 }
 
-export function politicsTick(country: Country): void {
+/**
+ * `regions` — весь мир, как у `economyTick`/`populationTick`/`militaryTick`:
+ * фильтрация по владельцу здесь, тем же выражением, что у них. До 2026-08-01
+ * `politicsTick` был единственным тиком без регионов — и единственным, чьё
+ * равновесие не зависело ни от чего сценарного.
+ *
+ * Параметр ОБЯЗАТЕЛЕН, а не `= []`: со значением по умолчанию забытый аргумент
+ * молча дал бы фолбэчный якорь 50 всем странам — ровно тот дефект «вход
+ * выродился в константу», который эта правка и закрывает.
+ */
+export function politicsTick(country: Country, regions: readonly Region[]): void {
     const p = country.politics;
     const e = country.economy;
+    const countryRegions = regions.filter(r => r.ownerCountryId === country.id);
 
     // corruption: дрейфует к структурному равновесию (режим + stability + образование).
     // Без институциональных изменений не упадёт ниже базиса режима.
@@ -119,7 +174,7 @@ export function politicsTick(country: Country): void {
     }
 
     // stability: медленный дрейф к равновесию (учитывает corruption внутри)
-    const stabilityEq = stabilityEquilibrium(country);
+    const stabilityEq = stabilityEquilibrium(country, countryRegions);
     p.stability += (stabilityEq - p.stability) * STABILITY_DRIFT_RATE;
     p.stability = clamp(p.stability, 0, 100);
 
