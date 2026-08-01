@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { aiBehaviorTick } from "./AiBehaviorTick";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
+import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
+import { THREAT_LEVEL, INFLUENCE_GRAVITY } from "@shared/defines/ai";
 import { type Country } from "@shared/types/Country";
 
 // Хелпер: страна с заданным id и переопределением экономики/дипломатии/военки.
@@ -71,22 +73,39 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
 });
 
 describe("aiBehaviorTick — Правило B (угроза)", () => {
-  // Игрок ~×3 по манпаверу и ВВП → dom = 30+30+5 = 65 > порога 50.
-  const strongPlayer = () =>
+  /**
+   * ФИКСТУРА ПЕРЕСОБРАНА 2026-07-31 вместе с `calculateBaseInfluence`.
+   *
+   * Прежняя задавала перевес «×3» и комментировала итог как `30+30+5 = 65`, то
+   * есть держала в себе снимок ЛИНЕЙНОЙ формулы. С насыщением по ПОРЯДКУ
+   * перевеса тот же ×3 даёт около трёх, и все три теста Правила B проверяли бы
+   * невзятую ветку — самый дорогой вид зелёного теста
+   * (`.agent/audits/formula-audit-2026-07-30.md`).
+   *
+   * Поэтому перевес задан ПОРЯДКОМ (×3000 и по армии, и по экономике), а канал
+   * связи — стартовым присутствием игрока: без канала перевес значит вчетверо
+   * меньше, каким бы он ни был, и порог угрозы не берётся принципиально.
+   */
+  const CHANNEL_SEED = 5;
+  const strongPlayer = (...tiedTo: string[]) =>
     country("PLAYER", {
       military: { ...createTestCountry().military, manpower: 3_000_000 },
       economy: { ...createTestCountry().economy, gdp: 1_500_000_000_000 },
+      diplomacy: {
+        ...createTestCountry().diplomacy,
+        influence: Object.fromEntries(tiedTo.map(id => [id, CHANNEL_SEED])),
+      },
     });
   const weakRival = (id: string, relToPlayer: number) =>
     country(id, {
-      military: { ...createTestCountry().military, manpower: 1_000_000 },
-      economy: { ...createTestCountry().economy, gdp: 500_000_000_000 },
+      military: { ...createTestCountry().military, manpower: 1_000 },
+      economy: { ...createTestCountry().economy, gdp: 500_000_000 },
       diplomacy: { ...createTestCountry().diplomacy, relations: { PLAYER: relToPlayer } },
     });
 
   it("балансировка: соперник под угрозой наращивает military (×1.05, в пределах потолка)", () => {
     const rival = weakRival("RIVAL", -20);
-    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer(), rival] });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer("RIVAL"), rival] });
 
     aiBehaviorTick(game);
 
@@ -96,7 +115,7 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
   it("балансировка: со-угрожаемые соперники сближаются (контр-блок, +5 обоюдно)", () => {
     const a = weakRival("A", -10);
     const b = weakRival("B", -10);
-    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer(), a, b] });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer("A", "B"), a, b] });
 
     aiBehaviorTick(game);
 
@@ -106,20 +125,29 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
 
   it("бандвагонинг: дружественная угрожаемая страна → растёт влияние игрока над ней", () => {
     const friendly = weakRival("FRIEND", 10); // rel ≥ 0
-    const player = strongPlayer();
+    const player = strongPlayer("FRIEND");
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [player, friendly] });
+
+    // Ожидание считается ОТ ФОРМУЛЫ доминирования, а не литералом «6,5»: литерал
+    // был снимком линейной шкалы и пережил бы любую её перекалибровку молча.
+    // Проверяется здесь ставка сближения, а величина цели — дело
+    // `influenceSaturation.test.ts`.
+    const dominance = calculateBaseInfluence(player, friendly);
+    expect(dominance).toBeGreaterThan(THREAT_LEVEL); // ветка вообще берётся
 
     aiBehaviorTick(game);
 
-    // influence: 0 + (dom 65 − 0) × 0.1 = 6.5
-    expect(player.diplomacy.influence["FRIEND"]).toBeCloseTo(6.5, 1);
+    expect(player.diplomacy.influence["FRIEND"]).toBeCloseTo(
+      CHANNEL_SEED + (dominance - CHANNEL_SEED) * INFLUENCE_GRAVITY,
+      6
+    );
     // военного билд-апа против игрока нет
     expect(friendly.economy.militarySpending).toBe(30_000_000_000);
   });
 
   it("союзник игрока не считается угрожаемым (нет билд-апа)", () => {
     const ally = weakRival("ALLY", -50); // даже при плохом отношении
-    const player = strongPlayer();
+    const player = strongPlayer("ALLY");
     player.diplomacy.allies = ["ALLY"];
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [player, ally] });
 
@@ -132,7 +160,7 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
     const peer = country("PEER", {
       diplomacy: { ...createTestCountry().diplomacy, relations: { PLAYER: -50 } },
     });
-    const player = country("PLAYER"); // равные → dom ≈ 25 < 50
+    const player = country("PLAYER"); // равные силы и ни одного канала → dom ≪ 50
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [player, peer] });
 
     aiBehaviorTick(game);
@@ -145,7 +173,7 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
     // income фикстуры = 100+50+20+10 = 180e9 → потолок 72e9. Старт уже у потолка.
     const rival = weakRival("RIVAL", -20);
     rival.economy.militarySpending = 72_000_000_000;
-    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer(), rival] });
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer("RIVAL"), rival] });
 
     aiBehaviorTick(game);
 

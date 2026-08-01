@@ -9,6 +9,7 @@ import {
   ALLY_RELATION_THRESHOLD,
   RIVAL_RELATION_THRESHOLD,
   RIVAL_RECONCILE_THRESHOLD,
+  INFLUENCE_SCALE_MAX,
 } from "@shared/defines/diplomacy";
 
 /**
@@ -384,7 +385,12 @@ describe("calculateBaseInfluence", () => {
     expect(calculateBaseInfluence(strong, weak)).toBeGreaterThan(calculateBaseInfluence(weak, strong));
   });
 
-  it("ограничен сотней", () => {
+  it("насыщается, а не срезается: край шкалы недостижим", () => {
+    // Тест ЗАМЕНЁН 2026-07-31. Прежний утверждал `toBe(100)` — то есть
+    // фиксировал ОБРЕЗКУ как желаемое поведение, и потому проходил бы при любом
+    // разбросе входов. Аудит формул показал цену: сотню получали три четверти
+    // мира, и «влияние» переставало различать страны. Свойство теперь обратное —
+    // сколь угодно большой перевес края шкалы не достигает.
     const dominant = createTestCountry({
       id: "DOMINANT",
       military: { ...createTestCountry().military, manpower: 1_000_000_000 },
@@ -396,6 +402,40 @@ describe("calculateBaseInfluence", () => {
       economy: { ...createTestCountry().economy, gdp: 1 },
     });
 
-    expect(calculateBaseInfluence(dominant, tiny)).toBe(100);
+    expect(calculateBaseInfluence(dominant, tiny)).toBeLessThan(INFLUENCE_SCALE_MAX);
+  });
+
+  it("не опускает потолок ниже уже существующего влияния", () => {
+    // Влияние на старте расставил автор сценария, а купить его можно помощью и
+    // вассалитетом. Формула про перевес сил не имеет права его сносить: за
+    // убыль отвечает затухание, и только оно.
+    const weakPatron = createTestCountry({
+      id: "PATRON",
+      economy: { ...createTestCountry().economy, gdp: 1 },
+      diplomacy: { ...createTestCountry().diplomacy, influence: { CLIENT: 80 } },
+    });
+    const richClient = createTestCountry({
+      id: "CLIENT",
+      economy: { ...createTestCountry().economy, gdp: 1_000_000_000_000 },
+    });
+
+    expect(calculateBaseInfluence(weakPatron, richClient)).toBe(80);
+  });
+
+  it("без единого канала перевес значит кратно меньше", () => {
+    const strong = createTestCountry({
+      id: "STRONG",
+      economy: { ...createTestCountry().economy, gdp: 1_000_000_000_000 },
+    });
+    const weak = createTestCountry({
+      id: "WEAK",
+      economy: { ...createTestCountry().economy, gdp: 1 },
+    });
+    const tied = createTestCountry({
+      ...strong,
+      diplomacy: { ...createTestCountry().diplomacy, sphereOfInfluence: ["WEAK"] },
+    });
+
+    expect(calculateBaseInfluence(strong, weak)).toBeLessThan(calculateBaseInfluence(tied, weak));
   });
 });

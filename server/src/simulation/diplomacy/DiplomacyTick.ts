@@ -11,9 +11,13 @@ import {
   RIVAL_RECONCILE_THRESHOLD,
   SPHERE_INFLUENCE_ENTER_THRESHOLD,
   SPHERE_INFLUENCE_EXIT_THRESHOLD,
-  MILITARY_RATIO_INFLUENCE_WEIGHT,
-  GDP_RATIO_INFLUENCE_WEIGHT,
-  GEOGRAPHIC_PROXIMITY_INFLUENCE_BONUS,
+  INFLUENCE_PROXIMITY_REACH,
+  INFLUENCE_MILITARY_REACH,
+  INFLUENCE_ECONOMIC_REACH,
+  INFLUENCE_MILITARY_FULL_RATIO,
+  INFLUENCE_ECONOMIC_FULL_RATIO,
+  INFLUENCE_PROJECTION_BUDGET,
+  INFLUENCE_CONTACTLESS_SALIENCE,
   COMMON_ENEMY_WAR_PRESSURE,
   COMMON_ENEMY_RIVAL_PRESSURE,
   DEPENDENCY_PUPPET_STRENGTH,
@@ -361,25 +365,99 @@ function driftOneSide(country: Country, otherId: string, target: number): void {
 }
 
 /**
- * Рассчитывает влияние на основе торговли, географии и военной силы.
+ * Насыщающая доля перевеса — по ПОРЯДКУ, а не по величине: ноль при отсутствии
+ * перевеса, единица при `ratio = fullRatio` (край живого распределения).
+ * Обоснование формы — `INFLUENCE_ECONOMIC_FULL_RATIO`.
+ */
+function powerPull(ratio: number, fullRatio: number): number {
+  if (!(ratio > 1)) return 0;
+  return clamp01(Math.log(ratio) / Math.log(fullRatio));
+}
+
+/**
+ * Есть ли у источника КАНАЛ к цели — присутствие, через которое перевес силы
+ * вообще способен превратиться во влияние.
+ *
+ * ДВОИЧНО НАМЕРЕННО, хотя виды связи разной силы. Глубина канала — это и есть
+ * само влияние, и умножать потолок влияния на текущее влияние значило бы
+ * завести положительную обратную связь: у кого больше, тому можно ещё больше.
+ * Проект уже ловил этот дефект в `RIVAL_ENTRY_RELATION_SHIFT` («выведенный
+ * ярлык, двигающий собственный вход»). Здесь канал отвечает ровно на вопрос
+ * «присутствуем ли мы там», а «насколько» отвечает влияние.
+ *
+ * Союз — канал наравне с зависимостью: союзники держат посольства, базы и
+ * общие штабы. Сухопутной границы в списке нет, и это названное упрощение:
+ * `calculateBaseInfluence` считается по паре стран без доступа к регионам
+ * (`AiBehaviorTick` зовёт её на каждую страну мира), а соседство стоит прохода
+ * по карте. География входит только плоским `INFLUENCE_PROXIMITY_REACH`, как и
+ * до правки.
+ */
+function hasInfluenceChannel(source: Country, target: Country): boolean {
+  const d = source.diplomacy;
+  return (
+    (d.influence[target.id] ?? 0) > 0 ||
+    d.puppets.includes(target.id) ||
+    d.guarantees.includes(target.id) ||
+    d.sphereOfInfluence.includes(target.id) ||
+    d.allies.includes(target.id)
+  );
+}
+
+/**
+ * ПОТОЛОК ВЛИЯНИЯ, который держит одна лишь разница в силе, — цель, к которой
+ * влияние источника на цель растёт САМО (бандвагонинг, Правило B
+ * `AiBehaviorTick`), и метрика доминирования для порога угрозы.
+ *
+ * Числа, их происхождение и замер до правки — `shared/src/defines/diplomacy.ts`,
+ * блок «calculateBaseInfluence». Здесь — четыре вещи, которые формула делает, и
+ * почему именно так.
+ *
+ * 1. ПЕРЕВЕС ВХОДИТ НАСЫЩАЯСЬ, а не линейно со срезом на сотне. Прежняя формула
+ *    отдавала ровно 100 всякому, кто сильнее цели примерно вчетверо, — то есть
+ *    трём четвертям мира для сверхдержавы, и разница между «сильнее вчетверо» и
+ *    «сильнее в тысячу раз» стиралась.
+ *
+ * 2. ПЕРЕВЕС ЗНАЧИТ ТОЛЬКО ТАМ, ГДЕ ЕСТЬ КАНАЛ (`hasInfluenceChannel`). Насыщение
+ *    по паре чинит различимость, но не охват: при разбросе ВВП в шесть порядков
+ *    держава дотягивается до каждого, кто беднее. Именно канал и делает так,
+ *    что бандвагонинг УГЛУБЛЯЕТ присутствие, а не создаёт его из ничего.
+ *
+ * 3. ВНИМАНИЕ КОНЕЧНО. Потолок умножается на СВОБОДНУЮ долю бюджета внимания
+ *    источника: чем больше стран он уже держит, тем меньше остаётся на
+ *    следующую. Это единственный член, связывающий цели между собой, — то есть
+ *    единственная защита, которую нельзя обойти, открывая каналы по одному.
+ *
+ *    Своя собственная связь из «занятого» вычитается намеренно: иначе цель
+ *    снижала бы свой же потолок, и удержание превращалось бы в колебание.
+ *
+ * 4. ФОРМУЛА НЕ СНОСИТ ТО, ЧЕГО НЕ СТРОИЛА. Результат не опускается ниже уже
+ *    существующего влияния. Причина в том, как значение потребляется: Правило B
+ *    ТЯНЕТ влияние к нему в обе стороны, поэтому потолок ниже текущего значения
+ *    означал бы снос — а сносить эту связь формуле силы нечем и не за что.
+ *    Влияние на старте партии расставил автор (`influence.json`, 300 связей),
+ *    остальное куплено помощью (`send_aid`) и вассалитетом; за убыль отвечает
+ *    отдельный и единственный механизм — затухание `INFLUENCE_DECAY_RATE`, оно
+ *    работает каждый тик и на все связи. Без этого пола первый же месяц
+ *    переписывал бы авторскую разметку числом из формулы про ВВП.
  */
 export function calculateBaseInfluence(
   source: Country,
   target: Country
 ): number {
-  let influence = 0;
-
-  // Влияние на основе военной силы
   const militaryRatio = source.military.manpower / (target.military.manpower + 1);
-  influence += militaryRatio * MILITARY_RATIO_INFLUENCE_WEIGHT;
-
-  // Влияние на основе экономической мощи
   const gdpRatio = source.economy.gdp / (target.economy.gdp + 1);
-  influence += gdpRatio * GDP_RATIO_INFLUENCE_WEIGHT;
 
-  // Влияние на основе географической близости (упрощённо)
-  // В реальности нужно проверять соседние регионы
-  influence += GEOGRAPHIC_PROXIMITY_INFLUENCE_BONUS;
+  const power =
+    INFLUENCE_PROXIMITY_REACH +
+    INFLUENCE_MILITARY_REACH * powerPull(militaryRatio, INFLUENCE_MILITARY_FULL_RATIO) +
+    INFLUENCE_ECONOMIC_REACH * powerPull(gdpRatio, INFLUENCE_ECONOMIC_FULL_RATIO);
 
-  return Math.min(INFLUENCE_SCALE_MAX, influence);
+  const salience = hasInfluenceChannel(source, target) ? 1 : INFLUENCE_CONTACTLESS_SALIENCE;
+
+  const held = source.diplomacy.influence[target.id] ?? 0;
+  let committed = -held;
+  for (const value of Object.values(source.diplomacy.influence)) committed += value;
+  const free = clamp01(1 - committed / INFLUENCE_PROJECTION_BUDGET);
+
+  return Math.min(INFLUENCE_SCALE_MAX, Math.max(held, power * salience * free));
 }
