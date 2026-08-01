@@ -1,4 +1,0 @@
-interface:
-  display_name: "Challenge Implementation Plan"
-  short_description: "Critical plan review before implementation"
-  default_prompt: "Use $plan-challenger to stress-test this implementation plan against the repository before any code changes."

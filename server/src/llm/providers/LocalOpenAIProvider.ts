@@ -3,6 +3,8 @@ import { LLMProviderError } from "../../errors/AppError";
 import { type LLMProvider } from "./LLMProvider";
 import { parseOpenAIUsage, type TokenUsage } from "../tokenTelemetry";
 import { GeminiResponseSchema } from "../actionSchemas";
+import { localBaseUrl, localHeaders, hasApiKey } from "./localEndpoint";
+import { withJsonOnlyInstruction } from "../jsonOnlyInstruction";
 
 /**
  * Локальный LLM-рантайм по OpenAI-совместимому протоколу (LM Studio, llama.cpp
@@ -14,8 +16,10 @@ import { GeminiResponseSchema } from "../actionSchemas";
  * цепочкой, что в `LLMService.processResponse`.
  */
 
-/** Дефолт совпадает с портом LM Studio по умолчанию. */
-const DEFAULT_BASE_URL = "http://localhost:1234/v1";
+/**
+ * Адрес и заголовки — из `localEndpoint.ts`: те же три строки стояли ещё в
+ * двух скриптах и разошлись с этим файлом (там `Authorization` не отправлялся).
+ */
 
 /**
  * Замер: `max_tokens` 4096 при включённом reasoning дал 3/10 схема-валидных,
@@ -39,6 +43,46 @@ const DEFAULT_MODEL = "local-model";
  * к поздней партии, но не оставляют ход висеть вечно при упавшем рантайме.
  */
 const DEFAULT_TIMEOUT_MS = 300_000;
+
+/**
+ * Способ, которым у рантайма просят структурный ответ.
+ *
+ * `prompt` — умолчание, и это ЗАМЕР, а не вкус
+ * (`.agent/runs/gemini-prompt-modes-2026-08-01/`, 140 вызовов на реальном
+ * промте хода через шлюз с ключом):
+ *
+ * - без инструкции о формате ответ приходил в markdown-заборе 60 раз из 60 —
+ *   ОДИНАКОВО при `json_schema` со `strict: true`, при `strict: false`, при
+ *   `json_object` и вообще без `response_format`. Строгая схема не отменила
+ *   ни одного забора: шлюз её принимает, но грамматику не применяет;
+ * - с инструкцией в конце промта — 0 заборов из 80. На базе против кандидата
+ *   (по 30 вызовов) это 30/30 против 0/30, Fisher p = 1,5·10⁻¹⁴;
+ * - выдуманных идентификаторов отказ от схемы не добавил: 2 прогона из 40 со
+ *   схемой против 8 из 100 без неё, p = 0,72. Иначе и быть не могло —
+ *   `research_shift.domain` в контракте свободная строка, схема его не
+ *   ограничивает ничем.
+ *
+ * `json_schema` — возврат к прежнему поведению ОДНИМ переключателем: рантайм,
+ * который грамматику действительно применяет (LM Studio, llama.cpp), от неё
+ * выигрывает, и замер на шлюзе про такой рантайм не говорит ничего.
+ */
+type ResponseFormatMode = "prompt" | "json_schema" | "json_object";
+const RESPONSE_FORMAT_MODES: ResponseFormatMode[] = ["prompt", "json_schema", "json_object"];
+const DEFAULT_RESPONSE_FORMAT: ResponseFormatMode = "prompt";
+
+function resolveResponseFormatMode(): ResponseFormatMode {
+  const raw = process.env.LOCAL_LLM_RESPONSE_FORMAT?.trim().toLowerCase();
+  if (!raw) return DEFAULT_RESPONSE_FORMAT;
+  // Опечатка роняет запрос, а не откатывается молча на умолчание: тихий откат
+  // увёл бы ходы в другой способ запроса формата незаметно для игрока — та же
+  // причина, по которой не откатывается опечатка в LLM_PROVIDER.
+  if (!RESPONSE_FORMAT_MODES.includes(raw as ResponseFormatMode)) {
+    throw new LLMProviderError(
+      `Неизвестный LOCAL_LLM_RESPONSE_FORMAT="${raw}". Допустимо: ${RESPONSE_FORMAT_MODES.join(", ")}.`
+    );
+  }
+  return raw as ResponseFormatMode;
+}
 
 /**
  * Схема ответа в диалекте OpenAI: обычный JSON Schema без обогащений Gemini.
@@ -78,11 +122,13 @@ function tightenForStrict(node: unknown): unknown {
  *
  * Отличия от `GeminiProvider`, каждое подтверждено замером:
  *
- * 1. Схема ответа передаётся ВСЕГДА. Без грамматики `json_schema` локальная
- *    модель дала 0/10 схема-валидных против 10/10 с ней; ломалось обёрткой
- *    ```` ```json ````, текстом вокруг JSON и недостающими полями конверта.
- *    Поэтому параметр не «необязательный», как у облачного провайдера, —
- *    отсутствие схемы означает схему мирового цикла, а не свободную генерацию.
+ * 1. Формат ответа держит ИНСТРУКЦИЯ В ПРОМТЕ, а не `response_format`
+ *    (`resolveResponseFormatMode`, замер там же). На локальном рантайме без
+ *    грамматики модель давала 0/10 схема-валидных против 10/10 с ней — но
+ *    рантайм её применял; шлюз, отдающий облачную модель, схему принимает и
+ *    игнорирует, и там работает только инструкция. Схема возвращается
+ *    переменной `LOCAL_LLM_RESPONSE_FORMAT=json_schema`, поэтому `responseSchema`
+ *    по-прежнему не «необязательный»: умолчание — схема мирового цикла.
  * 2. Ключ API не требуется: локальный сервер не аутентифицирует. Заголовок
  *    `Authorization` всё же отправляется, если задан `LOCAL_LLM_API_KEY`, —
  *    некоторые совместимые серверы (vLLM, LiteLLM) его требуют.
@@ -94,20 +140,39 @@ export class LocalOpenAIProvider implements LLMProvider {
     prompt: string,
     responseSchema: z.ZodType = GeminiResponseSchema
   ): Promise<string> {
-    const baseUrl = (process.env.LOCAL_LLM_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+    const baseUrl = localBaseUrl();
     const model = process.env.LOCAL_LLM_MODEL || DEFAULT_MODEL;
     const maxTokens = positiveIntFromEnv("LOCAL_LLM_MAX_TOKENS", DEFAULT_MAX_TOKENS);
     const timeoutMs = positiveIntFromEnv("LOCAL_LLM_TIMEOUT_MS", DEFAULT_TIMEOUT_MS);
+    const formatMode = resolveResponseFormatMode();
 
     const body: Record<string, unknown> = {
       model,
-      messages: [{ role: "user", content: prompt }],
+      // Инструкция «только JSON» дописывается в КОНЕЦ промта — там, где модель
+      // читает её последней. `generatePrompt()` при этом не тронут: промт хода
+      // и требование к формату ответа — разные вещи, и склеены они здесь.
+      //
+      // Режим `json_schema` инструкцию НЕ получает намеренно: он существует как
+      // откат к прежнему поведению, а откат, который заодно меняет промт,
+      // откатом не является — по нему не отличить регрессию формата от
+      // регрессии промта.
+      messages: [
+        {
+          role: "user",
+          content: formatMode === "json_schema" ? prompt : withJsonOnlyInstruction(prompt),
+        },
+      ],
       max_tokens: maxTokens,
-      response_format: {
+    };
+
+    if (formatMode === "json_schema") {
+      body.response_format = {
         type: "json_schema",
         json_schema: { name: "geopolis_response", strict: true, schema: toOpenAISchema(responseSchema) },
-      },
-    };
+      };
+    } else if (formatMode === "json_object") {
+      body.response_format = { type: "json_object" };
+    }
 
     // Reasoning включён ПО УМОЛЧАНИЮ, и это не про качество прозы. Замер:
     // без размышления модель выдумала 7 несуществующих доменов технологий на
@@ -119,10 +184,7 @@ export class LocalOpenAIProvider implements LLMProvider {
     const reasoning = process.env.LOCAL_LLM_REASONING;
     if (reasoning) body.reasoning_effort = reasoning;
 
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (process.env.LOCAL_LLM_API_KEY) {
-      headers.Authorization = `Bearer ${process.env.LOCAL_LLM_API_KEY}`;
-    }
+    const headers = localHeaders();
 
     let response: Response;
     try {
@@ -143,8 +205,16 @@ export class LocalOpenAIProvider implements LLMProvider {
 
     if (!response.ok) {
       const text = await response.text().catch(() => "");
+      // 401/403 отделены от прочих ошибок: у шлюза с ключом это САМАЯ частая
+      // поломка, а по голому «вернул 401» её не отличить от отказа модели.
+      const hint =
+        response.status === 401 || response.status === 403
+          ? hasApiKey()
+            ? " Ключ задан, но отвергнут — проверьте LOCAL_LLM_API_KEY в server/.env."
+            : " Ключ не задан — добавьте LOCAL_LLM_API_KEY в server/.env."
+          : "";
       throw new LLMProviderError(
-        `Локальный LLM вернул ${response.status}: ${text.slice(0, 500)}`
+        `Локальный LLM вернул ${response.status}: ${text.slice(0, 500)}.${hint}`
       );
     }
 

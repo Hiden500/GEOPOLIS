@@ -4,7 +4,13 @@ import { type War } from "@shared/types/War";
 import { MapFeatureService } from "../../services/MapFeatureService";
 import { getCombinedArmsMultiplier } from "@shared/utils/technology";
 import { getEquipmentPower } from "@shared/utils/equipment";
-import { EQUIPMENT_STRENGTH_WEIGHT, FLIP_THRESHOLD_RATIO, WAR_CASUALTY_BASE_PER_FRONT_REGION } from "@shared/defines/war";
+import {
+  EQUIPMENT_STRENGTH_WEIGHT,
+  FLIP_THRESHOLD_RATIO,
+  REGION_DEFENSE_INFRASTRUCTURE_WEIGHT,
+  WAR_CASUALTY_BASE_PER_FRONT_REGION,
+  MAX_MONTHLY_ARMY_LOSS_SHARE,
+} from "@shared/defines/war";
 import { effectiveController } from "@shared/utils/regionControl";
 import { setRegionOccupation } from "./occupation";
 
@@ -73,10 +79,16 @@ export function warTick(game: GameState): void {
 
     const flips: { region: Region; newController: string; toAttackers: boolean }[] = [];
 
-    // Число контактных (фронтовых) регионов по сторонам — вход для помесячных
-    // потерь (docs/plans/08_WAR_WAVE1.md, Шаг 3).
-    let attackerFrontCount = 0;
-    let defenderFrontCount = 0;
+    // ПЕРВЫЙ ПРОХОД — из кого состоит фронт. Решение о флипе принимается только
+    // во втором проходе: локальная мощь участка считается от ДОЛИ армии, а доля
+    // неизвестна, пока не сосчитан весь фронт стороны.
+    interface FrontRegion {
+      region: Region;
+      isAttackerRegion: boolean;
+      /** Соседи под контролем противника — через них на регион давят. */
+      enemyNeighbors: Region[];
+    }
+    const front: FrontRegion[] = [];
 
     for (const region of game.regions) {
       // Фронт идёт по факту контроля (docs/plans/08_WAR_WAVE1.md, Шаг 1), не
@@ -88,24 +100,46 @@ export function warTick(game: GameState): void {
       if (!isAttackerRegion && !isDefenderRegion) continue;
 
       const oppositeSet = isAttackerRegion ? defenderSet : attackerSet;
-      const contactingNeighbor = region.neighboringRegionIds
+      const enemyNeighbors = region.neighboringRegionIds
         .map(nid => regionById.get(nid))
-        .find((n): n is Region => !!n && oppositeSet.has(effectiveController(n)));
+        .filter((n): n is Region => !!n && oppositeSet.has(effectiveController(n)));
 
-      if (!contactingNeighbor) continue;
+      if (enemyNeighbors.length === 0) continue;
 
-      if (isAttackerRegion) attackerFrontCount += 1;
-      else defenderFrontCount += 1;
-
+      front.push({ region, isAttackerRegion, enemyNeighbors });
       ensureBattalion(mapFeatureService, game, warTag, region);
+    }
 
-      const ownerSideStrength = isAttackerRegion ? attackerStrength : defenderStrength;
-      const opposingSideStrength = isAttackerRegion ? defenderStrength : attackerStrength;
+    const attackerFrontCount = front.filter(f => f.isAttackerRegion).length;
+    const defenderFrontCount = front.length - attackerFrontCount;
 
-      if (opposingSideStrength > ownerSideStrength * FLIP_THRESHOLD_RATIO) {
+    // Доля армии, приходящаяся на один участок фронта. Широкий фронт
+    // размазывает силу — это и есть цена наступления по всей границе.
+    const attackerPerRegion = attackerStrength / Math.max(1, attackerFrontCount);
+    const defenderPerRegion = defenderStrength / Math.max(1, defenderFrontCount);
+
+    // ВТОРОЙ ПРОХОД — решение по каждому участку отдельно (разбор модели у
+    // REGION_DEFENSE_INFRASTRUCTURE_WEIGHT в shared/src/defines/war.ts).
+    for (const { region, isAttackerRegion, enemyNeighbors } of front) {
+      const ownPerRegion = isAttackerRegion ? attackerPerRegion : defenderPerRegion;
+      const enemyPerRegion = isAttackerRegion ? defenderPerRegion : attackerPerRegion;
+
+      // Давление — сумма долей противника со всех сторон, откуда по региону
+      // бьют: выступ, окружённый с трёх сторон, держать втрое тяжелее.
+      const pressure = enemyPerRegion * enemyNeighbors.length;
+
+      // Оборона — своя доля армии плюс вклад самого региона (снабжение и
+      // укреплённость, выражены его инфраструктурой).
+      const defense =
+        ownPerRegion * (1 + region.infrastructure * REGION_DEFENSE_INFRASTRUCTURE_WEIGHT);
+
+      if (pressure > defense * FLIP_THRESHOLD_RATIO) {
+        // Регион переходит к тому соседу, откуда давили. Их может быть
+        // несколько — берётся первый: выбор «кому именно достанется» не влияет
+        // ни на одну величину модели, обе стороны воюют коалициями.
         flips.push({
           region,
-          newController: effectiveController(contactingNeighbor),
+          newController: effectiveController(enemyNeighbors[0]!),
           toAttackers: !isAttackerRegion,
         });
       }
@@ -194,7 +228,14 @@ function distributeSideCasualties(
     const countryCasualties = Math.round(sideCasualties * share);
     if (countryCasualties <= 0) continue;
 
-    const militaryLosses = Math.min(countryCasualties, country.military.activePersonnel);
+    // Убыль АРМИИ ограничена долей её состава (MAX_MONTHLY_ARMY_LOSS_SHARE):
+    // базовая интенсивность задана абсолютным числом на участок фронта и при
+    // широком фронте съедала любую армию за считанные месяцы, после чего война
+    // сваливалась в сравнение нулей. Ограничивается именно списание с
+    // `activePersonnel` — общий урон войны прежний, превышение по-прежнему
+    // уходит в население и мобилизационный пул.
+    const armyLossCap = Math.floor(country.military.activePersonnel * MAX_MONTHLY_ARMY_LOSS_SHARE);
+    const militaryLosses = Math.min(countryCasualties, armyLossCap);
     country.military.activePersonnel -= militaryLosses;
 
     const civilianOverflow = countryCasualties - militaryLosses;

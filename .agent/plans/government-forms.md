@@ -1,5 +1,5 @@
 # Формы правления и статус суверенитета, 1946
-Status: active
+Status: complete
 Owner: Claude (Opus) — worktree `.claude/worktrees/government-forms`, ветка `claude/government-forms`
 Starting commit: da8c525
 

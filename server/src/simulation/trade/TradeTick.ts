@@ -86,11 +86,39 @@ function getEmbargoPenalty(game: GameState, target: Country): number {
 }
 
 /**
- * Продаёт излишек ресурса сверх внутреннего резерва по мировой цене,
- * перезаписывает country.economy.exportIncome (было статичное число из
- * createGame). Физически списывает проданное со stockpile — прямое
- * прочтение docs/ECONOMY.md Q8 "как ресурс превращается в доход" (продажа
- * тратит запас, не дублирует его как одновременно "и резерв, и доход").
+ * Продаёт излишек ресурса сверх внутреннего резерва по мировой цене и
+ * складывает выручку с БАЗОВОЙ внешней торговлей страны. Физически списывает
+ * проданное со stockpile — прямое прочтение docs/ECONOMY.md Q8 "как ресурс
+ * превращается в доход" (продажа тратит запас, не дублирует его как
+ * одновременно "и резерв, и доход").
+ *
+ * СЛОЖЕНИЕ, А НЕ ПЕРЕЗАПИСЬ (исправлено 2026-07-31). До этого тик записывал в
+ * `exportIncome` только сырьевую выручку, затирая величину из `createGame` —
+ * а это были два РАЗНЫХ понятия в одном поле: `economyProfile.exportShare`
+ * означает всю внешнюю торговлю страны (3–6% ВВП, авторские данные), тик же
+ * считает продажу излишков сырья. Второе — крошечная часть первого, но
+ * записывалось на его место: фактическое отношение падало до ~0,0001 ВВП на
+ * первом же тике и таким оставалось 50 лет. У мира ежемесячно испарялись
+ * несколько процентов ВВП дохода, на который была расписана его бюджетная
+ * роспись (`.agent/audits/formula-audit-2026-07-30.md`, «Бюджетная петля»).
+ *
+ * Базовая часть проходит через ТЕ ЖЕ множители, что и сырьевая. Иначе страна
+ * под полной блокадой продолжала бы получать свои 3–6% ВВП нетронутыми, и поле
+ * означало бы «подарок от профиля», а не внешнюю торговлю.
+ *
+ * ЭМБАРГО СОКРАЩАЕТ ОТГРУЗКУ, А НЕ ВЫРУЧКУ ЗА ОТГРУЖЕННОЕ (исправлено
+ * 2026-08-01). До этого объём продажи считался без оглядки на санкции, физически
+ * списывался со `stockpile`, и только ИТОГОВЫЙ доход умножался на
+ * `(1 - embargoPenalty)`. При пяти эмбарго (штраф капается на 100%) страна
+ * отдавала груз и получала за него ноль: замер на живых данных показал 153 656
+ * единиц, исчезающих за ОДИН тик у крупнейшего экспортёра
+ * (`server/scripts/probeResourceGates.ts`). Теперь блокада режет саму отгрузку:
+ * непроданное остаётся на складе и ждёт снятия санкций. Доход при этом не
+ * изменился ни на копейку — `sold·(1-p)·price + base·(1-p)` тождественно
+ * прежнему `(sold·price + base)·(1-p)`, — так что решение 2026-07-31 («блокада
+ * касается ВСЕЙ торговли, включая базовую часть») остаётся в силе.
+ *
+ * Импорт по-прежнему не гейтится эмбарго (`docs/TRADE.md`, «Явные пробелы»).
  */
 export function tradeTick(game: GameState, country: Country): void {
   const currentYear = Number(game.currentDate.split("-")[0]);
@@ -107,6 +135,10 @@ export function tradeTick(game: GameState, country: Country): void {
   let totalImportSpending = 0;
   const reserveTarget = country.population * DOMESTIC_RESERVE_PER_CAPITA;
 
+  // Доля торговли, которую санкции пропускают: 0 при полной блокаде. Режет
+  // ОТГРУЗКУ, поэтому непроданный из-за эмбарго груз остаётся на складе.
+  const tradableShare = 1 - embargoPenalty;
+
   for (const resourceId of RESOURCE_IDS) {
     if (RESOURCE_CATALOG[resourceId].eraIntroduced > currentYear) continue;
 
@@ -114,11 +146,11 @@ export function tradeTick(game: GameState, country: Country): void {
 
     if (stock >= reserveTarget) {
       const exportable = stock - reserveTarget;
-      const sold = exportable * EXPORT_RATE;
+      const sold = exportable * EXPORT_RATE * tradableShare;
       if (sold <= 0) continue;
 
       country.stockpile[resourceId] -= sold;
-      totalExportIncome += sold * getWorldPrice(resourceId) * (1 - embargoPenalty) * exportZoneMultiplier;
+      totalExportIncome += sold * getWorldPrice(resourceId);
     } else {
       const deficit = reserveTarget - stock;
       const bought = deficit * IMPORT_RATE;
@@ -129,6 +161,15 @@ export function tradeTick(game: GameState, country: Country): void {
     }
   }
 
-  country.economy.exportIncome = totalExportIncome;
+  // Базовая внешняя торговля — доля ВВП из авторского профиля страны. Она НЕ
+  // хранится отдельным полем: величина производная (ВВП × доля), а лишнее поле
+  // состояния — это ещё одно место, где значение может разойтись с источником.
+  const baseExportIncome = country.economy.gdp * (country.economyProfile.exportShare ?? 0);
+
+  // Сырьевая часть штраф уже отработала объёмом (`tradableShare` выше) —
+  // второй раз её умножать нельзя. Базовая часть склада не имеет, поэтому
+  // санкция бьёт по ней доходом.
+  country.economy.exportIncome =
+    (baseExportIncome * tradableShare + totalExportIncome) * exportZoneMultiplier;
   country.economy.importSpending = totalImportSpending;
 }

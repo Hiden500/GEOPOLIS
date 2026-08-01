@@ -2,7 +2,6 @@ import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
 import * as diplomacyCommands from "../../commands/diplomacy";
-import * as warCommands from "../../commands/war";
 import * as economyCommands from "../../commands/economy";
 import { type SpendKey } from "../../commands/economy";
 import { effectiveValue } from "@shared/utils/modifiers";
@@ -15,9 +14,9 @@ import {
   COALITION_STEP,
   INFLUENCE_GRAVITY,
   STABILITY_LOW,
+  STABILITY_RECOVERED,
   WELFARE_SHIFT_RATE,
   WELFARE_CAP_SHARE,
-  WAR_RELATION_THRESHOLD,
 } from "@shared/defines/ai";
 import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 
@@ -27,10 +26,10 @@ import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
  *  - Правило A: аустерити по дефициту.
  *  - Правило B: ответ на угрозу с полной балансировкой (военный ответ +
  *    контр-блок соперников + power→influence→сфера для бандвагонинга).
- *  - Правило C: при низкой stability сдвиг расходов с military → welfare.
- *  - Правило D (docs/WAR.md, 2026-07-06): порог объявления войны для
- *    non-major стран — топ-державы объявляют войну только через LLM
- *    (решение A), это правило их не трогает.
+ *  - Правило C: при низкой stability сдвиг расходов с military → welfare и
+ *    возврат обратно, когда кризис позади (двусторонним стало 2026-08-01).
+ *  - Правило D УДАЛЕНО 2026-07-31 (разбор — ниже, у места, где оно стояло):
+ *    объявление войны осталось только за игроком и режиссёром-LLM.
  *
  * Применяется только к ИИ-странам (id !== playerCountryId). Баланс-константы
  * — shared/src/defines/ai.ts.
@@ -72,36 +71,66 @@ function applyDeficitAusterity(game: GameState, c: Country): void {
 }
 
 /**
- * Правило C — при низкой stability (< 40) переносит расходы с military → welfare.
- * Не опускает military ниже пола; не поднимает welfare выше 30% дохода.
+ * Правило C — бюджет следует за кризисом В ОБЕ СТОРОНЫ. При низкой stability
+ * (< `STABILITY_LOW`) расходы идут military → welfare; когда кризис позади
+ * (≥ `STABILITY_RECOVERED`) — доля возвращается обратно. Между порогами
+ * гистерезисная зона, в ней не двигают ничего.
+ *
+ * ПОЧЕМУ ВОЗВРАТ ПОЯВИЛСЯ (2026-08-01). Правило было односторонним храповиком:
+ * замер на 120 месяцах живого 1946 показал, что за первые пять месяцев кризиса
+ * страна вычерпывает весь запас (military с 20% дохода до пола 10%, welfare с
+ * 22% до потолка 30%) — и остаётся так навсегда, даже полностью восстановившись.
+ * К десятому году доля military просела ниже стартовой у 82 стран из 156, и
+ * сдвинуть бюджет в ответ на НОВЫЙ кризис реально могли 0 стран из 48 задетых
+ * порогом. Реакция, которая срабатывает один раз за партию и не отпускает, —
+ * это не реакция, а разовое смещение мира к welfare.
+ *
+ * ГРАНИЦЫ ВОЗВРАТА — стартовые доли обеих статей, и они же гарантируют, что
+ * возврат отменяет ровно СВОЙ сдвиг и ничего сверх него:
+ *  - military не поднимается выше стартовой доли (= пол × 2), поэтому возврат
+ *    не подменяет собой Правило B (военный ramp угрожаемой страны) и не спорит
+ *    с ним: у страны, которую Правило B уже подняло выше старта, возврат — ноль;
+ *  - welfare не опускается ниже стартовой доли, поэтому возврат не отыгрывает
+ *    назад урезание Правила A (аустерити режет ВСЕ статьи, включая welfare, и
+ *    восстановления у него нет — это отдельный открытый дефект, docs/TODO.md).
+ *
  * Stability читается через effectiveValue() (docs/plans/03_MODIFIERS_COMMANDS.md,
  * Шаг 2), не сырое поле — единственный переведённый читатель в этом заходе,
  * демонстрирует реальную интеграцию модификаторов.
  */
-function applyStabilityWelfareNudge(game: GameState, c: Country): void {
+function applyStabilityBudgetShift(game: GameState, c: Country): void {
+  const { spendingFloor: floor, spendingShares: shares } = c.economy;
+  if (!floor || !shares) return;
+
   const stability = effectiveValue(
     c.politics.stability,
     ModifierAttribute.Stability,
     { kind: "country", id: c.id },
     game.modifiers
   );
-  if (stability >= STABILITY_LOW || !c.economy.spendingFloor) return;
 
-  const income = totalIncome(c);
-  if (income <= 0) return;
+  // Кризис: все три ограничителя — доли дохода, поэтому сам доход не нужен.
+  if (stability < STABILITY_LOW) {
+    const shift = Math.min(
+      WELFARE_SHIFT_RATE,
+      WELFARE_CAP_SHARE - shares.welfare,
+      shares.military - floor.militarySpending
+    );
+    if (shift > 0) economyCommands.shiftMilitaryToWelfare(game, c.id, shift);
+    return;
+  }
 
-  const welfareCap = income * WELFARE_CAP_SHARE;
-  if (c.economy.welfareSpending >= welfareCap) return;
+  // Гистерезисная зона между порогами — бюджет замер там, где его застал выход
+  // из кризиса.
+  if (stability < STABILITY_RECOVERED) return;
 
-  const shift = Math.min(
-    income * WELFARE_SHIFT_RATE,
-    welfareCap - c.economy.welfareSpending,
-    c.economy.militarySpending - c.economy.spendingFloor.militarySpending
+  // Кризис позади. Пол аустерити — половина стартовой доли, значит старт = пол × 2.
+  const back = Math.min(
+    WELFARE_SHIFT_RATE,
+    floor.militarySpending * 2 - shares.military,
+    shares.welfare - floor.welfareSpending * 2
   );
-
-  if (shift <= 0) return;
-
-  economyCommands.shiftMilitaryToWelfare(game, c.id, shift);
+  if (back > 0) economyCommands.shiftWelfareToMilitary(game, c.id, back);
 }
 
 /**
@@ -125,9 +154,13 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
     if (relToPlayer < 0) {
       // Балансировка — страна не любит игрока: вооружается и сближается с другими
       // угрожаемыми соперниками (контр-блок), сопротивляется влиянию игрока.
-      const cap = totalIncome(c) * MILITARY_CAP_SHARE;
-      if (c.economy.militarySpending < cap) {
-        economyCommands.setMilitarySpending(game, c.id, Math.min(c.economy.militarySpending * MILITARY_RAMP, cap));
+      // В ДОЛЯХ доход сокращается: кап и ramp выражаются прямо через них
+      // (2026-08-01). Раньше и кап, и ramp считались от суммы, а сумма у ИИ
+      // не следовала за доходом — поэтому «военный ответ» слабел с каждым
+      // годом, хотя страна богатела.
+      const share = c.economy.spendingShares?.military ?? 0;
+      if (share < MILITARY_CAP_SHARE) {
+        economyCommands.setMilitaryShare(game, c.id, Math.min(share * MILITARY_RAMP, MILITARY_CAP_SHARE));
       }
 
       for (const other of threatened) {
@@ -148,36 +181,32 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
 }
 
 /**
- * Правило D — порог объявления войны для non-major (топ-державы — только
- * через LLM, см. docs/WAR.md решение A). Соперник (`rivals`) с отношениями
- * ниже почти-дна шкалы И при манпауэр-перевесе инициатора ("нет другого
- * выхода", черновик docs/WAR.md) — объявляется война. `WarService.declareWar`
- * идемпотентен (не дублирует уже идущую войну), доп. проверка не нужна.
+ * ПРАВИЛО D УДАЛЕНО 2026-07-31 — решение пользователя, `docs/DECISIONS.md`.
  *
- * Вариативность характера (`Country.aiTraits`, docs/AI_RULES.md) смещает оба
- * порога независимо: `aggressiveness` — порог отношений (агрессивные страны
- * решаются на войну при менее плохих отношениях, миролюбивые — только на
- * настоящем дне шкалы); `riskTolerance` — требуемый манпауэр-перевес (более
- * рисковые страны считают достаточным меньший перевес).
+ * Правило объявляло войну соперникам среди non-major при отношениях ниже
+ * `WAR_RELATION_THRESHOLD` и манпауэр-перевесе. За всё время существования оно
+ * не объявило ни одной войны, и замер (`server/scripts/probeWarReach.ts`)
+ * показал три независимых барьера, каждого из которых хватило бы:
+ *
+ *  1. У правила НОЛЬ кандидатов. Все 18 соперничеств мира к 120-му месяцу
+ *     включают major-державу, а правило смотрело только пары, где обе стороны
+ *     non-major. До порогов дело не доходило вовсе.
+ *  2. Порог практически недостижим — но, в отличие от первого барьера, не
+ *     абсолютно. Отношения соперников на 120-м месяце лежат в −23,1…−7,9, а
+ *     самому агрессивному ИИ требуется −57,1; при этом на 60-м месяце дно
+ *     доходило до −57,4, то есть порог КАСАЕТСЯ края распределения у одной
+ *     пары. Это уточнение важнее, чем кажется: «недостижим» из прежних
+ *     отчётов было выведено из констант, а измерение показало границу.
+ *  3. Манпауэр-условие барьером НЕ было — вопреки прежним отчётам:
+ *     `activePersonnel` нулевой только в месяц 0, к концу первого года медиана
+ *     3826.
+ *
+ * Вместо починки трёх барьеров выбран отказ от механики: войну начинают игрок
+ * (`POST /primitives/apply`) и режиссёр-LLM — оба через примитив `war`
+ * (`PrimitiveEngine.ts`), оба пути живые и покрыты тестами. Цена решения
+ * названа прямо: без LLM мир остаётся вечно мирным, и вся военная механика
+ * (фронты, потери, мирные договоры) не запускается ничем.
  */
-function applyWarThreshold(game: GameState, aiCountries: Country[]): void {
-  const nonMajor = aiCountries.filter(c => c.tier !== "major");
-
-  for (const c of nonMajor) {
-    const relationThreshold = WAR_RELATION_THRESHOLD / c.aiTraits.aggressiveness;
-
-    for (const rivalId of c.diplomacy.rivals) {
-      const rival = nonMajor.find(r => r.id === rivalId);
-      if (!rival) continue; // major-тир соперник — войну решает только LLM
-
-      const relation = c.diplomacy.relations[rivalId] ?? 0;
-      if (relation > relationThreshold) continue;
-      if (c.military.activePersonnel <= rival.military.activePersonnel / c.aiTraits.riskTolerance) continue;
-
-      warCommands.declareWar(game, c.id, rivalId);
-    }
-  }
-}
 
 export function aiBehaviorTick(game: GameState): void {
   const player = game.countries.find(c => c.id === game.playerCountryId);
@@ -185,12 +214,10 @@ export function aiBehaviorTick(game: GameState): void {
 
   for (const c of aiCountries) {
     applyDeficitAusterity(game, c);
-    applyStabilityWelfareNudge(game, c);
+    applyStabilityBudgetShift(game, c);
   }
 
   if (player) {
     applyThreatResponse(game, player, aiCountries);
   }
-
-  applyWarThreshold(game, aiCountries);
 }

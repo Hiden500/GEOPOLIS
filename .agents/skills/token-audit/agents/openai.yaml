@@ -1,4 +1,0 @@
-interface:
-  display_name: "Audit Agent Context"
-  short_description: "Audit recurring agent context cost"
-  default_prompt: "Use $token-audit to find duplicated or expensive agent instructions and propose leaner context."

@@ -7,6 +7,9 @@ import { type IdeologyCoordinates } from "@shared/types/politics/Ideology";
 import {
   RELATION_MATERIALIZE_MIN,
   ALLY_RELATION_THRESHOLD,
+  RIVAL_RELATION_THRESHOLD,
+  RIVAL_RECONCILE_THRESHOLD,
+  INFLUENCE_SCALE_MAX,
 } from "@shared/defines/diplomacy";
 
 /**
@@ -65,13 +68,20 @@ describe("diplomacyTick: дрейф отношений", () => {
   });
 
   it("тянет заниженные отношения вверх", () => {
-    const a = countryAt("A", LEFT_AUTHORITARIAN, { diplomacy: { ...createTestCountry().diplomacy, relations: { B: -50 } } });
+    // Старт задан ОТНОСИТЕЛЬНО порога соперничества, а не числом −50. Проверяется
+    // здесь один только дрейф, и стартовое значение обязано оставаться выше
+    // порога: ниже него тик в том же проходе заводит соперника, а `addRival`
+    // добавляет собственный сдвиг отношений — тест мерил бы уже не дрейф.
+    // Прежнее −50 было безопасно лишь потому, что порог стоял на −70, то есть
+    // недостижимо низко (`.agent/audits/formula-audit-2026-07-30.md`).
+    const start = RIVAL_RELATION_THRESHOLD / 2;
+    const a = countryAt("A", LEFT_AUTHORITARIAN, { diplomacy: { ...createTestCountry().diplomacy, relations: { B: start } } });
     const b = countryAt("B", LEFT_AUTHORITARIAN);
 
     diplomacyTick(worldOf([a, b]));
 
-    expect(a.diplomacy.relations["B"]).toBeGreaterThan(-50);
-    expect(a.diplomacy.relations["B"]).toBeLessThan(0);
+    expect(a.diplomacy.relations["B"]).toBeGreaterThan(start);
+    expect(a.diplomacy.rivals).not.toContain("B");
   });
 
   it("целью дрейфа служит НЕ ноль: соседи-антиподы уходят в минус с нуля", () => {
@@ -113,8 +123,13 @@ describe("diplomacyTick: дрейф отношений", () => {
 });
 
 describe("diplomacyTick: пороговые переходы", () => {
-  it("автоматически добавляет соперника при отношениях ниже -70", () => {
-    const a = countryAt("A", LEFT_AUTHORITARIAN, { diplomacy: { ...createTestCountry().diplomacy, relations: { B: -75 } } });
+  it("автоматически добавляет соперника ниже порога соперничества", () => {
+    // Порог берётся из константы, а не переписывается числом в названии теста:
+    // именно совпадение «−75 в фикстуре» с «−70 в коде» позволяло проверке
+    // оставаться зелёной, пока сам порог был недостижим на живых данных.
+    const a = countryAt("A", LEFT_AUTHORITARIAN, {
+      diplomacy: { ...createTestCountry().diplomacy, relations: { B: RIVAL_RELATION_THRESHOLD - 1 } },
+    });
     const b = countryAt("B", LEFT_AUTHORITARIAN);
 
     diplomacyTick(worldOf([a, b]));
@@ -135,9 +150,13 @@ describe("diplomacyTick: пороговые переходы", () => {
     expect(b.diplomacy.allies).not.toContain("A");
   });
 
-  it("снимает соперника при отношениях выше -30", () => {
+  it("снимает соперника выше порога примирения", () => {
     const a = countryAt("A", LEFT_AUTHORITARIAN, {
-      diplomacy: { ...createTestCountry().diplomacy, relations: { B: -20 }, rivals: ["B"] },
+      diplomacy: {
+        ...createTestCountry().diplomacy,
+        relations: { B: RIVAL_RECONCILE_THRESHOLD + 1 },
+        rivals: ["B"],
+      },
     });
     const b = countryAt("B", LEFT_AUTHORITARIAN);
 
@@ -366,7 +385,12 @@ describe("calculateBaseInfluence", () => {
     expect(calculateBaseInfluence(strong, weak)).toBeGreaterThan(calculateBaseInfluence(weak, strong));
   });
 
-  it("ограничен сотней", () => {
+  it("насыщается, а не срезается: край шкалы недостижим", () => {
+    // Тест ЗАМЕНЁН 2026-07-31. Прежний утверждал `toBe(100)` — то есть
+    // фиксировал ОБРЕЗКУ как желаемое поведение, и потому проходил бы при любом
+    // разбросе входов. Аудит формул показал цену: сотню получали три четверти
+    // мира, и «влияние» переставало различать страны. Свойство теперь обратное —
+    // сколь угодно большой перевес края шкалы не достигает.
     const dominant = createTestCountry({
       id: "DOMINANT",
       military: { ...createTestCountry().military, manpower: 1_000_000_000 },
@@ -378,6 +402,40 @@ describe("calculateBaseInfluence", () => {
       economy: { ...createTestCountry().economy, gdp: 1 },
     });
 
-    expect(calculateBaseInfluence(dominant, tiny)).toBe(100);
+    expect(calculateBaseInfluence(dominant, tiny)).toBeLessThan(INFLUENCE_SCALE_MAX);
+  });
+
+  it("не опускает потолок ниже уже существующего влияния", () => {
+    // Влияние на старте расставил автор сценария, а купить его можно помощью и
+    // вассалитетом. Формула про перевес сил не имеет права его сносить: за
+    // убыль отвечает затухание, и только оно.
+    const weakPatron = createTestCountry({
+      id: "PATRON",
+      economy: { ...createTestCountry().economy, gdp: 1 },
+      diplomacy: { ...createTestCountry().diplomacy, influence: { CLIENT: 80 } },
+    });
+    const richClient = createTestCountry({
+      id: "CLIENT",
+      economy: { ...createTestCountry().economy, gdp: 1_000_000_000_000 },
+    });
+
+    expect(calculateBaseInfluence(weakPatron, richClient)).toBe(80);
+  });
+
+  it("без единого канала перевес значит кратно меньше", () => {
+    const strong = createTestCountry({
+      id: "STRONG",
+      economy: { ...createTestCountry().economy, gdp: 1_000_000_000_000 },
+    });
+    const weak = createTestCountry({
+      id: "WEAK",
+      economy: { ...createTestCountry().economy, gdp: 1 },
+    });
+    const tied = createTestCountry({
+      ...strong,
+      diplomacy: { ...createTestCountry().diplomacy, sphereOfInfluence: ["WEAK"] },
+    });
+
+    expect(calculateBaseInfluence(strong, weak)).toBeLessThan(calculateBaseInfluence(tied, weak));
   });
 });

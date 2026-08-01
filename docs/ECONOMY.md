@@ -38,16 +38,44 @@ Last updated: 2026-07-11 (Госдолг: план 08 Шаг 4)
 
 ВВП считается на уровне региона и агрегируется к стране
 (`shared/src/utils/aggregateCountryData.ts`). Формула роста региона —
-`EconomyTick.ts:59-77`:
+`EconomyTick.ts::computeGrowthRate`:
 
 ```
 baseGrowthRate = 0.001 + avgDevelopment×0.002 + avgInfrastructure×0.001
-infrastructureBonus = infrastructureSpending / gdp × 0.5
+infrastructureBonus = infrastructureSpending / gdp × 0.15
 deficitPenalty = budgetBalance < 0 ? |budgetBalance| / gdp × 0.3 : 0
-growthRate = min(MAX_MONTHLY_GROWTH_RATE, max(0, baseGrowthRate + infrastructureBonus - deficitPenalty))
+debtPenalty = debt/gdp > 0.6 ? (debt/gdp − 0.6) × 0.02 : 0
+growthRate = min(MAX_MONTHLY_GROWTH_RATE, max(0, base + infraBonus − deficitPenalty − debtPenalty))
 // MAX_MONTHLY_GROWTH_RATE = 0.05 — защитный потолок, не даёт архетипу разогнаться неограниченно
+// Пол — НОЛЬ: рецессия пробовалась 2026-07-31 и снята, она запускает долговую
+// спираль (числа и условие включения — docs/TODO.md, docs/DECISIONS.md)
 region.gdp *= (1 + growthRate + sectorBonus)   // sectorBonus от industry/services региона
 ```
+
+### Накопление инфраструктуры (`EconomyTick.ts::updateInfrastructure`)
+
+Вложение не только даёт разовый `infrastructureBonus` к росту, но и **строит
+актив**: `region.infrastructure` растёт от вложений и изнашивается со временем
+(модель капитала с амортизацией, введена 2026-07-31).
+
+```
+intensity = infrastructureSpending / gdp
+factor    = 1 + BUILD_RATE × intensity / avgInfrastructure − DECAY_RATE
+region.infrastructure = clamp(region.infrastructure × factor, MIN, MAX)
+```
+
+Множитель считается ОДИН на страну и применяется к каждому её региону:
+вложения задаёт страна, а инфраструктура размечена порегионно, и тянуть регионы
+к общему числу значило бы стереть авторскую разметку. Относительные различия
+сохраняются точно, меняется только уровень.
+
+Равновесие — `avg = BUILD_RATE × intensity / DECAY_RATE`. Константы подобраны
+так, чтобы при медианной интенсивности сценария 1946 (0,040 ВВП) равновесие
+совпало с медианной инфраструктурой (0,321): механика сохраняет стартовое
+состояние мира, а расходятся дальше те, кто менял бюджет.
+
+Соседние поля `development` и `urbanization` по-прежнему не пишет никто — это
+отдельные петли, требующие продуктового решения (`docs/TODO.md`).
 
 `country.economy.gdp` перезаписывается агрегацией (Σ `region.gdp`), не
 накапливается отдельно.
@@ -64,16 +92,36 @@ budgetBalance = income - expenses
 treasury += budgetBalance
 if (treasury < 0) { debt += -treasury; treasury = 0 }      // дефицит → долг
 else if (debt > 0) { repay = min(debt, treasury); debt -= repay; treasury -= repay }  // профицит гасит долг
-inflation    += 0.1 × (expenses - income) / gdp
-unemployment += 0.05 × (expenses - income) / gdp   // floored at 0
+// Инфляция и безработица — ПРОЦЕНТЫ, в тех же единицах, что их пороги
+// (STABILITY_*_THRESHOLD = 5/15/20), стартовые данные архетипов и текст
+// мирового факта для LLM. Модель — возврат к цели, а не интегратор.
+pressure = clamp((expenses - income) / gdp, ±FISCAL_PRESSURE_CAP) × 100   // в п.п.
+inflationTarget    = INFLATION_BASELINE    + (pressure > 0 ? 1.8 : 0.1) × pressure
+unemploymentTarget = UNEMPLOYMENT_BASELINE + (pressure > 0 ? 0.8 : 0.1) × pressure
+inflation    += 0.05 × (inflationTarget - inflation)       // клип [-2, 60]
+unemployment += 0.03 × (unemploymentTarget - unemployment) // клип [0, 60]
 ```
+
+Асимметрия сторон — downward rigidity: профицит охлаждает инфляцию к базовой
+линии, но не производит дефляцию так же охотно, как дефицит производит инфляцию.
+Насыщение входа защищает механику от масштаба бюджетного блока (сальдо сейчас
+±6…17% ВВП за месяц — величина нереалистичная и подлежащая перекалибровке
+отдельно). Дефицитная сторона откалибрована по порогу, который обязана делать
+достижимым: устойчивый дефицит 10% ВВП в месяц выводит цель инфляции ровно на
+кризисный порог 20.
+
+До 2026-07-31 приращение считалось в ДОЛЯХ ВВП (`0.1 × дефицит/ВВП`) при
+величине и порогах в процентах — отклик был примерно в сто раз слабее
+собственной шкалы. Замер за 120 месяцев сценария 1946: кризисный порог не
+перешла ни одна страна из 157. Обоснование и калибровка —
+`shared/src/defines/economy.ts`, замер — `server/scripts/probeScales.ts`.
 
 Если у страны задан `EconomyState.spendingShares?: { military, research,
 education, infrastructure, welfare }` (`PUT /budget`), каждый тик до расчёта
 `expenses` пересчитываются абсолютные `militarySpending/researchSpending/
 educationSpending/infrastructureSpending/welfareSpending = income × доля` —
 тот же паттерн, что `taxRate → taxRevenue` выше. Потолки на каждую статью
-независимые (`shared/src/constants/budgetSpendingShareCaps.ts`,
+независимые (`shared/src/defines/budgetSpendingShareCaps.ts`,
 `BUDGET_SPENDING_SHARE_CAPS`), сумма долей может превышать 1 — разрешено
 осознанно. ИИ-страны `spendingShares` не имеют, их `*Spending` остаются
 абсолютными числами, которые двигает `AiBehaviorTick`. В интерфейсе — 4
@@ -271,8 +319,17 @@ MapFeature input/output — не спроектировано) — по-преж
 
 ### Прочее (не блокер, просто незавершённое)
 
-- `exportIncome` теперь пересчитывается каждый тик (`TradeTick.ts`, 2026-07-06,
-  см. `docs/TRADE.md`) — больше не статичная доля ВВП из `createGame`.
+- `exportIncome` пересчитывается каждый тик (`TradeTick.ts`, `docs/TRADE.md`)
+  как СУММА двух частей: базовая внешняя торговля (`ВВП × economyProfile.
+  exportShare`, авторская доля 3–6%) плюс выручка от продажи излишков сырья;
+  обе под множителями эмбарго и валютной зоны. **Исправлено 2026-07-31:** до
+  этого тик ЗАТИРАЛ поле сырьевой частью, и фактическое отношение падало до
+  0,0001 ВВП на первом же ходу — мир ежемесячно терял доход, на который была
+  расписана его бюджетная роспись. Расходы при этом по-прежнему калибруются от
+  ВНУТРЕННЕГО дохода, без экспорта (`CreateGame.deriveCountryEconomy`): экспорт
+  — волатильная часть, которую блокада может обнулить, и строить на ней
+  постоянные обязательства значит делать страну заложником санкции. Замер
+  обоих вариантов — в `docs/DECISIONS.md` (2026-07-31).
   `stateEnterpriseIncome`/`otherIncome` остаются статичными (госпредприятия
   — не спроектировано вообще). `*Spending` пересчитывается тиком, если у
   страны задан `spendingShares` (см. "Петля бюджета" выше) — не смешивать

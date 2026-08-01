@@ -11,8 +11,23 @@ import {
   SECTOR_INDUSTRY_GROWTH_COEFFICIENT,
   SECTOR_SERVICES_GROWTH_COEFFICIENT,
   MAX_MONTHLY_GROWTH_RATE,
+  INFRASTRUCTURE_BUILD_RATE,
+  INFRASTRUCTURE_DECAY_RATE,
+  INFRASTRUCTURE_MAX,
+  INFRASTRUCTURE_MIN,
+  FISCAL_PRESSURE_CAP,
+  INFLATION_BASELINE,
+  UNEMPLOYMENT_BASELINE,
   INFLATION_DEFICIT_COEFFICIENT,
+  INFLATION_SURPLUS_COEFFICIENT,
   UNEMPLOYMENT_DEFICIT_COEFFICIENT,
+  UNEMPLOYMENT_SURPLUS_COEFFICIENT,
+  INFLATION_REVERSION_RATE,
+  UNEMPLOYMENT_REVERSION_RATE,
+  INFLATION_MIN,
+  INFLATION_MAX,
+  UNEMPLOYMENT_MIN,
+  UNEMPLOYMENT_MAX,
   DEBT_BASE_MONTHLY_INTEREST_RATE,
   DEBT_RISK_PREMIUM_COEFFICIENT,
   DEBT_GDP_PENALTY_THRESHOLD,
@@ -29,11 +44,11 @@ import {
 /**
  * Налог/доход/расходы/баланс бюджета. taxRevenue следует за gdp (taxRate
  * выводится в createGame); остальные компоненты дохода пока статичны —
- * см. docs/DECISIONS.md. Если игрок задал spendingShares (PUT /budget,
- * см. docs/DECISIONS.md 2026-07-04 "Бюджет: доли/проценты"), *Spending
- * пересчитываются из income × доля каждый тик — тот же паттерн, что
- * taxRate → taxRevenue выше. ИИ-страны spendingShares не имеют — их
- * *Spending остаются абсолютными числами, которые двигает AiBehaviorTick.
+ * см. docs/DECISIONS.md. `spendingShares` есть у КАЖДОЙ страны, не только у
+ * игрока (2026-08-01, `CreateGame.ts`): *Spending пересчитываются из
+ * income × доля каждый тик — тот же паттерн, что taxRate → taxRevenue выше.
+ * Игрок задаёт свои доли через PUT /budget (docs/DECISIONS.md 2026-07-04
+ * "Бюджет: доли/проценты"), доли ИИ двигает AiBehaviorTick.
  */
 function updateBudget(country: Country): { income: number; expenses: number } {
   const economy = country.economy;
@@ -140,6 +155,20 @@ function computeGrowthRate(economy: EconomyState, countryRegions: Region[], hasG
     ? (debtBurden - DEBT_GDP_PENALTY_THRESHOLD) * DEBT_GDP_GROWTH_PENALTY_COEFFICIENT
     : 0;
 
+  // ПОЛ ОСТАЁТСЯ НУЛЁМ, и это решение, а не недосмотр (2026-07-31).
+  //
+  // Двусторонний рост был реализован в этой же ветке и снят по замеру: пол
+  // −1,25%/мес запускает спираль, а не «показывает рецессию». Падение ВВП режет
+  // налоговую базу, дефицит превращается в долг, долг даёт `debtPenalty`, тот
+  // углубляет падение — и так далее, потому что штраф ничем не ограничен
+  // сверху, а дефолта в игре нет. Числа опыта на одной стране, 120 месяцев:
+  // с полом −1,25% долг/ВВП 18,8 и ВВП ×0,238; с полом 0 — долг/ВВП 0,00 и ВВП
+  // ×1,500. По миру спираль забирала 22 страны из 157 в коллапс ×0,236.
+  //
+  // Рецессия нужна — экономика, умеющая только вверх, обесценивает решения. Но
+  // включать её можно лишь вместе с ограничителем долговой петли (кап
+  // `debtPenalty` или механизм дефолта, `docs/TODO.md`). Одна строка, когда
+  // ограничитель появится.
   return Math.min(
     MAX_MONTHLY_GROWTH_RATE,
     Math.max(0, baseGrowthRate + infrastructureBonus - deficitPenalty - debtPenalty)
@@ -159,7 +188,61 @@ function applyGrowthToRegions(countryRegions: Region[], growthRate: number): voi
   }
 }
 
-/** Инфляция/безработица на основе дефицита бюджета. Без эффекта при gdp=0. */
+/**
+ * Накопление и износ инфраструктуры — замыкает петлю «вложил → построилось →
+ * работает» (`shared/src/defines/economy.ts`, там же калибровка и её причины).
+ *
+ * Множитель считается ОДИН на страну и применяется к каждому её региону:
+ * вложения задаются страной, а разметка инфраструктуры авторская и порегионная,
+ * поэтому механика двигает общий уровень, не трогая относительные различия.
+ * Тянуть все регионы к одному числу значило бы за десяток лет стереть данные,
+ * ради которых их размечали.
+ */
+function updateInfrastructure(
+  economy: EconomyState,
+  countryRegions: Region[],
+  hasGdp: boolean
+): void {
+  if (!hasGdp || countryRegions.length === 0) return;
+
+  const avgInfrastructure =
+    countryRegions.reduce((sum, region) => sum + region.infrastructure, 0) / countryRegions.length;
+  // Страна без всякой инфраструктуры не имеет базы, на которую ложится вложение:
+  // множитель обратно пропорционален среднему, и при нуле он неопределён. Пол
+  // поля (INFRASTRUCTURE_MIN) гарантирует, что этого не случится, но защита
+  // остаётся на случай прямой записи в состояние мимо тика.
+  if (avgInfrastructure <= 0) return;
+
+  const intensity = economy.infrastructureSpending / economy.gdp;
+  const build = INFRASTRUCTURE_BUILD_RATE * intensity / avgInfrastructure;
+  const factor = 1 + build - INFRASTRUCTURE_DECAY_RATE;
+
+  for (const region of countryRegions) {
+    region.infrastructure = Math.min(
+      INFRASTRUCTURE_MAX,
+      Math.max(INFRASTRUCTURE_MIN, region.infrastructure * factor)
+    );
+  }
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/**
+ * Инфляция и безработица от бюджетного сальдо. Без эффекта при gdp=0.
+ *
+ * ОБЕ ВЕЛИЧИНЫ — ПРОЦЕНТЫ, в тех же единицах, что и пороги, которые их читают
+ * (`STABILITY_*_THRESHOLD`), стартовые данные архетипов и текст мирового факта
+ * для LLM. Раньше приращение считалось в ДОЛЯХ ВВП и было примерно в сто раз
+ * слабее собственной шкалы: кризисный порог 20 не брала ни одна страна за 120
+ * месяцев. Обоснование выбора «править приращение, а не порог», калибровка и
+ * цена решения — в `shared/src/defines/economy.ts`.
+ *
+ * Модель — возврат к цели, а не интегратор: цель задаётся бюджетным давлением,
+ * величина подтягивается к ней. Интегратор без якоря уехал бы за партию в любом
+ * случае, потому что сальдо в сценарии одностороннее.
+ */
 function updateInflationAndUnemployment(
   economy: EconomyState,
   income: number,
@@ -168,10 +251,31 @@ function updateInflationAndUnemployment(
 ): void {
   if (!hasGdp) return;
 
-  economy.inflation += INFLATION_DEFICIT_COEFFICIENT * (expenses - income) / economy.gdp;
+  // Дефицит положителен, профицит отрицателен. Насыщение — защита от масштаба
+  // соседнего бюджетного блока; ×100 переводит долю ВВП в пункты.
+  const pressure = clamp(
+    (expenses - income) / economy.gdp,
+    -FISCAL_PRESSURE_CAP,
+    FISCAL_PRESSURE_CAP
+  ) * 100;
 
-  economy.unemployment += UNEMPLOYMENT_DEFICIT_COEFFICIENT * (expenses - income) / economy.gdp;
-  economy.unemployment = Math.max(0, economy.unemployment);
+  const inflationTarget = INFLATION_BASELINE + (pressure > 0
+    ? INFLATION_DEFICIT_COEFFICIENT * pressure
+    : INFLATION_SURPLUS_COEFFICIENT * pressure);
+  economy.inflation = clamp(
+    economy.inflation + INFLATION_REVERSION_RATE * (inflationTarget - economy.inflation),
+    INFLATION_MIN,
+    INFLATION_MAX
+  );
+
+  const unemploymentTarget = UNEMPLOYMENT_BASELINE + (pressure > 0
+    ? UNEMPLOYMENT_DEFICIT_COEFFICIENT * pressure
+    : UNEMPLOYMENT_SURPLUS_COEFFICIENT * pressure);
+  economy.unemployment = clamp(
+    economy.unemployment + UNEMPLOYMENT_REVERSION_RATE * (unemploymentTarget - economy.unemployment),
+    UNEMPLOYMENT_MIN,
+    UNEMPLOYMENT_MAX
+  );
 }
 
 export function economyTick(
@@ -194,6 +298,11 @@ export function economyTick(
   const hasGdp = economy.gdp > 0;
   const growthRate = computeGrowthRate(economy, countryRegions, hasGdp);
   applyGrowthToRegions(countryRegions, growthRate);
+
+  // ПОСЛЕ роста: построенное в этом месяце работает со следующего тика. Иначе
+  // вложение окупалось бы в том же ходе, в котором сделано, и лаг между
+  // решением и последствием — то, ради чего строится стратегия, — исчез бы.
+  updateInfrastructure(economy, countryRegions, hasGdp);
   // ВВП страны обновится через агрегацию в SimulationEngine (aggregateAllCountries,
   // без пересчёта region.gdp — см. shared/src/utils/aggregateCountryData.ts)
 

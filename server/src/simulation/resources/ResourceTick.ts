@@ -4,6 +4,7 @@ import { type ResourceType } from "@shared/types/resources/ResourcesType";
 import { type Modifier } from "@shared/types/Modifier";
 import { RegionEconomyService } from "../../services/RegionEconomyService";
 import { effectiveController } from "@shared/utils/regionControl";
+import { getDomainTier } from "@shared/utils/technology";
 import { effectiveValue } from "@shared/utils/modifiers";
 import { ModifierAttribute } from "@shared/defines/modifierAttributes";
 import { OCCUPATION_EXTRACTION_PENALTY } from "@shared/defines/occupation";
@@ -35,7 +36,11 @@ export function resourceTick(
 
   // Бонус от технологий добычи (упрощённо). "industry" — реальный ключ
   // домена эры 1946 (см. shared/src/data/eras.ts), тот же ключ и в 1836.
-  const miningTechLevel = country.technology.domains["industry"] || 0;
+  // ТИР, а не сырой прогресс — тот же дефект, что в PopulationTick.ts:
+  // `MINING_TECH_BONUS_RATE` задан «на единицу уровня», а `domains[...]` копит
+  // по 100 за тир. До правки бонус добычи достигал ×18,8
+  // (`.agent/audits/formula-audit-2026-07-30.md`).
+  const miningTechLevel = getDomainTier(country.technology.domains["industry"] ?? 0);
   const techBonus = 1 + (miningTechLevel * MINING_TECH_BONUS_RATE);
 
   for (const region of countryRegions) {

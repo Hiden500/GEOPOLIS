@@ -27,6 +27,10 @@ export interface EconomyProfile {
   treasuryShare?: number;
 
   /** Неналоговый доход как доли ВВП. Статичны в первом проходе (см. ECONOMY.md). */
+  // Доля ВВП, которую даёт вся внешняя торговля страны. Читается КАЖДЫЙ тик
+  // (`TradeTick.ts`) как база экспортного дохода, а не только при создании
+  // партии: производная величина не хранится отдельным полем, чтобы ей негде
+  // было разойтись с источником.
   exportShare?: number;
   stateEnterpriseShare?: number;
   otherIncomeShare?: number;

@@ -69,6 +69,7 @@ import { type RelationDirection } from "./types";
  *   |---------------------------|----------------------------------------------|
  *   | repress · suppression     | `stability = legitimacy = 0`                 |
  *   | repress · alienation      | `legitimacy = COUNTRY_POLITICS_SCALE_MAX`    |
+ *   | repress · цена мандата    | `legitimacy = 0` — терять уже нечего         |
  *   | grant_autonomy·concession | `legitimacy = 0` либо `alienation = 1`       |
  *   | incite_unrest             | дистанция ровно на пороге предпосылки        |
  *   | spawn_incident            | недовольство ровно на пороге предпосылки     |
@@ -172,6 +173,30 @@ export function repressAlienationFactor(share: number, legitimacy: number): numb
     1 - REPRESS_ALIENATION_LEGITIMACY_RELIEF * politicsShare(legitimacy)
   );
   return clamp01(reach * mandateDeficit);
+}
+
+/**
+ * `repress`, ЦЕНА: охват репрессии × то, что режиму терять.
+ *
+ * Два входа и оба обязательны по разным причинам.
+ *   - `coverage` — суммарная доля населения региона, по которому ударили. Здесь
+ *     живёт разница между точечной операцией против меньшинства и сплошной
+ *     репрессией всего региона: без неё необязательный `groupId` в цели глагола
+ *     не значил бы ничего (`repress` без него адресуется ВСЕМ группам сразу).
+ *   - `legitimacyRoom` — «что терять», ровно тот же множитель и с тем же
+ *     смыслом, что у `condemn`: режиму с нулевым мандатом репутационную цену
+ *     назначить нечем. Здесь же достижимое схлопывание коридора — при
+ *     `legitimacy = 0` цена падает на пол при любом хинте.
+ *
+ * Легитимность входит сюда ПРЯМО, а не обратно, — в отличие от
+ * `repressAlienationFactor`, где мандат цену СНИЖАЕТ. Противоречия нет:
+ * легитимному режиму репрессия обходится дешевле в глазах ПОДАВЛЯЕМЫХ (закон, а
+ * не насилие чужаков) и дороже для него САМОГО (мандат есть чему падать). Это и
+ * есть третья ось развилки, которой у глагола не было: мандат делает подавление
+ * сильнее и мягче по отчуждению, но каждый разгон его же и тратит.
+ */
+export function repressLegitimacyCostFactor(coverage: number, legitimacy: number): number {
+  return clamp01(clamp01(coverage) * legitimacyRoom(legitimacy));
 }
 
 /**

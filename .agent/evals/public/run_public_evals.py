@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import re
 import sys
@@ -110,10 +111,203 @@ def validate_living_docs() -> None:
         lines = target.read_text(encoding="utf-8").count("\n") + 1
         check(lines <= limit, f"{path} stays under {limit} lines (now {lines})")
 
+    # Штамп свежести «Last updated:» — одна короткая строка, не сводка сессии.
+    #
+    # Заведено 2026-08-01 по факту: лимит выше меряет СТРОКИ, и сводки сессий
+    # переехали в однострочный штамп — мержи накопили в DECISIONS.md пять
+    # штампов по ~38 000 символов (в TODO.md — 9 400, в POLITICS.md — 1 100),
+    # файлы стали нечитаемы при зелёном пороге. Лимит строк без лимита длины
+    # строки — ворота для Гудхарта; содержимое штампов дублировало обычные
+    # записи журнала, то есть терялась только читаемость, не информация.
+    # Архив/провенанс/bootstrap исключены: они фиксируют прошлое как есть.
+    stamp_hits: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        rel = str(doc.relative_to(ROOT)).replace("\\", "/")
+        if rel.startswith(("docs/decisions/", "docs/provenance/", "docs/agent/")):
+            continue
+        stamps = [
+            (number, line)
+            for number, line in enumerate(
+                doc.read_text(encoding="utf-8", errors="replace").splitlines(), start=1
+            )
+            if line.startswith("Last updated:")
+        ]
+        if len(stamps) > 1:
+            stamp_hits.append(f"{rel}: {len(stamps)} stamps (expected 1)")
+        for number, line in stamps:
+            if len(line) > 300:
+                stamp_hits.append(f"{rel}:{number} ({len(line)} chars)")
+    check(
+        not stamp_hits,
+        "Last updated stamps are single and short (<=300 chars)",
+        "; ".join(stamp_hits[:5]),
+    )
+
+
+def validate_no_conflict_markers() -> None:
+    """Неразрешённые маркеры конфликта в отслеживаемых текстовых файлах.
+
+    Заведено 2026-07-31 по факту: в `main` три часа пролежал `docs/DECISIONS.md`
+    с четырьмя маркерами и продублированной записью. Мерж сообщил о конфликте,
+    но сообщение потерялось в обрезанном выводе, а `git add -A docs` внёс файл
+    как есть — ни один тест такого не видит, потому что для кода маркеры лежали
+    в документации, а для документации их никто не читал.
+
+    Проверка дешёвая и абсолютная: `<<<<<<< `, `>>>>>>> ` и одинокий `=======`
+    в начале строки не встречаются в осмысленном тексте проекта. Исключение —
+    сам этот файл, где они записаны как данные.
+    """
+    markers = ("<<<<<<< ", ">>>>>>> ")
+    suffixes = {".md", ".ts", ".tsx", ".js", ".json", ".py", ".yml", ".yaml"}
+    hits: list[str] = []
+
+    for candidate in ROOT.rglob("*"):
+        if not candidate.is_file() or candidate.suffix not in suffixes:
+            continue
+        if any(part in SKIP_TREE_DIRS for part in candidate.parts):
+            continue
+        if candidate.resolve() == Path(__file__).resolve():
+            continue
+        try:
+            text = candidate.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for number, line in enumerate(text.splitlines(), start=1):
+            if line.startswith(markers) or line.rstrip() == "=======":
+                hits.append(f"{candidate.relative_to(ROOT)}:{number}")
+                break
+
+    check(
+        not hits,
+        "no unresolved merge conflict markers"
+        + (f" (found in {', '.join(hits[:5])})" if hits else ""),
+    )
+
+
+def validate_rot() -> None:
+    """Гниение документации: ссылки на код, которого нет, и просроченные срезы.
+
+    Проверяется РАСПАД, а не поломка. Половина находок аудита 2026-07-30 — этот
+    класс: документ обещает расширять тест, документ называет «мёртвым кодом»
+    функции, которых никогда не существовало, раздел помечен «актуально на» и с
+    тех пор не пересматривался. Такие расхождения не роняют ни один тест и живут
+    месяцами, искажая оценку трудоёмкости следующей задачи.
+
+    Пути к ДАННЫМ намеренно не проверяются: слой сценария бывает не наполнен, и
+    это штатное состояние (`diplomacy.json` на 2026-07-30).
+    """
+    code_ref = re.compile(r"`([\w./-]+\.(?:ts|tsx|py))`")
+    # Документы часто пишут путь сокращённо («commands/economy.ts» вместо
+    # «server/src/commands/economy.ts»), и это законный стиль. Поэтому ссылка
+    # засчитана, если ей соответствует ХОТЬ ОДИН реальный файл по окончанию
+    # пути; ловим только те, которым не соответствует ничего.
+    existing = {
+        str(p.relative_to(ROOT)).replace("\\", "/")
+        for base in ("server/src", "client/src", "shared/src", "scripts", ".agent")
+        for p in (ROOT / base).rglob("*")
+        if p.is_file() and p.suffix in (".ts", ".tsx", ".py")
+    }
+    missing: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        # Архив и провенанс фиксируют ПРОШЛОЕ состояние: путь, верный на момент
+        # записи, там законно расходится с сегодняшним деревом.
+        rel = str(doc.relative_to(ROOT)).replace("\\", "/")
+        if rel.startswith(("docs/decisions/", "docs/provenance/", "docs/agent/")):
+            continue
+        text = doc.read_text(encoding="utf-8", errors="replace")
+        for line in text.splitlines():
+            for ref in set(code_ref.findall(line)):
+                if "/" not in ref or ref.startswith(("http", "<")):
+                    continue
+                if "*" in ref or "…" in ref:
+                    continue
+                if (ROOT / ref).exists():
+                    continue
+                if any(full.endswith("/" + ref) for full in existing):
+                    continue
+                # Документ, который САМ сообщает об исчезновении файла, не гниёт:
+                # «удалён целиком», «заменяет X», «X → новая шапка» — это история
+                # и планы замены, а не ссылка на несуществующее.
+                lowered = line.lower()
+                # Плюс планы: файл, который предлагается СОЗДАТЬ, ещё не обязан
+                # существовать — иначе проверка запретила бы планировать.
+                markers = (
+                    "удал", "заменя", "→", "устарел", "не существов",
+                    "создать", "предлаг", "планир",
+                )
+                if any(m in lowered for m in markers):
+                    continue
+                missing.append(f"{doc.relative_to(ROOT)} -> {ref}")
+    check(
+        not missing,
+        "docs reference only existing code files",
+        "; ".join(sorted(missing)[:5]),
+    )
+
+    stale_marker = re.compile(r"актуально на (\d{4})-(\d{2})-(\d{2})")
+    today = _dt.date.today()
+    stale: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        text = doc.read_text(encoding="utf-8", errors="replace")
+        for year, month, day in stale_marker.findall(text):
+            marked = _dt.date(int(year), int(month), int(day))
+            age = (today - marked).days
+            if age > 90:
+                stale.append(f"{doc.relative_to(ROOT)} ({age} дней)")
+    check(not stale, "no snapshot older than 90 days", "; ".join(sorted(stale)[:5]))
+
+
+def validate_audit_freshness() -> None:
+    """Область, которую давно не смотрели, называет тест, а не пользователь.
+
+    Правило чистки живых документов существовало три недели и не выполнилось ни
+    разу: напоминать было некому. Здесь тот же механизм для аудитов — срок жизни
+    у каждой области свой, потому что формулы гниют быстрее лицензий.
+
+    Красный тест лечится не поднятием срока, а прогоном скилла `project-health`
+    и записью результата в реестр.
+    """
+    registry_path = ROOT / ".agent/audits/registry.json"
+    if not registry_path.is_file():
+        check(False, "Audit registry exists")
+        return
+
+    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    areas = registry.get("areas", [])
+    check(bool(areas), "Audit registry lists areas")
+
+    today = _dt.date.today()
+    for area in areas:
+        title = area.get("id", "?")
+        report = area.get("report", "")
+        if report and "#" not in report:
+            check((ROOT / report).exists(), f"audit report exists: {title}")
+        try:
+            last = _dt.date.fromisoformat(area["lastAudited"])
+        except (KeyError, ValueError):
+            check(False, f"audit date is parseable: {title}")
+            continue
+        age = (today - last).days
+        limit = int(area.get("maxAgeDays", 60))
+        check(age <= limit, f"audit fresh: {title} ({age}d / {limit}d)")
+
+
+def normalized_size(path: Path) -> int:
+    """Размер файла в байтах ПО СОДЕРЖИМОМУ, с окончаниями строк как в git (LF).
+
+    Заведено 2026-07-31 по факту расхождения: `core.autocrlf=true` выгружает
+    файлы с CRLF, и `AGENTS.md` весил 16 328 байт в репозитории и 16 526 на
+    диске. Один и тот же коммит был зелёным в linked worktree, куда файл попал
+    с LF, и красным в основном checkout — то есть проверка мерила настройку
+    git пользователя, а не текст правил.
+    """
+    raw = path.read_bytes()
+    return len(raw.replace(b"\r\n", b"\n"))
+
 
 def validate_instructions_and_skills() -> None:
     root_agents = ROOT / "AGENTS.md"
-    check(root_agents.stat().st_size <= 16_384, "Root AGENTS.md stays under 16 KiB")
+    check(normalized_size(root_agents) <= 16_384, "Root AGENTS.md stays under 16 KiB")
     for path in (
         "client/AGENTS.md",
         "server/AGENTS.md",
@@ -194,8 +388,11 @@ def validate_instructions_and_skills() -> None:
 
 
 def validate_experiment_layer() -> None:
+    # CHARTER.proposed.md удалён аудитом 2026-08-01: провисел в статусе
+    # PROPOSED без движения с 2026-07-23, а всё нормативное содержимое
+    # дублировало AGENTS.md (12 правил, сверено построчно). Границы держит
+    # AGENTS.md; проверки текста charter удалены вместе с файлом.
     required = (
-        ".agent/CHARTER.proposed.md",
         ".agent/PLANS.md",
         ".agent/EVOLUTION.md",
         ".agent/audits/baseline.md",
@@ -205,11 +402,6 @@ def validate_experiment_layer() -> None:
     )
     for path in required:
         check((ROOT / path).is_file(), f"Experiment artifact exists: {path}")
-
-    charter = read(".agent/CHARTER.proposed.md")
-    check("PROPOSAL" in charter, "Charter is explicitly marked as a proposal")
-    check("не является неизменяемой" in charter, "Charter disclaims fake immutability")
-    check("protected surfaces" in charter, "Charter proposes explicit protected surfaces")
 
     schema = load_json(ROOT / ".agent/run-record.schema.json")
     required_keys = set(schema.get("required", [])) if isinstance(schema, dict) else set()
@@ -236,6 +428,17 @@ def validate_experiment_layer() -> None:
     check("Decision: `KEEP`" in evolution, "Evolution entry records final decision")
 
 
+"""
+Каталоги, которых проверки не касаются.
+
+`.reference` — локальные клоны ЧУЖИХ репозиториев (разбор Open-Historia,
+2026-07-30): они не отслеживаются git (`.git/info/exclude`), существуют
+только в основном checkout и ломали проверку ссылок своими внутренними
+ссылками. Проверка обязана оценивать этот проект, а не то, что лежит рядом
+в рабочем каталоге.
+"""
+SKIP_TREE_DIRS = {".git", "node_modules", "dist", "build", ".vite", ".repowise", ".reference"}
+
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 
 
@@ -243,7 +446,7 @@ def validate_markdown_links() -> None:
     broken: list[str] = []
     for path in ROOT.rglob("*.md"):
         relative = path.relative_to(ROOT)
-        if any(part in {".git", "node_modules", "dist", ".repowise"} for part in relative.parts) or (
+        if any(part in SKIP_TREE_DIRS for part in relative.parts) or (
             len(relative.parts) >= 2
             and relative.parts[0] == ".claude"
             and relative.parts[1] == "worktrees"
@@ -303,6 +506,9 @@ def main() -> int:
     validators = (
         validate_toml,
         validate_living_docs,
+        validate_no_conflict_markers,
+        validate_rot,
+        validate_audit_freshness,
         validate_instructions_and_skills,
         validate_experiment_layer,
         validate_markdown_links,

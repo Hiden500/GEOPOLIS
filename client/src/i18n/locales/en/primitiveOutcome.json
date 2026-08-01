@@ -3,7 +3,8 @@
     "headline": "Agitators worked on {{group}} — {{region}}"
   },
   "repress": {
-    "headline": "Security forces moved in {{region}}: {{addressed}} group(s) addressed, {{unaffected}} unaffected"
+    "headline": "Security forces moved in {{region}}: {{addressed}} group(s) addressed, {{unaffected}} unaffected",
+    "nothingToLose": "The regime had no mandate left to spend on this"
   },
   "grantAutonomy": {
     "headline": "Autonomy granted — {{region}}",

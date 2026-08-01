@@ -303,7 +303,11 @@ describe("LLMService", () => {
       ];
       const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
-      expect(section).toContain("Recent: Event Two (1946-02-01); Event One (1946-01-01)");
+      // Дата события подаётся в ЧИТАЕМОМ виде: в ISO модель её процитировать не
+      // может — раздел стиля запрещает технические идентификаторы в прозе.
+      expect(section).toContain(
+        "Recent: Event Two (февраль 1946 года); Event One (январь 1946 года)"
+      );
     });
 
     it("Память страны: ничего не показывает, если по стране ещё не было событий", () => {
@@ -321,7 +325,7 @@ describe("LLMService", () => {
       ];
       const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
-      expect(section).toContain("Recent: Newest (1946-04-01); Middle2 (1946-03-01); Middle1 (1946-02-01)");
+      expect(section).toContain("Recent: Newest (апрель 1946 года); Middle2 (март 1946 года); Middle1 (февраль 1946 года)");
       expect(section).not.toContain("Oldest");
     });
 
@@ -341,7 +345,7 @@ describe("LLMService", () => {
       const svc = new LLMService(g);
       const prompt = svc.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"));
-      expect(section).toContain("Recent: New (1946-03-01); Mid (1946-02-01)");
+      expect(section).toContain("Recent: New (март 1946 года); Mid (февраль 1946 года)");
       expect(section).not.toContain("Old");
     });
 
@@ -861,6 +865,17 @@ describe("LLMService", () => {
       expect(usa().diplomacy.guarantees).not.toContain("USSR");
       expect(game.llmTurn).toBeUndefined();
       expect(game.eventHistory).toHaveLength(0);
+    });
+
+    it("ответ в заборе ```json принимается: забор снимается до разбора", () => {
+      // Дословная форма живого провала gemini-3.6-flash-high через
+      // OpenAI-совместимый шлюз (2026-08-01): 3 из 10 ходов приходили так, и
+      // внутри лежал целый корректный JSON.
+      const body = JSON.stringify({ descriptions: "Январь 1946 года.", actions: [] });
+      const result = service.processResponse("```json\n" + body + "\n```");
+
+      expect(result.error).not.toBe("Invalid JSON format");
+      expect(result.success).toBe(true);
     });
 
     it("невалидная структура (нет descriptions): отказ с причиной", () => {
