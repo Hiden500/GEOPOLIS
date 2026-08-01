@@ -4,6 +4,7 @@ import { LLMActionSchema } from "../actionSchemas";
 import { WarService } from "../../services/WarService";
 import { createTestCountry, createTestGameState, createTestRegion } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 
 /**
  * Структурная и магнитудная валидация (форма/статические капы) переехала в
@@ -235,7 +236,28 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
       expect(result.valid).toBe(false);
     });
 
-    it("delta=1: разрешает, если страна контролирует регион и депозит есть", () => {
+    it("delta=1: разрешает, если страна контролирует регион, депозит есть и мощности не на потолке", () => {
+      const game = makeGame();
+      game.regions.push(createTestRegion({
+        id: 1, ownerCountryId: "USA", deposits: { oil: 1000 }, extraction: { oil: MAX_EXTRACTION_LEVEL - 1 },
+      }));
+      const validator = new LLMResponseValidator(game);
+      const result = validator.validateActionApplicability({
+        type: "build_extraction",
+        sourceCountryId: "USA",
+        data: { regionId: 1, resource: "oil", delta: 1 },
+      });
+      expect(result.valid).toBe(true);
+    });
+
+    /**
+     * Отказ живёт здесь, а не только в команде: результат `buildExtraction`
+     * применяющий код отбрасывает, поэтому без этой ветки действие «уже на
+     * максимуме» доезжало до летописи как выполненное. Общая фикстура региона
+     * стоит на потолке ровно как все 2055 записей сценария 1946, поэтому
+     * `createTestRegion` без override здесь — это и есть живой случай.
+     */
+    it("delta=1: отклоняет, если мощности уже на MAX_EXTRACTION_LEVEL", () => {
       const game = makeGame();
       game.regions.push(createTestRegion({ id: 1, ownerCountryId: "USA", deposits: { oil: 1000 } }));
       const validator = new LLMResponseValidator(game);
@@ -244,7 +266,8 @@ describe("LLMResponseValidator.validateActionApplicability", () => {
         sourceCountryId: "USA",
         data: { regionId: 1, resource: "oil", delta: 1 },
       });
-      expect(result.valid).toBe(true);
+      expect(result.valid).toBe(false);
+      expect(result.error).toContain("maximum level");
     });
 
     it("delta=-1: разрешает даже без контроля региона (сворачивание чужой/потерянной добычи)", () => {

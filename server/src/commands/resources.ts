@@ -21,6 +21,16 @@ function findRegion(game: GameState, regionId: number) {
  * депозита ресурса; списывает EXTRACTION_BUILD_COST за уровень из казны.
  * Снятие мощностей — бесплатно, без проверки контроля (страна может
  * сворачивать добычу и на потерянной/оккупированной территории).
+ *
+ * ПОТОЛОК И ПОЛ ОТКЛОНЯЮТСЯ, А НЕ РАПОРТУЮТ УСПЕХ (2026-08-01). Раньше вызов
+ * на уровне `MAX_EXTRACTION_LEVEL` клампился и возвращал `success: true`, ничего
+ * не изменив. Для сценария 1946 это означало, что действие бесполезно ВСЕГДА:
+ * все 2055 пар (регион, ресурс) с депозитом стоят ровно на потолке, и прогон
+ * команды по каждой из них даёт 2055 ложных успехов и ноль изменений состояния
+ * (`server/scripts/probeResourceGates.ts`). Ложный успех хуже отказа: движок
+ * записывает в летопись действие, которого не было, а модель считает мощности
+ * построенными. Само по себе это действие не оживляет — нужны данные с уровнями
+ * ниже потолка или другой потолок (развилка в `docs/IDEAS.md`).
  */
 export function buildExtraction(
   game: GameState,
@@ -44,6 +54,12 @@ export function buildExtraction(
     if (!region.deposits[resource]) {
       return { success: false, error: `No ${resource} deposit in region ${regionId}` };
     }
+    if (currentLevel >= MAX_EXTRACTION_LEVEL) {
+      return {
+        success: false,
+        error: `Extraction of ${resource} in region ${regionId} is already at maximum level ${MAX_EXTRACTION_LEVEL}`,
+      };
+    }
 
     const newLevel = Math.min(MAX_EXTRACTION_LEVEL, currentLevel + delta);
     const cost = (newLevel - currentLevel) * EXTRACTION_BUILD_COST;
@@ -54,6 +70,10 @@ export function buildExtraction(
     country.economy.treasury -= cost;
     region.extraction[resource] = newLevel;
     return { success: true };
+  }
+
+  if (currentLevel <= 0) {
+    return { success: false, error: `No ${resource} extraction to dismantle in region ${regionId}` };
   }
 
   region.extraction[resource] = Math.max(0, currentLevel + delta);

@@ -3,6 +3,7 @@ import { type LLMAction } from "@shared/types/GameState";
 import { WarService } from "../services/WarService";
 import { effectiveController } from "@shared/utils/regionControl";
 import { MAX_RESEARCH_SHARE, WAR_RESEARCH_SHARE_PENALTY, MIN_RESEARCH_SHARE_CAP } from "@shared/defines/llmActionCaps";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 
 /**
  * Семантическая применимость LLM-действия к текущему состоянию партии —
@@ -92,6 +93,16 @@ export class LLMResponseValidator {
         }
         if (!region.deposits[action.data.resource]) {
           return { valid: false, error: `No ${action.data.resource} deposit in region ${action.data.regionId}` };
+        }
+        // Потолок мощностей — здесь, а не только в команде: результат
+        // `buildExtraction` применяющий код отбрасывает, поэтому без этой ветки
+        // действие «уже на максимуме» доезжает до летописи как выполненное
+        // (2026-08-01, `server/src/commands/resources.ts`).
+        if ((region.extraction[action.data.resource] ?? 0) >= MAX_EXTRACTION_LEVEL) {
+          return {
+            valid: false,
+            error: `Extraction of ${action.data.resource} in region ${action.data.regionId} is already at maximum level`,
+          };
         }
       }
     }
