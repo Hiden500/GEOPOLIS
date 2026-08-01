@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { militaryTick } from "./MilitaryTick";
 import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
 import { UnitType } from "@shared/types/military/UnitType";
+import { ACTIVE_PERSONNEL_SHARE, RESERVE_PERSONNEL_SHARE } from "@shared/defines/military";
 
 describe("militaryTick", () => {
   it("grows manpower based on owned regions' population", () => {
@@ -41,14 +42,66 @@ describe("militaryTick", () => {
     expect(country.military.units[0]!.strength).toBeLessThanOrEqual(100);
   });
 
-  it("derives activePersonnel and reservePersonnel from manpower", () => {
+  it("пул manpower задаёт ПОТОЛОК армии: раздутая activePersonnel ужимается до доли", () => {
+    // Фикстура: activePersonnel (500k) выше потолка (10% от manpower) — армия
+    // больше пула держаться не может и садится ровно на потолок.
     const country = createTestCountry();
     const region = createTestRegion({ ownerCountryId: country.id });
 
     militaryTick(country, [region]);
 
-    expect(country.military.activePersonnel).toBe(Math.floor(country.military.manpower * 0.1));
-    expect(country.military.reservePersonnel).toBe(Math.floor(country.military.manpower * 0.9));
+    expect(country.military.activePersonnel).toBe(Math.floor(country.military.manpower * ACTIVE_PERSONNEL_SHARE));
+    expect(country.military.reservePersonnel).toBe(Math.floor(country.military.manpower * RESERVE_PERSONNEL_SHARE));
+  });
+
+  /**
+   * НЕГАТИВНЫЙ КОНТРОЛЬ к правке 2026-07-31 («потери не доезжают»). До неё
+   * militaryTick присваивал activePersonnel = manpower × доля, поэтому оба
+   * теста ниже падали бы: армия возвращалась к потолку одним тиком, и потери
+   * прошлого месяца исчезали бесследно.
+   */
+  describe("armia — запас, а не производное поле (потери переживают следующий тик)", () => {
+    function countryWithArmy(manpower: number, activePersonnel: number) {
+      const base = createTestCountry();
+      return createTestCountry({
+        military: { ...base.military, manpower, activePersonnel },
+      });
+    }
+
+    it("выбитая под ноль армия не возвращается к потолку за один тик", () => {
+      const country = countryWithArmy(1_000_000, 0);
+
+      militaryTick(country, []);
+
+      const ceiling = Math.floor(country.military.manpower * ACTIVE_PERSONNEL_SHARE);
+      expect(country.military.activePersonnel).toBeGreaterThan(0);
+      expect(country.military.activePersonnel).toBeLessThan(ceiling);
+    });
+
+    it("потеря половины армии видна и через тик — армия ниже нетронутой", () => {
+      const intact = countryWithArmy(1_000_000, 100_000);
+      const bled = countryWithArmy(1_000_000, 50_000);
+
+      militaryTick(intact, []);
+      militaryTick(bled, []);
+
+      expect(bled.military.activePersonnel).toBeLessThan(intact.military.activePersonnel);
+    });
+
+    it("восстановление занимает месяцы, а не один тик", () => {
+      const country = countryWithArmy(1_000_000, 0);
+      const ceiling = Math.floor(country.military.manpower * ACTIVE_PERSONNEL_SHARE);
+
+      // Без территории manpower не растёт — потолок неподвижен, меряется
+      // именно скорость набора, а не рост пула.
+      let months = 0;
+      while (country.military.activePersonnel < ceiling && months < 200) {
+        militaryTick(country, []);
+        months++;
+      }
+
+      expect(months).toBeGreaterThan(1);
+    });
   });
 
   it("does not throw when the country owns no regions", () => {

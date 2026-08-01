@@ -12,6 +12,7 @@ import {
   UNIT_RECOVERY_SPENDING_BONUS_MULTIPLIER,
   UNIT_RECOVERY_DEFICIT_PENALTY,
   ACTIVE_PERSONNEL_SHARE,
+  ACTIVE_PERSONNEL_MOBILIZATION_RATE,
   RESERVE_PERSONNEL_SHARE,
 } from "@shared/defines/military";
 
@@ -64,8 +65,26 @@ export function militaryTick(
     }
   }
 
-  // Обновление activePersonnel на основе manpower (упрощённая модель)
-  military.activePersonnel = Math.floor(military.manpower * ACTIVE_PERSONNEL_SHARE);
+  // activePersonnel — ЗАПАС (мобилизованная армия), а не производное от
+  // manpower поле: пул задаёт ПОТОЛОК, набор до потолка идёт со скоростью
+  // ACTIVE_PERSONNEL_MOBILIZATION_RATE. Присваивание «= manpower × доля»
+  // (как было до 2026-07-31) стирало потери, списанные warTick'ом в том же
+  // месяце, — из убитого солдата в строй возвращалось 90%, и война не
+  // ослабляла армию вообще (замер: server/scripts/probeWarFeedback.ts).
+  //
+  // Порядок тиков при этом НЕ меняется: militaryTick по-прежнему идёт раньше
+  // warTick в SimulationEngine.ts, и это больше не важно — списание живёт в
+  // самом поле, а не в порядке его пересчёта.
+  const activeTarget = Math.floor(military.manpower * ACTIVE_PERSONNEL_SHARE);
+  if (military.activePersonnel >= activeTarget) {
+    // Пул ужался (потери бьют и по manpower) — армия не может быть больше него.
+    military.activePersonnel = activeTarget;
+  } else {
+    const gap = activeTarget - military.activePersonnel;
+    military.activePersonnel += Math.ceil(gap * ACTIVE_PERSONNEL_MOBILIZATION_RATE);
+  }
+
+  // Резерв остаётся производным: с ним никто не воюет, восстанавливать нечего.
   military.reservePersonnel = Math.floor(military.manpower * RESERVE_PERSONNEL_SHARE);
 
   // Производство техники по категориям (War Phase 2, 2026-07-06) — доля
