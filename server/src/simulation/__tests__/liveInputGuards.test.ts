@@ -3,10 +3,17 @@ import { createGame } from "../../game/CreateGame";
 import { simulateMonth } from "../SimulationEngine";
 import { populationTick } from "../population/PopulationTick";
 import { resourceTick } from "../resources/ResourceTick";
+import { tradeTick } from "../trade/TradeTick";
+import { buildExtraction } from "../../commands/resources";
+import { stabilityEquilibrium } from "../politics/PoliticsTick";
 import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
 import { TIER_PROGRESS_THRESHOLD } from "@shared/utils/technology";
+import { effectiveController } from "@shared/utils/regionControl";
+import { DOMESTIC_RESERVE_PER_CAPITA } from "@shared/defines/trade";
+import { RESOURCE_IDS, RESOURCE_CATALOG } from "@shared/data/resources/resourceCatalog";
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
+import { type ResourceType } from "@shared/types/resources/ResourcesType";
 
 /**
  * Guard-тесты недостающего класса: вход формулы должен РАЗЛИЧАТЬ страны на
@@ -128,6 +135,86 @@ describe("живой сценарий 1946: входы не вырождаютс
   });
 
   /**
+   * Равновесие стабильности должно РАЗЛИЧАТЬ страны: разные режимы, разная
+   * экономика, разная авторская стабильность сценария — разное равновесие.
+   *
+   * Замер до правки (`server/scripts/probeStabilityEquilibrium.ts`): на старте
+   * 153 страны из 157 получали ровно 70, различных значений во всём мире 3,
+   * sd 2,19; через два года — 156 из 157 на 70, различных 2, sd 0,80. Причина
+   * не в формуле, а в её форме: четыре пороговые ступени над экономикой,
+   * которая живёт целиком по одну сторону трёх порогов из четырёх.
+   *
+   * Пороги ниже — от достижимого разброса, не снимки. Разброс якоря сценария
+   * (`region.stability` 0,193…0,809 → 19,3…80,9) даёт sd порядка 13 пунктов;
+   * порог 5 заведомо ниже него и заведомо выше любого варианта «ступень выдала
+   * всем одно и то же» (старое значение 2,19 и 0,80). Требование «различных
+   * значений больше четверти стран» падает на старом поведении втрое-впятеро.
+   */
+  it("равновесие стабильности различает страны, а не выдаёт всем одно число", () => {
+    const game = createGame("1946", "USA");
+    const measure = (): { sd: number; distinct: number; modalShare: number; n: number } => {
+      const countries = game.countries.filter(c => c.economy.gdp > 0);
+      const values = countries.map(c =>
+        stabilityEquilibrium(c, game.regions.filter(r => r.ownerCountryId === c.id))
+      );
+      const mean = values.reduce((s, v) => s + v, 0) / values.length;
+      const sd = Math.sqrt(values.reduce((s, v) => s + (v - mean) ** 2, 0) / values.length);
+
+      const counts = new Map<string, number>();
+      for (const v of values) {
+        const key = v.toFixed(4);
+        counts.set(key, (counts.get(key) ?? 0) + 1);
+      }
+      return {
+        sd,
+        distinct: counts.size,
+        modalShare: Math.max(...counts.values()) / values.length,
+        n: values.length,
+      };
+    };
+
+    const atStart = measure();
+    expect(atStart.sd).toBeGreaterThan(5);
+    expect(atStart.distinct).toBeGreaterThan(atStart.n / 4);
+    // Ни одно значение не собирает даже пятую часть мира — тот же вид проверки,
+    // что у базисов легитимности и коррупции в PoliticsTick.test.ts.
+    expect(atStart.modalShare).toBeLessThan(0.2);
+
+    // И различение не схлопывается со временем: до правки оно РОСЛО в обратную
+    // сторону — за два года мир сходился с 3 значений до 2.
+    for (let month = 0; month < 24; month++) simulateMonth(game);
+
+    const afterTwoYears = measure();
+    expect(afterTwoYears.sd).toBeGreaterThan(5);
+    expect(afterTwoYears.distinct).toBeGreaterThan(afterTwoYears.n / 4);
+    expect(afterTwoYears.modalShare).toBeLessThan(0.2);
+  });
+
+  /**
+   * Стартовое состояние сценария механика обязана СОХРАНЯТЬ, а не переписывать
+   * с первого тика. Авторская стабильность лежит в `region.stability`; до правки
+   * страна стартовала литералом 50 (разброс РОВНО 0), и первый год партии игрок
+   * видел не сценарий, а его литеральную замену.
+   */
+  it("стартовая стабильность стран приходит из сценария и переживает первый год", () => {
+    const game = createGame("1946", "USA");
+    const start = new Map(game.countries.map(c => [c.id, c.politics.stability]));
+
+    const spread = (values: number[]): number => Math.max(...values) - Math.min(...values);
+    expect(spread([...start.values()])).toBeGreaterThan(20);
+    expect(new Set(start.values()).size).toBeGreaterThan(game.countries.length / 4);
+
+    for (let month = 0; month < 12; month++) simulateMonth(game);
+
+    // Дрейф 0,05/мес за год покрывает ~46% зазора до равновесия, поэтому проверка
+    // не «не сдвинулось», а «не уехало в общую точку»: порядок стран и разброс
+    // мира сохранились. На старом поведении (равновесие ≡ 70 у всех) разброс за
+    // год схлопывался к нулю независимо от старта.
+    const afterYear = game.countries.map(c => c.politics.stability);
+    expect(spread(afterYear)).toBeGreaterThan(20);
+  });
+
+  /**
    * Бюджетная петля: расходы калибруются от внутреннего дохода, без экспортной
    * оценки, которую первый же `tradeTick` перезаписывает физическим числом.
    * До правки к концу первого года в долгах были 156 стран из 157 (99%).
@@ -145,5 +232,74 @@ describe("живой сценарий 1946: входы не вырождаютс
     const inDebt = solvent.filter(c => (c.economy.debt ?? 0) > 0).length;
 
     expect(inDebt / solvent.length).toBeLessThan(0.9);
+  });
+
+  /**
+   * `build_extraction` — единственное ресурсное действие LLM, и на живых данных
+   * оно не могло изменить НИЧЕГО: все 2055 пар (регион, ресурс) с депозитом
+   * стоят ровно на `MAX_EXTRACTION_LEVEL`, а команда клампила и возвращала
+   * `success: true`. Проверяется не «действие полезно» (полезным его делают
+   * данные — развилка в `docs/IDEAS.md`), а «команда не врёт»: успех означает
+   * изменённое состояние. Тест переживает любое наполнение уровней и падает на
+   * возврате кламп-без-отказа — тогда ложных успехов ровно 2055.
+   */
+  it("buildExtraction не возвращает успех, не изменив состояние", () => {
+    const game = createGame("1946", "USA");
+    let falseSuccess = 0;
+    let attempts = 0;
+
+    for (const region of game.regions) {
+      const controller = effectiveController(region);
+      const country = game.countries.find(c => c.id === controller);
+      if (!country) continue;
+
+      for (const resource of Object.keys(region.deposits) as ResourceType[]) {
+        if (!region.deposits[resource]) continue;
+        attempts++;
+        const before = region.extraction[resource] ?? 0;
+        // Казна не должна маскировать вопрос «есть ли что строить».
+        country.economy.treasury = Number.MAX_SAFE_INTEGER;
+
+        const result = buildExtraction(game, country.id, region.id, resource, 1);
+
+        const after = region.extraction[resource] ?? 0;
+        if (result.success && after === before) falseSuccess++;
+      }
+    }
+
+    // Обход непустой — иначе ноль ниже ничего не доказывает.
+    expect(attempts).toBeGreaterThan(0);
+    expect(falseSuccess).toBe(0);
+  });
+
+  /**
+   * Эмбарго режет отгрузку, а не выручку за отгруженное. На фикстуре это
+   * проверяет `TradeTick.test.ts`; здесь — что вход живой: у страны сценария
+   * действительно есть излишек, который БЫЛ БЫ уничтожен старым порядком
+   * (замер до правки — 153 656 единиц за один тик, `probeResourceGates.ts`).
+   */
+  it("страна сценария под полной блокадой не теряет запас", () => {
+    const game = createGame("1946", "USA");
+    for (let month = 0; month < 12; month++) simulateMonth(game);
+
+    const currentYear = Number(game.currentDate.split("-")[0]);
+    const active = RESOURCE_IDS.filter(r => RESOURCE_CATALOG[r].eraIntroduced <= currentYear);
+    const surplus = (country: Country): number => {
+      const reserve = country.population * DOMESTIC_RESERVE_PER_CAPITA;
+      return active.reduce((sum, r) => sum + Math.max(0, (country.stockpile[r] ?? 0) - reserve), 0);
+    };
+
+    const target = [...game.countries].sort((a, b) => surplus(b) - surplus(a))[0]!;
+    expect(surplus(target)).toBeGreaterThan(0); // вход живой, а не «нечего терять»
+
+    for (const embargoer of game.countries.filter(c => c.id !== target.id).slice(0, 5)) {
+      embargoer.diplomacy.sanctions[target.id] = ["trade_embargo"];
+    }
+    const stockBefore = active.map(r => target.stockpile[r] ?? 0);
+
+    tradeTick(game, target);
+
+    expect(target.economy.exportIncome).toBe(0);
+    active.forEach((r, i) => expect(target.stockpile[r] ?? 0).toBeGreaterThanOrEqual(stockBefore[i]!));
   });
 });

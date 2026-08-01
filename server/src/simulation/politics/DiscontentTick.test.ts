@@ -11,6 +11,7 @@ import {
   SUPPRESSION_DECAY_RATE,
   ALIENATION_DECAY_RATE,
   IDEOLOGY_LABEL_COORDINATES,
+  WELFARE_PARITY,
 } from "@shared/defines/discontent";
 import { IDEOLOGY_MAX_DISTANCE } from "@shared/types/politics/Ideology";
 import { createTestRegion } from "../../test-utils/fixtures";
@@ -110,7 +111,10 @@ describe("regionDiscontent — вывод из состояния", () => {
     const region = regionById(game, TEST_REGION_NATIONAL);
 
     const wellOff = regionDiscontent(game, region)!;
-    expect(regionWelfare(region, game.countries[0])).toBeCloseTo(1, 10);
+    // Фикстура посажена ровно на подушевой ВВП страны, то есть на ПАРИТЕТ. С
+    // 2026-08-01 паритет — середина шкалы (0.5), а не её верх: мера стала
+    // двусторонней, и 1 теперь означает «регион втрое богаче своей страны».
+    expect(regionWelfare(region, game.countries[0])).toBeCloseTo(WELFARE_PARITY, 10);
 
     region.gdp = region.gdp / 2;
     const impoverished = regionDiscontent(game, region)!;

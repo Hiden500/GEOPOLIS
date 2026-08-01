@@ -1,6 +1,7 @@
 import { ScenarioRegistry } from "../scenarios/ScenarioRegistry";
 import { type Country } from "@shared/types/Country";
 import { type GameState } from "@shared/types/GameState";
+import { type Region } from "@shared/types/map/Region";
 import { type Locale, DEFAULT_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { updateAllRegionsAndAggregate } from "@shared/utils/aggregateCountryData";
 import { generateInitialMapFeatures } from "../scenarios/generateMapFeatures";
@@ -8,8 +9,13 @@ import { RegionEconomyService } from "../services/RegionEconomyService";
 import { assignInitialTiers } from "../simulation/tier/TierTick";
 import { nextRandom } from "@shared/utils/rng";
 import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
+import {
+  STARTING_MANPOWER_POPULATION_SHARE,
+  ACTIVE_PERSONNEL_SHARE,
+  RESERVE_PERSONNEL_SHARE,
+} from "@shared/defines/military";
 import { computePlayerStanding } from "@shared/utils/nationalPower";
-import { corruptionBase, legitimacyBase } from "@shared/utils/politics";
+import { corruptionBase, legitimacyBase, stabilityBase } from "@shared/utils/politics";
 import { resolveIdeologyCoordinates } from "@shared/utils/discontent";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
 import { activeCampaign } from "@shared/types/Campaign";
@@ -73,8 +79,8 @@ function deriveCountryEconomy(country: Country): void {
 }
 
 /**
- * Сеет стартовые legitimacy/corruption из структурных базисов вместо литералов
- * 50/30 в шаблоне страны (`CreateCountry.ts`).
+ * Сеет стартовые legitimacy/corruption/stability из структурных базисов вместо
+ * литералов 50/30/50 в шаблоне страны (`CreateCountry.ts`).
  *
  * ЗАЧЕМ. Базисы (`legitimacyBase` по координатам + происхождению власти,
  * `corruptionBase` по механизму удержания власти) уже влиты и уже работают —
@@ -87,12 +93,20 @@ function deriveCountryEconomy(country: Country): void {
  *
  * Страна без разметки формы власти получает фолбэк ТЕХ ЖЕ функций, а не прежний
  * литерал: «не размечено» решается в одном месте, а не двумя разными числами.
+ *
+ * СТАБИЛЬНОСТЬ ДОБАВЛЕНА 2026-08-01 по той же причине и с той же ценой ошибки.
+ * Авторская стабильность сценария лежит в `region.stability` (155 различных
+ * значений на 157 стран), а страна стартовала литералом 50 у всех — разброс
+ * РОВНО 0. Без посева `politicsTick` дотянул бы мир до сценарных значений за
+ * два игровых года дрейфом 0,05/мес, то есть первый год партии игрок видел бы
+ * не стартовое состояние сценария, а его литеральную замену.
  */
-function seedPoliticsFromStructure(countries: Country[]): void {
+function seedPoliticsFromStructure(countries: Country[], regions: Region[]): void {
   for (const country of countries) {
     const p = country.politics;
     p.legitimacy = legitimacyBase(resolveIdeologyCoordinates(p), p.powerStructure);
     p.corruption = corruptionBase(p.powerStructure);
+    p.stability = stabilityBase(regions.filter(r => r.ownerCountryId === country.id));
   }
 }
 
@@ -105,6 +119,29 @@ function seedPoliticsFromStructure(countries: Country[]): void {
  * посев не должен "тратить" сид молча, следующий реальный потребитель
  * game.rng продолжит с этого места, не с исходного seed.
  */
+/**
+ * Сеет стартовую армию из населения страны.
+ *
+ * ЗАЧЕМ. Сценарий 1946 военных полей не содержит (схема их допускает, данных
+ * нет), поэтому мир начинал партию с нулевыми армиями у всех 157 стран — через
+ * полгода после мировой войны. Разбор и замер — у
+ * `STARTING_MANPOWER_POPULATION_SHARE` в `shared/src/defines/military.ts`.
+ *
+ * Величина уважает данные, если они появятся: страна, у которой сценарий задал
+ * `manpower` явно, не трогается. Сегодня таких нет — но разметка армий стоит в
+ * очереди, и механика не должна её потом перетирать.
+ */
+function seedStartingArmies(countries: Country[]): void {
+  for (const country of countries) {
+    const military = country.military;
+    if (military.manpower > 0) continue;
+
+    military.manpower = Math.floor(country.population * STARTING_MANPOWER_POPULATION_SHARE);
+    military.activePersonnel = Math.floor(military.manpower * ACTIVE_PERSONNEL_SHARE);
+    military.reservePersonnel = Math.floor(military.manpower * RESERVE_PERSONNEL_SHARE);
+  }
+}
+
 function seedAiTraits(countries: Country[], seed: number): number {
   let state = seed;
   const range = AI_TRAIT_MAX - AI_TRAIT_MIN;
@@ -163,7 +200,8 @@ export function createGame(
     deriveCountryEconomy(country);
   }
 
-  seedPoliticsFromStructure(countries);
+  seedPoliticsFromStructure(countries, regions);
+  seedStartingArmies(countries);
 
   // Выставляем начальные тиры (исторические для 1946, иначе minor)
   assignInitialTiers(countries, scenarioId);

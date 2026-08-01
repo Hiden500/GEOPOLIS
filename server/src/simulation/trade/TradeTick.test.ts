@@ -92,6 +92,113 @@ describe("tradeTick (независимый гейм-дизайн разбор, 
     expect(target.economy.exportIncome).toBeLessThan(gameWithout.countries[0]!.economy.exportIncome);
   });
 
+  /**
+   * Эмбарго режет ОТГРУЗКУ, а не выручку за отгруженное (2026-08-01). До правки
+   * объём продажи считался без оглядки на санкции и физически списывался со
+   * склада, а штраф применялся к итоговому доходу: под полной блокадой страна
+   * отдавала груз и получала ноль. На живых данных 1946 это 153 656 единиц,
+   * исчезающих за ОДИН тик у крупнейшего экспортёра
+   * (`server/scripts/probeResourceGates.ts`).
+   */
+  describe("эмбарго не уничтожает товар", () => {
+    /** Пять эмбарго — штраф капается на 100%, торговля закрыта полностью. */
+    function blockade(targetId: string, count: number) {
+      return Array.from({ length: count }, (_, i) => {
+        const embargoer = createTestCountry({ id: `EMB${i}` });
+        embargoer.diplomacy.sanctions[targetId] = ["trade_embargo"];
+        return embargoer;
+      });
+    }
+
+    it("под полной блокадой запас не расходуется вовсе", () => {
+      const target = createTestCountry({
+        id: "TARGET",
+        stockpile: { ...atReserveStockpile(), oil: 500_000 },
+      });
+      const game = createTestGameState({
+        currentDate: "1946-01-01",
+        countries: [target, ...blockade("TARGET", 5)],
+      });
+      const oilBefore = target.stockpile.oil;
+
+      tradeTick(game, target);
+
+      expect(target.economy.exportIncome).toBe(0);
+      expect(target.stockpile.oil).toBe(oilBefore);
+    });
+
+    it("частичная блокада списывает ровно ту долю груза, которую оплачивает", () => {
+      // Один эмбарго = штраф 0.2, значит проходит 80% отгрузки и 80% выручки.
+      const target = createTestCountry({
+        id: "TARGET",
+        stockpile: { ...atReserveStockpile(), oil: 500_000 },
+      });
+      const free = createTestCountry({
+        id: "FREE",
+        stockpile: { ...atReserveStockpile(), oil: 500_000 },
+      });
+      const gameBlocked = createTestGameState({
+        currentDate: "1946-01-01",
+        countries: [target, ...blockade("TARGET", 1)],
+      });
+      const gameFree = createTestGameState({ currentDate: "1946-01-01", countries: [free] });
+
+      const oilBefore = target.stockpile.oil;
+      tradeTick(gameBlocked, target);
+      tradeTick(gameFree, free);
+
+      const soldBlocked = oilBefore - target.stockpile.oil;
+      const soldFree = oilBefore - free.stockpile.oil;
+      const shipmentRatio = soldBlocked / soldFree;
+      const incomeRatio = target.economy.exportIncome / free.economy.exportIncome;
+
+      // Отгрузка и доход сокращаются ОДИНАКОВО: страна не платит грузом за то,
+      // чего не продала. До правки shipmentRatio был ровно 1 при incomeRatio 0,8.
+      expect(shipmentRatio).toBeCloseTo(incomeRatio, 6);
+      expect(shipmentRatio).toBeLessThan(1);
+    });
+
+    it("блокада накапливает запас, а не сжигает его: 12 тиков подряд", () => {
+      const target = createTestCountry({
+        id: "TARGET",
+        stockpile: { ...atReserveStockpile(), oil: 500_000 },
+      });
+      const game = createTestGameState({
+        currentDate: "1946-01-01",
+        countries: [target, ...blockade("TARGET", 5)],
+      });
+      const oilBefore = target.stockpile.oil;
+
+      for (let month = 0; month < 12; month++) tradeTick(game, target);
+
+      expect(target.stockpile.oil).toBe(oilBefore);
+    });
+
+    it("доход при эмбарго не изменился правкой — штраф применяется ровно один раз", () => {
+      // Тождество `sold·(1-p)·price + base·(1-p)` = `(sold·price + base)·(1-p)`:
+      // правка меняет физику склада, но не экономику. Двойной штраф (сначала
+      // объёмом, потом доходом) дал бы 0,64 вместо 0,8 при одном эмбарго.
+      const target = createTestCountry({
+        id: "TARGET",
+        stockpile: { ...atReserveStockpile(), oil: 500_000 },
+      });
+      const free = createTestCountry({
+        id: "FREE",
+        stockpile: { ...atReserveStockpile(), oil: 500_000 },
+      });
+      const gameBlocked = createTestGameState({
+        currentDate: "1946-01-01",
+        countries: [target, ...blockade("TARGET", 1)],
+      });
+      const gameFree = createTestGameState({ currentDate: "1946-01-01", countries: [free] });
+
+      tradeTick(gameBlocked, target);
+      tradeTick(gameFree, free);
+
+      expect(target.economy.exportIncome).toBeCloseTo(free.economy.exportIncome * 0.8, 5);
+    });
+  });
+
   it("ресурс с eraIntroduced в будущем (rareEarths, 1980) не торгуется в 1946", () => {
     const country = createTestCountry({ stockpile: { ...emptyStockpile(), rareEarths: 1_000_000 } });
     const game = createTestGameState({ currentDate: "1946-01-01", countries: [country] });

@@ -92,9 +92,29 @@ budgetBalance = income - expenses
 treasury += budgetBalance
 if (treasury < 0) { debt += -treasury; treasury = 0 }      // дефицит → долг
 else if (debt > 0) { repay = min(debt, treasury); debt -= repay; treasury -= repay }  // профицит гасит долг
-inflation    += 0.1 × (expenses - income) / gdp
-unemployment += 0.05 × (expenses - income) / gdp   // floored at 0
+// Инфляция и безработица — ПРОЦЕНТЫ, в тех же единицах, что их пороги
+// (STABILITY_*_THRESHOLD = 5/15/20), стартовые данные архетипов и текст
+// мирового факта для LLM. Модель — возврат к цели, а не интегратор.
+pressure = clamp((expenses - income) / gdp, ±FISCAL_PRESSURE_CAP) × 100   // в п.п.
+inflationTarget    = INFLATION_BASELINE    + (pressure > 0 ? 1.8 : 0.1) × pressure
+unemploymentTarget = UNEMPLOYMENT_BASELINE + (pressure > 0 ? 0.8 : 0.1) × pressure
+inflation    += 0.05 × (inflationTarget - inflation)       // клип [-2, 60]
+unemployment += 0.03 × (unemploymentTarget - unemployment) // клип [0, 60]
 ```
+
+Асимметрия сторон — downward rigidity: профицит охлаждает инфляцию к базовой
+линии, но не производит дефляцию так же охотно, как дефицит производит инфляцию.
+Насыщение входа защищает механику от масштаба бюджетного блока (сальдо сейчас
+±6…17% ВВП за месяц — величина нереалистичная и подлежащая перекалибровке
+отдельно). Дефицитная сторона откалибрована по порогу, который обязана делать
+достижимым: устойчивый дефицит 10% ВВП в месяц выводит цель инфляции ровно на
+кризисный порог 20.
+
+До 2026-07-31 приращение считалось в ДОЛЯХ ВВП (`0.1 × дефицит/ВВП`) при
+величине и порогах в процентах — отклик был примерно в сто раз слабее
+собственной шкалы. Замер за 120 месяцев сценария 1946: кризисный порог не
+перешла ни одна страна из 157. Обоснование и калибровка —
+`shared/src/defines/economy.ts`, замер — `server/scripts/probeScales.ts`.
 
 Если у страны задан `EconomyState.spendingShares?: { military, research,
 education, infrastructure, welfare }` (`PUT /budget`), каждый тик до расчёта
