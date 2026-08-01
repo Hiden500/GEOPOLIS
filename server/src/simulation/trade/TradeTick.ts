@@ -104,9 +104,21 @@ function getEmbargoPenalty(game: GameState, target: Country): number {
  *
  * Базовая часть проходит через ТЕ ЖЕ множители, что и сырьевая. Иначе страна
  * под полной блокадой продолжала бы получать свои 3–6% ВВП нетронутыми, и поле
- * означало бы «подарок от профиля», а не внешнюю торговлю. Множители вынесены
- * за скобку суммы — они одинаковы для всех ресурсов, поэтому это тождественное
- * преобразование, а не смена модели.
+ * означало бы «подарок от профиля», а не внешнюю торговлю.
+ *
+ * ЭМБАРГО СОКРАЩАЕТ ОТГРУЗКУ, А НЕ ВЫРУЧКУ ЗА ОТГРУЖЕННОЕ (исправлено
+ * 2026-08-01). До этого объём продажи считался без оглядки на санкции, физически
+ * списывался со `stockpile`, и только ИТОГОВЫЙ доход умножался на
+ * `(1 - embargoPenalty)`. При пяти эмбарго (штраф капается на 100%) страна
+ * отдавала груз и получала за него ноль: замер на живых данных показал 153 656
+ * единиц, исчезающих за ОДИН тик у крупнейшего экспортёра
+ * (`server/scripts/probeResourceGates.ts`). Теперь блокада режет саму отгрузку:
+ * непроданное остаётся на складе и ждёт снятия санкций. Доход при этом не
+ * изменился ни на копейку — `sold·(1-p)·price + base·(1-p)` тождественно
+ * прежнему `(sold·price + base)·(1-p)`, — так что решение 2026-07-31 («блокада
+ * касается ВСЕЙ торговли, включая базовую часть») остаётся в силе.
+ *
+ * Импорт по-прежнему не гейтится эмбарго (`docs/TRADE.md`, «Явные пробелы»).
  */
 export function tradeTick(game: GameState, country: Country): void {
   const currentYear = Number(game.currentDate.split("-")[0]);
@@ -123,6 +135,10 @@ export function tradeTick(game: GameState, country: Country): void {
   let totalImportSpending = 0;
   const reserveTarget = country.population * DOMESTIC_RESERVE_PER_CAPITA;
 
+  // Доля торговли, которую санкции пропускают: 0 при полной блокаде. Режет
+  // ОТГРУЗКУ, поэтому непроданный из-за эмбарго груз остаётся на складе.
+  const tradableShare = 1 - embargoPenalty;
+
   for (const resourceId of RESOURCE_IDS) {
     if (RESOURCE_CATALOG[resourceId].eraIntroduced > currentYear) continue;
 
@@ -130,7 +146,7 @@ export function tradeTick(game: GameState, country: Country): void {
 
     if (stock >= reserveTarget) {
       const exportable = stock - reserveTarget;
-      const sold = exportable * EXPORT_RATE;
+      const sold = exportable * EXPORT_RATE * tradableShare;
       if (sold <= 0) continue;
 
       country.stockpile[resourceId] -= sold;
@@ -150,7 +166,10 @@ export function tradeTick(game: GameState, country: Country): void {
   // состояния — это ещё одно место, где значение может разойтись с источником.
   const baseExportIncome = country.economy.gdp * (country.economyProfile.exportShare ?? 0);
 
+  // Сырьевая часть штраф уже отработала объёмом (`tradableShare` выше) —
+  // второй раз её умножать нельзя. Базовая часть склада не имеет, поэтому
+  // санкция бьёт по ней доходом.
   country.economy.exportIncome =
-    (baseExportIncome + totalExportIncome) * (1 - embargoPenalty) * exportZoneMultiplier;
+    (baseExportIncome * tradableShare + totalExportIncome) * exportZoneMultiplier;
   country.economy.importSpending = totalImportSpending;
 }

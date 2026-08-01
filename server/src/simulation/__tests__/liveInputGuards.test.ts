@@ -3,10 +3,16 @@ import { createGame } from "../../game/CreateGame";
 import { simulateMonth } from "../SimulationEngine";
 import { populationTick } from "../population/PopulationTick";
 import { resourceTick } from "../resources/ResourceTick";
+import { tradeTick } from "../trade/TradeTick";
+import { buildExtraction } from "../../commands/resources";
 import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
 import { TIER_PROGRESS_THRESHOLD } from "@shared/utils/technology";
+import { effectiveController } from "@shared/utils/regionControl";
+import { DOMESTIC_RESERVE_PER_CAPITA } from "@shared/defines/trade";
+import { RESOURCE_IDS, RESOURCE_CATALOG } from "@shared/data/resources/resourceCatalog";
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
+import { type ResourceType } from "@shared/types/resources/ResourcesType";
 
 /**
  * Guard-тесты недостающего класса: вход формулы должен РАЗЛИЧАТЬ страны на
@@ -145,5 +151,74 @@ describe("живой сценарий 1946: входы не вырождаютс
     const inDebt = solvent.filter(c => (c.economy.debt ?? 0) > 0).length;
 
     expect(inDebt / solvent.length).toBeLessThan(0.9);
+  });
+
+  /**
+   * `build_extraction` — единственное ресурсное действие LLM, и на живых данных
+   * оно не могло изменить НИЧЕГО: все 2055 пар (регион, ресурс) с депозитом
+   * стоят ровно на `MAX_EXTRACTION_LEVEL`, а команда клампила и возвращала
+   * `success: true`. Проверяется не «действие полезно» (полезным его делают
+   * данные — развилка в `docs/IDEAS.md`), а «команда не врёт»: успех означает
+   * изменённое состояние. Тест переживает любое наполнение уровней и падает на
+   * возврате кламп-без-отказа — тогда ложных успехов ровно 2055.
+   */
+  it("buildExtraction не возвращает успех, не изменив состояние", () => {
+    const game = createGame("1946", "USA");
+    let falseSuccess = 0;
+    let attempts = 0;
+
+    for (const region of game.regions) {
+      const controller = effectiveController(region);
+      const country = game.countries.find(c => c.id === controller);
+      if (!country) continue;
+
+      for (const resource of Object.keys(region.deposits) as ResourceType[]) {
+        if (!region.deposits[resource]) continue;
+        attempts++;
+        const before = region.extraction[resource] ?? 0;
+        // Казна не должна маскировать вопрос «есть ли что строить».
+        country.economy.treasury = Number.MAX_SAFE_INTEGER;
+
+        const result = buildExtraction(game, country.id, region.id, resource, 1);
+
+        const after = region.extraction[resource] ?? 0;
+        if (result.success && after === before) falseSuccess++;
+      }
+    }
+
+    // Обход непустой — иначе ноль ниже ничего не доказывает.
+    expect(attempts).toBeGreaterThan(0);
+    expect(falseSuccess).toBe(0);
+  });
+
+  /**
+   * Эмбарго режет отгрузку, а не выручку за отгруженное. На фикстуре это
+   * проверяет `TradeTick.test.ts`; здесь — что вход живой: у страны сценария
+   * действительно есть излишек, который БЫЛ БЫ уничтожен старым порядком
+   * (замер до правки — 153 656 единиц за один тик, `probeResourceGates.ts`).
+   */
+  it("страна сценария под полной блокадой не теряет запас", () => {
+    const game = createGame("1946", "USA");
+    for (let month = 0; month < 12; month++) simulateMonth(game);
+
+    const currentYear = Number(game.currentDate.split("-")[0]);
+    const active = RESOURCE_IDS.filter(r => RESOURCE_CATALOG[r].eraIntroduced <= currentYear);
+    const surplus = (country: Country): number => {
+      const reserve = country.population * DOMESTIC_RESERVE_PER_CAPITA;
+      return active.reduce((sum, r) => sum + Math.max(0, (country.stockpile[r] ?? 0) - reserve), 0);
+    };
+
+    const target = [...game.countries].sort((a, b) => surplus(b) - surplus(a))[0]!;
+    expect(surplus(target)).toBeGreaterThan(0); // вход живой, а не «нечего терять»
+
+    for (const embargoer of game.countries.filter(c => c.id !== target.id).slice(0, 5)) {
+      embargoer.diplomacy.sanctions[target.id] = ["trade_embargo"];
+    }
+    const stockBefore = active.map(r => target.stockpile[r] ?? 0);
+
+    tradeTick(game, target);
+
+    expect(target.economy.exportIncome).toBe(0);
+    active.forEach((r, i) => expect(target.stockpile[r] ?? 0).toBeGreaterThanOrEqual(stockBefore[i]!));
   });
 });

@@ -34,6 +34,33 @@ describe("commands/resources", () => {
       expect(game.countries[0]!.economy.treasury).toBe(treasuryBefore - EXTRACTION_BUILD_COST);
     });
 
+    /**
+     * Ложный успех хуже отказа: применяющий код (`LLMService`) результат команды
+     * отбрасывает, поэтому «успех, ничего не изменивший» доезжает до летописи как
+     * выполненное действие. На сценарии 1946 это был не краевой случай, а норма —
+     * все 2055 пар (регион, ресурс) с депозитом стоят ровно на потолке
+     * (`server/scripts/probeResourceGates.ts`).
+     */
+    it("отклоняет наращивание на потолке — не рапортует успех, ничего не изменив", () => {
+      const { game, region } = gameWithRegion({ extraction: { oil: MAX_EXTRACTION_LEVEL } });
+      const treasuryBefore = game.countries[0]!.economy.treasury;
+
+      const result = commands.buildExtraction(game, "USA", 1, "oil", 1);
+
+      expect(result.success).toBe(false);
+      expect(region.extraction.oil).toBe(MAX_EXTRACTION_LEVEL);
+      expect(game.countries[0]!.economy.treasury).toBe(treasuryBefore);
+    });
+
+    it("отклоняет сворачивание на нуле — симметрично потолку", () => {
+      const { game, region } = gameWithRegion({ extraction: { oil: 0 } });
+
+      const result = commands.buildExtraction(game, "USA", 1, "oil", -1);
+
+      expect(result.success).toBe(false);
+      expect(region.extraction.oil).toBe(0);
+    });
+
     it("отклоняет, если страна не контролирует регион", () => {
       const { game, region } = gameWithRegion({ ownerCountryId: "OTHER" });
 
