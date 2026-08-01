@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { simulateMonth } from "./SimulationEngine";
-import { createTestGameState, createTestCountry } from "../test-utils/fixtures";
+import { createTestGameState, createTestCountry, createTestRegion } from "../test-utils/fixtures";
 
 describe("simulateMonth — date advancement", () => {
     it("продвигает дату на один месяц", () => {
@@ -66,10 +66,16 @@ describe("simulateMonth — детерминированные вехи (pending
                 name: { en: "United States" },
                 economy: {
                     ...economy,
-                    // Массивный дефицит относительно ВВП — inflation прыгает на
-                    // INFLATION_DEFICIT_COEFFICIENT(0.1) × (expenses-income)/gdp
-                    // = 0.1 × 100 = 10 за один тик. Стартуем в 15, чтобы пересечь 20.
-                    inflation: 15,
+                    // Устойчивый дефицит много выше насыщения: цель инфляции
+                    // уходит заведомо за порог 20. Стартуем чуть ниже порога.
+                    //
+                    // Раньше тест ждал пересечения за ОДИН тик и держался на
+                    // старой арифметике «0.1 × дефицит/ВВП = 10 пунктов за
+                    // месяц». С переводом приращения в проценты (2026-07-31)
+                    // модель стала возвратом к цели: инфляция подтягивается
+                    // постепенно, скачков на десять пунктов за месяц больше нет.
+                    // Поэтому проверяется САМО пересечение и факт, а не срок.
+                    inflation: 19,
                     gdp: 1_000_000,
                     taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
                     militarySpending: 100_000_000, researchSpending: 0, educationSpending: 0,
@@ -77,9 +83,14 @@ describe("simulateMonth — детерминированные вехи (pending
                     importSpending: 0,
                 },
             })],
+            regions: [createTestRegion({ id: 1, ownerCountryId: "USA", gdp: 1_000_000 })],
         });
 
-        simulateMonth(game);
+        // Предел прогона — страховка от вечного цикла, а не ожидаемый срок.
+        for (let month = 0; month < 24; month++) {
+            simulateMonth(game);
+            if (game.pendingWorldFacts.some(f => f.text.includes("inflation"))) break;
+        }
 
         const fact = game.pendingWorldFacts.find(f => f.text.includes("inflation"));
         expect(fact).toBeDefined();

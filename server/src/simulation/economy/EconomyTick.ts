@@ -15,8 +15,19 @@ import {
   INFRASTRUCTURE_DECAY_RATE,
   INFRASTRUCTURE_MAX,
   INFRASTRUCTURE_MIN,
+  FISCAL_PRESSURE_CAP,
+  INFLATION_BASELINE,
+  UNEMPLOYMENT_BASELINE,
   INFLATION_DEFICIT_COEFFICIENT,
+  INFLATION_SURPLUS_COEFFICIENT,
   UNEMPLOYMENT_DEFICIT_COEFFICIENT,
+  UNEMPLOYMENT_SURPLUS_COEFFICIENT,
+  INFLATION_REVERSION_RATE,
+  UNEMPLOYMENT_REVERSION_RATE,
+  INFLATION_MIN,
+  INFLATION_MAX,
+  UNEMPLOYMENT_MIN,
+  UNEMPLOYMENT_MAX,
   DEBT_BASE_MONTHLY_INTEREST_RATE,
   DEBT_RISK_PREMIUM_COEFFICIENT,
   DEBT_GDP_PENALTY_THRESHOLD,
@@ -214,7 +225,24 @@ function updateInfrastructure(
   }
 }
 
-/** Инфляция/безработица на основе дефицита бюджета. Без эффекта при gdp=0. */
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, value));
+}
+
+/**
+ * Инфляция и безработица от бюджетного сальдо. Без эффекта при gdp=0.
+ *
+ * ОБЕ ВЕЛИЧИНЫ — ПРОЦЕНТЫ, в тех же единицах, что и пороги, которые их читают
+ * (`STABILITY_*_THRESHOLD`), стартовые данные архетипов и текст мирового факта
+ * для LLM. Раньше приращение считалось в ДОЛЯХ ВВП и было примерно в сто раз
+ * слабее собственной шкалы: кризисный порог 20 не брала ни одна страна за 120
+ * месяцев. Обоснование выбора «править приращение, а не порог», калибровка и
+ * цена решения — в `shared/src/defines/economy.ts`.
+ *
+ * Модель — возврат к цели, а не интегратор: цель задаётся бюджетным давлением,
+ * величина подтягивается к ней. Интегратор без якоря уехал бы за партию в любом
+ * случае, потому что сальдо в сценарии одностороннее.
+ */
 function updateInflationAndUnemployment(
   economy: EconomyState,
   income: number,
@@ -223,10 +251,31 @@ function updateInflationAndUnemployment(
 ): void {
   if (!hasGdp) return;
 
-  economy.inflation += INFLATION_DEFICIT_COEFFICIENT * (expenses - income) / economy.gdp;
+  // Дефицит положителен, профицит отрицателен. Насыщение — защита от масштаба
+  // соседнего бюджетного блока; ×100 переводит долю ВВП в пункты.
+  const pressure = clamp(
+    (expenses - income) / economy.gdp,
+    -FISCAL_PRESSURE_CAP,
+    FISCAL_PRESSURE_CAP
+  ) * 100;
 
-  economy.unemployment += UNEMPLOYMENT_DEFICIT_COEFFICIENT * (expenses - income) / economy.gdp;
-  economy.unemployment = Math.max(0, economy.unemployment);
+  const inflationTarget = INFLATION_BASELINE + (pressure > 0
+    ? INFLATION_DEFICIT_COEFFICIENT * pressure
+    : INFLATION_SURPLUS_COEFFICIENT * pressure);
+  economy.inflation = clamp(
+    economy.inflation + INFLATION_REVERSION_RATE * (inflationTarget - economy.inflation),
+    INFLATION_MIN,
+    INFLATION_MAX
+  );
+
+  const unemploymentTarget = UNEMPLOYMENT_BASELINE + (pressure > 0
+    ? UNEMPLOYMENT_DEFICIT_COEFFICIENT * pressure
+    : UNEMPLOYMENT_SURPLUS_COEFFICIENT * pressure);
+  economy.unemployment = clamp(
+    economy.unemployment + UNEMPLOYMENT_REVERSION_RATE * (unemploymentTarget - economy.unemployment),
+    UNEMPLOYMENT_MIN,
+    UNEMPLOYMENT_MAX
+  );
 }
 
 export function economyTick(
