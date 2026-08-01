@@ -14,6 +14,7 @@ import {
   COALITION_STEP,
   INFLUENCE_GRAVITY,
   STABILITY_LOW,
+  STABILITY_RECOVERED,
   WELFARE_SHIFT_RATE,
   WELFARE_CAP_SHARE,
 } from "@shared/defines/ai";
@@ -25,7 +26,8 @@ import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
  *  - Правило A: аустерити по дефициту.
  *  - Правило B: ответ на угрозу с полной балансировкой (военный ответ +
  *    контр-блок соперников + power→influence→сфера для бандвагонинга).
- *  - Правило C: при низкой stability сдвиг расходов с military → welfare.
+ *  - Правило C: при низкой stability сдвиг расходов с military → welfare и
+ *    возврат обратно, когда кризис позади (двусторонним стало 2026-08-01).
  *  - Правило D УДАЛЕНО 2026-07-31 (разбор — ниже, у места, где оно стояло):
  *    объявление войны осталось только за игроком и режиссёром-LLM.
  *
@@ -69,35 +71,66 @@ function applyDeficitAusterity(game: GameState, c: Country): void {
 }
 
 /**
- * Правило C — при низкой stability (< 40) переносит расходы с military → welfare.
- * Не опускает military ниже пола; не поднимает welfare выше 30% дохода.
+ * Правило C — бюджет следует за кризисом В ОБЕ СТОРОНЫ. При низкой stability
+ * (< `STABILITY_LOW`) расходы идут military → welfare; когда кризис позади
+ * (≥ `STABILITY_RECOVERED`) — доля возвращается обратно. Между порогами
+ * гистерезисная зона, в ней не двигают ничего.
+ *
+ * ПОЧЕМУ ВОЗВРАТ ПОЯВИЛСЯ (2026-08-01). Правило было односторонним храповиком:
+ * замер на 120 месяцах живого 1946 показал, что за первые пять месяцев кризиса
+ * страна вычерпывает весь запас (military с 20% дохода до пола 10%, welfare с
+ * 22% до потолка 30%) — и остаётся так навсегда, даже полностью восстановившись.
+ * К десятому году доля military просела ниже стартовой у 82 стран из 156, и
+ * сдвинуть бюджет в ответ на НОВЫЙ кризис реально могли 0 стран из 48 задетых
+ * порогом. Реакция, которая срабатывает один раз за партию и не отпускает, —
+ * это не реакция, а разовое смещение мира к welfare.
+ *
+ * ГРАНИЦЫ ВОЗВРАТА — стартовые доли обеих статей, и они же гарантируют, что
+ * возврат отменяет ровно СВОЙ сдвиг и ничего сверх него:
+ *  - military не поднимается выше стартовой доли (= пол × 2), поэтому возврат
+ *    не подменяет собой Правило B (военный ramp угрожаемой страны) и не спорит
+ *    с ним: у страны, которую Правило B уже подняло выше старта, возврат — ноль;
+ *  - welfare не опускается ниже стартовой доли, поэтому возврат не отыгрывает
+ *    назад урезание Правила A (аустерити режет ВСЕ статьи, включая welfare, и
+ *    восстановления у него нет — это отдельный открытый дефект, docs/TODO.md).
+ *
  * Stability читается через effectiveValue() (docs/plans/03_MODIFIERS_COMMANDS.md,
  * Шаг 2), не сырое поле — единственный переведённый читатель в этом заходе,
  * демонстрирует реальную интеграцию модификаторов.
  */
-function applyStabilityWelfareNudge(game: GameState, c: Country): void {
+function applyStabilityBudgetShift(game: GameState, c: Country): void {
+  const { spendingFloor: floor, spendingShares: shares } = c.economy;
+  if (!floor || !shares) return;
+
   const stability = effectiveValue(
     c.politics.stability,
     ModifierAttribute.Stability,
     { kind: "country", id: c.id },
     game.modifiers
   );
-  if (stability >= STABILITY_LOW || !c.economy.spendingFloor) return;
 
-  const shares = c.economy.spendingShares;
-  if (!shares) return;
-  if (shares.welfare >= WELFARE_CAP_SHARE) return;
+  // Кризис: все три ограничителя — доли дохода, поэтому сам доход не нужен.
+  if (stability < STABILITY_LOW) {
+    const shift = Math.min(
+      WELFARE_SHIFT_RATE,
+      WELFARE_CAP_SHARE - shares.welfare,
+      shares.military - floor.militarySpending
+    );
+    if (shift > 0) economyCommands.shiftMilitaryToWelfare(game, c.id, shift);
+    return;
+  }
 
-  // Все три ограничителя — доли дохода, поэтому сам доход в формуле не нужен.
-  const shift = Math.min(
+  // Гистерезисная зона между порогами — бюджет замер там, где его застал выход
+  // из кризиса.
+  if (stability < STABILITY_RECOVERED) return;
+
+  // Кризис позади. Пол аустерити — половина стартовой доли, значит старт = пол × 2.
+  const back = Math.min(
     WELFARE_SHIFT_RATE,
-    WELFARE_CAP_SHARE - shares.welfare,
-    shares.military - c.economy.spendingFloor.militarySpending
+    floor.militarySpending * 2 - shares.military,
+    shares.welfare - floor.welfareSpending * 2
   );
-
-  if (shift <= 0) return;
-
-  economyCommands.shiftMilitaryToWelfare(game, c.id, shift);
+  if (back > 0) economyCommands.shiftWelfareToMilitary(game, c.id, back);
 }
 
 /**
@@ -181,7 +214,7 @@ export function aiBehaviorTick(game: GameState): void {
 
   for (const c of aiCountries) {
     applyDeficitAusterity(game, c);
-    applyStabilityWelfareNudge(game, c);
+    applyStabilityBudgetShift(game, c);
   }
 
   if (player) {

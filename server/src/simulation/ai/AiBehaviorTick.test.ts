@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { aiBehaviorTick } from "./AiBehaviorTick";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
-import { THREAT_LEVEL, INFLUENCE_GRAVITY, MILITARY_CAP_SHARE } from "@shared/defines/ai";
+import { THREAT_LEVEL, INFLUENCE_GRAVITY, MILITARY_CAP_SHARE, WELFARE_SHIFT_RATE } from "@shared/defines/ai";
 import { type Country } from "@shared/types/Country";
 
 // Хелпер: страна с заданным id и переопределением экономики/дипломатии/военки.
@@ -184,7 +184,7 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
   });
 });
 
-describe("aiBehaviorTick — Правило C (низкая stability → welfare)", () => {
+describe("aiBehaviorTick — Правило C (кризис → welfare, кризис позади → обратно)", () => {
   function unstableAI(stability: number): Country {
     const c = country("AI");
     c.politics.stability = stability;
@@ -266,6 +266,77 @@ describe("aiBehaviorTick — Правило C (низкая stability → welfar
     aiBehaviorTick(game);
 
     expect(ai.economy.welfareSpending).toBeLessThanOrEqual(income * 0.30 + 0.001);
+  });
+
+  // --- обратный ход: кризис позади (2026-08-01) ---
+
+  /**
+   * Страна, просевшая ровно так, как её просаживает само Правило C: доля
+   * military ниже стартовой на столько же, на сколько welfare выше своей.
+   * Стартовые доли фикстуры — military 30/180, welfare 15/180; пол = половина.
+   */
+  function drainedAI(stability: number): Country {
+    const c = country("AI");
+    c.politics.stability = stability;
+    const moved = 6 / 180;
+    c.economy.spendingShares!.military -= moved;
+    c.economy.spendingShares!.welfare += moved;
+    return c;
+  }
+
+  it("кризис позади (stability ≥ 45) — доля military возвращается к стартовой", () => {
+    const ai = drainedAI(50);
+    const milBefore = ai.economy.spendingShares!.military;
+    const welfareBefore = ai.economy.spendingShares!.welfare;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.military).toBeGreaterThan(milBefore);
+    expect(ai.economy.spendingShares!.welfare).toBeLessThan(welfareBefore);
+    // Возврат тоже zero-sum: бюджет не создаётся и не исчезает.
+    expect(ai.economy.spendingShares!.military + ai.economy.spendingShares!.welfare)
+      .toBeCloseTo(milBefore + welfareBefore, 9);
+  });
+
+  it("в гистерезисной зоне (40…45) не двигается ни туда, ни обратно", () => {
+    const ai = drainedAI(42);
+    const milBefore = ai.economy.spendingShares!.military;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.military).toBe(milBefore);
+  });
+
+  it("возврат не поднимает military выше стартовой доли", () => {
+    const ai = country("AI");
+    ai.politics.stability = 90;
+    // Просела на пол-шага возврата — за один тик должна дойти ровно до старта.
+    const start = ai.economy.spendingShares!.military;
+    ai.economy.spendingShares!.military = start - WELFARE_SHIFT_RATE / 2;
+    ai.economy.spendingShares!.welfare += WELFARE_SHIFT_RATE / 2;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.military).toBeCloseTo(start, 9);
+  });
+
+  it("возврат не опускает welfare ниже стартовой доли — урезание аустерити не отыгрывается", () => {
+    const ai = country("AI");
+    ai.politics.stability = 90;
+    // Так выглядит страна после Правила A: обе доли ниже стартовых. Донора для
+    // возврата нет, хотя military и просела.
+    ai.economy.spendingShares!.military *= 0.9;
+    ai.economy.spendingShares!.welfare *= 0.9;
+    const milBefore = ai.economy.spendingShares!.military;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.military).toBe(milBefore);
   });
 
   it("не трогает страну игрока", () => {

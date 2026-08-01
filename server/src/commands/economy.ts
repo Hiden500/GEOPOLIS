@@ -136,15 +136,39 @@ export function setMilitaryShare(game: GameState, countryId: string, share: numb
  * величины сдвига (капы, пол) остаётся у вызывающего.
  */
 export function shiftMilitaryToWelfare(game: GameState, countryId: string, shift: number): CommandResult {
+  return moveShare(game, countryId, "military", "welfare", shift);
+}
+
+/**
+ * Обратный ход Правила C: кризис позади — доля возвращается welfare → military
+ * (2026-08-01). Отдельная команда, а не отрицательный `shift` у соседки: имя
+ * команды — это запись о том, ЧТО сделала страна, и «сдвиг military→welfare на
+ * минус два процента» такой записью не является. Границы возврата (стартовая
+ * доля military сверху, стартовая доля welfare снизу) считает вызывающий.
+ */
+export function shiftWelfareToMilitary(game: GameState, countryId: string, shift: number): CommandResult {
+  return moveShare(game, countryId, "welfare", "military", shift);
+}
+
+/**
+ * Общий механизм обоих сдвигов: переносит `shift` доли дохода между статьями и
+ * тут же приводит суммы. Сдвигается ДОЛЯ, а не сумма — иначе следующий
+ * `economyTick`, пересчитывающий суммы из долей, стёр бы перенос.
+ */
+function moveShare(
+  game: GameState,
+  countryId: string,
+  from: "military" | "welfare",
+  to: "military" | "welfare",
+  shift: number
+): CommandResult {
   const country = findCountry(game, countryId);
   if (!country) return { success: false, error: `Unknown country: ${countryId}` };
   const { economy } = country;
   if (!economy.spendingShares) return { success: true };
 
-  // Сдвигается ДОЛЯ дохода, а не сумма: доход в формуле Правила C сокращается,
-  // поэтому в долях она даже проще, чем была.
-  economy.spendingShares.military -= shift;
-  economy.spendingShares.welfare += shift;
+  economy.spendingShares[from] -= shift;
+  economy.spendingShares[to] += shift;
 
   const income = totalIncomeOf(country);
   economy.militarySpending = income * economy.spendingShares.military;

@@ -154,4 +154,45 @@ describe("commands/economy", () => {
       expect(result.success).toBe(false);
     });
   });
+
+  describe("shiftWelfareToMilitary", () => {
+    it("сдвигает ровно amount в обратную сторону и приводит суммы", () => {
+      const game = gameWithUsa();
+      const country = game.countries[0]!;
+      const income = country.economy.taxRevenue + country.economy.exportIncome
+        + country.economy.stateEnterpriseIncome + country.economy.otherIncome;
+      const before = {
+        military: country.economy.spendingShares!.military,
+        welfare: country.economy.spendingShares!.welfare,
+      };
+
+      commands.shiftWelfareToMilitary(game, "USA", 0.02);
+      expect(country.economy.spendingShares!.military).toBeCloseTo(before.military + 0.02, 6);
+      expect(country.economy.spendingShares!.welfare).toBeCloseTo(before.welfare - 0.02, 6);
+      // Суммы обязаны согласоваться с долями сразу, а не к следующему тику.
+      expect(country.economy.militarySpending).toBeCloseTo(income * (before.military + 0.02), 4);
+      expect(country.economy.welfareSpending).toBeCloseTo(income * (before.welfare - 0.02), 4);
+    });
+
+    it("возвращает ровно то, что забрал сдвиг в кризис", () => {
+      const game = gameWithUsa();
+      const country = game.countries[0]!;
+      const before = {
+        military: country.economy.spendingShares!.military,
+        welfare: country.economy.spendingShares!.welfare,
+      };
+
+      commands.shiftMilitaryToWelfare(game, "USA", 0.02);
+      commands.shiftWelfareToMilitary(game, "USA", 0.02);
+
+      expect(country.economy.spendingShares!.military).toBeCloseTo(before.military, 9);
+      expect(country.economy.spendingShares!.welfare).toBeCloseTo(before.welfare, 9);
+    });
+
+    it("отклоняет неизвестную страну", () => {
+      const game = gameWithUsa();
+      const result = commands.shiftWelfareToMilitary(game, "GHOST", 0.02);
+      expect(result.success).toBe(false);
+    });
+  });
 });
