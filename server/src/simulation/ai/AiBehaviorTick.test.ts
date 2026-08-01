@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { aiBehaviorTick } from "./AiBehaviorTick";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
-import { THREAT_LEVEL, INFLUENCE_GRAVITY } from "@shared/defines/ai";
+import { THREAT_LEVEL, INFLUENCE_GRAVITY, MILITARY_CAP_SHARE } from "@shared/defines/ai";
 import { type Country } from "@shared/types/Country";
 
 // Хелпер: страна с заданным id и переопределением экономики/дипломатии/военки.
@@ -22,8 +22,10 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
 
     aiBehaviorTick(game);
 
-    expect(ai.economy.militarySpending).toBeCloseTo(30_000_000_000 * 0.95, 0);
-    expect(ai.economy.welfareSpending).toBeCloseTo(15_000_000_000 * 0.95, 0);
+    // Режется ДОЛЯ (2026-08-01): сумма — производная от неё и от дохода,
+    // поэтому проверять надо источник, а не следствие.
+    expect(ai.economy.spendingShares!.military).toBeCloseTo((30 / 180) * 0.95, 6);
+    expect(ai.economy.spendingShares!.welfare).toBeCloseTo((15 / 180) * 0.95, 6);
   });
 
   it("не урезает, если бюджет не в дефиците", () => {
@@ -50,14 +52,16 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
 
   it("не урезает ниже пола (50% старта)", () => {
     const ai = country("AI", {
-      economy: { ...createTestCountry().economy, budgetBalance: -1, debt: HIGH_DEBT, militarySpending: 15_000_000_000 },
+      economy: { ...createTestCountry().economy, budgetBalance: -1, debt: HIGH_DEBT },
     });
+    const floor = ai.economy.spendingFloor!.militarySpending;
+    ai.economy.spendingShares!.military = floor; // уже на полу
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [ai] });
 
     aiBehaviorTick(game);
 
-    // 15e9 × 0.95 = 14.25e9 < пол 15e9 → остаётся на полу
-    expect(ai.economy.militarySpending).toBe(15_000_000_000);
+    // floor × 0.95 < floor → остаётся на полу
+    expect(ai.economy.spendingShares!.military).toBeCloseTo(floor, 9);
   });
 
   it("не трогает страну игрока", () => {
@@ -109,7 +113,7 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
 
     aiBehaviorTick(game);
 
-    expect(rival.economy.militarySpending).toBeCloseTo(30_000_000_000 * 1.05, 0);
+    expect(rival.economy.spendingShares!.military).toBeCloseTo((30 / 180) * 1.05, 6);
   });
 
   it("балансировка: со-угрожаемые соперники сближаются (контр-блок, +5 обоюдно)", () => {
@@ -170,14 +174,13 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
   });
 
   it("military не превышает потолок 40% дохода", () => {
-    // income фикстуры = 100+50+20+10 = 180e9 → потолок 72e9. Старт уже у потолка.
     const rival = weakRival("RIVAL", -20);
-    rival.economy.militarySpending = 72_000_000_000;
+    rival.economy.spendingShares!.military = MILITARY_CAP_SHARE; // старт уже у потолка
     const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer("RIVAL"), rival] });
 
     aiBehaviorTick(game);
 
-    expect(rival.economy.militarySpending).toBe(72_000_000_000);
+    expect(rival.economy.spendingShares!.military).toBe(MILITARY_CAP_SHARE);
   });
 });
 
@@ -192,12 +195,21 @@ describe("aiBehaviorTick — Правило C (низкая stability → welfar
     c.economy.otherIncome = 100;
     c.economy.militarySpending = 500;
     c.economy.welfareSpending = 100;
+    // Пол и доли — ДОЛИ дохода 1800 (2026-08-01): у военных запас над полом
+    // 500/1800 − 200/1800, у welfare место до потолка.
     c.economy.spendingFloor = {
-      militarySpending: 200,
-      researchSpending: 50,
-      educationSpending: 50,
-      infrastructureSpending: 50,
-      welfareSpending: 50,
+      militarySpending: 200 / 1800,
+      researchSpending: 50 / 1800,
+      educationSpending: 50 / 1800,
+      infrastructureSpending: 50 / 1800,
+      welfareSpending: 50 / 1800,
+    };
+    c.economy.spendingShares = {
+      military: 500 / 1800,
+      research: 100 / 1800,
+      education: 100 / 1800,
+      infrastructure: 100 / 1800,
+      welfare: 100 / 1800,
     };
     return c;
   }

@@ -84,16 +84,15 @@ function applyStabilityWelfareNudge(game: GameState, c: Country): void {
   );
   if (stability >= STABILITY_LOW || !c.economy.spendingFloor) return;
 
-  const income = totalIncome(c);
-  if (income <= 0) return;
+  const shares = c.economy.spendingShares;
+  if (!shares) return;
+  if (shares.welfare >= WELFARE_CAP_SHARE) return;
 
-  const welfareCap = income * WELFARE_CAP_SHARE;
-  if (c.economy.welfareSpending >= welfareCap) return;
-
+  // Все три ограничителя — доли дохода, поэтому сам доход в формуле не нужен.
   const shift = Math.min(
-    income * WELFARE_SHIFT_RATE,
-    welfareCap - c.economy.welfareSpending,
-    c.economy.militarySpending - c.economy.spendingFloor.militarySpending
+    WELFARE_SHIFT_RATE,
+    WELFARE_CAP_SHARE - shares.welfare,
+    shares.military - c.economy.spendingFloor.militarySpending
   );
 
   if (shift <= 0) return;
@@ -122,9 +121,13 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
     if (relToPlayer < 0) {
       // Балансировка — страна не любит игрока: вооружается и сближается с другими
       // угрожаемыми соперниками (контр-блок), сопротивляется влиянию игрока.
-      const cap = totalIncome(c) * MILITARY_CAP_SHARE;
-      if (c.economy.militarySpending < cap) {
-        economyCommands.setMilitarySpending(game, c.id, Math.min(c.economy.militarySpending * MILITARY_RAMP, cap));
+      // В ДОЛЯХ доход сокращается: кап и ramp выражаются прямо через них
+      // (2026-08-01). Раньше и кап, и ramp считались от суммы, а сумма у ИИ
+      // не следовала за доходом — поэтому «военный ответ» слабел с каждым
+      // годом, хотя страна богатела.
+      const share = c.economy.spendingShares?.military ?? 0;
+      if (share < MILITARY_CAP_SHARE) {
+        economyCommands.setMilitaryShare(game, c.id, Math.min(share * MILITARY_RAMP, MILITARY_CAP_SHARE));
       }
 
       for (const other of threatened) {

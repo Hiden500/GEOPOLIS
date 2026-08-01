@@ -1,4 +1,5 @@
 import { type GameState } from "@shared/types/GameState";
+import { type Country } from "@shared/types/Country";
 import { type EquipmentType } from "@shared/types/military/EquipmentType";
 import { type UpdateBudgetInput } from "../validation/schemas";
 import { ResearchService } from "../services/ResearchService";
@@ -79,24 +80,53 @@ export function applyDeficitAusterityCut(
   if (!country) return { success: false, error: `Unknown country: ${countryId}` };
 
   const { economy } = country;
-  if (!economy.spendingFloor) return { success: true };
+  if (!economy.spendingFloor || !economy.spendingShares) return { success: true };
 
+  // Режется ДОЛЯ, а не сумма (2026-08-01). Абсолютное урезание стиралось бы
+  // следующим `economyTick`, который пересчитывает суммы из долей; до перевода
+  // расходов ИИ на доли этой проблемы не было, потому что и пересчёта не было.
   for (const key of keys) {
-    economy[key] = Math.max(economy[key] * cutRate, economy.spendingFloor[key]);
+    const share = SHARE_KEY[key];
+    economy.spendingShares[share] = Math.max(
+      economy.spendingShares[share] * cutRate,
+      economy.spendingFloor[key]
+    );
+    // Сумма приводится сразу же: следующий тик всё равно её пересчитает, но
+    // между командой и тиком состояние обязано быть согласованным — иначе
+    // читатель внутри того же хода увидит долю и сумму, говорящие разное.
+    economy[key] = totalIncomeOf(country) * economy.spendingShares[share];
   }
   return { success: true };
 }
 
+/** Соответствие абсолютной статьи расходов и её доли в доходе. */
+const SHARE_KEY = {
+  militarySpending: "military",
+  researchSpending: "research",
+  educationSpending: "education",
+  infrastructureSpending: "infrastructure",
+  welfareSpending: "welfare",
+} as const satisfies Record<SpendKey, keyof NonNullable<Country["economy"]["spendingShares"]>>;
+
+/** Доход, от которого считаются доли, — тот же набор слагаемых, что в EconomyTick. */
+function totalIncomeOf(country: Country): number {
+  const e = country.economy;
+  return e.taxRevenue + e.exportIncome + e.stateEnterpriseIncome + e.otherIncome;
+}
+
 /**
  * Точная обёртка формулы AiBehaviorTick Правило B (военный ramp угрожаемого
- * соперника, капнутый долей дохода) — абсолютный сеттер, кап и скорость
- * ramp'а по-прежнему считает вызывающий.
+ * соперника): задаёт ДОЛЮ дохода и сразу приводит сумму. Кап и скорость ramp'а
+ * по-прежнему считает вызывающий.
  */
-export function setMilitarySpending(game: GameState, countryId: string, value: number): CommandResult {
+export function setMilitaryShare(game: GameState, countryId: string, share: number): CommandResult {
   const country = findCountry(game, countryId);
   if (!country) return { success: false, error: `Unknown country: ${countryId}` };
+  const { economy } = country;
+  if (!economy.spendingShares) return { success: true };
 
-  country.economy.militarySpending = value;
+  economy.spendingShares.military = Math.max(0, share);
+  economy.militarySpending = totalIncomeOf(country) * economy.spendingShares.military;
   return { success: true };
 }
 
@@ -105,12 +135,20 @@ export function setMilitarySpending(game: GameState, countryId: string, value: n
  * military→welfare): сдвигает ровно `amount` между двумя статьями. Расчёт
  * величины сдвига (капы, пол) остаётся у вызывающего.
  */
-export function shiftMilitaryToWelfare(game: GameState, countryId: string, amount: number): CommandResult {
+export function shiftMilitaryToWelfare(game: GameState, countryId: string, shift: number): CommandResult {
   const country = findCountry(game, countryId);
   if (!country) return { success: false, error: `Unknown country: ${countryId}` };
+  const { economy } = country;
+  if (!economy.spendingShares) return { success: true };
 
-  country.economy.militarySpending -= amount;
-  country.economy.welfareSpending += amount;
+  // Сдвигается ДОЛЯ дохода, а не сумма: доход в формуле Правила C сокращается,
+  // поэтому в долях она даже проще, чем была.
+  economy.spendingShares.military -= shift;
+  economy.spendingShares.welfare += shift;
+
+  const income = totalIncomeOf(country);
+  economy.militarySpending = income * economy.spendingShares.military;
+  economy.welfareSpending = income * economy.spendingShares.welfare;
   return { success: true };
 }
 
