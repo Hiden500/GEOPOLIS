@@ -44,11 +44,11 @@ import {
 /**
  * Налог/доход/расходы/баланс бюджета. taxRevenue следует за gdp (taxRate
  * выводится в createGame); остальные компоненты дохода пока статичны —
- * см. docs/DECISIONS.md. Если игрок задал spendingShares (PUT /budget,
- * см. docs/DECISIONS.md 2026-07-04 "Бюджет: доли/проценты"), *Spending
- * пересчитываются из income × доля каждый тик — тот же паттерн, что
- * taxRate → taxRevenue выше. ИИ-страны spendingShares не имеют — их
- * *Spending остаются абсолютными числами, которые двигает AiBehaviorTick.
+ * см. docs/DECISIONS.md. `spendingShares` есть у КАЖДОЙ страны, не только у
+ * игрока (2026-08-01, `CreateGame.ts`): *Spending пересчитываются из
+ * income × доля каждый тик — тот же паттерн, что taxRate → taxRevenue выше.
+ * Игрок задаёт свои доли через PUT /budget (docs/DECISIONS.md 2026-07-04
+ * "Бюджет: доли/проценты"), доли ИИ двигает AiBehaviorTick.
  */
 function updateBudget(country: Country): { income: number; expenses: number } {
   const economy = country.economy;

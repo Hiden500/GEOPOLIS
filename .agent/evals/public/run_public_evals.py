@@ -111,6 +111,38 @@ def validate_living_docs() -> None:
         lines = target.read_text(encoding="utf-8").count("\n") + 1
         check(lines <= limit, f"{path} stays under {limit} lines (now {lines})")
 
+    # Штамп свежести «Last updated:» — одна короткая строка, не сводка сессии.
+    #
+    # Заведено 2026-08-01 по факту: лимит выше меряет СТРОКИ, и сводки сессий
+    # переехали в однострочный штамп — мержи накопили в DECISIONS.md пять
+    # штампов по ~38 000 символов (в TODO.md — 9 400, в POLITICS.md — 1 100),
+    # файлы стали нечитаемы при зелёном пороге. Лимит строк без лимита длины
+    # строки — ворота для Гудхарта; содержимое штампов дублировало обычные
+    # записи журнала, то есть терялась только читаемость, не информация.
+    # Архив/провенанс/bootstrap исключены: они фиксируют прошлое как есть.
+    stamp_hits: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        rel = str(doc.relative_to(ROOT)).replace("\\", "/")
+        if rel.startswith(("docs/decisions/", "docs/provenance/", "docs/agent/")):
+            continue
+        stamps = [
+            (number, line)
+            for number, line in enumerate(
+                doc.read_text(encoding="utf-8", errors="replace").splitlines(), start=1
+            )
+            if line.startswith("Last updated:")
+        ]
+        if len(stamps) > 1:
+            stamp_hits.append(f"{rel}: {len(stamps)} stamps (expected 1)")
+        for number, line in stamps:
+            if len(line) > 300:
+                stamp_hits.append(f"{rel}:{number} ({len(line)} chars)")
+    check(
+        not stamp_hits,
+        "Last updated stamps are single and short (<=300 chars)",
+        "; ".join(stamp_hits[:5]),
+    )
+
 
 def validate_no_conflict_markers() -> None:
     """Неразрешённые маркеры конфликта в отслеживаемых текстовых файлах.
@@ -356,8 +388,11 @@ def validate_instructions_and_skills() -> None:
 
 
 def validate_experiment_layer() -> None:
+    # CHARTER.proposed.md удалён аудитом 2026-08-01: провисел в статусе
+    # PROPOSED без движения с 2026-07-23, а всё нормативное содержимое
+    # дублировало AGENTS.md (12 правил, сверено построчно). Границы держит
+    # AGENTS.md; проверки текста charter удалены вместе с файлом.
     required = (
-        ".agent/CHARTER.proposed.md",
         ".agent/PLANS.md",
         ".agent/EVOLUTION.md",
         ".agent/audits/baseline.md",
@@ -367,11 +402,6 @@ def validate_experiment_layer() -> None:
     )
     for path in required:
         check((ROOT / path).is_file(), f"Experiment artifact exists: {path}")
-
-    charter = read(".agent/CHARTER.proposed.md")
-    check("PROPOSAL" in charter, "Charter is explicitly marked as a proposal")
-    check("не является неизменяемой" in charter, "Charter disclaims fake immutability")
-    check("protected surfaces" in charter, "Charter proposes explicit protected surfaces")
 
     schema = load_json(ROOT / ".agent/run-record.schema.json")
     required_keys = set(schema.get("required", [])) if isinstance(schema, dict) else set()

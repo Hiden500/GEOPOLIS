@@ -10,6 +10,7 @@ import {
 } from "../createProvider";
 import { GeminiProvider } from "../GeminiProvider";
 import { parseOpenAIUsage } from "../../tokenTelemetry";
+import { JSON_ONLY_INSTRUCTION } from "../../jsonOnlyInstruction";
 
 /** Успешный ответ рантайма в OpenAI-форме. */
 function okResponse(content: string, usage?: Record<string, unknown>) {
@@ -33,6 +34,7 @@ const LOCAL_ENV = [
   "LOCAL_LLM_MAX_TOKENS",
   "LOCAL_LLM_REASONING",
   "LOCAL_LLM_TEMPERATURE",
+  "LOCAL_LLM_RESPONSE_FORMAT",
   "LOCAL_LLM_API_KEY",
   "LOCAL_LLM_TIMEOUT_MS",
   "LLM_PROVIDER",
@@ -57,22 +59,73 @@ describe("LocalOpenAIProvider", () => {
     vi.unstubAllGlobals();
   });
 
-  it("отправляет json_schema ВСЕГДА, даже когда схему не передали", async () => {
-    // Главный вывод замера: без грамматики локальная модель дала 0/10
-    // схема-валидных против 10/10 с ней. Поэтому схема здесь не опция.
+  it("по умолчанию НЕ шлёт response_format, а требует JSON инструкцией в конце промта", async () => {
+    // Замер (.agent/runs/gemini-prompt-modes-2026-08-01, 140 вызовов): без
+    // инструкции ответ приходил в markdown-заборе 60 раз из 60 ОДИНАКОВО при
+    // strict-схеме, при нестрогой, при json_object и вообще без
+    // response_format; с инструкцией — 0 из 80. Шлюз схему принимает, но не
+    // применяет, поэтому формат держит промт, а не параметр запроса.
     vi.mocked(fetch).mockResolvedValue(okResponse('{"title":"x"}'));
+    await new LocalOpenAIProvider().generateResponse("prompt");
+
+    const body = bodyOf();
+    expect(body.response_format).toBeUndefined();
+    expect(body.messages[0].content).toContain(JSON_ONLY_INSTRUCTION);
+  });
+
+  it("ставит инструкцию именно в КОНЕЦ промта, не в начало и не вместо него", async () => {
+    // Позиция — часть замеренного условия: инструкция работала последней
+    // строкой промта. Тест на «инструкция где-то есть» пропустил бы перестановку.
+    vi.mocked(fetch).mockResolvedValue(okResponse("{}"));
+    await new LocalOpenAIProvider().generateResponse("ХОД ПАРТИИ");
+
+    const content: string = bodyOf().messages[0].content;
+    expect(content.startsWith("ХОД ПАРТИИ")).toBe(true);
+    expect(content.trimEnd().endsWith(JSON_ONLY_INSTRUCTION)).toBe(true);
+  });
+
+  it("возвращает прежнее поведение по LOCAL_LLM_RESPONSE_FORMAT=json_schema", async () => {
+    // Откат должен восстанавливать СТАРОЕ состояние целиком: схема на месте,
+    // промт без добавки. Откат, меняющий заодно промт, не даёт отличить
+    // регрессию формата от регрессии промта.
+    process.env.LOCAL_LLM_RESPONSE_FORMAT = "json_schema";
+    vi.mocked(fetch).mockResolvedValue(okResponse("{}"));
     await new LocalOpenAIProvider().generateResponse("prompt");
 
     const body = bodyOf();
     expect(body.response_format.type).toBe("json_schema");
     expect(body.response_format.json_schema.strict).toBe(true);
     expect(body.response_format.json_schema.schema).toBeTruthy();
+    expect(body.messages[0].content).toBe("prompt");
+  });
+
+  it("шлёт json_object и инструкцию по LOCAL_LLM_RESPONSE_FORMAT=json_object", async () => {
+    process.env.LOCAL_LLM_RESPONSE_FORMAT = "json_object";
+    vi.mocked(fetch).mockResolvedValue(okResponse("{}"));
+    await new LocalOpenAIProvider().generateResponse("prompt");
+
+    const body = bodyOf();
+    expect(body.response_format).toEqual({ type: "json_object" });
+    expect(body.messages[0].content).toContain(JSON_ONLY_INSTRUCTION);
+  });
+
+  it("падает на опечатке в LOCAL_LLM_RESPONSE_FORMAT вместо тихого отката", async () => {
+    // Тихий откат увёл бы ходы в другой способ запроса формата незаметно —
+    // та же причина, что у опечатки в LLM_PROVIDER.
+    process.env.LOCAL_LLM_RESPONSE_FORMAT = "json-schema";
+    vi.mocked(fetch).mockResolvedValue(okResponse("{}"));
+
+    await expect(new LocalOpenAIProvider().generateResponse("prompt")).rejects.toThrow(
+      /LOCAL_LLM_RESPONSE_FORMAT/
+    );
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it("ужесточает схему под strict: additionalProperties=false и required по всем свойствам", async () => {
     // В strict-режиме сервер отвергает САМУ схему, если required короче
     // properties. Без этой доводки провайдер падал бы на любом необязательном
     // поле Zod, а причина выглядела бы как дефект модели.
+    process.env.LOCAL_LLM_RESPONSE_FORMAT = "json_schema";
     vi.mocked(fetch).mockResolvedValue(okResponse("{}"));
     const schema = z.object({ required: z.string(), optional: z.string().optional() });
     await new LocalOpenAIProvider().generateResponse("prompt", schema);

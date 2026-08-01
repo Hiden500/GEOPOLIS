@@ -1,4 +1,0 @@
-interface:
-  display_name: "Run Read-Only QA"
-  short_description: "Product verification without auto-fixes"
-  default_prompt: "Use $qa to verify the requested behavior, record evidence, and report defects without modifying the product."

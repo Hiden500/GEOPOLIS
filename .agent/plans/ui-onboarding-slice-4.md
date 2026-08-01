@@ -1,6 +1,6 @@
 # UI-онбординг — план 12, Срез 4
 
-Status: active
+Status: blocked (2026-08-01, аудит инфраструктуры: подтверждённый mobile blocker из Final outcome + заморозка UI-трека до решения о канонической линии, см. docs/TODO.md «Постоянные рамки»)
 Owner: Codex
 Starting commit: a7c3142c0cd0459366a6c7f426fa07b92415f2a3
 

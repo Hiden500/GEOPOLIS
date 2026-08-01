@@ -1,4 +1,0 @@
-interface:
-  display_name: "Investigate Root Cause"
-  short_description: "Read-only root-cause diagnosis"
-  default_prompt: "Use $investigate to diagnose this failure and report the verified root cause without modifying files."

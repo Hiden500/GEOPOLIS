@@ -146,12 +146,20 @@ describe("живой сценарий 1946: построенное пережи�
       const subject = sorted[Math.floor(sorted.length / 2)]!;
 
       const gdp0 = subject.economy.gdp;
-      subject.economy.spendingShares = { ...(buildsFirst ? HIGH : LOW) };
-      for (let month = 0; month < 60; month++) simulateMonth(game);
+
+      // Роспись переназначается КАЖДЫЙ месяц (2026-08-01): правила ИИ теперь
+      // двигают сами доли, и однократной установки хватало бы лишь до первого
+      // дефицита. Тесту нужен заданный режим вложений, а не борьба с тиком.
+      for (let month = 0; month < 60; month++) {
+        subject.economy.spendingShares = { ...(buildsFirst ? HIGH : LOW) };
+        simulateMonth(game);
+      }
 
       // Вторая половина одинакова у обоих — дальше говорит только наследие.
-      subject.economy.spendingShares = { ...LOW };
-      for (let month = 0; month < 60; month++) simulateMonth(game);
+      for (let month = 0; month < 60; month++) {
+        subject.economy.spendingShares = { ...LOW };
+        simulateMonth(game);
+      }
 
       return {
         growth: subject.economy.gdp / gdp0,
