@@ -124,12 +124,15 @@ describe("simulateMonth — детерминированные вехи (pending
                     unemployment: 50, // > STABILITY_HIGH_UNEMPLOYMENT_THRESHOLD(15)
                     inflation: 100, // > STABILITY_HIGH_INFLATION_THRESHOLD(20)
                     gdp: 1_000_000_000,
-                    // Доход ~0, огромный расход -> budgetBalance после updateBudget()
-                    // глубоко отрицателен относительно gdp (> STABILITY_SEVERE_DEFICIT_GDP_SHARE=0.05).
-                    taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
-                    militarySpending: 1_000_000_000, researchSpending: 0, educationSpending: 0,
+                    // Дефицит задаётся ДОЛЯМИ (2026-08-01): updateBudget() считает
+                    // суммы как доход × доля, поэтому абсолютный оверрайд расхода
+                    // затирается. Доход 100M, военная доля 10 -> расход 1B,
+                    // дефицит 0.9 gdp (> STABILITY_SEVERE_DEFICIT_GDP_SHARE=0.05).
+                    taxRevenue: 100_000_000, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
+                    researchSpending: 0, educationSpending: 0,
                     infrastructureSpending: 0, welfareSpending: 0, debt: 0, debtInterest: 0, otherExpenses: 0,
                     importSpending: 0,
+                    spendingShares: { military: 10, research: 0, education: 0, infrastructure: 0, welfare: 0 },
                 },
             })],
         });

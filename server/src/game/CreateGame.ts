@@ -69,12 +69,31 @@ function deriveCountryEconomy(country: Country): void {
   e.budgetBalance = income - expenses;
 
   // Снимок пола дискреционных расходов (50% старта) для ИИ-аустерити (Правило A).
+  // Доли расходов — источник истины для КАЖДОЙ страны, не только игрока
+  // (2026-08-01). Расходы ИИ раньше были абсолютными числами, которые правила
+  // умели только уменьшать: доход рос, расходы стояли, доля military падала
+  // 16,00% → 6,95% за 120 месяцев, а Правило C умирало за первый год. Теперь
+  // `economyTick` пересчитывает суммы из долей каждый тик — и у игрока, и у ИИ.
+  //
+  // Доли берутся из АВТОРСКОГО профиля, а не из посчитанных выше сумм: суммы
+  // выведены от внутреннего дохода без экспорта, а доли обязаны означать ровно
+  // то, что записал автор данных.
+  e.spendingShares = {
+    military: p.spending.military,
+    research: p.spending.research,
+    education: p.spending.education,
+    infrastructure: p.spending.infrastructure,
+    welfare: p.spending.welfare,
+  };
+
+  // Пол аустерити — половина стартовой ДОЛИ (шкала сменилась вместе с расходами:
+  // фиксированная сумма перестала быть полом, как только доход стал расти).
   e.spendingFloor = {
-    militarySpending: e.militarySpending * 0.5,
-    researchSpending: e.researchSpending * 0.5,
-    educationSpending: e.educationSpending * 0.5,
-    infrastructureSpending: e.infrastructureSpending * 0.5,
-    welfareSpending: e.welfareSpending * 0.5,
+    militarySpending: p.spending.military * 0.5,
+    researchSpending: p.spending.research * 0.5,
+    educationSpending: p.spending.education * 0.5,
+    infrastructureSpending: p.spending.infrastructure * 0.5,
+    welfareSpending: p.spending.welfare * 0.5,
   };
 }
 

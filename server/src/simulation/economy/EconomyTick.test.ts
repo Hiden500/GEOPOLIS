@@ -176,7 +176,9 @@ describe("economyTick", () => {
           gdp: 1_000_000_000_000,
           taxRate: 0.001, taxRevenue: 1_000_000_000, // мизерный доход
           exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0, importSpending: 0,
-          militarySpending: 50_000_000_000, researchSpending: 0, educationSpending: 0,
+          // Расход — ДОЛЯ дохода (2026-08-01): 50 × 1B = 50B, как раньше задавалось суммой.
+          spendingShares: { military: 50, research: 0, education: 0, infrastructure: 0, welfare: 0 },
+          researchSpending: 0, educationSpending: 0,
           infrastructureSpending: 0, welfareSpending: 0, otherExpenses: 0,
           treasury: 0, debt: 0,
           ...overrides,
