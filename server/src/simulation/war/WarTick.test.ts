@@ -106,11 +106,11 @@ describe("warTick", () => {
 
   it("combined-arms бонус может решить исход при равной численности (2026-07-06)", () => {
     const strongArms = {
-      armor: TIER_PROGRESS_THRESHOLD * 11,
-      infantry: TIER_PROGRESS_THRESHOLD * 11,
-      aviation: TIER_PROGRESS_THRESHOLD * 11,
-      naval: TIER_PROGRESS_THRESHOLD * 11,
-    }; // тир 11 в каждом военном домене → мультипликатор 1.55 (1 + 11*0.05)
+      armor: TIER_PROGRESS_THRESHOLD * 20,
+      infantry: TIER_PROGRESS_THRESHOLD * 20,
+      aviation: TIER_PROGRESS_THRESHOLD * 20,
+      naval: TIER_PROGRESS_THRESHOLD * 20,
+    }; // тир 20 в каждом военном домене → мультипликатор 2.0 (1 + 20*0.05)
 
     const game = createTestGameState({
       countries: [
@@ -126,8 +126,14 @@ describe("warTick", () => {
 
     warTick(game);
 
-    // При равном activePersonnel (фикстура) один combined-arms бонус (1.55x
-    // vs 1x) превышает FLIP_THRESHOLD_RATIO=1.5 — регион обороны оккупируется.
+    // При равном activePersonnel (фикстура) перевес даёт один combined-arms
+    // бонус. Требуемая величина выросла 2026-07-31 вместе с переходом на
+    // локальную боевую мощь: обороняющийся регион добавляет к защите свою
+    // инфраструктуру (REGION_DEFENSE_INFRASTRUCTURE_WEIGHT), поэтому порога
+    // 1.5x стало мало — при infrastructure 0.6 фикстуры нужен перевес
+    // 1.5 × (1 + 0.6 × 0.5) = 1.95x. Тир поднят с 11 до 20 именно поэтому:
+    // свойство «техническое превосходство решает исход» осталось прежним,
+    // изменилась только цена входа.
     expect(game.regions[1]!.ownerCountryId).toBe("USSR");
     expect(game.regions[1]!.occupiedBy).toBe("USA");
     expect(game.wars[0]!.territoryFlips).toEqual({ toAttackers: 1, toDefenders: 0 });
@@ -311,12 +317,19 @@ describe("warTick", () => {
       warTick(game);
 
       // Равная (крошечная) сила → фронт стоит, 10 000 потерь/сторона.
-      // activePersonnel 5 000 обнуляется, переполнение 5 000 → население.
+      //
+      // ЧИСЛА ПЕРЕСЧИТАНЫ 2026-07-31 вместе с потолком убыли армии
+      // (MAX_MONTHLY_ARMY_LOSS_SHARE): за месяц армия теряет не больше своей
+      // доли — 15% от 5 000 = 750, — а ВЕСЬ остальной урон по-прежнему уходит
+      // в гражданских и мобилизационный пул. Проверяемое свойство то же самое:
+      // война не ограничивается кадровыми потерями и достаёт до населения.
       const usa = game.countries[0]!;
-      expect(usa.military.activePersonnel).toBe(0);
-      expect(game.regions[0]!.population).toBe(995_000); // 1 000 000 − 5 000 переполнения
-      expect(game.regions[1]!.population).toBe(995_000);
-      expect(usa.military.manpower).toBe(990_000); // весь урон 10 000 из пула
+      expect(usa.military.activePersonnel).toBe(4_250);      // 5 000 − 750
+      // Весь overflow страны идёт в её собственный регион — каждая сторона
+      // контролирует ровно один, делить не на кого.
+      expect(game.regions[0]!.population).toBe(990_750);      // 1 000 000 − 9 250
+      expect(game.regions[1]!.population).toBe(990_750);
+      expect(usa.military.manpower).toBe(990_000);            // весь урон 10 000 из пула
       expect(game.wars[0]!.casualties).toEqual({ USA: 10_000, USSR: 10_000 });
     });
 

@@ -100,3 +100,7 @@ logs/
 
 # Map pipeline sources (external/heavy inputs, kept out of git)
 scripts/map/sources/
+
+# Выгрузки прогонов (server/scripts/runCampaign.ts) — данные замеров, не код.
+# Снимаются заново одной командой, в репозиторий не кладутся.
+.tmp/

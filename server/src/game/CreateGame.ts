@@ -8,6 +8,11 @@ import { RegionEconomyService } from "../services/RegionEconomyService";
 import { assignInitialTiers } from "../simulation/tier/TierTick";
 import { nextRandom } from "@shared/utils/rng";
 import { AI_TRAIT_MIN, AI_TRAIT_MAX } from "@shared/defines/ai";
+import {
+  STARTING_MANPOWER_POPULATION_SHARE,
+  ACTIVE_PERSONNEL_SHARE,
+  RESERVE_PERSONNEL_SHARE,
+} from "@shared/defines/military";
 import { computePlayerStanding } from "@shared/utils/nationalPower";
 import { corruptionBase, legitimacyBase } from "@shared/utils/politics";
 import { resolveIdeologyCoordinates } from "@shared/utils/discontent";
@@ -105,6 +110,29 @@ function seedPoliticsFromStructure(countries: Country[]): void {
  * посев не должен "тратить" сид молча, следующий реальный потребитель
  * game.rng продолжит с этого места, не с исходного seed.
  */
+/**
+ * Сеет стартовую армию из населения страны.
+ *
+ * ЗАЧЕМ. Сценарий 1946 военных полей не содержит (схема их допускает, данных
+ * нет), поэтому мир начинал партию с нулевыми армиями у всех 157 стран — через
+ * полгода после мировой войны. Разбор и замер — у
+ * `STARTING_MANPOWER_POPULATION_SHARE` в `shared/src/defines/military.ts`.
+ *
+ * Величина уважает данные, если они появятся: страна, у которой сценарий задал
+ * `manpower` явно, не трогается. Сегодня таких нет — но разметка армий стоит в
+ * очереди, и механика не должна её потом перетирать.
+ */
+function seedStartingArmies(countries: Country[]): void {
+  for (const country of countries) {
+    const military = country.military;
+    if (military.manpower > 0) continue;
+
+    military.manpower = Math.floor(country.population * STARTING_MANPOWER_POPULATION_SHARE);
+    military.activePersonnel = Math.floor(military.manpower * ACTIVE_PERSONNEL_SHARE);
+    military.reservePersonnel = Math.floor(military.manpower * RESERVE_PERSONNEL_SHARE);
+  }
+}
+
 function seedAiTraits(countries: Country[], seed: number): number {
   let state = seed;
   const range = AI_TRAIT_MAX - AI_TRAIT_MIN;
@@ -164,6 +192,7 @@ export function createGame(
   }
 
   seedPoliticsFromStructure(countries);
+  seedStartingArmies(countries);
 
   // Выставляем начальные тиры (исторические для 1946, иначе minor)
   assignInitialTiers(countries, scenarioId);
