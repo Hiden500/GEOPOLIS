@@ -83,11 +83,11 @@ push и удаление чужих веток инициирует ПОЛЬЗО
 | дерево | ветка | состояние |
 |---|---|---|
 | `stability-low` | `claude/stability-low` | НЕ влита — эта работа |
-| `map-coastline-fixes` | `claude/1946-map-coastline-fixes` | НЕ влита, свежая (2026-08-01) — ждёт интеграции |
+| `map-coastline-fixes` | `claude/1946-map-coastline-fixes` | НЕ влита, свежая (2026-08-01), 1 незакоммиченный файл — сессия, возможно, ещё идёт |
 | `interface-rebuild` | `claude/interface-rebuild` | НЕ влита, с 2026-07-30 без движения |
-| `director-prompt` | `claude/director-prompt` | влита — дерево можно убирать `scripts/worktree-drop.ps1` |
-| `distance-thresholds` | `claude/distance-thresholds` | влита — убирать |
-| `narrative-prompt` | `claude/narrative-prompt` | влита — убирать |
+| `director-prompt` | `claude/director-prompt` | влита, но **2 незакоммиченных файла** (`LocalOpenAIProvider*`) — похоже на живую сессию, НЕ убирать |
+| `distance-thresholds` | `claude/distance-thresholds` | влита, чисто — можно убирать `scripts/worktree-drop.ps1` |
+| `narrative-prompt` | `claude/narrative-prompt` | влита, чисто — можно убирать |
 | вне репозитория | `codex/interface-from-scratch` | чужое (Codex), 2026-07-19 |
 
 Убирать ТОЛЬКО через `scripts/worktree-drop.ps1`: он отказывает на
@@ -116,6 +116,18 @@ push и удаление чужих веток инициирует ПОЛЬЗО
 областей и приоритет; проверять чужие утверждения числами на объединённой базе,
 а не по отчёту сессии. НЕ мержить без разрешения пользователя, не переносить
 задачу между сессиями молча, не выдавать двум сессиям пересекающиеся файлы.
+
+## Где лежат данные, которых нет в коде
+
+- **Прогоны кампании живой моделью** — `.agent/runs/local-llm-campaign-2026-08-01/`
+  (README + два прогона: до и после правки даты в промте, 24 и 12 месяцев).
+  Перенесены туда из scratchpad сессии, где не пережили бы её закрытие. Это
+  базовый материал для промт-инженера: заголовков с названным годом было 0 из
+  24, стало 10 из 12.
+- **Настройки локальной модели** — `.agent/runs/local-llm-runtime-bench-2026-07-30.json`.
+  Без `json_schema` схема-валидных ответов 0 из 10.
+- Черновики в scratchpad сессии (`*.fixed.ts`, `before/after.txt`) воплощены в
+  коммитах и не нужны.
 
 ## Числа, на которые нельзя ссылаться без перезамера
 
