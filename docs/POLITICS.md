@@ -125,7 +125,9 @@ governmentSupport: number
 
 Война как драйвер `legitimacy` — реализовано: `WarService.makePeace`, см.
 `docs/WAR.md`. Нудж P2 "низкая stability → welfare" (Правило C в
-`AiBehaviorTick.ts`) реально работает.
+`AiBehaviorTick.ts`) реально работает и с 2026-08-01 двусторонний: доля
+military возвращается к стартовой, когда stability поднимается выше
+`STABILITY_RECOVERED` (гистерезис в 5 пунктов над порогом кризиса).
 
 ### Равновесие стабильности: якорь сценария вместо порогов (2026-08-01)
 

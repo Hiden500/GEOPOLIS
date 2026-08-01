@@ -59,12 +59,23 @@ export function createTestCountry(overrides: Partial<Country> = {}): Country {
       unemployment: 5.0,
       tradeBalance: -10_000_000_000,
       budgetBalance: 0,
+      // ДОЛИ дохода, не суммы (шкала сменилась 2026-08-01 вместе с переводом
+      // расходов ИИ на доли). Половина стартовых долей типового профиля.
+      // Доли согласованы с суммами выше при доходе 180e9: фикстура, где доля и
+      // сумма говорят разное, ловила бы ошибки, которых нет в продакшне.
       spendingFloor: {
-        militarySpending: 15_000_000_000,
-        researchSpending: 10_000_000_000,
-        educationSpending: 10_000_000_000,
-        infrastructureSpending: 5_000_000_000,
-        welfareSpending: 7_500_000_000,
+        militarySpending: 30 / 180 / 2,
+        researchSpending: 20 / 180 / 2,
+        educationSpending: 20 / 180 / 2,
+        infrastructureSpending: 10 / 180 / 2,
+        welfareSpending: 15 / 180 / 2,
+      },
+      spendingShares: {
+        military: 30 / 180,
+        research: 20 / 180,
+        education: 20 / 180,
+        infrastructure: 10 / 180,
+        welfare: 15 / 180,
       },
     },
     economyType: "market",
