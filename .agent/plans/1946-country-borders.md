@@ -1,5 +1,5 @@
 # Страны и зависимые территории сценария 1946
-Status: active
+Status: blocked (2026-08-01, аудит инфраструктуры: 13 дней без коммитов; ветка `codex/1946-country-borders` — bootstrap-линия, весь UI-трек ждёт решения пользователя о канонической линии, см. docs/TODO.md «Постоянные рамки»)
 Owner: /root
 Starting commit: 3c6cf29
 

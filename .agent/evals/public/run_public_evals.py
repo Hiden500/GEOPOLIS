@@ -388,8 +388,11 @@ def validate_instructions_and_skills() -> None:
 
 
 def validate_experiment_layer() -> None:
+    # CHARTER.proposed.md удалён аудитом 2026-08-01: провисел в статусе
+    # PROPOSED без движения с 2026-07-23, а всё нормативное содержимое
+    # дублировало AGENTS.md (12 правил, сверено построчно). Границы держит
+    # AGENTS.md; проверки текста charter удалены вместе с файлом.
     required = (
-        ".agent/CHARTER.proposed.md",
         ".agent/PLANS.md",
         ".agent/EVOLUTION.md",
         ".agent/audits/baseline.md",
@@ -399,11 +402,6 @@ def validate_experiment_layer() -> None:
     )
     for path in required:
         check((ROOT / path).is_file(), f"Experiment artifact exists: {path}")
-
-    charter = read(".agent/CHARTER.proposed.md")
-    check("PROPOSAL" in charter, "Charter is explicitly marked as a proposal")
-    check("не является неизменяемой" in charter, "Charter disclaims fake immutability")
-    check("protected surfaces" in charter, "Charter proposes explicit protected surfaces")
 
     schema = load_json(ROOT / ".agent/run-record.schema.json")
     required_keys = set(schema.get("required", [])) if isinstance(schema, dict) else set()
