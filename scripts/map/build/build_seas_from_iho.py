@@ -158,6 +158,15 @@ REDUNDANT_MAX_SPAN_DEG = 0.25
 # сравнении с нулём — ни одной.
 COLLINEAR_TOL_DEG = 1e-12
 
+# Курируемые линии раздела: (море A, море B, [(lon,lat), (lon,lat)]).
+# Задаются ПОЛЬЗОВАТЕЛЕМ, правилу не подчиняются. Обе точки Гибралтара —
+# настоящие вершины выпуклой оболочки берега: верхняя на Гибралтаре (0.4 м от
+# вершины), нижняя на Сеуте (0.1 м, Пунта-Альмина). Проверено замером.
+CURATED_DIVIDES = [
+    ("Strait of Gibraltar", "Alboran Sea",
+     [(-5.33906, 36.12385), (-5.29186, 35.89053)]),
+]
+
 # Часть, покрытая соседями выше этой доли, дублирует их воду и удаляется.
 STRAY_COVERED_SHARE = 0.999
 
@@ -179,6 +188,74 @@ PLANAR_IDENTITY_EPS_DEG2 = 1e-14
 # кольца, и buffer(0) чинил его, меняя площадь). Абсолютный порог их не
 # различает: 1e-14 для Гудзонова залива ничто, для Мраморного моря — заметно.
 PLANAR_IDENTITY_REL = 1e-9
+
+
+def apply_curated_divides(feats):
+    """Курируемые линии раздела: заданы пользователем, правилу не подчиняются.
+
+    Правило «остаток достаётся ближайшей исходной акватории» даёт линию,
+    следующую делимитации IHO. Там, где полигон источника генерализован и его
+    линия обрывается в воде, не доходя до берегов, результат формально верен,
+    но по смыслу неточен: у Гибралтара линия упирается в мыс не той вершиной,
+    расхождение с курируемой — 1.15 км в северной точке.
+
+    Вывести привязку к мысам математически пока НЕЛЬЗЯ: замер показал, что
+    нижняя точка выводится (восточнейшая вершина выпуклой оболочки Сеуты —
+    два независимых критерия дают её), а верхняя — нет, ни один из трёх
+    проверенных критериев не воспроизводит выбор пользователя. Обобщать по
+    одному примеру нечего. Кроме того, у 312 из 339 линий раздела оба конца
+    упираются в сушу, но большинство из них — не проливы, а океанские
+    делимитации в тысячи километров: одинаковое правило испортило бы их.
+
+    Поэтому здесь ЯВНЫЙ список, а не эвристика. Каждая запись — решение
+    пользователя, а не вывод скрипта. Механизм общий: следующий такой случай
+    добавляется строкой, без правки кода.
+    """
+    if not CURATED_DIVIDES:
+        return
+    print("\nКурируемые линии раздела...")
+    by_name = {ft["properties"]["name"]: i for i, ft in enumerate(feats)}
+    for name_a, name_b, pts in CURATED_DIVIDES:
+        ia, ib = by_name.get(name_a), by_name.get(name_b)
+        if ia is None or ib is None:
+            print(f"  [ПРОПУСК] нет моря: {name_a} / {name_b}")
+            continue
+        ga, gb = shape(feats[ia]["geometry"]), shape(feats[ib]["geometry"])
+        before_a = area_km2(ga)
+        (x1, y1), (x2, y2) = pts
+        dx, dy = x2 - x1, y2 - y1
+        n = (dx * dx + dy * dy) ** 0.5
+        if n == 0:
+            continue
+        dx, dy = dx / n, dy / n
+        line = LineString([(x1 - dx * DIVIDE_REACH_DEG, y1 - dy * DIVIDE_REACH_DEG),
+                           (x2 + dx * DIVIDE_REACH_DEG, y2 + dy * DIVIDE_REACH_DEG)])
+        union = unary_union([ga, gb])
+        try:
+            chunks = [c for c in shp_split(union, line).geoms if c.area > 0]
+        except Exception as exc:
+            print(f"  [ПРОПУСК] {name_a}|{name_b}: разрез не удался ({exc})")
+            continue
+        if len(chunks) < 2:
+            print(f"  [ПРОПУСК] {name_a}|{name_b}: линия не рассекает пару")
+            continue
+        # сторона определяется по ТЕЛУ каждого моря, а не по порядку осколков
+        sa = side_sign(line, ga.representative_point())
+        put_a, put_b = [], []
+        for c in chunks:
+            (put_a if (side_sign(line, c.representative_point()) > 0) == (sa > 0)
+             else put_b).append(c)
+        if not put_a or not put_b:
+            print(f"  [ПРОПУСК] {name_a}|{name_b}: все осколки по одну сторону")
+            continue
+        new_a = keep_real_water(unary_union(put_a))
+        new_b = keep_real_water(unary_union(put_b))
+        feats[ia]["geometry"] = mapping(new_a)
+        feats[ib]["geometry"] = mapping(new_b)
+        feats[ia]["properties"]["area_km2"] = round(area_km2(new_a), 1)
+        feats[ib]["properties"]["area_km2"] = round(area_km2(new_b), 1)
+        print(f"  {name_a} | {name_b}: {before_a:,.1f} -> {area_km2(new_a):,.1f} км² "
+              f"(линия {n * 111:.2f} км, 2 точки)")
 
 
 def resolve_stray_parts(feats):
@@ -534,6 +611,7 @@ def main():
                 break
 
     if not only:
+        apply_curated_divides(feats)
         resolve_stray_parts(feats)
 
     # Финальная чистка: точки на прямых ничего не описывают.
@@ -591,6 +669,44 @@ def divide_line(a, b, reach_deg=DIVIDE_REACH_DEG):
     dx, dy = dx / n, dy / n
     return LineString([(x1 - dx * reach_deg, y1 - dy * reach_deg),
                        (x2 + dx * reach_deg, y2 + dy * reach_deg)])
+
+
+def side_sign(line, pt):
+    """С какой стороны прямой лежит точка. Знак векторного произведения."""
+    (x1, y1), (x2, y2) = line.coords[0], line.coords[-1]
+    return (x2 - x1) * (pt.y - y1) - (y2 - y1) * (pt.x - x1)
+
+
+def owner_by_side(piece, cands):
+    """Хозяин куска по СТОРОНЕ линии раздела, а не по близости к телам.
+
+    Кусок, который линия не рассекает, лежит целиком с одной её стороны —
+    значит принадлежит морю с этой стороны. Раньше такой кусок отдавался
+    ближайшему исходному полигону, а близость про стороны ничего не знает:
+    прибрежная полоса у Сеуты (2.744 км², западнее линии) доставалась
+    Альборану, и граница Гибралтар|Альборан уходила по краю этой полосы —
+    поперечный хвост 5 км вместо упора в берег (найдено пользователем,
+    подтверждено инструментовкой прогона).
+
+    Возвращает None, если сторону определить нельзя — тогда решает близость.
+    """
+    ordered = sorted(cands, key=lambda c: c[1].distance(piece))[:DIVIDE_MAX_CANDS]
+    probe = piece.representative_point()
+    for i in range(len(ordered)):
+        for j in range(i + 1, len(ordered)):
+            (ia, ga), (ib, gb) = ordered[i], ordered[j]
+            line = divide_line(ga, gb)
+            if line is None:
+                continue
+            s_piece = side_sign(line, probe)
+            if s_piece == 0.0:
+                continue
+            s_a = side_sign(line, ga.representative_point())
+            s_b = side_sign(line, gb.representative_point())
+            if s_a == 0.0 or s_b == 0.0 or (s_a > 0) == (s_b > 0):
+                continue          # обе акватории по одну сторону — линия не та
+            return ia if (s_piece > 0) == (s_a > 0) else ib
+    return None
 
 
 def assign_by_divide(piece, cands, out):
@@ -825,11 +941,17 @@ def fill_by_nearest_source(feats, orig_geoms, land_geoms, land_tree, lake_geoms)
                     fallback += 1
                     path = "СЕТКА"
                 else:
-                    idx = nearest_source_idx(piece.representative_point(), cands)
+                    # Сторона линии раздела важнее близости к телам акваторий:
+                    # кусок, лежащий целиком с одной стороны, принадлежит морю
+                    # с этой стороны, каким бы близким ни был чужой полигон.
+                    idx = owner_by_side(piece, cands)
+                    by_side = idx is not None
+                    if idx is None:
+                        idx = nearest_source_idx(piece.representative_point(), cands)
                     if idx is not None:
                         additions.setdefault(idx, []).append(piece)
                     whole += 1
-                    path = "ЦЕЛИКОМ"
+                    path = "ЦЕЛИКОМ/сторона" if by_side else "ЦЕЛИКОМ/близость"
             else:
                 path = "РАЗРЕЗ"
             if watched:
