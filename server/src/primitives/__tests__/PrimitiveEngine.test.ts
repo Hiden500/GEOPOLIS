@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { type z } from "zod";
 import { applyPrimitiveBatch, restore } from "../PrimitiveEngine";
 import * as politicsCommands from "../../commands/politics";
 import { PRIMITIVE_PALETTE, pathMatchesPaletteEntry } from "../palette";
@@ -14,7 +15,7 @@ import {
   type Primitive,
   type PrimitiveVerb,
 } from "../types";
-import { primitiveSchema, parsePrimitives } from "../primitiveSchemas";
+import { primitiveSchema, parsePrimitives, PRIMITIVE_SCHEMAS } from "../primitiveSchemas";
 import { regionDiscontent } from "@shared/utils/discontent";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
@@ -1380,6 +1381,55 @@ describe("диагностика отказов ограничена сверх�
   });
 });
 
+/**
+ * Числовые листья ветки `params` — обходом фактического Zod-узла, а не
+ * перечислением полей руками (docs/TODO.md, «хвосты Милстоуна 1»: прежний
+ * тест проверял ровно один `params` из восемнадцати).
+ *
+ * Незнакомый узел — СТОП, а не молчаливый пропуск: тот же принцип, что у
+ * `outsideCellReconciliation` в `milestone1Contracts.test.ts` («классификация,
+ * а не фильтр»). Список контейнеров и терминалов ниже — фактическое устройство
+ * сегодняшних `params`-схем (`primitiveSchemas.ts`): `.optional()` вокруг
+ * объекта, поля — строки/перечисления/литералы. Схема заведёт узел, которого
+ * здесь нет (`z.record`, `z.union` и т.п.), — обход бросит исключение вместо
+ * того, чтобы тихо признать его «не числом».
+ */
+const TERMINAL_NON_NUMERIC_ZOD_NODES = new Set([
+  "string", "boolean", "bigint", "date", "literal", "enum", "nan",
+  "undefined", "null", "void", "any", "unknown", "never",
+]);
+
+function numericParamPaths(schema: z.ZodTypeAny, path: readonly string[] = []): string[] {
+  const nodeType = (schema as unknown as { def: { type: string } }).def.type;
+  const at = path.join(".") || "(params)";
+
+  if (nodeType === "number") return [at];
+
+  if (nodeType === "optional" || nodeType === "nullable" || nodeType === "default") {
+    const inner = (schema as unknown as { unwrap(): z.ZodTypeAny }).unwrap();
+    return numericParamPaths(inner, path);
+  }
+
+  if (nodeType === "object") {
+    const shape = (schema as z.ZodObject<z.ZodRawShape>).shape;
+    return Object.entries(shape).flatMap(([key, value]) =>
+      numericParamPaths(value as z.ZodTypeAny, [...path, key])
+    );
+  }
+
+  if (nodeType === "array") {
+    const element = (schema as unknown as { def: { element: z.ZodTypeAny } }).def.element;
+    return numericParamPaths(element, [...path, "[]"]);
+  }
+
+  if (TERMINAL_NON_NUMERIC_ZOD_NODES.has(nodeType)) return [];
+
+  throw new Error(
+    `numericParamPaths: неклассифицированный узел Zod "${nodeType}" на ${at} — ` +
+    "классифицируй явно (числовой лист / контейнер / точно не число), не фильтруй молча."
+  );
+}
+
 describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () => {
   it("схема примитива не принимает ни одного числового параметра величины", () => {
     const withMagnitude = {
@@ -1390,6 +1440,21 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
     };
 
     expect(primitiveSchema.safeParse(withMagnitude).success).toBe(false);
+  });
+
+  it("ни одна ветка params ни одного глагола алфавита не несёт числового поля", () => {
+    // Обход РЕЕСТРА, а не список глаголов руками: `PRIMITIVE_SCHEMAS` —
+    // `Record<PrimitiveVerb, …>` (проверено тестом «реестр схем покрывает весь
+    // алфавит», `milestone1Contracts.test.ts`), поэтому глагол, добавленный в
+    // алфавит и забытый в реестре, не компилируется ещё до этого теста. Обход
+    // здесь идёт по фактическим ЗАПИСЯМ реестра — новый глагол алфавита
+    // попадает под проверку сам, без правки этого файла.
+    const offenders = Object.entries(PRIMITIVE_SCHEMAS).flatMap(([verb, schema]) => {
+      const paramsField = (schema as z.ZodObject<z.ZodRawShape>).shape.params;
+      return numericParamPaths(paramsField as z.ZodTypeAny).map(path => `${verb}.params.${path}`);
+    });
+
+    expect(offenders).toEqual([]);
   });
 
   it("params допускает только качественные перечисления", () => {
