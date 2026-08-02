@@ -986,6 +986,20 @@ describe("одноразовые данные промта переживают 
 
     const prompt = new LLMService(game).generatePrompt().prompt;
     expect(prompt).toContain("999998");
-    expect(prompt).not.toContain(`region ${TEST_REGION_NATIONAL}`);
+    // Проверка сужена до секции ОТКАЗОВ (2026-08-02). Прежняя искала
+    // `region ${id}` по всему промту и стала неверной, как только у промта
+    // появилась секция `## Regions You Can Address`: имя региона в фикстуре —
+    // «National region 187», и подстрока законно находится в списке ЦЕЛЕЙ, к
+    // одноразовым фактам отношения не имеющем. Свойство, которое тест
+    // защищает, — «списанный факт не возвращается в отказы», и проверять его
+    // надо там, где он живёт. Тот же дефект, что у сторожа `annex`/`puppet`
+    // (docs/TODO.md): проверка подстроки по всему тексту ловит законные
+    // употребления.
+    const rejectedSection = prompt.slice(
+      prompt.indexOf("## Rejected Attempts Last Cycle"),
+      prompt.indexOf("## Historical Context")
+    );
+    expect(rejectedSection).toContain("999998");
+    expect(rejectedSection).not.toContain(String(TEST_REGION_NATIONAL));
   });
 });

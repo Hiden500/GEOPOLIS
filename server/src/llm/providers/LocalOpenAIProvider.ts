@@ -184,6 +184,16 @@ export class LocalOpenAIProvider implements LLMProvider {
     const reasoning = process.env.LOCAL_LLM_REASONING;
     if (reasoning) body.reasoning_effort = reasoning;
 
+    // Температура НЕ задаётся по умолчанию: в игре разнообразие ходов — часть
+    // продукта, и рантайм вправе применять собственный дефолт модели. Но у
+    // замера «до/после» требование обратное: два прогона ОДНОГО промта обязаны
+    // давать одно и то же, иначе разницу в числах нельзя отнести к правке
+    // промта, а не к жребию сэмплирования. Отсюда переменная, а не константа:
+    // `LOCAL_LLM_TEMPERATURE=0` включает воспроизводимый режим на время
+    // измерений и не меняет живую игру.
+    const temperature = finiteFloatFromEnv("LOCAL_LLM_TEMPERATURE");
+    if (temperature !== undefined) body.temperature = temperature;
+
     const headers = localHeaders();
 
     let response: Response;
@@ -246,6 +256,20 @@ export class LocalOpenAIProvider implements LLMProvider {
 
     return text;
   }
+}
+
+/**
+ * Дробное значение из переменной окружения, у которого НОЛЬ — законный вход.
+ * Отдельная функция, а не флаг у `positiveIntFromEnv`: там ноль отбрасывается
+ * намеренно (нулевой лимит токенов — поломка), здесь ноль и есть рабочий режим.
+ * Мусор в переменной даёт `undefined` — параметр просто не отправляется, и
+ * рантайм берёт свой дефолт, вместо того чтобы получить `NaN`.
+ */
+function finiteFloatFromEnv(name: string): number | undefined {
+  const raw = process.env[name];
+  if (raw === undefined || raw.trim() === "") return undefined;
+  const parsed = Number.parseFloat(raw);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function positiveIntFromEnv(name: string, fallback: number): number {

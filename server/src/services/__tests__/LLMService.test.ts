@@ -72,6 +72,113 @@ describe("LLMService", () => {
       expect(prompt).not.toContain("influence: no magnitude field");
     });
 
+    it("карточка spotlight-страны несёт идеологию и подчинённость, а не только ВВП", () => {
+      // Промт ТРЕБУЕТ дать таким странам конкретный сюжетный ход, а давал три
+      // числа. Союзы и вражда просились в карточку первыми, но на данных 1946
+      // они пусты у ВСЕХ 147 стран ротации — наживаются партией. Идеология есть
+      // у всех, подчинённость — у 87 из 147, и это готовый конфликт эпохи.
+      // Базовые поля политики берутся у самой фикстуры: `PoliticsState` —
+      // полный тип, и частичный литерал не компилируется. Копировать числа
+      // руками нельзя: тест начал бы фиксировать их значения, а он не про них.
+      const basePolitics = createTestCountry().politics;
+      const game = createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({ id: "USA", name: { en: "USA" }, tier: "major" }),
+          createTestCountry({
+            id: "PRT",
+            name: { en: "Portugal" },
+            tier: "minor",
+            politics: { ...basePolitics, ideology: "Traditionalism" },
+          }),
+          createTestCountry({
+            id: "AGO",
+            name: { en: "Angola" },
+            tier: "minor",
+            politics: {
+              ...basePolitics,
+              ideology: "Traditionalism",
+              sovereigntyStatus: "colony",
+              overlordIds: ["PRT"],
+            },
+          }),
+        ],
+      });
+      const prompt = new LLMService(game).generatePrompt().prompt;
+      const card = prompt
+        .slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"))
+        .split("\n")
+        .find(l => l.startsWith("- Angola"));
+
+      expect(card).toBeDefined();
+      expect(card).toContain("Traditionalism");
+      expect(card).toContain("colony");
+      // Сюзерен назван И именем, И id: имя нужно прозе, id — полю действия.
+      expect(card).toContain("Portugal");
+      expect(card).toContain("PRT");
+    });
+
+    it("не ограничивает research/production_shift одними Major Power", () => {
+      // Ограничение жило ТОЛЬКО в тексте промта: LLMResponseValidator проверяет
+      // домен, потолок доли и тип снаряжения, про tier не знает вовсе. Проверено
+      // замером 2026-08-02 — за 72 хода источниками обоих действий были
+      // исключительно мажоры (SUN 87, GBR 54, FRA 34, CHN 1), то есть модель
+      // послушно исполняла запрет, которого движок не требует.
+      const prompt = service.generatePrompt().prompt;
+      const research = prompt.slice(prompt.indexOf('"research_shift" action'));
+
+      expect(prompt).not.toContain("a Major Power's research focus");
+      expect(prompt).not.toContain("a Major Power's military production focus");
+      expect(research).toContain("Spotlight Country");
+    });
+
+    it("показывает target примитива ОБЪЕКТОМ, а не строкой-описанием", () => {
+      // Диагностика 2026-08-02 (`.tmp/diag-run`, сырые ответы на отказных
+      // ходах): модель слала `"target": "ALB"` и `{"regionId": "758"}` —
+      // строкой там, где схема ждёт объект и число. Причина была в самом
+      // промте: образец ответа показывал `"target": "shape depends on the
+      // verb…"`, то есть строку, и модель добросовестно копировала ФОРМУ
+      // примера, а не читала описание алфавита.
+      const prompt = service.generatePrompt().prompt;
+      const sample = prompt.slice(prompt.indexOf('"primitives": ['));
+
+      expect(sample).toMatch(/"target":\s*\{/);
+      expect(sample).not.toMatch(/"target":\s*"/);
+    });
+
+    it("называет КАЖДЫЙ домен, который примет валидатор, — не только домены с прогрессом", () => {
+      // Замер (72 хода на gemini-3.6-flash-high): 8 из 11 отказов — выдуманные
+      // имена доменов (`military`, `land_forces`). Промт печатал у страны
+      // только домены с тиром > 0, поэтому полного словаря модель не видела
+      // нигде, а схема его не удерживает — `domain` в контракте свободная
+      // строка.
+      //
+      // Сторож проверяет СВОЙСТВО, а не список: имена берутся из тех же данных,
+      // по которым судит `LLMResponseValidator`. Домен, добавленный эре или
+      // авторским данным, попадёт сюда сам; выпавший из промта — уронит тест.
+      const domains = ["nuclear", "aviation", "industry"];
+      const game = createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({
+            id: "USA",
+            name: { en: "USA" },
+            tier: "major",
+            technology: { domains: { nuclear: 250, aviation: 0, industry: 0 } },
+          }),
+        ],
+      });
+      const prompt = new LLMService(game).generatePrompt().prompt;
+
+      for (const domain of domains) {
+        expect(prompt).toContain(domain);
+      }
+      // Домен с нулевым прогрессом не должен выглядеть достигнутым тиром —
+      // словарь допустимого и сводка достигнутого остаются разными вещами.
+      expect(prompt).toContain("nuclear T2");
+      expect(prompt).not.toContain("aviation T0");
+    });
+
     it("Narrative requirements: требует минимум 3 абзаца и охват Spotlight-стран (2026-07-05, живой тест на Groq/Gemini)", () => {
       const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("Narrative requirements");
