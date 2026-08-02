@@ -72,6 +72,20 @@ describe("LLMService", () => {
       expect(prompt).not.toContain("influence: no magnitude field");
     });
 
+    it("показывает target примитива ОБЪЕКТОМ, а не строкой-описанием", () => {
+      // Диагностика 2026-08-02 (`.tmp/diag-run`, сырые ответы на отказных
+      // ходах): модель слала `"target": "ALB"` и `{"regionId": "758"}` —
+      // строкой там, где схема ждёт объект и число. Причина была в самом
+      // промте: образец ответа показывал `"target": "shape depends on the
+      // verb…"`, то есть строку, и модель добросовестно копировала ФОРМУ
+      // примера, а не читала описание алфавита.
+      const prompt = service.generatePrompt().prompt;
+      const sample = prompt.slice(prompt.indexOf('"primitives": ['));
+
+      expect(sample).toMatch(/"target":\s*\{/);
+      expect(sample).not.toMatch(/"target":\s*"/);
+    });
+
     it("называет КАЖДЫЙ домен, который примет валидатор, — не только домены с прогрессом", () => {
       // Замер (72 хода на gemini-3.6-flash-high): 8 из 11 отказов — выдуманные
       // имена доменов (`military`, `land_forces`). Промт печатал у страны

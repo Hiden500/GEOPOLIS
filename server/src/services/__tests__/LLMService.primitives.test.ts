@@ -6,6 +6,7 @@ import { regionDiscontent } from "@shared/utils/discontent";
 import {
   MAX_PROMPT_CRISES,
   MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
+  MAX_PROMPT_REGIONS_PER_COUNTRY,
   REGION_CRISIS_DISCONTENT_THRESHOLD,
 } from "@shared/defines/discontent";
 import { applyPrimitiveTurn } from "../../primitives/turnBatch";
@@ -824,5 +825,124 @@ describe("правдивость летописи: в долгую память 
     chronicleTick(game);
 
     expect(game.chronicle).toEqual([]);
+  });
+});
+
+/**
+ * Секция «Regions You Can Address» и её связь со списком стран.
+ *
+ * Найдено замером 2026-08-02 (`.agent/runs/director-prompt-domains-2026-08-02`,
+ * 72 хода): региональные глаголы не применялись почти никогда — `incite_unrest`
+ * ни разу, затронуто 2–3 региона за два года. Причина оказалась не в модели:
+ * промт разворачивал кризис в стране, которой нет в `## Country IDs`, а
+ * «Narrative requirements» запрещают о такой стране и говорить, и действовать.
+ * Плюс ни одного id региона за пределами кризисной пятёрки промт не давал вовсе.
+ */
+describe("регионы как адресуемые цели в промте", () => {
+  /** Кризис в стране, которая НЕ мажор и НЕ в ротации, — только через кризис. */
+  function gameWithForeignCrisis(): GameState {
+    const foreignRegion = createTestRegion({
+      id: 700,
+      geoJsonId: "FOREIGN-1",
+      names: { en: "Foreign crisis region" },
+      ownerCountryId: "MWI",
+      population: REGION_POPULATION,
+      gdp: 100_000_000,
+      neighboringRegionIds: [],
+      demographics: [
+        { groupId: TEST_GROUP_TITULAR, share: 0.9 },
+        { groupId: TEST_GROUP_LOYAL, share: 0.1 },
+      ],
+    });
+    const game = createDiscontentTestGame({ regionCrisisLatch: [foreignRegion.id] });
+    game.regions.push(foreignRegion);
+    game.countries.push({
+      ...game.countries[1]!,
+      id: "MWI",
+      name: { en: "Malawi" },
+      tier: "minor",
+    });
+    // Ротация обязана быть ЗАБИТА чужими странами, иначе MWI попадёт в промт
+    // как spotlight и тест пройдёт мимо проверяемого свойства (поймано
+    // негативным контролем: без этого он проходил и со снятой правкой). Пул
+    // ротации сортируется по id, поэтому имена подобраны алфавитно раньше MWI.
+    for (const id of ["AAA", "AAB", "AAC", "AAD", "AAE"]) {
+      game.countries.push({ ...game.countries[1]!, id, name: { en: id }, tier: "minor" });
+    }
+    return game;
+  }
+
+  it("страна показанного кризиса попадает в ## Country IDs — иначе промт запрещает то, что показывает", () => {
+    const game = gameWithForeignCrisis();
+    const prompt = new LLMService(game).generatePrompt().prompt;
+
+    const idsSection = prompt.slice(
+      prompt.indexOf("## Country IDs"),
+      prompt.indexOf("## Instructions")
+    );
+    const crisisSection = prompt.slice(
+      prompt.indexOf("## Regional Crises"),
+      prompt.indexOf("## Regions You Can Address")
+    );
+
+    // Сначала убеждаемся, что кризис ДЕЙСТВИТЕЛЬНО показан: тест, где кризиса
+    // нет, прошёл бы по пустому месту и ничего не доказывал.
+    expect(crisisSection).toContain("held by MWI");
+    expect(idsSection).toContain("MWI");
+  });
+
+  it("даёт id регионов страны игрока, а не только кризисную пятёрку мира", () => {
+    const game = createDiscontentTestGame();
+    const prompt = new LLMService(game).generatePrompt().prompt;
+    const section = prompt.slice(
+      prompt.indexOf("## Regions You Can Address"),
+      prompt.indexOf("## Rejected Attempts")
+    );
+
+    const playerRegions = game.regions.filter(r => r.ownerCountryId === game.playerCountryId);
+    expect(playerRegions.length).toBeGreaterThan(0);
+    for (const region of playerRegions) {
+      expect(section).toContain(`- ${region.id} `);
+    }
+  });
+
+  it("режет список регионов страны капом и честно называет остаток", () => {
+    const many = Array.from({ length: MAX_PROMPT_REGIONS_PER_COUNTRY + 3 }, (_, i) =>
+      createTestRegion({
+        id: 800 + i,
+        geoJsonId: `MANY-${i}`,
+        names: { en: `Region ${i}` },
+        ownerCountryId: "SUN",
+        population: REGION_POPULATION,
+        gdp: 400_000_000 - i * 10_000_000,
+        neighboringRegionIds: [],
+        demographics: [{ groupId: TEST_GROUP_TITULAR, share: 1 }],
+      })
+    );
+    const game = createDiscontentTestGame();
+    game.regions.push(...many);
+
+    const prompt = new LLMService(game).generatePrompt().prompt;
+    const section = prompt.slice(
+      prompt.indexOf("## Regions You Can Address"),
+      prompt.indexOf("## Rejected Attempts")
+    );
+    const listed = section.split("\n").filter(l => /^ {2}- \d+ /.test(l)).length;
+
+    expect(listed).toBeLessThanOrEqual(MAX_PROMPT_REGIONS_PER_COUNTRY);
+    expect(section).toMatch(/\(\d+ more region\(s\)/);
+  });
+
+  it("сортирует регионы страны по недовольству — цель выбирается по нему, а не по id", () => {
+    const game = createDiscontentTestGame();
+    const prompt = new LLMService(game).generatePrompt().prompt;
+    const section = prompt.slice(
+      prompt.indexOf("## Regions You Can Address"),
+      prompt.indexOf("## Rejected Attempts")
+    );
+    const values = [...section.matchAll(/discontent (\d+\.\d+)/g)].map(m => Number(m[1]));
+
+    expect(values.length).toBeGreaterThan(1);
+    expect([...values].sort((a, b) => b - a)).toEqual(values);
   });
 });

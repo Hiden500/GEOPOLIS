@@ -26,8 +26,19 @@ import {
 import { countryNames } from "../primitives/entityNames";
 import { rejectionRecord } from "../primitives/rejections";
 import { findStateViolations } from "../primitives/invariants";
-import { activeCrises, renderCrisis, renderHiddenCrises } from "../llm/crisisDigest";
-import { MAX_PROMPT_CRISES, REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/defines/discontent";
+import {
+  activeCrises,
+  renderCrisis,
+  renderHiddenCrises,
+  type ActiveCrisis,
+} from "../llm/crisisDigest";
+import { regionDiscontent } from "@shared/utils/discontent";
+import { type Region } from "@shared/types/map/Region";
+import {
+  MAX_PROMPT_CRISES,
+  MAX_PROMPT_REGIONS_PER_COUNTRY,
+  REGION_CRISIS_DISCONTENT_THRESHOLD,
+} from "@shared/defines/discontent";
 import { PRIMITIVE_CONTRACT, PRIMITIVE_PLAYER_AGENCY_NOTE } from "../llm/primitiveContract";
 import { parsePrimitives } from "../primitives/primitiveSchemas";
 import { pushRejectionFact, rejectionFactText, restore } from "../primitives/PrimitiveEngine";
@@ -1046,6 +1057,14 @@ memory of past repression and concessions) — it is NOT a headcount of
 protesters, do not narrate it as a percentage of people.
 ${crises}
 
+## Regions You Can Address
+Region ids for the verbs that take a region (incite_unrest, spawn_incident,
+repress, grant_autonomy, build_extraction). Copy an id verbatim from here — a
+region that is not listed is not addressable this cycle, and a guessed number
+is refused. "discontent" is the same 0..1 index as in Regional Crises: high
+means the ground is ready, low means unrest there would need a cause first.
+${this.getAddressableRegionsInfo()}
+
 ## Rejected Attempts Last Cycle
 Primitives you proposed that the engine refused, with the reason. Do not
 propose them again unchanged — the precondition has to change first.
@@ -1151,8 +1170,8 @@ Return your response in JSON format with the following structure:
     {
       "verb": "${PRIMITIVE_VERBS.join("|")}",
       "sourceCountryId": "country_id",
-      "target": "shape depends on the verb — see the alphabet above",
-      "params": "shape depends on the verb — see the alphabet above"
+      "target": { "countryId": "country_id" },
+      "params": { "intensity": "mild|moderate|severe" }
     }
   ]
 }
@@ -1182,6 +1201,11 @@ Hard limits (actions violating them are rejected):
   country's name (e.g. do not turn "Soviet Union" into "SOV" or "USSR",
   or "Romania" into "ROM" — look up the real id in ## Country IDs).
 - sourceCountryId and targetCountryId must differ.
+- A primitive's "target" is always an OBJECT, never a bare string:
+  { "countryId": "SUN" } or { "regionId": 300 }. A region id is a NUMBER —
+  write { "regionId": 300 }, never { "regionId": "300" }. A primitive whose
+  target has the wrong shape is refused before the engine sees it, and the
+  refusal cannot tell you which field was wrong.
 `;
     return { prompt, consumption };
   }
@@ -1474,6 +1498,13 @@ Hard limits (actions violating them are rejected):
     add(this.game.playerCountryId);
     for (const c of this.getMajorPowers()) add(c.id);
     for (const c of this.getSpotlightCountries()) add(c.id);
+    // Держатели ПОКАЗАННЫХ кризисов. Без них промт сам себе противоречил:
+    // секция кризисов разворачивала регион страны, которой нет в этом списке, а
+    // «Narrative requirements» запрещают о такой стране и говорить, и
+    // действовать («it does not exist in this simulation right now»). Замер
+    // 2026-08-02: 4 из 5 показанных кризисов были в странах вне списка (VNM,
+    // IDN, PSE, MWI) — то есть горело там, куда модели ходить запрещено.
+    for (const crisis of this.shownCrises()) add(effectiveController(crisis.region));
 
     const player = this.game.countries.find(c => c.id === this.game.playerCountryId);
     if (player) {
@@ -1580,14 +1611,93 @@ Hard limits (actions violating them are rejected):
     const active = activeCrises(this.game);
     if (active.length === 0) return "No region is above the crisis threshold";
 
-    const lines = active
-      .slice(0, MAX_PROMPT_CRISES)
-      .map(crisis => renderCrisis(this.game, crisis, { isNew: newThisMonth.has(crisis.region.id) }));
+    const lines = this.shownCrises().map(crisis =>
+      renderCrisis(this.game, crisis, { isNew: newThisMonth.has(crisis.region.id) })
+    );
 
     const hidden = active.slice(MAX_PROMPT_CRISES);
     if (hidden.length > 0) lines.push(renderHiddenCrises(hidden));
 
     return lines.join("\n");
+  }
+
+  /**
+   * Кризисы, попадающие в промт РАЗВЁРНУТО, — один срез для всех потребителей.
+   *
+   * Отдельный метод, потому что срез нужен дважды и обязан совпадать: его
+   * рендерит `getRegionalCrisesInfo`, и по нему же `getReferencedCountries`
+   * добавляет страны-держатели в `## Country IDs`. Два независимых вызова
+   * `activeCrises().slice(...)` разошлись бы на первом же изменении капа, и
+   * разойтись они могли бы только одним способом — промт снова показал бы
+   * кризис в стране, о которой запрещено говорить.
+   */
+  private shownCrises(): ActiveCrisis[] {
+    return activeCrises(this.game).slice(0, MAX_PROMPT_CRISES);
+  }
+
+  /**
+   * Регионы, которые режиссёр вправе назвать целью, — с их id.
+   *
+   * ЗАЧЕМ. Региональные глаголы (`incite_unrest`, `spawn_incident`, `repress`,
+   * `grant_autonomy`, `build_extraction`) адресуют регион числовым id, а промт
+   * не давал ни одного: секция кризисов появляется лишь со второго хода и
+   * показывает пять регионов МИРА, чаще всего в странах, которых нет в
+   * `## Country IDs`. Замер 2026-08-02 (6 прогонов, 72 хода): `incite_unrest`
+   * не применён ни разу, затронуто 2–3 региона за два года.
+   *
+   * КАКИЕ СТРАНЫ. Игрок (мир действует на него — ради этого режиссёра и зовут),
+   * страны ротации (им и так положен нарративный beat) и держатели показанных
+   * кризисов (иначе горящее снова окажется недоступным). Мир целиком сюда не
+   * идёт: 1399 регионов не поместятся ни в какой бюджет промта, и правило
+   * «избегай отправки полного состояния в LLM» (`AGENTS.md`) — про это.
+   *
+   * ПОРЯДОК ВНУТРИ СТРАНЫ — по недовольству: выбор цели делается именно по
+   * нему, а алфавит или id ничего не сообщают. Кап — на страну
+   * (`MAX_PROMPT_REGIONS_PER_COUNTRY`), причина там же.
+   */
+  private getAddressableRegionsInfo(): string {
+    const wanted = new Map<string, Country>();
+    const add = (id: string | undefined): void => {
+      if (!id || wanted.has(id)) return;
+      const country = this.game.countries.find(c => c.id === id);
+      if (country) wanted.set(id, country);
+    };
+
+    add(this.game.playerCountryId);
+    for (const crisis of this.shownCrises()) add(effectiveController(crisis.region));
+    for (const country of this.getSpotlightCountries()) add(country.id);
+
+    const byCountry = new Map<string, { region: Region; discontent: number }[]>();
+    for (const region of this.game.regions) {
+      const owner = effectiveController(region);
+      if (!owner || !wanted.has(owner)) continue;
+      const list = byCountry.get(owner) ?? [];
+      list.push({ region, discontent: regionDiscontent(this.game, region) ?? 0 });
+      byCountry.set(owner, list);
+    }
+
+    const blocks: string[] = [];
+    for (const [id, country] of wanted) {
+      const regions = byCountry.get(id);
+      if (!regions || regions.length === 0) continue;
+
+      // id вторым ключом: при равном недовольстве порядок обязан быть
+      // воспроизводим, иначе один и тот же мир давал бы разные промты.
+      regions.sort((a, b) => b.discontent - a.discontent || a.region.id - b.region.id);
+      const shown = regions.slice(0, MAX_PROMPT_REGIONS_PER_COUNTRY);
+      const lines = shown.map(
+        ({ region, discontent }) =>
+          `  - ${region.id} ${getText(region.names, LLM_LOCALE)} — discontent ${discontent.toFixed(2)}`
+      );
+      const rest = regions.length - shown.length;
+      if (rest > 0) {
+        lines.push(`  - (${rest} more region(s), all calmer than the ones above)`);
+      }
+      blocks.push(`- ${getText(country.name, LLM_LOCALE)} (${id}):\n${lines.join("\n")}`);
+    }
+
+    if (blocks.length === 0) return "No regions available to address this cycle";
+    return blocks.join("\n");
   }
 
   /**
