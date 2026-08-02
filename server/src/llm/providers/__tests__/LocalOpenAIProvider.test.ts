@@ -33,6 +33,7 @@ const LOCAL_ENV = [
   "LOCAL_LLM_MODEL",
   "LOCAL_LLM_MAX_TOKENS",
   "LOCAL_LLM_REASONING",
+  "LOCAL_LLM_TEMPERATURE",
   "LOCAL_LLM_RESPONSE_FORMAT",
   "LOCAL_LLM_API_KEY",
   "LOCAL_LLM_TIMEOUT_MS",
@@ -155,6 +156,31 @@ describe("LocalOpenAIProvider", () => {
     const body = bodyOf();
     expect(body.reasoning_effort).toBe("none");
     expect(body.max_tokens).toBe(4096);
+  });
+
+  it("не задаёт температуру по умолчанию, но принимает НОЛЬ как рабочее значение", async () => {
+    // Ноль — не «пусто»: это режим воспроизводимого замера. Проверка стоит
+    // именно на нуле, потому что типичная реализация через `if (value)`
+    // отбросила бы его молча, и прогоны «до» и «после» продолжили бы
+    // расходиться по жребию сэмплирования.
+    vi.mocked(fetch).mockResolvedValue(okResponse("{}"));
+    await new LocalOpenAIProvider().generateResponse("prompt");
+    expect(bodyOf().temperature).toBeUndefined();
+
+    vi.mocked(fetch).mockClear();
+    process.env.LOCAL_LLM_TEMPERATURE = "0";
+    await new LocalOpenAIProvider().generateResponse("prompt");
+    expect(bodyOf().temperature).toBe(0);
+  });
+
+  it("не принимает мусор в температуре: параметр не отправляется вовсе", async () => {
+    // Отправленный NaN сервер отверг бы целым ходом, а выглядело бы это как
+    // сбой модели. Молчание безопаснее: рантайм возьмёт свой дефолт.
+    process.env.LOCAL_LLM_TEMPERATURE = "не число";
+    vi.mocked(fetch).mockResolvedValue(okResponse("{}"));
+    await new LocalOpenAIProvider().generateResponse("prompt");
+
+    expect(bodyOf().temperature).toBeUndefined();
   });
 
   it("не принимает мусор в лимите генерации: откатывается на рабочий дефолт", async () => {

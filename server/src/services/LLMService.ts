@@ -26,8 +26,19 @@ import {
 import { countryNames } from "../primitives/entityNames";
 import { rejectionRecord } from "../primitives/rejections";
 import { findStateViolations } from "../primitives/invariants";
-import { activeCrises, renderCrisis, renderHiddenCrises } from "../llm/crisisDigest";
-import { MAX_PROMPT_CRISES, REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/defines/discontent";
+import {
+  activeCrises,
+  renderCrisis,
+  renderHiddenCrises,
+  type ActiveCrisis,
+} from "../llm/crisisDigest";
+import { regionDiscontent } from "@shared/utils/discontent";
+import { type Region } from "@shared/types/map/Region";
+import {
+  MAX_PROMPT_CRISES,
+  MAX_PROMPT_REGIONS_PER_COUNTRY,
+  REGION_CRISIS_DISCONTENT_THRESHOLD,
+} from "@shared/defines/discontent";
 import { PRIMITIVE_CONTRACT, PRIMITIVE_PLAYER_AGENCY_NOTE } from "../llm/primitiveContract";
 import { parsePrimitives } from "../primitives/primitiveSchemas";
 import { pushRejectionFact, rejectionFactText, restore } from "../primitives/PrimitiveEngine";
@@ -1046,6 +1057,14 @@ memory of past repression and concessions) — it is NOT a headcount of
 protesters, do not narrate it as a percentage of people.
 ${crises}
 
+## Regions You Can Address
+Region ids for the verbs that take a region (incite_unrest, spawn_incident,
+repress, grant_autonomy, build_extraction). Copy an id verbatim from here — a
+region that is not listed is not addressable this cycle, and a guessed number
+is refused. "discontent" is the same 0..1 index as in Regional Crises: high
+means the ground is ready, low means unrest there would need a cause first.
+${this.getAddressableRegionsInfo()}
+
 ## Rejected Attempts Last Cycle
 Primitives you proposed that the engine refused, with the reason. Do not
 propose them again unchanged — the precondition has to change first.
@@ -1112,13 +1131,18 @@ Narrative requirements (strict):
   strongly, explicitly grounded in real historical events — prefer narrating
   proxy support (a patron backing a client state's own conflict) over direct
   war between such powers.
-- You may direct a Major Power's research focus via a "research_shift" action
-  (data.domain, data.share) — there is no fixed catalog of named technologies;
+- You may direct the research focus of ANY country listed above — a Major Power
+  or a Spotlight Country — via a "research_shift" action
+  (data.domain, data.share). The domains that exist are exactly these, and
+  nothing else is a domain no matter how natural the name sounds:
+  ${this.getResearchDomainsLine()}.
+  There is no fixed catalog of named technologies;
   a domain's "tier" is just accumulated investment. When a country's domain
   tier crosses a meaningful new threshold, narrate what this represents in
   concrete terms (what got invented/achieved) — you invent the specific
   breakthrough, the engine only tracks the number.
-- You may direct a Major Power's military production focus via a
+- You may direct the military production focus of ANY country listed above —
+  Major Power or Spotlight Country alike — via a
   "production_shift" action (data.equipmentType, data.share) — fixed
   categories (rifles/trucks/tanks/artillery/fighters/bombers/destroyers/
   submarines), no named unit models; quality is decorative, invent it the
@@ -1148,8 +1172,8 @@ Return your response in JSON format with the following structure:
     {
       "verb": "${PRIMITIVE_VERBS.join("|")}",
       "sourceCountryId": "country_id",
-      "target": "shape depends on the verb — see the alphabet above",
-      "params": "shape depends on the verb — see the alphabet above"
+      "target": { "countryId": "country_id" },
+      "params": { "intensity": "mild|moderate|severe" }
     }
   ]
 }
@@ -1163,8 +1187,11 @@ flat-step "action" for it any more.
 
 Hard limits (actions violating them are rejected):
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
-- research_shift: data.domain must be a real domain of the source country
-  (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
+- research_shift: data.domain must be copied verbatim from the domain list
+  above. A name that is not on that list is rejected even when it names a real
+  field of research — "military", "land_forces", "aeronautics" are not domains
+  here. A broad goal is pursued through whichever listed domains carry it;
+  data.share within 0-${MAX_RESEARCH_SHARE}.
 - production_shift: data.equipmentType must be one of rifles/trucks/tanks/
   artillery/fighters/bombers/destroyers/submarines; data.share within
   0-${MAX_PRODUCTION_SHARE}.
@@ -1176,6 +1203,11 @@ Hard limits (actions violating them are rejected):
   country's name (e.g. do not turn "Soviet Union" into "SOV" or "USSR",
   or "Romania" into "ROM" — look up the real id in ## Country IDs).
 - sourceCountryId and targetCountryId must differ.
+- A primitive's "target" is always an OBJECT, never a bare string:
+  { "countryId": "SUN" } or { "regionId": 300 }. A region id is a NUMBER —
+  write { "regionId": 300 }, never { "regionId": "300" }. A primitive whose
+  target has the wrong shape is refused before the engine sees it, and the
+  refusal cannot tell you which field was wrong.
 `;
     return { prompt, consumption };
   }
@@ -1296,10 +1328,43 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
+   * ПОЛНЫЙ перечень имён доменов, которые примет валидатор, — одной строкой на
+   * весь промт.
+   *
+   * Собирается объединением по странам, названным в `## Country IDs`, а не из
+   * списка эры: валидатор сверяет домен с `source.technology.domains`
+   * КОНКРЕТНОЙ страны (`LLMResponseValidator`), и авторские данные вправе дать
+   * стране домен сверх эры. Список эры совпал бы сегодня и разошёлся бы молча
+   * при первом же таком наполнении — а разойтись он может только в сторону
+   * «промт обещал меньше, чем движок принимает».
+   *
+   * Зачем вообще: `getTechTierSummary` печатает у страны только домены с тиром
+   * больше нуля, поэтому полного словаря модель не видела нигде. Замер
+   * (`.agent/runs/director-prompt-domains-2026-08-02`, 6 прогонов по 24 хода):
+   * выдуманные имена `military`/`land_forces` — 8 ходов из 72 до правки и 0
+   * после, Fisher p = 0,0064; заодно `research_shift` прошёл 154 раза против
+   * ОДНОГО за те же 72 хода. Схема их не удерживает и не может —
+   * `research_shift.domain` в контракте свободная строка
+   * (`.agent/runs/gemini-prompt-modes-2026-08-01`, 140 вызовов).
+   */
+  private getResearchDomainsLine(): string {
+    const domains = new Set<string>();
+    for (const id of this.getReferencedCountries().keys()) {
+      const country = this.game.countries.find(c => c.id === id);
+      if (!country) continue;
+      for (const domain of Object.keys(country.technology.domains)) domains.add(domain);
+    }
+    if (domains.size === 0) return 'none';
+    return [...domains].sort().join(', ');
+  }
+
+  /**
    * Компактная сводка тиров доменов технологий (docs/DECISIONS.md,
    * 2026-07-06) — только домены с тиром > 0, чтобы не перечислять все ~14
    * доменов эры каждый цикл. Тир — не именная технология, декоративное имя
    * прорыва при пересечении порога придумывает сам LLM в нарративе.
+   * Полный словарь допустимых имён даёт `getResearchDomainsLine`: здесь
+   * показано, ГДЕ страна продвинулась, а не что ей разрешено.
    */
   private getTechTierSummary(country: Country): string {
     const entries = Object.entries(country.technology.domains)
@@ -1405,15 +1470,72 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
-   * Получает информацию о странах в ротации ("Spotlight Countries").
+   * Карточка страны в ротации.
+   *
+   * Промт ТРЕБУЕТ дать минимум двум таким странам конкретный сюжетный ход, а
+   * до 2026-08-02 давал о них три числа: ВВП, стабильность и два последних
+   * заголовка. Из ВВП сюжета не выходит — выходит «экономика продолжает
+   * восстанавливаться». Добавлены поля, которые УЖЕ ЕСТЬ в состоянии и из
+   * которых сюжет выходит: с кем страна в союзе и вражде (это готовый
+   * конфликт), воюет ли прямо сейчас, и сходится ли у неё бюджет.
+   *
+   * Бюджет — ЗНАКОМ, а не величиной, и это не экономия места: величины из
+   * промта модель цитирует в прозе, а стиль это запрещает («движку числа,
+   * хронике смысл»). Знак несёт ровно то, что нужно сюжету, — «казна трещит»
+   * против «есть на что тратить».
+   *
+   * Регионы страны здесь НЕ дублируются: они уже перечислены отдельной секцией
+   * `## Regions You Can Address` вместе с недовольством, и второй раз тот же
+   * список стоил бы токенов, не добавив ни одного факта.
    */
   private getSpotlightInfo(): string {
     const spotlight = this.getSpotlightCountries();
     if (spotlight.length === 0) return 'No spotlight countries this cycle';
-    return spotlight.map(c =>
-      `- ${getText(c.name, LLM_LOCALE)} (${c.tier}): GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, stability ${Math.round(c.politics.stability)}` +
-      this.getRecentTitlesLine(c.id, SPOTLIGHT_RECENT_TITLES_COUNT)
-    ).join('\n');
+
+    const nameOf = (id: string): string => {
+      const country = this.game.countries.find(c => c.id === id);
+      return country ? `${getText(country.name, LLM_LOCALE)} (${id})` : id;
+    };
+
+    return spotlight.map(c => {
+      const facts: string[] = [
+        `GDP $${(c.economy.gdp / 1e9).toFixed(2)}B`,
+        `stability ${Math.round(c.politics.stability)}`,
+        c.economy.budgetBalance < 0 ? 'budget in deficit' : 'budget balanced or in surplus',
+        String(c.politics.ideology),
+      ];
+
+      // Статус суверенитета — самое сюжетное поле карточки на данных 1946: из
+      // 147 стран ротации 87 кому-то подчинены (32 колонии, 22 протектората,
+      // 10 оккупационных зон, мандаты, кондоминиумы). Союзы и вражда, которые
+      // просились сюда первыми, на старте пусты У ВСЕХ 147 — они наживаются
+      // партией; колониальный статус есть сразу и сам по себе конфликт.
+      const overlords = (c.politics.overlordIds ?? []).filter(id =>
+        this.game.countries.some(x => x.id === id)
+      );
+      if (c.politics.sovereigntyStatus && c.politics.sovereigntyStatus !== 'sovereign') {
+        const under = overlords.length > 0 ? ` under ${overlords.map(nameOf).join(', ')}` : '';
+        facts.push(`${String(c.politics.sovereigntyStatus).replace(/_/g, ' ')}${under}`);
+      }
+
+      const allies = c.diplomacy.allies.filter(id => this.game.countries.some(x => x.id === id));
+      const rivals = c.diplomacy.rivals.filter(id => this.game.countries.some(x => x.id === id));
+      if (allies.length > 0) facts.push(`allied with ${allies.map(nameOf).join(', ')}`);
+      if (rivals.length > 0) facts.push(`rival of ${rivals.map(nameOf).join(', ')}`);
+
+      const war = this.game.wars.find(
+        w => w.active !== false && (w.attackers.includes(c.id) || w.defenders.includes(c.id))
+      );
+      if (war) {
+        const enemies = war.attackers.includes(c.id) ? war.defenders : war.attackers;
+        facts.push(`AT WAR with ${enemies.map(nameOf).join(', ')}`);
+      }
+
+      return (
+        `- ${getText(c.name, LLM_LOCALE)} (${c.tier}): ${facts.join(', ')}` +
+        this.getRecentTitlesLine(c.id, SPOTLIGHT_RECENT_TITLES_COUNT)
+      );
+    }).join('\n');
   }
 
   /**
@@ -1435,6 +1557,13 @@ Hard limits (actions violating them are rejected):
     add(this.game.playerCountryId);
     for (const c of this.getMajorPowers()) add(c.id);
     for (const c of this.getSpotlightCountries()) add(c.id);
+    // Держатели ПОКАЗАННЫХ кризисов. Без них промт сам себе противоречил:
+    // секция кризисов разворачивала регион страны, которой нет в этом списке, а
+    // «Narrative requirements» запрещают о такой стране и говорить, и
+    // действовать («it does not exist in this simulation right now»). Замер
+    // 2026-08-02: 4 из 5 показанных кризисов были в странах вне списка (VNM,
+    // IDN, PSE, MWI) — то есть горело там, куда модели ходить запрещено.
+    for (const crisis of this.shownCrises()) add(effectiveController(crisis.region));
 
     const player = this.game.countries.find(c => c.id === this.game.playerCountryId);
     if (player) {
@@ -1541,14 +1670,93 @@ Hard limits (actions violating them are rejected):
     const active = activeCrises(this.game);
     if (active.length === 0) return "No region is above the crisis threshold";
 
-    const lines = active
-      .slice(0, MAX_PROMPT_CRISES)
-      .map(crisis => renderCrisis(this.game, crisis, { isNew: newThisMonth.has(crisis.region.id) }));
+    const lines = this.shownCrises().map(crisis =>
+      renderCrisis(this.game, crisis, { isNew: newThisMonth.has(crisis.region.id) })
+    );
 
     const hidden = active.slice(MAX_PROMPT_CRISES);
     if (hidden.length > 0) lines.push(renderHiddenCrises(hidden));
 
     return lines.join("\n");
+  }
+
+  /**
+   * Кризисы, попадающие в промт РАЗВЁРНУТО, — один срез для всех потребителей.
+   *
+   * Отдельный метод, потому что срез нужен дважды и обязан совпадать: его
+   * рендерит `getRegionalCrisesInfo`, и по нему же `getReferencedCountries`
+   * добавляет страны-держатели в `## Country IDs`. Два независимых вызова
+   * `activeCrises().slice(...)` разошлись бы на первом же изменении капа, и
+   * разойтись они могли бы только одним способом — промт снова показал бы
+   * кризис в стране, о которой запрещено говорить.
+   */
+  private shownCrises(): ActiveCrisis[] {
+    return activeCrises(this.game).slice(0, MAX_PROMPT_CRISES);
+  }
+
+  /**
+   * Регионы, которые режиссёр вправе назвать целью, — с их id.
+   *
+   * ЗАЧЕМ. Региональные глаголы (`incite_unrest`, `spawn_incident`, `repress`,
+   * `grant_autonomy`, `build_extraction`) адресуют регион числовым id, а промт
+   * не давал ни одного: секция кризисов появляется лишь со второго хода и
+   * показывает пять регионов МИРА, чаще всего в странах, которых нет в
+   * `## Country IDs`. Замер 2026-08-02 (6 прогонов, 72 хода): `incite_unrest`
+   * не применён ни разу, затронуто 2–3 региона за два года.
+   *
+   * КАКИЕ СТРАНЫ. Игрок (мир действует на него — ради этого режиссёра и зовут),
+   * страны ротации (им и так положен нарративный beat) и держатели показанных
+   * кризисов (иначе горящее снова окажется недоступным). Мир целиком сюда не
+   * идёт: 1399 регионов не поместятся ни в какой бюджет промта, и правило
+   * «избегай отправки полного состояния в LLM» (`AGENTS.md`) — про это.
+   *
+   * ПОРЯДОК ВНУТРИ СТРАНЫ — по недовольству: выбор цели делается именно по
+   * нему, а алфавит или id ничего не сообщают. Кап — на страну
+   * (`MAX_PROMPT_REGIONS_PER_COUNTRY`), причина там же.
+   */
+  private getAddressableRegionsInfo(): string {
+    const wanted = new Map<string, Country>();
+    const add = (id: string | undefined): void => {
+      if (!id || wanted.has(id)) return;
+      const country = this.game.countries.find(c => c.id === id);
+      if (country) wanted.set(id, country);
+    };
+
+    add(this.game.playerCountryId);
+    for (const crisis of this.shownCrises()) add(effectiveController(crisis.region));
+    for (const country of this.getSpotlightCountries()) add(country.id);
+
+    const byCountry = new Map<string, { region: Region; discontent: number }[]>();
+    for (const region of this.game.regions) {
+      const owner = effectiveController(region);
+      if (!owner || !wanted.has(owner)) continue;
+      const list = byCountry.get(owner) ?? [];
+      list.push({ region, discontent: regionDiscontent(this.game, region) ?? 0 });
+      byCountry.set(owner, list);
+    }
+
+    const blocks: string[] = [];
+    for (const [id, country] of wanted) {
+      const regions = byCountry.get(id);
+      if (!regions || regions.length === 0) continue;
+
+      // id вторым ключом: при равном недовольстве порядок обязан быть
+      // воспроизводим, иначе один и тот же мир давал бы разные промты.
+      regions.sort((a, b) => b.discontent - a.discontent || a.region.id - b.region.id);
+      const shown = regions.slice(0, MAX_PROMPT_REGIONS_PER_COUNTRY);
+      const lines = shown.map(
+        ({ region, discontent }) =>
+          `  - ${region.id} ${getText(region.names, LLM_LOCALE)} — discontent ${discontent.toFixed(2)}`
+      );
+      const rest = regions.length - shown.length;
+      if (rest > 0) {
+        lines.push(`  - (${rest} more region(s), all calmer than the ones above)`);
+      }
+      blocks.push(`- ${getText(country.name, LLM_LOCALE)} (${id}):\n${lines.join("\n")}`);
+    }
+
+    if (blocks.length === 0) return "No regions available to address this cycle";
+    return blocks.join("\n");
   }
 
   /**

@@ -33,6 +33,7 @@ import { createGame } from "../src/game/CreateGame";
 import { simulateMonth } from "../src/simulation/SimulationEngine";
 import { LLMService } from "../src/services/LLMService";
 import { createLLMProvider } from "../src/llm/providers/createProvider";
+import { type TokenUsage } from "../src/llm/tokenTelemetry";
 import { localBaseUrl, listLocalModels, hasApiKey } from "../src/llm/providers/localEndpoint";
 import { effectiveController } from "@shared/utils/regionControl";
 import { type GameState } from "@shared/types/GameState";
@@ -156,7 +157,20 @@ async function main(): Promise<void> {
   csv.write("﻿" + csvLine([...COLUMNS]));
 
   const game = createGame("1946", player);
-  const provider = createLLMProvider();
+
+  // Расход токенов пишется В ЖУРНАЛ ПРОГОНА, а не в боевой
+  // `logs/token-usage.jsonl`. Две причины. Прогон — не партия игрока: его
+  // записи смешались бы с игровыми, и перцентили боевого расхода поехали бы от
+  // синтетики. И `recordUsage` берёт имя модели из `GEMINI_MODEL`, а прогон
+  // ходит на `LOCAL_LLM_MODEL` — расход приписался бы не той модели.
+  //
+  // До этой правки провайдер создавался БЕЗ обработчика вовсе, то есть
+  // стоимость промта прогоном не собиралась никак, а приёмка правок промта её
+  // требует («стоимость выросла на ≤ …»).
+  let turnUsage: TokenUsage | undefined;
+  const provider = createLLMProvider(usage => {
+    turnUsage = usage;
+  });
 
   console.log(`\nпартия: ${player}, ${years} лет (${months} ходов)\n`);
   const started = Date.now();
@@ -171,6 +185,7 @@ async function main(): Promise<void> {
     let error: string | undefined;
 
     try {
+      turnUsage = undefined;
       const result = await service.runAutoCycle(prompt => provider.generateResponse(prompt));
       // Квитанция — единственный источник «что на самом деле произошло»:
       // сам факт ответа модели ничего не значит, движок мог всё отклонить.
@@ -186,6 +201,14 @@ async function main(): Promise<void> {
         // а не по факту наличия. Без него длинный прогон отвечает «сколько
         // действий прошло» и молчит о том, каким игрок увидел мир.
         descriptions: result.descriptions ?? null,
+        // Сырой ответ — ТОЛЬКО когда что-то отклонено, и в этом весь смысл.
+        // Отказ схемы несёт глагол и позицию в массиве, но не поле: по
+        // квитанции видно, что примитив номер три не прошёл, и не видно, чем
+        // именно он плох. Без ответа рядом причина отказа выясняется гаданием
+        // по контракту. Писать его КАЖДЫЙ ход незачем — на успешном ходу он
+        // ничего не объясняет и утраивает журнал.
+        rawResponse: rejected > 0 ? game.llmResponse ?? null : null,
+        usage: turnUsage ?? null,
         receipt,
       }) + "\n");
     } catch (e) {
