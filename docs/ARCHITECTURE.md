@@ -1,6 +1,6 @@
 # Архитектура проекта
 
-Last updated: 2026-07-11
+Last updated: 2026-08-02
 
 ## Структура
 
@@ -150,8 +150,9 @@ state для трёх «внешних инициаторов»: LLM-дейст�
   остаётся отдельным слоем в `simulation/war/occupation.ts`).
 * `commands/economy.ts` — `setResearchAllocation`/`setProductionAllocation`/
   `setBudgetShares` (обёртки `ResearchService`/`MilitaryService`/
-  `CountryService`) + `applyDeficitAusterityCut`/`shiftMilitaryToWelfare`/
-  `setMilitarySpending` (точные обёртки формул `AiBehaviorTick` Правил A/B/C).
+  `CountryService`) + `applyDeficitAusterityCut`/`applyAusterityRecoveryRaise`/
+  `shiftMilitaryToWelfare`/`shiftWelfareToMilitary`/`setMilitaryShare`
+  (точные обёртки формул `AiBehaviorTick` Правил A/B/C).
 * `commands/modifiers.ts` — `applyModifier`/`removeModifier`/
   `removeExpiredModifiers` (см. «Модификаторы» ниже).
 * `commands/resources.ts` — `buildExtraction`/`damageExtraction`

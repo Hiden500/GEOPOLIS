@@ -132,6 +132,16 @@ function report(game: GameState, label: string): void {
       : "—")
   );
 
+  // Прямой след Правила A (трассер — education, его не двигают Правила B/C):
+  // сколько стран аустерити оставило ниже стартовой доли. До обратного хода
+  // (2026-08-02) это число могло только расти.
+  const eduDrained = withShares.filter(
+    c =>
+      (c.economy.spendingFloor!.educationSpending ?? 0) > 0 &&
+      c.economy.spendingShares!.education < c.economy.spendingFloor!.educationSpending * 2 - 1e-9
+  );
+  console.log(`  аустерити: education ниже стартовой доли у ${eduDrained.length} стран`);
+
   // Кто из просевших уже вышел из кризиса — и почему возврат у него не идёт.
   // Две границы возврата закрываются по разным причинам, и лечатся они тоже
   // по-разному: место под military — это Правило C, донор welfare — Правило A.
