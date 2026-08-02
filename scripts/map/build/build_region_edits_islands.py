@@ -70,6 +70,13 @@ MERGE_CLUSTERS = [
     ("Antigua and Barbuda", 6, 998.0, "Leeward Islands", "Подветренные острова",
      "британская группа; не путать с голландскими Подветренными Антилами"),
     ("São Tomé", 2, 1036.0, "São Tomé and Príncipe", "Сан-Томе и Принсипи", "одна колония"),
+    # добавлено 2026-08-02 по ответам на открытые вопросы Q-QND-02, Q-GBR-19, Q-USA-03
+    ("Sint Maarten", 3, 45.7, "Windward Netherlands Antilles", "Наветренные Нидерландские Антилы",
+     "Синт-Мартен, Саба, Синт-Эстатиус — вторая половина Нидерландских Антил; "
+     "первая (ABC) слита как Leeward Antilles"),
+    ("Jersey", 2, 187.0, "Channel Islands", "Нормандские острова", "Джерси и Гернси — одна коронная зависимость"),
+    ("Hawaii — Hawaii", 4, 16675.2, "Hawaii", "Гавайи",
+     "территория США четырьмя регионами; слито по решению пользователя, несмотря на статус базы"),
 ]
 
 # ── R3: островной огрызок возвращается в свою единицу (Япония) ───────────────
@@ -88,11 +95,10 @@ MERGE_REGIONS = [
         "id": "MRG-JPN-WEST-KYUSHU",
         "rule": "R3",
         "members": ["ASI-0199", "ASI-0200", "ASI-0425"],
-        "target_en": "Nagasaki and Saga",
-        "target_ru": "Нагасаки и Сага",
-        "note": "Сага + материковая Нагасаки + островная Нагасаки; ИМЯ ТРЕБУЕТ РЕШЕНИЯ "
-                "(альтернатива — «Западный Кюсю»)",
-        "needs_decision": "target_name",
+        "target_en": "Western Kyushu",
+        "target_ru": "Западный Кюсю",
+        "note": "Сага + материковая Нагасаки + островная Нагасаки; имя выбрано пользователем "
+                "2026-08-02 (альтернатива «Nagasaki and Saga» отклонена)",
     },
     {
         "id": "MRG-JPN-KYUSHU",
@@ -101,6 +107,38 @@ MERGE_REGIONS = [
         "target_en": "Kyushu",
         "target_ru": "Кюсю",
         "note": "островные части Кагосимы и Кумамото возвращаются в Кюсю",
+    },
+    # добавлено 2026-08-02 по ответу на Q-JPN-SADO-AWAJI: тот же класс огрызков
+    # префектур, что Кумамото и Кагосима, — возвращаются в свои регионы
+    {
+        "id": "MRG-JPN-CHUBU",
+        "rule": "R3",
+        "members": ["ASI-0194", "ASI-0423"],
+        "target_en": "Chubu",
+        "target_ru": "Тюбу",
+        "note": "остров Садо (числится регионом «Niigata») возвращается в Тюбу",
+    },
+    {
+        "id": "MRG-JPN-KINKI",
+        "rule": "R3",
+        "members": ["ASI-0193", "ASI-0422"],
+        "target_en": "Kinki",
+        "target_ru": "Кинки",
+        "note": "остров Авадзи (числится регионом «Hyōgo») возвращается в Кинки",
+    },
+]
+
+# ── R5: имя описывает то, что регион покрывает целиком ───────────────────────
+# Слияния не требуют, только переименования.
+RENAMES = [
+    {
+        "id": "REN-JAVA",
+        "rule": "R5",
+        "region_id": "ASI-0121",
+        "target_en": "Java",
+        "target_ru": "Ява",
+        "note": "регион покрывает всю Яву (131 764 км² при 138 800 у острова), "
+                "а назван по одной провинции — Jawa Barat",
     },
 ]
 
@@ -152,26 +190,32 @@ RESPLITS = [
     },
 ]
 
-# ── Открытые вопросы: правило их ловит, а в списке пользователя их нет ───────
-OPEN_QUESTIONS = [
-    {"id": "Q-QND-02", "kind": "возможный пропуск R1",
-     "what": "Sint Maarten + St. Eustatius + Saba (46 км², 61 863 чел) — те же Нидерландские "
-             "Антилы, что и слитый кластер Curaçao, но в списке их нет"},
-    {"id": "Q-GBR-19", "kind": "возможный пропуск R1",
-     "what": "Jersey + Guernsey (187 км², 110 647 чел) — Нормандские острова, тот же класс"},
-    {"id": "Q-SUN-02", "kind": "возможный пропуск R1",
-     "what": "Saare + Hiiu (4 042 км², 487 429 чел) — эстонские острова в составе СССР"},
-    {"id": "Q-USA-03", "kind": "внутри числовой рамки, но не назван",
-     "what": "Гавайи — 4 региона, 16 675 км², 452 014 чел. По площади и населению попадают "
-             "в рамку слитых, но это передовая база США. Оставляем раздельными намеренно?"},
-    {"id": "Q-JPN-SADO-AWAJI", "kind": "возможный пропуск R3",
-     "what": "Sado (ASI-0423 «Niigata», 896 км²) и Awaji (ASI-0422 «Hyōgo», 598 км²) — тот же "
-             "класс островных огрызков префектур, что слитые Кумамото и Кагосима. "
-             "Вернуть в Тюбу и Кинки?"},
-    {"id": "Q-JAWA-NAME", "kind": "дефект R5 вне списка",
-     "what": "ASI-????: регион «Jawa Barat» покрывает всю Яву (131 764 км² при 138 800 у острова). "
-             "Слияния не требует, требует имени «Java»"},
+# ── Вопросы, заданные проектировщиком и закрытые пользователем 2026-08-02 ────
+# Хранятся вместе с ответом: отклонённое решение обязано быть видно, иначе его
+# предложат заново через месяц.
+RESOLVED_QUESTIONS = [
+    {"id": "Q-QND-02", "answer": "да, слить",
+     "what": "Sint Maarten + St. Eustatius + Saba — те же Нидерландские Антилы, что и слитый "
+             "кластер Curaçao", "became": "MRG-QND-02"},
+    {"id": "Q-GBR-19", "answer": "да, слить",
+     "what": "Jersey + Guernsey — Нормандские острова", "became": "MRG-GBR-19"},
+    {"id": "Q-SUN-02", "answer": "НЕТ, оставить раздельными",
+     "what": "Saare + Hiiu (4 042 км², 487 429 чел) — эстонские острова в составе СССР",
+     "became": None},
+    {"id": "Q-USA-03", "answer": "да, слить",
+     "what": "Гавайи, 4 региона — статус передовой базы США слиянию не помешал",
+     "became": "MRG-USA-03"},
+    {"id": "Q-JPN-SADO-AWAJI", "answer": "да, вернуть в Тюбу и Кинки",
+     "what": "Sado (ASI-0423 «Niigata») и Awaji (ASI-0422 «Hyōgo») — огрызки префектур",
+     "became": "MRG-JPN-CHUBU, MRG-JPN-KINKI"},
+    {"id": "Q-JAWA-NAME", "answer": "да, переименовать",
+     "what": "«Jawa Barat» покрывает всю Яву", "became": "REN-JAVA"},
+    {"id": "Q-JPN-WEST-KYUSHU-NAME", "answer": "«Западный Кюсю»",
+     "what": "имя для слияния Саги с Нагасаки; альтернатива «Nagasaki and Saga» отклонена",
+     "became": "MRG-JPN-WEST-KYUSHU"},
 ]
+
+OPEN_QUESTIONS = []
 
 
 def load_json(path):
@@ -296,6 +340,19 @@ def main():
             "replaces": sorted(current, key=lambda m: -m["area_km2"]),
         })
 
+    for spec in RENAMES:
+        src = region_record(spec["region_id"])
+        if src is None:
+            continue
+        operations.append({
+            "id": spec["id"],
+            "op": "rename",
+            "rule": spec["rule"],
+            "source": src,
+            "target": {"name_en": spec["target_en"], "name_ru": spec["target_ru"]},
+            "note": spec["note"],
+        })
+
     merged_in = sum(o["member_count"] for o in operations if o["op"] == "merge")
     merged_out = sum(1 for o in operations if o["op"] == "merge")
     split_delta = sum(len(o["into"]) - 1 for o in operations if o["op"] == "split")
@@ -330,6 +387,8 @@ def main():
                 "net_change_from_merges": merged_out - merged_in,
                 "splits": sum(1 for o in operations if o["op"] == "split"),
                 "resplits": sum(1 for o in operations if o["op"] == "resplit_from_source"),
+                "renames": sum(1 for o in operations if o["op"] == "rename"),
+                "resolved_questions": len(RESOLVED_QUESTIONS),
                 "open_questions": len(OPEN_QUESTIONS),
                 # главное число для каскада: слияния уменьшают карту, пере-нарезка
                 # Филиппин увеличивает её сильнее — суммарно регионов становится БОЛЬШЕ
@@ -345,6 +404,7 @@ def main():
                            "config/occupation_overlay.json) требуют build/remap_region_ids.py"),
         },
         "operations": operations,
+        "resolved_questions": RESOLVED_QUESTIONS,
         "open_questions": OPEN_QUESTIONS,
     }
 
@@ -375,6 +435,10 @@ def main():
             print(f"  {o['id']:>18} R{o['rule'][1]}  1 -> {len(o['into'])}  "
                   f"{o['source']['area_km2']:>9,.0f} км² {o['source']['population']:>10,} чел  "
                   f"{o['source']['name_en']} -> {', '.join(x['name_en'] for x in o['into'])}")
+        elif o["op"] == "rename":
+            print(f"  {o['id']:>18} R{o['rule'][1]}  переименование          "
+                  f"{o['source']['area_km2']:>9,.0f} км² {o['source']['population']:>10,} чел  "
+                  f"{o['source']['name_en']} -> {o['target']['name_en']}")
         else:
             print(f"  {o['id']:>18} R{o['rule'][1]}  {o['replaces_count']} -> "
                   f"{o['expect_target_regions']}  {o['replaces_area_km2']:>9,.0f} км² "

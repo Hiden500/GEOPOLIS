@@ -17,19 +17,21 @@
    "scenario": "server\\data\\scenarios\\1946"
   },
   "counts": {
-   "operations": 18,
-   "merges": 15,
-   "regions_consumed_by_merges": 54,
-   "regions_produced_by_merges": 15,
-   "net_change_from_merges": -39,
+   "operations": 24,
+   "merges": 20,
+   "regions_consumed_by_merges": 67,
+   "regions_produced_by_merges": 20,
+   "net_change_from_merges": -47,
    "splits": 2,
    "resplits": 1,
-   "open_questions": 6,
+   "renames": 1,
+   "resolved_questions": 7,
+   "open_questions": 0,
    "region_count_now": 1444,
-   "region_count_delta_merges": -39,
+   "region_count_delta_merges": -47,
    "region_count_delta_splits": 2,
    "region_count_delta_resplits": 45,
-   "region_count_projected": 1452
+   "region_count_projected": 1444
   },
   "downstream": "при слиянии население складывается, а доли групп усредняются ВЗВЕШЕННО по населению; deposits/extraction складываются; позиционные файлы (ownership_1946.json, names_ru.json, config/occupation_overlay.json) требуют build/remap_region_ids.py"
  },
@@ -641,6 +643,135 @@
    ]
   },
   {
+   "id": "MRG-QND-02",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "QND-02",
+   "target": {
+    "name_en": "Windward Netherlands Antilles",
+    "name_ru": "Наветренные Нидерландские Антилы"
+   },
+   "note": "Синт-Мартен, Саба, Синт-Эстатиус — вторая половина Нидерландских Антил; первая (ABC) слита как Leeward Antilles",
+   "member_count": 3,
+   "area_km2": 45.7,
+   "population": 61863,
+   "members": [
+    {
+     "index": 969,
+     "region_id": "NAM-0148",
+     "name_en": "Sint Maarten",
+     "name_ru": "Синт-Мартен",
+     "owner": "QND",
+     "area_km2": 23.1,
+     "population": 8356
+    },
+    {
+     "index": 825,
+     "region_id": "NAM-0004",
+     "name_en": "St. Eustatius",
+     "name_ru": "Св. Эстатиус",
+     "owner": "QND",
+     "area_km2": 17.4,
+     "population": 33291
+    },
+    {
+     "index": 826,
+     "region_id": "NAM-0005",
+     "name_en": "Saba",
+     "name_ru": "Саба",
+     "owner": "QND",
+     "area_km2": 5.2,
+     "population": 20216
+    }
+   ]
+  },
+  {
+   "id": "MRG-GBR-19",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "GBR-19",
+   "target": {
+    "name_en": "Channel Islands",
+    "name_ru": "Нормандские острова"
+   },
+   "note": "Джерси и Гернси — одна коронная зависимость",
+   "member_count": 2,
+   "area_km2": 187.0,
+   "population": 110647,
+   "members": [
+    {
+     "index": 183,
+     "region_id": "EUR-0183",
+     "name_en": "Jersey",
+     "name_ru": "Джерси",
+     "owner": "GBR",
+     "area_km2": 121.5,
+     "population": 64678
+    },
+    {
+     "index": 126,
+     "region_id": "EUR-0126",
+     "name_en": "Guernsey",
+     "name_ru": "Гернси",
+     "owner": "GBR",
+     "area_km2": 65.5,
+     "population": 45969
+    }
+   ]
+  },
+  {
+   "id": "MRG-USA-03",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "USA-03",
+   "target": {
+    "name_en": "Hawaii",
+    "name_ru": "Гавайи"
+   },
+   "note": "территория США четырьмя регионами; слито по решению пользователя, несмотря на статус базы",
+   "member_count": 4,
+   "area_km2": 16675.2,
+   "population": 452014,
+   "members": [
+    {
+     "index": 1054,
+     "region_id": "NAM-0233",
+     "name_en": "Hawaii — Hawaii",
+     "name_ru": "Гавайи — Гавайи",
+     "owner": "USA",
+     "area_km2": 10443.8,
+     "population": 117093
+    },
+    {
+     "index": 1055,
+     "region_id": "NAM-0234",
+     "name_en": "Hawaii — Maui",
+     "name_ru": "Гавайи — Мауи",
+     "owner": "USA",
+     "area_km2": 3028.5,
+     "population": 68154
+    },
+    {
+     "index": 1053,
+     "region_id": "NAM-0232",
+     "name_en": "Hawaii — Kauai",
+     "name_ru": "Гавайи — Кауаи",
+     "owner": "USA",
+     "area_km2": 1640.8,
+     "population": 47353
+    },
+    {
+     "index": 1052,
+     "region_id": "NAM-0231",
+     "name_en": "Hawaii — Honolulu",
+     "name_ru": "Гавайи — Гонолулу",
+     "owner": "USA",
+     "area_km2": 1562.1,
+     "population": 219414
+    }
+   ]
+  },
+  {
    "id": "MRG-JPN-OKINAWA",
    "op": "merge",
    "rule": "R3",
@@ -678,10 +809,10 @@
    "op": "merge",
    "rule": "R3",
    "target": {
-    "name_en": "Nagasaki and Saga",
-    "name_ru": "Нагасаки и Сага"
+    "name_en": "Western Kyushu",
+    "name_ru": "Западный Кюсю"
    },
-   "note": "Сага + материковая Нагасаки + островная Нагасаки; ИМЯ ТРЕБУЕТ РЕШЕНИЯ (альтернатива — «Западный Кюсю»)",
+   "note": "Сага + материковая Нагасаки + островная Нагасаки; имя выбрано пользователем 2026-08-02 (альтернатива «Nagasaki and Saga» отклонена)",
    "member_count": 3,
    "area_km2": 6447.6,
    "population": 509867,
@@ -713,8 +844,7 @@
      "area_km2": 839.1,
      "population": 108103
     }
-   ],
-   "needs_decision": "target_name"
+   ]
   },
   {
    "id": "MRG-JPN-KYUSHU",
@@ -755,6 +885,72 @@
      "owner": "JPN",
      "area_km2": 591.2,
      "population": 250192
+    }
+   ]
+  },
+  {
+   "id": "MRG-JPN-CHUBU",
+   "op": "merge",
+   "rule": "R3",
+   "target": {
+    "name_en": "Chubu",
+    "name_ru": "Тюбу"
+   },
+   "note": "остров Садо (числится регионом «Niigata») возвращается в Тюбу",
+   "member_count": 2,
+   "area_km2": 66667.4,
+   "population": 16915851,
+   "members": [
+    {
+     "index": 571,
+     "region_id": "ASI-0194",
+     "name_en": "Chubu",
+     "name_ru": "Чубу",
+     "owner": "JPN",
+     "area_km2": 65770.9,
+     "population": 16601894
+    },
+    {
+     "index": 800,
+     "region_id": "ASI-0423",
+     "name_en": "Niigata",
+     "name_ru": "Ниигата",
+     "owner": "JPN",
+     "area_km2": 896.5,
+     "population": 313957
+    }
+   ]
+  },
+  {
+   "id": "MRG-JPN-KINKI",
+   "op": "merge",
+   "rule": "R3",
+   "target": {
+    "name_en": "Kinki",
+    "name_ru": "Кинки"
+   },
+   "note": "остров Авадзи (числится регионом «Hyōgo») возвращается в Кинки",
+   "member_count": 2,
+   "area_km2": 32939.8,
+   "population": 10311002,
+   "members": [
+    {
+     "index": 570,
+     "region_id": "ASI-0193",
+     "name_en": "Kinki",
+     "name_ru": "Кинки",
+     "owner": "JPN",
+     "area_km2": 32341.4,
+     "population": 10086661
+    },
+    {
+     "index": 799,
+     "region_id": "ASI-0422",
+     "name_en": "Hyōgo",
+     "name_ru": "Хёго",
+     "owner": "JPN",
+     "area_km2": 598.4,
+     "population": 224341
     }
    ]
   },
@@ -1152,38 +1348,70 @@
      "population": 499218
     }
    ]
+  },
+  {
+   "id": "REN-JAVA",
+   "op": "rename",
+   "rule": "R5",
+   "source": {
+    "index": 498,
+    "region_id": "ASI-0121",
+    "name_en": "Jawa Barat",
+    "name_ru": "Джава Барат",
+    "owner": "QRI",
+    "area_km2": 131764.1,
+    "population": 14501084
+   },
+   "target": {
+    "name_en": "Java",
+    "name_ru": "Ява"
+   },
+   "note": "регион покрывает всю Яву (131 764 км² при 138 800 у острова), а назван по одной провинции — Jawa Barat"
   }
  ],
- "open_questions": [
+ "resolved_questions": [
   {
    "id": "Q-QND-02",
-   "kind": "возможный пропуск R1",
-   "what": "Sint Maarten + St. Eustatius + Saba (46 км², 61 863 чел) — те же Нидерландские Антилы, что и слитый кластер Curaçao, но в списке их нет"
+   "answer": "да, слить",
+   "what": "Sint Maarten + St. Eustatius + Saba — те же Нидерландские Антилы, что и слитый кластер Curaçao",
+   "became": "MRG-QND-02"
   },
   {
    "id": "Q-GBR-19",
-   "kind": "возможный пропуск R1",
-   "what": "Jersey + Guernsey (187 км², 110 647 чел) — Нормандские острова, тот же класс"
+   "answer": "да, слить",
+   "what": "Jersey + Guernsey — Нормандские острова",
+   "became": "MRG-GBR-19"
   },
   {
    "id": "Q-SUN-02",
-   "kind": "возможный пропуск R1",
-   "what": "Saare + Hiiu (4 042 км², 487 429 чел) — эстонские острова в составе СССР"
+   "answer": "НЕТ, оставить раздельными",
+   "what": "Saare + Hiiu (4 042 км², 487 429 чел) — эстонские острова в составе СССР",
+   "became": null
   },
   {
    "id": "Q-USA-03",
-   "kind": "внутри числовой рамки, но не назван",
-   "what": "Гавайи — 4 региона, 16 675 км², 452 014 чел. По площади и населению попадают в рамку слитых, но это передовая база США. Оставляем раздельными намеренно?"
+   "answer": "да, слить",
+   "what": "Гавайи, 4 региона — статус передовой базы США слиянию не помешал",
+   "became": "MRG-USA-03"
   },
   {
    "id": "Q-JPN-SADO-AWAJI",
-   "kind": "возможный пропуск R3",
-   "what": "Sado (ASI-0423 «Niigata», 896 км²) и Awaji (ASI-0422 «Hyōgo», 598 км²) — тот же класс островных огрызков префектур, что слитые Кумамото и Кагосима. Вернуть в Тюбу и Кинки?"
+   "answer": "да, вернуть в Тюбу и Кинки",
+   "what": "Sado (ASI-0423 «Niigata») и Awaji (ASI-0422 «Hyōgo») — огрызки префектур",
+   "became": "MRG-JPN-CHUBU, MRG-JPN-KINKI"
   },
   {
    "id": "Q-JAWA-NAME",
-   "kind": "дефект R5 вне списка",
-   "what": "ASI-????: регион «Jawa Barat» покрывает всю Яву (131 764 км² при 138 800 у острова). Слияния не требует, требует имени «Java»"
+   "answer": "да, переименовать",
+   "what": "«Jawa Barat» покрывает всю Яву",
+   "became": "REN-JAVA"
+  },
+  {
+   "id": "Q-JPN-WEST-KYUSHU-NAME",
+   "answer": "«Западный Кюсю»",
+   "what": "имя для слияния Саги с Нагасаки; альтернатива «Nagasaki and Saga» отклонена",
+   "became": "MRG-JPN-WEST-KYUSHU"
   }
- ]
+ ],
+ "open_questions": []
 }
