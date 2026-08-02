@@ -72,6 +72,66 @@ describe("LLMService", () => {
       expect(prompt).not.toContain("influence: no magnitude field");
     });
 
+    it("карточка spotlight-страны несёт идеологию и подчинённость, а не только ВВП", () => {
+      // Промт ТРЕБУЕТ дать таким странам конкретный сюжетный ход, а давал три
+      // числа. Союзы и вражда просились в карточку первыми, но на данных 1946
+      // они пусты у ВСЕХ 147 стран ротации — наживаются партией. Идеология есть
+      // у всех, подчинённость — у 87 из 147, и это готовый конфликт эпохи.
+      // Базовые поля политики берутся у самой фикстуры: `PoliticsState` —
+      // полный тип, и частичный литерал не компилируется. Копировать числа
+      // руками нельзя: тест начал бы фиксировать их значения, а он не про них.
+      const basePolitics = createTestCountry().politics;
+      const game = createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({ id: "USA", name: { en: "USA" }, tier: "major" }),
+          createTestCountry({
+            id: "PRT",
+            name: { en: "Portugal" },
+            tier: "minor",
+            politics: { ...basePolitics, ideology: "Traditionalism" },
+          }),
+          createTestCountry({
+            id: "AGO",
+            name: { en: "Angola" },
+            tier: "minor",
+            politics: {
+              ...basePolitics,
+              ideology: "Traditionalism",
+              sovereigntyStatus: "colony",
+              overlordIds: ["PRT"],
+            },
+          }),
+        ],
+      });
+      const prompt = new LLMService(game).generatePrompt().prompt;
+      const card = prompt
+        .slice(prompt.indexOf("## Spotlight Countries"), prompt.indexOf("## Active Wars"))
+        .split("\n")
+        .find(l => l.startsWith("- Angola"));
+
+      expect(card).toBeDefined();
+      expect(card).toContain("Traditionalism");
+      expect(card).toContain("colony");
+      // Сюзерен назван И именем, И id: имя нужно прозе, id — полю действия.
+      expect(card).toContain("Portugal");
+      expect(card).toContain("PRT");
+    });
+
+    it("не ограничивает research/production_shift одними Major Power", () => {
+      // Ограничение жило ТОЛЬКО в тексте промта: LLMResponseValidator проверяет
+      // домен, потолок доли и тип снаряжения, про tier не знает вовсе. Проверено
+      // замером 2026-08-02 — за 72 хода источниками обоих действий были
+      // исключительно мажоры (SUN 87, GBR 54, FRA 34, CHN 1), то есть модель
+      // послушно исполняла запрет, которого движок не требует.
+      const prompt = service.generatePrompt().prompt;
+      const research = prompt.slice(prompt.indexOf('"research_shift" action'));
+
+      expect(prompt).not.toContain("a Major Power's research focus");
+      expect(prompt).not.toContain("a Major Power's military production focus");
+      expect(research).toContain("Spotlight Country");
+    });
+
     it("показывает target примитива ОБЪЕКТОМ, а не строкой-описанием", () => {
       // Диагностика 2026-08-02 (`.tmp/diag-run`, сырые ответы на отказных
       // ходах): модель слала `"target": "ALB"` и `{"regionId": "758"}` —

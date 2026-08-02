@@ -1131,7 +1131,8 @@ Narrative requirements (strict):
   strongly, explicitly grounded in real historical events — prefer narrating
   proxy support (a patron backing a client state's own conflict) over direct
   war between such powers.
-- You may direct a Major Power's research focus via a "research_shift" action
+- You may direct the research focus of ANY country listed above — a Major Power
+  or a Spotlight Country — via a "research_shift" action
   (data.domain, data.share). The domains that exist are exactly these, and
   nothing else is a domain no matter how natural the name sounds:
   ${this.getResearchDomainsLine()}.
@@ -1140,7 +1141,8 @@ Narrative requirements (strict):
   tier crosses a meaningful new threshold, narrate what this represents in
   concrete terms (what got invented/achieved) — you invent the specific
   breakthrough, the engine only tracks the number.
-- You may direct a Major Power's military production focus via a
+- You may direct the military production focus of ANY country listed above —
+  Major Power or Spotlight Country alike — via a
   "production_shift" action (data.equipmentType, data.share) — fixed
   categories (rifles/trucks/tanks/artillery/fighters/bombers/destroyers/
   submarines), no named unit models; quality is decorative, invent it the
@@ -1468,15 +1470,72 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
-   * Получает информацию о странах в ротации ("Spotlight Countries").
+   * Карточка страны в ротации.
+   *
+   * Промт ТРЕБУЕТ дать минимум двум таким странам конкретный сюжетный ход, а
+   * до 2026-08-02 давал о них три числа: ВВП, стабильность и два последних
+   * заголовка. Из ВВП сюжета не выходит — выходит «экономика продолжает
+   * восстанавливаться». Добавлены поля, которые УЖЕ ЕСТЬ в состоянии и из
+   * которых сюжет выходит: с кем страна в союзе и вражде (это готовый
+   * конфликт), воюет ли прямо сейчас, и сходится ли у неё бюджет.
+   *
+   * Бюджет — ЗНАКОМ, а не величиной, и это не экономия места: величины из
+   * промта модель цитирует в прозе, а стиль это запрещает («движку числа,
+   * хронике смысл»). Знак несёт ровно то, что нужно сюжету, — «казна трещит»
+   * против «есть на что тратить».
+   *
+   * Регионы страны здесь НЕ дублируются: они уже перечислены отдельной секцией
+   * `## Regions You Can Address` вместе с недовольством, и второй раз тот же
+   * список стоил бы токенов, не добавив ни одного факта.
    */
   private getSpotlightInfo(): string {
     const spotlight = this.getSpotlightCountries();
     if (spotlight.length === 0) return 'No spotlight countries this cycle';
-    return spotlight.map(c =>
-      `- ${getText(c.name, LLM_LOCALE)} (${c.tier}): GDP $${(c.economy.gdp / 1e9).toFixed(2)}B, stability ${Math.round(c.politics.stability)}` +
-      this.getRecentTitlesLine(c.id, SPOTLIGHT_RECENT_TITLES_COUNT)
-    ).join('\n');
+
+    const nameOf = (id: string): string => {
+      const country = this.game.countries.find(c => c.id === id);
+      return country ? `${getText(country.name, LLM_LOCALE)} (${id})` : id;
+    };
+
+    return spotlight.map(c => {
+      const facts: string[] = [
+        `GDP $${(c.economy.gdp / 1e9).toFixed(2)}B`,
+        `stability ${Math.round(c.politics.stability)}`,
+        c.economy.budgetBalance < 0 ? 'budget in deficit' : 'budget balanced or in surplus',
+        String(c.politics.ideology),
+      ];
+
+      // Статус суверенитета — самое сюжетное поле карточки на данных 1946: из
+      // 147 стран ротации 87 кому-то подчинены (32 колонии, 22 протектората,
+      // 10 оккупационных зон, мандаты, кондоминиумы). Союзы и вражда, которые
+      // просились сюда первыми, на старте пусты У ВСЕХ 147 — они наживаются
+      // партией; колониальный статус есть сразу и сам по себе конфликт.
+      const overlords = (c.politics.overlordIds ?? []).filter(id =>
+        this.game.countries.some(x => x.id === id)
+      );
+      if (c.politics.sovereigntyStatus && c.politics.sovereigntyStatus !== 'sovereign') {
+        const under = overlords.length > 0 ? ` under ${overlords.map(nameOf).join(', ')}` : '';
+        facts.push(`${String(c.politics.sovereigntyStatus).replace(/_/g, ' ')}${under}`);
+      }
+
+      const allies = c.diplomacy.allies.filter(id => this.game.countries.some(x => x.id === id));
+      const rivals = c.diplomacy.rivals.filter(id => this.game.countries.some(x => x.id === id));
+      if (allies.length > 0) facts.push(`allied with ${allies.map(nameOf).join(', ')}`);
+      if (rivals.length > 0) facts.push(`rival of ${rivals.map(nameOf).join(', ')}`);
+
+      const war = this.game.wars.find(
+        w => w.active !== false && (w.attackers.includes(c.id) || w.defenders.includes(c.id))
+      );
+      if (war) {
+        const enemies = war.attackers.includes(c.id) ? war.defenders : war.attackers;
+        facts.push(`AT WAR with ${enemies.map(nameOf).join(', ')}`);
+      }
+
+      return (
+        `- ${getText(c.name, LLM_LOCALE)} (${c.tier}): ${facts.join(', ')}` +
+        this.getRecentTitlesLine(c.id, SPOTLIGHT_RECENT_TITLES_COUNT)
+      );
+    }).join('\n');
   }
 
   /**
