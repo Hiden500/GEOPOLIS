@@ -25,6 +25,21 @@ Append-only журнал. Когда решение полностью спро�
 от порога, то есть механизм сработал ровно как задуман)**.
 
 
+## 2026-08-02 — 5 южноазиатских развилок интегрированы в каталог
+
+**Решение.** `fall_of_portuguese_india`, `french_india_transfer`,
+`sikkim_merger`, `sino_indian_border_war`, `naga_insurgency` перенесены из
+черновика (`docs/tasks/SOUTH_ASIA_1946_HINGE_POINTS.md`, готов с 2026-07-24)
+в `shared/src/data/historicalHingePoints1946.ts` без изменений полей — id
+стран (`IND`, `QPI`, `QFI`, `QSI`, `CHN`) повторно сверены с живым
+`server/data/scenarios/1946/countries.json`, расхождений не найдено.
+
+**Вне этого захода.** Хайдарабад отдельной страной — продуктовое решение,
+не принято. Раздел Индии/Пакистан и производные войны — заблокированы
+отсутствием механики "создать страну в рантайме", не отсутствием `IND`
+(разбор — `docs/tasks/SOUTH_ASIA_1946_HINGE_POINTS.md` §"Почему Раздел
+Индии всё же заблокирован").
+
 ## 2026-08-01 — JSON у локального провайдера просит промт, а не `response_format`
 
 **Решение.** Умолчание `LocalOpenAIProvider` — `LOCAL_LLM_RESPONSE_FORMAT=prompt`:
