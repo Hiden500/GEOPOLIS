@@ -12,7 +12,7 @@
    "modern_provinces": 81,
    "created_after_1946": 37,
    "existed_1946": 44,
-   "provinces_1946_after_mapping": 51,
+   "provinces_1946_after_mapping": 50,
    "entries_erasing_conflict_line": 8
   }
  },
@@ -57,7 +57,6 @@
   "Palawan",
   "Pampanga",
   "Pangasinan",
-  "Quezon",
   "Rizal",
   "Romblon",
   "Samar",
@@ -164,7 +163,7 @@
   {
    "modern": "Aurora",
    "status": "created_after_1946",
-   "province_1946": "Quezon",
+   "province_1946": "Tayabas",
    "created": 1979,
    "confidence": "high",
    "year_note": null,
