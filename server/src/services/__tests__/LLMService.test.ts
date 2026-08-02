@@ -72,6 +72,39 @@ describe("LLMService", () => {
       expect(prompt).not.toContain("influence: no magnitude field");
     });
 
+    it("называет КАЖДЫЙ домен, который примет валидатор, — не только домены с прогрессом", () => {
+      // Замер (72 хода на gemini-3.6-flash-high): 8 из 11 отказов — выдуманные
+      // имена доменов (`military`, `land_forces`). Промт печатал у страны
+      // только домены с тиром > 0, поэтому полного словаря модель не видела
+      // нигде, а схема его не удерживает — `domain` в контракте свободная
+      // строка.
+      //
+      // Сторож проверяет СВОЙСТВО, а не список: имена берутся из тех же данных,
+      // по которым судит `LLMResponseValidator`. Домен, добавленный эре или
+      // авторским данным, попадёт сюда сам; выпавший из промта — уронит тест.
+      const domains = ["nuclear", "aviation", "industry"];
+      const game = createTestGameState({
+        playerCountryId: "USA",
+        countries: [
+          createTestCountry({
+            id: "USA",
+            name: { en: "USA" },
+            tier: "major",
+            technology: { domains: { nuclear: 250, aviation: 0, industry: 0 } },
+          }),
+        ],
+      });
+      const prompt = new LLMService(game).generatePrompt().prompt;
+
+      for (const domain of domains) {
+        expect(prompt).toContain(domain);
+      }
+      // Домен с нулевым прогрессом не должен выглядеть достигнутым тиром —
+      // словарь допустимого и сводка достигнутого остаются разными вещами.
+      expect(prompt).toContain("nuclear T2");
+      expect(prompt).not.toContain("aviation T0");
+    });
+
     it("Narrative requirements: требует минимум 3 абзаца и охват Spotlight-стран (2026-07-05, живой тест на Groq/Gemini)", () => {
       const prompt = service.generatePrompt().prompt;
       expect(prompt).toContain("Narrative requirements");

@@ -1113,7 +1113,10 @@ Narrative requirements (strict):
   proxy support (a patron backing a client state's own conflict) over direct
   war between such powers.
 - You may direct a Major Power's research focus via a "research_shift" action
-  (data.domain, data.share) — there is no fixed catalog of named technologies;
+  (data.domain, data.share). The domains that exist are exactly these, and
+  nothing else is a domain no matter how natural the name sounds:
+  ${this.getResearchDomainsLine()}.
+  There is no fixed catalog of named technologies;
   a domain's "tier" is just accumulated investment. When a country's domain
   tier crosses a meaningful new threshold, narrate what this represents in
   concrete terms (what got invented/achieved) — you invent the specific
@@ -1163,8 +1166,11 @@ flat-step "action" for it any more.
 
 Hard limits (actions violating them are rejected):
 - Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
-- research_shift: data.domain must be a real domain of the source country
-  (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
+- research_shift: data.domain must be copied verbatim from the domain list
+  above. A name that is not on that list is rejected even when it names a real
+  field of research — "military", "land_forces", "aeronautics" are not domains
+  here. A broad goal is pursued through whichever listed domains carry it;
+  data.share within 0-${MAX_RESEARCH_SHARE}.
 - production_shift: data.equipmentType must be one of rifles/trucks/tanks/
   artillery/fighters/bombers/destroyers/submarines; data.share within
   0-${MAX_PRODUCTION_SHARE}.
@@ -1296,10 +1302,43 @@ Hard limits (actions violating them are rejected):
   }
 
   /**
+   * ПОЛНЫЙ перечень имён доменов, которые примет валидатор, — одной строкой на
+   * весь промт.
+   *
+   * Собирается объединением по странам, названным в `## Country IDs`, а не из
+   * списка эры: валидатор сверяет домен с `source.technology.domains`
+   * КОНКРЕТНОЙ страны (`LLMResponseValidator`), и авторские данные вправе дать
+   * стране домен сверх эры. Список эры совпал бы сегодня и разошёлся бы молча
+   * при первом же таком наполнении — а разойтись он может только в сторону
+   * «промт обещал меньше, чем движок принимает».
+   *
+   * Зачем вообще: `getTechTierSummary` печатает у страны только домены с тиром
+   * больше нуля, поэтому полного словаря модель не видела нигде. Замер
+   * (`.agent/runs/director-prompt-domains-2026-08-02`, 6 прогонов по 24 хода):
+   * выдуманные имена `military`/`land_forces` — 8 ходов из 72 до правки и 0
+   * после, Fisher p = 0,0064; заодно `research_shift` прошёл 154 раза против
+   * ОДНОГО за те же 72 хода. Схема их не удерживает и не может —
+   * `research_shift.domain` в контракте свободная строка
+   * (`.agent/runs/gemini-prompt-modes-2026-08-01`, 140 вызовов).
+   */
+  private getResearchDomainsLine(): string {
+    const domains = new Set<string>();
+    for (const id of this.getReferencedCountries().keys()) {
+      const country = this.game.countries.find(c => c.id === id);
+      if (!country) continue;
+      for (const domain of Object.keys(country.technology.domains)) domains.add(domain);
+    }
+    if (domains.size === 0) return 'none';
+    return [...domains].sort().join(', ');
+  }
+
+  /**
    * Компактная сводка тиров доменов технологий (docs/DECISIONS.md,
    * 2026-07-06) — только домены с тиром > 0, чтобы не перечислять все ~14
    * доменов эры каждый цикл. Тир — не именная технология, декоративное имя
    * прорыва при пересечении порога придумывает сам LLM в нарративе.
+   * Полный словарь допустимых имён даёт `getResearchDomainsLine`: здесь
+   * показано, ГДЕ страна продвинулась, а не что ей разрешено.
    */
   private getTechTierSummary(country: Country): string {
     const entries = Object.entries(country.technology.domains)
