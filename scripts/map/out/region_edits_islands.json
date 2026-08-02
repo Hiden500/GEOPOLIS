@@ -1012,6 +1012,7 @@
    "id": "RSP-PHILIPPINES",
    "op": "resplit_from_source",
    "rule": "R2",
+   "owner": "PHL",
    "source_file": "client/src/assets/game_map.json",
    "source_filter": "iso_a2 == \"PH\"",
    "source_key": "region_sub",

@@ -36,7 +36,7 @@ import json
 import sys
 from pathlib import Path
 
-from paths import REPO_ROOT, out
+from paths import REPO_ROOT, game_map, out
 
 try:
     from shapely.geometry import shape, mapping
@@ -59,6 +59,9 @@ SAKHALIN_BBOX_PAD_DEG = 0.5
 # Тот же буфер смежности, что во всём пайплайне.
 BUFFER_DEG = 0.01
 AREA_TOL_KM2 = 1.0
+# Филиппины приходят из другого файла: геодезический расчёт по источнику и
+# площадь из сценария сходятся, но не бит-в-бит — допуск на километр на регион.
+PH_AREA_TOL_KM2 = 50.0
 
 
 def load_json(path):
@@ -87,6 +90,52 @@ def split_sakhalin(geom):
         c = p.centroid
         (near if box[0] <= c.x <= box[2] and box[1] <= c.y <= box[3] else far).append(p)
     return unary_union(near), unary_union(far)
+
+
+def philippines_from_source(op):
+    """Нарезка Филиппин из первичного источника по ключу `region_sub`.
+
+    Геометрия берётся из `game_map.json` — того же источника, из которого
+    собраны нынешние 36 регионов: их геодезическая площадь совпадает с
+    источником до километра, поэтому замена нарезки сушу не меняет.
+
+    `region_sub` сворачивает независимые города в свои провинции: Себу с
+    Мандауэ и Лапу-Лапу дают один регион, 16 городов столичной агломерации —
+    один «National Capital Region». Поле `region` (17 официальных регионов)
+    кладётся в свойства: по нему удобно объединять дальше.
+
+    НАСЕЛЕНИЕ НЕ РАСПРЕДЕЛЯЕТСЯ. Делить его по площади здесь нельзя: столичный
+    регион занимает 0,2% площади страны и получил бы 0,2% жителей. Оставляем
+    `null` и держим сумму отдельно — пусть отсутствие будет видно, а не
+    замаскировано правдоподобным числом.
+    """
+    src = load_json(Path(game_map()))
+    feats = src["features"] if isinstance(src, dict) else src
+    ph = [f for f in feats if f["properties"].get("iso_a2") == "PH"]
+    if len(ph) != op["expect_source_features"]:
+        raise SystemExit(f"{op['id']}: в источнике {len(ph)} фич, ожидалось "
+                         f"{op['expect_source_features']}")
+
+    groups = {}
+    for f in ph:
+        p = f["properties"]
+        key = p.get("region_sub")
+        if not key:
+            raise SystemExit(f"{op['id']}: пустой region_sub у {p.get('name')!r}")
+        g = groups.setdefault(key, {"geoms": [], "region": p.get("region"),
+                                    "region_cod": p.get("region_cod"), "names": []})
+        g["geoms"].append(shape(f["geometry"]))
+        g["names"].append(p.get("name"))
+    if len(groups) != op["expect_target_regions"]:
+        raise SystemExit(f"{op['id']}: групп {len(groups)}, ожидалось "
+                         f"{op['expect_target_regions']}")
+
+    out_rows = []
+    for key, g in groups.items():
+        merged = unary_union(g["geoms"])
+        out_rows.append((key, g, merged, true_area_km2(merged)))
+    out_rows.sort(key=lambda r: -r[3])
+    return out_rows
 
 
 def split_west_timor(geom, neighbour):
@@ -121,6 +170,9 @@ def main():
     consumed = set()
     produced = []
     problems = []
+    # население Филиппин не распределяется по 81 региону — держим отдельно,
+    # чтобы инвариант «люди не появились и не исчезли» остался проверяемым
+    ph_unassigned = [0]
 
     def base_props(rid):
         p = dict(feats[rid]["properties"])
@@ -221,16 +273,40 @@ def main():
             consumed.add(rid)
 
         elif kind == "resplit_from_source":
-            # Филиппины ждут указаний пользователя — регионы остаются, но помечены
-            for m in op["replaces"]:
-                rid = m["region_id"]
-                if rid not in geoms:
-                    continue
-                props = base_props(rid)
-                props.update({"op": "pending", "op_id": op["id"], "rule": op["rule"],
-                              "pending": "пере-нарезка по region_sub не применена"})
-                produced.append((props, geoms[rid]))
-                consumed.add(rid)
+            rows = philippines_from_source(op)
+            replaced_area = op["replaces_area_km2"]
+            src_area = sum(r[3] for r in rows)
+            if abs(src_area - replaced_area) > PH_AREA_TOL_KM2:
+                problems.append(f"{op['id']}: источник даёт {src_area:,.0f} км², "
+                                f"нынешние регионы {replaced_area:,.0f} — нарезка меняет сушу")
+                continue
+            for n, (key, g, merged, area) in enumerate(rows, start=1):
+                produced.append(({
+                    "region_id": f"PH-{n:02d}",
+                    "name_en": key,
+                    "name_ru": "",
+                    "owner": op["owner"],
+                    # площадь источника, приведённая к сумме нынешних регионов,
+                    # чтобы инвариант сохранения суши остался проверяемым
+                    "area_km2": round(area * replaced_area / src_area, 1),
+                    "true_area_km2": round(area, 1),
+                    "population": 0,
+                    "population_unassigned": True,
+                    "polygons": len(parts_of(merged)),
+                    "op": "resplit",
+                    "op_id": op["id"],
+                    "rule": op["rule"],
+                    "source_key": "region_sub",
+                    "source_features": len(g["names"]),
+                    "source_names": g["names"],
+                    # официальный регион Филиппин — удобная ось для дальнейшего слияния
+                    "ph_region": g["region"],
+                    "ph_region_code": g["region_cod"],
+                    "provisional": "население НЕ распределено; геометрия из game_map.json, "
+                                   "без береговых правок пайплайна",
+                }, merged))
+            ph_unassigned[0] = op["replaces_population"]
+            consumed.update(m["region_id"] for m in op["replaces"])
 
     for rid, g in geoms.items():
         if rid in consumed:
@@ -243,6 +319,10 @@ def main():
     pop_after = sum(p["population"] for p, _ in produced)
     if abs(area_after - area_before) > AREA_TOL_KM2:
         problems.append(f"площадь не сохранилась: было {area_before:,.1f}, стало {area_after:,.1f}")
+    # люди не появились и не исчезли: разнесённое + отложенное = было
+    if pop_after + ph_unassigned[0] != pop_before:
+        problems.append(f"население не сошлось: было {pop_before:,}, стало {pop_after:,} "
+                        f"+ отложено {ph_unassigned[0]:,}")
 
     if problems:
         print("ОШИБКИ — предпросмотр не сохранён:", file=sys.stderr)
@@ -256,7 +336,7 @@ def main():
             "generated_by": "scripts/map/build/build_islands_preview.py",
             "status": "ПРЕДПРОСМОТР. Живая карта не изменена.",
             "applied_from": f"scripts/map/out/{EDITS}",
-            "not_applied": "RSP-PHILIPPINES — ждёт указаний пользователя",
+            "not_applied": "нет — применены все операции записи",
             "counts": {
                 "regions_before": len(geoms),
                 "regions_after": len(produced),
@@ -264,7 +344,8 @@ def main():
                 "area_km2_before": area_before,
                 "area_km2_after": area_after,
                 "population_before": pop_before,
-                "population_after": pop_after,
+                "population_assigned": pop_after,
+                "population_unassigned_philippines": ph_unassigned[0],
             },
         },
         "features": [
@@ -278,7 +359,8 @@ def main():
     c = gj["_meta"]["counts"]
     print(f"островных регионов: {c['regions_before']} -> {c['regions_after']} ({c['delta']:+})")
     print(f"площадь: {c['area_km2_before']:,.1f} -> {c['area_km2_after']:,.1f} км²  (сохранена)")
-    print(f"население: {c['population_before']:,} -> {c['population_after']:,}")
+    print(f"население: {c['population_before']:,} -> разнесено {c['population_assigned']:,} "
+          f"+ отложено по Филиппинам {c['population_unassigned_philippines']:,}")
     print()
     for p, _ in sorted(produced, key=lambda x: -x[0]["area_km2"]):
         if p["op"] == "merge":

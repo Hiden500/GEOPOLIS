@@ -327,6 +327,7 @@ def main():
             "id": spec["id"],
             "op": "resplit_from_source",
             "rule": spec["rule"],
+            "owner": spec["owner"],
             "source_file": spec["source_file"],
             "source_filter": spec["source_filter"],
             "source_key": spec["source_key"],
