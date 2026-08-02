@@ -8,6 +8,9 @@ import { effectiveValue } from "@shared/utils/modifiers";
 import { ModifierAttribute } from "@shared/defines/modifierAttributes";
 import {
   AUSTERITY_CUT,
+  AUSTERITY_RESTORE,
+  AUSTERITY_RECOVERY_SURPLUS_MARGIN,
+  AUSTERITY_RECOVERY_DEBT_CEILING,
   THREAT_LEVEL,
   MILITARY_RAMP,
   MILITARY_CAP_SHARE,
@@ -23,7 +26,8 @@ import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 /**
  * Детерминированное поведение ИИ-стран (без полноценного utility-AI).
  * Реализует доступное подмножество P2 (см. docs/DECISIONS.md, 2026-06-23):
- *  - Правило A: аустерити по дефициту.
+ *  - Правило A: аустерити по дефициту и обратное восстановление долей при
+ *    профиците (двусторонним стало 2026-08-02).
  *  - Правило B: ответ на угрозу с полной балансировкой (военный ответ +
  *    контр-блок соперников + power→influence→сфера для бандвагонинга).
  *  - Правило C: при низкой stability сдвиг расходов с military → welfare и
@@ -49,25 +53,52 @@ function totalIncome(c: Country): number {
 }
 
 /**
- * Правило A — аустерити: при дефиците И высокой долговой нагрузке (долг/ВВП
- * выше DEBT_GDP_PENALTY_THRESHOLD) ИИ-страна урезает дискреционные расходы на
- * 5%/тик, но не ниже снимка пола (50% старта). Само-останавливается, когда
- * бюджет выходит из дефицита (следующий EconomyTick пересчитает budgetBalance
- * ≥ 0) или долг гасится ниже порога.
+ * Правило A — аустерити В ОБЕ СТОРОНЫ (обратный ход добавлен 2026-08-02).
  *
- * Долг вместо казны как триггер (docs/plans/08_WAR_WAVE1.md, Шаг 4): с
- * конвертацией дефицита в долг казна больше не уходит в минус (пол 0), поэтому
- * прежний триггер `treasury < 0` стал бы мёртвым. Порог совпадает с началом
- * штрафа росту ВВП: ИИ затягивает пояс ровно тогда, когда долг начинает вредить.
- * Мутация — через commands/economy.ts.
+ * Урезание: при дефиците И высокой долговой нагрузке (долг/ВВП выше
+ * DEBT_GDP_PENALTY_THRESHOLD) ИИ-страна режет дискреционные расходы на
+ * 5%/тик, но не ниже снимка пола (50% старта). Долг вместо казны как триггер
+ * (docs/plans/08_WAR_WAVE1.md, Шаг 4): с конвертацией дефицита в долг казна
+ * больше не уходит в минус (пол 0), поэтому прежний триггер `treasury < 0`
+ * стал бы мёртвым. Порог совпадает с началом штрафа росту ВВП: ИИ затягивает
+ * пояс ровно тогда, когда долг начинает вредить.
+ *
+ * Восстановление: при профиците С ЗАПАСОМ (budgetBalance ≥
+ * AUSTERITY_RECOVERY_SURPLUS_MARGIN × доход) И долге, погашенном ниже
+ * AUSTERITY_RECOVERY_DEBT_CEILING (четверть порога урезания — вторая ось
+ * гистерезиса, отвечает за скорость расчистки долгов), доли поднимаются на
+ * AUSTERITY_RESTORE к потолку — стартовой доле.
+ *
+ * ПОЧЕМУ ОБРАТНЫЙ ХОД ПОЯВИЛСЯ. До него правило было односторонним
+ * храповиком: выход из дефицита лишь останавливал урезание, и срезанные доли
+ * оставались навсегда. Замер 120 месяцев живого 1946 (2026-08-01,
+ * probeStabilityRule): у всех 16 стран, вышедших из кризиса stability, welfare
+ * был ниже стартовой доли — из-за этого возврат Правила C не сработал НИ РАЗУ
+ * (отдавать welfare→military было нечего), а education (его Правило C не
+ * трогает) застревал на 0,74…0,77 старта до конца партии.
+ *
+ * Запас профицита — гистерезис: восстановление расходов само толкает бюджет
+ * обратно к дефициту, и без запаса правило осциллирует cut/restore (замер — в
+ * комментарии к AUSTERITY_RECOVERY_SURPLUS_MARGIN). Мутации — через
+ * commands/economy.ts.
  */
 function applyDeficitAusterity(game: GameState, c: Country): void {
   const e = c.economy;
-  if (e.budgetBalance >= 0 || !e.spendingFloor) return;
+  if (!e.spendingFloor || !e.spendingShares) return;
   const debtBurden = e.gdp > 0 ? e.debt / e.gdp : 0;
-  if (debtBurden <= DEBT_GDP_PENALTY_THRESHOLD) return;
 
-  economyCommands.applyDeficitAusterityCut(game, c.id, AUSTERITY_CUT, DISCRETIONARY);
+  if (e.budgetBalance < 0) {
+    if (debtBurden > DEBT_GDP_PENALTY_THRESHOLD) {
+      economyCommands.applyDeficitAusterityCut(game, c.id, AUSTERITY_CUT, DISCRETIONARY);
+    }
+    return;
+  }
+
+  if (debtBurden > AUSTERITY_RECOVERY_DEBT_CEILING) return;
+  const income = totalIncome(c);
+  if (income <= 0 || e.budgetBalance < AUSTERITY_RECOVERY_SURPLUS_MARGIN * income) return;
+
+  economyCommands.applyAusterityRecoveryRaise(game, c.id, AUSTERITY_RESTORE, DISCRETIONARY);
 }
 
 /**
@@ -91,8 +122,8 @@ function applyDeficitAusterity(game: GameState, c: Country): void {
  *    не подменяет собой Правило B (военный ramp угрожаемой страны) и не спорит
  *    с ним: у страны, которую Правило B уже подняло выше старта, возврат — ноль;
  *  - welfare не опускается ниже стартовой доли, поэтому возврат не отыгрывает
- *    назад урезание Правила A (аустерити режет ВСЕ статьи, включая welfare, и
- *    восстановления у него нет — это отдельный открытый дефект, docs/TODO.md).
+ *    назад урезание Правила A (аустерити режет ВСЕ статьи, включая welfare;
+ *    его отменяет собственный обратный ход Правила A, 2026-08-02).
  *
  * Stability читается через effectiveValue() (docs/plans/03_MODIFIERS_COMMANDS.md,
  * Шаг 2), не сырое поле — единственный переведённый читатель в этом заходе,

@@ -2,7 +2,14 @@ import { describe, it, expect } from "vitest";
 import { aiBehaviorTick } from "./AiBehaviorTick";
 import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
-import { THREAT_LEVEL, INFLUENCE_GRAVITY, MILITARY_CAP_SHARE, WELFARE_SHIFT_RATE } from "@shared/defines/ai";
+import {
+  THREAT_LEVEL,
+  INFLUENCE_GRAVITY,
+  MILITARY_CAP_SHARE,
+  WELFARE_SHIFT_RATE,
+  AUSTERITY_RESTORE,
+  AUSTERITY_RECOVERY_SURPLUS_MARGIN,
+} from "@shared/defines/ai";
 import { type Country } from "@shared/types/Country";
 
 // Хелпер: страна с заданным id и переопределением экономики/дипломатии/военки.
@@ -73,6 +80,103 @@ describe("aiBehaviorTick — Правило A (аустерити)", () => {
     aiBehaviorTick(game);
 
     expect(player.economy.militarySpending).toBe(30_000_000_000);
+  });
+});
+
+describe("aiBehaviorTick — Правило A, обратный ход (восстановление после аустерити, 2026-08-02)", () => {
+  // Доход фикстуры = 180e9; порог запаса профицита — доля этого дохода.
+  const INCOME = 180_000_000_000;
+  const MARGIN = AUSTERITY_RECOVERY_SURPLUS_MARGIN * INCOME;
+
+  /**
+   * Страна после аустерити: все пять дискреционных долей дорезаны до пола
+   * (50% старта). stability — в гистерезисной зоне Правила C (40…45), чтобы
+   * его сдвиги не примешивались к проверяемому обратному ходу Правила A.
+   */
+  function austereAI(economyOver: Partial<Country["economy"]> = {}): Country {
+    const c = country("AI");
+    c.politics.stability = 42;
+    const shares = c.economy.spendingShares!;
+    for (const k of Object.keys(shares) as (keyof typeof shares)[]) shares[k] *= 0.5;
+    Object.assign(c.economy, { budgetBalance: MARGIN, debt: 0 }, economyOver);
+    return c;
+  }
+
+  it("при профиците с запасом и долге ниже порога все доли растут на +5%", () => {
+    const ai = austereAI();
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.education).toBeCloseTo((20 / 180) * 0.5 * AUSTERITY_RESTORE, 9);
+    expect(ai.economy.spendingShares!.military).toBeCloseTo((30 / 180) * 0.5 * AUSTERITY_RESTORE, 9);
+    expect(ai.economy.spendingShares!.welfare).toBeCloseTo((15 / 180) * 0.5 * AUSTERITY_RESTORE, 9);
+    // Сумма приведена к доле сразу, не дожидаясь следующего EconomyTick.
+    expect(ai.economy.educationSpending).toBeCloseTo(INCOME * ai.economy.spendingShares!.education, 3);
+  });
+
+  it("потолок — стартовая доля: восстановление доходит до неё и останавливается", () => {
+    const ai = austereAI();
+    const start = ai.economy.spendingFloor!.educationSpending * 2;
+    ai.economy.spendingShares!.education = start / 1.01; // меньше шага до потолка
+
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+    aiBehaviorTick(game);
+    expect(ai.economy.spendingShares!.education).toBeCloseTo(start, 12);
+
+    aiBehaviorTick(game);
+    expect(ai.economy.spendingShares!.education).toBeCloseTo(start, 12);
+  });
+
+  it("долю выше стартовой (welfare после Правила C) не трогает — и уж точно не режет", () => {
+    const ai = austereAI();
+    const inflated = ai.economy.spendingFloor!.welfareSpending * 2 * 1.2;
+    ai.economy.spendingShares!.welfare = inflated;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.welfare).toBe(inflated);
+  });
+
+  it("гистерезис: профицит есть, но меньше запаса — восстановление не идёт", () => {
+    const ai = austereAI({ budgetBalance: MARGIN * 0.5 });
+    const before = ai.economy.spendingShares!.education;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.education).toBe(before);
+  });
+
+  it("при долге/ВВП выше порога восстановление не идёт даже при большом профиците", () => {
+    const ai = austereAI({ budgetBalance: MARGIN * 10, debt: 400_000_000_000 }); // 0.8 × gdp
+    const before = ai.economy.spendingShares!.education;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.education).toBe(before);
+  });
+
+  it("нет осцилляции cut/restore в соседних тиках: после урезания малый профицит не запускает восстановление", () => {
+    // Тик 1 — урезание: дефицит и долг выше порога.
+    const ai = austereAI({ budgetBalance: -1, debt: 400_000_000_000 });
+    ai.economy.spendingShares!.education = ai.economy.spendingFloor!.educationSpending * 1.5; // есть что резать
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), ai] });
+
+    aiBehaviorTick(game);
+    const afterCut = ai.economy.spendingShares!.education;
+    expect(afterCut).toBeLessThan(ai.economy.spendingFloor!.educationSpending * 1.5);
+
+    // Тик 2 — состояние, в которое урезание и выводит бюджет: небольшой
+    // профицит (меньше запаса), долг уже погашен под порог. Восстановление
+    // молчит — именно это и разрывает цикл cut → restore → cut.
+    ai.economy.budgetBalance = MARGIN * 0.9;
+    ai.economy.debt = 0;
+    aiBehaviorTick(game);
+
+    expect(ai.economy.spendingShares!.education).toBe(afterCut);
   });
 });
 

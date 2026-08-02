@@ -1,6 +1,6 @@
 # Экономика
 
-Last updated: 2026-07-11 (Госдолг: план 08 Шаг 4)
+Last updated: 2026-08-02 (аустерити ИИ двустороннее)
 
 > ⚠️ Заготовка. Часть решений не принята — см. разделы "Открытые вопросы" ниже.
 > Непомеченные числа — не источник истины, пока раздел не финализирован.
@@ -31,8 +31,9 @@ Last updated: 2026-07-11 (Госдолг: план 08 Шаг 4)
   `infrastructureSpending`, `welfareSpending`, `debtInterest`, `otherExpenses`
 - `inflation`, `unemployment`, `tradeBalance`, `budgetBalance`
 - `taxRate?` — рантайм-поле, выводится в `createGame` (см. ниже)
-- `spendingFloor?` — снимок 50% старта по 5 дискреционным статьям, используется
-  только ИИ-аустерити (`AiBehaviorTick.ts`)
+- `spendingFloor?` — снимок 50% стартовой ДОЛИ по 5 дискреционным статьям;
+  пол урезания и (×2) потолок восстановления ИИ-правил бюджета
+  (`AiBehaviorTick.ts`)
 
 ### Откуда берётся ВВП
 
@@ -123,10 +124,11 @@ educationSpending/infrastructureSpending/welfareSpending = income × доля` �
 тот же паттерн, что `taxRate → taxRevenue` выше. Потолки на каждую статью
 независимые (`shared/src/defines/budgetSpendingShareCaps.ts`,
 `BUDGET_SPENDING_SHARE_CAPS`), сумма долей может превышать 1 — разрешено
-осознанно. ИИ-страны `spendingShares` не имеют, их `*Spending` остаются
-абсолютными числами, которые двигает `AiBehaviorTick`. В интерфейсе — 4
-пресета (`client/src/components/budgetPresets.ts`), роут `PUT /budget`;
-смена бюджета **не** продвигает игровой ход.
+осознанно. С 2026-08-01 `spendingShares` сеются ВСЕМ странам в `CreateGame`
+(`docs/DECISIONS.md`): у ИИ доли двигает `AiBehaviorTick`, у игрока —
+`PUT /budget`. В интерфейсе — 4 пресета
+(`client/src/components/budgetPresets.ts`); смена бюджета **не** продвигает
+игровой ход.
 
 ### Госдолг (реализовано 2026-07-11, `docs/plans/08_WAR_WAVE1.md` Шаг 4)
 
@@ -148,7 +150,9 @@ educationSpending/infrastructureSpending/welfareSpending = income × доля` �
 - **Аустерити ИИ.** Правило A (`AiBehaviorTick`) теперь триггерится дефицитом +
   долг/ВВП выше того же порога 0.6 (прежний триггер `treasury < 0` стал мёртвым
   с конвертацией дефицита в долг). ИИ затягивает пояс ровно тогда, когда долг
-  начинает вредить росту.
+  начинает вредить росту. С 2026-08-02 правило двустороннее: при профиците с
+  запасом (≥ 3% дохода) и долге, погашенном ниже четверти порога, доли
+  восстанавливаются на +5%/тик до стартовых (`docs/DECISIONS.md`, 2026-08-02).
 - **Мировой факт.** Долг/ВВП, пересекающий `DEBT_CRISIS_GDP_THRESHOLD(1.0)`,
   кладёт в промт LLM факт «X на грани дефолта» (`SimulationEngine`, тот же
   паттерн, что инфляционный/политический кризис). Сам дефолт — нарратив/действие

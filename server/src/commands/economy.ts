@@ -99,6 +99,42 @@ export function applyDeficitAusterityCut(
   return { success: true };
 }
 
+/**
+ * Обратный ход Правила A (2026-08-02): поднимает перечисленные дискреционные
+ * доли на `raiseRate`, но не выше стартовой доли (= spendingFloor × 2 — пол
+ * аустерити есть половина старта, см. CreateGame.ts). Долю, стоящую ВЫШЕ
+ * старта (military после ramp'а Правила B, welfare после сдвига Правила C),
+ * не трогает вовсе: восстановление отменяет только урезание аустерити, а не
+ * чужие сдвиги, и уж точно ничего не режет. Условия «пора ли восстанавливать»
+ * (профицит с запасом, долг ниже порога) — у вызывающего.
+ */
+export function applyAusterityRecoveryRaise(
+  game: GameState,
+  countryId: string,
+  raiseRate: number,
+  keys: SpendKey[]
+): CommandResult {
+  const country = findCountry(game, countryId);
+  if (!country) return { success: false, error: `Unknown country: ${countryId}` };
+
+  const { economy } = country;
+  if (!economy.spendingFloor || !economy.spendingShares) return { success: true };
+
+  for (const key of keys) {
+    const share = SHARE_KEY[key];
+    const startShare = economy.spendingFloor[key] * 2;
+    if (economy.spendingShares[share] >= startShare) continue;
+    economy.spendingShares[share] = Math.min(
+      economy.spendingShares[share] * raiseRate,
+      startShare
+    );
+    // Сумма приводится сразу — как у урезания выше: между командой и следующим
+    // тиком доля и сумма обязаны говорить одно и то же.
+    economy[key] = totalIncomeOf(country) * economy.spendingShares[share];
+  }
+  return { success: true };
+}
+
 /** Соответствие абсолютной статьи расходов и её доли в доходе. */
 const SHARE_KEY = {
   militarySpending: "military",
