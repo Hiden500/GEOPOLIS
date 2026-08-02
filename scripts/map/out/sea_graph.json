@@ -1,0 +1,2434 @@
+{
+ "zones": [
+  {
+   "name": "Rio de La Plata",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 31571.6
+  },
+  {
+   "name": "Bass Strait",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 111605.1
+  },
+  {
+   "name": "Great Australian Bight",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1321095.3
+  },
+  {
+   "name": "Tasman Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 3338335.9
+  },
+  {
+   "name": "Mozambique Channel",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1380116.0
+  },
+  {
+   "name": "Savu Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 104871.0
+  },
+  {
+   "name": "Timor Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 428151.9
+  },
+  {
+   "name": "Bali Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 39314.5
+  },
+  {
+   "name": "Coral Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 4084661.2
+  },
+  {
+   "name": "Flores Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 101390.0
+  },
+  {
+   "name": "Solomon Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 735340.1
+  },
+  {
+   "name": "Arafura Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1012852.4
+  },
+  {
+   "name": "Gulf of Boni",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 33186.2
+  },
+  {
+   "name": "Java Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 560533.2
+  },
+  {
+   "name": "Ceram Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 159740.3
+  },
+  {
+   "name": "Bismarck Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 341080.4
+  },
+  {
+   "name": "Banda Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 687215.9
+  },
+  {
+   "name": "Gulf of California",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 179171.2
+  },
+  {
+   "name": "Bay of Fundy",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 16032.9
+  },
+  {
+   "name": "Strait of Gibraltar",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1638.2
+  },
+  {
+   "name": "Alboran Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 54167.4
+  },
+  {
+   "name": "Caribbean Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 2817416.0
+  },
+  {
+   "name": "Gulf of Alaska",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 420898.9
+  },
+  {
+   "name": "Bering Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 2352263.2
+  },
+  {
+   "name": "Chukchi Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 348492.4
+  },
+  {
+   "name": "Beaufort Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 433461.2
+  },
+  {
+   "name": "Labrador Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 873404.2
+  },
+  {
+   "name": "Hudson Strait",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 202617.6
+  },
+  {
+   "name": "Davis Strait",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 766162.4
+  },
+  {
+   "name": "Baffin Bay",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 538644.1
+  },
+  {
+   "name": "Lincoln Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 36769.7
+  },
+  {
+   "name": "Bristol Channel",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 5793.7
+  },
+  {
+   "name": "Irish Sea and St. George's Channel",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 46206.2
+  },
+  {
+   "name": "Inner Seas off the West Coast of Scotland",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 45314.1
+  },
+  {
+   "name": "Gulf of Aden",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 259337.0
+  },
+  {
+   "name": "Gulf of Oman",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 110219.1
+  },
+  {
+   "name": "Red Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 445892.9
+  },
+  {
+   "name": "Gulf of Aqaba",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 3553.6
+  },
+  {
+   "name": "Persian Gulf",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 244684.5
+  },
+  {
+   "name": "Ionian Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 171564.8
+  },
+  {
+   "name": "Tyrrhenian Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 217011.5
+  },
+  {
+   "name": "Adriatic Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 139951.7
+  },
+  {
+   "name": "Gulf of Suez",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 10457.9
+  },
+  {
+   "name": "Mediterranean Sea - Eastern Basin",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1168012.3
+  },
+  {
+   "name": "Aegean Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 191496.1
+  },
+  {
+   "name": "Sea of Marmara",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 11837.8
+  },
+  {
+   "name": "Singapore Strait",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 2918.7
+  },
+  {
+   "name": "Celebes Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 452141.1
+  },
+  {
+   "name": "Malacca Strait",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 193464.6
+  },
+  {
+   "name": "Sulu Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 333819.3
+  },
+  {
+   "name": "Gulf of Thailand",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 294415.8
+  },
+  {
+   "name": "Eastern China Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 757875.8
+  },
+  {
+   "name": "Seto Naikai or Inland Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 18318.5
+  },
+  {
+   "name": "Philippine Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 5584475.5
+  },
+  {
+   "name": "Yellow Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 408443.4
+  },
+  {
+   "name": "Gulf of Riga",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 18607.6
+  },
+  {
+   "name": "Baltic Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 217455.2
+  },
+  {
+   "name": "Gulf of Finland",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 30113.5
+  },
+  {
+   "name": "Gulf of Bothnia",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 118710.2
+  },
+  {
+   "name": "White Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 89965.4
+  },
+  {
+   "name": "East Siberian Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 636424.4
+  },
+  {
+   "name": "Angola Basin",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1138340.0
+  },
+  {
+   "name": "Namibian Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 907552.8
+  },
+  {
+   "name": "East Brazil Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1705651.3
+  },
+  {
+   "name": "South Brazil Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1174927.1
+  },
+  {
+   "name": "Patagonian Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 2291657.5
+  },
+  {
+   "name": "Scotia Sea",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1834807.5
+  },
+  {
+   "name": "South Atlantic Ocean",
+   "type": "open_ocean",
+   "ice": false,
+   "area_km2": 31234509.9
+  },
+  {
+   "name": "Southern Ocean",
+   "type": "open_ocean",
+   "ice": true,
+   "area_km2": 22055306.3
+  },
+  {
+   "name": "Peru-Chile Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 4096702.2
+  },
+  {
+   "name": "Chatham Rise",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 3014265.9
+  },
+  {
+   "name": "Ontong Java Plateau",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1877855.1
+  },
+  {
+   "name": "North Fiji Basin",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 2085987.1
+  },
+  {
+   "name": "Tonga Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 3342008.0
+  },
+  {
+   "name": "South Pacific Ocean",
+   "type": "open_ocean",
+   "ice": false,
+   "area_km2": 61776535.4
+  },
+  {
+   "name": "Gulf of Tomini",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 55497.9
+  },
+  {
+   "name": "Makassar Strait",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 195246.4
+  },
+  {
+   "name": "Halmahera Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 74658.5
+  },
+  {
+   "name": "Molukka Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 218309.6
+  },
+  {
+   "name": "Somali Basin",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 834178.8
+  },
+  {
+   "name": "Zanzibar Channel",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 371251.3
+  },
+  {
+   "name": "Mascarene Basin",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 4048897.3
+  },
+  {
+   "name": "Agulhas Bank",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 719442.4
+  },
+  {
+   "name": "Sunda Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 2241572.9
+  },
+  {
+   "name": "North West Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1312922.7
+  },
+  {
+   "name": "Kerguelen Plateau",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 860024.2
+  },
+  {
+   "name": "Indian Ocean",
+   "type": "open_ocean",
+   "ice": false,
+   "area_km2": 47517761.3
+  },
+  {
+   "name": "Bay of Bengal",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 2180952.7
+  },
+  {
+   "name": "South China Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 3327096.3
+  },
+  {
+   "name": "Arabian Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 4191350.2
+  },
+  {
+   "name": "Kuril-Kamchatka Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 881869.5
+  },
+  {
+   "name": "Aleutian Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1207253.8
+  },
+  {
+   "name": "Japan Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 689569.1
+  },
+  {
+   "name": "Cascadia Basin",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 931955.3
+  },
+  {
+   "name": "Southern California Bight",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 921353.7
+  },
+  {
+   "name": "Middle America Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 2420375.3
+  },
+  {
+   "name": "Panama Bight",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1294835.3
+  },
+  {
+   "name": "Hawaiian Ridge",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1000102.7
+  },
+  {
+   "name": "Mariana Trench",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1348308.8
+  },
+  {
+   "name": "North Pacific Ocean",
+   "type": "open_ocean",
+   "ice": false,
+   "area_km2": 53911137.5
+  },
+  {
+   "name": "The Coastal Waters of Southeast Alaska and British Columbia",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 131399.3
+  },
+  {
+   "name": "Gulf of Mexico",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1546890.3
+  },
+  {
+   "name": "Irminger Sea",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1100272.9
+  },
+  {
+   "name": "Rockall Trough",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 974380.4
+  },
+  {
+   "name": "Iberian Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 608011.2
+  },
+  {
+   "name": "Canary Basin",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 1492358.0
+  },
+  {
+   "name": "Banc d'Arguin",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 598847.8
+  },
+  {
+   "name": "Cape Verde Plateau",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 934166.2
+  },
+  {
+   "name": "Guinea Plateau",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 968445.0
+  },
+  {
+   "name": "Grand Banks",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 448102.3
+  },
+  {
+   "name": "Scotian Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 625457.4
+  },
+  {
+   "name": "Gulf of Maine",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 296942.8
+  },
+  {
+   "name": "Mid-Atlantic Bight",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 231426.8
+  },
+  {
+   "name": "South Atlantic Bight",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 366446.6
+  },
+  {
+   "name": "Straits of Florida",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 203224.2
+  },
+  {
+   "name": "Bahama Banks",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 489670.4
+  },
+  {
+   "name": "Greater Antilles Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 407672.9
+  },
+  {
+   "name": "Lesser Antilles Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 422226.7
+  },
+  {
+   "name": "Guiana Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 578589.6
+  },
+  {
+   "name": "North Brazil Shelf",
+   "type": "shelf",
+   "ice": false,
+   "area_km2": 616129.4
+  },
+  {
+   "name": "North Atlantic Ocean",
+   "type": "open_ocean",
+   "ice": false,
+   "area_km2": 22932221.2
+  },
+  {
+   "name": "Gulf of St. Lawrence",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 292316.5
+  },
+  {
+   "name": "Balearic (Iberian Sea)",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 79731.1
+  },
+  {
+   "name": "Bay of Biscay",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 174692.6
+  },
+  {
+   "name": "Celtic Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 215824.0
+  },
+  {
+   "name": "Mediterranean Sea - Western Basin",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 474894.6
+  },
+  {
+   "name": "Hudson Bay",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 840597.4
+  },
+  {
+   "name": "The Northwestern Passages",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 1075472.0
+  },
+  {
+   "name": "Arctic Ocean",
+   "type": "open_ocean",
+   "ice": true,
+   "area_km2": 5186081.3
+  },
+  {
+   "name": "English Channel",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 81689.6
+  },
+  {
+   "name": "Barentsz Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 1419744.5
+  },
+  {
+   "name": "Greenland Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 1200937.7
+  },
+  {
+   "name": "North Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 527316.1
+  },
+  {
+   "name": "Andaman or Burma Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 607815.9
+  },
+  {
+   "name": "Black Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 421551.6
+  },
+  {
+   "name": "Sea of Azov",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 38549.2
+  },
+  {
+   "name": "Japan Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1063391.0
+  },
+  {
+   "name": "Sea of Okhotsk",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 1613694.2
+  },
+  {
+   "name": "Kara Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 894718.5
+  },
+  {
+   "name": "Laptev Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 511443.9
+  },
+  {
+   "name": "Kattegat",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 35822.2
+  },
+  {
+   "name": "Laccadive Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 835423.8
+  },
+  {
+   "name": "Skagerrak",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 32926.0
+  },
+  {
+   "name": "Norwegian Sea",
+   "type": "enclosed",
+   "ice": true,
+   "area_km2": 1456693.3
+  },
+  {
+   "name": "Ligurian Sea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 16992.4
+  },
+  {
+   "name": "Gulf of Guinea",
+   "type": "enclosed",
+   "ice": false,
+   "area_km2": 742611.5
+  }
+ ],
+ "edges": [
+  {
+   "a": "Rio de La Plata",
+   "b": "Patagonian Shelf",
+   "present": true
+  },
+  {
+   "a": "Bass Strait",
+   "b": "Great Australian Bight",
+   "present": true
+  },
+  {
+   "a": "Bass Strait",
+   "b": "Tasman Sea",
+   "present": true
+  },
+  {
+   "a": "Great Australian Bight",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Tasman Sea",
+   "b": "Coral Sea",
+   "present": true
+  },
+  {
+   "a": "Tasman Sea",
+   "b": "Chatham Rise",
+   "present": true
+  },
+  {
+   "a": "Tasman Sea",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Tasman Sea",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Mozambique Channel",
+   "b": "Zanzibar Channel",
+   "present": true
+  },
+  {
+   "a": "Mozambique Channel",
+   "b": "Mascarene Basin",
+   "present": true
+  },
+  {
+   "a": "Mozambique Channel",
+   "b": "Agulhas Bank",
+   "present": true
+  },
+  {
+   "a": "Mozambique Channel",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Savu Sea",
+   "b": "Timor Sea",
+   "present": true
+  },
+  {
+   "a": "Savu Sea",
+   "b": "Flores Sea",
+   "present": true
+  },
+  {
+   "a": "Savu Sea",
+   "b": "Banda Sea",
+   "present": true
+  },
+  {
+   "a": "Savu Sea",
+   "b": "Sunda Trench",
+   "present": true
+  },
+  {
+   "a": "Timor Sea",
+   "b": "Arafura Sea",
+   "present": true
+  },
+  {
+   "a": "Timor Sea",
+   "b": "Banda Sea",
+   "present": true
+  },
+  {
+   "a": "Timor Sea",
+   "b": "Sunda Trench",
+   "present": true
+  },
+  {
+   "a": "Timor Sea",
+   "b": "North West Shelf",
+   "present": true
+  },
+  {
+   "a": "Bali Sea",
+   "b": "Flores Sea",
+   "present": true
+  },
+  {
+   "a": "Bali Sea",
+   "b": "Java Sea",
+   "present": true
+  },
+  {
+   "a": "Bali Sea",
+   "b": "Sunda Trench",
+   "present": true
+  },
+  {
+   "a": "Coral Sea",
+   "b": "Solomon Sea",
+   "present": true
+  },
+  {
+   "a": "Coral Sea",
+   "b": "Arafura Sea",
+   "present": true
+  },
+  {
+   "a": "Coral Sea",
+   "b": "Ontong Java Plateau",
+   "present": true
+  },
+  {
+   "a": "Coral Sea",
+   "b": "North Fiji Basin",
+   "present": true
+  },
+  {
+   "a": "Coral Sea",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Flores Sea",
+   "b": "Gulf of Boni",
+   "present": true
+  },
+  {
+   "a": "Flores Sea",
+   "b": "Java Sea",
+   "present": true
+  },
+  {
+   "a": "Flores Sea",
+   "b": "Banda Sea",
+   "present": true
+  },
+  {
+   "a": "Flores Sea",
+   "b": "Makassar Strait",
+   "present": true
+  },
+  {
+   "a": "Solomon Sea",
+   "b": "Bismarck Sea",
+   "present": true
+  },
+  {
+   "a": "Solomon Sea",
+   "b": "Ontong Java Plateau",
+   "present": true
+  },
+  {
+   "a": "Arafura Sea",
+   "b": "Ceram Sea",
+   "present": true
+  },
+  {
+   "a": "Arafura Sea",
+   "b": "Banda Sea",
+   "present": true
+  },
+  {
+   "a": "Gulf of Boni",
+   "b": "Banda Sea",
+   "present": true
+  },
+  {
+   "a": "Java Sea",
+   "b": "Makassar Strait",
+   "present": true
+  },
+  {
+   "a": "Java Sea",
+   "b": "Sunda Trench",
+   "present": true
+  },
+  {
+   "a": "Java Sea",
+   "b": "South China Sea",
+   "present": true
+  },
+  {
+   "a": "Ceram Sea",
+   "b": "Banda Sea",
+   "present": true
+  },
+  {
+   "a": "Ceram Sea",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Ceram Sea",
+   "b": "Halmahera Sea",
+   "present": true
+  },
+  {
+   "a": "Ceram Sea",
+   "b": "Molukka Sea",
+   "present": true
+  },
+  {
+   "a": "Bismarck Sea",
+   "b": "Ontong Java Plateau",
+   "present": true
+  },
+  {
+   "a": "Banda Sea",
+   "b": "Molukka Sea",
+   "present": true
+  },
+  {
+   "a": "Gulf of California",
+   "b": "Middle America Trench",
+   "present": true
+  },
+  {
+   "a": "Bay of Fundy",
+   "b": "Scotian Shelf",
+   "present": true
+  },
+  {
+   "a": "Bay of Fundy",
+   "b": "Gulf of Maine",
+   "present": true
+  },
+  {
+   "a": "Strait of Gibraltar",
+   "b": "Alboran Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Strait of Gibraltar (east)",
+    "status": "open",
+    "why": "Восточный выход из пролива в Альборанское море."
+   }
+  },
+  {
+   "a": "Strait of Gibraltar",
+   "b": "Iberian Shelf",
+   "present": true,
+   "chokepoint": {
+    "name": "Strait of Gibraltar (west)",
+    "status": "open",
+    "why": "Западный вход в пролив. Средиземное море соединено с океаном только через него."
+   }
+  },
+  {
+   "a": "Alboran Sea",
+   "b": "Mediterranean Sea - Western Basin",
+   "present": true
+  },
+  {
+   "a": "Caribbean Sea",
+   "b": "Gulf of Mexico",
+   "present": true
+  },
+  {
+   "a": "Caribbean Sea",
+   "b": "Greater Antilles Shelf",
+   "present": true
+  },
+  {
+   "a": "Caribbean Sea",
+   "b": "Lesser Antilles Shelf",
+   "present": true
+  },
+  {
+   "a": "Gulf of Alaska",
+   "b": "Bering Sea",
+   "present": true
+  },
+  {
+   "a": "Gulf of Alaska",
+   "b": "Aleutian Trench",
+   "present": true
+  },
+  {
+   "a": "Gulf of Alaska",
+   "b": "Cascadia Basin",
+   "present": true
+  },
+  {
+   "a": "Gulf of Alaska",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Gulf of Alaska",
+   "b": "The Coastal Waters of Southeast Alaska and British Columbia",
+   "present": true
+  },
+  {
+   "a": "Bering Sea",
+   "b": "Chukchi Sea",
+   "present": true
+  },
+  {
+   "a": "Bering Sea",
+   "b": "Kuril-Kamchatka Trench",
+   "present": true
+  },
+  {
+   "a": "Bering Sea",
+   "b": "Aleutian Trench",
+   "present": true
+  },
+  {
+   "a": "Chukchi Sea",
+   "b": "Beaufort Sea",
+   "present": true
+  },
+  {
+   "a": "Chukchi Sea",
+   "b": "East Siberian Sea",
+   "present": true
+  },
+  {
+   "a": "Chukchi Sea",
+   "b": "Arctic Ocean",
+   "present": true
+  },
+  {
+   "a": "Beaufort Sea",
+   "b": "The Northwestern Passages",
+   "present": true
+  },
+  {
+   "a": "Beaufort Sea",
+   "b": "Arctic Ocean",
+   "present": true
+  },
+  {
+   "a": "Labrador Sea",
+   "b": "Davis Strait",
+   "present": true
+  },
+  {
+   "a": "Labrador Sea",
+   "b": "Irminger Sea",
+   "present": true
+  },
+  {
+   "a": "Labrador Sea",
+   "b": "Grand Banks",
+   "present": true
+  },
+  {
+   "a": "Labrador Sea",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Labrador Sea",
+   "b": "Gulf of St. Lawrence",
+   "present": true
+  },
+  {
+   "a": "Hudson Strait",
+   "b": "Davis Strait",
+   "present": true
+  },
+  {
+   "a": "Hudson Strait",
+   "b": "Hudson Bay",
+   "present": true
+  },
+  {
+   "a": "Hudson Strait",
+   "b": "The Northwestern Passages",
+   "present": true
+  },
+  {
+   "a": "Davis Strait",
+   "b": "Baffin Bay",
+   "present": true
+  },
+  {
+   "a": "Baffin Bay",
+   "b": "Lincoln Sea",
+   "present": true
+  },
+  {
+   "a": "Baffin Bay",
+   "b": "The Northwestern Passages",
+   "present": true
+  },
+  {
+   "a": "Lincoln Sea",
+   "b": "Arctic Ocean",
+   "present": true
+  },
+  {
+   "a": "Bristol Channel",
+   "b": "Celtic Sea",
+   "present": true
+  },
+  {
+   "a": "Irish Sea and St. George's Channel",
+   "b": "Inner Seas off the West Coast of Scotland",
+   "present": true
+  },
+  {
+   "a": "Irish Sea and St. George's Channel",
+   "b": "Celtic Sea",
+   "present": true
+  },
+  {
+   "a": "Inner Seas off the West Coast of Scotland",
+   "b": "Rockall Trough",
+   "present": true
+  },
+  {
+   "a": "Gulf of Aden",
+   "b": "Red Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Bab-el-Mandeb",
+    "status": "open",
+    "why": "Южный вход в Красное море."
+   }
+  },
+  {
+   "a": "Gulf of Aden",
+   "b": "Arabian Sea",
+   "present": true
+  },
+  {
+   "a": "Gulf of Oman",
+   "b": "Persian Gulf",
+   "present": true,
+   "chokepoint": {
+    "name": "Strait of Hormuz",
+    "status": "open",
+    "why": "Единственный выход из Персидского залива."
+   }
+  },
+  {
+   "a": "Gulf of Oman",
+   "b": "Arabian Sea",
+   "present": true
+  },
+  {
+   "a": "Red Sea",
+   "b": "Gulf of Aqaba",
+   "present": true,
+   "chokepoint": {
+    "name": "Strait of Tiran",
+    "status": "open",
+    "why": "Единственный вход в залив Акаба."
+   }
+  },
+  {
+   "a": "Red Sea",
+   "b": "Gulf of Suez",
+   "present": true,
+   "chokepoint": {
+    "name": "Gulf of Suez entrance",
+    "status": "open",
+    "why": "Южный вход в Суэцкий залив. В связке с закрытым каналом делает залив тупиком."
+   }
+  },
+  {
+   "a": "Ionian Sea",
+   "b": "Tyrrhenian Sea",
+   "present": true
+  },
+  {
+   "a": "Ionian Sea",
+   "b": "Adriatic Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Strait of Otranto",
+    "status": "open",
+    "why": "Единственный вход в Адриатику."
+   }
+  },
+  {
+   "a": "Ionian Sea",
+   "b": "Mediterranean Sea - Eastern Basin",
+   "present": true
+  },
+  {
+   "a": "Tyrrhenian Sea",
+   "b": "Mediterranean Sea - Eastern Basin",
+   "present": true
+  },
+  {
+   "a": "Tyrrhenian Sea",
+   "b": "Mediterranean Sea - Western Basin",
+   "present": true
+  },
+  {
+   "a": "Tyrrhenian Sea",
+   "b": "Ligurian Sea",
+   "present": true
+  },
+  {
+   "a": "Mediterranean Sea - Eastern Basin",
+   "b": "Aegean Sea",
+   "present": true
+  },
+  {
+   "a": "Mediterranean Sea - Eastern Basin",
+   "b": "Mediterranean Sea - Western Basin",
+   "present": true
+  },
+  {
+   "a": "Aegean Sea",
+   "b": "Sea of Marmara",
+   "present": true,
+   "chokepoint": {
+    "name": "Dardanelles",
+    "status": "open",
+    "why": "Южные ворота черноморских проливов."
+   }
+  },
+  {
+   "a": "Sea of Marmara",
+   "b": "Black Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Bosporus",
+    "status": "open",
+    "why": "Северные ворота черноморских проливов."
+   }
+  },
+  {
+   "a": "Singapore Strait",
+   "b": "Malacca Strait",
+   "present": true,
+   "chokepoint": {
+    "name": "Strait of Malacca",
+    "status": "bypassable",
+    "why": "Исторически главное узкое место Юго-Восточной Азии, но НЕ мост графа: обход существует через Зондский и Ломбокский проливы вокруг Суматры и Явы. Помечено честно — иначе проверка на разрыв связности на нём бы падала."
+   }
+  },
+  {
+   "a": "Singapore Strait",
+   "b": "South China Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Singapore Strait (eastern approach)",
+    "status": "bypassable",
+    "why": "Восточный выход из Малаккско-Сингапурской связки. Обходится тем же путём вокруг архипелага."
+   }
+  },
+  {
+   "a": "Celebes Sea",
+   "b": "Sulu Sea",
+   "present": true
+  },
+  {
+   "a": "Celebes Sea",
+   "b": "Philippine Sea",
+   "present": true
+  },
+  {
+   "a": "Celebes Sea",
+   "b": "Makassar Strait",
+   "present": true
+  },
+  {
+   "a": "Celebes Sea",
+   "b": "Molukka Sea",
+   "present": true
+  },
+  {
+   "a": "Malacca Strait",
+   "b": "South China Sea",
+   "present": true
+  },
+  {
+   "a": "Malacca Strait",
+   "b": "Andaman or Burma Sea",
+   "present": true
+  },
+  {
+   "a": "Sulu Sea",
+   "b": "Philippine Sea",
+   "present": true
+  },
+  {
+   "a": "Sulu Sea",
+   "b": "South China Sea",
+   "present": true
+  },
+  {
+   "a": "Gulf of Thailand",
+   "b": "South China Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Gulf of Thailand entrance",
+    "status": "open",
+    "why": "Единственный вход в Сиамский залив."
+   }
+  },
+  {
+   "a": "Eastern China Sea",
+   "b": "Philippine Sea",
+   "present": true
+  },
+  {
+   "a": "Eastern China Sea",
+   "b": "Yellow Sea",
+   "present": true
+  },
+  {
+   "a": "Eastern China Sea",
+   "b": "South China Sea",
+   "present": true
+  },
+  {
+   "a": "Eastern China Sea",
+   "b": "Japan Sea",
+   "present": true
+  },
+  {
+   "a": "Seto Naikai or Inland Sea",
+   "b": "Philippine Sea",
+   "present": true
+  },
+  {
+   "a": "Seto Naikai or Inland Sea",
+   "b": "Japan Sea",
+   "present": true
+  },
+  {
+   "a": "Philippine Sea",
+   "b": "Halmahera Sea",
+   "present": true
+  },
+  {
+   "a": "Philippine Sea",
+   "b": "Molukka Sea",
+   "present": true
+  },
+  {
+   "a": "Philippine Sea",
+   "b": "South China Sea",
+   "present": true
+  },
+  {
+   "a": "Philippine Sea",
+   "b": "Japan Trench",
+   "present": true
+  },
+  {
+   "a": "Philippine Sea",
+   "b": "Mariana Trench",
+   "present": true
+  },
+  {
+   "a": "Philippine Sea",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Yellow Sea",
+   "b": "Japan Sea",
+   "present": true
+  },
+  {
+   "a": "Gulf of Riga",
+   "b": "Baltic Sea",
+   "present": true
+  },
+  {
+   "a": "Baltic Sea",
+   "b": "Gulf of Finland",
+   "present": true
+  },
+  {
+   "a": "Baltic Sea",
+   "b": "Gulf of Bothnia",
+   "present": true
+  },
+  {
+   "a": "Baltic Sea",
+   "b": "Kattegat",
+   "present": true,
+   "chokepoint": {
+    "name": "Danish Straits",
+    "status": "open",
+    "why": "Эресунн и Бельты — единственный морской выход из Балтики."
+   }
+  },
+  {
+   "a": "Gulf of Finland",
+   "b": "Gulf of Bothnia",
+   "present": true
+  },
+  {
+   "a": "White Sea",
+   "b": "Barentsz Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Gorlo (White Sea Throat)",
+    "status": "open",
+    "why": "Горло Белого моря — единственный вход в него."
+   }
+  },
+  {
+   "a": "East Siberian Sea",
+   "b": "Arctic Ocean",
+   "present": true
+  },
+  {
+   "a": "East Siberian Sea",
+   "b": "Laptev Sea",
+   "present": true
+  },
+  {
+   "a": "Angola Basin",
+   "b": "Namibian Shelf",
+   "present": true
+  },
+  {
+   "a": "Angola Basin",
+   "b": "South Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Angola Basin",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Angola Basin",
+   "b": "Gulf of Guinea",
+   "present": true
+  },
+  {
+   "a": "Namibian Shelf",
+   "b": "South Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Namibian Shelf",
+   "b": "Agulhas Bank",
+   "present": true
+  },
+  {
+   "a": "Namibian Shelf",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "East Brazil Shelf",
+   "b": "South Brazil Shelf",
+   "present": true
+  },
+  {
+   "a": "East Brazil Shelf",
+   "b": "South Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "East Brazil Shelf",
+   "b": "North Brazil Shelf",
+   "present": true
+  },
+  {
+   "a": "East Brazil Shelf",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "South Brazil Shelf",
+   "b": "Patagonian Shelf",
+   "present": true
+  },
+  {
+   "a": "South Brazil Shelf",
+   "b": "South Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Patagonian Shelf",
+   "b": "Scotia Sea",
+   "present": true
+  },
+  {
+   "a": "Patagonian Shelf",
+   "b": "South Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Patagonian Shelf",
+   "b": "Southern Ocean",
+   "present": true
+  },
+  {
+   "a": "Patagonian Shelf",
+   "b": "Peru-Chile Trench",
+   "present": true
+  },
+  {
+   "a": "Patagonian Shelf",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Scotia Sea",
+   "b": "South Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Scotia Sea",
+   "b": "Southern Ocean",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Ocean",
+   "b": "Southern Ocean",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Ocean",
+   "b": "Agulhas Bank",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Ocean",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Ocean",
+   "b": "North Brazil Shelf",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Ocean",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Southern Ocean",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Southern Ocean",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Peru-Chile Trench",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Peru-Chile Trench",
+   "b": "Panama Bight",
+   "present": true
+  },
+  {
+   "a": "Peru-Chile Trench",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Chatham Rise",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Ontong Java Plateau",
+   "b": "North Fiji Basin",
+   "present": true
+  },
+  {
+   "a": "Ontong Java Plateau",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Ontong Java Plateau",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "North Fiji Basin",
+   "b": "Tonga Trench",
+   "present": true
+  },
+  {
+   "a": "North Fiji Basin",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Tonga Trench",
+   "b": "South Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "South Pacific Ocean",
+   "b": "Halmahera Sea",
+   "present": true
+  },
+  {
+   "a": "South Pacific Ocean",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "South Pacific Ocean",
+   "b": "Panama Bight",
+   "present": true
+  },
+  {
+   "a": "South Pacific Ocean",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Gulf of Tomini",
+   "b": "Molukka Sea",
+   "present": true
+  },
+  {
+   "a": "Halmahera Sea",
+   "b": "Molukka Sea",
+   "present": true
+  },
+  {
+   "a": "Halmahera Sea",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Somali Basin",
+   "b": "Zanzibar Channel",
+   "present": true
+  },
+  {
+   "a": "Somali Basin",
+   "b": "Mascarene Basin",
+   "present": true
+  },
+  {
+   "a": "Somali Basin",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Somali Basin",
+   "b": "Arabian Sea",
+   "present": true
+  },
+  {
+   "a": "Zanzibar Channel",
+   "b": "Mascarene Basin",
+   "present": true
+  },
+  {
+   "a": "Zanzibar Channel",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Mascarene Basin",
+   "b": "Agulhas Bank",
+   "present": true
+  },
+  {
+   "a": "Mascarene Basin",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Agulhas Bank",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Sunda Trench",
+   "b": "North West Shelf",
+   "present": true
+  },
+  {
+   "a": "Sunda Trench",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Sunda Trench",
+   "b": "Bay of Bengal",
+   "present": true
+  },
+  {
+   "a": "Sunda Trench",
+   "b": "Andaman or Burma Sea",
+   "present": true
+  },
+  {
+   "a": "North West Shelf",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Kerguelen Plateau",
+   "b": "Indian Ocean",
+   "present": true
+  },
+  {
+   "a": "Indian Ocean",
+   "b": "Bay of Bengal",
+   "present": true
+  },
+  {
+   "a": "Indian Ocean",
+   "b": "Arabian Sea",
+   "present": true
+  },
+  {
+   "a": "Indian Ocean",
+   "b": "Laccadive Sea",
+   "present": true
+  },
+  {
+   "a": "Bay of Bengal",
+   "b": "Andaman or Burma Sea",
+   "present": true
+  },
+  {
+   "a": "Bay of Bengal",
+   "b": "Laccadive Sea",
+   "present": true
+  },
+  {
+   "a": "Arabian Sea",
+   "b": "Laccadive Sea",
+   "present": true
+  },
+  {
+   "a": "Kuril-Kamchatka Trench",
+   "b": "Aleutian Trench",
+   "present": true
+  },
+  {
+   "a": "Kuril-Kamchatka Trench",
+   "b": "Japan Trench",
+   "present": true
+  },
+  {
+   "a": "Kuril-Kamchatka Trench",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Kuril-Kamchatka Trench",
+   "b": "Sea of Okhotsk",
+   "present": true
+  },
+  {
+   "a": "Aleutian Trench",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Japan Trench",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Japan Trench",
+   "b": "Japan Sea",
+   "present": true
+  },
+  {
+   "a": "Japan Trench",
+   "b": "Sea of Okhotsk",
+   "present": true
+  },
+  {
+   "a": "Cascadia Basin",
+   "b": "Southern California Bight",
+   "present": true
+  },
+  {
+   "a": "Cascadia Basin",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Cascadia Basin",
+   "b": "The Coastal Waters of Southeast Alaska and British Columbia",
+   "present": true
+  },
+  {
+   "a": "Southern California Bight",
+   "b": "Middle America Trench",
+   "present": true
+  },
+  {
+   "a": "Southern California Bight",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Middle America Trench",
+   "b": "Panama Bight",
+   "present": true
+  },
+  {
+   "a": "Middle America Trench",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Panama Bight",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Hawaiian Ridge",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Mariana Trench",
+   "b": "North Pacific Ocean",
+   "present": true
+  },
+  {
+   "a": "Gulf of Mexico",
+   "b": "Straits of Florida",
+   "present": true
+  },
+  {
+   "a": "Irminger Sea",
+   "b": "Rockall Trough",
+   "present": true
+  },
+  {
+   "a": "Irminger Sea",
+   "b": "Grand Banks",
+   "present": true
+  },
+  {
+   "a": "Irminger Sea",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Irminger Sea",
+   "b": "Greenland Sea",
+   "present": true
+  },
+  {
+   "a": "Rockall Trough",
+   "b": "Iberian Shelf",
+   "present": true
+  },
+  {
+   "a": "Rockall Trough",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Rockall Trough",
+   "b": "Celtic Sea",
+   "present": true
+  },
+  {
+   "a": "Rockall Trough",
+   "b": "Greenland Sea",
+   "present": true
+  },
+  {
+   "a": "Rockall Trough",
+   "b": "North Sea",
+   "present": true
+  },
+  {
+   "a": "Rockall Trough",
+   "b": "Norwegian Sea",
+   "present": true
+  },
+  {
+   "a": "Iberian Shelf",
+   "b": "Canary Basin",
+   "present": true
+  },
+  {
+   "a": "Iberian Shelf",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Iberian Shelf",
+   "b": "Bay of Biscay",
+   "present": true
+  },
+  {
+   "a": "Iberian Shelf",
+   "b": "Celtic Sea",
+   "present": true
+  },
+  {
+   "a": "Canary Basin",
+   "b": "Banc d'Arguin",
+   "present": true
+  },
+  {
+   "a": "Canary Basin",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Banc d'Arguin",
+   "b": "Cape Verde Plateau",
+   "present": true
+  },
+  {
+   "a": "Banc d'Arguin",
+   "b": "Guinea Plateau",
+   "present": true
+  },
+  {
+   "a": "Banc d'Arguin",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Cape Verde Plateau",
+   "b": "Guinea Plateau",
+   "present": true
+  },
+  {
+   "a": "Cape Verde Plateau",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Guinea Plateau",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Guinea Plateau",
+   "b": "Gulf of Guinea",
+   "present": true
+  },
+  {
+   "a": "Grand Banks",
+   "b": "Scotian Shelf",
+   "present": true
+  },
+  {
+   "a": "Grand Banks",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Grand Banks",
+   "b": "Gulf of St. Lawrence",
+   "present": true
+  },
+  {
+   "a": "Scotian Shelf",
+   "b": "Gulf of Maine",
+   "present": true
+  },
+  {
+   "a": "Scotian Shelf",
+   "b": "Greater Antilles Shelf",
+   "present": true
+  },
+  {
+   "a": "Scotian Shelf",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Scotian Shelf",
+   "b": "Gulf of St. Lawrence",
+   "present": true
+  },
+  {
+   "a": "Gulf of Maine",
+   "b": "Mid-Atlantic Bight",
+   "present": true
+  },
+  {
+   "a": "Gulf of Maine",
+   "b": "Greater Antilles Shelf",
+   "present": true
+  },
+  {
+   "a": "Gulf of Maine",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Mid-Atlantic Bight",
+   "b": "South Atlantic Bight",
+   "present": true
+  },
+  {
+   "a": "Mid-Atlantic Bight",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Bight",
+   "b": "Straits of Florida",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Bight",
+   "b": "Bahama Banks",
+   "present": true
+  },
+  {
+   "a": "South Atlantic Bight",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Straits of Florida",
+   "b": "Bahama Banks",
+   "present": true
+  },
+  {
+   "a": "Straits of Florida",
+   "b": "Greater Antilles Shelf",
+   "present": true
+  },
+  {
+   "a": "Bahama Banks",
+   "b": "Greater Antilles Shelf",
+   "present": true
+  },
+  {
+   "a": "Bahama Banks",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Greater Antilles Shelf",
+   "b": "Lesser Antilles Shelf",
+   "present": true
+  },
+  {
+   "a": "Greater Antilles Shelf",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Lesser Antilles Shelf",
+   "b": "Guiana Shelf",
+   "present": true
+  },
+  {
+   "a": "Lesser Antilles Shelf",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "Guiana Shelf",
+   "b": "North Brazil Shelf",
+   "present": true
+  },
+  {
+   "a": "Guiana Shelf",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "North Brazil Shelf",
+   "b": "North Atlantic Ocean",
+   "present": true
+  },
+  {
+   "a": "North Atlantic Ocean",
+   "b": "Gulf of Guinea",
+   "present": true
+  },
+  {
+   "a": "Balearic (Iberian Sea)",
+   "b": "Mediterranean Sea - Western Basin",
+   "present": true
+  },
+  {
+   "a": "Bay of Biscay",
+   "b": "Celtic Sea",
+   "present": true
+  },
+  {
+   "a": "Celtic Sea",
+   "b": "English Channel",
+   "present": true
+  },
+  {
+   "a": "Mediterranean Sea - Western Basin",
+   "b": "Ligurian Sea",
+   "present": true
+  },
+  {
+   "a": "Hudson Bay",
+   "b": "The Northwestern Passages",
+   "present": true
+  },
+  {
+   "a": "The Northwestern Passages",
+   "b": "Arctic Ocean",
+   "present": true
+  },
+  {
+   "a": "Arctic Ocean",
+   "b": "Barentsz Sea",
+   "present": true
+  },
+  {
+   "a": "Arctic Ocean",
+   "b": "Greenland Sea",
+   "present": true
+  },
+  {
+   "a": "Arctic Ocean",
+   "b": "Kara Sea",
+   "present": true
+  },
+  {
+   "a": "Arctic Ocean",
+   "b": "Laptev Sea",
+   "present": true
+  },
+  {
+   "a": "English Channel",
+   "b": "North Sea",
+   "present": true,
+   "chokepoint": {
+    "name": "Strait of Dover",
+    "status": "bypassable",
+    "why": "Па-де-Кале узок физически, но обход вокруг Шотландии существует — и в 1946 им пользовались. Мостом графа не является, и это правда, а не дефект разреза."
+   }
+  },
+  {
+   "a": "Barentsz Sea",
+   "b": "Greenland Sea",
+   "present": true
+  },
+  {
+   "a": "Barentsz Sea",
+   "b": "Kara Sea",
+   "present": true
+  },
+  {
+   "a": "Barentsz Sea",
+   "b": "Norwegian Sea",
+   "present": true
+  },
+  {
+   "a": "Greenland Sea",
+   "b": "Norwegian Sea",
+   "present": true
+  },
+  {
+   "a": "North Sea",
+   "b": "Skagerrak",
+   "present": true,
+   "chokepoint": {
+    "name": "Skagerrak - North Sea",
+    "status": "open",
+    "why": "Третья ступень балтийского выхода."
+   }
+  },
+  {
+   "a": "North Sea",
+   "b": "Norwegian Sea",
+   "present": true
+  },
+  {
+   "a": "Black Sea",
+   "b": "Sea of Azov",
+   "present": true,
+   "chokepoint": {
+    "name": "Kerch Strait",
+    "status": "open",
+    "why": "Единственный вход в Азовское море."
+   }
+  },
+  {
+   "a": "Japan Sea",
+   "b": "Sea of Okhotsk",
+   "present": true
+  },
+  {
+   "a": "Kara Sea",
+   "b": "Laptev Sea",
+   "present": true
+  },
+  {
+   "a": "Kattegat",
+   "b": "Skagerrak",
+   "present": true,
+   "chokepoint": {
+    "name": "Kattegat - Skagerrak",
+    "status": "open",
+    "why": "Вторая ступень балтийского выхода."
+   }
+  },
+  {
+   "a": "Gulf of Suez",
+   "b": "Mediterranean Sea - Eastern Basin",
+   "present": false,
+   "chokepoint": {
+    "name": "Suez Canal",
+    "status": "closed",
+    "why": "Соединения в геометрии НЕТ: Суэцкий залив смежен ровно с одной зоной, и Средиземного моря среди его соседей нет. Канал в 1946 работал — значит это ребро надо ДОБАВЛЯТЬ по эпохе, а не снимать запрет."
+   }
+  },
+  {
+   "a": "Caribbean Sea",
+   "b": "Panama Bight",
+   "present": false,
+   "chokepoint": {
+    "name": "Panama Canal",
+    "status": "closed",
+    "why": "То же, что с Суэцем: канал в 1946 работал, но в водном слое Карибское море и Панамская бухта не смежны — между ними суша Зоны канала. Находка по ходу задачи, не заказанная явно."
+   }
+  }
+ ],
+ "counts": {
+  "zones": 146,
+  "edges": 287,
+  "edges_only_via_antimeridian": 0,
+  "chokepoints_open": 18,
+  "chokepoints_closed": 2
+ }
+}

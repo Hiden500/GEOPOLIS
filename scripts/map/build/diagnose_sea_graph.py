@@ -109,8 +109,9 @@ def summarize(zones, land, top=10, chokepoints=None):
     for a, b in sorted(brs, key=lambda e: (names[e[0]], names[e[1]]))[:top]:
         print(f"      {names[a]} | {names[b]}")
 
+    choke_errors = None
     if chokepoints:
-        check_chokepoints(names, edges, brs, chokepoints)
+        choke_errors = check_chokepoints(len(zones), names, edges, brs, chokepoints)
 
     return {
         "zones": len(zones), "area_km2": sum(areas), "edges": len(edges),
@@ -119,32 +120,57 @@ def summarize(zones, land, top=10, chokepoints=None):
         "coastal_max": per_zone[0][0], "coastal_over": len(over),
         "lonely": len(lonely), "lonely_with_sea": len(lonely_with_sea),
         "ocean_pairs_unreachable": len(unreachable), "bridges": len(brs),
+        "chokepoint_errors": choke_errors,
     }
 
 
-def check_chokepoints(names, edges, brs, chokepoints):
-    """Помеченное узкое место обязано быть мостом — иначе пометка врёт.
+def check_chokepoints(n_zones, names, edges, brs, chokepoints):
+    """Пометка узкого места обязана совпадать с тем, что показывает граф.
 
-    Ребро, снятие которого ничего не рвёт, узким местом не является: флот
-    обойдёт его стороной, и запирать там нечего.
+    Три статуса и три разных обязательства:
+
+      open        ребро есть И является мостом — снятие рвёт связность;
+      closed      ребра НЕТ (канал открывается добавлением ребра по эпохе);
+      bypassable  ребро есть, мостом не является — печатается длина обхода,
+                  чтобы «обходится» было числом, а не словом.
+
+    Всё, что не совпало, печатается как ОШИБКА и считается в возврате: пометка,
+    расходящаяся с графом, хуже отсутствующей — она врёт молча.
     """
-    index = {n: i for i, n in enumerate(names)}
+    index = {name: i for i, name in enumerate(names)}
     print(f"\nузких мест помечено:        {len(chokepoints)}")
+    errors = 0
     for cp in chokepoints:
         a, b = cp["zones"]
         ia, ib = index.get(a), index.get(b)
-        key = (min(ia, ib), max(ia, ib)) if (ia is not None and ib is not None) else None
+        status = cp.get("status")
         if ia is None or ib is None:
-            state = "ЗОНЫ НЕТ В СЛОЕ"
-        elif cp.get("status") == "closed":
-            state = "закрыто (ребра нет)" if key not in edges else "ОШИБКА: ребро существует"
-        elif key not in edges:
-            state = "ОШИБКА: ребра нет"
-        elif key in brs:
-            state = "мост — снятие рвёт карту"
+            state, bad = "ОШИБКА: зоны нет в слое", True
         else:
-            state = "НЕ мост — обходится"
-        print(f"   {cp['name']:<24} {a} | {b}  -> {state}")
+            key = (min(ia, ib), max(ia, ib))
+            present = key in edges
+            if status == "closed":
+                state, bad = ("закрыто: ребра нет", False) if not present else (
+                    "ОШИБКА: ребро существует", True)
+            elif not present:
+                state, bad = "ОШИБКА: ребра нет", True
+            elif status == "open":
+                state, bad = ("мост: снятие рвёт связность", False) if key in brs else (
+                    "ОШИБКА: не мост", True)
+            elif status == "bypassable":
+                if key in brs:
+                    state, bad = "ОШИБКА: мост, а помечен обходимым", True
+                else:
+                    detour = sg.shortest_path(n_zones, edges - {key}, ia, ib)
+                    state = f"обход существует, {len(detour) - 1} рёбер" if detour else \
+                        "ОШИБКА: обхода нет"
+                    bad = detour is None
+            else:
+                state, bad = f"ОШИБКА: неизвестный статус '{status}'", True
+        errors += bool(bad)
+        print(f"   {cp['name']:<34} {a} | {b}  -> {state}")
+    print(f"  расхождений пометки с графом: {errors}")
+    return errors
 
 
 def main():
