@@ -1,0 +1,4502 @@
+{
+ "_meta": {
+  "generated_by": "scripts/map/build/build_islands_index.py",
+  "purpose": "выработать правило слияния островных регионов; НИЧЕГО не сливает",
+  "island_definition": "регион с пустым neighboringRegionIds в regions.core.json",
+  "cluster_rule": "связная компонента по расстоянию центроидов <= 2.0° внутри одного владельца",
+  "sources": {
+   "geometry": "scripts\\map\\out\\world_1946.geojson",
+   "scenario": "server\\data\\scenarios\\1946",
+   "seas": "scripts\\map\\out\\seas_iho_coastline.geojson"
+  },
+  "counts": {
+   "land_regions_in_geometry": 1451,
+   "scenario_regions": 1444,
+   "island_regions": 174,
+   "clusters": 125,
+   "clusters_with_more_than_one_region": 19,
+   "regions_saved_by_merge": 49
+  },
+  "warnings": {
+   "sea_layer_missing": false,
+   "island_regions_without_sea_neighbor": [],
+   "island_regions_without_geometry": []
+  }
+ },
+ "clusters": [
+  {
+   "cluster_id": "PHL-02",
+   "owner": "PHL",
+   "suggested_name": "Western Visayas",
+   "region_count": 10,
+   "area_km2": 22226.5,
+   "population": 5075085,
+   "regions": [
+    {
+     "index": 680,
+     "region_id": "ASI-0303",
+     "name_en": "Western Visayas",
+     "name_ru": "Западные Висайские острова",
+     "owner": "PHL",
+     "area_km2": 11663.1,
+     "population": 757819,
+     "polygons": 3,
+     "centroid": [
+      122.4432,
+      11.2006
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea",
+      "Sulu Sea"
+     ]
+    },
+    {
+     "index": 815,
+     "region_id": "ASI-0438",
+     "name_en": "Masbate",
+     "name_ru": "Масбате",
+     "owner": "PHL",
+     "area_km2": 3936.9,
+     "population": 359850,
+     "polygons": 3,
+     "centroid": [
+      123.5541,
+      12.2927
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    },
+    {
+     "index": 816,
+     "region_id": "ASI-0439",
+     "name_en": "Catanduanes",
+     "name_ru": "Катандуанес",
+     "owner": "PHL",
+     "area_km2": 1489.0,
+     "population": 234858,
+     "polygons": 1,
+     "centroid": [
+      124.2307,
+      13.787
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    },
+    {
+     "index": 810,
+     "region_id": "ASI-0433",
+     "name_en": "Surigao del Norte",
+     "name_ru": "Северный Суригао",
+     "owner": "PHL",
+     "area_km2": 1169.4,
+     "population": 199254,
+     "polygons": 2,
+     "centroid": [
+      125.7752,
+      10.0731
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    },
+    {
+     "index": 809,
+     "region_id": "ASI-0432",
+     "name_en": "Romblon",
+     "name_ru": "Ромблон",
+     "owner": "PHL",
+     "area_km2": 1141.3,
+     "population": 185005,
+     "polygons": 2,
+     "centroid": [
+      122.2421,
+      12.4098
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    },
+    {
+     "index": 808,
+     "region_id": "ASI-0431",
+     "name_en": "Marinduque",
+     "name_ru": "Мариндуке",
+     "owner": "PHL",
+     "area_km2": 889.0,
+     "population": 792439,
+     "polygons": 1,
+     "centroid": [
+      121.9615,
+      13.3914
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    },
+    {
+     "index": 814,
+     "region_id": "ASI-0437",
+     "name_en": "Quezon",
+     "name_ru": "Кесон",
+     "owner": "PHL",
+     "area_km2": 578.8,
+     "population": 684345,
+     "polygons": 1,
+     "centroid": [
+      121.9399,
+      14.8777
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    },
+    {
+     "index": 821,
+     "region_id": "ASI-0444",
+     "name_en": "Guimaras",
+     "name_ru": "Гимарас",
+     "owner": "PHL",
+     "area_km2": 574.0,
+     "population": 745811,
+     "polygons": 1,
+     "centroid": [
+      122.6268,
+      10.582
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Sulu Sea"
+     ]
+    },
+    {
+     "index": 813,
+     "region_id": "ASI-0436",
+     "name_en": "Biliran",
+     "name_ru": "Билиран",
+     "owner": "PHL",
+     "area_km2": 460.9,
+     "population": 616486,
+     "polygons": 1,
+     "centroid": [
+      124.494,
+      11.5877
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    },
+    {
+     "index": 819,
+     "region_id": "ASI-0442",
+     "name_en": "Siquijor",
+     "name_ru": "Сикихор",
+     "owner": "PHL",
+     "area_km2": 324.1,
+     "population": 499218,
+     "polygons": 1,
+     "centroid": [
+      123.6071,
+      9.1855
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-03",
+   "owner": "PRT",
+   "suggested_name": "Santa Catarina",
+   "region_count": 9,
+   "area_km2": 3912.1,
+   "population": 2116353,
+   "regions": [
+    {
+     "index": 1338,
+     "region_id": "AFR-0172",
+     "name_en": "Santa Catarina",
+     "name_ru": "Санта-Катарина",
+     "owner": "PRT",
+     "area_km2": 964.1,
+     "population": 215713,
+     "polygons": 1,
+     "centroid": [
+      -23.6374,
+      15.0824
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1337,
+     "region_id": "AFR-0171",
+     "name_en": "Porto Novo",
+     "name_ru": "Порто-Ново",
+     "owner": "PRT",
+     "area_km2": 740.1,
+     "population": 176423,
+     "polygons": 1,
+     "centroid": [
+      -25.173,
+      17.0611
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1332,
+     "region_id": "AFR-0166",
+     "name_en": "Boa Vista",
+     "name_ru": "Боа-Виста",
+     "owner": "PRT",
+     "area_km2": 633.7,
+     "population": 164911,
+     "polygons": 1,
+     "centroid": [
+      -22.8163,
+      16.1057
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1335,
+     "region_id": "AFR-0169",
+     "name_en": "São Filipe",
+     "name_ru": "Сан-Филипи",
+     "owner": "PRT",
+     "area_km2": 457.8,
+     "population": 132589,
+     "polygons": 1,
+     "centroid": [
+      -24.4001,
+      14.9287
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1336,
+     "region_id": "AFR-0170",
+     "name_en": "Ribeira Brava",
+     "name_ru": "Рибейра Брава",
+     "owner": "PRT",
+     "area_km2": 335.6,
+     "population": 129911,
+     "polygons": 1,
+     "centroid": [
+      -24.2614,
+      16.6044
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1331,
+     "region_id": "AFR-0165",
+     "name_en": "Maio",
+     "name_ru": "Майо",
+     "owner": "PRT",
+     "area_km2": 265.9,
+     "population": 102641,
+     "polygons": 1,
+     "centroid": [
+      -23.1798,
+      15.2215
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1334,
+     "region_id": "AFR-0168",
+     "name_en": "São Vicente",
+     "name_ru": "Сан-Висенте",
+     "owner": "PRT",
+     "area_km2": 257.9,
+     "population": 541074,
+     "polygons": 3,
+     "centroid": [
+      -24.9395,
+      16.8343
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1333,
+     "region_id": "AFR-0167",
+     "name_en": "Sal",
+     "name_ru": "Сал",
+     "owner": "PRT",
+     "area_km2": 197.3,
+     "population": 432383,
+     "polygons": 1,
+     "centroid": [
+      -22.9344,
+      16.7393
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1330,
+     "region_id": "AFR-0164",
+     "name_en": "Brava",
+     "name_ru": "Брава",
+     "owner": "PRT",
+     "area_km2": 59.7,
+     "population": 220708,
+     "polygons": 1,
+     "centroid": [
+      -24.7186,
+      14.8544
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SLB-02",
+   "owner": "SLB",
+   "suggested_name": "Western",
+   "region_count": 7,
+   "area_km2": 20915.9,
+   "population": 78005,
+   "regions": [
+    {
+     "index": 1436,
+     "region_id": "OCE-0062",
+     "name_en": "Western",
+     "name_ru": "Западный",
+     "owner": "SLB",
+     "area_km2": 5168.4,
+     "population": 3775,
+     "polygons": 15,
+     "centroid": [
+      157.258,
+      -8.1517
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Solomon Sea"
+     ]
+    },
+    {
+     "index": 1432,
+     "region_id": "OCE-0058",
+     "name_en": "Malaita",
+     "name_ru": "Малаита",
+     "owner": "SLB",
+     "area_km2": 4401.4,
+     "population": 10394,
+     "polygons": 4,
+     "centroid": [
+      161.0263,
+      -9.0039
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Solomon Sea",
+      "South Pacific Ocean"
+     ]
+    },
+    {
+     "index": 1437,
+     "region_id": "OCE-0063",
+     "name_en": "Isabel",
+     "name_ru": "Изабель",
+     "owner": "SLB",
+     "area_km2": 4036.0,
+     "population": 10137,
+     "polygons": 5,
+     "centroid": [
+      159.1595,
+      -8.0177
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Solomon Sea",
+      "South Pacific Ocean"
+     ]
+    },
+    {
+     "index": 1430,
+     "region_id": "OCE-0056",
+     "name_en": "Makira",
+     "name_ru": "Макира",
+     "owner": "SLB",
+     "area_km2": 3095.5,
+     "population": 9024,
+     "polygons": 2,
+     "centroid": [
+      161.8402,
+      -10.5481
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Coral Sea",
+      "Solomon Sea",
+      "South Pacific Ocean"
+     ]
+    },
+    {
+     "index": 1438,
+     "region_id": "OCE-0064",
+     "name_en": "Choiseul",
+     "name_ru": "Шуазёль",
+     "owner": "SLB",
+     "area_km2": 3001.0,
+     "population": 9063,
+     "polygons": 3,
+     "centroid": [
+      156.9744,
+      -7.039
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Solomon Sea",
+      "South Pacific Ocean"
+     ]
+    },
+    {
+     "index": 1429,
+     "region_id": "OCE-0055",
+     "name_en": "Rennell and Bellona",
+     "name_ru": "Реннелл и Беллона",
+     "owner": "SLB",
+     "area_km2": 664.2,
+     "population": 19033,
+     "polygons": 2,
+     "centroid": [
+      160.252,
+      -11.6412
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Coral Sea",
+      "Solomon Sea"
+     ]
+    },
+    {
+     "index": 1435,
+     "region_id": "OCE-0061",
+     "name_en": "Central",
+     "name_ru": "Центральный",
+     "owner": "SLB",
+     "area_km2": 549.4,
+     "population": 16579,
+     "polygons": 6,
+     "centroid": [
+      159.8793,
+      -9.0787
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Solomon Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QWL-01",
+   "owner": "QWL",
+   "suggested_name": "Antigua and Barbuda",
+   "region_count": 5,
+   "area_km2": 882.9,
+   "population": 90182,
+   "regions": [
+    {
+     "index": 872,
+     "region_id": "NAM-0051",
+     "name_en": "Antigua and Barbuda",
+     "name_ru": "Антигуа и Барбуда",
+     "owner": "QWL",
+     "area_km2": 442.7,
+     "population": 14926,
+     "polygons": 3,
+     "centroid": [
+      -61.7918,
+      17.285
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea",
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 912,
+     "region_id": "NAM-0091",
+     "name_en": "Saint Kitts",
+     "name_ru": "Сент-Китс",
+     "owner": "QWL",
+     "area_km2": 174.2,
+     "population": 24906,
+     "polygons": 1,
+     "centroid": [
+      -62.7582,
+      17.3324
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 915,
+     "region_id": "NAM-0094",
+     "name_en": "Montserrat",
+     "name_ru": "Монтсеррат",
+     "owner": "QWL",
+     "area_km2": 99.0,
+     "population": 18046,
+     "polygons": 1,
+     "centroid": [
+      -62.1878,
+      16.738
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 911,
+     "region_id": "NAM-0090",
+     "name_en": "Nevis",
+     "name_ru": "Невис",
+     "owner": "QWL",
+     "area_km2": 86.8,
+     "population": 17219,
+     "polygons": 1,
+     "centroid": [
+      -62.5812,
+      17.1496
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 873,
+     "region_id": "NAM-0052",
+     "name_en": "Anguilla",
+     "name_ru": "Ангилья",
+     "owner": "QWL",
+     "area_km2": 80.2,
+     "population": 15085,
+     "polygons": 2,
+     "centroid": [
+      -63.0615,
+      18.225
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-04",
+   "owner": "USA",
+   "suggested_name": "Hawaii — Hawaii",
+   "region_count": 4,
+   "area_km2": 16675.2,
+   "population": 452014,
+   "regions": [
+    {
+     "index": 1054,
+     "region_id": "NAM-0233",
+     "name_en": "Hawaii — Hawaii",
+     "name_ru": "Гавайи — Гавайи",
+     "owner": "USA",
+     "area_km2": 10443.8,
+     "population": 117093,
+     "polygons": 1,
+     "centroid": [
+      -155.5191,
+      19.5998
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    },
+    {
+     "index": 1055,
+     "region_id": "NAM-0234",
+     "name_en": "Hawaii — Maui",
+     "name_ru": "Гавайи — Мауи",
+     "owner": "USA",
+     "area_km2": 3028.5,
+     "population": 68154,
+     "polygons": 4,
+     "centroid": [
+      -156.5678,
+      20.8656
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    },
+    {
+     "index": 1053,
+     "region_id": "NAM-0232",
+     "name_en": "Hawaii — Kauai",
+     "name_ru": "Гавайи — Кауаи",
+     "owner": "USA",
+     "area_km2": 1640.8,
+     "population": 47353,
+     "polygons": 2,
+     "centroid": [
+      -159.5956,
+      22.0408
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    },
+    {
+     "index": 1052,
+     "region_id": "NAM-0231",
+     "name_en": "Hawaii — Honolulu",
+     "name_ru": "Гавайи — Гонолулу",
+     "owner": "USA",
+     "area_km2": 1562.1,
+     "population": 219414,
+     "polygons": 1,
+     "centroid": [
+      -157.9742,
+      21.4595
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QWW-01",
+   "owner": "QWW",
+   "suggested_name": "Dominica",
+   "region_count": 4,
+   "area_km2": 2035.9,
+   "population": 252000,
+   "regions": [
+    {
+     "index": 892,
+     "region_id": "NAM-0071",
+     "name_en": "Dominica",
+     "name_ru": "Доминика",
+     "owner": "QWW",
+     "area_km2": 728.2,
+     "population": 74407,
+     "polygons": 1,
+     "centroid": [
+      -61.3569,
+      15.4364
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 914,
+     "region_id": "NAM-0093",
+     "name_en": "Saint Lucia",
+     "name_ru": "Сент-Люсия",
+     "owner": "QWW",
+     "area_km2": 605.4,
+     "population": 69653,
+     "polygons": 1,
+     "centroid": [
+      -60.9703,
+      13.9029
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 973,
+     "region_id": "NAM-0152",
+     "name_en": "Saint Vincent and the Grenadines",
+     "name_ru": "Сент-Винсент и Гренадины",
+     "owner": "QWW",
+     "area_km2": 357.0,
+     "population": 55494,
+     "polygons": 4,
+     "centroid": [
+      -61.2012,
+      13.2275
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 893,
+     "region_id": "NAM-0072",
+     "name_en": "Grenada",
+     "name_ru": "Гренада",
+     "owner": "QWW",
+     "area_km2": 345.3,
+     "population": 52446,
+     "polygons": 2,
+     "centroid": [
+      -61.657,
+      12.1524
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QND-01",
+   "owner": "QND",
+   "suggested_name": "Curaçao",
+   "region_count": 3,
+   "area_km2": 898.1,
+   "population": 77138,
+   "regions": [
+    {
+     "index": 891,
+     "region_id": "NAM-0070",
+     "name_en": "Curaçao",
+     "name_ru": "Кюрасао",
+     "owner": "QND",
+     "area_km2": 462.1,
+     "population": 16392,
+     "polygons": 1,
+     "centroid": [
+      -68.9717,
+      12.1941
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 824,
+     "region_id": "NAM-0003",
+     "name_en": "Bonaire",
+     "name_ru": "Бонайре",
+     "owner": "QND",
+     "area_km2": 265.8,
+     "population": 35376,
+     "polygons": 1,
+     "centroid": [
+      -68.288,
+      12.1865
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 874,
+     "region_id": "NAM-0053",
+     "name_en": "Aruba",
+     "name_ru": "Аруба",
+     "owner": "QND",
+     "area_km2": 170.2,
+     "population": 25370,
+     "polygons": 1,
+     "centroid": [
+      -69.9738,
+      12.5165
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-17",
+   "owner": "GBR",
+   "suggested_name": "Grand'Anse",
+   "region_count": 3,
+   "area_km2": 232.7,
+   "population": 137780,
+   "regions": [
+    {
+     "index": 1342,
+     "region_id": "AFR-0176",
+     "name_en": "Grand'Anse",
+     "name_ru": "Гранд Анс",
+     "owner": "GBR",
+     "area_km2": 161.4,
+     "population": 71657,
+     "polygons": 1,
+     "centroid": [
+      55.468,
+      -4.677
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    },
+    {
+     "index": 1341,
+     "region_id": "AFR-0175",
+     "name_en": "Grand'Anse Praslin",
+     "name_ru": "Гранд Анс Праслин",
+     "owner": "GBR",
+     "area_km2": 39.4,
+     "population": 35909,
+     "polygons": 1,
+     "centroid": [
+      55.7294,
+      -4.3241
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    },
+    {
+     "index": 1340,
+     "region_id": "AFR-0174",
+     "name_en": "La Digue and Inner Islands",
+     "name_ru": "Ла-Диг и Внутренние острова",
+     "owner": "GBR",
+     "area_km2": 31.9,
+     "population": 30214,
+     "polygons": 2,
+     "centroid": [
+      55.4346,
+      -4.4386
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QND-02",
+   "owner": "QND",
+   "suggested_name": "Sint Maarten",
+   "region_count": 3,
+   "area_km2": 45.7,
+   "population": 61863,
+   "regions": [
+    {
+     "index": 969,
+     "region_id": "NAM-0148",
+     "name_en": "Sint Maarten",
+     "name_ru": "Синт-Мартен",
+     "owner": "QND",
+     "area_km2": 23.1,
+     "population": 8356,
+     "polygons": 1,
+     "centroid": [
+      -63.0697,
+      18.0407
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 825,
+     "region_id": "NAM-0004",
+     "name_en": "St. Eustatius",
+     "name_ru": "Св. Эстатиус",
+     "owner": "QND",
+     "area_km2": 17.4,
+     "population": 33291,
+     "polygons": 1,
+     "centroid": [
+      -62.9746,
+      17.4884
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 826,
+     "region_id": "NAM-0005",
+     "name_en": "Saba",
+     "name_ru": "Саба",
+     "owner": "QND",
+     "area_km2": 5.2,
+     "population": 20216,
+     "polygons": 1,
+     "centroid": [
+      -63.2378,
+      17.6294
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-03",
+   "owner": "JPN",
+   "suggested_name": "Shikoku",
+   "region_count": 2,
+   "area_km2": 19401.8,
+   "population": 1766023,
+   "regions": [
+    {
+     "index": 568,
+     "region_id": "ASI-0191",
+     "name_en": "Shikoku",
+     "name_ru": "Сикоку",
+     "owner": "JPN",
+     "area_km2": 18803.4,
+     "population": 1541682,
+     "polygons": 8,
+     "centroid": [
+      133.4666,
+      33.6656
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea",
+      "Seto Naikai or Inland Sea"
+     ]
+    },
+    {
+     "index": 799,
+     "region_id": "ASI-0422",
+     "name_en": "Hyōgo",
+     "name_ru": "Хёго",
+     "owner": "JPN",
+     "area_km2": 598.4,
+     "population": 224341,
+     "polygons": 1,
+     "centroid": [
+      134.839,
+      34.3638
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Philippine Sea",
+      "Seto Naikai or Inland Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-11",
+   "owner": "GBR",
+   "suggested_name": "Rio Claro-Mayaro",
+   "region_count": 2,
+   "area_km2": 5116.9,
+   "population": 702437,
+   "regions": [
+    {
+     "index": 972,
+     "region_id": "NAM-0151",
+     "name_en": "Rio Claro-Mayaro",
+     "name_ru": "Рио Кларо-Маяро",
+     "owner": "GBR",
+     "area_km2": 4828.6,
+     "population": 480301,
+     "polygons": 1,
+     "centroid": [
+      -61.2937,
+      10.4216
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea",
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 971,
+     "region_id": "NAM-0150",
+     "name_en": "Eastern Tobago",
+     "name_ru": "Восточный Тобаго",
+     "owner": "GBR",
+     "area_km2": 288.3,
+     "population": 222136,
+     "polygons": 1,
+     "centroid": [
+      -60.6704,
+      11.247
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea",
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SUN-01",
+   "owner": "SUN",
+   "suggested_name": "Saare",
+   "region_count": 2,
+   "area_km2": 4041.8,
+   "population": 487429,
+   "regions": [
+    {
+     "index": 68,
+     "region_id": "EUR-0068",
+     "name_en": "Saare",
+     "name_ru": "Сааре",
+     "owner": "SUN",
+     "area_km2": 2973.2,
+     "population": 309729,
+     "polygons": 3,
+     "centroid": [
+      22.5377,
+      58.3927
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Baltic Sea",
+      "Gulf of Riga"
+     ]
+    },
+    {
+     "index": 69,
+     "region_id": "EUR-0069",
+     "name_en": "Hiiu",
+     "name_ru": "Хийу",
+     "owner": "SUN",
+     "area_km2": 1068.6,
+     "population": 177700,
+     "polygons": 1,
+     "centroid": [
+      22.6176,
+      58.8931
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Baltic Sea",
+      "Gulf of Riga"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QZN-01",
+   "owner": "QZN",
+   "suggested_name": "Zanzibar South and Central",
+   "region_count": 2,
+   "area_km2": 2504.2,
+   "population": 230000,
+   "regions": [
+    {
+     "index": 1258,
+     "region_id": "AFR-0092",
+     "name_en": "Zanzibar South and Central",
+     "name_ru": "Занзибар Южный и Центральный",
+     "owner": "QZN",
+     "area_km2": 1579.2,
+     "population": 134461,
+     "polygons": 2,
+     "centroid": [
+      39.3538,
+      -6.1329
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    },
+    {
+     "index": 1259,
+     "region_id": "AFR-0093",
+     "name_en": "Kusini-Pemba",
+     "name_ru": "Кусини-Пемба",
+     "owner": "QZN",
+     "area_km2": 925.0,
+     "population": 95539,
+     "polygons": 2,
+     "centroid": [
+      39.7589,
+      -5.1834
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "MDG-01",
+   "owner": "MDG",
+   "suggested_name": "Comoros",
+   "region_count": 2,
+   "area_km2": 2050.8,
+   "population": 698283,
+   "regions": [
+    {
+     "index": 1170,
+     "region_id": "AFR-0004",
+     "name_en": "Comoros",
+     "name_ru": "Коморы",
+     "owner": "MDG",
+     "area_km2": 1664.4,
+     "population": 483820,
+     "polygons": 3,
+     "centroid": [
+      43.6792,
+      -11.8828
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean",
+      "Mozambique Channel"
+     ]
+    },
+    {
+     "index": 1168,
+     "region_id": "AFR-0002",
+     "name_en": "Mayotte",
+     "name_ru": "Майотта",
+     "owner": "MDG",
+     "area_km2": 386.4,
+     "population": 214463,
+     "polygons": 2,
+     "centroid": [
+      45.1428,
+      -12.8159
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Mozambique Channel"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PHL-01",
+   "owner": "PHL",
+   "suggested_name": "Basilan",
+   "region_count": 2,
+   "area_km2": 1908.6,
+   "population": 1033900,
+   "regions": [
+    {
+     "index": 803,
+     "region_id": "ASI-0426",
+     "name_en": "Basilan",
+     "name_ru": "Басилан",
+     "owner": "PHL",
+     "area_km2": 1038.4,
+     "population": 171874,
+     "polygons": 1,
+     "centroid": [
+      122.0611,
+      6.5635
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Celebes Sea",
+      "Sulu Sea"
+     ]
+    },
+    {
+     "index": 804,
+     "region_id": "ASI-0427",
+     "name_en": "Sulu",
+     "name_ru": "Сулу",
+     "owner": "PHL",
+     "area_km2": 870.2,
+     "population": 862026,
+     "polygons": 1,
+     "centroid": [
+      121.1299,
+      5.9777
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Celebes Sea",
+      "Sulu Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VEN-01",
+   "owner": "VEN",
+   "suggested_name": "Nueva Esparta",
+   "region_count": 2,
+   "area_km2": 1388.9,
+   "population": 289025,
+   "regions": [
+    {
+     "index": 1142,
+     "region_id": "SAM-0054",
+     "name_en": "Nueva Esparta",
+     "name_ru": "Нуэва Эспарта",
+     "owner": "VEN",
+     "area_km2": 1106.1,
+     "population": 83011,
+     "polygons": 3,
+     "centroid": [
+      -64.0569,
+      10.9879
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    },
+    {
+     "index": 1143,
+     "region_id": "SAM-0055",
+     "name_en": "Dependencias Federales",
+     "name_ru": "Федеральные зависимости",
+     "owner": "VEN",
+     "area_km2": 282.8,
+     "population": 206014,
+     "polygons": 4,
+     "centroid": [
+      -65.3703,
+      11.3266
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-04",
+   "owner": "PRT",
+   "suggested_name": "São Tomé",
+   "region_count": 2,
+   "area_km2": 1035.6,
+   "population": 604775,
+   "regions": [
+    {
+     "index": 1360,
+     "region_id": "AFR-0194",
+     "name_en": "São Tomé",
+     "name_ru": "Сан-Томе",
+     "owner": "PRT",
+     "area_km2": 880.6,
+     "population": 215948,
+     "polygons": 1,
+     "centroid": [
+      6.6075,
+      0.2356
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Gulf of Guinea",
+      "North Atlantic Ocean"
+     ]
+    },
+    {
+     "index": 1361,
+     "region_id": "AFR-0195",
+     "name_en": "Príncipe",
+     "name_ru": "Принсипи",
+     "owner": "PRT",
+     "area_km2": 155.0,
+     "population": 388827,
+     "polygons": 1,
+     "centroid": [
+      7.3961,
+      1.6213
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Gulf of Guinea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TWN-03",
+   "owner": "TWN",
+   "suggested_name": "Kinmen",
+   "region_count": 2,
+   "area_km2": 234.1,
+   "population": 337656,
+   "regions": [
+    {
+     "index": 746,
+     "region_id": "ASI-0369",
+     "name_en": "Kinmen",
+     "name_ru": "Цзиньмэнь",
+     "owner": "TWN",
+     "area_km2": 154.1,
+     "population": 200779,
+     "polygons": 1,
+     "centroid": [
+      118.3764,
+      24.458
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South China Sea"
+     ]
+    },
+    {
+     "index": 747,
+     "region_id": "ASI-0370",
+     "name_en": "Penghu",
+     "name_ru": "Пэнху",
+     "owner": "TWN",
+     "area_km2": 80.0,
+     "population": 136877,
+     "polygons": 3,
+     "centroid": [
+      119.5878,
+      23.5887
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South China Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-02",
+   "owner": "GBR",
+   "suggested_name": "Jersey",
+   "region_count": 2,
+   "area_km2": 187.0,
+   "population": 110647,
+   "regions": [
+    {
+     "index": 183,
+     "region_id": "EUR-0183",
+     "name_en": "Jersey",
+     "name_ru": "Джерси",
+     "owner": "GBR",
+     "area_km2": 121.5,
+     "population": 64678,
+     "polygons": 1,
+     "centroid": [
+      -2.1264,
+      49.2213
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "English Channel"
+     ]
+    },
+    {
+     "index": 126,
+     "region_id": "EUR-0126",
+     "name_en": "Guernsey",
+     "name_ru": "Гернси",
+     "owner": "GBR",
+     "area_km2": 65.5,
+     "population": 45969,
+     "polygons": 2,
+     "centroid": [
+      -2.5482,
+      49.4825
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "English Channel"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GRL-01",
+   "owner": "GRL",
+   "suggested_name": "Greenland",
+   "region_count": 1,
+   "area_km2": 2154667.7,
+   "population": 21000,
+   "regions": [
+    {
+     "index": 894,
+     "region_id": "NAM-0073",
+     "name_en": "Greenland",
+     "name_ru": "Гренландия",
+     "owner": "GRL",
+     "area_km2": 2154667.7,
+     "population": 21000,
+     "polygons": 127,
+     "centroid": [
+      -41.3465,
+      74.7354
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Arctic Ocean",
+      "Baffin Bay",
+      "Davis Strait",
+      "Greenland Sea",
+      "Labrador Sea",
+      "Lincoln Sea",
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-05",
+   "owner": "NZL",
+   "suggested_name": "South Island",
+   "region_count": 1,
+   "area_km2": 152463.6,
+   "population": 406045,
+   "regions": [
+    {
+     "index": 1407,
+     "region_id": "OCE-0033",
+     "name_en": "South Island",
+     "name_ru": "Южный остров",
+     "owner": "NZL",
+     "area_km2": 152463.6,
+     "population": 406045,
+     "polygons": 9,
+     "centroid": [
+      170.4886,
+      -44.0168
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean",
+      "Tasman Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QRI-01",
+   "owner": "QRI",
+   "suggested_name": "Jawa Barat",
+   "region_count": 1,
+   "area_km2": 131764.1,
+   "population": 14501084,
+   "regions": [
+    {
+     "index": 498,
+     "region_id": "ASI-0121",
+     "name_en": "Jawa Barat",
+     "name_ru": "Джава Барат",
+     "owner": "QRI",
+     "area_km2": 131764.1,
+     "population": 14501084,
+     "polygons": 11,
+     "centroid": [
+      110.0757,
+      -7.2868
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bali Sea",
+      "Indian Ocean",
+      "Java Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-06",
+   "owner": "NZL",
+   "suggested_name": "North Island",
+   "region_count": 1,
+   "area_km2": 114405.0,
+   "population": 896090,
+   "regions": [
+    {
+     "index": 1408,
+     "region_id": "OCE-0034",
+     "name_en": "North Island",
+     "name_ru": "Северный остров",
+     "owner": "NZL",
+     "area_km2": 114405.0,
+     "population": 896090,
+     "polygons": 6,
+     "centroid": [
+      175.7309,
+      -38.5817
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean",
+      "Tasman Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ISL-01",
+   "owner": "ISL",
+   "suggested_name": "Iceland",
+   "region_count": 1,
+   "area_km2": 102567.7,
+   "population": 130000,
+   "regions": [
+    {
+     "index": 162,
+     "region_id": "EUR-0162",
+     "name_en": "Iceland",
+     "name_ru": "Исландия",
+     "owner": "ISL",
+     "area_km2": 102567.7,
+     "population": 130000,
+     "polygons": 3,
+     "centroid": [
+      -18.5995,
+      64.9989
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Greenland Sea",
+      "North Atlantic Ocean",
+      "Norwegian Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SUN-02",
+   "owner": "SUN",
+   "suggested_name": "Sakhalin Oblast",
+   "region_count": 1,
+   "area_km2": 85930.2,
+   "population": 301716,
+   "regions": [
+    {
+     "index": 300,
+     "region_id": "EUR-0300",
+     "name_en": "Sakhalin Oblast",
+     "name_ru": "Сахалинская область",
+     "owner": "SUN",
+     "area_km2": 85930.2,
+     "population": 301716,
+     "polygons": 22,
+     "centroid": [
+      143.6386,
+      49.9427
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Japan Sea",
+      "North Pacific Ocean",
+      "Sea of Okhotsk"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-01",
+   "owner": "JPN",
+   "suggested_name": "Hokkaido",
+   "region_count": 1,
+   "area_km2": 78763.7,
+   "population": 1127953,
+   "regions": [
+    {
+     "index": 574,
+     "region_id": "ASI-0197",
+     "name_en": "Hokkaido",
+     "name_ru": "Хоккайдо",
+     "owner": "JPN",
+     "area_km2": 78763.7,
+     "population": 1127953,
+     "polygons": 7,
+     "centroid": [
+      142.5667,
+      43.3827
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Japan Sea",
+      "North Pacific Ocean",
+      "Sea of Okhotsk"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-05",
+   "owner": "AUS",
+   "suggested_name": "Tasmania",
+   "region_count": 1,
+   "area_km2": 68230.3,
+   "population": 367550,
+   "regions": [
+    {
+     "index": 1403,
+     "region_id": "OCE-0029",
+     "name_en": "Tasmania",
+     "name_ru": "Тасмания",
+     "owner": "AUS",
+     "area_km2": 68230.3,
+     "population": 367550,
+     "polygons": 13,
+     "centroid": [
+      146.6249,
+      -41.9631
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bass Strait",
+      "Great Australian Bight",
+      "Indian Ocean",
+      "South Pacific Ocean",
+      "Tasman Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "LKA-01",
+   "owner": "LKA",
+   "suggested_name": "Ceylon",
+   "region_count": 1,
+   "area_km2": 66283.8,
+   "population": 6300000,
+   "regions": [
+    {
+     "index": 637,
+     "region_id": "ASI-0260",
+     "name_en": "Ceylon",
+     "name_ru": "Цейлон",
+     "owner": "LKA",
+     "area_km2": 66283.8,
+     "population": 6300000,
+     "polygons": 5,
+     "centroid": [
+      80.7034,
+      7.6158
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bay of Bengal",
+      "Indian Ocean",
+      "Laccadive Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NOR-01",
+   "owner": "NOR",
+   "suggested_name": "Svalbard",
+   "region_count": 1,
+   "area_km2": 62061.9,
+   "population": 699181,
+   "regions": [
+    {
+     "index": 204,
+     "region_id": "EUR-0204",
+     "name_en": "Svalbard",
+     "name_ru": "Шпицберген",
+     "owner": "NOR",
+     "area_km2": 62061.9,
+     "population": 699181,
+     "polygons": 22,
+     "centroid": [
+      18.4796,
+      78.866
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Arctic Ocean",
+      "Barentsz Sea",
+      "Greenland Sea",
+      "Norwegian Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-01",
+   "owner": "IDN",
+   "suggested_name": "Maluku",
+   "region_count": 1,
+   "area_km2": 44865.6,
+   "population": 596743,
+   "regions": [
+    {
+     "index": 483,
+     "region_id": "ASI-0106",
+     "name_en": "Maluku",
+     "name_ru": "Малуку",
+     "owner": "IDN",
+     "area_km2": 44865.6,
+     "population": 596743,
+     "polygons": 52,
+     "centroid": [
+      129.7548,
+      -4.6911
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Arafura Sea",
+      "Banda Sea",
+      "Ceram Sea",
+      "Timor Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TWN-01",
+   "owner": "TWN",
+   "suggested_name": "Hainan",
+   "region_count": 1,
+   "area_km2": 33864.9,
+   "population": 3294051,
+   "regions": [
+    {
+     "index": 383,
+     "region_id": "ASI-0006",
+     "name_en": "Hainan",
+     "name_ru": "Хайнань",
+     "owner": "TWN",
+     "area_km2": 33864.9,
+     "population": 3294051,
+     "polygons": 1,
+     "centroid": [
+      109.7398,
+      19.1973
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South China Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-03",
+   "owner": "IDN",
+   "suggested_name": "Maluku Utara",
+   "region_count": 1,
+   "area_km2": 31330.0,
+   "population": 565491,
+   "regions": [
+    {
+     "index": 486,
+     "region_id": "ASI-0109",
+     "name_en": "Maluku Utara",
+     "name_ru": "Малуку Утара",
+     "owner": "IDN",
+     "area_km2": 31330.0,
+     "population": 565491,
+     "polygons": 21,
+     "centroid": [
+      127.5404,
+      0.2208
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Banda Sea",
+      "Ceram Sea",
+      "Halmahera Sea",
+      "Molukka Sea",
+      "North Pacific Ocean",
+      "Philippine Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ITA-01",
+   "owner": "ITA",
+   "suggested_name": "Sicily",
+   "region_count": 1,
+   "area_km2": 25848.6,
+   "population": 2870430,
+   "regions": [
+    {
+     "index": 180,
+     "region_id": "EUR-0180",
+     "name_en": "Sicily",
+     "name_ru": "Сицилия",
+     "owner": "ITA",
+     "area_km2": 25848.6,
+     "population": 2870430,
+     "polygons": 11,
+     "centroid": [
+      14.1479,
+      37.5905
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Ionian Sea",
+      "Mediterranean Sea - Eastern Basin",
+      "Mediterranean Sea - Western Basin",
+      "Tyrrhenian Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ITA-02",
+   "owner": "ITA",
+   "suggested_name": "Sardegna",
+   "region_count": 1,
+   "area_km2": 24104.3,
+   "population": 1352340,
+   "regions": [
+    {
+     "index": 181,
+     "region_id": "EUR-0181",
+     "name_en": "Sardegna",
+     "name_ru": "Сардиния",
+     "owner": "ITA",
+     "area_km2": 24104.3,
+     "population": 1352340,
+     "polygons": 6,
+     "centroid": [
+      9.0298,
+      40.0898
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Mediterranean Sea - Western Basin",
+      "Tyrrhenian Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-02",
+   "owner": "IDN",
+   "suggested_name": "Nusa Tenggara Barat",
+   "region_count": 1,
+   "area_km2": 19646.8,
+   "population": 445993,
+   "regions": [
+    {
+     "index": 484,
+     "region_id": "ASI-0107",
+     "name_en": "Nusa Tenggara Barat",
+     "name_ru": "Нуса Тенгара Барат",
+     "owner": "IDN",
+     "area_km2": 19646.8,
+     "population": 445993,
+     "polygons": 4,
+     "centroid": [
+      117.5008,
+      -8.6069
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bali Sea",
+      "Flores Sea",
+      "Indian Ocean",
+      "Savu Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-05",
+   "owner": "FRA",
+   "suggested_name": "New Caledonia",
+   "region_count": 1,
+   "area_km2": 18833.8,
+   "population": 663929,
+   "regions": [
+    {
+     "index": 1378,
+     "region_id": "OCE-0004",
+     "name_en": "New Caledonia",
+     "name_ru": "Новая Каледония",
+     "owner": "FRA",
+     "area_km2": 18833.8,
+     "population": 663929,
+     "polygons": 10,
+     "centroid": [
+      165.7025,
+      -21.3043
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Coral Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-24",
+   "owner": "GBR",
+   "suggested_name": "Western",
+   "region_count": 1,
+   "area_km2": 18828.9,
+   "population": 986102,
+   "regions": [
+    {
+     "index": 1442,
+     "region_id": "OCE-0068",
+     "name_en": "Western",
+     "name_ru": "Западный",
+     "owner": "GBR",
+     "area_km2": 18828.9,
+     "population": 986102,
+     "polygons": 39,
+     "centroid": [
+      178.5164,
+      -17.446
+     ],
+     "crosses_dateline": true,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-06",
+   "owner": "IDN",
+   "suggested_name": "Bangka-Belitung",
+   "region_count": 1,
+   "area_km2": 16535.6,
+   "population": 1956518,
+   "regions": [
+    {
+     "index": 492,
+     "region_id": "ASI-0115",
+     "name_en": "Bangka-Belitung",
+     "name_ru": "Бангка-Белитунг",
+     "owner": "IDN",
+     "area_km2": 16535.6,
+     "population": 1956518,
+     "polygons": 5,
+     "centroid": [
+      106.5348,
+      -2.4329
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Java Sea",
+      "South China Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-07",
+   "owner": "GBR",
+   "suggested_name": "Bahamas",
+   "region_count": 1,
+   "area_km2": 12517.8,
+   "population": 850926,
+   "regions": [
+    {
+     "index": 877,
+     "region_id": "NAM-0056",
+     "name_en": "Bahamas",
+     "name_ru": "Багамы",
+     "owner": "GBR",
+     "area_km2": 12517.8,
+     "population": 850926,
+     "polygons": 36,
+     "centroid": [
+      -76.5536,
+      24.2234
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VUT-01",
+   "owner": "VUT",
+   "suggested_name": "Sanma",
+   "region_count": 1,
+   "area_km2": 12233.9,
+   "population": 45000,
+   "regions": [
+    {
+     "index": 1439,
+     "region_id": "OCE-0065",
+     "name_en": "Sanma",
+     "name_ru": "Санма",
+     "owner": "VUT",
+     "area_km2": 12233.9,
+     "population": 45000,
+     "polygons": 27,
+     "centroid": [
+      167.7005,
+      -16.2024
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Coral Sea",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-13",
+   "owner": "GBR",
+   "suggested_name": "Falkland Islands",
+   "region_count": 1,
+   "area_km2": 11570.8,
+   "population": 678643,
+   "regions": [
+    {
+     "index": 1119,
+     "region_id": "SAM-0031",
+     "name_en": "Falkland Islands",
+     "name_ru": "Фолклендские острова",
+     "owner": "GBR",
+     "area_km2": 11570.8,
+     "population": 678643,
+     "polygons": 15,
+     "centroid": [
+      -59.3746,
+      -51.7336
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-08",
+   "owner": "GBR",
+   "suggested_name": "Jamaica",
+   "region_count": 1,
+   "area_km2": 11035.5,
+   "population": 661459,
+   "regions": [
+    {
+     "index": 910,
+     "region_id": "NAM-0089",
+     "name_en": "Jamaica",
+     "name_ru": "Ямайка",
+     "owner": "GBR",
+     "area_km2": 11035.5,
+     "population": 661459,
+     "polygons": 1,
+     "centroid": [
+      -77.3187,
+      18.1552
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-02",
+   "owner": "USA",
+   "suggested_name": "Alaska — Aleutians West",
+   "region_count": 1,
+   "area_km2": 10758.7,
+   "population": 5162,
+   "regions": [
+    {
+     "index": 1015,
+     "region_id": "NAM-0194",
+     "name_en": "Alaska — Aleutians West",
+     "name_ru": "Аляска — Западные Алеутские острова",
+     "owner": "USA",
+     "area_km2": 10758.7,
+     "population": 5162,
+     "polygons": 35,
+     "centroid": [
+      -111.5836,
+      52.8241
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bering Sea",
+      "North Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-01",
+   "owner": "PNG",
+   "suggested_name": "North Solomons",
+   "region_count": 1,
+   "area_km2": 9398.1,
+   "population": 43825,
+   "regions": [
+    {
+     "index": 1419,
+     "region_id": "OCE-0045",
+     "name_en": "North Solomons",
+     "name_ru": "Северные Соломоновы острова",
+     "owner": "PNG",
+     "area_km2": 9398.1,
+     "population": 43825,
+     "polygons": 5,
+     "centroid": [
+      155.263,
+      -6.1421
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Solomon Sea",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-02",
+   "owner": "PNG",
+   "suggested_name": "New Ireland",
+   "region_count": 1,
+   "area_km2": 9325.9,
+   "population": 215376,
+   "regions": [
+    {
+     "index": 1422,
+     "region_id": "OCE-0048",
+     "name_en": "New Ireland",
+     "name_ru": "Новая Ирландия",
+     "owner": "PNG",
+     "area_km2": 9325.9,
+     "population": 215376,
+     "polygons": 13,
+     "centroid": [
+      151.9494,
+      -3.4879
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bismarck Sea",
+      "Solomon Sea",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-01",
+   "owner": "USA",
+   "suggested_name": "Puerto Rico",
+   "region_count": 1,
+   "area_km2": 8998.3,
+   "population": 1995913,
+   "regions": [
+    {
+     "index": 962,
+     "region_id": "NAM-0141",
+     "name_en": "Puerto Rico",
+     "name_ru": "Пуэрто-Рико",
+     "owner": "USA",
+     "area_km2": 8998.3,
+     "population": 1995913,
+     "polygons": 4,
+     "centroid": [
+      -66.4676,
+      18.2239
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea",
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-01",
+   "owner": "FRA",
+   "suggested_name": "Corse",
+   "region_count": 1,
+   "area_km2": 8661.8,
+   "population": 472861,
+   "regions": [
+    {
+     "index": 107,
+     "region_id": "EUR-0107",
+     "name_en": "Corse",
+     "name_ru": "Корсика",
+     "owner": "FRA",
+     "area_km2": 8661.8,
+     "population": 472861,
+     "polygons": 1,
+     "centroid": [
+      9.1038,
+      42.1552
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Ligurian Sea",
+      "Mediterranean Sea - Western Basin",
+      "Tyrrhenian Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GRC-01",
+   "owner": "GRC",
+   "suggested_name": "Kriti",
+   "region_count": 1,
+   "area_km2": 8313.5,
+   "population": 543056,
+   "regions": [
+    {
+     "index": 138,
+     "region_id": "EUR-0138",
+     "name_en": "Kriti",
+     "name_ru": "Крити",
+     "owner": "GRC",
+     "area_km2": 8313.5,
+     "population": 543056,
+     "polygons": 2,
+     "centroid": [
+      24.8472,
+      35.2313
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Aegean Sea",
+      "Mediterranean Sea - Eastern Basin"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ECU-01",
+   "owner": "ECU",
+   "suggested_name": "Galápagos",
+   "region_count": 1,
+   "area_km2": 7700.9,
+   "population": 1059952,
+   "regions": [
+    {
+     "index": 1157,
+     "region_id": "SAM-0069",
+     "name_en": "Galápagos",
+     "name_ru": "Галапагосские острова",
+     "owner": "ECU",
+     "area_km2": 7700.9,
+     "population": 1059952,
+     "polygons": 10,
+     "centroid": [
+      -90.9042,
+      -0.5519
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-01",
+   "owner": "ESP",
+   "suggested_name": "Canary Is.",
+   "region_count": 1,
+   "area_km2": 7428.6,
+   "population": 742741,
+   "regions": [
+    {
+     "index": 85,
+     "region_id": "EUR-0085",
+     "name_en": "Canary Is.",
+     "name_ru": "Канарские острова",
+     "owner": "ESP",
+     "area_km2": 7428.6,
+     "population": 742741,
+     "polygons": 8,
+     "centroid": [
+      -15.6792,
+      28.3385
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-08",
+   "owner": "FRA",
+   "suggested_name": "French Southern Territories",
+   "region_count": 1,
+   "area_km2": 7244.4,
+   "population": 48239,
+   "regions": [
+    {
+     "index": 1391,
+     "region_id": "OCE-0017",
+     "name_en": "French Southern Territories",
+     "name_ru": "Французские Южные территории",
+     "owner": "FRA",
+     "area_km2": 7244.4,
+     "population": 48239,
+     "polygons": 14,
+     "centroid": [
+      69.0096,
+      -49.093
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean",
+      "Mozambique Channel"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IND-02",
+   "owner": "IND",
+   "suggested_name": "Andaman and Nicobar",
+   "region_count": 1,
+   "area_km2": 7072.2,
+   "population": 13262957,
+   "regions": [
+    {
+     "index": 527,
+     "region_id": "ASI-0150",
+     "name_en": "Andaman and Nicobar",
+     "name_ru": "Андаманские и Никобарские острова",
+     "owner": "IND",
+     "area_km2": 7072.2,
+     "population": 13262957,
+     "polygons": 17,
+     "centroid": [
+      92.9745,
+      11.138
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Andaman or Burma Sea",
+      "Bay of Bengal"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-04",
+   "owner": "IDN",
+   "suggested_name": "Kepulauan Riau",
+   "region_count": 1,
+   "area_km2": 6749.9,
+   "population": 1226798,
+   "regions": [
+    {
+     "index": 487,
+     "region_id": "ASI-0110",
+     "name_en": "Kepulauan Riau",
+     "name_ru": "Кепулауан Риау",
+     "owner": "IDN",
+     "area_km2": 6749.9,
+     "population": 1226798,
+     "polygons": 34,
+     "centroid": [
+      105.5374,
+      1.5468
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Singapore Strait",
+      "South China Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "CAN-01",
+   "owner": "CAN",
+   "suggested_name": "Prince Edward Island",
+   "region_count": 1,
+   "area_km2": 5735.2,
+   "population": 179763,
+   "regions": [
+    {
+     "index": 840,
+     "region_id": "NAM-0019",
+     "name_en": "Prince Edward Island",
+     "name_ru": "Остров Принца Эдуарда",
+     "owner": "CAN",
+     "area_km2": 5735.2,
+     "population": 179763,
+     "polygons": 1,
+     "centroid": [
+      -63.2507,
+      46.4007
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Gulf of St. Lawrence"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-05",
+   "owner": "IDN",
+   "suggested_name": "Bali",
+   "region_count": 1,
+   "area_km2": 5585.3,
+   "population": 1138415,
+   "regions": [
+    {
+     "index": 491,
+     "region_id": "ASI-0114",
+     "name_en": "Bali",
+     "name_ru": "Бали",
+     "owner": "IDN",
+     "area_km2": 5585.3,
+     "population": 1138415,
+     "polygons": 2,
+     "centroid": [
+      115.1411,
+      -8.3634
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bali Sea",
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-02",
+   "owner": "ESP",
+   "suggested_name": "Islas Baleares",
+   "region_count": 1,
+   "area_km2": 5107.3,
+   "population": 3033583,
+   "regions": [
+    {
+     "index": 86,
+     "region_id": "EUR-0086",
+     "name_en": "Islas Baleares",
+     "name_ru": "Балеарские острова",
+     "owner": "ESP",
+     "area_km2": 5107.3,
+     "population": 3033583,
+     "polygons": 5,
+     "centroid": [
+      2.9039,
+      39.5718
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Balearic (Iberian Sea)",
+      "Mediterranean Sea - Western Basin"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GRC-02",
+   "owner": "GRC",
+   "suggested_name": "Notio Aigaio",
+   "region_count": 1,
+   "area_km2": 4942.2,
+   "population": 355507,
+   "regions": [
+    {
+     "index": 139,
+     "region_id": "EUR-0139",
+     "name_en": "Notio Aigaio",
+     "name_ru": "Южные Эгейские острова",
+     "owner": "GRC",
+     "area_km2": 4942.2,
+     "population": 355507,
+     "polygons": 36,
+     "centroid": [
+      26.3399,
+      36.7315
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Aegean Sea",
+      "Mediterranean Sea - Eastern Basin"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-12",
+   "owner": "GBR",
+   "suggested_name": "South Georgia and the South Sandwich Islands",
+   "region_count": 1,
+   "area_km2": 3943.3,
+   "population": 452885,
+   "regions": [
+    {
+     "index": 1118,
+     "region_id": "SAM-0030",
+     "name_en": "South Georgia and the South Sandwich Islands",
+     "name_ru": "Южная Георгия и Южные Сандвичевы острова",
+     "owner": "GBR",
+     "area_km2": 3943.3,
+     "population": 452885,
+     "polygons": 15,
+     "centroid": [
+      -35.9352,
+      -54.6639
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-06",
+   "owner": "FRA",
+   "suggested_name": "French Polynesia",
+   "region_count": 1,
+   "area_km2": 3323.7,
+   "population": 242173,
+   "regions": [
+    {
+     "index": 1379,
+     "region_id": "OCE-0005",
+     "name_en": "French Polynesia",
+     "name_ru": "Французская Полинезия",
+     "owner": "FRA",
+     "area_km2": 3323.7,
+     "population": 242173,
+     "polygons": 40,
+     "centroid": [
+      -145.148,
+      -15.2071
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SWE-01",
+   "owner": "SWE",
+   "suggested_name": "Gotland",
+   "region_count": 1,
+   "area_km2": 3096.5,
+   "population": 924059,
+   "regions": [
+    {
+     "index": 326,
+     "region_id": "EUR-0326",
+     "name_en": "Gotland",
+     "name_ru": "Готланд",
+     "owner": "SWE",
+     "area_km2": 3096.5,
+     "population": 924059,
+     "polygons": 3,
+     "centroid": [
+      18.5374,
+      57.5088
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Baltic Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "WSM-01",
+   "owner": "WSM",
+   "suggested_name": "Palauli",
+   "region_count": 1,
+   "area_km2": 2777.3,
+   "population": 70000,
+   "regions": [
+    {
+     "index": 1440,
+     "region_id": "OCE-0066",
+     "name_en": "Palauli",
+     "name_ru": "Палаули",
+     "owner": "WSM",
+     "area_km2": 2777.3,
+     "population": 70000,
+     "polygons": 2,
+     "centroid": [
+      -172.1614,
+      -13.7546
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-02",
+   "owner": "PRT",
+   "suggested_name": "Azores",
+   "region_count": 1,
+   "area_km2": 2598.2,
+   "population": 378066,
+   "regions": [
+    {
+     "index": 226,
+     "region_id": "EUR-0226",
+     "name_en": "Azores",
+     "name_ru": "Азорские острова",
+     "owner": "PRT",
+     "area_km2": 2598.2,
+     "population": 378066,
+     "polygons": 9,
+     "centroid": [
+      -27.3312,
+      38.365
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-04",
+   "owner": "FRA",
+   "suggested_name": "Réunion",
+   "region_count": 1,
+   "area_km2": 2578.0,
+   "population": 1049953,
+   "regions": [
+    {
+     "index": 1167,
+     "region_id": "AFR-0001",
+     "name_en": "Réunion",
+     "name_ru": "Реюньон",
+     "owner": "FRA",
+     "area_km2": 2578.0,
+     "population": 1049953,
+     "polygons": 1,
+     "centroid": [
+      55.542,
+      -21.1195
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "CUB-01",
+   "owner": "CUB",
+   "suggested_name": "Isla de la Juventud",
+   "region_count": 1,
+   "area_km2": 2357.4,
+   "population": 1275309,
+   "regions": [
+    {
+     "index": 847,
+     "region_id": "NAM-0026",
+     "name_en": "Isla de la Juventud",
+     "name_ru": "Остров Хувентуд",
+     "owner": "CUB",
+     "area_km2": 2357.4,
+     "population": 1275309,
+     "polygons": 5,
+     "centroid": [
+      -82.8053,
+      21.6814
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-04",
+   "owner": "ESP",
+   "suggested_name": "Bioko Sur",
+   "region_count": 1,
+   "area_km2": 1985.1,
+   "population": 2177474,
+   "regions": [
+    {
+     "index": 1349,
+     "region_id": "AFR-0183",
+     "name_en": "Bioko Sur",
+     "name_ru": "Биоко Сур",
+     "owner": "ESP",
+     "area_km2": 1985.1,
+     "population": 2177474,
+     "polygons": 1,
+     "centroid": [
+      8.6973,
+      3.4889
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Gulf of Guinea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-03",
+   "owner": "PNG",
+   "suggested_name": "Manus",
+   "region_count": 1,
+   "area_km2": 1943.1,
+   "population": 81569,
+   "regions": [
+    {
+     "index": 1423,
+     "region_id": "OCE-0049",
+     "name_en": "Manus",
+     "name_ru": "Манус",
+     "owner": "PNG",
+     "area_km2": 1943.1,
+     "population": 81569,
+     "polygons": 2,
+     "centroid": [
+      146.9832,
+      -2.0869
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Bismarck Sea",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-20",
+   "owner": "GBR",
+   "suggested_name": "Flacq",
+   "region_count": 1,
+   "area_km2": 1898.3,
+   "population": 301113,
+   "regions": [
+    {
+     "index": 1358,
+     "region_id": "AFR-0192",
+     "name_en": "Flacq",
+     "name_ru": "Флак",
+     "owner": "GBR",
+     "area_km2": 1898.3,
+     "population": 301113,
+     "polygons": 1,
+     "centroid": [
+      57.5694,
+      -20.2795
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QKA-01",
+   "owner": "QKA",
+   "suggested_name": "Jeju",
+   "region_count": 1,
+   "area_km2": 1868.1,
+   "population": 276240,
+   "regions": [
+    {
+     "index": 608,
+     "region_id": "ASI-0231",
+     "name_en": "Jeju",
+     "name_ru": "Чеджу",
+     "owner": "QKA",
+     "area_km2": 1868.1,
+     "population": 276240,
+     "polygons": 1,
+     "centroid": [
+      126.5575,
+      33.3856
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Eastern China Sea",
+      "Japan Sea",
+      "Yellow Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GLP-01",
+   "owner": "GLP",
+   "suggested_name": "Guadeloupe",
+   "region_count": 1,
+   "area_km2": 1643.3,
+   "population": 190000,
+   "regions": [
+    {
+     "index": 823,
+     "region_id": "NAM-0002",
+     "name_en": "Guadeloupe",
+     "name_ru": "Гваделупа",
+     "owner": "GLP",
+     "area_km2": 1643.3,
+     "population": 190000,
+     "polygons": 4,
+     "centroid": [
+      -61.53,
+      16.2099
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea",
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "DNK-01",
+   "owner": "DNK",
+   "suggested_name": "Faroe Islands",
+   "region_count": 1,
+   "area_km2": 1321.5,
+   "population": 23088,
+   "regions": [
+    {
+     "index": 96,
+     "region_id": "EUR-0096",
+     "name_en": "Faroe Islands",
+     "name_ru": "Фарерские острова",
+     "owner": "DNK",
+     "area_km2": 1321.5,
+     "population": 23088,
+     "polygons": 11,
+     "centroid": [
+      -6.875,
+      62.0714
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "MTQ-01",
+   "owner": "MTQ",
+   "suggested_name": "Martinique",
+   "region_count": 1,
+   "area_km2": 1096.2,
+   "population": 209000,
+   "regions": [
+    {
+     "index": 822,
+     "region_id": "NAM-0001",
+     "name_en": "Martinique",
+     "name_ru": "Мартиника",
+     "owner": "MTQ",
+     "area_km2": 1096.2,
+     "population": 209000,
+     "polygons": 1,
+     "centroid": [
+      -61.018,
+      14.6561
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-02",
+   "owner": "JPN",
+   "suggested_name": "Kagoshima",
+   "region_count": 1,
+   "area_km2": 971.4,
+   "population": 292102,
+   "regions": [
+    {
+     "index": 798,
+     "region_id": "ASI-0421",
+     "name_en": "Kagoshima",
+     "name_ru": "Кагосима",
+     "owner": "JPN",
+     "area_km2": 971.4,
+     "population": 292102,
+     "polygons": 2,
+     "centroid": [
+      130.7356,
+      30.4527
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Eastern China Sea",
+      "Philippine Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-04",
+   "owner": "JPN",
+   "suggested_name": "Niigata",
+   "region_count": 1,
+   "area_km2": 896.5,
+   "population": 313957,
+   "regions": [
+    {
+     "index": 800,
+     "region_id": "ASI-0423",
+     "name_en": "Niigata",
+     "name_ru": "Ниигата",
+     "owner": "JPN",
+     "area_km2": 896.5,
+     "population": 313957,
+     "polygons": 1,
+     "centroid": [
+      138.3953,
+      38.0359
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Japan Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SLB-01",
+   "owner": "SLB",
+   "suggested_name": "Temotu",
+   "region_count": 1,
+   "area_km2": 858.6,
+   "population": 4353,
+   "regions": [
+    {
+     "index": 1431,
+     "region_id": "OCE-0057",
+     "name_en": "Temotu",
+     "name_ru": "Темоту",
+     "owner": "SLB",
+     "area_km2": 858.6,
+     "population": 4353,
+     "polygons": 8,
+     "centroid": [
+      166.2648,
+      -11.0192
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Coral Sea",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-04",
+   "owner": "NZL",
+   "suggested_name": "Chatham Islands",
+   "region_count": 1,
+   "area_km2": 817.5,
+   "population": 70996,
+   "regions": [
+    {
+     "index": 1406,
+     "region_id": "OCE-0032",
+     "name_en": "Chatham Islands",
+     "name_ru": "Острова Чатем",
+     "owner": "NZL",
+     "area_km2": 817.5,
+     "population": 70996,
+     "polygons": 2,
+     "centroid": [
+      -176.4882,
+      -43.9339
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-01",
+   "owner": "PRT",
+   "suggested_name": "Madeira",
+   "region_count": 1,
+   "area_km2": 800.7,
+   "population": 190286,
+   "regions": [
+    {
+     "index": 225,
+     "region_id": "EUR-0225",
+     "name_en": "Madeira",
+     "name_ru": "Мадейра",
+     "owner": "PRT",
+     "area_km2": 800.7,
+     "population": 190286,
+     "polygons": 3,
+     "centroid": [
+      -16.9513,
+      32.764
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-03",
+   "owner": "NZL",
+   "suggested_name": "New Zealand Outlying Islands",
+   "region_count": 1,
+   "area_km2": 786.4,
+   "population": 68394,
+   "regions": [
+    {
+     "index": 1405,
+     "region_id": "OCE-0031",
+     "name_en": "New Zealand Outlying Islands",
+     "name_ru": "Отдаленные острова Новой Зеландии",
+     "owner": "NZL",
+     "area_km2": 786.4,
+     "population": 68394,
+     "polygons": 7,
+     "centroid": [
+      156.1854,
+      -50.1024
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean",
+      "Tasman Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-23",
+   "owner": "GBR",
+   "suggested_name": "Kiribati",
+   "region_count": 1,
+   "area_km2": 771.4,
+   "population": 179053,
+   "regions": [
+    {
+     "index": 1394,
+     "region_id": "OCE-0020",
+     "name_en": "Kiribati",
+     "name_ru": "Кирибати",
+     "owner": "GBR",
+     "area_km2": 771.4,
+     "population": 179053,
+     "polygons": 21,
+     "centroid": [
+      -92.169,
+      0.7714
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-05",
+   "owner": "QPS",
+   "suggested_name": "Pohnpei",
+   "region_count": 1,
+   "area_km2": 665.4,
+   "population": 5947,
+   "regions": [
+    {
+     "index": 1444,
+     "region_id": "OCE-0070",
+     "name_en": "Pohnpei",
+     "name_ru": "Понпеи",
+     "owner": "QPS",
+     "area_km2": 665.4,
+     "population": 5947,
+     "polygons": 8,
+     "centroid": [
+      157.1362,
+      6.8167
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TON-01",
+   "owner": "TON",
+   "suggested_name": "Tonga",
+   "region_count": 1,
+   "area_km2": 594.1,
+   "population": 45000,
+   "regions": [
+    {
+     "index": 1396,
+     "region_id": "OCE-0022",
+     "name_en": "Tonga",
+     "name_ru": "Тонга",
+     "owner": "TON",
+     "area_km2": 594.1,
+     "population": 45000,
+     "polygons": 10,
+     "centroid": [
+      -174.8375,
+      -19.9597
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-01",
+   "owner": "GBR",
+   "suggested_name": "Isle of Man",
+   "region_count": 1,
+   "area_km2": 574.7,
+   "population": 16318,
+   "regions": [
+    {
+     "index": 161,
+     "region_id": "EUR-0161",
+     "name_en": "Isle of Man",
+     "name_ru": "Остров Мэн",
+     "owner": "GBR",
+     "area_km2": 574.7,
+     "population": 16318,
+     "polygons": 1,
+     "centroid": [
+      -4.5328,
+      54.2298
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Irish Sea and St. George's Channel"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-06",
+   "owner": "USA",
+   "suggested_name": "Guam",
+   "region_count": 1,
+   "area_km2": 563.4,
+   "population": 38,
+   "regions": [
+    {
+     "index": 1381,
+     "region_id": "OCE-0007",
+     "name_en": "Guam",
+     "name_ru": "Гуам",
+     "owner": "USA",
+     "area_km2": 563.4,
+     "population": 38,
+     "polygons": 1,
+     "centroid": [
+      144.7724,
+      13.4438
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean",
+      "Philippine Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-01",
+   "owner": "QPS",
+   "suggested_name": "Northern Mariana Islands",
+   "region_count": 1,
+   "area_km2": 558.6,
+   "population": 16166,
+   "regions": [
+    {
+     "index": 1382,
+     "region_id": "OCE-0008",
+     "name_en": "Northern Mariana Islands",
+     "name_ru": "Северные Марианские о-ва",
+     "owner": "QPS",
+     "area_km2": 558.6,
+     "population": 16166,
+     "polygons": 12,
+     "centroid": [
+      145.6055,
+      16.1942
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean",
+      "Philippine Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-03",
+   "owner": "QPS",
+   "suggested_name": "Ngardmau",
+   "region_count": 1,
+   "area_km2": 483.8,
+   "population": 14284,
+   "regions": [
+    {
+     "index": 1441,
+     "region_id": "OCE-0067",
+     "name_en": "Ngardmau",
+     "name_ru": "Нгардмау",
+     "owner": "QPS",
+     "area_km2": 483.8,
+     "population": 14284,
+     "polygons": 9,
+     "centroid": [
+      134.3498,
+      7.1981
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean",
+      "Philippine Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ALA-01",
+   "owner": "ALA",
+   "suggested_name": "Åland Islands",
+   "region_count": 1,
+   "area_km2": 452.1,
+   "population": 28000,
+   "regions": [
+    {
+     "index": 12,
+     "region_id": "EUR-0012",
+     "name_en": "Åland Islands",
+     "name_ru": "Аландские острова",
+     "owner": "ALA",
+     "area_km2": 452.1,
+     "population": 28000,
+     "polygons": 16,
+     "centroid": [
+      20.1314,
+      60.1197
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Gulf of Bothnia"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-05",
+   "owner": "GBR",
+   "suggested_name": "Barbados",
+   "region_count": 1,
+   "area_km2": 444.1,
+   "population": 135336,
+   "regions": [
+    {
+     "index": 875,
+     "region_id": "NAM-0054",
+     "name_en": "Barbados",
+     "name_ru": "Барбадос",
+     "owner": "GBR",
+     "area_km2": 444.1,
+     "population": 135336,
+     "polygons": 1,
+     "centroid": [
+      -59.5607,
+      13.1807
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea",
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-10",
+   "owner": "GBR",
+   "suggested_name": "Turks and Caicos Islands",
+   "region_count": 1,
+   "area_km2": 422.3,
+   "population": 118564,
+   "regions": [
+    {
+     "index": 970,
+     "region_id": "NAM-0149",
+     "name_en": "Turks and Caicos Islands",
+     "name_ru": "Тёркс и Кайкос",
+     "owner": "GBR",
+     "area_km2": 422.3,
+     "population": 118564,
+     "polygons": 8,
+     "centroid": [
+      -71.8671,
+      21.7866
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-04",
+   "owner": "AUS",
+   "suggested_name": "Heard Island and McDonald Islands",
+   "region_count": 1,
+   "area_km2": 389.3,
+   "population": 2680,
+   "regions": [
+    {
+     "index": 1390,
+     "region_id": "OCE-0016",
+     "name_en": "Heard Island and McDonald Islands",
+     "name_ru": "О. Херд и о-ва Макдональд",
+     "owner": "AUS",
+     "area_km2": 389.3,
+     "population": 2680,
+     "polygons": 1,
+     "centroid": [
+      73.5056,
+      -53.0896
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-04",
+   "owner": "QPS",
+   "suggested_name": "Yap",
+   "region_count": 1,
+   "area_km2": 370.4,
+   "population": 12048,
+   "regions": [
+    {
+     "index": 1443,
+     "region_id": "OCE-0069",
+     "name_en": "Yap",
+     "name_ru": "Яп",
+     "owner": "QPS",
+     "area_km2": 370.4,
+     "population": 12048,
+     "polygons": 2,
+     "centroid": [
+      139.2943,
+      9.8642
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean",
+      "Philippine Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-14",
+   "owner": "GBR",
+   "suggested_name": "Saint Helena, Ascension and Tristan da Cunha",
+   "region_count": 1,
+   "area_km2": 363.6,
+   "population": 110975,
+   "regions": [
+    {
+     "index": 1172,
+     "region_id": "AFR-0006",
+     "name_en": "Saint Helena, Ascension and Tristan da Cunha",
+     "name_ru": "Св. Елена, Вознесения и Тристан-да-Кунья",
+     "owner": "GBR",
+     "area_km2": 363.6,
+     "population": 110975,
+     "polygons": 4,
+     "centroid": [
+      -10.1738,
+      -24.9624
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-03",
+   "owner": "GBR",
+   "suggested_name": "Malta",
+   "region_count": 1,
+   "area_km2": 314.3,
+   "population": 111920,
+   "regions": [
+    {
+     "index": 198,
+     "region_id": "EUR-0198",
+     "name_en": "Malta",
+     "name_ru": "Мальта",
+     "owner": "GBR",
+     "area_km2": 314.3,
+     "population": 111920,
+     "polygons": 2,
+     "centroid": [
+      14.4065,
+      35.9185
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Mediterranean Sea - Eastern Basin"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-09",
+   "owner": "GBR",
+   "suggested_name": "Cayman Islands",
+   "region_count": 1,
+   "area_km2": 308.0,
+   "population": 100775,
+   "regions": [
+    {
+     "index": 913,
+     "region_id": "NAM-0092",
+     "name_en": "Cayman Islands",
+     "name_ru": "Каймановы о-ва",
+     "owner": "GBR",
+     "area_km2": 308.0,
+     "population": 100775,
+     "polygons": 3,
+     "centroid": [
+      -80.8742,
+      19.4271
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "COL-01",
+   "owner": "COL",
+   "suggested_name": "San Andrés y Providencia",
+   "region_count": 1,
+   "area_km2": 287.9,
+   "population": 323552,
+   "regions": [
+    {
+     "index": 1127,
+     "region_id": "SAM-0039",
+     "name_en": "San Andrés y Providencia",
+     "name_ru": "Сан-Андрес-и-Провиденсия",
+     "owner": "COL",
+     "area_km2": 287.9,
+     "population": 323552,
+     "polygons": 3,
+     "centroid": [
+      -81.2171,
+      14.1185
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "HND-01",
+   "owner": "HND",
+   "suggested_name": "Islas de la Bahía",
+   "region_count": 1,
+   "area_km2": 247.6,
+   "population": 109512,
+   "regions": [
+    {
+     "index": 904,
+     "region_id": "NAM-0083",
+     "name_en": "Islas de la Bahía",
+     "name_ru": "Ислас-де-ла-Баия",
+     "owner": "HND",
+     "area_km2": 247.6,
+     "population": 109512,
+     "polygons": 3,
+     "centroid": [
+      -86.399,
+      16.3434
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-03",
+   "owner": "FRA",
+   "suggested_name": "Saint Pierre and Miquelon",
+   "region_count": 1,
+   "area_km2": 241.3,
+   "population": 65716,
+   "regions": [
+    {
+     "index": 961,
+     "region_id": "NAM-0140",
+     "name_en": "Saint Pierre and Miquelon",
+     "name_ru": "Сен-Пьер и Микелон",
+     "owner": "FRA",
+     "area_km2": 241.3,
+     "population": 65716,
+     "polygons": 2,
+     "centroid": [
+      -56.3088,
+      46.9334
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Gulf of St. Lawrence",
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-01",
+   "owner": "NZL",
+   "suggested_name": "Niue",
+   "region_count": 1,
+   "area_km2": 218.2,
+   "population": 154760,
+   "regions": [
+    {
+     "index": 1384,
+     "region_id": "OCE-0010",
+     "name_en": "Niue",
+     "name_ru": "Ниуэ",
+     "owner": "NZL",
+     "area_km2": 218.2,
+     "population": 154760,
+     "polygons": 1,
+     "centroid": [
+      -169.8688,
+      -19.049
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-05",
+   "owner": "USA",
+   "suggested_name": "American Samoa",
+   "region_count": 1,
+   "area_km2": 177.4,
+   "population": 18,
+   "regions": [
+    {
+     "index": 1380,
+     "region_id": "OCE-0006",
+     "name_en": "American Samoa",
+     "name_ru": "Американское Самоа",
+     "owner": "USA",
+     "area_km2": 177.4,
+     "population": 18,
+     "polygons": 5,
+     "centroid": [
+      -170.4127,
+      -14.2609
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "COK-01",
+   "owner": "COK",
+   "suggested_name": "Cook Islands",
+   "region_count": 1,
+   "area_km2": 175.4,
+   "population": 15000,
+   "regions": [
+    {
+     "index": 1383,
+     "region_id": "OCE-0009",
+     "name_en": "Cook Islands",
+     "name_ru": "О-ва Кука",
+     "owner": "COK",
+     "area_km2": 175.4,
+     "population": 15000,
+     "polygons": 11,
+     "centroid": [
+      -158.7651,
+      -19.9509
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-16",
+   "owner": "GBR",
+   "suggested_name": "Outer Islands",
+   "region_count": 1,
+   "area_km2": 173.8,
+   "population": 78818,
+   "regions": [
+    {
+     "index": 1339,
+     "region_id": "AFR-0173",
+     "name_en": "Outer Islands",
+     "name_ru": "Внешние острова",
+     "owner": "GBR",
+     "area_km2": 173.8,
+     "population": 78818,
+     "polygons": 4,
+     "centroid": [
+      46.9763,
+      -9.2714
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-07",
+   "owner": "FRA",
+   "suggested_name": "Wallis and Futuna",
+   "region_count": 1,
+   "area_km2": 164.4,
+   "population": 47048,
+   "regions": [
+    {
+     "index": 1388,
+     "region_id": "OCE-0014",
+     "name_en": "Wallis and Futuna",
+     "name_ru": "Уоллис и Футуна",
+     "owner": "FRA",
+     "area_km2": 164.4,
+     "population": 47048,
+     "polygons": 3,
+     "centroid": [
+      -177.2421,
+      -13.852
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-03",
+   "owner": "USA",
+   "suggested_name": "Massachusetts — Nantucket",
+   "region_count": 1,
+   "area_km2": 138.1,
+   "population": 182840,
+   "regions": [
+    {
+     "index": 1047,
+     "region_id": "NAM-0226",
+     "name_en": "Massachusetts — Nantucket",
+     "name_ru": "Массачусетс — Нантакет",
+     "owner": "USA",
+     "area_km2": 138.1,
+     "population": 182840,
+     "polygons": 1,
+     "centroid": [
+      -70.0671,
+      41.2825
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-02",
+   "owner": "QPS",
+   "suggested_name": "Marshall Islands",
+   "region_count": 1,
+   "area_km2": 119.7,
+   "population": 7555,
+   "regions": [
+    {
+     "index": 1395,
+     "region_id": "OCE-0021",
+     "name_en": "Marshall Islands",
+     "name_ru": "Маршалловы Острова",
+     "owner": "QPS",
+     "area_km2": 119.7,
+     "population": 7555,
+     "polygons": 6,
+     "centroid": [
+      170.0603,
+      7.2192
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-02",
+   "owner": "NZL",
+   "suggested_name": "Tokelau",
+   "region_count": 1,
+   "area_km2": 98.9,
+   "population": 108715,
+   "regions": [
+    {
+     "index": 1389,
+     "region_id": "OCE-0015",
+     "name_en": "Tokelau",
+     "name_ru": "Токелау",
+     "owner": "NZL",
+     "area_km2": 98.9,
+     "population": 108715,
+     "polygons": 2,
+     "centroid": [
+      -171.8267,
+      -9.156
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-02",
+   "owner": "AUS",
+   "suggested_name": "Christmas Island",
+   "region_count": 1,
+   "area_km2": 97.7,
+   "population": 1238,
+   "regions": [
+    {
+     "index": 1376,
+     "region_id": "OCE-0002",
+     "name_en": "Christmas Island",
+     "name_ru": "Остров Рождества",
+     "owner": "AUS",
+     "area_km2": 97.7,
+     "population": 1238,
+     "polygons": 1,
+     "centroid": [
+      105.6629,
+      -10.4928
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-19",
+   "owner": "GBR",
+   "suggested_name": "Rodrigues",
+   "region_count": 1,
+   "area_km2": 97.4,
+   "population": 56561,
+   "regions": [
+    {
+     "index": 1357,
+     "region_id": "AFR-0191",
+     "name_en": "Rodrigues",
+     "name_ru": "Родригес",
+     "owner": "GBR",
+     "area_km2": 97.4,
+     "population": 56561,
+     "polygons": 1,
+     "centroid": [
+      63.4111,
+      -19.7123
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QLB-01",
+   "owner": "QLB",
+   "suggested_name": "Labuan",
+   "region_count": 1,
+   "area_km2": 89.7,
+   "population": 10000,
+   "regions": [
+    {
+     "index": 657,
+     "region_id": "ASI-0280",
+     "name_en": "Labuan",
+     "name_ru": "Лабуан",
+     "owner": "QLB",
+     "area_km2": 89.7,
+     "population": 10000,
+     "polygons": 1,
+     "centroid": [
+      115.2163,
+      5.318
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South China Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-04",
+   "owner": "GBR",
+   "suggested_name": "Maldives",
+   "region_count": 1,
+   "area_km2": 57.6,
+   "population": 42842,
+   "regions": [
+    {
+     "index": 653,
+     "region_id": "ASI-0276",
+     "name_en": "Maldives",
+     "name_ru": "Мальдивы",
+     "owner": "GBR",
+     "area_km2": 57.6,
+     "population": 42842,
+     "polygons": 21,
+     "centroid": [
+      73.3921,
+      4.1295
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Arabian Sea",
+      "Laccadive Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NOR-02",
+   "owner": "NOR",
+   "suggested_name": "Bouvet Island",
+   "region_count": 1,
+   "area_km2": 53.7,
+   "population": 68026,
+   "regions": [
+    {
+     "index": 205,
+     "region_id": "EUR-0205",
+     "name_en": "Bouvet Island",
+     "name_ru": "Остров Буве",
+     "owner": "NOR",
+     "area_km2": 53.7,
+     "population": 68026,
+     "polygons": 1,
+     "centroid": [
+      3.4134,
+      -54.4187
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-06",
+   "owner": "GBR",
+   "suggested_name": "Bermuda",
+   "region_count": 1,
+   "area_km2": 52.8,
+   "population": 40615,
+   "regions": [
+    {
+     "index": 876,
+     "region_id": "NAM-0055",
+     "name_en": "Bermuda",
+     "name_ru": "Бермуды",
+     "owner": "GBR",
+     "area_km2": 52.8,
+     "population": 40615,
+     "polygons": 2,
+     "centroid": [
+      -64.7636,
+      32.3092
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NFK-01",
+   "owner": "NFK",
+   "suggested_name": "Norfolk Island",
+   "region_count": 1,
+   "area_km2": 39.4,
+   "population": 2000,
+   "regions": [
+    {
+     "index": 1385,
+     "region_id": "OCE-0011",
+     "name_en": "Norfolk Island",
+     "name_ru": "О. Норфолк",
+     "owner": "NFK",
+     "area_km2": 39.4,
+     "population": 2000,
+     "polygons": 1,
+     "centroid": [
+      167.9552,
+      -29.0349
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-21",
+   "owner": "GBR",
+   "suggested_name": "Pitcairn Islands",
+   "region_count": 1,
+   "area_km2": 38.5,
+   "population": 35157,
+   "regions": [
+    {
+     "index": 1386,
+     "region_id": "OCE-0012",
+     "name_en": "Pitcairn Islands",
+     "name_ru": "О-ва Питкерн",
+     "owner": "GBR",
+     "area_km2": 38.5,
+     "population": 35157,
+     "polygons": 1,
+     "centroid": [
+      -128.3171,
+      -24.366
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NRU-01",
+   "owner": "NRU",
+   "suggested_name": "Nauru",
+   "region_count": 1,
+   "area_km2": 27.4,
+   "population": 3000,
+   "regions": [
+    {
+     "index": 1392,
+     "region_id": "OCE-0018",
+     "name_en": "Nauru",
+     "name_ru": "Науру",
+     "owner": "NRU",
+     "area_km2": 27.4,
+     "population": 3000,
+     "polygons": 1,
+     "centroid": [
+      166.9325,
+      -0.5198
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-15",
+   "owner": "GBR",
+   "suggested_name": "British Indian Ocean Territory",
+   "region_count": 1,
+   "area_km2": 27.0,
+   "population": 28717,
+   "regions": [
+    {
+     "index": 1173,
+     "region_id": "AFR-0007",
+     "name_en": "British Indian Ocean Territory",
+     "name_ru": "Брит. территория в Индийском океане",
+     "owner": "GBR",
+     "area_km2": 27.0,
+     "population": 28717,
+     "polygons": 1,
+     "centroid": [
+      72.4246,
+      -7.347
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IND-01",
+   "owner": "IND",
+   "suggested_name": "Lakshadweep",
+   "region_count": 1,
+   "area_km2": 16.8,
+   "population": 505845,
+   "regions": [
+    {
+     "index": 526,
+     "region_id": "ASI-0149",
+     "name_en": "Lakshadweep",
+     "name_ru": "Лакшадвип",
+     "owner": "IND",
+     "area_km2": 16.8,
+     "population": 505845,
+     "polygons": 3,
+     "centroid": [
+      72.7057,
+      9.7062
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Laccadive Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-07",
+   "owner": "USA",
+   "suggested_name": "United States Minor Outlying Islands",
+   "region_count": 1,
+   "area_km2": 14.3,
+   "population": 5,
+   "regions": [
+    {
+     "index": 1387,
+     "region_id": "OCE-0013",
+     "name_en": "United States Minor Outlying Islands",
+     "name_ru": "Малые отдалённые о-ва США",
+     "owner": "USA",
+     "area_km2": 14.3,
+     "population": 5,
+     "polygons": 8,
+     "centroid": [
+      -110.4285,
+      11.6769
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea",
+      "North Pacific Ocean",
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-18",
+   "owner": "GBR",
+   "suggested_name": "Agaléga",
+   "region_count": 1,
+   "area_km2": 11.1,
+   "population": 16423,
+   "regions": [
+    {
+     "index": 1356,
+     "region_id": "AFR-0190",
+     "name_en": "Agaléga",
+     "name_ru": "Агалега",
+     "owner": "GBR",
+     "area_km2": 11.1,
+     "population": 16423,
+     "polygons": 1,
+     "centroid": [
+      56.5428,
+      -10.357
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-03",
+   "owner": "ESP",
+   "suggested_name": "Annobón",
+   "region_count": 1,
+   "area_km2": 9.7,
+   "population": 108619,
+   "regions": [
+    {
+     "index": 1348,
+     "region_id": "AFR-0182",
+     "name_en": "Annobón",
+     "name_ru": "Аннобон",
+     "owner": "ESP",
+     "area_km2": 9.7,
+     "population": 108619,
+     "polygons": 1,
+     "centroid": [
+      5.6333,
+      -1.4405
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Atlantic Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-01",
+   "owner": "AUS",
+   "suggested_name": "Cocos (Keeling) Islands",
+   "region_count": 1,
+   "area_km2": 7.5,
+   "population": 269,
+   "regions": [
+    {
+     "index": 1375,
+     "region_id": "OCE-0001",
+     "name_en": "Cocos (Keeling) Islands",
+     "name_ru": "Кокосовые (Килинг) острова",
+     "owner": "AUS",
+     "area_km2": 7.5,
+     "population": 269,
+     "polygons": 1,
+     "centroid": [
+      96.8337,
+      -12.1631
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Indian Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "COL-02",
+   "owner": "COL",
+   "suggested_name": "",
+   "region_count": 1,
+   "area_km2": 6.1,
+   "population": 35834,
+   "regions": [
+    {
+     "index": 1128,
+     "region_id": "SAM-0040",
+     "name_en": "",
+     "name_ru": "",
+     "owner": "COL",
+     "area_km2": 6.1,
+     "population": 35834,
+     "polygons": 1,
+     "centroid": [
+      -81.5984,
+      3.975
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-02",
+   "owner": "FRA",
+   "suggested_name": "Clipperton Island",
+   "region_count": 1,
+   "area_km2": 3.1,
+   "population": 652,
+   "regions": [
+    {
+     "index": 828,
+     "region_id": "NAM-0007",
+     "name_en": "Clipperton Island",
+     "name_ru": "Клипертон",
+     "owner": "FRA",
+     "area_km2": 3.1,
+     "population": 652,
+     "polygons": 1,
+     "centroid": [
+      -109.2216,
+      10.2974
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "North Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-22",
+   "owner": "GBR",
+   "suggested_name": "Tuvalu",
+   "region_count": 1,
+   "area_km2": 2.0,
+   "population": 5802,
+   "regions": [
+    {
+     "index": 1393,
+     "region_id": "OCE-0019",
+     "name_en": "Tuvalu",
+     "name_ru": "Тувалу",
+     "owner": "GBR",
+     "area_km2": 2.0,
+     "population": 5802,
+     "polygons": 1,
+     "centroid": [
+      179.2043,
+      -8.5272
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South Pacific Ocean"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VNM-01",
+   "owner": "VNM",
+   "suggested_name": "Spratly Islands",
+   "region_count": 1,
+   "area_km2": 1.3,
+   "population": 20658,
+   "regions": [
+    {
+     "index": 444,
+     "region_id": "ASI-0067",
+     "name_en": "Spratly Islands",
+     "name_ru": "Спратли",
+     "owner": "VNM",
+     "area_km2": 1.3,
+     "population": 20658,
+     "polygons": 1,
+     "centroid": [
+      115.8212,
+      10.7299
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South China Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TWN-02",
+   "owner": "TWN",
+   "suggested_name": "Paracel Islands",
+   "region_count": 1,
+   "area_km2": 0.8,
+   "population": 9230,
+   "regions": [
+    {
+     "index": 391,
+     "region_id": "ASI-0014",
+     "name_en": "Paracel Islands",
+     "name_ru": "Парасельские острова",
+     "owner": "TWN",
+     "area_km2": 0.8,
+     "population": 9230,
+     "polygons": 1,
+     "centroid": [
+      111.2012,
+      15.7823
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "South China Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VEN-02",
+   "owner": "VEN",
+   "suggested_name": "",
+   "region_count": 1,
+   "area_km2": 0.2,
+   "population": 3851,
+   "regions": [
+    {
+     "index": 1144,
+     "region_id": "SAM-0056",
+     "name_en": "",
+     "name_ru": "",
+     "owner": "VEN",
+     "area_km2": 0.2,
+     "population": 3851,
+     "polygons": 1,
+     "centroid": [
+      -63.638,
+      15.6999
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Caribbean Sea"
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-03",
+   "owner": "AUS",
+   "suggested_name": "Coral Sea Islands",
+   "region_count": 1,
+   "area_km2": 0.1,
+   "population": 28,
+   "regions": [
+    {
+     "index": 1377,
+     "region_id": "OCE-0003",
+     "name_en": "Coral Sea Islands",
+     "name_ru": "О-ва Кораллового моря",
+     "owner": "AUS",
+     "area_km2": 0.1,
+     "population": 28,
+     "polygons": 1,
+     "centroid": [
+      150.0054,
+      -16.1356
+     ],
+     "crosses_dateline": false,
+     "sea_neighbors": [
+      "Coral Sea"
+     ]
+    }
+   ]
+  }
+ ]
+}
