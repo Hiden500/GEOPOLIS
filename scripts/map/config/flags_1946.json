@@ -1,0 +1,877 @@
+{
+ "_meta": {
+  "purpose": "Курируемое соответствие «код страны сценария 1946 -> файл флага на Wikimedia Commons». Источник истины — этот файл; scripts/map/build_flags_manifest.py его только проверяет и обогащает метаданными.",
+  "reference": "World Flag Chart 1946 (flaglog.com/1946)",
+  "whyCurated": [
+   "Пакеты современных флагов по ISO (flag-icons, country-flags) для 1946 непригодны: они врут на Италии, Испании, Венгрии, Египте, Канаде, ЮАР, Иране, а по коду CHN отдают флаг КНР вместо Китайской Республики.",
+   "Автоподбор по Wikidata проверен и отвергнут как источник истины: из 124 ISO-подобных кодов сценария только 31 имеет заявление P41 с обеими датами, покрывающими 1946. Остальным подставляется современный флаг — замер дал прямые ошибки (Бразилия 1853-1889, Камбоджа 1989-1992, Родезия 1968-1979).",
+   "Полнотекстовый поиск по Commons тоже отвергнут: выдача засорена файлами вида «Flag map of...», «Flag orb...» и пользовательскими фантазиями."
+  ],
+  "confidence": {
+   "high": "период действия подтверждён именем файла или эталонной таблицей 1946 года",
+   "medium": "флаг метрополии за территорию без своего флага, либо стабильный дизайн без выделенной исторической редакции",
+   "low": "требуется отдельная сверка перед использованием в релизе"
+  },
+  "conventions": {
+   "metropoleFlag": "территория без собственного флага получает флаг метрополии — это историческая правда, но в HUD такие сущности неразличимы между собой; различение решается служебным маркером, а не подменой флага",
+   "custom": "сущности, у которых флага не существовало в принципе (зоны оккупации). Поле basis — историческая основа для дизайна, а не готовый файл"
+  }
+ },
+ "flags": {
+  "AFG": {
+   "file": "Flag of Afghanistan (1931–1973).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "AGO": {
+   "file": "Flag of Portugal.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Португальская Ангола"
+  },
+  "ALA": {
+   "file": "Flag of Finland.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "собственный флаг Аландов принят в 1954"
+  },
+  "ALB": {
+   "file": "Flag of Albania (1944-1946).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "НРА провозглашена 11.01.1946 — на старте сценария действует флаг 1944-1946"
+  },
+  "AND": {
+   "file": "Flag of Andorra.svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "дизайн стабилен; отдельной редакции 1946 года на Commons не выделено"
+  },
+  "ARG": {
+   "file": "Flag of Argentina.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "AUS": {
+   "file": "Flag of Australia.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "BEL": {
+   "file": "Flag of Belgium (civil).svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "BGR": {
+   "file": "Flag of Bulgaria.svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "на 01.01.1946 — Царство Болгария; герб НРБ добавлен только в конце 1946"
+  },
+  "BHR": {
+   "file": "Flag of Bahrain (1932-1972).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "BOL": {
+   "file": "Flag of Bolivia (state).svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "BRA": {
+   "file": "Flag of Brazil (1889-1960).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "21 звезда"
+  },
+  "BRN": {
+   "file": "Flag of Brunei 1906-1959.svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "BTN": {
+   "file": "Flag of Bhutan (1949-1956).svg",
+   "confidence": "low",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "редакция флага Бутана до 1949 отдельным файлом не выделена"
+  },
+  "CAN": {
+   "file": "Flag of Canada (1921–1957).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "Canadian Red Ensign"
+  },
+  "CHE": {
+   "file": "Flag of Switzerland.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "CHL": {
+   "file": "Flag of Chile.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "CHN": {
+   "file": "Flag of the Republic of China.svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Китайская Республика; Wikidata по коду CHN отдаёт флаг КНР 1949 — исправлено вручную"
+  },
+  "CMR": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Французский Камерун (подмандатная территория)"
+  },
+  "COD": {
+   "file": "Flag of Belgium (civil).svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Бельгийское Конго"
+  },
+  "COK": {
+   "file": "Flag of New Zealand.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "собственный флаг Островов Кука принят в 1973"
+  },
+  "COL": {
+   "file": "Flag of Colombia.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "CRI": {
+   "file": "Flag of Costa Rica (state).svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "CSK": {
+   "file": "Flag of Czechoslovakia.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "дизайн совпадает с современным чешским — файл выбран по семантике, не по картинке"
+  },
+  "CUB": {
+   "file": "Flag of Cuba.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "DNK": {
+   "file": "Flag of Denmark.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "DOM": {
+   "file": "Flag of the Dominican Republic.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "ECU": {
+   "file": "Flag of Ecuador (1900-2009).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "EGY": {
+   "file": "Flag of Egypt (1922-1958).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "ESP": {
+   "file": "Flag of Spain (1945-1977).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "франкистский герб, редакция 1945 года"
+  },
+  "ETH": {
+   "file": "Flag of Ethiopia (1897-1974).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "FIN": {
+   "file": "Flag of Finland.svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "FRA": {
+   "file": "Flag of France.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "GBR": {
+   "file": "Flag of the United Kingdom.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "GHA": {
+   "file": "Flag of the Gold Coast (1877–1957).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "GLP": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "заморский департамент с 19.03.1946"
+  },
+  "GRC": {
+   "file": "Flag of Greece (1822-1978).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "GRL": {
+   "file": "Flag of Denmark.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "собственный флаг Гренландии принят в 1985"
+  },
+  "GTM": {
+   "file": "Flag of Guatemala.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "HKG": {
+   "file": "Flag of Hong Kong (1876–1955).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "HND": {
+   "file": "Flag of Honduras (1866-1949).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "HTI": {
+   "file": "Flag of Haiti (1820–1849, 1859–1964).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "HUN": {
+   "file": "Flag of Hungary (1915-1918, 1919-1946).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "республика провозглашена 01.02.1946; на старте действует флаг с гербом. Файл 1 МБ — для HUD нужна облегчённая версия герба"
+  },
+  "IDN": {
+   "file": "Flag of the Netherlands.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Голландская Ост-Индия; республиканская сторона конфликта — отдельный код QRI"
+  },
+  "IND": {
+   "file": "British Raj Red Ensign.svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Британская Индия; Wikidata-автоподбор давал флаг Джамму и Кашмира — исправлено вручную"
+  },
+  "IRL": {
+   "file": "Flag of Ireland.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "IRN": {
+   "file": "State flag of Iran (1933–1964).svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Wikidata по коду IRN отдаёт редакцию 1964-1980 — исправлено вручную"
+  },
+  "IRQ": {
+   "file": "Flag of Iraq (1924-1959).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "ISL": {
+   "file": "Flag of Iceland.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "ITA": {
+   "file": "Flag of Italy (1861-1946).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "герб Савойи; республиканский флаг вводится 19.06.1946 — смена внутри горизонта кампании"
+  },
+  "JOR": {
+   "file": "Flag of the Emirate of Transjordan.svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Эмират Трансиордания, независимость 25.05.1946"
+  },
+  "JPN": {
+   "file": "Flag of Japan (1870-1999).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "KEN": {
+   "file": "Flag of Kenya (1921–1963).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "KHM": {
+   "file": "Flag of Cambodia (1863–1948).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "KWT": {
+   "file": "Flag of Kuwait (1915-1956).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "лицензия CC BY-SA — требует атрибуции"
+  },
+  "LAO": {
+   "file": "Flag of Laos (1893-1952).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "LBN": {
+   "file": "Flag of Lebanon (1943-1990).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "LBR": {
+   "file": "Flag of Liberia.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "LIE": {
+   "file": "Flag of Liechtenstein (1937-1982).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "LKA": {
+   "file": "Flag of Ceylon (1875–1948).svg",
+   "confidence": "medium",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "LUX": {
+   "file": "Flag of Luxembourg.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "MAC": {
+   "file": "Flag of Portugal.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет"
+  },
+  "MAR": {
+   "file": "Flag of Morocco.svg",
+   "confidence": "medium",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "красное полотнище с зелёной пентаграммой введено в 1915 и до 1956 не менялось; отдельного файла на период протектората на Commons нет"
+  },
+  "MCO": {
+   "file": "Flag of Monaco.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "MDG": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет"
+  },
+  "MEX": {
+   "file": "Flag of Mexico (1934-1968).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "MMR": {
+   "file": "Flag of Burma (1939–1941, 1945–1948).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "MNG": {
+   "file": "Flag of the Mongolian People's Republic (1945–1992).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "MOZ": {
+   "file": "Flag of Portugal.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Португальский Мозамбик"
+  },
+  "MTQ": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "заморский департамент с 19.03.1946"
+  },
+  "MWI": {
+   "file": "Flag of Nyasaland (1925–1964).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "MYS": {
+   "file": "Flag of Malaya (1896–1950).svg",
+   "confidence": "medium",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "флаг Федеративных Малайских Штатов: у Малайского Союза (01.04.1946) собственного флага на Commons нет"
+  },
+  "NAM": {
+   "file": "Flag of South Africa (1928–1994, dark colors).svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Юго-Западная Африка — мандат ЮАС"
+  },
+  "NFD": {
+   "file": "Flag of the United Kingdom.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "доминион под Commission of Government, собственного флага нет"
+  },
+  "NFK": {
+   "file": "Flag of Australia.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "собственный флаг Норфолка принят в 1980"
+  },
+  "NGA": {
+   "file": "Flag of Nigeria (1914–1952).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "NIC": {
+   "file": "Flag of Nicaragua (1908-1971).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "NLD": {
+   "file": "Flag of the Netherlands.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "NOR": {
+   "file": "Flag of Norway.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "NPL": {
+   "file": "Flag of Nepal.svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "двойной вымпел; пропорции кодифицированы в 1962"
+  },
+  "NRU": {
+   "file": "Flag of Australia.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "подмандатная территория под управлением Австралии"
+  },
+  "NZL": {
+   "file": "Flag of New Zealand.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "OMN": {
+   "file": "Flag of Muscat.svg",
+   "confidence": "medium",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Маскат и Оман: простое красное полотнище"
+  },
+  "PAN": {
+   "file": "Flag of Panama.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "PER": {
+   "file": "Flag of Peru (state).svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "PHL": {
+   "file": "Flag of the Philippines (navy blue).svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Содружество Филиппин; независимость 04.07.1946, флаг не меняется"
+  },
+  "PNG": {
+   "file": "Flag of Australia.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Папуа и Новая Гвинея под австралийским управлением"
+  },
+  "POL": {
+   "file": "Flag of Poland (1928-1980).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "PRT": {
+   "file": "Flag of Portugal.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "PRY": {
+   "file": "Flag of Paraguay (1842-1954).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "PSE": {
+   "file": "Ensign of the Palestine Mandate (1927–1948).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "на суше поднимался Union Jack; опознаваемый символ мандата — этот энсин"
+  },
+  "QAD": {
+   "file": "Flag of Aden (1937–1963).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QAT": {
+   "file": "Flag of Qatar (1936-1949).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QAZ": {
+   "file": "Flag of the Azerbaijan People's Government.svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Wikidata по этому коду отдавала флаг Азербайджанской ССР — исправлено вручную"
+  },
+  "QDV": {
+   "file": "Flag of North Vietnam (1945-1955).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QFE": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Французская Экваториальная Африка"
+  },
+  "QFI": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Французская Индия"
+  },
+  "QFW": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Французская Западная Африка"
+  },
+  "QJK": {
+   "file": "Flag of Jammu and Kashmir (1936-1953).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QLB": {
+   "file": "Flag of Labuan (1912–1946).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QMH": {
+   "file": "Flag of the Republic of Mahabad.svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "QNB": {
+   "file": "Flag of North Borneo (1902–1946).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QND": {
+   "file": "Flag of the Netherlands.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Кюрасао и зависимые территории"
+  },
+  "QPI": {
+   "file": "Flag of Portugal.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Португальская Индия"
+  },
+  "QPS": {
+   "file": "Flag of the United States (1912-1959).svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "военно-морская администрация США на бывших японских мандатных островах"
+  },
+  "QRI": {
+   "file": "Flag of Indonesia.svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Sang Saka Merah-Putih, поднят 17.08.1945"
+  },
+  "QRU": {
+   "file": "Flag of Belgium (civil).svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Руанда-Урунди под бельгийским управлением"
+  },
+  "QSI": {
+   "file": "Flag of Sikkim (1914-1962).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QSO": {
+   "file": "Flag of British Somaliland (1903-1950).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QSR": {
+   "file": "Flag of Sarawak (1870–1946, 1963–1973).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QTB": {
+   "file": "Flag of Tibet (1916-1951).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QWL": {
+   "file": "Flag of Leeward Islands (1871-1952).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QWW": {
+   "file": "Flag of the British Windward Islands (1903-1953).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "QZN": {
+   "file": "Flag of the Sultanate of Zanzibar.svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "ROU": {
+   "file": "Flag of Romania.svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Королевство Румыния; вопрос герба на полотнище требует отдельной сверки"
+  },
+  "SAU": {
+   "file": "Flag of Saudi Arabia (1938-1973).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "SDN": {
+   "file": "Flag of Anglo-Egyptian Sudan.svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "SGP": {
+   "file": "Flag of Singapore (1946–1952).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "колония Сингапур выделена 01.04.1946"
+  },
+  "SLB": {
+   "file": "Flag of the Solomon Islands (1906–1947).svg",
+   "confidence": "medium",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "SLE": {
+   "file": "Flag of Sierra Leone (1916–1961).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "SLV": {
+   "file": "Flag of El Salvador.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "SMR": {
+   "file": "Flag of San Marino.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "SUN": {
+   "file": "Flag of the Soviet Union (1936 – 1955).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "SWE": {
+   "file": "Flag of Sweden.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "SYR": {
+   "file": "Flag of Syria (1930–1958, 1961–1963).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "TGO": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Французское Того (подмандатная территория)"
+  },
+  "THA": {
+   "file": "Flag of Thailand.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "TON": {
+   "file": "Flag of Tonga.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "TUN": {
+   "file": "Flag of Tunisia.svg",
+   "confidence": "medium",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "бейликат под французским протекторатом; дизайн стабилен с 1831"
+  },
+  "TUR": {
+   "file": "Flag of Turkey.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "TWN": {
+   "file": "Flag of the Republic of China.svg",
+   "confidence": "high",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Тайвань в 1946 — провинция Китайской Республики: тот же флаг, что у CHN. В HUD две сущности неразличимы — кандидат на служебный маркер"
+  },
+  "TZA": {
+   "file": "Flag of Tanganyika (1923–1961).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "UGA": {
+   "file": "Flag of the Uganda Protectorate.svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "URY": {
+   "file": "Flag of Uruguay.svg",
+   "confidence": "high",
+   "source": "Wikidata P41 + квалификаторы дат, сверено с World Flag Chart 1946 (flaglog.com/1946)"
+  },
+  "USA": {
+   "file": "Flag of the United States (1912-1959).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "48 звёзд"
+  },
+  "VAT": {
+   "file": "Flag of Vatican City (1929–2001).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "VEN": {
+   "file": "Flag of Venezuela (1930–2006).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "VNM": {
+   "file": "Flag of France.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Французский Индокитай; ДРВ — отдельный код QDV"
+  },
+  "VUT": {
+   "file": "Flag of the British New Hebrides (1906–1952).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "англо-французский кондоминиум"
+  },
+  "WSM": {
+   "file": "Flag of New Zealand.svg",
+   "confidence": "medium",
+   "source": "флаг метрополии: у территории собственного флага в 1946 нет",
+   "why": "Западное Самоа под новозеландским мандатом"
+  },
+  "YEM": {
+   "file": "Flag of the Mutawakkilite Kingdom of Yemen.svg",
+   "confidence": "medium",
+   "source": "World Flag Chart 1946 (flaglog.com/1946)",
+   "why": "Мутаваккилийское королевство"
+  },
+  "YUG": {
+   "file": "Flag of Yugoslavia (1946-1992).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия",
+   "why": "ФНРЮ провозглашена 29.11.1945 — флаг со звездой действует с начала сценария"
+  },
+  "ZAF": {
+   "file": "Flag of South Africa (1928–1994, dark colors).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "ZMB": {
+   "file": "Flag of Northern Rhodesia (1939-1964).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  },
+  "ZWE": {
+   "file": "Flag of Southern Rhodesia (1924–1964).svg",
+   "confidence": "high",
+   "source": "Wikimedia Commons, имя файла содержит период действия"
+  }
+ },
+ "custom": {
+  "QGA": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "USA",
+   "territory": "Germany",
+   "basis": "Merchant flag of Germany (1946–1949).svg"
+  },
+  "QGB": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "GBR",
+   "territory": "Germany",
+   "basis": "Merchant flag of Germany (1946–1949).svg"
+  },
+  "QGF": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "FRA",
+   "territory": "Germany",
+   "basis": "Merchant flag of Germany (1946–1949).svg"
+  },
+  "QGS": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "SUN",
+   "territory": "Germany",
+   "basis": "Merchant flag of Germany (1946–1949).svg"
+  },
+  "QOA": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "USA",
+   "territory": "Austria",
+   "basis": "Flag of Austria.svg"
+  },
+  "QOB": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "GBR",
+   "territory": "Austria",
+   "basis": "Flag of Austria.svg"
+  },
+  "QOF": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "FRA",
+   "territory": "Austria",
+   "basis": "Flag of Austria.svg"
+  },
+  "QOS": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "SUN",
+   "territory": "Austria",
+   "basis": "Flag of Austria.svg"
+  },
+  "QKA": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "USA",
+   "territory": "Korea",
+   "basis": "Flag of South Korea (1945–1948).svg"
+  },
+  "QKS": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "SUN",
+   "territory": "Korea",
+   "basis": "Flag of South Korea (1945–1948).svg"
+  },
+  "QMS": {
+   "reason": "оккупационная зона: собственного флага не существовало, администрация пользовалась флагом державы",
+   "occupier": "SUN",
+   "territory": "China",
+   "basis": "Flag of the Republic of China.svg"
+  },
+  "ARE": {
+   "reason": "договорные шейхства Персидского залива: единого флага в 1946 не существует, общий флаг Договорного Омана введён в 1968",
+   "occupier": null,
+   "territory": "Trucial States",
+   "basis": "Flag of the Trucial States (1968–1971).svg"
+  }
+ }
+}
