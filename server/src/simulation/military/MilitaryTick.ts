@@ -14,7 +14,23 @@ import {
   ACTIVE_PERSONNEL_SHARE,
   ACTIVE_PERSONNEL_MOBILIZATION_RATE,
   RESERVE_PERSONNEL_SHARE,
+  WAR_MATERIAL_RESOURCE_IDS,
+  EQUIPMENT_RESOURCE_DEMAND_SCALE,
 } from "@shared/defines/military";
+
+/**
+ * Коэффициент покрытия сырьевого спроса производства (гейт сырья, вариант А,
+ * решение пользователя 2026-08-02 — docs/IDEAS.md §11).
+ *
+ * demand ≤ 0 — производство ничего не требует, гейт не режет (1). Иначе —
+ * доля спроса, покрытая доступным сырьём, с потолком 1: избыток сырья не
+ * ускоряет производство, только страхует от перебоев.
+ */
+export function equipmentResourceCoverage(available: number, demand: number): number {
+  if (demand <= 0) return 1;
+  if (available <= 0) return 0;
+  return Math.min(1, available / demand);
+}
 
 /**
  * Полная реализация MilitaryTick. Пополнение manpower, восстановление
@@ -92,6 +108,35 @@ export function militaryTick(
   // явной доли в productionAllocation делят остаток поровну — тот же паттерн,
   // что распределение researchSpending по доменам в ResearchTick.ts.
   if (economy.militarySpending > 0) {
+    // ГЕЙТ СЫРЬЯ (вариант А, 2026-08-02). До него производство было чистой
+    // функцией денег: страна без грамма стали клепала танки в полном темпе,
+    // а обнуление ВСЕГО запаса мира меняло снаряжение на −0,13% за 24 месяца
+    // (замер: server/scripts/probeResourceGates.ts). Теперь спрос производства
+    // (militarySpending / EQUIPMENT_RESOURCE_DEMAND_SCALE) сверяется с
+    // доступным военным сырьём — стокпайл уже включает добычу и импорт этого
+    // месяца, потому что resourceTick и tradeTick идут раньше militaryTick
+    // (SimulationEngine.ts) — и выпуск падает пропорционально непокрытой доле.
+    //
+    // Производство ПОТРЕБЛЯЕТ сырьё: покрытая часть спроса списывается со
+    // складов пропорционально вкладу каждого ресурса. Это закрывает вопрос
+    // docs/ECONOMY.md «что потребляет ресурсы внутри страны» и делает
+    // build_extraction/блокаду/оккупацию действиями с военными последствиями.
+    const demand = economy.militarySpending / EQUIPMENT_RESOURCE_DEMAND_SCALE;
+    let available = 0;
+    for (const resourceId of WAR_MATERIAL_RESOURCE_IDS) {
+      available += Math.max(0, country.stockpile[resourceId] ?? 0);
+    }
+    const coverage = equipmentResourceCoverage(available, demand);
+
+    const consumed = Math.min(available, demand);
+    if (consumed > 0) {
+      const consumedShare = consumed / available;
+      for (const resourceId of WAR_MATERIAL_RESOURCE_IDS) {
+        const stock = country.stockpile[resourceId] ?? 0;
+        if (stock > 0) country.stockpile[resourceId] = stock - stock * consumedShare;
+      }
+    }
+
     const equipmentTypes = Object.values(EquipmentType);
     const allocation = military.productionAllocation ?? {};
     const explicitShareSum = equipmentTypes.reduce((sum, t) => sum + (allocation[t] ?? 0), 0);
@@ -103,7 +148,7 @@ export function militaryTick(
       const share = allocation[type] ?? evenShare;
       if (share <= 0) continue;
 
-      const gain = (economy.militarySpending * share) / EQUIPMENT_SPENDING_SCALE;
+      const gain = ((economy.militarySpending * share) / EQUIPMENT_SPENDING_SCALE) * coverage;
       military.equipment[type] += gain;
     }
   }
