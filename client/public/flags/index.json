@@ -1,0 +1,1186 @@
+{
+ "_meta": {
+  "generatedBy": "scripts/map/fetch_flags.py",
+  "box": "300x200",
+  "note": "Полотнище вписано в общий бокс без растяжения и обрезки; ratio — истинная пропорция флага для вёрстки, выравнивающей по высоте.",
+  "attributionRequired": [
+   "ESP",
+   "HKG",
+   "KEN",
+   "KWT",
+   "MMR",
+   "MWI",
+   "NGA",
+   "QAZ",
+   "QSO",
+   "QTB",
+   "QWL",
+   "SDN",
+   "SGP",
+   "UGA",
+   "VAT"
+  ]
+ },
+ "flags": {
+  "AFG": {
+   "file": "AFG.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Orange Tuesday at en.wikipedia.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Afghanistan_(1931%E2%80%931973).svg",
+   "commonsFile": "Flag of Afghanistan (1931–1973).svg"
+  },
+  "AGO": {
+   "file": "AGO.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Columbano Bordalo Pinheiro (1910; generic design) Vector: Vítor Luís Rodrigues; António Martins-Tuválkin (2004; this specific vector set: see sources)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Portugal.svg",
+   "commonsFile": "Flag of Portugal.svg"
+  },
+  "ALA": {
+   "file": "ALA.svg",
+   "ratio": 1.6364,
+   "license": "Public domain",
+   "author": "Unknown",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Finland.svg",
+   "commonsFile": "Flag of Finland.svg"
+  },
+  "ALB": {
+   "file": "ALB.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Orange Tuesday (talk)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Albania_(1944%E2%80%931946).svg",
+   "commonsFile": "Flag of Albania (1944-1946).svg"
+  },
+  "AND": {
+   "file": "AND.svg",
+   "ratio": 1.4286,
+   "license": "Public domain",
+   "author": "Original: Napoleon III Vector: HansenBCN",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Andorra.svg",
+   "commonsFile": "Flag of Andorra.svg"
+  },
+  "ARG": {
+   "file": "ARG.svg",
+   "ratio": 1.6,
+   "license": "Public domain",
+   "author": "Manuel Belgrano",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Argentina.svg",
+   "commonsFile": "Flag of Argentina.svg"
+  },
+  "AUS": {
+   "file": "AUS.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Ivor Evans, Leslie John Hawkins, Egbert John Nuttall, Annie Dorrington and William Stevens Vector: Ian Fieggen",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Australia.svg",
+   "commonsFile": "Flag of Australia.svg"
+  },
+  "BEL": {
+   "file": "BEL.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Dbenbenn",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Belgium_(civil).svg",
+   "commonsFile": "Flag of Belgium (civil).svg"
+  },
+  "BGR": {
+   "file": "BGR.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bulgaria.svg",
+   "commonsFile": "Flag of Bulgaria.svg"
+  },
+  "BHR": {
+   "file": "BHR.svg",
+   "ratio": 1.4444,
+   "license": "Public domain",
+   "author": "Orange Tuesday at English Wikipedia (Original text: Orange Tuesday (talk))",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bahrain_(1932%E2%80%931972).svg",
+   "commonsFile": "Flag of Bahrain (1932-1972).svg"
+  },
+  "BOL": {
+   "file": "BOL.svg",
+   "ratio": 1.4667,
+   "license": "Public domain",
+   "author": "See file history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bolivia_(state).svg",
+   "commonsFile": "Flag of Bolivia (state).svg"
+  },
+  "BRA": {
+   "file": "BRA.svg",
+   "ratio": 1.4286,
+   "license": "Public domain",
+   "author": "Raimundo Teixeira Mendes",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Brazil_(1889%E2%80%931960).svg",
+   "commonsFile": "Flag of Brazil (1889-1960).svg"
+  },
+  "BRN": {
+   "file": "BRN.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Orange Tuesday at English Wikipedia (Original text: Orange Tuesday (talk))",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Brunei_1906-1959.svg",
+   "commonsFile": "Flag of Brunei 1906-1959.svg"
+  },
+  "BTN": {
+   "file": "BTN.svg",
+   "ratio": 1.25,
+   "license": "Public domain",
+   "author": "See File history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Bhutan_(1949%E2%80%931956).svg",
+   "commonsFile": "Flag of Bhutan (1949-1956).svg"
+  },
+  "CAN": {
+   "file": "CAN.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Hoshie",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Canada_(1921%E2%80%931957).svg",
+   "commonsFile": "Flag of Canada (1921–1957).svg"
+  },
+  "CHE": {
+   "file": "CHE.svg",
+   "ratio": 1.0,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: User:Marc Mongenet Credits: User:-xfi- User:Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Switzerland.svg",
+   "commonsFile": "Flag of Switzerland.svg"
+  },
+  "CHL": {
+   "file": "CHL.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "See file history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Chile.svg",
+   "commonsFile": "Flag of Chile.svg"
+  },
+  "CHN": {
+   "file": "CHN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Sun Yat-sen",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Republic_of_China.svg",
+   "commonsFile": "Flag of the Republic of China.svg"
+  },
+  "CMR": {
+   "file": "CMR.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "COD": {
+   "file": "COD.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Dbenbenn",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Belgium_(civil).svg",
+   "commonsFile": "Flag of Belgium (civil).svg"
+  },
+  "COK": {
+   "file": "COK.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Albert Hastings Markham Vector: Zscout370, Hugh Jass, s. File history",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_New_Zealand.svg",
+   "commonsFile": "Flag of New Zealand.svg"
+  },
+  "COL": {
+   "file": "COL.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "See File history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Colombia.svg",
+   "commonsFile": "Flag of Colombia.svg"
+  },
+  "CRI": {
+   "file": "CRI.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "See File history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Costa_Rica_(state).svg",
+   "commonsFile": "Flag of Costa Rica (state).svg"
+  },
+  "CSK": {
+   "file": "CSK.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Jaroslav Kursa",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Czech_Republic.svg",
+   "commonsFile": "Flag of Czechoslovakia.svg"
+  },
+  "CUB": {
+   "file": "CUB.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Miguel Teurbe Tolón and Narciso López",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cuba.svg",
+   "commonsFile": "Flag of Cuba.svg"
+  },
+  "DNK": {
+   "file": "DNK.svg",
+   "ratio": 1.3214,
+   "license": "Public domain",
+   "author": "Madden and others",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Denmark.svg",
+   "commonsFile": "Flag of Denmark.svg"
+  },
+  "DOM": {
+   "file": "DOM.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Juan Pablo Duarte",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Dominican_Republic.svg",
+   "commonsFile": "Flag of the Dominican Republic.svg"
+  },
+  "ECU": {
+   "file": "ECU.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Unknown author Vector: Indoor-Fanatiker",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ecuador_(1900%E2%80%932009).svg",
+   "commonsFile": "Flag of Ecuador (1900-2009).svg"
+  },
+  "EGY": {
+   "file": "EGY.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Mysid",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Egypt_(1922-1958).svg",
+   "commonsFile": "Flag of Egypt (1922-1958).svg"
+  },
+  "ESP": {
+   "file": "ESP.svg",
+   "ratio": 1.5,
+   "license": "CC BY-SA 4.0",
+   "author": "SanchoPanzaXXI",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Spain_(1945%E2%80%931977).svg",
+   "commonsFile": "Flag of Spain (1945-1977).svg"
+  },
+  "ETH": {
+   "file": "ETH.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Oren neu dag",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ethiopia_(1897%E2%80%931974).svg",
+   "commonsFile": "Flag of Ethiopia (1897-1974).svg"
+  },
+  "FIN": {
+   "file": "FIN.svg",
+   "ratio": 1.6364,
+   "license": "Public domain",
+   "author": "Unknown",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Finland.svg",
+   "commonsFile": "Flag of Finland.svg"
+  },
+  "FRA": {
+   "file": "FRA.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "GBR": {
+   "file": "GBR.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "Original: Acts of Union 1800 Vector: Yaddah",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom_(3-5).svg",
+   "commonsFile": "Flag of the United Kingdom.svg"
+  },
+  "GHA": {
+   "file": "GHA.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "No machine-readable author provided. Yaddah assumed (based on copyright claims).",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Gold_Coast_(1877%E2%80%931957).svg",
+   "commonsFile": "Flag of the Gold Coast (1877–1957).svg"
+  },
+  "GLP": {
+   "file": "GLP.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "GRC": {
+   "file": "GRC.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "(of code) User:Makaristos",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Greece_(1822-1978).svg",
+   "commonsFile": "Flag of Greece (1822-1978).svg"
+  },
+  "GRL": {
+   "file": "GRL.svg",
+   "ratio": 1.3214,
+   "license": "Public domain",
+   "author": "Madden and others",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Denmark.svg",
+   "commonsFile": "Flag of Denmark.svg"
+  },
+  "GTM": {
+   "file": "GTM.svg",
+   "ratio": 1.6,
+   "license": "Public domain",
+   "author": "K21edgo",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Guatemala.svg",
+   "commonsFile": "Flag of Guatemala.svg"
+  },
+  "HKG": {
+   "file": "HKG.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 4.0",
+   "author": "Sodacan",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Hong_Kong_(1876%E2%80%931955).svg",
+   "commonsFile": "Flag of Hong Kong (1876–1955).svg"
+  },
+  "HND": {
+   "file": "HND.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "AquaVacation",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Honduras_(1866%E2%80%931949).svg",
+   "commonsFile": "Flag of Honduras (1866-1949).svg"
+  },
+  "HTI": {
+   "file": "HTI.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "Wrestlingring",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Haiti_(1820%E2%80%931849,_1859%E2%80%931964).svg",
+   "commonsFile": "Flag of Haiti (1820–1849, 1859–1964).svg"
+  },
+  "HUN": {
+   "file": "HUN.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "User:Zscout370, colour correction: User:R-41, current version: Thommy",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Hungary_(1915-1918,_1919-1946).svg",
+   "commonsFile": "Flag of Hungary (1915-1918, 1919-1946).svg"
+  },
+  "IDN": {
+   "file": "IDN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Netherlands.svg",
+   "commonsFile": "Flag of the Netherlands.svg"
+  },
+  "IND": {
+   "file": "IND.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Barryob",
+   "source": "https://commons.wikimedia.org/wiki/File:British_Raj_Red_Ensign.svg",
+   "commonsFile": "British Raj Red Ensign.svg"
+  },
+  "IRL": {
+   "file": "IRL.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Éire",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ireland.svg",
+   "commonsFile": "Flag of Ireland.svg"
+  },
+  "IRN": {
+   "file": "IRN.svg",
+   "ratio": 3.0,
+   "license": "Public domain",
+   "author": "Orange Tuesday (talk)",
+   "source": "https://commons.wikimedia.org/wiki/File:State_flag_of_Iran_(1933%E2%80%931964).svg",
+   "commonsFile": "State flag of Iran (1933–1964).svg"
+  },
+  "IRQ": {
+   "file": "IRQ.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Iraq_(1924%E2%80%931959).svg",
+   "commonsFile": "Flag of Iraq (1924-1959).svg"
+  },
+  "ISL": {
+   "file": "ISL.svg",
+   "ratio": 1.3889,
+   "license": "Public domain",
+   "author": "Original: Matthías Þórðarson Vector: Árni Dagur and Magasjukur2",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Iceland.svg",
+   "commonsFile": "Flag of Iceland.svg"
+  },
+  "ITA": {
+   "file": "ITA.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "F l a n k e r",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Italy_(1861%E2%80%931946).svg",
+   "commonsFile": "Flag of Italy (1861-1946).svg"
+  },
+  "JOR": {
+   "file": "JOR.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Emirate_of_Transjordan.svg",
+   "commonsFile": "Flag of the Emirate of Transjordan.svg"
+  },
+  "JPN": {
+   "file": "JPN.svg",
+   "ratio": 1.4286,
+   "license": "Public domain",
+   "author": "kahusi - (Talk)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Japan_(1870%E2%80%931999).svg",
+   "commonsFile": "Flag of Japan (1870-1999).svg"
+  },
+  "KEN": {
+   "file": "KEN.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 3.0",
+   "author": "Oren neu dag",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kenya_(1921%E2%80%931963).svg",
+   "commonsFile": "Flag of Kenya (1921–1963).svg"
+  },
+  "KHM": {
+   "file": "KHM.svg",
+   "ratio": 1.5625,
+   "license": "Public domain",
+   "author": "No machine-readable author provided. Lexicon assumed (based on copyright claims).",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Cambodia_(1863%E2%80%931948).svg",
+   "commonsFile": "Flag of Cambodia (1863–1948).svg"
+  },
+  "KWT": {
+   "file": "KWT.svg",
+   "ratio": 1.5,
+   "license": "CC BY-SA 3.0",
+   "author": "Jaume Ollé",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Kuwait_(1915%E2%80%931956).svg",
+   "commonsFile": "Flag of Kuwait (1915-1956).svg"
+  },
+  "LAO": {
+   "file": "LAO.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Thommy",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Laos_(1893%E2%80%931952).svg",
+   "commonsFile": "Flag of Laos (1893-1952).svg"
+  },
+  "LBN": {
+   "file": "LBN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Unknown authorUnknown author",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Lebanon_(1943-1990).svg",
+   "commonsFile": "Flag of Lebanon (1943-1990).svg"
+  },
+  "LBR": {
+   "file": "LBR.svg",
+   "ratio": 1.9,
+   "license": "Public domain",
+   "author": "Government of Liberia",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Liberia.svg",
+   "commonsFile": "Flag of Liberia.svg"
+  },
+  "LIE": {
+   "file": "LIE.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "Own work",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Liechtenstein_(1937%E2%80%931982).svg",
+   "commonsFile": "Flag of Liechtenstein (1937-1982).svg"
+  },
+  "LKA": {
+   "file": "LKA.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Samhanin (original)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Ceylon_(1875%E2%80%931948).svg",
+   "commonsFile": "Flag of Ceylon (1875–1948).svg"
+  },
+  "LUX": {
+   "file": "LUX.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "Drawn by User:SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Luxembourg.svg",
+   "commonsFile": "Flag of Luxembourg.svg"
+  },
+  "MAC": {
+   "file": "MAC.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Columbano Bordalo Pinheiro (1910; generic design) Vector: Vítor Luís Rodrigues; António Martins-Tuválkin (2004; this specific vector set: see sources)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Portugal.svg",
+   "commonsFile": "Flag of Portugal.svg"
+  },
+  "MAR": {
+   "file": "MAR.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Denelson83, Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Morocco.svg",
+   "commonsFile": "Flag of Morocco.svg"
+  },
+  "MCO": {
+   "file": "MCO.svg",
+   "ratio": 1.25,
+   "license": "Public domain",
+   "author": "Drawn by User:SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Monaco.svg",
+   "commonsFile": "Flag of Monaco.svg"
+  },
+  "MDG": {
+   "file": "MDG.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "MEX": {
+   "file": "MEX.svg",
+   "ratio": 1.75,
+   "license": "Public domain",
+   "author": "TownDown",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Mexico_(1934-1968).svg",
+   "commonsFile": "Flag of Mexico (1934-1968).svg"
+  },
+  "MMR": {
+   "file": "MMR.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 3.0",
+   "author": "Beao (original)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Burma_(1939%E2%80%931941,_1945%E2%80%931948).svg",
+   "commonsFile": "Flag of Burma (1939–1941, 1945–1948).svg"
+  },
+  "MNG": {
+   "file": "MNG.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Drawn by User:latebird",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Mongolian_People%27s_Republic_(1945%E2%80%931992).svg",
+   "commonsFile": "Flag of the Mongolian People's Republic (1945–1992).svg"
+  },
+  "MOZ": {
+   "file": "MOZ.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Columbano Bordalo Pinheiro (1910; generic design) Vector: Vítor Luís Rodrigues; António Martins-Tuválkin (2004; this specific vector set: see sources)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Portugal.svg",
+   "commonsFile": "Flag of Portugal.svg"
+  },
+  "MTQ": {
+   "file": "MTQ.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "MWI": {
+   "file": "MWI.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 4.0",
+   "author": "Fry1989 eh?",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nyasaland_(1925%E2%80%931964).svg",
+   "commonsFile": "Flag of Nyasaland (1925–1964).svg"
+  },
+  "MYS": {
+   "file": "MYS.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Unknown authorUnknown author",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Malaya_(1896%E2%80%931950).svg",
+   "commonsFile": "Flag of Malaya (1896–1950).svg"
+  },
+  "NAM": {
+   "file": "NAM.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Parliament of South Africa (Vector graphics image by Denelson83)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_South_Africa_(1928%E2%80%931994,_dark_colors).svg",
+   "commonsFile": "Flag of South Africa (1928–1994, dark colors).svg"
+  },
+  "NFD": {
+   "file": "NFD.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "Original: Acts of Union 1800 Vector: Yaddah",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_United_Kingdom_(3-5).svg",
+   "commonsFile": "Flag of the United Kingdom.svg"
+  },
+  "NFK": {
+   "file": "NFK.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Ivor Evans, Leslie John Hawkins, Egbert John Nuttall, Annie Dorrington and William Stevens Vector: Ian Fieggen",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Australia.svg",
+   "commonsFile": "Flag of Australia.svg"
+  },
+  "NGA": {
+   "file": "NGA.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 4.0",
+   "author": "Benchill (original)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nigeria_(1914%E2%80%931952).svg",
+   "commonsFile": "Flag of Nigeria (1914–1952).svg"
+  },
+  "NIC": {
+   "file": "NIC.svg",
+   "ratio": 1.6667,
+   "license": "Public domain",
+   "author": "Nightstallion",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nicaragua_(1908%E2%80%931971).svg",
+   "commonsFile": "Flag of Nicaragua (1908-1971).svg"
+  },
+  "NLD": {
+   "file": "NLD.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Netherlands.svg",
+   "commonsFile": "Flag of the Netherlands.svg"
+  },
+  "NOR": {
+   "file": "NOR.svg",
+   "ratio": 1.375,
+   "license": "Public domain",
+   "author": "Original: Fredrik Meltzer Vector: Gutten på Hemsen",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Norway.svg",
+   "commonsFile": "Flag of Norway.svg"
+  },
+  "NPL": {
+   "file": "NPL.svg",
+   "ratio": 0.8203,
+   "license": "Public domain",
+   "author": "Drawn by Pumbaa80, Achim1999",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Nepal.svg",
+   "commonsFile": "Flag of Nepal.svg"
+  },
+  "NRU": {
+   "file": "NRU.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Ivor Evans, Leslie John Hawkins, Egbert John Nuttall, Annie Dorrington and William Stevens Vector: Ian Fieggen",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Australia.svg",
+   "commonsFile": "Flag of Australia.svg"
+  },
+  "NZL": {
+   "file": "NZL.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Albert Hastings Markham Vector: Zscout370, Hugh Jass, s. File history",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_New_Zealand.svg",
+   "commonsFile": "Flag of New Zealand.svg"
+  },
+  "OMN": {
+   "file": "OMN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Muscat.svg",
+   "commonsFile": "Flag of Muscat.svg"
+  },
+  "PAN": {
+   "file": "PAN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Zscout370 et al.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Panama.svg",
+   "commonsFile": "Flag of Panama.svg"
+  },
+  "PER": {
+   "file": "PER.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Republic of Peru - Republica del Perú",
+   "source": "https://commons.wikimedia.org/wiki/File:War_flag_of_Peru.svg",
+   "commonsFile": "Flag of Peru (state).svg"
+  },
+  "PHL": {
+   "file": "PHL.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Philippines_(navy_blue).svg",
+   "commonsFile": "Flag of the Philippines (navy blue).svg"
+  },
+  "PNG": {
+   "file": "PNG.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Ivor Evans, Leslie John Hawkins, Egbert John Nuttall, Annie Dorrington and William Stevens Vector: Ian Fieggen",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Australia.svg",
+   "commonsFile": "Flag of Australia.svg"
+  },
+  "POL": {
+   "file": "POL.svg",
+   "ratio": 1.6,
+   "license": "Public domain",
+   "author": "Arvedui89",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Poland_(1928%E2%80%931980).svg",
+   "commonsFile": "Flag of Poland (1928-1980).svg"
+  },
+  "PRT": {
+   "file": "PRT.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Columbano Bordalo Pinheiro (1910; generic design) Vector: Vítor Luís Rodrigues; António Martins-Tuválkin (2004; this specific vector set: see sources)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Portugal.svg",
+   "commonsFile": "Flag of Portugal.svg"
+  },
+  "PRY": {
+   "file": "PRY.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Kaiser Torikka",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Paraguay_(1842%E2%80%931954).svg",
+   "commonsFile": "Flag of Paraguay (1842-1954).svg"
+  },
+  "PSE": {
+   "file": "PSE.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "User:Greentubing, User:AnonMoos",
+   "source": "https://commons.wikimedia.org/wiki/File:Ensign_of_the_Palestine_Mandate_(1927%E2%80%931948).svg",
+   "commonsFile": "Ensign of the Palestine Mandate (1927–1948).svg"
+  },
+  "QAD": {
+   "file": "QAD.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "O",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Aden_(1937%E2%80%931963).svg",
+   "commonsFile": "Flag of Aden (1937–1963).svg"
+  },
+  "QAT": {
+   "file": "QAT.svg",
+   "ratio": 2.6776,
+   "license": "Public domain",
+   "author": "Orange Tuesday",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Qatar_(1936%E2%80%931949).svg",
+   "commonsFile": "Flag of Qatar (1936-1949).svg"
+  },
+  "QAZ": {
+   "file": "QAZ.svg",
+   "ratio": 1.5,
+   "license": "CC BY-SA 4.0",
+   "author": "The360degree",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Azerbaijan_People%27s_Government.svg",
+   "commonsFile": "Flag of the Azerbaijan People's Government.svg"
+  },
+  "QDV": {
+   "file": "QDV.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "See File History below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_North_Vietnam_(1945%E2%80%931955).svg",
+   "commonsFile": "Flag of North Vietnam (1945-1955).svg"
+  },
+  "QFE": {
+   "file": "QFE.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "QFI": {
+   "file": "QFI.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "QFW": {
+   "file": "QFW.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "QJK": {
+   "file": "QJK.svg",
+   "ratio": 1.5038,
+   "license": "Public domain",
+   "author": "Germenfer",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Jammu_and_Kashmir_(1936-1953).svg",
+   "commonsFile": "Flag of Jammu and Kashmir (1936-1953).svg"
+  },
+  "QLB": {
+   "file": "QLB.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "British Government, redraw by Ranking Update",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Labuan_(1912%E2%80%931946).svg",
+   "commonsFile": "Flag of Labuan (1912–1946).svg"
+  },
+  "QMH": {
+   "file": "QMH.svg",
+   "ratio": 1.5,
+   "license": "CC0",
+   "author": "محک, Zt-freak, Thespoondragon",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Republic_of_Mahabad.svg",
+   "commonsFile": "Flag of the Republic of Mahabad.svg"
+  },
+  "QNB": {
+   "file": "QNB.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Orange Tuesday (talk)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_North_Borneo_(1902%E2%80%931946).svg",
+   "commonsFile": "Flag of North Borneo (1902–1946).svg"
+  },
+  "QND": {
+   "file": "QND.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Netherlands.svg",
+   "commonsFile": "Flag of the Netherlands.svg"
+  },
+  "QPI": {
+   "file": "QPI.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Columbano Bordalo Pinheiro (1910; generic design) Vector: Vítor Luís Rodrigues; António Martins-Tuválkin (2004; this specific vector set: see sources)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Portugal.svg",
+   "commonsFile": "Flag of Portugal.svg"
+  },
+  "QPS": {
+   "file": "QPS.svg",
+   "ratio": 1.9,
+   "license": "Public domain",
+   "author": "Created by jacobolus using Adobe Illustrator.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_United_States_(1912-1959).svg",
+   "commonsFile": "Flag of the United States (1912-1959).svg"
+  },
+  "QRI": {
+   "file": "QRI.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Jayakatwang",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Indonesia.svg",
+   "commonsFile": "Flag of Indonesia.svg"
+  },
+  "QRU": {
+   "file": "QRU.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Dbenbenn",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Belgium_(civil).svg",
+   "commonsFile": "Flag of Belgium (civil).svg"
+  },
+  "QSI": {
+   "file": "QSI.svg",
+   "ratio": 1.2548,
+   "license": "Public domain",
+   "author": "User:Goran_tek-en",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sikkim_(1914-1962).svg",
+   "commonsFile": "Flag of Sikkim (1914-1962).svg"
+  },
+  "QSO": {
+   "file": "QSO.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 4.0",
+   "author": "Sodacan",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_British_Somaliland_(1903%E2%80%931950).svg",
+   "commonsFile": "Flag of British Somaliland (1903-1950).svg"
+  },
+  "QSR": {
+   "file": "QSR.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Defunct, extinct historical state, sucessor state: Sarawak",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sarawak_(1870%E2%80%931946,_1963%E2%80%931973).svg",
+   "commonsFile": "Flag of Sarawak (1870–1946, 1963–1973).svg"
+  },
+  "QTB": {
+   "file": "QTB.svg",
+   "ratio": 1.6,
+   "license": "CC BY-SA 4.0",
+   "author": "Felipe Fidelis Tobias",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tibet_(1916-1951).svg",
+   "commonsFile": "Flag of Tibet (1916-1951).svg"
+  },
+  "QWL": {
+   "file": "QWL.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 4.0",
+   "author": "Cypp0847",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Leeward_Islands_(1871%E2%80%931952).svg",
+   "commonsFile": "Flag of Leeward Islands (1871-1952).svg"
+  },
+  "QWW": {
+   "file": "QWW.svg",
+   "ratio": 2.0,
+   "license": "CC0",
+   "author": "Thommy",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_British_Windward_Islands_(1903%E2%80%931953).svg",
+   "commonsFile": "Flag of the British Windward Islands (1903-1953).svg"
+  },
+  "QZN": {
+   "file": "QZN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Mysid",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Sultanate_of_Zanzibar.svg",
+   "commonsFile": "Flag of the Sultanate of Zanzibar.svg"
+  },
+  "ROU": {
+   "file": "ROU.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "AdiJapan",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Romania.svg",
+   "commonsFile": "Flag of Romania.svg"
+  },
+  "SAU": {
+   "file": "SAU.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Orange Tuesday at English Wikipedia",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Saudi_Arabia_(1938%E2%80%931973).svg",
+   "commonsFile": "Flag of Saudi Arabia (1938-1973).svg"
+  },
+  "SDN": {
+   "file": "SDN.svg",
+   "ratio": 3.4643,
+   "license": "CC BY-SA 3.0",
+   "author": "Abjiklam",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Anglo-Egyptian_Sudan.svg",
+   "commonsFile": "Flag of Anglo-Egyptian Sudan.svg"
+  },
+  "SGP": {
+   "file": "SGP.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 4.0",
+   "author": "User:Zscout370 (Return Fire)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Singapore_(1946%E2%80%931952).svg",
+   "commonsFile": "Flag of Singapore (1946–1952).svg"
+  },
+  "SLB": {
+   "file": "SLB.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Thommy (original)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Solomon_Islands_(1906%E2%80%931947).svg",
+   "commonsFile": "Flag of the Solomon Islands (1906–1947).svg"
+  },
+  "SLE": {
+   "file": "SLE.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Pbroks13",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sierra_Leone_(1916%E2%80%931961).svg",
+   "commonsFile": "Flag of Sierra Leone (1916–1961).svg"
+  },
+  "SLV": {
+   "file": "SLV.svg",
+   "ratio": 1.7725,
+   "license": "Public domain",
+   "author": "See File history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_El_Salvador.svg",
+   "commonsFile": "Flag of El Salvador.svg"
+  },
+  "SMR": {
+   "file": "SMR.svg",
+   "ratio": 1.3333,
+   "license": "Public domain",
+   "author": "Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_San_Marino.svg",
+   "commonsFile": "Flag of San Marino.svg"
+  },
+  "SUN": {
+   "file": "SUN.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "created by rotemliss from Image:Flag of the Soviet Union.svg.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Soviet_Union_(1936_%E2%80%93_1955).svg",
+   "commonsFile": "Flag of the Soviet Union (1936 – 1955).svg"
+  },
+  "SWE": {
+   "file": "SWE.svg",
+   "ratio": 1.6,
+   "license": "Public domain",
+   "author": "Jon Harald Søby and others.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Sweden.svg",
+   "commonsFile": "Flag of Sweden.svg"
+  },
+  "SYR": {
+   "file": "SYR.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "See File history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Syria_(1930%E2%80%931958,_1961%E2%80%931963).svg",
+   "commonsFile": "Flag of Syria (1930–1958, 1961–1963).svg"
+  },
+  "TGO": {
+   "file": "TGO.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "THA": {
+   "file": "THA.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Thailand.svg",
+   "commonsFile": "Flag of Thailand.svg"
+  },
+  "TON": {
+   "file": "TON.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Uelingatoni Ngu Tupoumalohi",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tonga.svg",
+   "commonsFile": "Flag of Tonga.svg"
+  },
+  "TUN": {
+   "file": "TUN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Various Wikimedia Commons' contributors",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tunisia.svg",
+   "commonsFile": "Flag of Tunisia.svg"
+  },
+  "TUR": {
+   "file": "TUR.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "David Benbennick (original author)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Turkey.svg",
+   "commonsFile": "Flag of Turkey.svg"
+  },
+  "TWN": {
+   "file": "TWN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Sun Yat-sen",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Republic_of_China.svg",
+   "commonsFile": "Flag of the Republic of China.svg"
+  },
+  "TZA": {
+   "file": "TZA.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Mysid",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Tanganyika_(1923%E2%80%931961).svg",
+   "commonsFile": "Flag of Tanganyika (1923–1961).svg"
+  },
+  "UGA": {
+   "file": "UGA.svg",
+   "ratio": 2.0,
+   "license": "CC BY-SA 3.0",
+   "author": "Sodacan",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Uganda_Protectorate.svg",
+   "commonsFile": "Flag of the Uganda Protectorate.svg"
+  },
+  "URY": {
+   "file": "URY.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "See File history below for details.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Uruguay.svg",
+   "commonsFile": "Flag of Uruguay.svg"
+  },
+  "USA": {
+   "file": "USA.svg",
+   "ratio": 1.9,
+   "license": "Public domain",
+   "author": "Created by jacobolus using Adobe Illustrator.",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_United_States_(1912-1959).svg",
+   "commonsFile": "Flag of the United States (1912-1959).svg"
+  },
+  "VAT": {
+   "file": "VAT.svg",
+   "ratio": 1.0,
+   "license": "CC BY-SA 4.0",
+   "author": "Unknown author",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Vatican_City_(1929%E2%80%932001).svg",
+   "commonsFile": "Flag of Vatican City (1929–2001).svg"
+  },
+  "VEN": {
+   "file": "VEN.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "FXXX",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Venezuela_(1930%E2%80%932006).svg",
+   "commonsFile": "Flag of Venezuela (1930–2006).svg"
+  },
+  "VNM": {
+   "file": "VNM.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Original: Unknown Vector: SKopp",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_France.svg",
+   "commonsFile": "Flag of France.svg"
+  },
+  "VUT": {
+   "file": "VUT.svg",
+   "ratio": 2.0,
+   "license": "CC0",
+   "author": "Thommy",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_British_New_Hebrides_(1906%E2%80%931952).svg",
+   "commonsFile": "Flag of the British New Hebrides (1906–1952).svg"
+  },
+  "WSM": {
+   "file": "WSM.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Original: Albert Hastings Markham Vector: Zscout370, Hugh Jass, s. File history",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_New_Zealand.svg",
+   "commonsFile": "Flag of New Zealand.svg"
+  },
+  "YEM": {
+   "file": "YEM.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Urmas (SVG file)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_the_Mutawakkilite_Kingdom_of_Yemen.svg",
+   "commonsFile": "Flag of the Mutawakkilite Kingdom of Yemen.svg"
+  },
+  "YUG": {
+   "file": "YUG.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Flag designed by Đorđe Andrejević-Kun[3]SVG coding: Zscout370",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Yugoslavia_(1946-1992).svg",
+   "commonsFile": "Flag of Yugoslavia (1946-1992).svg"
+  },
+  "ZAF": {
+   "file": "ZAF.svg",
+   "ratio": 1.5,
+   "license": "Public domain",
+   "author": "Parliament of South Africa (Vector graphics image by Denelson83)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_South_Africa_(1928%E2%80%931994,_dark_colors).svg",
+   "commonsFile": "Flag of South Africa (1928–1994, dark colors).svg"
+  },
+  "ZMB": {
+   "file": "ZMB.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Greentubing (en:WP talk)",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Northern_Rhodesia_(1939%E2%80%931964).svg",
+   "commonsFile": "Flag of Northern Rhodesia (1939-1964).svg"
+  },
+  "ZWE": {
+   "file": "ZWE.svg",
+   "ratio": 2.0,
+   "license": "Public domain",
+   "author": "Greentubing",
+   "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Southern_Rhodesia_(1924%E2%80%931964).svg",
+   "commonsFile": "Flag of Southern Rhodesia (1924–1964).svg"
+  }
+ }
+}

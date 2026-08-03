@@ -8,7 +8,10 @@
 """
 import json
 import unittest
+import xml.etree.ElementTree as ElementTree
 from pathlib import Path
+
+from fetch_flags import BOX_H, BOX_W, normalize, sanitize, unsafe_reason
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG = REPO_ROOT / "scripts" / "map" / "config" / "flags_1946.json"
@@ -82,6 +85,95 @@ class FlagsManifest1946Test(unittest.TestCase):
             with self.subTest(territory=territory):
                 self.assertEqual(len(occupiers), len(set(occupiers)),
                                  f"{territory}: у зон совпадает держава-администратор")
+
+
+class FlagNormalizationTest(unittest.TestCase):
+    """Проверки нормализатора из fetch_flags.py.
+
+    Каждая из них закрывает дефект, который РЕАЛЬНО случился на живом наборе и
+    которого не видел ни один формальный признак: файл записывался, был
+    валидным и весил сколько положено.
+    """
+
+    def test_root_presentation_attributes_reach_the_content(self):
+        """Заливка, объявленная один раз на корне, наследуется фигурами.
+
+        Флаг Гондураса задаёт `fill` на корневом теге; отбросив корень, набор
+        получил чёрно-белый флаг вместо синего — валидный и правильного веса.
+        """
+        svg = ('<svg xmlns="http://www.w3.org/2000/svg" width="72" height="36" '
+               'viewBox="0 0 72 36" fill="#0d3b99"><rect width="72" height="12"/></svg>')
+        out, _ = normalize(svg)
+        self.assertIn('fill="#0d3b99"', out)
+
+    def test_namespace_declarations_reach_the_content(self):
+        """Префикс, объявленный на корне и использованный в теле, обязан выжить.
+
+        Иначе документ перестаёт быть валидным XML и браузер показывает пустоту
+        — так первый прогон потерял 26 флагов из 145.
+        """
+        svg = ('<svg xmlns="http://www.w3.org/2000/svg" '
+               'xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/s.dtd" '
+               'width="60" height="40" viewBox="0 0 60 40">'
+               '<rect sodipodi:role="line" width="60" height="40"/></svg>')
+        out, _ = normalize(svg)
+        ElementTree.fromstring(out)  # разбор и есть проверка
+
+    def test_scientific_notation_in_dimensions(self):
+        """`width="1e3"` — законная запись; наивный парсер читает её как «1».
+
+        На флаге Коста-Рики это дало пропорцию 0,0017 вместо 1,67.
+        """
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1e3" height="600"><rect/></svg>'
+        _, ratio = normalize(svg)
+        self.assertAlmostEqual(ratio, 1.6667, places=3)
+
+    def test_ratio_disagreeing_with_independent_source_is_rejected(self):
+        """Расхождение с метаданными Commons — отказ, а не тихая запись."""
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200"><rect/></svg>'
+        with self.assertRaises(ValueError):
+            normalize(svg, expected_ratio=1.0)
+
+    def test_frame_not_viewbox_defines_flag_shape(self):
+        """Форму задаёт кадр width/height, а не viewBox.
+
+        У лаосского флага кадр 3:2 при квадратном viewBox — если считать по
+        viewBox, флаг получает поля, которых у него нет.
+        """
+        svg = ('<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" '
+               'viewBox="0 0 250 250"><rect/></svg>')
+        _, ratio = normalize(svg)
+        self.assertAlmostEqual(ratio, 1.5, places=3)
+
+    def test_output_always_carries_the_common_box(self):
+        for width, height in ((1000, 500), (300, 200), (100, 125)):
+            with self.subTest(size=(width, height)):
+                svg = (f'<svg xmlns="http://www.w3.org/2000/svg" '
+                       f'width="{width}" height="{height}"><rect/></svg>')
+                out, _ = normalize(svg)
+                root = ElementTree.fromstring(out)
+                self.assertEqual(root.get("viewBox"), f"0 0 {BOX_W} {BOX_H}")
+
+    def test_empty_illustrator_stub_passes_but_real_foreign_object_does_not(self):
+        """Граница санитайзера — обе половины сразу.
+
+        Пустая самозакрывающаяся заглушка Illustrator исполнить нечего, и она
+        удаляется. foreignObject С ТЕЛОМ — чужая разметка внутри картинки — и
+        дальше приводит к отказу; иначе это было бы ослаблением проверки.
+        """
+        stub = '<svg xmlns="http://www.w3.org/2000/svg"><defs><foreignObject id="x" /></defs></svg>'
+        self.assertIsNone(unsafe_reason(sanitize(stub)))
+
+        real = ('<svg xmlns="http://www.w3.org/2000/svg"><foreignObject>'
+                '<body xmlns="http://www.w3.org/1999/xhtml">hi</body></foreignObject></svg>')
+        self.assertIsNotNone(unsafe_reason(sanitize(real)))
+
+    def test_active_content_is_rejected(self):
+        for hostile in ('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+                        '<svg xmlns="http://www.w3.org/2000/svg"><rect onload="x()"/></svg>',
+                        '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://e.com/a.png"/></svg>'):
+            with self.subTest(svg=hostile[:60]):
+                self.assertIsNotNone(unsafe_reason(sanitize(hostile)))
 
 
 if __name__ == "__main__":
