@@ -1181,6 +1181,102 @@
    "author": "Greentubing",
    "source": "https://commons.wikimedia.org/wiki/File:Flag_of_Southern_Rhodesia_(1924%E2%80%931964).svg",
    "commonsFile": "Flag of Southern Rhodesia (1924–1964).svg"
+  },
+  "ARE": {
+   "file": "ARE.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QGA": {
+   "file": "QGA.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QGB": {
+   "file": "QGB.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QGF": {
+   "file": "QGF.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QGS": {
+   "file": "QGS.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QKA": {
+   "file": "QKA.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QKS": {
+   "file": "QKS.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QMS": {
+   "file": "QMS.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QOA": {
+   "file": "QOA.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QOB": {
+   "file": "QOB.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QOF": {
+   "file": "QOF.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
+  },
+  "QOS": {
+   "file": "QOS.svg",
+   "ratio": 1.5,
+   "license": "Project asset",
+   "author": "Geopolis, scripts/map/build_custom_flags.py",
+   "source": "",
+   "commonsFile": ""
   }
  }
 }

@@ -16,6 +16,8 @@ from fetch_flags import BOX_H, BOX_W, normalize, sanitize, unsafe_reason
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG = REPO_ROOT / "scripts" / "map" / "config" / "flags_1946.json"
 COUNTRIES = REPO_ROOT / "server" / "data" / "scenarios" / "1946" / "countries.json"
+FLAGS_DIR = REPO_ROOT / "client" / "public" / "flags"
+FLAGS_INDEX = FLAGS_DIR / "index.json"
 
 CONFIDENCE_LEVELS = {"high", "medium", "low"}
 
@@ -85,6 +87,46 @@ class FlagsManifest1946Test(unittest.TestCase):
             with self.subTest(territory=territory):
                 self.assertEqual(len(occupiers), len(set(occupiers)),
                                  f"{territory}: у зон совпадает держава-администратор")
+
+
+class FlagAssetsTest(unittest.TestCase):
+    """Набор на диске — то, что реально увидит игрок.
+
+    Конфиг может быть безупречным, а файла при этом не быть: скачивание
+    падало, рисовалку никто не запускал. Проверяется поэтому наличие файла на
+    КАЖДУЮ страну сценария, а не согласованность бумаг между собой.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.codes = {c["id"] for c in load_json(COUNTRIES)}
+        cls.index = load_json(FLAGS_INDEX)["flags"] if FLAGS_INDEX.exists() else {}
+
+    def test_every_scenario_country_has_a_file_on_disk(self):
+        missing = sorted(c for c in self.codes if not (FLAGS_DIR / f"{c}.svg").exists())
+        self.assertEqual(missing, [], f"страны без файла флага: {missing}")
+
+    def test_index_covers_the_whole_scenario(self):
+        self.assertEqual(sorted(self.index), sorted(self.codes))
+
+    def test_every_asset_is_parsable_and_carries_the_common_box(self):
+        """Файл, который не разбирается, в наборе неотличим от рабочего."""
+        for code in sorted(self.codes):
+            with self.subTest(code=code):
+                with (FLAGS_DIR / f"{code}.svg").open(encoding="utf-8", newline="") as fh:
+                    root = ElementTree.fromstring(fh.read())
+                self.assertEqual(root.get("viewBox"), f"0 0 {BOX_W} {BOX_H}")
+
+    def test_no_asset_carries_active_content(self):
+        """Проверка на живом наборе, а не на фикстуре.
+
+        Санитайзер мог не сработать, файл мог быть добавлен руками — здесь
+        проверяется результат, а не намерение.
+        """
+        for code in sorted(self.codes):
+            with self.subTest(code=code):
+                with (FLAGS_DIR / f"{code}.svg").open(encoding="utf-8", newline="") as fh:
+                    self.assertIsNone(unsafe_reason(sanitize(fh.read())))
 
 
 class FlagNormalizationTest(unittest.TestCase):

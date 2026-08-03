@@ -57,6 +57,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = REPO_ROOT / "scripts" / "map" / "out" / "flags_1946.json"
+CONFIG = REPO_ROOT / "scripts" / "map" / "config" / "flags_1946.json"
 FLAGS_DIR = REPO_ROOT / "client" / "public" / "flags"
 INDEX = FLAGS_DIR / "index.json"
 
@@ -303,15 +304,40 @@ def main() -> int:
             "commonsFile": source,
         }
 
+    # Флаги сущностей, у которых исторического флага не было, рисует
+    # build_custom_flags.py. Они уже лежат на диске — скачивать нечего, но в
+    # индексе набора они обязаны стоять наравне с остальными: интерфейсу важно,
+    # что покрыты ВСЕ страны сценария, а не только те, чей флаг существовал.
+    with CONFIG.open(encoding="utf-8") as fh:
+        custom = json.load(fh)["custom"]
+    drawn = []
+    for code in sorted(custom):
+        if not (FLAGS_DIR / f"{code}.svg").exists():
+            drawn.append(code)
+            continue
+        index[code] = {
+            "file": f"{code}.svg",
+            "ratio": round(BOX_W / BOX_H, 4),
+            "license": "Project asset",
+            "author": "Geopolis, scripts/map/build_custom_flags.py",
+            "source": "",
+            "commonsFile": "",
+        }
+
     payload = {
         "_meta": {
             "generatedBy": "scripts/map/fetch_flags.py",
             "box": f"{BOX_W}x{BOX_H}",
             "note": ("Полотнище вписано в общий бокс без растяжения и обрезки; "
                      "ratio — истинная пропорция флага для вёрстки, выравнивающей по высоте."),
+            # Атрибуции требуют только чужие файлы под CC BY-SA и подобным.
+            # Собственные ассеты проекта в этот список не попадают — иначе
+            # обязательство размывается тем, чего в нём нет.
             "attributionRequired": sorted(
                 c for c, v in index.items()
-                if "public domain" not in v["license"].lower() and "cc0" not in v["license"].lower()
+                if v["license"] not in ("Project asset",)
+                and "public domain" not in v["license"].lower()
+                and "cc0" not in v["license"].lower()
             ),
         },
         "flags": index,
@@ -322,13 +348,17 @@ def main() -> int:
 
     total = sum((FLAGS_DIR / f"{c}.svg").stat().st_size for c in index)
     print("Флаги 1946 — скачивание и нормализация")
-    print(f"  кодов в манифесте:     {len(flags)}")
-    print(f"  сохранено файлов:      {len(index)} (записано {written}, без изменений {skipped})")
+    print(f"  кодов в манифесте:     {len(flags)} + {len(custom)} нарисованных")
+    print(f"  в наборе:              {len(index)} (скачано {written}, без изменений {skipped})")
     print(f"  уникальных источников: {len(cache)}")
     print(f"  суммарный вес:         {total / 1024 / 1024:.2f} МБ")
     print(f"  требуют атрибуции:     {len(payload['_meta']['attributionRequired'])}")
     print(f"  каталог:               {FLAGS_DIR.relative_to(REPO_ROOT)}")
 
+    if drawn:
+        print("\nНЕ НАРИСОВАНЫ (запусти scripts/map/build_custom_flags.py):")
+        for code in drawn:
+            print("  -", code)
     if rejected:
         print("\nОТКЛОНЕНО (в набор не попало):")
         for line in rejected:
@@ -337,7 +367,7 @@ def main() -> int:
         print("\nНЕ СКАЧАЛОСЬ:")
         for line in failed:
             print("  -", line)
-    return 1 if rejected or failed else 0
+    return 1 if rejected or failed or drawn else 0
 
 
 if __name__ == "__main__":
