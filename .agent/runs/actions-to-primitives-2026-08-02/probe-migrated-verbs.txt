@@ -1,0 +1,26 @@
+сценарий 1946: 157 стран, 1399 регионов
+выборка: 40 стран / 40 регионов на глагол
+
+## guarantee — попыток 40, применено 40
+  (отказов нет)
+
+## research_shift (домен из данных страны) — попыток 40, применено 40
+  (отказов нет)
+
+## research_shift (несуществующий домен) — попыток 40, применено 0
+    40  unknownResearchDomain
+        пример: Afghanistan has no research domain called "psionics": use one of the domains listed on its Technology line
+
+## production_shift — попыток 40, применено 40
+  (отказов нет)
+
+## build_extraction (контролёр строит на своей залежи) — попыток 40, применено 0
+    40  extractionAtMaximum
+        пример: food extraction in Andorra already stands at level 10, the maximum of 10: there is nothing left to build
+
+пар (регион, ресурс) с залежью: 2055, из них ниже потолка мощностей: 0
+
+## build_extraction (снос) — попыток 40, применено 40
+  (отказов нет)
+
+пример источника: AFG (Afghanistan), доменов 14

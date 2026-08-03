@@ -644,6 +644,83 @@ export function buildPrimitiveOutcome(
       };
     }
 
+    case "guarantee":
+      return {
+        verb: applied.verb,
+        headline: {
+          key: "guarantee.headline",
+          names: {
+            source: countryNames(game, applied.sourceCountryId),
+            country: countryNames(game, applied.targetCountryId),
+          },
+        },
+        details: relationLines(game, applied.relationEffects),
+      };
+
+    case "research_shift":
+    case "production_shift": {
+      // Ключ строки — по НАПРАВЛЕНИЮ и по факту сдвига: «перевели фокус на
+      // авиацию» и «двигать было уже некуда» — разные события для игрока, и
+      // один заголовок на оба выдал бы намерение за результат.
+      const effect = applied.focusEffects[0];
+      const subject = applied.verb === "research_shift" ? applied.domain : applied.equipmentType;
+      return {
+        verb: applied.verb,
+        headline: {
+          key: `${applied.verb}.headline.${applied.direction}`,
+          // Домен и категория — МАШИННЫЕ имена: клиент подставляет их в свой
+          // словарь как ключи, ровно как вид санкции и оси реформы.
+          values: { subject },
+          names: { country: countryNames(game, applied.countryId) },
+        },
+        details: effect
+          ? [
+              effect.delta === 0
+                ? {
+                    key: "focus.unchanged",
+                    values: { value: effect.after.toFixed(2), cap: applied.cap.toFixed(2) },
+                  }
+                : {
+                    key: "focus.changed",
+                    values: {
+                      delta: signed(effect.delta),
+                      before: effect.before.toFixed(2),
+                      after: effect.after.toFixed(2),
+                      cap: applied.cap.toFixed(2),
+                    },
+                  },
+            ]
+          : [],
+      };
+    }
+
+    case "build_extraction": {
+      const effect = applied.extractionEffects[0];
+      return {
+        verb: applied.verb,
+        headline: {
+          key: `buildExtraction.headline.${applied.direction}`,
+          values: { resource: applied.resource },
+          names: { region: regionNames(game, applied.regionId) },
+        },
+        details: [
+          ...(effect
+            ? [
+                {
+                  key: "extraction.level",
+                  values: { before: effect.before, after: effect.after },
+                },
+              ]
+            : []),
+          // Пустой список цены — факт, а не отсутствие данных: снос мощностей
+          // бесплатен, и отклик обязан сказать это словом.
+          ...(applied.countryScalarEffects.length > 0
+            ? scalarLines(game, applied.countryScalarEffects)
+            : [{ key: "extraction.noCost" }]),
+        ],
+      };
+    }
+
     case "create_country": {
       const details: PrimitiveOutcomeLine[] = [
         { key: "create.regions", values: { regions: applied.regionIds.length } },
@@ -825,6 +902,36 @@ export function buildPrimitivePreview(
         // выведет движок из демографии в момент применения.
         names.region = regionNames(game, primitive.target.regionId);
         key = "preview.create_country";
+        break;
+      case "guarantee":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = "preview.guarantee";
+        break;
+      // Сдвиги фокуса: в показе распознанного есть ПРЕДМЕТ и НАПРАВЛЕНИЕ — оба
+      // часть намерения, — но нет ни новой доли, ни потолка. Их движок посчитает
+      // из состояния в момент применения, и назвать их сейчас значило бы
+      // пообещать число, которое к тому времени может стать другим (страна
+      // вступила в войну — потолок исследований ниже).
+      case "research_shift":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.research_shift.${primitive.params.direction ?? "toward"}`;
+        details.push({ key: "preview.focusSubject", values: { subject: primitive.params.domain } });
+        break;
+      case "production_shift":
+        names.country = countryNames(game, primitive.target.countryId);
+        key = `preview.production_shift.${primitive.params.direction ?? "toward"}`;
+        details.push({
+          key: "preview.focusSubject",
+          values: { subject: primitive.params.equipmentType },
+        });
+        break;
+      case "build_extraction":
+        names.region = regionNames(game, primitive.target.regionId);
+        key = `preview.build_extraction.${primitive.params.direction ?? "expand"}`;
+        details.push({
+          key: "preview.extractionResource",
+          values: { resource: primitive.params.resource },
+        });
         break;
     }
 

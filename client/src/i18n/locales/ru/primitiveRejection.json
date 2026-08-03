@@ -50,5 +50,14 @@
   "mergePlayerCountry": "{{target}} — государство игрока: его нельзя присоединить к другой стране",
   "independenceNotOwner": "{{source}} не владеет регионом {{region}}: независимость предоставляет тот, кому земля принадлежит",
   "independenceNoMajority": "В регионе {{region}} нет группы-большинства (наибольшая доля {{share}}): новому государству не в честь кого называться",
-  "independenceWouldEmptyParent": "У {{country}} не осталось бы ни одного региона — это самороспуск, а не предоставление независимости"
+  "independenceWouldEmptyParent": "У {{country}} не осталось бы ни одного региона — это самороспуск, а не предоставление независимости",
+  "guaranteeAlreadyGiven": "{{source}} уже гарантирует независимость {{target}} — повторное обещание ничего не меняет",
+  "focusNotDomestic": "{{source}} не может распоряжаться бюджетом {{country}}: страна тратит только свои деньги",
+  "unknownResearchDomain": "У {{country}} нет направления исследований «{{domain}}»",
+  "unknownEquipmentType": "{{country}} не производит технику категории «{{equipmentType}}»",
+  "noDepositInRegion": "В регионе {{region}} нет месторождения ({{resource}}) — мощности строят поверх залежи, а не вместо неё",
+  "extractionAtMaximum": "Добыча ({{resource}}) в регионе {{region}} уже на уровне {{level}} из {{max}} — строить нечего",
+  "noExtractionToDismantle": "В регионе {{region}} нет добычи ({{resource}}), которую можно свернуть",
+  "extractionUnaffordable": "{{source}} не потянет стройку: она стоит {{cost}}, а в казне {{treasury}}",
+  "legacyActionsChannel": "Режиссёр обратился к каналу «actions» ({{count}}), которого больше не существует — записи отброшены"
 }

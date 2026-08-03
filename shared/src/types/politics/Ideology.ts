@@ -35,8 +35,10 @@ export const IDEOLOGY_AXES = ["economic", "political"] as const satisfies readon
  *
  * ПРИСВАИВАНИЕ обязательно: один псевдоним типа сборку не валит — TypeScript
  * вычисляет его лениво, и до Милстоуна 1 этот страж молчал (найдено
- * независимым ревью 2026-07-27, проверено добавлением третьей оси). Образец —
- * `_AssertSchemaMatchesSharedType` в `server/src/llm/actionSchemas.ts`.
+ * независимым ревью 2026-07-27, проверено добавлением третьей оси). Образец
+ * жил в `_AssertSchemaMatchesSharedType` (`server/src/llm/actionSchemas.ts`),
+ * удалённом 2026-08-02 вместе с каналом `actions`; тот же приём —
+ * присваивание `true` вычисленному типу — применяется здесь самостоятельно.
  *
  * Константа ЭКСПОРТИРУЕТСЯ, а не остаётся локальной: `client/tsconfig.app.json`
  * включает `noUnusedLocals`, и неиспользуемая локальная переменная в файле,

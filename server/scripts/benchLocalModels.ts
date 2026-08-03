@@ -4,9 +4,8 @@
  * Промт берётся у `LLMService.generatePrompt()` на игре, созданной
  * `createGame("1946", ...)` с фиксированным сидом, а ответ проверяется ровно той
  * цепочкой, что стоит в `LLMService.processResponse()`:
- *   JSON.parse -> LLMResponseEnvelopeSchema -> LLMActionSchema (по каждому
- *   действию отдельно) -> LLMResponseValidator.validateActionApplicability
- *   -> parsePrimitives.
+ *   JSON.parse -> LLMResponseEnvelopeSchema -> parsePrimitives (по каждому
+ *   примитиву отдельно).
  * Совпадение с боевым путём — единственная причина верить измеренной доле
  * схема-валидных ответов; своя упрощённая проверка мерила бы другую величину.
  *
@@ -37,12 +36,10 @@ import { writeFileSync } from "fs";
 import { z } from "zod";
 import { createGame } from "../src/game/CreateGame";
 import { LLMService } from "../src/services/LLMService";
-import { LLMResponseValidator } from "../src/llm/LLMResponseValidator";
 import {
-  LLMActionSchema,
   LLMResponseEnvelopeSchema,
-  GeminiResponseSchema,
-} from "../src/llm/actionSchemas";
+  ProviderResponseSchema,
+} from "../src/llm/responseSchemas";
 import { parsePrimitives } from "../src/primitives/primitiveSchemas";
 import { type GameState } from "@shared/types/GameState";
 import { localBaseUrl, localHeaders } from "../src/llm/providers/localEndpoint";
@@ -156,7 +153,8 @@ function promptWithHint(prompt: string, hint: Hint): string {
 type BreakKind =
   | "invalid_json"
   | "envelope"
-  | "action_schema"
+  /** Ответ пришёл с массивом `actions` — каналом, которого больше нет. */
+  | "legacy_actions"
   | "primitive_schema"
   | "truncated"
   | "empty_response"
@@ -376,23 +374,16 @@ function validate(
   }
 
   const { descriptions, title, actions, primitives } = envelope.data;
-  const validator = new LLMResponseValidator(game);
 
-  actions.forEach((rawAction, i) => {
-    const action = LLMActionSchema.safeParse(rawAction);
-    if (!action.success) {
-      breaks.push({
-        kind: "action_schema",
-        detail: `actions[${i}]: ${action.error.issues
-          .map(issue => `${issue.path.join(".")}: ${issue.message}`)
-          .join("; ")
-          .slice(0, 200)}`,
-      });
-      return;
-    }
-    const applicable = validator.validateActionApplicability(action.data);
-    if (!applicable.valid) applicability.push(`actions[${i}]: ${applicable.error}`);
-  });
+  // Канала `actions` не существует с 2026-08-02. Модель, приславшая массив по
+  // памяти о старом контракте, получает отказ — и замер обязан это ВИДЕТЬ:
+  // ответ формально валиден, но просит движок о несуществующем.
+  if (actions !== undefined && actions.length > 0) {
+    breaks.push({
+      kind: "legacy_actions",
+      detail: `actions[]: ${actions.length} entries in a channel that no longer exists`,
+    });
+  }
 
   if (primitives !== undefined) {
     const { invalid } = parsePrimitives(primitives);
@@ -422,7 +413,7 @@ async function main(): Promise<void> {
 
   const schema =
     args.mode === "schema" || args.mode === "schema-loose"
-      ? (z.toJSONSchema(GeminiResponseSchema) as Record<string, unknown>)
+      ? (z.toJSONSchema(ProviderResponseSchema) as Record<string, unknown>)
       : null;
 
   console.log(

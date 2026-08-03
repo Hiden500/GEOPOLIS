@@ -14,7 +14,7 @@
   "responseSection": {
     "title": "2. Ответ LLM",
     "ariaLabel": "Ответ LLM (JSON)",
-    "placeholder": "Вставьте JSON-ответ LLM: { \"descriptions\": \"...\", \"actions\": [...] }",
+    "placeholder": "Вставьте JSON-ответ LLM: { \"descriptions\": \"...\", \"primitives\": [...] }",
     "applyButton": "Применить ответ"
   },
   "errors": {
@@ -24,7 +24,7 @@
   },
   "result": {
     "defaultTitle": "Результат",
-    "appliedActionsCount": "Применено действий: {{count}}",
+    "appliedActionsCount": "Применено приказов: {{count}}",
     "rejectedActionsSuffix": ", отклонено: {{count}}",
     "notCanonizedTitle": "Режиссёр предложил невозможное",
     "notCanonized": "Ни одно предложение режиссёра не применилось, поэтому событие не записано: мир не изменился, и рассказывать о нём нечего. Причины ниже уйдут модели в следующий промт.",

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { createGame } from "../game/CreateGame";
 import { simulateMonth } from "../simulation/SimulationEngine";
 import { LLMService } from "../services/LLMService";
-import { LLMActionSchema } from "../llm/actionSchemas";
+import { primitiveSchema } from "../primitives/primitiveSchemas";
 import { createTestCountry, createTestGameState } from "../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
 
@@ -167,25 +167,35 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
     });
   }
 
-  it("действие вне схемы отклоняется точечно с причиной; валидное соседнее действие в том же батче применяется", () => {
+  it("примитив вне алфавита отклоняется точечно с причиной; валидный сосед в том же батче применяется", () => {
+    // Носитель проверки сменился с действия старого канала на примитив
+    // (2026-08-02, канал удалён). Проверяемое свойство прежнее и есть суть
+    // правила 6: одна битая запись не обваливает весь ответ, а получает
+    // ПРИЧИНУ.
     const game = gameWithUsaSun();
     const service = new LLMService(game);
 
     const result = service.processResponse(JSON.stringify({
       descriptions: "x",
-      actions: [
-        { type: "nuke", sourceCountryId: "USA", targetCountryId: "SUN" },
-        { type: "guarantee", sourceCountryId: "USA", targetCountryId: "SUN" },
+      primitives: [
+        { verb: "nuke_everything", sourceCountryId: "SUN", target: { countryId: "USA" } },
+        // Источник — НЕ страна игрока: гарантия за игрока отклоняется границей
+        // агентности, и валидный сосед перестал бы быть валидным.
+        { verb: "guarantee", sourceCountryId: "SUN", target: { countryId: "USA" } },
       ],
     }));
 
     expect(result.success).toBe(true);
-    expect(result.receipt.actions.applied).toHaveLength(1);
-    expect(result.receipt.actions.rejected).toHaveLength(1);
-    expect(result.receipt.actions.rejected[0]!.reason).toBeTruthy();
+    expect(result.receipt.primitives.applied).toHaveLength(1);
+    expect(result.receipt.primitives.rejected).toHaveLength(1);
+    expect(result.receipt.primitives.rejected[0]!.code).toBeTruthy();
   });
 
-  it("за-каповое значение отклоняется точечно, с непустой причиной — не обваливает весь ответ", () => {
+  it("канала `actions` больше нет: присланный массив отклоняется кодом, а не применяется молча", () => {
+    // Наследник теста «за-каповое значение отклоняется точечно». Кап на число,
+    // присланное моделью, исчез вместе с самим числом: величины считает
+    // движок. Осталось более сильное свойство — обойти алфавит сменой канала
+    // нельзя, и попытка получает причину, а не молчание.
     const game = gameWithUsaSun();
     const service = new LLMService(game);
 
@@ -195,23 +205,18 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
     }));
 
     expect(result.success).toBe(true);
-    expect(result.receipt.actions.applied).toHaveLength(0);
-    expect(result.receipt.actions.rejected).toHaveLength(1);
-    expect(result.receipt.actions.rejected[0]!.reason).toBeTruthy();
+    expect(result.receipt.primitives.applied).toHaveLength(0);
+    expect(result.receipt.primitives.rejected.map(r => r.code)).toContain("legacyActionsChannel");
+    // Мир не тронут: канал не применяется, а отклоняется целиком.
+    expect(game.countries.find(c => c.id === "USA")!.diplomacy.relations["SUN"]).toBeUndefined();
   });
 
-  // "Сырые координаты в действии — отклоняются" (формулировка правила 6 в
-  // ARCHITECTURE_GUARDRAILS.md) переформулирована под реальный контракт: ни
-  // один из 10 текущих action-типов не является map-placement действием —
-  // все strictly country-scoped (дипломатия/война/технологии/производство),
-  // ни одно легитимно не может нести координату сейчас. Буквальная проверка
-  // "regionId вместо lat/lng" станет осмысленной только с планом
-  // 06_MAP_FEATURES.md. Два теста ниже — честная замена на сегодня: форма
-  // контракта (регрессионный барьер против будущей ошибки "добавили
-  // координату вместо regionId") + инертность лишних полей (Zod молча
-  // отбрасывает нежданные ключи — «LLM не пишет произвольные числа в state
-  // мимо капов» для нынешнего контракта).
-  it("форма контракта: ни одна data-схема не содержит поле, похожее на координату (TODO: полноценная regionId-проверка — после плана 06)", () => {
+  // "Сырые координаты в приказе — отклоняются" (формулировка правила 6 в
+  // ARCHITECTURE_GUARDRAILS.md) проверяется по форме контракта: ни один глагол
+  // алфавита не является map-placement приказом — все адресуются стране,
+  // региону или демо-группе по ИДЕНТИФИКАТОРУ. Буквальная проверка "regionId
+  // вместо lat/lng" станет осмысленной только с планом 06_MAP_FEATURES.md.
+  it("форма контракта: ни одна схема глагола не содержит поле, похожее на координату", () => {
     function collectPropertyNames(schema: unknown, out: Set<string>): void {
       if (schema === null || typeof schema !== "object") return;
       const obj = schema as Record<string, unknown>;
@@ -227,38 +232,36 @@ describe("Fitness-функция: правило 6 — LLM-контракт че
     }
 
     const propertyNames = new Set<string>();
-    collectPropertyNames(z.toJSONSchema(LLMActionSchema), propertyNames);
+    collectPropertyNames(z.toJSONSchema(primitiveSchema), propertyNames);
 
     const coordinateLikeNames = ["lat", "lng", "latitude", "longitude", "coordinates", "x", "y"];
     const found = coordinateLikeNames.filter(name => propertyNames.has(name));
     expect(found).toEqual([]);
   });
 
-  it("инертность лишних полей: посторонний lat/lng в data молча отбрасывается, не просачивается в применённое действие", () => {
+  it("лишнее поле не отбрасывается молча, а ВАЛИТ примитив — включая координату", () => {
+    // Свойство стало СИЛЬНЕЕ перевода (2026-08-02). У старого канала посторонний
+    // ключ Zod молча отбрасывал, и проверка звучала как «не просачивается в
+    // применённое». Схемы алфавита объявлены `.strict()`, поэтому посторонний
+    // ключ — ошибка схемы: «LLM не пишет произвольные числа в state мимо капов»
+    // выполняется отказом, а не тихой фильтрацией.
     const game = gameWithUsaSun();
     const service = new LLMService(game);
 
-    // Носитель проверки сменился с `diplomacy` на `influence`, а затем на
-    // `guarantee` (Милстоун 1: дипломатия переехала в примитивы, влияние
-    // покупается помощью). Проверяется по-прежнему СВОЙСТВО схемы, а не
-    // конкретный глагол: посторонние координаты не должны просачиваться в
-    // применённое действие ни через какое поле.
     const result = service.processResponse(JSON.stringify({
       descriptions: "x",
-      actions: [{
-        type: "guarantee",
-        sourceCountryId: "USA",
-        targetCountryId: "SUN",
+      primitives: [{
+        verb: "guarantee",
+        sourceCountryId: "SUN",
+        target: { countryId: "USA" },
         lat: 55.7,
         lng: 37.6,
       }],
     }));
 
-    expect(result.receipt.actions.applied).toHaveLength(1);
-    const applied = result.receipt.actions.applied[0]! as Record<string, unknown>;
-    expect(applied["lat"]).toBeUndefined();
-    expect(applied["lng"]).toBeUndefined();
-    expect(game.countries.find(c => c.id === "USA")!.diplomacy.guarantees).toContain("SUN");
+    expect(result.receipt.primitives.applied).toHaveLength(0);
+    expect(result.receipt.primitives.rejected.map(r => r.code)).toContain("schemaInvalid");
+    expect(game.countries.find(c => c.id === "SUN")!.diplomacy.guarantees).not.toContain("USA");
   });
 });
 
