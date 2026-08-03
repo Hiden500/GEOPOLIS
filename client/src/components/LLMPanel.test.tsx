@@ -155,3 +155,75 @@ describe("LLMPanel — канон отделён от предложенного
     expect(screen.queryByRole("note")).toBeNull();
   });
 });
+
+/**
+ * Словарь причин отказа против кодов, которые сервер реально присылает.
+ *
+ * ЗАЧЕМ ОТДЕЛЬНЫЙ БЛОК. Забытый ключ словаря не роняет ни тип, ни сборку:
+ * `react-i18next` подставляет САМ КЛЮЧ, и игрок читает
+ * «guaranteeAlreadyGiven» вместо объяснения. Проверять это глазами в браузере
+ * ненадёжно — код отказа появляется только на конкретном состоянии мира,
+ * поэтому проверка живёт тестом и перечисляет коды поимённо.
+ *
+ * Список — коды воздействий, переехавших из старого канала `actions`
+ * (2026-08-02): именно у них словарь пополнялся, а значит именно они могли
+ * остаться без перевода.
+ */
+describe("LLMPanel — новые коды отказа переведены, а не показаны ключом", () => {
+  const MIGRATED_CODES = [
+    "guaranteeAlreadyGiven",
+    "focusNotDomestic",
+    "unknownResearchDomain",
+    "unknownEquipmentType",
+    "noDepositInRegion",
+    "extractionAtMaximum",
+    "noExtractionToDismantle",
+    "extractionUnaffordable",
+    "legacyActionsChannel",
+  ] as const;
+
+  for (const code of MIGRATED_CODES) {
+    it(`${code} рендерится человеческим текстом`, async () => {
+      await runAuto(
+        {
+          ...BASE,
+          narrativeCanonized: false,
+          receipt: receipt({
+            rejected: [
+              {
+                code,
+                // Значения и имена даёт сервер; здесь важно лишь то, что
+                // подстановка происходит и ключ не протекает наружу.
+                values: {
+                  domain: "armor",
+                  equipmentType: "tanks",
+                  resource: "coal",
+                  level: 10,
+                  max: 10,
+                  cost: 2,
+                  treasury: 1,
+                  verb: "research_shift",
+                  count: 3,
+                },
+                names: {
+                  source: { ru: "СССР", en: "USSR" },
+                  target: { ru: "Албания", en: "Albania" },
+                  country: { ru: "Албания", en: "Albania" },
+                  region: { ru: "Шяуляй", en: "Šiauliai" },
+                },
+              },
+            ],
+          }),
+        },
+        /Отклонено движком/
+      );
+
+      const list = screen.getByRole("heading", { name: /Отклонено движком/ })
+        .parentElement!.textContent!;
+      // Ключ наружу не протёк — значит перевод найден.
+      expect(list).not.toContain(code);
+      // И это не пустая строка: у причины есть текст.
+      expect(list.replace(/Отклонено движком/, "").trim().length).toBeGreaterThan(10);
+    });
+  }
+});
