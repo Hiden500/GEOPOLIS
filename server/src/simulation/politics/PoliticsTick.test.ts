@@ -1,8 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { politicsTick, stabilityEquilibrium } from "./PoliticsTick";
-import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
+import {
+  politicsTick,
+  stabilityEquilibrium,
+  governmentSupportEquilibrium,
+} from "./PoliticsTick";
+import { createTestCountry, createTestRegion, createTestGameState } from "../../test-utils/fixtures";
 import { createGame } from "../../game/CreateGame";
+import { simulateMonth } from "../SimulationEngine";
 import { type Country } from "@shared/types/Country";
+import { type GameState } from "@shared/types/GameState";
 import { type Region } from "@shared/types/map/Region";
 import { type PowerStructure } from "@shared/types/politics/Government";
 
@@ -13,6 +19,16 @@ import { type PowerStructure } from "@shared/types/politics/Government";
  */
 function regionsFor(country: Country, stability = 0.5): Region[] {
   return [createTestRegion({ id: 1, ownerCountryId: country.id, stability, population: 1_000_000 })];
+}
+
+/**
+ * Минимальный мир вокруг страны: `politicsTick` с 2026-08-03 читает партию
+ * целиком (равновесию рейтинга нужны каталог групп и память воздействий для
+ * вывода недовольства). Регионы без демографии — недовольство «не размечено»,
+ * вклад нейтрален, и тесты экономики/коррупции меряют ровно свою поправку.
+ */
+function worldFor(country: Country, regions: Region[] = regionsFor(country)): GameState {
+  return createTestGameState({ countries: [country], regions });
 }
 
 function makeCountry(overrides: {
@@ -61,19 +77,19 @@ function makeCountry(overrides: {
 describe("politicsTick — stability", () => {
     it("растёт при низкой безработице и бездефицитном бюджете", () => {
         const c = makeCountry({ unemployment: 2, budgetBalance: 100, stability: 50 });
-        politicsTick(c, regionsFor(c));
+        politicsTick(c, worldFor(c));
         expect(c.politics.stability).toBeGreaterThan(50);
     });
 
     it("падает при высокой безработице и дефиците", () => {
         const c = makeCountry({ unemployment: 20, budgetBalance: -100, stability: 50 });
-        politicsTick(c, regionsFor(c));
+        politicsTick(c, worldFor(c));
         expect(c.politics.stability).toBeLessThan(50);
     });
 
     it("зажата в [0, 100]", () => {
         const c = makeCountry({ unemployment: 40, budgetBalance: -10000, stability: 1 });
-        for (let i = 0; i < 100; i++) politicsTick(c, regionsFor(c));
+        for (let i = 0; i < 100; i++) politicsTick(c, worldFor(c));
         expect(c.politics.stability).toBeGreaterThanOrEqual(0);
         expect(c.politics.stability).toBeLessThanOrEqual(100);
     });
@@ -81,8 +97,8 @@ describe("politicsTick — stability", () => {
     it("высокая коррупция (> 60) давит на stability", () => {
         const c1 = makeCountry({ unemployment: 10, budgetBalance: 0, stability: 50, corruption: 70 });
         const c2 = makeCountry({ unemployment: 10, budgetBalance: 0, stability: 50, corruption: 10 });
-        politicsTick(c1, regionsFor(c1));
-        politicsTick(c2, regionsFor(c2));
+        politicsTick(c1, worldFor(c1));
+        politicsTick(c2, worldFor(c2));
         expect(c1.politics.stability).toBeLessThan(c2.politics.stability);
     });
 });
@@ -182,23 +198,157 @@ describe("politicsTick — governmentSupport", () => {
         const c = makeCountry({ unemployment: 40, budgetBalance: -10000, stability: 80, governmentSupport: 80 });
         const stabilityBefore = c.politics.stability;
         const supportBefore = c.politics.governmentSupport;
-        politicsTick(c, regionsFor(c));
+        politicsTick(c, worldFor(c));
         const deltaStability = stabilityBefore - c.politics.stability;
         const deltaSupport = supportBefore - c.politics.governmentSupport;
         expect(deltaSupport).toBeGreaterThan(deltaStability);
     });
 });
 
+/**
+ * Свойства ФОРМЫ равновесия рейтинга — тот же класс, что у блока стабильности
+ * выше: прежние пороговые ступени выдавали 65,00 всем 157 странам к 60-му
+ * месяцу (замер — `server/scripts/probeGovernmentSupport.ts`), непрерывный
+ * отклик различает при любом наполнении данных. Веса и числа не зашиты.
+ */
+describe("politicsTick — равновесие governmentSupport: форма, а не ступени", () => {
+    function eqOf(country: Country, regions: Region[] = regionsFor(country)): number {
+        return governmentSupportEquilibrium(country, regions, worldFor(country, regions));
+    }
+
+    it("безработица различает страны ВНУТРИ прежней «низкой» зоны", () => {
+        // Ступень «unemployment < 5 → +10» давала обеим один ответ, а живой мир
+        // лежит целиком внутри зоны (1,00…5,00 на старте).
+        const low = makeCountry({ unemployment: 1 });
+        const high = makeCountry({ unemployment: 4 });
+
+        expect(eqOf(low)).toBeGreaterThan(eqOf(high));
+    });
+
+    it("бюджет различает страны по РАЗМЕРУ баланса, а не только по знаку дефицита", () => {
+        const thin = makeCountry({ budgetBalance: 5 });
+        const fat = makeCountry({ budgetBalance: 300 });
+
+        expect(eqOf(fat)).toBeGreaterThan(eqOf(thin));
+    });
+
+    it("welfare сравнивается как ДОЛЯ дохода с полом-долей, а не деньги с долей", () => {
+        // Негативный контроль дефекта шкалы: у прежнего кода «щедрость» была
+        // истинна при ЛЮБОЙ сумме welfare (деньги >> доля), поэтому обе страны
+        // получали один бонус. Доля welfare у generous выше при том же доходе.
+        const stingy = makeCountry({ welfareSpending: 50, taxRevenue: 1000 });
+        const generous = makeCountry({ welfareSpending: 250, taxRevenue: 1000 });
+
+        expect(eqOf(generous)).toBeGreaterThan(eqOf(stingy));
+    });
+
+    it("недовольство регионов давит на рейтинг: далёкая от власти группа хуже близкой", () => {
+        const makeWorld = (desiredPolitical: number) => {
+            const c = makeCountry({ political: 0.9 });
+            const region = createTestRegion({
+                id: 1,
+                ownerCountryId: c.id,
+                population: 1_000_000,
+                demographics: [{ groupId: "g", share: 1 }],
+            });
+            const game = createTestGameState({
+                countries: [c],
+                regions: [region],
+                ethnicGroups: [{
+                    id: "g",
+                    names: { en: "Group" },
+                    desiredIdeology: { economic: 0, political: desiredPolitical },
+                }],
+            });
+            return governmentSupportEquilibrium(c, [region], game);
+        };
+
+        expect(makeWorld(0.9)).toBeGreaterThan(makeWorld(-0.9));
+    });
+
+    it("падающая стабильность винит правительство, растущая — хвалит", () => {
+        // Один и тот же мир, разное текущее положение относительно равновесия:
+        // выше равновесия — стабильность падает, ниже — растёт.
+        const falling = makeCountry({ stability: 90 });
+        const rising = makeCountry({ stability: 20 });
+
+        expect(eqOf(rising)).toBeGreaterThan(eqOf(falling));
+    });
+
+    it("оккупация своей территории снижает рейтинг пропорционально населению под оккупантом", () => {
+        const c = makeCountry();
+        const free = [
+            createTestRegion({ id: 1, ownerCountryId: c.id, population: 1_000_000 }),
+            createTestRegion({ id: 2, ownerCountryId: c.id, population: 1_000_000 }),
+        ];
+        const halfOccupied = [
+            createTestRegion({ id: 1, ownerCountryId: c.id, population: 1_000_000 }),
+            createTestRegion({ id: 2, ownerCountryId: c.id, population: 1_000_000, occupiedBy: "ENEMY" }),
+        ];
+
+        expect(eqOf(c, free)).toBeGreaterThan(eqOf(c, halfOccupied));
+    });
+
+    it("страна без размеченных регионов остаётся в шкале, а не уходит в NaN", () => {
+        const c = makeCountry();
+        expect(Number.isFinite(eqOf(c, []))).toBe(true);
+        expect(eqOf(c, [])).toBeGreaterThanOrEqual(0);
+        expect(eqOf(c, [])).toBeLessThanOrEqual(100);
+    });
+});
+
+/**
+ * Guard класса «вход различает страны» — на ЖИВОМ сценарии, не на фикстуре
+ * (правило AGENTS.md: константа у всех стран зелёным фикстурным тестам не
+ * видна). Ровно этот дефект здесь и был: 20-летний прогон давал
+ * `governmentSupport` = 65,00 у всех 157 стран.
+ *
+ * Порог N = половина стран обоснован распределением, а не выдуман: замер
+ * (`probeGovernmentSupport.ts`) даёт недовольству регионов — главному
+ * статическому входу равновесия — 157 различных значений из 157 стран на всём
+ * горизонте 0…120 месяцев, то есть равновесие наследует различность почти
+ * везде; половина — консервативный пол, устойчивый к клампам на краях шкалы и
+ * совпадениям округления, но недостижимый для прежней модели (3 различных
+ * значения, модальное у 98% стран).
+ */
+describe("politicsTick — governmentSupport на сценарии 1946 (guard вырождения)", () => {
+    it(
+        "после 24 месяцев живого прогона рейтинг различает страны, а не сходится в мировую константу",
+        () => {
+            const game = createGame("1946", "USA");
+            for (let month = 0; month < 24; month++) simulateMonth(game);
+
+            const countries = game.countries.filter(c => c.economy.gdp > 0);
+            const values = countries.map(c => c.politics.governmentSupport.toFixed(4));
+            const distinct = new Set(values);
+
+            const counts = new Map<string, number>();
+            for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1);
+            const modalCount = Math.max(...counts.values());
+
+            expect(
+                distinct.size,
+                `governmentSupport выродился: ${distinct.size} различных значений на ${countries.length} стран`
+            ).toBeGreaterThanOrEqual(Math.ceil(countries.length / 2));
+            expect(
+                modalCount / countries.length,
+                `модальное значение governmentSupport собрало ${modalCount} из ${countries.length} стран`
+            ).toBeLessThan(0.5);
+        },
+        120_000
+    );
+});
+
 describe("politicsTick — legitimacy", () => {
     it("дрейфует к базису позиции на спектре", () => {
         const c = makeCountry({ political: 0.9, powerStructure: "competitive_multiparty", legitimacy: 50 });
-        politicsTick(c, regionsFor(c));
+        politicsTick(c, worldFor(c));
         expect(c.politics.legitimacy).toBeGreaterThan(50);
     });
 
     it("дрейфует очень медленно (< 1 пункта за тик)", () => {
         const c = makeCountry({ political: 0.9, powerStructure: "competitive_multiparty", legitimacy: 50 });
-        politicsTick(c, regionsFor(c));
+        politicsTick(c, worldFor(c));
         expect(c.politics.legitimacy).toBeLessThan(51);
     });
 
@@ -206,7 +356,7 @@ describe("politicsTick — legitimacy", () => {
         // Частичное покрытие сценарных слоёв — штатное состояние
         // (`PoliticsState.ideologyCoordinates`/`powerStructure` опциональны).
         const c = makeCountry({ ideology: "Monarchy", legitimacy: 50 });
-        for (let i = 0; i < 100; i++) politicsTick(c, regionsFor(c));
+        for (let i = 0; i < 100; i++) politicsTick(c, worldFor(c));
         expect(Number.isFinite(c.politics.legitimacy)).toBe(true);
         expect(c.politics.legitimacy).toBeGreaterThanOrEqual(0);
         expect(c.politics.legitimacy).toBeLessThanOrEqual(100);
@@ -218,7 +368,7 @@ describe("politicsTick — legitimacy", () => {
         // проверка «упал ниже 50» была бы снимком баланса, а не свойством.
         const own = makeCountry({ political: 0.9, powerStructure: "competitive_multiparty", legitimacy: 50 });
         const occupier = makeCountry({ political: 0.9, powerStructure: "occupation_administration", legitimacy: 50 });
-        for (let i = 0; i < 100; i++) { politicsTick(own, regionsFor(own)); politicsTick(occupier, regionsFor(occupier)); }
+        for (let i = 0; i < 100; i++) { politicsTick(own, worldFor(own)); politicsTick(occupier, worldFor(occupier)); }
         expect(own.politics.legitimacy).toBeGreaterThan(50);
         expect(occupier.politics.legitimacy).toBeLessThan(own.politics.legitimacy);
     });
@@ -230,7 +380,7 @@ describe("politicsTick — corruption", () => {
         // направление и расхождение форм власти, а не попадание в число.
         const competitive = makeCountry({ powerStructure: "competitive_multiparty", corruption: 60, stability: 60 });
         const personalist = makeCountry({ powerStructure: "personalist", corruption: 60, stability: 60 });
-        for (let i = 0; i < 500; i++) { politicsTick(competitive, regionsFor(competitive)); politicsTick(personalist, regionsFor(personalist)); }
+        for (let i = 0; i < 500; i++) { politicsTick(competitive, worldFor(competitive)); politicsTick(personalist, worldFor(personalist)); }
         expect(competitive.politics.corruption).toBeLessThan(60);
         expect(competitive.politics.corruption).toBeLessThan(personalist.politics.corruption);
     });
@@ -238,7 +388,7 @@ describe("politicsTick — corruption", () => {
     it("личный режим не падает ниже своего структурного уровня", () => {
         const personalist = makeCountry({ powerStructure: "personalist", corruption: 0, stability: 60 });
         const competitive = makeCountry({ powerStructure: "competitive_multiparty", corruption: 0, stability: 60 });
-        for (let i = 0; i < 500; i++) { politicsTick(personalist, regionsFor(personalist)); politicsTick(competitive, regionsFor(competitive)); }
+        for (let i = 0; i < 500; i++) { politicsTick(personalist, worldFor(personalist)); politicsTick(competitive, worldFor(competitive)); }
         // Оба поднимаются от нуля к своему базису, но личный режим — заметно выше.
         expect(personalist.politics.corruption).toBeGreaterThan(competitive.politics.corruption);
     });
@@ -247,8 +397,8 @@ describe("politicsTick — corruption", () => {
         const cUnstable = makeCountry({ powerStructure: "competitive_multiparty", corruption: 20, stability: 30 });
         const cStable = makeCountry({ powerStructure: "competitive_multiparty", corruption: 20, stability: 60 });
         for (let i = 0; i < 50; i++) {
-            politicsTick(cUnstable, regionsFor(cUnstable));
-            politicsTick(cStable, regionsFor(cStable));
+            politicsTick(cUnstable, worldFor(cUnstable));
+            politicsTick(cStable, worldFor(cStable));
         }
         expect(cUnstable.politics.corruption).toBeGreaterThan(cStable.politics.corruption);
     });
@@ -258,8 +408,8 @@ describe("politicsTick — corruption", () => {
         const cLowEdu = makeCountry({ powerStructure: "competitive_multiparty", corruption: 20, educationSpending: 10, taxRevenue: 1000 });
         const cHighEdu = makeCountry({ powerStructure: "competitive_multiparty", corruption: 20, educationSpending: 200, taxRevenue: 1000 });
         for (let i = 0; i < 50; i++) {
-            politicsTick(cLowEdu, regionsFor(cLowEdu));
-            politicsTick(cHighEdu, regionsFor(cHighEdu));
+            politicsTick(cLowEdu, worldFor(cLowEdu));
+            politicsTick(cHighEdu, worldFor(cHighEdu));
         }
         expect(cLowEdu.politics.corruption).toBeGreaterThan(cHighEdu.politics.corruption);
     });
@@ -267,20 +417,20 @@ describe("politicsTick — corruption", () => {
     it("коррупция вызывает утечку из казны пропорционально ВВП", () => {
         const c = makeCountry({ corruption: 50, gdp: 1_000_000 });
         const treasuryBefore = c.economy.treasury;
-        politicsTick(c, regionsFor(c));
+        politicsTick(c, worldFor(c));
         expect(c.economy.treasury).toBeLessThan(treasuryBefore);
     });
 
     it("при нулевом ВВП утечки нет", () => {
         const c = makeCountry({ corruption: 100, gdp: 0 });
         const treasuryBefore = c.economy.treasury;
-        politicsTick(c, regionsFor(c));
+        politicsTick(c, worldFor(c));
         expect(c.economy.treasury).toBe(treasuryBefore);
     });
 
     it("зажата в [0, 100]", () => {
         const c = makeCountry({ powerStructure: "competitive_multiparty", corruption: 0, stability: 80 });
-        for (let i = 0; i < 100; i++) politicsTick(c, regionsFor(c));
+        for (let i = 0; i < 100; i++) politicsTick(c, worldFor(c));
         expect(c.politics.corruption).toBeGreaterThanOrEqual(0);
         expect(c.politics.corruption).toBeLessThanOrEqual(100);
     });
@@ -300,14 +450,22 @@ describe("politicsTick — corruption", () => {
 describe("politicsTick — базисы на сценарии 1946", () => {
     const SEED = 1;
     const TICKS = 240;
+    // Таймаут: politicsTick с 2026-08-03 выводит недовольство регионов, и
+    // 240 тиков × 157 стран больше не укладываются в дефолтные 5 секунд.
+    const SIM_TIMEOUT_MS = 120_000;
 
+    // Мемоизация: три теста ниже читают ОДИН и тот же прогон, не мутируя его, —
+    // повторять 240 тиков мира в каждом незачем.
+    let simulated: ReturnType<typeof createGame> | undefined;
     function simulatedBases() {
+        if (simulated) return simulated;
         const game = createGame("1946", "USA", "ru", SEED);
         // Стартовые legitimacy/corruption одинаковы у всех стран (CreateCountry),
         // поэтому расхождение после тиков — целиком заслуга базисов.
         for (let i = 0; i < TICKS; i++) {
-            for (const country of game.countries) politicsTick(country, game.regions);
+            for (const country of game.countries) politicsTick(country, game);
         }
+        simulated = game;
         return game;
     }
 
@@ -326,7 +484,7 @@ describe("politicsTick — базисы на сценарии 1946", () => {
 
         expect(legitimacies.size).toBeGreaterThan(labels.size);
         expect(corruptions.size).toBeGreaterThan(labels.size);
-    });
+    }, SIM_TIMEOUT_MS);
 
     it("страны под одним ярлыком идеологии расходятся по обоим базисам", () => {
         // Прямой негативный контроль перевода: пока базис читался по ярлыку,
@@ -348,13 +506,13 @@ describe("politicsTick — базисы на сценарии 1946", () => {
 
         expect(splitLegitimacy.length).toBeGreaterThan(0);
         expect(splitCorruption.length).toBeGreaterThan(0);
-    });
+    }, SIM_TIMEOUT_MS);
 
     it("не сдвигает мир в одну точку: ни одно значение не собирает большинство стран", () => {
         const game = simulatedBases();
         expect(modalShare(game.countries.map(c => c.politics.legitimacy))).toBeLessThan(0.5);
         expect(modalShare(game.countries.map(c => c.politics.corruption))).toBeLessThan(0.5);
-    });
+    }, SIM_TIMEOUT_MS);
 
     it("формы власти размечены у всех стран сценария — в фолбэк не падает никто", () => {
         const game = createGame("1946", "USA", "ru", SEED);

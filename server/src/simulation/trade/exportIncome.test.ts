@@ -48,7 +48,10 @@ describe("экспортный доход переживает первый ти
     for (let month = 0; month < 60; month++) simulateMonth(game);
 
     expect(country.economy.exportIncome / country.economy.gdp).toBeGreaterThan(profileShare / 2);
-  });
+    // Таймаут: politicsTick с 2026-08-03 выводит недовольство регионов, и
+    // 60 месяцев полного прогона перестали укладываться в дефолтные 5 секунд —
+    // тот же запас, что у соседнего долгового теста ниже.
+  }, 120_000);
 });
 
 describe("блокада касается всей внешней торговли", () => {

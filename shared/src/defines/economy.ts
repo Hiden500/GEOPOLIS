@@ -6,11 +6,21 @@
  * коэффициенте (другой баг масштаба), теперь не ≈0, и старый коэффициент
  * 0.5 давал нереалистичный рост (~20-50%/год). Подбирать на симуляции
  * дальше, не считать текущие значения финальными.
+ *
+ * КАЛИБРОВКА РОСТА 2026-08-03 (runCampaign 240 месяцев, сценарий 1946):
+ * мировой ВВП рос ×13,3 за 20 лет при историческом коридоре ×2,5–4
+ * (~1,08%/мес против нужных ~0,47%/мес). Все шесть слагаемых ставки роста
+ * (intercept, development, infra-запас, infra-поток, оба сектора) уменьшены
+ * ОДНИМ множителем ≈0,43 — относительная структура ставки сохранена
+ * намеренно: перенос веса между слагаемыми уже пробовался и разогнал мир на
+ * 42% (см. блок «ПЕРЕВЕС ПОТОКА НАД ЗАПАСОМ» ниже — тот дефект жив и после
+ * масштабирования, чинить его отдельной задачей). После: ×3,16 за 240
+ * месяцев, форма кривой равномерная. Страж — growthCorridor.test.ts.
  */
-export const BASE_GROWTH_INTERCEPT = 0.001;
-export const BASE_GROWTH_DEVELOPMENT_COEFFICIENT = 0.002;
-export const BASE_GROWTH_INFRASTRUCTURE_COEFFICIENT = 0.001;
-export const INFRASTRUCTURE_SPENDING_GROWTH_COEFFICIENT = 0.15;
+export const BASE_GROWTH_INTERCEPT = 0.0004;
+export const BASE_GROWTH_DEVELOPMENT_COEFFICIENT = 0.0009;
+export const BASE_GROWTH_INFRASTRUCTURE_COEFFICIENT = 0.0004;
+export const INFRASTRUCTURE_SPENDING_GROWTH_COEFFICIENT = 0.065;
 
 /*
  * ПЕРЕВЕС ПОТОКА НАД ЗАПАСОМ — измерено 2026-07-31, не исправлено намеренно.
@@ -39,8 +49,8 @@ export const INFRASTRUCTURE_SPENDING_GROWTH_COEFFICIENT = 0.15;
  * по медиане. Вынесено в `docs/TODO.md`.
  */
 export const DEFICIT_PENALTY_COEFFICIENT = 0.3;
-export const SECTOR_INDUSTRY_GROWTH_COEFFICIENT = 0.002;
-export const SECTOR_SERVICES_GROWTH_COEFFICIENT = 0.001;
+export const SECTOR_INDUSTRY_GROWTH_COEFFICIENT = 0.0009;
+export const SECTOR_SERVICES_GROWTH_COEFFICIENT = 0.0004;
 
 /** Защитный потолок месячного роста — не даёт архетипу разогнаться неограниченно. */
 export const MAX_MONTHLY_GROWTH_RATE = 0.05;
