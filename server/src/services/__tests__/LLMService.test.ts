@@ -575,7 +575,11 @@ describe("LLMService", () => {
       expect(section).toContain("- 1946:");
       expect(section).toContain("- 1947:");
       expect(section).toContain("- 1948:");
-    });
+      // 36 живых месяцев не укладываются в дефолтные 5 с после того, как
+      // simulateMonth подорожал (2026-08-03, вывод недовольства и в политике):
+      // на объединённой базе тест стал падать таймаутом. Запас взят по образцу
+      // exportIncome.test.ts — потолок, не ожидание.
+    }, 120_000);
   });
 
   describe("Spotlight Countries (расширение круга стран, вопрос 11)", () => {
