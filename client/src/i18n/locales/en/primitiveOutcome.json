@@ -129,7 +129,22 @@
     "puppet": "Subject {{country}}",
     "annex": "Annex territory from {{country}}",
     "merge_countries": "Absorb {{country}}",
-    "create_country": "Grant independence to {{region}}"
+    "create_country": "Grant independence to {{region}}",
+    "guarantee": "Guarantee the independence of {{country}}",
+    "research_shift": {
+      "toward": "Shift {{country}}'s research focus onto a domain",
+      "away": "Pull {{country}}'s research focus off a domain"
+    },
+    "production_shift": {
+      "toward": "Shift {{country}}'s production focus onto a category",
+      "away": "Pull {{country}}'s production focus off a category"
+    },
+    "build_extraction": {
+      "expand": "Build up extraction capacity — {{region}}",
+      "dismantle": "Scale down extraction capacity — {{region}}"
+    },
+    "focusSubject": "subject: {{subject}}",
+    "extractionResource": "resource: {{resource}}"
   },
   "splitCountry": {
     "headline": "{{country}} broke apart into {{shards}} new state(s)"
@@ -225,5 +240,34 @@
   "create": {
     "regions": "The new state holds {{regions}} region(s)",
     "capitalMoved": "The parent capital moved to {{region}}"
+  },
+  "guarantee": {
+    "headline": "{{source}} guarantees the independence of {{country}}"
+  },
+  "research_shift": {
+    "headline": {
+      "toward": "{{country}} shifts research towards {{subject}}",
+      "away": "{{country}} shifts research away from {{subject}}"
+    }
+  },
+  "production_shift": {
+    "headline": {
+      "toward": "{{country}} shifts production towards {{subject}}",
+      "away": "{{country}} shifts production away from {{subject}}"
+    }
+  },
+  "focus": {
+    "changed": "Share of the budget: {{delta}} ({{before}} → {{after}}, ceiling {{cap}})",
+    "unchanged": "Share of the budget: unchanged ({{value}}, ceiling {{cap}})"
+  },
+  "buildExtraction": {
+    "headline": {
+      "expand": "Extraction capacity ({{resource}}) built up in {{region}}",
+      "dismantle": "Extraction capacity ({{resource}}) scaled down in {{region}}"
+    }
+  },
+  "extraction": {
+    "level": "Capacity level: {{before}} → {{after}}",
+    "noCost": "Dismantling costs nothing: the treasury was not touched"
   }
 }

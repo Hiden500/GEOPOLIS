@@ -6,8 +6,12 @@ import {
   REFORM_POLITICAL_DIRECTIONS,
   INCIDENT_KINDS,
   RELATION_DIRECTIONS,
+  FOCUS_DIRECTIONS,
+  EXTRACTION_DIRECTIONS,
   type PrimitiveVerb,
 } from "./types";
+import { EquipmentType } from "@shared/types/military/EquipmentType";
+import { ResourceType } from "@shared/types/resources/ResourcesType";
 import {
   MAX_SOFT_PRIMITIVES_PER_TURN,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
@@ -62,6 +66,9 @@ import { SANCTION_TYPES } from "@shared/types/DiplomacyState";
 const primitiveIdSchema = z.string().min(1).max(MAX_PRIMITIVE_ID_LENGTH);
 
 const regionIdSchema = z.number().int().positive();
+
+const EQUIPMENT_TYPES = Object.values(EquipmentType) as [EquipmentType, ...EquipmentType[]];
+const RESOURCE_TYPES = Object.values(ResourceType) as [ResourceType, ...ResourceType[]];
 
 // --------------------------------------------------------------------------
 // Цели — по глаголу, а не одна на всех
@@ -164,6 +171,44 @@ const warParamsSchema = z.object({
 const noParamsSchema = z.object({}).strict();
 
 /**
+ * Сдвиг бюджетного фокуса: ЧТО двигать и В КАКУЮ сторону — качественные
+ * решения модели; НАСКОЛЬКО — коридор движка от остатка до потолка.
+ *
+ * `domain` и `equipmentType` — идентификаторы, а не величины, и это главное
+ * отличие от старого канала: он принимал `data.share: number`, то есть модель
+ * задавала долю бюджета сама. Числового поля здесь нет ни одного, и `.strict()`
+ * означает, что присланное `share` валит примитив, а не молча игнорируется.
+ *
+ * `domain` — свободная строка, а не enum: домены задаются данными страны и
+ * эпохи (`country.technology.domains`), кода с их перечнем не существует.
+ * Принадлежность домена конкретной стране проверяет предпосылка движка.
+ * `equipmentType` перечислением ЯВЛЯЕТСЯ — категории техники живут в коде.
+ */
+const researchFocusParamsSchema = z.object({
+  domain: primitiveIdSchema,
+  direction: z.enum(FOCUS_DIRECTIONS).optional(),
+  intensity: intensitySchema.optional(),
+}).strict();
+
+const productionFocusParamsSchema = z.object({
+  equipmentType: z.enum(EQUIPMENT_TYPES),
+  direction: z.enum(FOCUS_DIRECTIONS).optional(),
+  intensity: intensitySchema.optional(),
+}).strict();
+
+/**
+ * Добывающие мощности: какой ресурс и строить или сносить.
+ *
+ * `intensity` здесь ОТСУТСТВУЕТ, и это заявление: уровень мощностей —
+ * счётное целое, движок двигает ровно один за ход (перенос капа `±1` старого
+ * канала без изменения значения), и хинту силы нечего масштабировать.
+ */
+const extractionParamsSchema = z.object({
+  resource: z.enum(RESOURCE_TYPES),
+  direction: z.enum(EXTRACTION_DIRECTIONS).optional(),
+}).strict();
+
+/**
  * «Хотя бы одно направление» у реформы намеренно НЕ здесь, а предпосылкой
  * движка. Причина техническая и названа явно: `.refine()` превращает ветку в
  * `ZodEffects`, а `z.discriminatedUnion` и `z.toJSONSchema` (схема провайдера)
@@ -187,6 +232,33 @@ function primitiveOf<V extends PrimitiveVerb, T extends z.ZodTypeAny, P extends 
     sourceCountryId: primitiveIdSchema,
     target,
     params: params.optional(),
+  }).strict();
+}
+
+/**
+ * То же, но с ОБЯЗАТЕЛЬНЫМИ params.
+ *
+ * Вторая форма записи реестра заведена намеренно и ровно для одного класса
+ * глаголов — тех, чьи `params` несут не хинт об акте, а САМ ЕГО ПРЕДМЕТ: какой
+ * домен, какая категория техники, какой ресурс. Отсутствие `intensity` означает
+ * «сила по умолчанию» и потому законно; отсутствие `domain` не означает ничего —
+ * двигать нечего, и такой примитив обязан отклоняться СХЕМОЙ, до движка.
+ *
+ * Почему не предпосылкой движка, как «хотя бы одно направление» у реформы: там
+ * требование межполевое (`.refine()` ломает `z.discriminatedUnion` и схему
+ * провайдера), здесь — обычная обязательность поля, которую и схема, и
+ * structured output провайдера выражают напрямую.
+ */
+function primitiveWithParams<V extends PrimitiveVerb, T extends z.ZodTypeAny, P extends z.ZodTypeAny>(
+  verb: V,
+  target: T,
+  params: P
+) {
+  return z.object({
+    verb: z.literal(verb),
+    sourceCountryId: primitiveIdSchema,
+    target,
+    params,
   }).strict();
 }
 
@@ -229,6 +301,31 @@ export const PRIMITIVE_SCHEMAS = {
   // источника с тем же большинством) — тот же принцип, что у раскола: модель
   // называет событие, карту рисует движок.
   create_country: primitiveOf("create_country", regionTargetSchema, noParamsSchema),
+  // Гарантия: цель — ДРУГАЯ страна, параметров нет вовсе. Обязательство либо
+  // взято, либо нет — промежуточной величины у обещания не бывает, и это та же
+  // причина, по которой их нет у `war` и `puppet`.
+  guarantee: primitiveOf("guarantee", countryTargetSchema, noParamsSchema),
+  // Сдвиги фокуса адресуются СТРАНЕ, и страна обязана совпадать с источником:
+  // бюджет тратит тот, чей он. Проверяет это предпосылка движка
+  // (`focusNotDomestic`), а не схема, — ровно как у реформы, по той же причине
+  // (`.refine()` ломает `z.discriminatedUnion` и схему провайдера).
+  research_shift: primitiveWithParams(
+    "research_shift",
+    countryTargetSchema,
+    researchFocusParamsSchema
+  ),
+  production_shift: primitiveWithParams(
+    "production_shift",
+    countryTargetSchema,
+    productionFocusParamsSchema
+  ),
+  // Добывающие мощности адресуются РЕГИОНУ: они и есть то, что строят. Право
+  // источника на этот регион — предпосылка движка (`regionNotControlled`).
+  build_extraction: primitiveWithParams(
+    "build_extraction",
+    regionTargetSchema,
+    extractionParamsSchema
+  ),
 } as const satisfies Record<PrimitiveVerb, z.ZodTypeAny>;
 
 export const primitiveSchema = z.discriminatedUnion("verb", [
@@ -250,6 +347,10 @@ export const primitiveSchema = z.discriminatedUnion("verb", [
   PRIMITIVE_SCHEMAS.annex,
   PRIMITIVE_SCHEMAS.merge_countries,
   PRIMITIVE_SCHEMAS.create_country,
+  PRIMITIVE_SCHEMAS.guarantee,
+  PRIMITIVE_SCHEMAS.research_shift,
+  PRIMITIVE_SCHEMAS.production_shift,
+  PRIMITIVE_SCHEMAS.build_extraction,
 ]);
 
 /**

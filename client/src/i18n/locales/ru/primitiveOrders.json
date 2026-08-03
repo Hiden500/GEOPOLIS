@@ -48,7 +48,11 @@
     "puppet": "Подчинение",
     "annex": "Присоединение",
     "merge_countries": "Присоединение",
-    "create_country": "Независимость"
+    "create_country": "Независимость",
+    "guarantee": "гарантия",
+    "research_shift": "фокус исследований",
+    "production_shift": "фокус производства",
+    "build_extraction": "добывающие мощности"
   },
   "errors": {
     "translateFailed": "Не удалось распознать приказ. Проверьте, настроен ли доступ к модели.",

@@ -11,10 +11,16 @@
  * величины»). Это не соглашение в комментарии, а свойство типа и Zod-схемы,
  * проверяемое тестом.
  *
- * Тестовый v0 — четырнадцать глаголов из ~18 полного алфавита: пять
- * мягко-политических из вертикального среза, структурный `split_country`
- * (жизненный цикл), дипломатический блок `diplomacy`/`sanction`/`war`/`peace` и
- * мягкие воздействия `send_aid`/`capital_flight`/`condemn`/`support_proxy`.
+ * Двадцать два глагола: пять мягко-политических из вертикального среза,
+ * структурные жизненного цикла (`split_country`, `puppet`, `annex`,
+ * `merge_countries`, `create_country`), дипломатический блок
+ * `diplomacy`/`sanction`/`war`/`peace`, мягкие воздействия
+ * `send_aid`/`capital_flight`/`condemn`/`support_proxy` и последние четыре,
+ * переехавшие из старого канала `actions` 2026-08-02:
+ * `guarantee`/`research_shift`/`production_shift`/`build_extraction`.
+ *
+ * Алфавит закрыт в том смысле, который важен: другого пути изменить мир
+ * ответом модели больше нет. Канал `actions` не существует.
  */
 
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
@@ -42,6 +48,12 @@ export const PRIMITIVE_VERBS = [
   "annex",
   "merge_countries",
   "create_country",
+  // Последние четыре воздействия старого канала `actions` (2026-08-02). Канал
+  // после их переезда не существует вовсе: у него не осталось ни одного типа.
+  "guarantee",
+  "research_shift",
+  "production_shift",
+  "build_extraction",
 ] as const;
 
 export type PrimitiveVerb = (typeof PRIMITIVE_VERBS)[number];
@@ -84,7 +96,17 @@ export const STRUCTURAL_VERBS: readonly PrimitiveVerb[] = [
  * ключами и сложились бы в одной ячейке `relations` — то есть коридор
  * обходился бы сменой глагола (docs/PRIMITIVES.md §4).
  */
-export const SOFT_BILATERAL_VERBS: readonly PrimitiveVerb[] = ["diplomacy", "sanction"];
+export const SOFT_BILATERAL_VERBS: readonly PrimitiveVerb[] = [
+  "diplomacy",
+  "sanction",
+  // Гарантия попала сюда не потому, что «тоже дипломатия», а по единственному
+  // работающему признаку списка: она ПИШЕТ В ТУ ЖЕ ЯЧЕЙКУ `relations`
+  // (`DiplomacyService.addGuarantee` двигает отношения на +15 сверх записи в
+  // список гарантий). Раздельный слот означал бы, что месяц по одной паре
+  // вмещает и коридор дипломатии, и плоский шаг гарантии, — то есть коридор
+  // обходится сменой глагола, ровно то, что общий слот и закрывает.
+  "guarantee",
+];
 
 export function isStructural(verb: PrimitiveVerb): boolean {
   return STRUCTURAL_VERBS.includes(verb);
@@ -122,6 +144,30 @@ export type IncidentKind = (typeof INCIDENT_KINDS)[number];
  */
 export const RELATION_DIRECTIONS = ["improve", "worsen"] as const;
 export type RelationDirection = (typeof RELATION_DIRECTIONS)[number];
+
+/**
+ * Направление сдвига бюджетного фокуса — «к домену» или «от домена».
+ *
+ * Необязательное, с умолчанием `toward`, и это отличие от `diplomacy`, где
+ * направление требуется предпосылкой. Причина в самих глаголах: «сблизиться» и
+ * «поссориться» — разные события, и имя `diplomacy` не говорит ни о том, ни о
+ * другом, а `research_shift` на домен по умолчанию означает СОСРЕДОТОЧИТЬСЯ на
+ * нём — расфокусировка это явно названное исключение. Величину обоих
+ * направлений считает движок из остатка коридора.
+ */
+export const FOCUS_DIRECTIONS = ["toward", "away"] as const;
+export type FocusDirection = (typeof FOCUS_DIRECTIONS)[number];
+
+/**
+ * Направление работы с добывающими мощностями — построить или свернуть.
+ *
+ * Умолчание `expand` по той же логике, что у фокуса: имя глагола
+ * `build_extraction` называет строительство, снос — явное исключение. Сколько
+ * уровней сдвинется, глагол не спрашивает: движок строит ровно один за ход
+ * (перенос капа старого канала БЕЗ изменения значения).
+ */
+export const EXTRACTION_DIRECTIONS = ["expand", "dismantle"] as const;
+export type ExtractionDirection = (typeof EXTRACTION_DIRECTIONS)[number];
 
 /**
  * Форма примитива живёт в `primitiveSchemas.ts` и выводится из Zod-схемы:
@@ -610,6 +656,102 @@ export interface AppliedCreateCountry extends AppliedPrimitiveBase {
 }
 
 /**
+ * Факт выдачи гарантии независимости.
+ *
+ * Каналов два, и второй легко упустить: гарантия не только попадает в список
+ * `diplomacy.guarantees`, но и ТЕПЛИТ отношения пары
+ * (`DiplomacyService.addGuarantee`). Величина этого сдвига перенесена из
+ * старого канала БЕЗ изменения — тем же способом, что −100 у объявления войны
+ * и +50 у мира: перевод не должен оказаться ещё и тихой рекалибровкой.
+ *
+ * Самого списка гарантий в результате нет: он не число, сверять его ячейкой
+ * нечем, и его правдивость держит палитра. В результат попадает то, о чём
+ * нарратив вправе говорить величинами.
+ */
+export interface AppliedGuarantee extends AppliedPrimitiveBase {
+  verb: "guarantee";
+  targetCountryId: string;
+  relationEffects: RelationEffect[];
+}
+
+/**
+ * Фактический сдвиг ОДНОЙ доли бюджетного фокуса.
+ *
+ * `channel` разделяет исследования и производство: доли живут в разных полях
+ * состояния (`technology.researchAllocation` / `military.productionAllocation`)
+ * и имеют разные потолки, поэтому одна ячейка сверки на оба означала бы, что
+ * сдвиг брони и сдвиг танков неотличимы.
+ *
+ * `key` — домен или категория техники: идентификатор данных, а не поле кода
+ * (домены задаются страной и эпохой), поэтому строка, а не перечисление.
+ */
+export interface BudgetFocusEffect {
+  countryId: string;
+  channel: "research" | "production";
+  key: string;
+  before: number;
+  after: number;
+  delta: number;
+}
+
+/** Фактический сдвиг уровня добывающих мощностей одной пары (регион, ресурс). */
+export interface ExtractionEffect {
+  regionId: number;
+  resource: string;
+  before: number;
+  after: number;
+  delta: number;
+}
+
+/**
+ * Факт сдвига фокуса исследований.
+ *
+ * Величину задаёт КОРИДОР от состояния, а не модель: старый канал принимал
+ * `share: number` прямо от неё — контракт, прямо противоречащий правилу «модель
+ * решает что, движок решает насколько» (`docs/PRIMITIVES.md` §1). Тот же разрыв
+ * и тем же способом закрывала сессия дипломатии, сняв `relationChange` у
+ * `diplomacy`.
+ *
+ * Пустой `focusEffects` невозможен: движок всегда заявляет затронутую долю,
+ * даже нулевой дельтой — «фокус уже на потолке» такой же факт, как сдвиг.
+ */
+export interface AppliedResearchShift extends AppliedPrimitiveBase {
+  verb: "research_shift";
+  countryId: string;
+  domain: string;
+  direction: FocusDirection;
+  /** Потолок доли, действовавший в момент применения, — он же объясняет величину. */
+  cap: number;
+  focusEffects: BudgetFocusEffect[];
+}
+
+/** Факт сдвига фокуса производства техники — устроен как сдвиг исследований. */
+export interface AppliedProductionShift extends AppliedPrimitiveBase {
+  verb: "production_shift";
+  countryId: string;
+  equipmentType: string;
+  direction: FocusDirection;
+  cap: number;
+  focusEffects: BudgetFocusEffect[];
+}
+
+/**
+ * Факт строительства или сноса добывающих мощностей.
+ *
+ * Каналов два: уровень мощностей региона и казна страны, которая за него
+ * платит. Снос бесплатен и потому даёт пустой `countryScalarEffects` — это
+ * факт, а не отсутствие данных.
+ */
+export interface AppliedBuildExtraction extends AppliedPrimitiveBase {
+  verb: "build_extraction";
+  regionId: number;
+  resource: string;
+  direction: ExtractionDirection;
+  extractionEffects: ExtractionEffect[];
+  countryScalarEffects: CountryScalarEffect[];
+}
+
+/**
  * Discriminated union по глаголу: у каждого verb своя форма фактов, и лишнего
  * поля в ней нет. Общего скаляра «магнитуда» тут намеренно нет — один усреднённый
  * канал не описывает примитив, у которого их несколько (repress пишет и
@@ -633,7 +775,11 @@ export type AppliedPrimitive =
   | AppliedPuppet
   | AppliedAnnex
   | AppliedMergeCountries
-  | AppliedCreateCountry;
+  | AppliedCreateCountry
+  | AppliedGuarantee
+  | AppliedResearchShift
+  | AppliedProductionShift
+  | AppliedBuildExtraction;
 
 /**
  * Все следы примитива в памяти воздействий одним списком — и прямые, и побочные.
@@ -671,6 +817,14 @@ export function impactEffectsOf(applied: AppliedPrimitive): GroupImpactEffect[] 
     case "annex":
     case "merge_countries":
     case "create_country":
+    // Воздействия, переехавшие из старого канала, работают с обязательствами,
+    // бюджетными долями и мощностями региона. Ни один из этих каналов не
+    // ключуется парой (регион, группа) — записи в памяти воздействий у них нет
+    // по построению.
+    case "guarantee":
+    case "research_shift":
+    case "production_shift":
+    case "build_extraction":
       return [];
     case "incite_unrest":
     case "repress":

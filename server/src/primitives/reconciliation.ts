@@ -139,6 +139,38 @@ function personnelCellKey(countryId: string): string {
 }
 
 /**
+ * Ключ ячейки ОДНОЙ доли бюджетного фокуса.
+ *
+ * Два канала, а не один: доли исследований и производства живут в разных полях
+ * состояния и под разными потолками, и общий префикс означал бы, что сверка не
+ * отличит сдвиг брони от сдвига танков, случись у них совпасть имени.
+ *
+ * Словари разрежены по построению (домен без явной доли делит остаток поровну —
+ * `ResearchTick`/`MilitaryTick`), поэтому отсутствующая ячейка читается сверкой
+ * как ноль. Для долей это ВЕРНО ровно в том же смысле, что для памяти
+ * воздействий: «явной доли нет» и «явная доля равна нулю» — одно утверждение о
+ * том, куда страна направила бюджет... с одной оговоркой, которую надо знать:
+ * ноль и «делит остаток поровну» — разные ВЫЧИСЛЕНИЯ в тике, но сверка спрашивает
+ * не о том, сколько домен получит, а о том, что заявил примитив. Заявить он
+ * может только то, что сам записал.
+ */
+function focusCellKey(channel: "research" | "production", countryId: string, key: string): string {
+  return `${channel}:${countryId}.${key}`;
+}
+
+/**
+ * Ключ ячейки уровня добывающих мощностей.
+ *
+ * Уровень — целое, а не доля, но ячейка ему нужна на общих основаниях: это
+ * ЧИСЛО, которое меняет глагол алфавита, и без ячейки `build_extraction` мог бы
+ * соврать о построенном, оставшись непойманным (ровно тот дефект, из-за
+ * которого действие переносилось).
+ */
+function extractionCellKey(regionId: number, resource: string): string {
+  return `extraction:${regionId}.${resource}`;
+}
+
+/**
  * Все числовые ячейки состояния, которые АЛФАВИТ вправе менять.
  *
  * Перечень выведен из палитры (`palette.ts`): каждый числовой путь, стоящий
@@ -186,10 +218,27 @@ export function enumerateCells(game: GameState): StateCells {
       cells.set(influenceCellKey(country.id, targetId), value);
     }
     cells.set(personnelCellKey(country.id), country.military.activePersonnel);
+
+    // Доли бюджетного фокуса — по ФАКТИЧЕСКИ существующим записям, по той же
+    // причине, что отношения и влияние: словари разрежены (в сценарии 1946
+    // явных долей нет ни у кого), и обход всех доменов × всех стран стоил бы
+    // ячеек, которых нет.
+    for (const [domain, value] of Object.entries(country.technology.researchAllocation ?? {})) {
+      if (typeof value === "number") cells.set(focusCellKey("research", country.id, domain), value);
+    }
+    for (const [type, value] of Object.entries(country.military.productionAllocation ?? {})) {
+      if (typeof value === "number") cells.set(focusCellKey("production", country.id, type), value);
+    }
   }
 
   for (const region of game.regions) {
     cells.set(regionGdpCellKey(region.id), region.gdp);
+
+    // Мощности добычи — тоже по фактическим записям: пара (регион, ресурс) без
+    // записи и пара с уровнем ноль — одно утверждение о мире.
+    for (const [resource, level] of Object.entries(region.extraction ?? {})) {
+      if (typeof level === "number") cells.set(extractionCellKey(region.id, resource), level);
+    }
   }
 
   return cells;
@@ -361,6 +410,32 @@ export function reportedCells(applied: AppliedPrimitive): CellChange[] {
         });
       }
       break;
+    // Гарантия заявляет ТОЛЬКО отношения. Список обязательств числом не
+    // является, и сверять его ячейкой нечем — его правдивость держит палитра,
+    // ровно как у списка пуппетов при подчинении.
+    case "guarantee":
+      pushRelations(applied.relationEffects);
+      break;
+    case "research_shift":
+    case "production_shift":
+      for (const effect of applied.focusEffects) {
+        changes.push({
+          key: focusCellKey(effect.channel, effect.countryId, effect.key),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
+      break;
+    case "build_extraction":
+      pushScalars(applied.countryScalarEffects);
+      for (const effect of applied.extractionEffects) {
+        changes.push({
+          key: extractionCellKey(effect.regionId, effect.resource),
+          before: effect.before,
+          after: effect.after,
+        });
+      }
+      break;
     default:
       assertNeverVerb(applied);
   }
@@ -411,6 +486,14 @@ function reportedMapFeatureIds(applied: AppliedPrimitive): string[] {
     case "annex":
     case "merge_countries":
     case "create_country":
+    // Воздействия, переехавшие из старого канала, карту не трогают вовсе: ни у
+    // одного из них нет объекта карты в палитре. Связь `build_extraction` с
+    // объектом `mine` предусмотрена планом ресурсов, но не реализована — и пока
+    // её нет, заявлять здесь нечего (`docs/TODO.md`, «План 04»).
+    case "guarantee":
+    case "research_shift":
+    case "production_shift":
+    case "build_extraction":
       return [];
   }
 }

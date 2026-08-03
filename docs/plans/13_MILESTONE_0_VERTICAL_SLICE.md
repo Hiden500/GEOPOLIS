@@ -155,7 +155,7 @@
 |---|---|
 | Путь игрок → примитив (текст → перевод → показ распознанного → подтверждение) | `server/src/llm/primitiveTranslation.ts`, `server/src/routes/primitives.ts`, `client/src/components/PrimitiveOrdersPanel.tsx` |
 | Отклик: локализованная хроника + история места + объект на карте | `shared/src/types/politics/PrimitiveOutcome.ts`, `server/src/primitives/outcomes.ts`, `Region.placeHistory`, `client/src/hud/ContextPanel/ContextPanel.tsx`; объект карты — существующий слой `mapFeatures` |
-| Подключение примитивов к LLM-контракту | `server/src/llm/{primitiveContract,primitiveAgency,crisisDigest}.ts`, `actionSchemas.ts`, `LLMService.ts` |
+| Подключение примитивов к LLM-контракту | `server/src/llm/{primitiveContract,primitiveAgency,crisisDigest}.ts`, `actionSchemas.ts` (УДАЛЁН 2026-08-02, конверт ответа — `responseSchemas.ts`), `LLMService.ts` |
 | Idempotency-ключ на ход (§7.2) | `server/src/primitives/turnBatch.ts`, `GameState.primitiveBatchKeys`, `SAVE_VERSION` 4→5 |
 | Кризисный кап ≤5 (§7) | `MAX_PROMPT_CRISES`, `LLMService.getRegionalCrisesInfo` (выводится из латча) |
 

@@ -190,8 +190,8 @@ async function main(): Promise<void> {
       // Квитанция — единственный источник «что на самом деле произошло»:
       // сам факт ответа модели ничего не значит, движок мог всё отклонить.
       const receipt = result.receipt;
-      applied = receipt.actions.applied.length + receipt.primitives.applied.length;
-      rejected = receipt.actions.rejected.length + receipt.primitives.rejected.length;
+      applied = receipt.primitives.applied.length;
+      rejected = receipt.primitives.rejected.length;
       log.write(JSON.stringify({
         month, date: game.currentDate, applied, rejected,
         success: result.success,

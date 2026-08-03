@@ -31,3 +31,12 @@ export const MAX_EXTRACTION_LEVEL = 10;
 
 /** Казна за +1 уровень добывающих мощностей (server/src/commands/resources.ts::buildExtraction). */
 export const EXTRACTION_BUILD_COST = 2_000_000_000;
+
+/**
+ * Сколько уровней мощностей двигает ОДИН примитив `build_extraction`.
+ *
+ * Ровно один, и это перенос капа `±1 уровень за ход` из Zod-схемы старого
+ * канала БЕЗ изменения значения (2026-08-02). Хинта силы у глагола нет вовсе:
+ * уровень — счётное целое, и масштабировать его «мягко/жёстко» нечем.
+ */
+export const EXTRACTION_LEVEL_STEP = 1;

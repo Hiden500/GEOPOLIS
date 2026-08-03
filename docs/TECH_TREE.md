@@ -18,7 +18,9 @@ Last updated: 2026-07-06
   прогресс по домену (ключ — имя домена текущей эры, `shared/src/data/eras.ts`).
 - `Country.technology.researchAllocation?: Partial<Record<string, number>>`
   — доля `economy.researchSpending` на явно указанный домен (0 до
-  `MAX_RESEARCH_SHARE = 0.7`, `LLMResponseValidator.ts`). Домены без явной
+  `MAX_RESEARCH_SHARE = 0.7`, `shared/src/defines/research.ts`; потолок
+  применяет глагол `research_shift` в `PrimitiveEngine`, и активная война его
+  снижает на `WAR_RESEARCH_SHARE_PENALTY` за каждую). Домены без явной
   доли делят остаток поровну — детерминированный дефолт.
 - Тир = `getDomainTier(progress)` (`shared/src/utils/technology.ts`) —
   `floor(progress / TIER_PROGRESS_THRESHOLD)`, не хранится отдельно (нет

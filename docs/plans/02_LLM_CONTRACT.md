@@ -11,7 +11,7 @@ free-tier квоты Gemini — см. отклонения.
 
 1. **Ядро контракта нетипизировано.** `LLMAction.data?: Record<string, any>`
    (`shared/src/types/GameState.ts:80`) — самая важная граница системы без типов.
-   Валидатор — ~300 строк ручных `if` (`server/src/llm/LLMResponseValidator.ts`),
+   Валидатор — ~300 строк ручных `if` (`server/src/llm/LLMResponseValidator.ts` (УДАЛЁН 2026-08-02)),
    при том что Zod уже в зависимостях сервера и используется для HTTP-роутов.
    Каждый новый тип действия добавляет расхождения между промтом (текстовое
    описание формата в `LLMService.ts:257`), валидатором и применением.
@@ -28,7 +28,7 @@ free-tier квоты Gemini — см. отклонения.
 
 ### Шаг 1. Zod-схемы действий (дискриминированный union)
 
-`server/src/llm/actionSchemas.ts`:
+`server/src/llm/actionSchemas.ts` (УДАЛЁН 2026-08-02, конверт ответа переехал в `responseSchemas.ts`):
 
 ```ts
 const DiplomacyAction = z.object({
@@ -49,7 +49,7 @@ export const LLMResponseSchema = z.object({
 ```
 
 - Структурная и магнитудная валидация уходит в схемы; в
-  `LLMResponseValidator` остаётся только **семантическая применимость**
+  `LLMResponseValidator` (удалён 2026-08-02) оставалась только **семантическая применимость**
   (страна существует, война действительно идёт, не воюем сами с собой).
 - Тип `LLMAction` в shared выводится из схем (`z.infer`) — конец `data: any`.
 - Существующие тесты валидатора переиспользовать против схем.

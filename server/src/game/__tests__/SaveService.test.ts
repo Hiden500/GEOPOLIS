@@ -48,10 +48,11 @@ describe("SaveService", () => {
     expect(loaded).toEqual(game);
   });
 
-  it("не сохраняет llmContext/pendingLlmActions, но сохраняет llmResponse", () => {
+  it("не сохраняет llmContext, но сохраняет llmResponse", () => {
+    // `pendingLlmActions` из проверки ушёл вместе с полем (2026-08-02):
+    // мёртвая scaffolding-механика старого канала.
     const game = createTestGameState({
       llmContext: "секретный промт",
-      pendingLlmActions: [{ type: "guarantee", sourceCountryId: "USA", targetCountryId: "SUN" }],
       llmResponse: "последний ответ LLM",
     });
 
@@ -59,7 +60,6 @@ describe("SaveService", () => {
     const loaded = loadGame("__test_transient");
 
     expect(loaded.llmContext).toBeUndefined();
-    expect(loaded.pendingLlmActions).toBeUndefined();
     expect(loaded.llmResponse).toBe("последний ответ LLM");
   });
 
