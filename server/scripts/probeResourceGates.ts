@@ -13,6 +13,13 @@
 import { createGame } from "../src/game/CreateGame";
 import { simulateMonth } from "../src/simulation/SimulationEngine";
 import { tradeTick } from "../src/simulation/trade/TradeTick";
+import { economyTick } from "../src/simulation/economy/EconomyTick";
+import { resourceTick } from "../src/simulation/resources/ResourceTick";
+import { equipmentResourceCoverage } from "../src/simulation/military/MilitaryTick";
+import {
+  WAR_MATERIAL_RESOURCE_IDS,
+  EQUIPMENT_RESOURCE_DEMAND_SCALE,
+} from "@shared/defines/military";
 import { buildExtraction } from "../src/commands/resources";
 import { type GameState } from "@shared/types/GameState";
 import { type ResourceType } from "@shared/types/resources/ResourcesType";
@@ -224,12 +231,96 @@ function probeEmbargoDestruction(): void {
     `суммарный exportIncome ${fmt(incomeSum, 0)}`);
 }
 
+/**
+ * Раздел 4 (добавлен вместе с гейтом сырья, вариант А, 2026-08-02).
+ *
+ * 4а. Мирное покрытие: гейт откалиброван так, чтобы НЕ душить мир 1946 по
+ * умолчанию — медианное покрытие и доля стран с покрытием < 1 снимаются на
+ * живом прогоне. Покрытие меряется РЕПЛИКОЙ момента гейта: на клоне партии
+ * прогоняются те же под-тики в том же порядке, что перед militaryTick в
+ * SimulationEngine (economy → resource → trade), и берётся ровно та формула,
+ * что в тике, — состояние склада ПОСЛЕ simulateMonth уже съедено
+ * производством и занизило бы ответ.
+ *
+ * 4б. Блокада: 5 эмбарго против страны с наибольшим militarySpending
+ * (крупнейший производитель техники — эффект виден крупнее всего). Канал
+ * НАЗВАН в выводе: эмбарго в торговой модели режет экспортный доход (импорт
+ * сознательно не гейтится — TradeTick.test.ts фиксирует это отдельным
+ * тестом), поэтому в производство блокада бьёт через
+ * доход → militarySpending, а не через физический голод склада.
+ */
+function measureCoverage(game: GameState): number[] {
+  const probe = structuredClone(game) as GameState;
+  const coverages: number[] = [];
+  for (const country of probe.countries) {
+    economyTick(country, probe.regions);
+    resourceTick(country, probe.regions, probe.modifiers);
+    tradeTick(probe, country);
+    if (country.economy.militarySpending <= 0) continue;
+    const demand = country.economy.militarySpending / EQUIPMENT_RESOURCE_DEMAND_SCALE;
+    const available = WAR_MATERIAL_RESOURCE_IDS
+      .reduce((s, r) => s + Math.max(0, country.stockpile[r] ?? 0), 0);
+    coverages.push(equipmentResourceCoverage(available, demand));
+  }
+  return coverages;
+}
+
+function probeGateCoverage(months: number): void {
+  console.log("\n=== 4. Гейт сырья (вариант А) — мирное покрытие и блокада ===");
+
+  const game = createGame("1946", "USA");
+  const samples = [1, 12, 36, 60, 120].filter(m => m <= months);
+  let done = 0;
+  for (const sample of samples) {
+    while (done < sample) {
+      simulateMonth(game);
+      done++;
+    }
+    const coverages = measureCoverage(game);
+    const below = coverages.filter(c => c < 1).length;
+    console.log(`  месяц ${sample}: медианное покрытие ${fmt(median(coverages))}, ` +
+      `стран с покрытием <1: ${below} из ${coverages.length} (${fmt((below / coverages.length) * 100, 1)}%)`);
+  }
+
+  // 4б. Блокада: жертва — страна с наибольшим militarySpending.
+  const base = createGame("1946", "USA");
+  for (let i = 0; i < 12; i++) simulateMonth(base);
+  const victim = [...base.countries].sort(
+    (a, b) => b.economy.militarySpending - a.economy.militarySpending
+  )[0]!;
+
+  const equipOf = (g: GameState, id: string): number => {
+    const c = g.countries.find(x => x.id === id)!;
+    return Object.values(c.military.equipment).reduce((s, v) => s + (v as number), 0);
+  };
+
+  const run = (embargoes: number): { gained: number; ms: number } => {
+    const probe = structuredClone(base) as GameState;
+    const target = probe.countries.find(c => c.id === victim.id)!;
+    for (const e of probe.countries.filter(c => c.id !== target.id).slice(0, embargoes)) {
+      e.diplomacy.sanctions[target.id] = ["trade_embargo"];
+    }
+    const before = equipOf(probe, victim.id);
+    for (let i = 0; i < 24; i++) simulateMonth(probe);
+    return { gained: equipOf(probe, victim.id) - before, ms: target.economy.militarySpending };
+  };
+
+  const free = run(0);
+  const blocked = run(5);
+  const delta = free.gained === 0 ? Number.NaN : (blocked.gained - free.gained) / free.gained;
+  console.log(`  блокада (жертва ${victim.id}, 24 мес): произведено техники без эмбарго ` +
+    `${fmt(free.gained, 1)}, под 5 эмбарго ${fmt(blocked.gained, 1)} ` +
+    `(${Number.isFinite(delta) ? fmt(delta * 100, 2) + "%" : "n/a"}); ` +
+    `militarySpending в конце: ${fmt(free.ms, 0)} → ${fmt(blocked.ms, 0)}`);
+}
+
 function main(): void {
   const months = parseMonths();
   const game = createGame("1946", "USA");
   probeBuildExtraction(game);
   probeStockpileGate(months);
   probeEmbargoDestruction();
+  probeGateCoverage(months);
 }
 
 main();
