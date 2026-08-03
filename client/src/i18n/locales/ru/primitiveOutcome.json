@@ -129,7 +129,22 @@
     "puppet": "Подчинить {{country}}",
     "annex": "Присоединить земли {{country}}",
     "merge_countries": "Присоединить {{country}} к своему составу",
-    "create_country": "Предоставить независимость региону {{region}}"
+    "create_country": "Предоставить независимость региону {{region}}",
+    "guarantee": "Гарантировать независимость {{country}}",
+    "research_shift": {
+      "toward": "Перевести исследования {{country}} на направление",
+      "away": "Снять исследования {{country}} с направления"
+    },
+    "production_shift": {
+      "toward": "Перевести производство {{country}} на категорию",
+      "away": "Снять производство {{country}} с категории"
+    },
+    "build_extraction": {
+      "expand": "Нарастить добывающие мощности — {{region}}",
+      "dismantle": "Свернуть добывающие мощности — {{region}}"
+    },
+    "focusSubject": "предмет: {{subject}}",
+    "extractionResource": "ресурс: {{resource}}"
   },
   "splitCountry": {
     "headline": "Государство {{country}} раскололось: новых государств — {{shards}}"
@@ -225,5 +240,34 @@
   "create": {
     "regions": "Регионов в составе нового государства: {{regions}}",
     "capitalMoved": "Столица метрополии переехала в регион {{region}}"
+  },
+  "guarantee": {
+    "headline": "{{source}} гарантирует независимость {{country}}"
+  },
+  "research_shift": {
+    "headline": {
+      "toward": "{{country}} переводит исследования на {{subject}}",
+      "away": "{{country}} снимает исследования с направления {{subject}}"
+    }
+  },
+  "production_shift": {
+    "headline": {
+      "toward": "{{country}} переводит производство на {{subject}}",
+      "away": "{{country}} снимает производство с категории {{subject}}"
+    }
+  },
+  "focus": {
+    "changed": "Доля бюджета: {{delta}} ({{before}} → {{after}}, потолок {{cap}})",
+    "unchanged": "Доля бюджета: без изменений ({{value}}, потолок {{cap}})"
+  },
+  "buildExtraction": {
+    "headline": {
+      "expand": "Добывающие мощности ({{resource}}) наращены в регионе {{region}}",
+      "dismantle": "Добывающие мощности ({{resource}}) свёрнуты в регионе {{region}}"
+    }
+  },
+  "extraction": {
+    "level": "Уровень мощностей: {{before}} → {{after}}",
+    "noCost": "Снос ничего не стоит: казна не тронута"
   }
 }

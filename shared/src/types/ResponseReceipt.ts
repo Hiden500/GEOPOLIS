@@ -1,5 +1,4 @@
 import { type EventFactuality } from "./Event";
-import { type LLMAction } from "./GameState";
 import { type PrimitiveOutcomeRecord } from "./politics/PrimitiveOutcome";
 import { type PrimitiveRejectionRecord } from "./politics/PrimitiveRejection";
 
@@ -49,25 +48,19 @@ export interface ResponseReceipt {
   /** Регионы, которых ответ фактически коснулся, — из ПРИМЕНЁННОГО. */
   regions: number[];
 
-  /** Канал примитивов: локализуемый отклик по применённым, коды по отклонённым. */
+  /**
+   * ЕДИНСТВЕННЫЙ канал ответа: локализуемый отклик по применённым, структурные
+   * коды по отклонённым.
+   *
+   * Поля `actions` здесь больше нет (2026-08-02). Старый канал перестал
+   * существовать вместе со своими последними четырьмя типами, а его записи,
+   * если модель их всё же пришлёт, приходят сюда отказом `legacyActionsChannel`
+   * — тем же способом, что любой другой отказ, и с той же локализуемой
+   * причиной. Двух форм отказа в квитанции больше нет.
+   */
   primitives: {
     applied: PrimitiveOutcomeRecord[];
     rejected: PrimitiveRejectionRecord[];
-  };
-
-  /**
-   * Старый канал `actions` (grandfather-совместимость,
-   * docs/plans/02_LLM_CONTRACT.md).
-   *
-   * У отклонённого действия хранится ТИП и причина, но не сырое тело: тело
-   * приходит от модели и не ограничено сверху, а квитанция живёт в сейве
-   * столько же, сколько событие. Причина остаётся английской строкой
-   * валидатора — старый канал структурных кодов отказа не получил
-   * (docs/TODO.md).
-   */
-  actions: {
-    applied: LLMAction[];
-    rejected: RejectedAction[];
   };
 }
 
@@ -85,14 +78,5 @@ export function emptyResponseReceipt(date: string): ResponseReceipt {
     countries: [],
     regions: [],
     primitives: { applied: [], rejected: [] },
-    actions: { applied: [], rejected: [] },
   };
-}
-
-export interface RejectedAction {
-  /** Тип действия, если он читается из сырой записи. */
-  type?: string | undefined;
-  sourceCountryId?: string | undefined;
-  targetCountryId?: string | undefined;
-  reason: string;
 }

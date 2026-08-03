@@ -11,12 +11,10 @@ import { deriveEventFactuality, type ResponseApplicationCounts } from "../eventF
  */
 function counts(overrides: Partial<ResponseApplicationCounts> = {}): ResponseApplicationCounts {
   return {
-    proposedActions: 0,
-    appliedActions: 0,
-    rejectedActions: 0,
     proposedPrimitives: 0,
     appliedPrimitives: 0,
     rejectedPrimitives: 0,
+    proposedLegacyActions: 0,
     ...overrides,
   };
 }
@@ -26,16 +24,9 @@ describe("deriveEventFactuality", () => {
     expect(deriveEventFactuality(counts())).toBe("unconfirmed");
   });
 
-  it("всё предложенное применено — подтверждено (оба канала)", () => {
+  it("всё предложенное применено — подтверждено", () => {
     expect(
-      deriveEventFactuality(
-        counts({
-          proposedActions: 2,
-          appliedActions: 2,
-          proposedPrimitives: 3,
-          appliedPrimitives: 3,
-        })
-      )
+      deriveEventFactuality(counts({ proposedPrimitives: 3, appliedPrimitives: 3 }))
     ).toBe("confirmed");
   });
 
@@ -47,20 +38,21 @@ describe("deriveEventFactuality", () => {
     ).toBe("partial");
   });
 
-  it("отклонено действие СТАРОГО канала — тоже частично", () => {
-    // Иначе действие, отклонённое валидатором, оставляло бы событию
-    // отметку «подтверждено» при заголовке «Эльзас присоединён».
+  it("массив НЕСУЩЕСТВУЮЩЕГО канала `actions` не даёт «подтверждено»", () => {
+    // Ответ, попросивший движок о канале, которого нет, чего-то от него ХОТЕЛ —
+    // и не получил. Считать такой текст неоспоримым значило бы аттестовать
+    // заголовок «Эльзас присоединён» при движке, отвергнувшем всё содержимое.
     expect(
       deriveEventFactuality(
-        counts({
-          proposedActions: 2,
-          appliedActions: 1,
-          rejectedActions: 1,
-          proposedPrimitives: 1,
-          appliedPrimitives: 1,
-        })
+        counts({ proposedPrimitives: 1, appliedPrimitives: 1, proposedLegacyActions: 2 })
       )
     ).toBe("partial");
+  });
+
+  it("ответ ТОЛЬКО из `actions` тоже не «чистый нарратив»", () => {
+    // Иначе ответ, весь смысл которого движок отверг, получал бы ту же отметку,
+    // что честный текст без единого приказа.
+    expect(deriveEventFactuality(counts({ proposedLegacyActions: 3 }))).toBe("partial");
   });
 
   it("примитив исчез без записи об отказе — всё равно не подтверждено", () => {

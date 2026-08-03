@@ -158,6 +158,34 @@ export type PrimitiveRejection =
   | { code: "independenceNoMajority"; region: LocalizedText; share: number }
   | { code: "independenceWouldEmptyParent"; country: LocalizedText }
 
+  // --- validate: воздействия, пришедшие из старого канала `actions` ---
+  //
+  // Все семь отвечают «так не бывает». Отдельного отказа «фокус уже на потолке»
+  // здесь НЕТ по той же причине, что у дипломатического блока: коридор сдвига
+  // схлопывается в ноль, и результат честно сообщает нулевую дельту. А вот
+  // потолок ДОБЫВАЮЩИХ МОЩНОСТЕЙ — отказ, и это разница по существу: сдвиг
+  // фокуса у потолка не стоит ничего, а строительство списало бы казну за
+  // уровень, которого не появится (`commands/resources.ts`, 2026-08-01).
+  | { code: "guaranteeAlreadyGiven"; source: LocalizedText; target: LocalizedText }
+  | { code: "focusNotDomestic"; verb: PrimitiveVerb; source: LocalizedText; country: LocalizedText }
+  | { code: "unknownResearchDomain"; country: LocalizedText; domain: string }
+  | { code: "unknownEquipmentType"; country: LocalizedText; equipmentType: string }
+  | { code: "noDepositInRegion"; region: LocalizedText; resource: string }
+  | {
+      code: "extractionAtMaximum";
+      region: LocalizedText;
+      resource: string;
+      level: number;
+      max: number;
+    }
+  | { code: "noExtractionToDismantle"; region: LocalizedText; resource: string }
+  | {
+      code: "extractionUnaffordable";
+      source: LocalizedText;
+      cost: number;
+      treasury: number;
+    }
+
   // --- капы хода ---
   | { code: "softTurnCapReached"; cap: number }
   | { code: "structuralTurnCapReached"; cap: number }
@@ -183,7 +211,16 @@ export type PrimitiveRejection =
   | { code: "agencyPlayerDecision"; verb: PrimitiveVerb; player: LocalizedText }
   | { code: "schemaInvalid"; position: number; detail: string }
   | { code: "malformedBatch"; detail: string }
-  | { code: "duplicateResponse" };
+  | { code: "duplicateResponse" }
+  /**
+   * Ответ пришёл с массивом `actions` — канала, которого больше нет.
+   *
+   * Отказ, а не молчание, и это ровно тот класс дефекта, ради которого канал и
+   * сносился: съеденный массив означал бы, что модель считает применённым то,
+   * чего движок даже не читал. Схема провайдера канала не предлагает, но
+   * локальные модели импровизируют по памяти о старом контракте.
+   */
+  | { code: "legacyActionsChannel"; count: number };
 
 export type PrimitiveRejectionCode = PrimitiveRejection["code"];
 
@@ -401,6 +438,41 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
         `their state by losing all of its land, never by merger`
       );
 
+    case "guaranteeAlreadyGiven":
+      return (
+        `${name(rejection.source)} already guarantees the independence of ` +
+        `${name(rejection.target)}: promising it a second time changes nothing`
+      );
+    case "focusNotDomestic":
+      return (
+        `${name(rejection.source)} cannot direct ${name(rejection.country)}'s ${rejection.verb}: ` +
+        `a state spends its own budget, and only its own. Target must equal sourceCountryId`
+      );
+    case "unknownResearchDomain":
+      return (
+        `${name(rejection.country)} has no research domain called "${rejection.domain}": ` +
+        `use one of the domains listed on its Technology line`
+      );
+    case "unknownEquipmentType":
+      return `"${rejection.equipmentType}" is not an equipment category ${name(rejection.country)} produces`;
+    case "noDepositInRegion":
+      return (
+        `${name(rejection.region)} has no ${rejection.resource} deposit: extraction capacity is ` +
+        `built on top of a deposit, it does not create one`
+      );
+    case "extractionAtMaximum":
+      return (
+        `${rejection.resource} extraction in ${name(rejection.region)} already stands at level ` +
+        `${rejection.level}, the maximum of ${rejection.max}: there is nothing left to build`
+      );
+    case "noExtractionToDismantle":
+      return `There is no ${rejection.resource} extraction in ${name(rejection.region)} to dismantle`;
+    case "extractionUnaffordable":
+      return (
+        `${name(rejection.source)} cannot pay for the capacity: it costs ${rejection.cost} and ` +
+        `the treasury holds ${Math.round(rejection.treasury)}`
+      );
+
     case "softTurnCapReached":
       return `At most ${rejection.cap} soft primitives per turn`;
     case "structuralTurnCapReached":
@@ -449,6 +521,12 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
       return rejection.detail;
     case "duplicateResponse":
       return "This response was already applied this month and was not applied again";
+    case "legacyActionsChannel":
+      return (
+        `${rejection.count} entr${rejection.count === 1 ? "y" : "ies"} in "actions" were ignored: ` +
+        `that channel no longer exists. Everything it used to do is a verb of the primitives ` +
+        `alphabet — guarantee, research_shift, production_shift and build_extraction included`
+      );
   }
 }
 
@@ -613,6 +691,40 @@ export function rejectionRecord(
     case "proxyNotAtWar":
       return of(undefined, { target: rejection.target });
 
+    case "guaranteeAlreadyGiven":
+      return of(undefined, { source: rejection.source, target: rejection.target });
+    case "focusNotDomestic":
+      return of({ verb: rejection.verb }, {
+        source: rejection.source,
+        country: rejection.country,
+      });
+    // Домен, категория техники и вид ресурса — МАШИННЫЕ имена: клиент
+    // подставляет их в свой словарь как ключи, ровно как оси у
+    // `reformAxisAtSpectrumEdge` и вид санкции у `sanctionAlreadyImposed`.
+    case "unknownResearchDomain":
+      return of({ domain: rejection.domain }, { country: rejection.country });
+    case "unknownEquipmentType":
+      return of({ equipmentType: rejection.equipmentType }, { country: rejection.country });
+    case "noDepositInRegion":
+    case "noExtractionToDismantle":
+      return of({ resource: rejection.resource }, { region: rejection.region });
+    case "extractionAtMaximum":
+      // Текущий уровень и потолок — свойства МИРА и ПРАВИЛ: игрок видит уровень
+      // добычи в панели региона, а потолок один на всю игру. Магнитуды
+      // несостоявшегося строительства среди них нет (см. шапку модуля).
+      return of(
+        { resource: rejection.resource, level: rejection.level, max: rejection.max },
+        { region: rejection.region }
+      );
+    case "extractionUnaffordable":
+      // Цена уровня — ПРАВИЛО, казна — свойство мира, обе видны игроку в
+      // интерфейсе. Ни то ни другое не является величиной несостоявшегося акта:
+      // строительство не состоялось целиком, а не «на сколько-то меньше».
+      return of(
+        { cost: rejection.cost, treasury: Math.round(rejection.treasury) },
+        { source: rejection.source }
+      );
+
     case "softTurnCapReached":
     case "structuralTurnCapReached":
       return of({ cap: rejection.cap });
@@ -642,5 +754,7 @@ export function rejectionRecord(
     case "malformedBatch":
     case "duplicateResponse":
       return of();
+    case "legacyActionsChannel":
+      return of({ count: rejection.count });
   }
 }

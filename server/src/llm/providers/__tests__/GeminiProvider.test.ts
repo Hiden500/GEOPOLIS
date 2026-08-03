@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { GeminiProvider } from "../GeminiProvider";
 import { PRIMITIVE_VERBS } from "../../../primitives/types";
-import { LLMActionSchema } from "../../actionSchemas";
 import { LLMProviderError } from "../../../errors/AppError";
 
 describe("GeminiProvider", () => {
@@ -51,7 +50,6 @@ describe("GeminiProvider", () => {
     expect(body.generationConfig.responseSchema.required).toEqual([
       "title",
       "descriptions",
-      "actions",
       "primitives",
     ]);
     expect(body.generationConfig.thinkingConfig).toEqual({ thinkingLevel: "high" });
@@ -103,10 +101,14 @@ describe("GeminiProvider", () => {
   });
 
   /**
-   * Структура responseSchema — сгенерирована из GeminiResponseSchema
-   * (actionSchemas.ts, docs/plans/02_LLM_CONTRACT.md, Шаг 4), не второй
-   * ручной литерал. Проверяет ровно то, что раньше рассинхронизировалось
-   * молча: полный список из 11 типов действия и их реальные data-поля.
+   * Структура responseSchema — сгенерирована из `ProviderResponseSchema`
+   * (responseSchemas.ts), не второй ручной литерал. Проверяет ровно то, что
+   * раньше рассинхронизировалось молча: какие ветки схема реально предлагает
+   * модели.
+   *
+   * С 2026-08-02 массива `actions` в схеме нет вовсе: канал перестал
+   * существовать, и все проверки его веток заменены на проверку ОТСУТСТВИЯ —
+   * это и есть наблюдаемое свойство «алфавит нельзя обойти сменой канала».
    */
   describe("сгенерированная responseSchema (Zod → JSON Schema)", () => {
     async function captureResponseSchema(): Promise<any> {
@@ -127,40 +129,40 @@ describe("GeminiProvider", () => {
       expect(schema.$schema).toBeUndefined();
     });
 
-    it("propertyOrdering расставлен на корне и на каждой ветке actions", async () => {
+    it("propertyOrdering расставлен на корне и на каждой ветке примитивов", async () => {
       const schema = await captureResponseSchema();
-      expect(schema.propertyOrdering).toEqual(["title", "descriptions", "actions", "primitives"]);
+      expect(schema.propertyOrdering).toEqual(["title", "descriptions", "primitives"]);
 
-      const branches = schema.properties.actions.items.anyOf;
+      const branches = schema.properties.primitives.items.anyOf;
       for (const branch of branches) {
         expect(branch.propertyOrdering).toEqual(Object.keys(branch.properties));
       }
     });
 
-    it("actions.items — anyOf (не oneOf, документированный ключ Gemini для union), присутствуют РОВНО объявленные схемой типы", async () => {
+    it("схема НЕ предлагает канал `actions` — обойти алфавит сменой канала нечем", async () => {
+      // Наблюдаемая формулировка сноса старого канала: раньше здесь
+      // проверялся полный список его типов, теперь — что предлагать модели
+      // нечего. Пока `actions` стоял в схеме генерации, инструкция промта
+      // «величины задаёт движок» обходилась одной строкой ответа.
       const schema = await captureResponseSchema();
-      const items = schema.properties.actions.items;
+      expect(schema.properties.actions).toBeUndefined();
+      expect(Object.keys(schema.properties).sort()).toEqual(
+        ["descriptions", "primitives", "title"]
+      );
+    });
+
+    it("primitives.items — anyOf (не oneOf, документированный ключ Gemini для union)", async () => {
+      const schema = await captureResponseSchema();
+      const items = schema.properties.primitives.items;
 
       expect(items.oneOf).toBeUndefined();
       expect(Array.isArray(items.anyOf)).toBe(true);
 
-      // discriminant "type" литералы приходят как enum: [...] (не const, не
-      // поддерживается этим REST-эндпоинтом Gemini — см. enrichForGemini).
-      // Ветки с идентичной формой (guarantee/influence) схлопнуты
-      // mergeIdenticalShapeBranches в одну — enum там содержит несколько
-      // значений, не одно; flatMap разворачивает все обратно.
-      //
-      // Список выведен из САМОЙ схемы, а не переписан руками: удаление или
-      // добавление типа в старом канале не должно требовать правки этого
-      // ожидания, иначе тест проверяет память автора, а не контракт.
-      const types = items.anyOf.flatMap((branch: any) => branch.properties.type.enum);
-      const declared = (LLMActionSchema.options as any[]).map(
-        (option: any) => option.shape.type.value
-      );
-      expect(types.sort()).toEqual(declared.sort());
-      // Переведённые в алфавит типы схема провайдера предлагать не должна.
-      expect(types).not.toContain("diplomacy");
-      expect(types).not.toContain("war");
+      // Список выведен из САМОГО алфавита, а не переписан руками: добавление
+      // глагола не должно требовать правки ожидания, иначе тест проверяет
+      // память автора, а не контракт.
+      const verbs = items.anyOf.flatMap((branch: any) => branch.properties.verb.enum);
+      expect(verbs.sort()).toEqual([...PRIMITIVE_VERBS].sort());
     });
 
     it("ветки с идентичной формой схлопнуты в одну — anyOf короче числа глаголов (подтверждённое живым вызовом ограничение Gemini)", async () => {
@@ -194,15 +196,22 @@ describe("GeminiProvider", () => {
       expect(serialized).not.toContain('"additionalProperties"');
     });
 
-    it("research_shift/production_shift присутствуют с реальными data-полями (подтверждённый рассинхрон до 2026-07-10)", async () => {
+    it("сдвиги фокуса пришли в схему КАЧЕСТВЕННЫМИ параметрами, без доли бюджета", async () => {
+      // Наследник проверки «research_shift/production_shift с реальными
+      // data-полями» (2026-07-10). Проверяемое свойство изменилось вместе с
+      // контрактом и стало сильнее: раньше сверялось, что схема предлагает
+      // модели поле `share`, теперь — что НЕ предлагает. Числовое поле в
+      // структурированном ответе означало бы, что величину задаёт модель.
       const schema = await captureResponseSchema();
-      const branches = schema.properties.actions.items.anyOf;
+      const branches = schema.properties.primitives.items.anyOf;
 
-      const researchShift = branches.find((b: any) => b.properties.type.enum[0] === "research_shift");
-      expect(Object.keys(researchShift.properties.data.properties)).toEqual(["domain", "share"]);
-
-      const productionShift = branches.find((b: any) => b.properties.type.enum[0] === "production_shift");
-      expect(Object.keys(productionShift.properties.data.properties)).toEqual(["equipmentType", "share"]);
+      const research = branches.find((b: any) =>
+        b.properties.verb.enum.includes("research_shift")
+      );
+      const params = research.properties.params.properties;
+      expect(Object.keys(params).sort()).toEqual(["direction", "domain", "intensity"]);
+      expect(JSON.stringify(params)).not.toContain("share");
+      expect(params.direction.enum).toEqual(["toward", "away"]);
     });
   });
 
@@ -217,23 +226,22 @@ describe("GeminiProvider", () => {
   describe.skipIf(!process.env.RUN_LIVE_LLM_TESTS || !process.env.GEMINI_API_KEY)(
     "живой вызов Gemini API (RUN_LIVE_LLM_TESTS=1)",
     () => {
-      it("реальный ответ проходит через LLMResponseEnvelopeSchema + LLMActionSchema", async () => {
+      it("реальный ответ проходит через LLMResponseEnvelopeSchema + parsePrimitives", async () => {
         vi.unstubAllGlobals(); // здесь нужен настоящий fetch, не мок из beforeEach
 
-        const { LLMResponseEnvelopeSchema, LLMActionSchema } = await import("../../actionSchemas");
+        const { LLMResponseEnvelopeSchema } = await import("../../responseSchemas");
+        const { parsePrimitives } = await import("../../../primitives/primitiveSchemas");
         const realProvider = new GeminiProvider();
 
         const raw = await realProvider.generateResponse(
-          "Return a minimal valid response: title, one-sentence descriptions, and an empty actions array."
+          "Return a minimal valid response: title, one-sentence descriptions, and an empty primitives array."
         );
         const parsed = JSON.parse(raw);
 
         const envelope = LLMResponseEnvelopeSchema.safeParse(parsed);
         expect(envelope.success).toBe(true);
         if (envelope.success) {
-          for (const action of envelope.data.actions) {
-            expect(LLMActionSchema.safeParse(action).success).toBe(true);
-          }
+          expect(parsePrimitives(envelope.data.primitives ?? []).invalid).toEqual([]);
         }
       }, 30_000);
     }

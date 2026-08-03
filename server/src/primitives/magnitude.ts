@@ -36,7 +36,7 @@ import {
   SUPPORT_PROXY_FULL_PRESSURE_SHARE,
 } from "@shared/defines/diplomacy";
 import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
-import { type RelationDirection } from "./types";
+import { type FocusDirection, type RelationDirection } from "./types";
 
 /**
  * Величина эффекта примитива — **коридор от состояния, позиция от хинта**
@@ -84,10 +84,18 @@ import { type RelationDirection } from "./types";
  *   | condemn · legitimacy      | легитимность цели равна нулю                 |
  *   | support_proxy · оба       | влияние патрона на клиента ≈ 0 и нет         |
  *   |                           | формальной связи                             |
+ *   | research_shift · доля     | домен на потолке (`toward`) либо на нуле      |
+ *   | production_shift · доля   | (`away`) — двигать в запрошенную сторону      |
+ *   |                           | нечего                                       |
  *
  * У `war`/`peace` строки в таблице нет, и это заявление: у структурного глагола
  * величины не существует вовсе (тот же принцип, что у `split_country`) —
  * сопутствующий сдвиг отношений там константа события, а не коридор.
+ *
+ * У `guarantee` и `build_extraction` строки нет по той же причине, хотя оба
+ * мягкие: обещание либо дано, либо нет, а уровень мощностей — счётное целое.
+ * Сопутствующее потепление отношений у гарантии — константа события,
+ * перенесённая из старого канала без изменения.
  *
  * До калибровки 2026-07-26 таблица была неполной: у канала отчуждения
  * `stateFactor` был функцией одной только доли группы с жёстким полом 0.35, а
@@ -531,6 +539,29 @@ export function proxyUrgency(occupiedShare: number): number {
   if (SUPPORT_PROXY_FULL_PRESSURE_SHARE <= 0) return 1;
   const pressure = clamp01(occupiedShare / SUPPORT_PROXY_FULL_PRESSURE_SHARE);
   return clamp01(SUPPORT_PROXY_URGENCY_BASE + (1 - SUPPORT_PROXY_URGENCY_BASE) * pressure);
+}
+
+/**
+ * `research_shift` / `production_shift` — СКОЛЬКО КОРИДОРА ОСТАЛОСЬ в ту
+ * сторону, куда просят двигать.
+ *
+ * Доля от потолка, а не абсолютный остаток: коридор одного глагола обязан
+ * читаться одинаково при разных потолках, а потолок исследований у воюющей
+ * страны ниже мирного (`WAR_RESEARCH_SHARE_PENALTY`).
+ *
+ * Здесь живёт достижимое схлопывание обоих глаголов: домен, уже стоящий на
+ * потолке, при `toward` даёт ноль, и `severe` перестаёт отличаться от `mild` —
+ * тот же сдвиг на минимум коридора. Симметрично для `away` на нуле.
+ *
+ * `Math.min(current, cap)` не украшение: потолок ПЛАВАЮЩИЙ (страна вступила в
+ * войну после мирного сдвига фокуса), и доля выше него — законное состояние
+ * мира, из которого «свободы двигать вниз» не должно получиться больше единицы.
+ */
+export function focusRoom(current: number, cap: number, direction: FocusDirection): number {
+  if (cap <= 0) return 0;
+  return clamp01(
+    direction === "toward" ? (cap - current) / cap : Math.min(current, cap) / cap
+  );
 }
 
 /** Средняя по долям величина — «фактическое число» для нарратива по группам. */

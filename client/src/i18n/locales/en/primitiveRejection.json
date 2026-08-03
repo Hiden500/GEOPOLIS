@@ -50,5 +50,14 @@
   "mergePlayerCountry": "{{target}} is the state the player runs: it cannot be absorbed into another country",
   "independenceNotOwner": "{{source}} does not own {{region}}: independence is granted by whoever holds the land",
   "independenceNoMajority": "{{region}} has no majority group (largest share {{share}}): there is nobody to name a new state after",
-  "independenceWouldEmptyParent": "{{country}} would be left with no land at all — that is self-dissolution, not independence"
+  "independenceWouldEmptyParent": "{{country}} would be left with no land at all — that is self-dissolution, not independence",
+  "guaranteeAlreadyGiven": "{{source}} already guarantees the independence of {{target}} — promising it again changes nothing",
+  "focusNotDomestic": "{{source}} cannot direct {{country}}'s budget: a state spends only its own money",
+  "unknownResearchDomain": "{{country}} has no research domain called “{{domain}}”",
+  "unknownEquipmentType": "{{country}} does not produce equipment of category “{{equipmentType}}”",
+  "noDepositInRegion": "{{region}} has no {{resource}} deposit — capacity is built on top of a deposit, not instead of one",
+  "extractionAtMaximum": "{{resource}} extraction in {{region}} already stands at level {{level}} of {{max}} — nothing left to build",
+  "noExtractionToDismantle": "There is no {{resource}} extraction in {{region}} to dismantle",
+  "extractionUnaffordable": "{{source}} cannot pay for it: the capacity costs {{cost}} and the treasury holds {{treasury}}",
+  "legacyActionsChannel": "The director used the “actions” channel ({{count}}), which no longer exists — the entries were discarded"
 }

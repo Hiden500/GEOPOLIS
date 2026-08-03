@@ -6,8 +6,6 @@ import { type MapFeature } from "./map/MapFeature";
 import { type Locale } from "./i18n/LocalizedText";
 import { type War } from "./War";
 import { type Modifier } from "./Modifier";
-import { type EquipmentType } from "./military/EquipmentType";
-import { type ResourceType } from "./resources/ResourcesType";
 import { type EthnicGroupDefinition, type GroupImpactMemory } from "./politics/Demographics";
 import { type IdeologyAnchor } from "./politics/IdeologyAnchor";
 import { type PrimitiveTurnBudget } from "./politics/PrimitiveTurnBudget";
@@ -204,7 +202,10 @@ export interface GameState {
   llmContext?: string; // контекст для LLM (промт)
   llmResponse?: string; // последний ответ LLM
   llmTurn?: number; // номер хода для LLM симуляции
-  pendingLlmActions?: LLMAction[]; // действия от LLM ожидающие применения
+  // `pendingLlmActions` УДАЛЕНО (2026-08-02): подтверждённая мёртвая
+  // scaffolding-механика — поле писал и читал только собственный тест сервиса,
+  // ни один прод-путь его не звал. «Ожидающих применения действий» не бывает и
+  // по устройству цикла: ответ модели применяется одной транзакцией целиком.
   /**
    * Позиция ротации "Spotlight Countries" — расширение круга стран, реально
    * ощущающих LLM (docs/DECISIONS.md, 2026-07-04, вопрос 11). Двигается только
@@ -357,37 +358,11 @@ export interface LastTurnReport {
   completedGoalIds: string[];
 }
 
-/**
- * Действие, применяемое LLM к игровому состоянию (docs/plans/02_LLM_CONTRACT.md).
- * Дискриминированный union по `type` — `data: any` не существует, каждый
- * вариант несёт ровно те поля, которые реально читает соответствующий
- * applyXAction в server/src/services/LLMService.ts. Структурная и
- * магнитудная валидация ответа LLM — server/src/llm/actionSchemas.ts (Zod,
- * должен структурно совпадать с этим типом — компайл-тайм проверка там же);
- * семантическая применимость (страна существует, война идёт и т.п.) —
- * server/src/llm/LLMResponseValidator.ts.
- */
-// Опциональные поля пишутся как `?: X | undefined`, не просто `?: X` — под
-// exactOptionalPropertyTypes (server/tsconfig.json) это разные типы, а
-// z.infer<...> (actionSchemas.ts) для .optional() всегда выводит `X | undefined`
-// явно. Без этого компайл-тайм проверка эквивалентности в actionSchemas.ts
-// не проходит на пустом месте — не убирать `| undefined` при правке.
-// `diplomacy`/`war`/`peace`/`sanction` УДАЛЕНЫ из старого канала (Милстоун 1,
-// дипломатический блок алфавита) — они стали примитивами воздействия
-// (`docs/PRIMITIVES.md` §2), и оставить их здесь значило бы сохранить ровно ту
-// дыру, ради закрытия которой перевод и делался: `diplomacy` принимал от модели
-// готовое число `relationChange`, то есть модель задавала ВЕЛИЧИНУ. Пока
-// работал этот путь, алфавит обходился одной строкой `actions`. Прецедент тот
-// же, что у `annex`/`puppet` (2026-07-27), но причина другая: те не имели
-// реализации, эти имели неправильный контракт.
-export type LLMAction =
-  | { type: "guarantee"; sourceCountryId: string; targetCountryId: string }
-  // `influence` УДАЛЁН Милстоуном 1 (сессия мягких глаголов). Его контракт был
-  // уже исправлен — числовое поле сняли, шаг задавал движок, — но с появлением
-  // `send_aid`, который двигает ТО ЖЕ поле коридором от состояния, под капом
-  // цели и под сверкой результата, плоский шаг рядом стал обходом коридора
-  // сменой канала. Цена названа: «влияние без денег» недоступно вовсе
-  // (`docs/TODO.md`).
-  | { type: "research_shift"; sourceCountryId: string; data: { domain: string; share: number } }
-  | { type: "production_shift"; sourceCountryId: string; data: { equipmentType: EquipmentType; share: number } }
-  | { type: "build_extraction"; sourceCountryId: string; data: { regionId: number; resource: ResourceType; delta: 1 | -1 } };
+// `LLMAction` УДАЛЁН вместе со всем каналом `actions` (2026-08-02). Его
+// последние четыре типа — `guarantee`, `research_shift`, `production_shift`,
+// `build_extraction` — стали глаголами алфавита примитивов
+// (`docs/PRIMITIVES.md` §2), где величину считает движок из состояния, причина
+// отказа приходит структурным кодом, а результат команды проверяется. Ранее тем
+// же способом ушли `diplomacy`/`war`/`peace`/`sanction` (Милстоун 1) и
+// `influence`; `annex`/`puppet` были удалены как нереализованные и вернулись
+// настоящими глаголами жизненного цикла. Мир меняется ровно одним каналом.

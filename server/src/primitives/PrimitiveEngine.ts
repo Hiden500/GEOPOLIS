@@ -91,6 +91,18 @@ import {
   CAPITAL_FLIGHT_TREASURY_MIN,
   CAPITAL_FLIGHT_TREASURY_MAX,
 } from "@shared/defines/economy";
+import {
+  MAX_RESEARCH_SHARE,
+  WAR_RESEARCH_SHARE_PENALTY,
+  MIN_RESEARCH_SHARE_CAP,
+  RESEARCH_FOCUS_SHIFT_MIN,
+} from "@shared/defines/research";
+import { MAX_PRODUCTION_SHARE, PRODUCTION_FOCUS_SHIFT_MIN } from "@shared/defines/military";
+import {
+  MAX_EXTRACTION_LEVEL,
+  EXTRACTION_BUILD_COST,
+  EXTRACTION_LEVEL_STEP,
+} from "@shared/defines/resources";
 import { MapFeatureService } from "../services/MapFeatureService";
 import { WarService } from "../services/WarService";
 import * as politicsCommands from "../commands/politics";
@@ -98,6 +110,7 @@ import * as diplomacyCommands from "../commands/diplomacy";
 import * as economyCommands from "../commands/economy";
 import * as militaryCommands from "../commands/military";
 import * as warCommands from "../commands/war";
+import * as resourceCommands from "../commands/resources";
 import { type CommandResult } from "../commands/types";
 import { collectChangedPaths } from "./statePaths";
 import { findPaletteViolations } from "./palette";
@@ -149,12 +162,15 @@ import {
   podiumReach,
   proxyTie,
   proxyUrgency,
+  focusRoom,
   type DiplomaticTies,
 } from "./magnitude";
 import {
   type AppliedPrimitive,
+  type BudgetFocusEffect,
   type CountryScalarEffect,
   type CountryScalarField,
+  type ExtractionEffect,
   type GroupImpactEffect,
   type IdeologyAxis,
   type IdeologyShiftEffect,
@@ -584,6 +600,45 @@ function shiftRelation(
 /** Знаковая величина дипломатического сдвига: направление задаёт знак, коридор — модуль. */
 function signedByDirection(magnitude: number, direction: RelationDirection): number {
   return direction === "improve" ? magnitude : -magnitude;
+}
+
+/**
+ * Снимок ОБЕИХ сторон пары — для глагола, который двигает отношения не сам, а
+ * внутри чужой команды (`guarantee` → `DiplomacyService.addGuarantee`).
+ *
+ * Отдельно от `shiftRelation` потому, что тот и двигает, и отчитывается: позвать
+ * его здесь значило бы наложить второй, свой сдвиг поверх того, что команда
+ * делает сама.
+ */
+function relationPair(game: GameState, fromId: string, toId: string): [number, number] {
+  return [relationBetween(game, fromId, toId), relationBetween(game, toId, fromId)];
+}
+
+/** Фактические сдвиги обеих сторон пары относительно снимка — обе, включая нулевые. */
+function relationPairEffects(
+  game: GameState,
+  fromId: string,
+  toId: string,
+  before: [number, number]
+): RelationEffect[] {
+  const afterForward = relationBetween(game, fromId, toId);
+  const afterBack = relationBetween(game, toId, fromId);
+  return [
+    {
+      fromCountryId: fromId,
+      toCountryId: toId,
+      before: before[0],
+      after: afterForward,
+      delta: afterForward - before[0],
+    },
+    {
+      fromCountryId: toId,
+      toCountryId: fromId,
+      before: before[1],
+      after: afterBack,
+      delta: afterBack - before[1],
+    },
+  ];
 }
 
 /** Скалярные поля страны, за которыми следит сверка, — снимком по всем странам. */
@@ -1331,7 +1386,174 @@ function validate(game: GameState, primitive: Primitive): PreconditionResult {
       }
       return { valid: true };
     }
+
+    case "guarantee": {
+      // Предпосылки перенесены из `LLMResponseValidator` вместе с глаголом
+      // (2026-08-02) — обе, и обе теперь выражены КОДОМ, а не английской
+      // строкой: «страна не найдена» и «гарантия уже есть».
+      const targetId = primitive.target.countryId;
+      const target = game.countries.find(c => c.id === targetId);
+      if (!target) return { valid: false, rejection: { code: "unknownCountry", countryId: targetId } };
+      if (targetId === primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "bilateralSelfTarget", verb: primitive.verb, country: source.name },
+        };
+      }
+      // Повторная гарантия не меняет НИЧЕГО: список уже содержит цель, а
+      // сопутствующее потепление отношений при повторе было бы вторым бесплатным
+      // сдвигом мимо коридора — ровно тем, что общий слот пары и закрывает.
+      // Тот же довод, что у `sanctionAlreadyImposed`.
+      if (source.diplomacy.guarantees.includes(targetId)) {
+        return {
+          valid: false,
+          rejection: { code: "guaranteeAlreadyGiven", source: source.name, target: target.name },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "research_shift":
+    case "production_shift": {
+      // БЮДЖЕТ ТРАТИТ ТОТ, ЧЕЙ ОН. Предпосылка того же класса, что
+      // `reformNotDomestic` у реформы, и заведена по той же причине: старый
+      // канал не имел цели вовсе (`sourceCountryId` был и адресатом), поэтому
+      // вопрос «а можно ли двигать чужой бюджет» в нём не возникал. С появлением
+      // явной цели он возникает, и ответ на него — нет.
+      const countryId = primitive.target.countryId;
+      const country = game.countries.find(c => c.id === countryId);
+      if (!country) return { valid: false, rejection: { code: "unknownCountry", countryId } };
+      if (countryId !== primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: {
+            code: "focusNotDomestic",
+            verb: primitive.verb,
+            source: source.name,
+            country: country.name,
+          },
+        };
+      }
+
+      // Домен/категория обязаны существовать У ЭТОЙ страны — перенос проверок
+      // `LLMResponseValidator:62` и `:76`. Домены задаются данными (эпоха,
+      // страна), категории техники — кодом, но отклоняются одинаково: движок не
+      // заводит канал бюджета, о котором мир не знает.
+      if (primitive.verb === "research_shift") {
+        if (!(primitive.params.domain in country.technology.domains)) {
+          return {
+            valid: false,
+            rejection: {
+              code: "unknownResearchDomain",
+              country: country.name,
+              domain: primitive.params.domain,
+            },
+          };
+        }
+        return { valid: true };
+      }
+
+      if (!(primitive.params.equipmentType in country.military.equipment)) {
+        return {
+          valid: false,
+          rejection: {
+            code: "unknownEquipmentType",
+            country: country.name,
+            equipmentType: primitive.params.equipmentType,
+          },
+        };
+      }
+      return { valid: true };
+    }
+
+    case "build_extraction": {
+      const region = findRegion(game, primitive.target.regionId);
+      if (!region) {
+        return { valid: false, rejection: { code: "unknownRegion", regionId: primitive.target.regionId } };
+      }
+
+      const resource = primitive.params.resource;
+      const level = region.extraction[resource] ?? 0;
+
+      // СНОС — не зеркало стройки. Он бесплатен и не требует контроля: страна
+      // вправе свернуть собственную добычу и на потерянной, и на оккупированной
+      // территории (перенос правила `commands/resources.ts`). Единственная его
+      // предпосылка — что сворачивать есть что.
+      if ((primitive.params.direction ?? "expand") === "dismantle") {
+        if (level <= 0) {
+          return {
+            valid: false,
+            rejection: { code: "noExtractionToDismantle", region: region.names, resource },
+          };
+        }
+        return { valid: true };
+      }
+
+      // Стройка: контроль над регионом, депозит, потолок мощностей и казна —
+      // все четыре перенесены из `LLMResponseValidator` и `commands/resources.ts`.
+      if (effectiveController(region) !== primitive.sourceCountryId) {
+        return {
+          valid: false,
+          rejection: { code: "regionNotControlled", source: source.name, region: region.names },
+        };
+      }
+      if (!region.deposits[resource]) {
+        return {
+          valid: false,
+          rejection: { code: "noDepositInRegion", region: region.names, resource },
+        };
+      }
+      // Потолок — ОТКАЗ, а не нулевая дельта, и это отличает мощности от сдвига
+      // фокуса: стройка на потолке списала бы казну за уровень, которого не
+      // появится (найдено 2026-08-01, `probeResourceGates.ts`).
+      if (level >= MAX_EXTRACTION_LEVEL) {
+        return {
+          valid: false,
+          rejection: {
+            code: "extractionAtMaximum",
+            region: region.names,
+            resource,
+            level,
+            max: MAX_EXTRACTION_LEVEL,
+          },
+        };
+      }
+      // Цена проверяется ЗДЕСЬ, а не только в команде: отказ команды доезжает до
+      // игрока кодом `commandFailed` без параметров, то есть без единственного
+      // числа, которое объясняет отказ, — сколько стоит и сколько есть.
+      const cost = EXTRACTION_LEVEL_STEP * EXTRACTION_BUILD_COST;
+      if (source.economy.treasury < cost) {
+        return {
+          valid: false,
+          rejection: {
+            code: "extractionUnaffordable",
+            source: source.name,
+            cost,
+            treasury: source.economy.treasury,
+          },
+        };
+      }
+      return { valid: true };
+    }
   }
+}
+
+/**
+ * Потолок доли исследований для страны СЕЙЧАС — admin capacity.
+ *
+ * Перенесён из `LLMResponseValidator.getResearchShareCap` вместе с глаголом
+ * (2026-08-02). Роль при переносе изменилась, и это главное: раньше потолок
+ * ОТКЛОНЯЛ долю, присланную моделью, теперь задаёт верхнюю границу коридора,
+ * внутри которого движок считает долю сам. Формула не менялась.
+ */
+function researchShareCap(game: GameState, countryId: string): number {
+  const activeWarCount = game.wars.filter(
+    w => w.active && (w.attackers.includes(countryId) || w.defenders.includes(countryId))
+  ).length;
+  return Math.max(
+    MAX_RESEARCH_SHARE - activeWarCount * WAR_RESEARCH_SHARE_PENALTY,
+    MIN_RESEARCH_SHARE_CAP
+  );
 }
 
 /**
@@ -2659,6 +2881,189 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
         },
       };
     }
+
+    case "guarantee": {
+      const targetId = primitive.target.countryId;
+
+      // Снимок ОБЕИХ сторон пары до вызова: гарантия двигает отношения не сама,
+      // а внутри команды (`DiplomacyService.addGuarantee` зовёт `changeRelation`
+      // на +15), поэтому `shiftRelation` здесь неприменим — он двигал бы их
+      // вторым, чужим сдвигом. Величина не трогается: перенос глагола не должен
+      // оказаться рекалибровкой.
+      const before = relationPair(game, primitive.sourceCountryId, targetId);
+      const result = diplomacyCommands.setGuarantee(game, primitive.sourceCountryId, targetId);
+      const error = failIfCommandFailed([result]);
+      if (error) return commandFailure(primitive.verb, error);
+
+      const relationEffects = relationPairEffects(game, primitive.sourceCountryId, targetId, before);
+      return {
+        ok: true,
+        applied: {
+          verb: "guarantee",
+          sourceCountryId: primitive.sourceCountryId,
+          targetCountryId: targetId,
+          relationEffects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} guaranteed the independence of ` +
+            `${countryLabel(game, targetId)}`,
+            describeRelations(game, relationEffects)
+          ),
+        },
+      };
+    }
+
+    case "research_shift":
+    case "production_shift": {
+      const countryId = primitive.target.countryId;
+      const country = game.countries.find(c => c.id === countryId)!;
+      const research = primitive.verb === "research_shift";
+      const direction = primitive.params.direction ?? "toward";
+
+      // КОРИДОР ОТ СОСТОЯНИЯ. Вход один и он же — единственный честный: сколько
+      // коридора осталось В ТУ СТОРОНУ, куда просят двигать. Верхняя граница
+      // коридора равна самому потолку доли, поэтому `severe` по пустому
+      // направлению доводит фокус до потолка одним ходом — ровно то, что умел
+      // старый канал, только число теперь считает движок.
+      const cap = research
+        ? researchShareCap(game, countryId)
+        : MAX_PRODUCTION_SHARE;
+      // Доля читается ПО ВЕТКЕ, а не общим индексом: словари живут в разных
+      // полях и типизированы по-разному (домены — свободные ключи данных,
+      // категории техники — перечисление кода).
+      const readShare = (): number =>
+        primitive.verb === "research_shift"
+          ? country.technology.researchAllocation?.[primitive.params.domain] ?? 0
+          : country.military.productionAllocation?.[primitive.params.equipmentType] ?? 0;
+      const key = research ? primitive.params.domain : primitive.params.equipmentType;
+      const current = readShare();
+
+      const step = magnitudeFromState(
+        research ? RESEARCH_FOCUS_SHIFT_MIN : PRODUCTION_FOCUS_SHIFT_MIN,
+        cap,
+        focusRoom(current, cap, direction),
+        hint
+      );
+      // Клампится ПОТОЛКОМ, а не единицей: доля выше потолка — законное
+      // состояние мира (страна вступила в войну после мирного сдвига), и
+      // движок не обязан её опускать, но и поднимать не вправе.
+      const next = direction === "toward"
+        ? Math.min(Math.max(current, 0) + step, Math.max(cap, current))
+        : Math.max(0, current - step);
+
+      const result = research
+        ? economyCommands.setResearchAllocation(game, countryId, key, next)
+        : economyCommands.setProductionAllocation(
+            game,
+            countryId,
+            primitive.params.equipmentType,
+            next
+          );
+      const error = failIfCommandFailed([result]);
+      if (error) return commandFailure(primitive.verb, error);
+
+      // Фактическая доля читается из состояния ПОСЛЕ команды, а не берётся из
+      // `next`: команда вправе кламповать, и отчитаться намерением значило бы
+      // соврать сверке (тот же принцип, что у памяти воздействий).
+      const after = readShare();
+      const focusEffects: BudgetFocusEffect[] = [
+        {
+          countryId,
+          channel: research ? "research" : "production",
+          key,
+          before: current,
+          after,
+          delta: after - current,
+        },
+      ];
+      const focusSummary = [
+        after === current
+          ? `${key} focus unchanged (${current.toFixed(2)}, cap ${cap.toFixed(2)})`
+          : `${key} focus ${signed(after - current)} ` +
+            `(${current.toFixed(2)} → ${after.toFixed(2)}, cap ${cap.toFixed(2)})`,
+      ];
+
+      return {
+        ok: true,
+        applied: research
+          ? {
+              verb: "research_shift",
+              sourceCountryId: primitive.sourceCountryId,
+              countryId,
+              domain: key,
+              direction,
+              cap,
+              focusEffects,
+              summary: joinSummary(
+                `${countryLabel(game, countryId)} shifted research focus ${direction} ${key}`,
+                focusSummary
+              ),
+            }
+          : {
+              verb: "production_shift",
+              sourceCountryId: primitive.sourceCountryId,
+              countryId,
+              equipmentType: key,
+              direction,
+              cap,
+              focusEffects,
+              summary: joinSummary(
+                `${countryLabel(game, countryId)} shifted production focus ${direction} ${key}`,
+                focusSummary
+              ),
+            },
+      };
+    }
+
+    case "build_extraction": {
+      const region = findRegion(game, primitive.target.regionId)!;
+      const resource = primitive.params.resource;
+      const direction = primitive.params.direction ?? "expand";
+
+      const before = region.extraction[resource] ?? 0;
+      const scalarsBefore = countryScalars(game);
+
+      // РЕЗУЛЬТАТ КОМАНДЫ ПРОВЕРЯЕТСЯ. Это и есть второй закрытый пункт TODO:
+      // старый канал звал ту же команду и её ответ выбрасывал, поэтому действие
+      // «уже на потолке» доезжало до летописи выполненным. Здесь отказ команды
+      // откатывает примитив целиком — как у всех глаголов алфавита.
+      const result = resourceCommands.buildExtraction(
+        game,
+        primitive.sourceCountryId,
+        region.id,
+        resource,
+        direction === "expand" ? EXTRACTION_LEVEL_STEP : -EXTRACTION_LEVEL_STEP
+      );
+      const error = failIfCommandFailed([result]);
+      if (error) return commandFailure(primitive.verb, error);
+
+      const after = region.extraction[resource] ?? 0;
+      const extractionEffects: ExtractionEffect[] = [
+        { regionId: region.id, resource, before, after, delta: after - before },
+      ];
+      const countryScalarEffects = countryScalarDiff(scalarsBefore, countryScalars(game));
+
+      return {
+        ok: true,
+        applied: {
+          verb: "build_extraction",
+          sourceCountryId: primitive.sourceCountryId,
+          regionId: region.id,
+          resource,
+          direction,
+          extractionEffects,
+          countryScalarEffects,
+          summary: joinSummary(
+            `${countryLabel(game, primitive.sourceCountryId)} ` +
+            `${direction === "expand" ? "built" : "dismantled"} ${resource} extraction in ` +
+            `${regionLabel(region)}`,
+            [
+              `capacity level ${before} → ${after}`,
+              ...describeScalars(game, countryScalarEffects),
+            ]
+          ),
+        },
+      };
+    }
   }
 }
 
@@ -2797,8 +3202,11 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
     }
 
     // Мягкие двусторонние — ОДИН общий слот на пару (см. `bilateralPairKey`).
+    // Гарантия здесь по единственному работающему признаку: она пишет в ту же
+    // ячейку `relations`, что дипломатия и санкция.
     case "diplomacy":
     case "sanction":
+    case "guarantee":
       return [
         {
           key: bilateralPairKey(primitive.sourceCountryId, primitive.target.countryId),
@@ -2897,6 +3305,50 @@ function targetsOf(game: GameState, primitive: Primitive): PrimitiveTarget[] {
             bilateralPairKey(primitive.sourceCountryId, primitive.target.countryId)
           ),
           label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+
+    // СДВИГИ ФОКУСА — ключ на пару (страна, домен/категория), а не на страну.
+    //
+    // Ключ страной означал бы, что месяц вмещает ровно один сдвиг бюджета
+    // ЛЮБОГО вида: держава, переводящая исследования на авиацию, не смогла бы в
+    // тот же месяц перевести производство на танки. Это не защита, а запрет
+    // законной комбинации: ячейки у них разные, спилловера между ними нет, и
+    // складываться в одну величину им нечем. А вот второй сдвиг ТОГО ЖЕ домена
+    // за месяц ключ ловит — иначе коридор обходился бы повтором.
+    case "research_shift":
+      return [
+        {
+          key: verbScopedKey(
+            primitive.verb,
+            `country ${primitive.target.countryId} / domain ${primitive.params.domain}`
+          ),
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+
+    case "production_shift":
+      return [
+        {
+          key: verbScopedKey(
+            primitive.verb,
+            `country ${primitive.target.countryId} / equipment ${primitive.params.equipmentType}`
+          ),
+          label: { country: countryNamesOf(game, primitive.target.countryId) },
+        },
+      ];
+
+    // МОЩНОСТИ — ключ на пару (регион, ресурс) по той же причине: нефть и уголь
+    // в одном регионе — разные стройки за разные деньги, и запирать одну другой
+    // значило бы ограничивать не спам, а карту месторождений.
+    case "build_extraction":
+      return [
+        {
+          key: verbScopedKey(
+            primitive.verb,
+            `region ${primitive.target.regionId} / resource ${primitive.params.resource}`
+          ),
+          label: { region: regionNamesOf(game, primitive.target.regionId) },
         },
       ];
   }

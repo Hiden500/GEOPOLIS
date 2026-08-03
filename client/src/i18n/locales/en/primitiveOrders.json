@@ -48,7 +48,11 @@
     "puppet": "Subjection",
     "annex": "Annexation",
     "merge_countries": "Absorption",
-    "create_country": "Independence"
+    "create_country": "Independence",
+    "guarantee": "guarantee",
+    "research_shift": "research focus",
+    "production_shift": "production focus",
+    "build_extraction": "extraction capacity"
   },
   "errors": {
     "translateFailed": "The order could not be recognised. Check that model access is configured.",

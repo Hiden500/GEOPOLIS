@@ -1,14 +1,11 @@
 import { createHash } from "node:crypto";
-import { type z } from "zod";
 import { type GameState } from "@shared/types/GameState";
 import {
-  type LLMAction,
   type PromptConsumption,
   type WorldFact,
 } from "@shared/types/GameState";
 import {
   emptyResponseReceipt,
-  type RejectedAction,
   type ResponseReceipt,
 } from "@shared/types/ResponseReceipt";
 import { type Country } from "@shared/types/Country";
@@ -24,7 +21,11 @@ import {
   PRIMITIVE_VERBS,
 } from "../primitives/types";
 import { countryNames } from "../primitives/entityNames";
-import { rejectionRecord } from "../primitives/rejections";
+import {
+  rejectionPromptText,
+  rejectionRecord,
+  type PrimitiveRejection,
+} from "../primitives/rejections";
 import { findStateViolations } from "../primitives/invariants";
 import { activeCrises, renderCrisis, renderHiddenCrises } from "../llm/crisisDigest";
 import { MAX_PROMPT_CRISES, REGION_CRISIS_DISCONTENT_THRESHOLD } from "@shared/defines/discontent";
@@ -46,25 +47,8 @@ import { getGdpPerCapita, getLivingStandardIndex } from "@shared/utils/countryMe
 import { getEligibleHingePoints } from "@shared/utils/hingePoints";
 import { HISTORICAL_HINGE_POINTS_1946 } from "@shared/data/historicalHingePoints1946";
 import { computeWarScore, warScoreLabel, sumSideCasualties } from "../simulation/war/warScore";
-import { LLMResponseValidator } from "../llm/LLMResponseValidator";
 import { deriveEventFactuality } from "../llm/eventFactuality";
-import { LLMActionSchema, LLMResponseEnvelopeSchema } from "../llm/actionSchemas";
-import {
-  MAX_ACTIONS_PER_RESPONSE,
-  MAX_RESEARCH_SHARE,
-  MAX_PRODUCTION_SHARE,
-} from "@shared/defines/llmActionCaps";
-
-/**
- * Форматирует ZodError в человекочитаемую строку одной причины — путь поля
- * (если есть) + сообщение. Несколько issues склеиваются через "; " (обычно
- * их одна на действие, но не гарантировано).
- */
-function formatZodError(error: z.ZodError): string {
-  return error.issues
-    .map(issue => (issue.path.length > 0 ? `${issue.path.join(".")}: ${issue.message}` : issue.message))
-    .join("; ");
-}
+import { LLMResponseEnvelopeSchema } from "../llm/responseSchemas";
 
 /**
  * Страж полноты `switch` по глаголу для веток, заканчивающихся `break`.
@@ -202,25 +186,6 @@ function sameWorldFact(a: WorldFact, b: WorldFact): boolean {
 }
 
 /**
- * Опознавательные поля отклонённого действия старого канала.
- *
- * Хранится ТИП и стороны, но не сырое тело: тело приходит от модели, ничем не
- * ограничено сверху, а квитанция живёт в сейве столько же, сколько событие.
- * До Милстоуна 1 сюда клали `action: unknown` целиком.
- */
-function describeRawAction(raw: unknown): Omit<RejectedAction, "reason"> {
-  if (typeof raw !== "object" || raw === null) return {};
-  const record = raw as Record<string, unknown>;
-  const text = (key: string): string | undefined =>
-    typeof record[key] === "string" ? (record[key] as string) : undefined;
-  return {
-    ...(text("type") === undefined ? {} : { type: text("type") }),
-    ...(text("sourceCountryId") === undefined ? {} : { sourceCountryId: text("sourceCountryId") }),
-    ...(text("targetCountryId") === undefined ? {} : { targetCountryId: text("targetCountryId") }),
-  };
-}
-
-/**
  * Сервис для работы с LLM симуляцией.
  * Управляет генерацией промтов, применением ответов LLM и валидацией действий.
  */
@@ -329,13 +294,13 @@ export class LLMService {
    *
    * Что здесь изменилось в Милстоуне 1 и почему.
    *
-   * **Транзакция — на весь ответ, а не на канал примитивов.** До этого старый
-   * канал `actions` применялся ПРЯМО в боевое состояние и до примитивов, а
-   * движок примитивов откатывал только себя. Ответ «сдвинуть отношения +
-   * провести реформу» при отказе реформы оставлял сдвиг отношений и ничего
-   * больше — то самое «полусобытие», которое §3 запрещает, просто собранное из
-   * двух каналов. Теперь оба канала работают на клоне, и в боевое состояние
-   * переносится либо всё, либо ничего.
+   * **Канал ответа теперь ОДИН** (2026-08-02). Старого канала `actions` не
+   * существует: его последние четыре типа стали глаголами алфавита, и мир
+   * меняется только через `applyPrimitiveBatch`. Транзакция от этого не
+   * упростилась — она по-прежнему идёт на клоне и коммитится целиком, — но
+   * причина у неё стала другой: раньше клон был нужен, чтобы два канала не
+   * оставили «полусобытие» из половины каждого; теперь — чтобы отказ
+   * структурного примитива уносил весь ответ.
    *
    * **Idempotency — на весь ответ.** Ключ выводится из содержания ответа и
    * игровой даты и проверяется ДО первого изменения. Раньше он прикрывал
@@ -386,8 +351,7 @@ export class LLMService {
     const envelope = LLMResponseEnvelopeSchema.safeParse(raw);
     if (!envelope.success) {
       // Envelope-схема несёт самоописательные сообщения ("Missing descriptions
-      // field" и т.п.) — без префикса пути поля, в отличие от per-action ошибок
-      // ниже (formatZodError), где путь действительно нужен для навигации.
+      // field" и т.п.) — без префикса пути поля.
       return this.rejectedResponse(
         envelope.error.issues[0]?.message ?? "Invalid response format"
       );
@@ -420,39 +384,6 @@ export class LLMService {
     // --- ФАЗА PLAN + VALIDATE + APPLY: всё на клоне, боевое состояние цело ---
     const working: GameState = structuredClone(this.game);
 
-    const validator = new LLMResponseValidator(working);
-    const appliedActions: LLMAction[] = [];
-    const rejectedActions: RejectedAction[] = [];
-
-    for (const rawAction of actions) {
-      const parsedAction = LLMActionSchema.safeParse(rawAction);
-      if (!parsedAction.success) {
-        rejectedActions.push({
-          ...describeRawAction(rawAction),
-          reason: formatZodError(parsedAction.error),
-        });
-        continue;
-      }
-
-      const applicability = validator.validateActionApplicability(parsedAction.data);
-      if (!applicability.valid) {
-        rejectedActions.push({
-          ...describeRawAction(parsedAction.data),
-          reason: applicability.error ?? "Not applicable",
-        });
-        continue;
-      }
-
-      appliedActions.push(parsedAction.data);
-    }
-
-    this.applyLlmActions(appliedActions, working);
-
-    // Примитивы применяются ПОСЛЕ старых действий и отдельным контрактом:
-    // движок примитивов возвращает фактические величины и сам откатывает
-    // неудавшееся, тогда как `applyLlmActions` игнорирует `CommandResult`
-    // (предсуществующий дефект, docs/TODO.md). Смешивать их нельзя — новый
-    // канал не должен унаследовать этот разрыв.
     const primitiveResult = this.applyResponsePrimitives(working, primitives, idempotencyKey);
 
     // Отказы примитивов хранятся СЫРЫМИ (`RejectedPrimitive` — код + параметры)
@@ -465,22 +396,27 @@ export class LLMService {
       entry => rejectionRecord(entry.rejection, entry.verb)
     );
 
-    // Отказы СТАРОГО канала тоже уходят в следующий промт (docs/TODO.md,
-    // закрыто Милстоуном 1). Своей квотой: общая с примитивами означала бы,
-    // что десять невалидных `actions` вытесняют точную причину отказа
-    // примитива — ровно ту, ради которой диагностика и существует.
-    this.pushActionRejectionFacts(working, rejectedActions);
+    // Ответ, пришедший с массивом `actions`, получает ОТКАЗ, а не молчание.
+    // Канала больше нет ни в схеме генерации, ни в промте, но локальная модель
+    // может выдумать его по памяти о старом контракте — и молча съеденный
+    // массив вернул бы ровно тот дефект, ради которого канал сносился: модель
+    // считает применённым то, чего движок не читал. Отказ уходит и игроку
+    // (кодом), и в следующий промт (объяснением, что канала нет).
+    const legacyActions = actions?.length ?? 0;
+    if (legacyActions > 0) {
+      rejectedPrimitiveRecords.push(
+        rejectionRecord({ code: "legacyActionsChannel", count: legacyActions })
+      );
+      this.pushLegacyChannelFact(working, legacyActions);
+    }
 
     // --- ФАЗА POST-INVARIANTS ---
     const violations = findStateViolations(working);
 
-    // Отказ структурного примитива отклоняет ВЕСЬ ОТВЕТ (docs/PRIMITIVES.md §3),
-    // и с Милстоуна 1 «весь ответ» означает буквально весь: старый канал
-    // `actions` теперь лежит в той же транзакции и откатывается вместе с
-    // примитивами. Движок откатывает мягкие примитивы сам, но об `actions` он
-    // не знает — и до этой правки ответ «сдвинуть отношения + провести
-    // реформу» при отказе реформы оставлял сдвиг отношений: то же
-    // «полусобытие», просто собранное из двух каналов.
+    // Отказ структурного примитива отклоняет ВЕСЬ ОТВЕТ (docs/PRIMITIVES.md §3).
+    // Движок откатывает мягкие примитивы сам; транзакция на клоне остаётся
+    // нужна ради пост-инвариантов, которые проверяют мир целиком уже ПОСЛЕ
+    // применения.
     //
     // Отказ ГРАНИЦЫ АГЕНТНОСТИ сюда намеренно не входит: он говорит «это не
     // твоё решение», а не «так не бывает», и стирать вместе с ним давление,
@@ -495,10 +431,8 @@ export class LLMService {
     }
 
     // Мир изменился — значит ключ дорогой (кольцо применённых): его вытеснение
-    // означало бы, что сетевой ретрай применится вторым приказом. Считается по
-    // ОБОИМ каналам: примитивов может не быть вовсе, а отношения сдвинуться.
-    const appliedChange =
-      committed && (appliedActions.length > 0 || primitiveResult.outcomes.length > 0);
+    // означало бы, что сетевой ретрай применится вторым приказом.
+    const appliedChange = committed && primitiveResult.outcomes.length > 0;
 
     // Ключ пишется в БОЕВОЕ состояние и на любом исходе — иначе проверка выше
     // (`isDuplicatePrimitiveBatch`) держалась бы на записи, которой при ответе
@@ -516,7 +450,7 @@ export class LLMService {
     this.game.llmRespondedThisTurn = true;
 
     if (rolledBackByStructural && violations.length === 0) {
-      this.rewriteRolledBackDiagnostics(primitiveResult.rejected, rejectedActions);
+      this.rewriteRolledBackDiagnostics(primitiveResult.rejected, legacyActions);
       return {
         success: true,
         narrativeCanonized: false,
@@ -524,7 +458,6 @@ export class LLMService {
           ...emptyResponseReceipt(this.game.currentDate),
           factuality: "partial",
           primitives: { applied: [], rejected: rejectedPrimitiveRecords },
-          actions: { applied: [], rejected: rejectedActions },
         },
       };
     }
@@ -537,7 +470,7 @@ export class LLMService {
         code: "postInvariantViolated",
         details: violations,
       });
-      this.rewriteRolledBackDiagnostics(primitiveResult.rejected, rejectedActions);
+      this.rewriteRolledBackDiagnostics(primitiveResult.rejected, legacyActions);
       pushRejectionFact(
         this.game,
         "primitive_rejected",
@@ -556,38 +489,39 @@ export class LLMService {
           ...emptyResponseReceipt(this.game.currentDate),
           factuality: "partial",
           primitives: { applied: [], rejected: [...rejectedPrimitiveRecords, rolledBack] },
-          actions: { applied: [], rejected: rejectedActions },
         },
       };
     }
 
     /**
-     * Степень подтверждённости текста — из ЧИСЕЛ применённого и отклонённого
-     * по обоим каналам, а не из смысла текста (docs/PRIMITIVES.md §3, решение
-     * пользователя 2026-07-27). Три состояния: `confirmed` (всё предложенное
-     * применено), `partial` (часть отклонена — текст вправе описывать именно
-     * её), `unconfirmed` (ответ не предлагал движку ничего — чистый нарратив,
+     * Степень подтверждённости текста — из ЧИСЕЛ применённого и отклонённого,
+     * а не из смысла текста (docs/PRIMITIVES.md §3, решение пользователя
+     * 2026-07-27). Три состояния: `confirmed` (всё предложенное применено),
+     * `partial` (часть отклонена — текст вправе описывать именно её),
+     * `unconfirmed` (ответ не предлагал движку ничего — чистый нарратив,
      * фоновый слой §4).
+     *
+     * Число ОТКЛОНЁННЫХ берётся из записей квитанции, а не из результата
+     * движка: отказ по несуществующему каналу `actions` живёт только там, и
+     * ответ, попросивший движок о старом канале, обязан считаться частично
+     * подтверждённым, а не полностью.
      */
     const factuality = deriveEventFactuality({
-      proposedActions: actions.length,
-      appliedActions: appliedActions.length,
-      rejectedActions: rejectedActions.length,
       proposedPrimitives: primitives?.length ?? 0,
       appliedPrimitives: primitiveResult.outcomes.length,
-      rejectedPrimitives: primitiveResult.rejected.length,
+      rejectedPrimitives: rejectedPrimitiveRecords.length,
+      proposedLegacyActions: actions?.length ?? 0,
     });
 
     const receipt: ResponseReceipt = {
       date: this.game.currentDate,
       duplicate: false,
       factuality,
-      ...this.touchedByResponse(appliedActions, primitiveResult.applied),
+      ...this.touchedByResponse(primitiveResult.applied),
       primitives: {
         applied: primitiveResult.outcomes,
         rejected: rejectedPrimitiveRecords,
       },
-      actions: { applied: appliedActions, rejected: rejectedActions },
     };
 
     /**
@@ -635,56 +569,19 @@ export class LLMService {
   }
 
   /**
-   * Диагностика отказов СТАРОГО канала — одной функцией, потому что писать её
-   * приходится в два разных состояния: на клон (обычный путь, коммитится
-   * вместе с ним) и в боевое (путь отката, где клон выбрасывается).
-   */
-  private pushActionRejectionFacts(
-    target: GameState,
-    rejectedActions: readonly RejectedAction[]
-  ): void {
-    for (const rejection of rejectedActions) {
-      // Факт приписывается СУЩЕСТВУЮЩЕЙ стране (уточнено Милстоуном 1, сессия
-      // жизненного цикла). Источник отклонённого действия — то, что назвала
-      // модель, и он вполне может не существовать вовсе: именно за это
-      // действие и отклонили. Приписывать диагностику галлюцинации значило
-      // сразу две вещи, обе плохие: висячая ссылка в состоянии (её теперь
-      // ловит инвариант §7.1 и откатывает ВЕСЬ ответ) и потерянная
-      // диагностика — секции промта у несуществующей страны нет, то есть
-      // объяснение отказа не доезжает до модели, ради чего факт и пишется.
-      const source = rejection.sourceCountryId;
-      const attributedTo =
-        source !== undefined && target.countries.some(c => c.id === source)
-          ? source
-          : target.playerCountryId;
-
-      pushRejectionFact(
-        target,
-        "action_rejected",
-        {
-          countryId: attributedTo,
-          text: `Action rejected (${rejection.type ?? "malformed action"}): ${rejection.reason}`,
-        },
-        "director"
-      );
-    }
-  }
-
-  /**
-   * Переписывает диагностику отката в БОЕВОЕ состояние — по обоим каналам.
+   * Переписывает диагностику отката в БОЕВОЕ состояние.
    *
    * Всё, что написано во время применения, лежит на клоне и уходит вместе с
    * ним. Без этой перезаписи откат невидим: модель не узнаёт, ПОЧЕМУ ответ не
    * прошёл, и повторяет ту же попытку — ровно против чего диагностика и
    * заведена (docs/PRIMITIVES.md §3).
    *
-   * Текст примитивов рендерится из СЫРОГО отказа (`rejectionFactText`), а не из
-   * записи игрока: последняя несёт код без объяснения правила. Отказы старого
-   * канала до 2026-07-27 на этом пути терялись целиком.
+   * Текст рендерится из СЫРОГО отказа (`rejectionFactText`), а не из записи
+   * игрока: последняя несёт код без объяснения правила.
    */
   private rewriteRolledBackDiagnostics(
     rejectedPrimitives: readonly RejectedPrimitive[],
-    rejectedActions: readonly RejectedAction[]
+    legacyActions: number
   ): void {
     for (const entry of rejectedPrimitives) {
       pushRejectionFact(
@@ -697,7 +594,32 @@ export class LLMService {
         "director"
       );
     }
-    this.pushActionRejectionFacts(this.game, rejectedActions);
+    // Отказ по несуществующему каналу переписывается вместе с остальными: он
+    // тоже был написан на клоне и ушёл бы с ним. Без этого модель, приславшая
+    // `actions` в ответе, который затем откатили, не узнала бы о канале ничего
+    // и прислала бы его снова.
+    if (legacyActions > 0) this.pushLegacyChannelFact(this.game, legacyActions);
+  }
+
+  /**
+   * Диагностика по каналу, которого больше нет, — одной функцией, потому что
+   * писать её приходится в два разных состояния: на клон (обычный путь,
+   * коммитится вместе с ним) и в боевое (путь отката, где клон выбрасывается).
+   *
+   * Приписывается стране ИГРОКА: источники внутри записей старого канала не
+   * разбираются вовсе — канал не читается, — и приписывать факт названной там
+   * стране значило бы доверять полю, которое движок не валидировал.
+   */
+  private pushLegacyChannelFact(target: GameState, count: number): void {
+    pushRejectionFact(
+      target,
+      "action_rejected",
+      {
+        countryId: target.playerCountryId,
+        text: rejectionPromptText({ code: "legacyActionsChannel", count }),
+      },
+      "director"
+    );
   }
 
   /** Ответ, отвергнутый до транзакции: состояние не тронуто ничем. */
@@ -714,12 +636,6 @@ export class LLMService {
    * Страны и регионы, которых ответ реально коснулся, — из ФАКТИЧЕСКИ
    * применённого.
    *
-   * Раньше считалось только из старого канала `appliedActions`, поэтому чистое
-   * primitive-событие получало `countries: []` и выпадало из «памяти страны»
-   * (`getRecentTitlesLine` фильтрует события по этому массиву): подавление
-   * восстания в своей стране не попадало в её же историю. Найдено внешним
-   * аудитом 2026-07-26.
-   *
    * Владелец региона берётся через `effectiveController`, а не через
    * `ownerCountryId`: примитив действует над регионом там же, где движок
    * проверял право на него, и при оккупации это разные страны.
@@ -729,17 +645,10 @@ export class LLMService {
    * снова считал бы это сам.
    */
   private touchedByResponse(
-    appliedActions: readonly LLMAction[],
     appliedPrimitives: readonly AppliedPrimitive[]
   ): { countries: string[]; regions: number[] } {
     const countries = new Set<string>();
     const regions = new Set<number>();
-
-    for (const action of appliedActions) {
-      countries.add(action.sourceCountryId);
-      if ("targetCountryId" in action) countries.add(action.targetCountryId);
-      if (action.type === "build_extraction") regions.add(action.data.regionId);
-    }
 
     const addRegion = (regionId: number): void => {
       regions.add(regionId);
@@ -830,6 +739,23 @@ export class LLMService {
           // реестра ссылок («история не переписывается»).
           countries.add(primitive.absorbedCountryId);
           for (const regionId of primitive.absorbedRegionIds) addRegion(regionId);
+          break;
+        case "guarantee":
+          // Гарантия касается ровно двух государств: обязательство берут перед
+          // страной, а не перед её землёй.
+          countries.add(primitive.targetCountryId);
+          break;
+        case "research_shift":
+        case "production_shift":
+          // Сдвиг фокуса касается ОДНОЙ страны — той, чей бюджет двинули. Она
+          // же источник: предпосылка глагола требует совпадения, и второй
+          // записи здесь взяться неоткуда.
+          countries.add(primitive.countryId);
+          break;
+        case "build_extraction":
+          // Стройка происходит В РЕГИОНЕ; `addRegion` сам добавит его
+          // фактического контролёра — ту страну, чья казна и заплатила.
+          addRegion(primitive.regionId);
           break;
         default:
           // Явная проверка на недостижимость: ветки здесь заканчиваются
@@ -1112,22 +1038,11 @@ Narrative requirements (strict):
   strongly, explicitly grounded in real historical events — prefer narrating
   proxy support (a patron backing a client state's own conflict) over direct
   war between such powers.
-- You may direct a Major Power's research focus via a "research_shift" action
-  (data.domain, data.share) — there is no fixed catalog of named technologies;
-  a domain's "tier" is just accumulated investment. When a country's domain
-  tier crosses a meaningful new threshold, narrate what this represents in
-  concrete terms (what got invented/achieved) — you invent the specific
-  breakthrough, the engine only tracks the number.
-- You may direct a Major Power's military production focus via a
-  "production_shift" action (data.equipmentType, data.share) — fixed
-  categories (rifles/trucks/tanks/artillery/fighters/bombers/destroyers/
-  submarines), no named unit models; quality is decorative, invent it the
-  same way you invent research breakthroughs.
-- You may direct a country to build up or scale down resource extraction
-  capacity in a region it controls via a "build_extraction" action
-  (data.regionId, data.resource, data.delta: 1 or -1) — one level per turn,
-  the engine computes actual output from richness × capacity, you never
-  set a production number directly.
+- A country's research "tier" is just accumulated investment — there is no fixed
+  catalog of named technologies. When a domain tier crosses a meaningful new
+  threshold, narrate what this represents in concrete terms (what got invented or
+  achieved): you invent the specific breakthrough, the engine only tracks the
+  number. The same goes for equipment quality, which is decorative.
 
 ${PRIMITIVE_CONTRACT}
 ${PRIMITIVE_PLAYER_AGENCY_NOTE}
@@ -1136,14 +1051,6 @@ Return your response in JSON format with the following structure:
 {
   "title": "Short one-line headline for this cycle's single most important development",
   "descriptions": "Narrative description of world events",
-  "actions": [
-    {
-      "type": "guarantee|research_shift|production_shift|build_extraction",
-      "sourceCountryId": "country_id",
-      "targetCountryId": "country_id",
-      "data": {}
-    }
-  ],
   "primitives": [
     {
       "verb": "${PRIMITIVE_VERBS.join("|")}",
@@ -1154,127 +1061,34 @@ Return your response in JSON format with the following structure:
   ]
 }
 
-Diplomacy between states lives ENTIRELY in the primitives channel now: relations,
-sanctions, war, peace, aid, condemnation and support for a proxy are verbs of the
-alphabet, not "actions". They are not listed above because the engine no longer
-accepts them there — a diplomacy "action" is a rejected action, not a shortcut.
-That now includes influence: it is bought with aid (send_aid), and there is no
-flat-step "action" for it any more.
+There is NO "actions" array any more, and nothing lives outside "primitives".
+Everything a response can do to the world — relations, sanctions, war, peace,
+aid, condemnation, proxy support, guarantees, research and production focus,
+extraction capacity — is a verb of the alphabet above. An "actions" array in your
+response is not a shortcut: the engine ignores its contents and reports the whole
+array back to you as a refusal.
 
-Hard limits (actions violating them are rejected):
-- Max ${MAX_ACTIONS_PER_RESPONSE} actions per response.
-- research_shift: data.domain must be a real domain of the source country
-  (see its Technology line); data.share within 0-${MAX_RESEARCH_SHARE}.
-- production_shift: data.equipmentType must be one of rifles/trucks/tanks/
-  artillery/fighters/bombers/destroyers/submarines; data.share within
-  0-${MAX_PRODUCTION_SHARE}.
-- build_extraction: data.delta must be exactly 1 or -1; the source country
-  must control data.regionId and (for delta=1) the region must have a
-  deposit of data.resource.
-- sourceCountryId and targetCountryId MUST be ids copied verbatim from the
+Hard limits:
+- sourceCountryId and every id inside "target" MUST be copied verbatim from the
   ## Country IDs section. Never invent, abbreviate, or guess an id from a
   country's name (e.g. do not turn "Soviet Union" into "SOV" or "USSR",
   or "Romania" into "ROM" — look up the real id in ## Country IDs).
-- sourceCountryId and targetCountryId must differ.
 `;
     return { prompt, consumption };
   }
 
-  /**
-   * Применяет действия от LLM к игровому состоянию.
-   *
-   * Состояние — ПАРАМЕТР, а не всегда `this.game`: с Милстоуна 1 ответ модели
-   * применяется на клоне и коммитится одной транзакцией, поэтому старый канал
-   * обязан уметь работать там же, где новый. Умолчание оставлено для прямых
-   * вызовов (тесты, ИИ-пути), которые транзакции не строят.
-   */
-  applyLlmActions(actions: LLMAction[], game: GameState = this.game): void {
-    for (const action of actions) {
-      switch (action.type) {
-        case 'guarantee':
-          this.applyGuaranteeAction(action, game);
-          break;
-        case 'research_shift':
-          this.applyResearchShiftAction(action, game);
-          break;
-        case 'production_shift':
-          this.applyProductionShiftAction(action, game);
-          break;
-        case 'build_extraction':
-          this.applyBuildExtractionAction(action, game);
-          break;
-      }
-    }
-  }
-
-  // `applyDiplomacyAction`/`applyWarAction`/`applyPeaceAction`/
-  // `applySanctionAction` УДАЛЕНЫ вместе со своими типами (Милстоун 1,
-  // дипломатический блок алфавита): те же четыре воздействия существуют теперь
-  // примитивами, где величину считает движок из состояния пары, а не присылает
-  // модель. Сопутствующие сдвиги отношений (−100 при объявлении войны, +50 при
-  // мире) перенесены в обработчики глаголов БЕЗ изменения значений, чтобы
-  // перевод не оказался ещё и тихой рекалибровкой.
-
-  /**
-   * Применяет действие гарантии.
-   */
-  private applyGuaranteeAction(
-    action: Extract<LLMAction, { type: "guarantee" }>,
-    game: GameState
-  ): void {
-    diplomacyCommands.setGuarantee(game, action.sourceCountryId, action.targetCountryId);
-  }
-
-  /**
-   * Применяет сдвиг фокуса исследований (docs/DECISIONS.md, 2026-07-06) —
-   * без каталога именных технологий, только доля researchSpending на домен.
-   * Доступно и игроку, и топ-державам через LLM (sourceCountryId — любая
-   * страна ростера, тот же паттерн, что объявление войны).
-   */
-  private applyResearchShiftAction(
-    action: Extract<LLMAction, { type: "research_shift" }>,
-    game: GameState
-  ): void {
-    economyCommands.setResearchAllocation(game, action.sourceCountryId, action.data.domain, action.data.share);
-  }
-
-  /**
-   * Применяет сдвиг фокуса производства техники (War Phase 2, независимый
-   * гейм-дизайн разбор, 2026-07-06) — доля militarySpending на категорию
-   * техники (EquipmentType), без именных единиц. Доступно и игроку, и
-   * топ-державам через LLM (sourceCountryId — любая страна ростера, тот же
-   * паттерн, что research_shift/война).
-   */
-  private applyProductionShiftAction(
-    action: Extract<LLMAction, { type: "production_shift" }>,
-    game: GameState
-  ): void {
-    economyCommands.setProductionAllocation(
-      game,
-      action.sourceCountryId,
-      action.data.equipmentType,
-      action.data.share
-    );
-  }
-
-  /**
-   * Применяет наращивание/сворачивание добывающих мощностей региона
-   * (docs/plans/04_RESOURCES.md) — ±1 уровень за ход, кап в Zod-схеме
-   * (actionSchemas.ts), контроль над регионом и наличие депозита —
-   * LLMResponseValidator перед вызовом, сама мутация — commands/resources.ts.
-   */
-  private applyBuildExtractionAction(
-    action: Extract<LLMAction, { type: "build_extraction" }>,
-    game: GameState
-  ): void {
-    resourceCommands.buildExtraction(
-      game,
-      action.sourceCountryId,
-      action.data.regionId,
-      action.data.resource,
-      action.data.delta
-    );
-  }
+  // ВЕСЬ СТАРЫЙ КАНАЛ УДАЛЁН (2026-08-02). `applyLlmActions` и четыре
+  // `apply*Action` вместе с ним: последние воздействия канала — `guarantee`,
+  // `research_shift`, `production_shift`, `build_extraction` — стали глаголами
+  // алфавита (`PrimitiveEngine`). Там их правила выражены структурными кодами
+  // отказа, величины считает коридор от состояния, а результат команды
+  // ПРОВЕРЯЕТСЯ: здесь он выбрасывался, и действие «уже на потолке» доезжало
+  // до летописи применённым (`docs/TODO.md`, оба пункта закрыты переносом).
+  //
+  // Ранее тем же способом ушли `diplomacy`/`war`/`peace`/`sanction` (Милстоун 1,
+  // дипломатический блок) и `influence` (сессия мягких глаголов). Сопутствующие
+  // сдвиги отношений перенесены в обработчики глаголов БЕЗ изменения значений,
+  // чтобы перевод не оказался ещё и тихой рекалибровкой.
 
   /**
    * Получает информацию о стране игрока.
@@ -1687,24 +1501,10 @@ Hard limits (actions violating them are rejected):
     this.game.llmTurn = (this.game.llmTurn || 0) + 1;
   }
 
-  /**
-   * Сохраняет ожидающие действия от LLM.
-   */
-  savePendingActions(actions: LLMAction[]): void {
-    this.game.pendingLlmActions = actions;
-  }
-
-  /**
-   * Получает ожидающие действия от LLM.
-   */
-  getPendingActions(): LLMAction[] {
-    return this.game.pendingLlmActions || [];
-  }
-
-  /**
-   * Очищает ожидающие действия.
-   */
-  clearPendingActions(): void {
-    this.game.pendingLlmActions = [];
-  }
+  // `savePendingActions`/`getPendingActions`/`clearPendingActions` УДАЛЕНЫ
+  // (2026-08-02) вместе с полем `GameState.pendingLlmActions`. Механика была
+  // подтверждённой мёртвой scaffolding: ни один прод-путь её не звал, только
+  // собственный тест. «Ожидающих применения действий» не существует и по
+  // устройству цикла — ответ модели применяется одной транзакцией в
+  // `processResponse` либо не применяется вовсе.
 }

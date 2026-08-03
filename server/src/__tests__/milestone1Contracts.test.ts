@@ -38,27 +38,26 @@ import {
  */
 
 /**
- * Наблюдаемый след СТАРОГО канала.
+ * Наблюдаемый след ДЕШЁВОГО мягкого примитива.
  *
- * До Милстоуна 1 им были отношения: их двигало действие `diplomacy`. Дипломатия
- * переехала в алфавит примитивов, носителем стало `influence`, а с сессией
- * мягких глаголов — `guarantee`, ЕДИНСТВЕННОЕ оставшееся в старом канале
- * двустороннее действие (влияние теперь покупается помощью, коридором от
- * состояния). Проверяемое свойство от смены носителя не изменилось: оба канала
- * лежат в ОДНОЙ транзакции ответа, и откат обязан уносить след старого канала
- * вместе с примитивами.
+ * Носитель менялся трижды и по одной причине — переезду воздействий в алфавит:
+ * сперва это было действие `diplomacy`, затем `influence`, затем `guarantee` как
+ * последнее двустороннее действие старого канала. С 2026-08-02 `guarantee` —
+ * ГЛАГОЛ алфавита, а старого канала не существует вовсе. Проверяемое свойство
+ * от всех этих смен не изменилось: ответ применяется одной транзакцией, и откат
+ * обязан уносить весь её след.
  *
  * След читается ОТНОШЕНИЯМИ, а не списком гарантий, и это существенно:
- * повторная гарантия в список ничего не добавляет, а сопутствующий сдвиг
- * отношений накапливается — то есть только он отличает «применилось второй раз»
- * от «применилось один раз», ради чего проверка и существует.
+ * повторная гарантия в список ничего не добавляет (и отклоняется), а
+ * сопутствующий сдвиг отношений — величина, по которой видно, применилось ли
+ * воздействие вообще.
  */
 function legacyTraceOf(game: GameState, from: string, to: string): number {
   return game.countries.find(c => c.id === from)!.diplomacy.relations[to] ?? 0;
 }
 
 function llmResponse(body: Record<string, unknown>): string {
-  return JSON.stringify({ title: "t", descriptions: "d", actions: [], ...body });
+  return JSON.stringify({ title: "t", descriptions: "d", ...body });
 }
 
 /**
@@ -94,12 +93,20 @@ function resolveStatePath(state: unknown, path: string): unknown[] {
   return values;
 }
 
-/** Действие старого канала с самым дешёвым видимым эффектом. */
-function legacyAction(): Record<string, unknown> {
+/**
+ * Мягкий примитив с самым дешёвым видимым эффектом.
+ *
+ * Источник — НЕ страна игрока (в фикстуре играют за `SUN`), и это не деталь
+ * фикстуры: `guarantee` — акт государственной политики, и за игрока режиссёр
+ * его не принимает (`primitiveAgency.ts`). Отказ границы агентности весь ответ
+ * намеренно не откатывает, поэтому примитив от имени игрока не годился бы в
+ * носители проверок отката вовсе.
+ */
+function cheapPrimitive(): Record<string, unknown> {
   return {
-    type: "guarantee",
-    sourceCountryId: "SUN",
-    targetCountryId: "USA",
+    verb: "guarantee",
+    sourceCountryId: "USA",
+    target: { countryId: "SUN" },
   };
 }
 
@@ -205,15 +212,15 @@ describe("контракт примитива: форма по глаголу, �
 // 2-3. Квитанция и транзакция всего ответа
 // --------------------------------------------------------------------------
 
-describe("транзакция ответа: старый канал и примитивы коммитятся вместе", () => {
-  it("отказ структурного откатывает и СТАРЫЙ канал, а не только примитивы", () => {
+describe("транзакция ответа: весь ответ коммитится или откатывается целиком", () => {
+  it("отказ структурного откатывает МЯГКИЕ примитивы, применённые раньше него", () => {
     const game = createDiscontentTestGame();
-    const before = legacyTraceOf(game, "SUN", "USA");
+    const before = legacyTraceOf(game, "USA", "SUN");
 
     const result = new LLMService(game).processResponse(
       llmResponse({
-        actions: [legacyAction()],
         primitives: [
+          cheapPrimitive(),
           // Реформа в ЧУЖОЙ стране: предпосылка движка не выполнена. Источник —
           // не страна игрока, иначе примитив снял бы ГРАНИЦА АГЕНТНОСТИ, а её
           // отказ весь ответ намеренно не откатывает (JSDoc `splitByAgency`).
@@ -227,26 +234,26 @@ describe("транзакция ответа: старый канал и прим
       })
     );
 
-    // До Милстоуна 1 `applyLlmActions` применялся ПРЯМО в состояние и до
-    // примитивов, поэтому сдвиг отношений переживал отказ структурного: мир
-    // оставался там, куда его никто не вёл.
-    expect(legacyTraceOf(game, "SUN", "USA")).toBe(before);
+    // До Милстоуна 1 то же самое действие применялось ПРЯМО в состояние вторым
+    // каналом и переживало отказ структурного: мир оставался там, куда его
+    // никто не вёл. Канала не стало, требование осталось.
+    expect(legacyTraceOf(game, "USA", "SUN")).toBe(before);
     expect(result.receipt.primitives.applied).toEqual([]);
   });
 
   it("нарушенный пост-инвариант откатывает весь ответ целиком", () => {
     const game = createDiscontentTestGame();
-    const before = legacyTraceOf(game, "SUN", "USA");
+    const before = legacyTraceOf(game, "USA", "SUN");
 
     // Порча, которую ни один примитив не создаёт, но которую обязана поймать
     // ПОСЛЕДНЯЯ фаза: состояние заведомо непригодно ещё до ответа.
     game.primitiveTurnBudget = { ...game.primitiveTurnBudget, softUsed: -100 };
 
     const result = new LLMService(game).processResponse(
-      llmResponse({ actions: [legacyAction()] })
+      llmResponse({ primitives: [cheapPrimitive()] })
     );
 
-    expect(legacyTraceOf(game, "SUN", "USA")).toBe(before);
+    expect(legacyTraceOf(game, "USA", "SUN")).toBe(before);
     expect(result.narrativeCanonized).toBe(false);
     expect(result.receipt.primitives.rejected.map(r => r.code)).toEqual([
       "postInvariantViolated",
@@ -258,12 +265,13 @@ describe("транзакция ответа: старый канал и прим
   it("квитанция события и квитанция ответа — одно и то же", () => {
     const game = createDiscontentTestGame();
     const result = new LLMService(game).processResponse(
-      llmResponse({ actions: [legacyAction()] })
+      llmResponse({ primitives: [cheapPrimitive()] })
     );
 
     expect(result.narrativeCanonized).toBe(true);
     expect(game.eventHistory.at(-1)!.receipt).toEqual(result.receipt);
     // Квитанция называет и страны, и место — до Милстоуна 1 регионов в ней не было.
+    expect(result.receipt.countries).toContain("USA");
     expect(result.receipt.countries).toContain("SUN");
     expect(result.receipt.regions).toEqual([]);
   });
@@ -290,50 +298,56 @@ describe("транзакция ответа: старый канал и прим
 // 4. Idempotency на весь ответ
 // --------------------------------------------------------------------------
 
-describe("idempotency покрывает ВЕСЬ ответ, а не только примитивы", () => {
+describe("idempotency покрывает ВЕСЬ ответ, а не только применённые примитивы", () => {
   /**
-   * Ответ БЕЗ примитивов законен: поле необязательное (`actionSchemas.ts`),
-   * месяц без режиссуры — обычное дело. До 2026-07-27 ключ такого ответа не
-   * запоминался ВООБЩЕ: его писал только движок примитивов, а его в этом
-   * случае не звали. Повтор того же текста (ретрай, двойной клик — запрос
-   * идёт без клиентского ключа) применял старый канал второй раз, и отношения
-   * шли 20 → 40. Прежний тест этого не видел: его фикстура всегда клала
-   * примитивы. Поэтому случаи перечислены явно, а не выбраны одним.
+   * Ответ БЕЗ примитивов законен: поле необязательное, месяц без режиссуры —
+   * обычное дело. До 2026-07-27 ключ такого ответа не запоминался ВООБЩЕ: его
+   * писал только движок примитивов, а его в этом случае не звали. Повтор того
+   * же текста (ретрай, двойной клик — запрос идёт без клиентского ключа)
+   * применял старый канал второй раз, и отношения шли 20 → 40. Канала больше
+   * нет, но требование к ключу осталось прежним и проверяется явным перечнем
+   * случаев, а не одним удобным.
    */
-  const repeatedResponses: readonly { readonly name: string; readonly body: Record<string, unknown> }[] = [
-    {
-      name: "с примитивами",
-      body: {
-        actions: [legacyAction()],
-        primitives: [
-          {
-            verb: "incite_unrest",
-            sourceCountryId: "USA",
-            target: { regionId: TEST_REGION_NATIONAL, groupId: TEST_GROUP_TITULAR },
-          },
-        ],
-      },
-    },
-    { name: "БЕЗ поля primitives вовсе", body: { actions: [legacyAction()] } },
-    { name: "с пустым массивом примитивов", body: { actions: [legacyAction()], primitives: [] } },
+  it("повторно поданный ответ не применяет воздействие второй раз", () => {
+    const game = createDiscontentTestGame();
+    const raw = llmResponse({ primitives: [cheapPrimitive()] });
+
+    new LLMService(game).processResponse(raw);
+    const afterFirst = legacyTraceOf(game, "USA", "SUN");
+    // Первый ответ действительно что-то сделал — иначе «не двинулось второй
+    // раз» выполнялось бы по построению.
+    expect(afterFirst).not.toBe(0);
+
+    const second = new LLMService(game).processResponse(raw);
+
+    expect(legacyTraceOf(game, "USA", "SUN")).toBe(afterFirst);
+    expect(second.receipt.duplicate).toBe(true);
+    expect(second.receipt.primitives.rejected.map(r => r.code)).toEqual(["duplicateResponse"]);
+  });
+
+  const emptyResponses: readonly { readonly name: string; readonly body: Record<string, unknown> }[] = [
+    { name: "БЕЗ поля primitives вовсе", body: {} },
+    { name: "с пустым массивом примитивов", body: { primitives: [] } },
   ];
 
-  for (const { name, body } of repeatedResponses) {
-    it(`повторно поданный ответ (${name}) не двигает отношения второй раз`, () => {
+  for (const { name, body } of emptyResponses) {
+    it(`ответ без единого примитива (${name}) тоже запоминается ключом`, () => {
+      // Мира такой ответ не меняет, поэтому «отношения не сдвинулись дважды»
+      // выполнялось бы по построению и ничего не проверяло. Проверяется то, что
+      // ключ ЗАПИСАН: повтор обязан быть опознан дублем, а не пройти вторым
+      // ходом модели с новым событием в летописи.
       const game = createDiscontentTestGame();
       const raw = llmResponse(body);
 
       new LLMService(game).processResponse(raw);
-      const afterFirst = legacyTraceOf(game, "SUN", "USA");
-      // Первый ответ действительно что-то сделал — иначе «не двинулось второй
-      // раз» выполнялось бы по построению.
-      expect(afterFirst).not.toBe(0);
+      const turnAfterFirst = game.llmTurn;
+      const eventsAfterFirst = game.eventHistory.length;
 
       const second = new LLMService(game).processResponse(raw);
 
-      expect(legacyTraceOf(game, "SUN", "USA")).toBe(afterFirst);
       expect(second.receipt.duplicate).toBe(true);
-      expect(second.receipt.primitives.rejected.map(r => r.code)).toEqual(["duplicateResponse"]);
+      expect(game.llmTurn).toBe(turnAfterFirst);
+      expect(game.eventHistory.length).toBe(eventsAfterFirst);
     });
   }
 
@@ -378,14 +392,9 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
     const game = createDiscontentTestGame();
     new LLMService(game).processResponse(
       llmResponse({
-        // Битое действие старого канала: его причина тоже теряется при откате.
-        actions: [
-          {
-            type: "guarantee",
-            sourceCountryId: "SUN",
-            targetCountryId: "NOWHERE",
-          },
-        ],
+        // Массив несуществующего канала: его причина на пути отката тоже
+        // обязана доехать до модели, а не потеряться вместе с клоном.
+        actions: [{ type: "guarantee", sourceCountryId: "SUN", targetCountryId: "NOWHERE" }],
         primitives: [
           {
             verb: "enact_reform",
@@ -409,30 +418,30 @@ describe("idempotency покрывает ВЕСЬ ответ, а не тольк
     // Текст не сводится к коду: он длиннее кода и самого кода не содержит.
     expect(promptLine).not.toContain(code);
     expect(promptLine.length).toBeGreaterThan(`Attempt rejected (enact_reform): ${code}`.length);
-    // Отказ СТАРОГО канала на пути отката тоже доезжает.
-    expect(section).toContain("Action rejected (guarantee)");
+    // Отказ по несуществующему каналу на пути отката тоже доезжает.
+    expect(section).toMatch(/"actions" were ignored|entries in "actions"/);
   });
 
   it("тот же текст в ДРУГОМ месяце — законный ответ, а не дубль", () => {
     const game = createDiscontentTestGame();
-    const raw = llmResponse({ actions: [legacyAction()] });
+    const raw = llmResponse({ primitives: [cheapPrimitive()] });
 
     new LLMService(game).processResponse(raw);
-    const afterFirst = legacyTraceOf(game, "SUN", "USA");
+    const afterFirst = legacyTraceOf(game, "USA", "SUN");
 
     game.currentDate = "1946-02-01";
     const second = new LLMService(game).processResponse(raw);
 
     expect(second.receipt.duplicate).toBe(false);
-    // Проверяется, что старый канал ОТРАБОТАЛ второй раз, а не что его след
+    // Проверяется, что ответ ДОШЁЛ до движка второй раз, а не что его след
     // накопился: `guarantee` идемпотентен по эффекту (повторная гарантия
-    // отклоняется как уже существующая), и требовать от него накопления
-    // значило бы проверять свойство носителя, а не свойство idempotency-ключа.
-    // Ключ отвечает ровно на один вопрос — «этот запрос уже приходил?», — и
-    // ответ «нет» виден по тому, что ответ дошёл до канала повторно.
-    expect(second.receipt.actions.applied.length + second.receipt.actions.rejected.length)
+    // отклоняется как уже существующая), и требовать от него накопления значило
+    // бы проверять свойство носителя, а не свойство idempotency-ключа. Ключ
+    // отвечает ровно на один вопрос — «этот запрос уже приходил?», — и ответ
+    // «нет» виден по тому, что движок примитив разобрал и вынес по нему решение.
+    expect(second.receipt.primitives.applied.length + second.receipt.primitives.rejected.length)
       .toBe(1);
-    expect(legacyTraceOf(game, "SUN", "USA")).toBe(afterFirst);
+    expect(legacyTraceOf(game, "USA", "SUN")).toBe(afterFirst);
   });
 });
 
@@ -527,6 +536,12 @@ describe("сверка результата покрывает все число
     // Теперь каждый путь палитры обязан попасть либо в числовой канал, либо в
     // явное исключение с причиной; неклассифицированный валит тест.
     const game = createDiscontentTestGame();
+    // У фикстуры каталог доменов ПУСТ (как и `equipment` — нулевой, но
+    // объявленный), поэтому домен для засева заводится здесь же: предпосылка
+    // глагола требует, чтобы он у страны существовал. Имя произвольное — оно
+    // не приходит из данных сценария и потому ничего не «хардкодит».
+    const SEED_RESEARCH_DOMAIN = "armor";
+    game.countries.find(c => c.id === "SUN")!.technology.domains = { [SEED_RESEARCH_DOMAIN]: 0 };
     // Память воздействий разрежена: её ячейки существуют там, где примитив уже
     // оставил след. Засеваем след, а не подставляем ожидание.
     applyPrimitiveTurn(
@@ -546,6 +561,17 @@ describe("сверка результата покрывает все число
         // непустых 47 из 157), поэтому ячейка канала `influence:` тоже
         // засевается примитивом, а не подставляется ожиданием.
         { verb: "send_aid", sourceCountryId: "SUN", target: { countryId: "USA" } },
+        // Доли бюджетного фокуса и уровни мощностей разрежены ТАК ЖЕ: в
+        // сценарии 1946 явных долей нет ни у одной страны. Ячейки каналов
+        // `research:`/`production:`/`extraction:` засеваются примитивами.
+        {
+          verb: "research_shift", sourceCountryId: "SUN",
+          target: { countryId: "SUN" }, params: { domain: SEED_RESEARCH_DOMAIN },
+        },
+        {
+          verb: "production_shift", sourceCountryId: "SUN",
+          target: { countryId: "SUN" }, params: { equipmentType: "tanks" },
+        },
       ],
       "seed-cells"
     );
@@ -582,6 +608,14 @@ describe("сверка результата покрывает все число
       "countries[*].diplomacy.influence.{*}": "influence",
       "regions[*].gdp": "regionGdp",
       "countries[*].military.activePersonnel": "personnel",
+      // Каналы воздействий, переехавших из старого канала `actions`
+      // (2026-08-02). Доли бюджета и уровень мощностей — числа, которые
+      // двигает глагол алфавита, и без ячейки он мог бы соврать о сделанном,
+      // оставшись непойманным: ровно тот дефект, из-за которого перенос и
+      // делался (`applyLlmActions` выбрасывал результат команды).
+      "countries[*].technology.researchAllocation.{*}": "research",
+      "countries[*].military.productionAllocation.{*}": "production",
+      "regions[*].extraction.{*}": "extraction",
     };
 
     /**
@@ -663,6 +697,10 @@ describe("сверка результата покрывает все число
         "countries[*].diplomacy.puppets[*]": "рантайм-половина зависимости — ссылка на страну",
         "countries[*].politics.overlordIds[*]": "перенос сюзерена жизненным циклом",
         "countries[*].politics.overlordIds": "появление списка сюзеренов у суверенной страны",
+        // Список гарантий — ссылки на страны, а не величины. Его правдивость
+        // держит палитра: сверять ячейкой строку нечем, а сопутствующий сдвиг
+        // отношений глагол заявляет обычным каналом `relation:`.
+        "countries[*].diplomacy.guarantees[*]": "guarantee пишет обязательство в список",
       };
       if (path in NOT_A_MAGNITUDE) return true;
 
@@ -867,8 +905,11 @@ describe("инварианты состояния", () => {
 // 8. Отказы старого канала доезжают до промта со своей квотой
 // --------------------------------------------------------------------------
 
-describe("диагностика старого канала `actions`", () => {
-  it("отказ действия попадает в секцию отказов следующего промта", () => {
+describe("диагностика несуществующего канала `actions`", () => {
+  it("массив `actions` попадает в секцию отказов следующего промта", () => {
+    // Канал удалён 2026-08-02, но модель может выдумать его по памяти о старом
+    // контракте. Молчание в ответ вернуло бы ровно тот дефект, ради которого
+    // канал сносился: модель считает применённым то, чего движок не читал.
     const game = createDiscontentTestGame();
     new LLMService(game).processResponse(
       llmResponse({
@@ -885,7 +926,9 @@ describe("диагностика старого канала `actions`", () => {
 
     const prompt = new LLMService(game).generatePrompt().prompt;
     const section = prompt.split("## Rejected Attempts Last Cycle")[1]!.split("\n## ")[0]!;
-    expect(section).toContain("Action rejected (diplomacy)");
+    // Причина ОБЪЯСНЯЕТ правило, а не называет код: механизм существует, чтобы
+    // модель не долбилась в невозможное (docs/PRIMITIVES.md §3).
+    expect(section).toContain("that channel no longer exists");
   });
 
   it("поток отказов действий не вытесняет точную причину отказа примитива", () => {

@@ -269,6 +269,48 @@ const SCENARIOS: {
     // регионом, у региона есть группа-большинство, и после отделения
     // национальных регионов у метрополии остаётся контрольный.
   },
+  // Воздействия, переехавшие из старого канала `actions` (2026-08-02).
+  {
+    verb: "guarantee",
+    primitive: { verb: "guarantee", sourceCountryId: "SUN", target: { countryId: "USA" } },
+  },
+  {
+    verb: "research_shift",
+    primitive: {
+      verb: "research_shift", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { domain: "armor" },
+    },
+    // Каталог доменов у фикстуры пуст: предпосылка глагола требует, чтобы домен
+    // у страны существовал, и завести его — работа сценария, а не движка.
+    setup: state => {
+      state.countries.find(c => c.id === "SUN")!.technology.domains = { armor: 0 };
+    },
+  },
+  {
+    verb: "production_shift",
+    primitive: {
+      verb: "production_shift", sourceCountryId: "SUN",
+      target: { countryId: "SUN" }, params: { equipmentType: "tanks" },
+    },
+  },
+  {
+    verb: "build_extraction",
+    primitive: {
+      verb: "build_extraction", sourceCountryId: "SUN",
+      target: { regionId: TEST_REGION_NATIONAL }, params: { resource: "coal" },
+    },
+    // Предпосылки стройки выполняет сценарий, и одна из них показательна:
+    // мощности фикстуры стоят на ПОТОЛКЕ — ровно как все 2055 пар (регион,
+    // ресурс) с депозитом в поставляемом сценарии 1946 (`docs/TODO.md`).
+    // Опустить уровень приходится руками, иначе глагол честно отклоняется
+    // кодом `extractionAtMaximum` и палитре нечего проверять.
+    setup: state => {
+      const region = state.regions.find(r => r.id === TEST_REGION_NATIONAL)!;
+      region.deposits = { ...region.deposits, coal: 1 };
+      region.extraction = { ...region.extraction, coal: 0 };
+      state.countries.find(c => c.id === "SUN")!.economy.treasury = 1e12;
+    },
+  },
 ];
 
 describe("incite_unrest", () => {
