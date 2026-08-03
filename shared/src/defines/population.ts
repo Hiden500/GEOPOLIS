@@ -4,8 +4,17 @@
  * приёмки (server/src/simulation/**).
  */
 
-export const BASE_BIRTH_RATE_PER_MONTH = 0.01;
-export const BASE_DEATH_RATE_PER_MONTH = 0.005;
+/**
+ * КАЛИБРОВКА 2026-08-03 (runCampaign 240 месяцев, сценарий 1946): при базах
+ * 0.01/0.005 мир рос 2,3 → 6,0 млрд к 1966-му (реально ≈3,4 млрд). Базы
+ * сдвинуты (рождаемость 0.01 → 0.0086, смертность 0.005 → 0.0055) так, что
+ * прогон даёт 3,35 млрд на месяце 240 (коридор приёмки 3,2–3,7) с мягким
+ * ускорением темпа — как в реальности послевоенного бэби-бума. Структура
+ * множителей (демографический переход, STANDARD_OF_LIVING_BIRTH_FLOOR)
+ * не тронута. Страж — growthCorridor.test.ts.
+ */
+export const BASE_BIRTH_RATE_PER_MONTH = 0.0086;
+export const BASE_DEATH_RATE_PER_MONTH = 0.0055;
 
 /** Потолок standardOfLiving (относительно GDP_PER_CAPITA_REFERENCE, см. countryMetrics.ts) — вдвое богаче ориентира не даёт больше бонуса. */
 export const STANDARD_OF_LIVING_CAP = 2;
