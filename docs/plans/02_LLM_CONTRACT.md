@@ -120,7 +120,9 @@ fitness-функцией правила 6 конституции (`server/src/__
 существовала, реально использовался `shared/src/constants/`
 (`budgetSpendingShareCaps.ts`). Остановлен, доложено пользователю
 (`AskUserQuestion`) — **решение пользователя: создать `shared/src/defines/`
-сейчас** для капов LLM-действий (`llmActionCaps.ts`), не мигрируя
+сейчас** для капов LLM-действий (`llmActionCaps.ts` — файл удалён 2026-08-02
+вместе с каналом `actions`, капы переехали в `research.ts`/`military.ts`/
+`resources.ts`), не мигрируя
 существующие файлы `constants/` — оба каталога временно сосуществуют до
 отдельного захода по плану 03 (тот формально спроектирует полную структуру
 `defines/`, включая `defines.json`/`index.ts`/`defines.notes.md`).
@@ -128,7 +130,8 @@ fitness-функцией правила 6 конституции (`server/src/__
 ### Шаг 1 — `LLMAction` с явным `| undefined` на опциональных полях
 
 При компайл-тайм проверке эквивалентности `z.infer<LLMActionSchema>` и
-shared-типа `LLMAction` (`actionSchemas.ts`, `Equals<A,B>`-паттерн) —
+shared-типа `LLMAction` (`actionSchemas.ts` — удалён 2026-08-02,
+`Equals<A,B>`-паттерн) —
 tsc не проходил на пустом месте. Причина: под `exactOptionalPropertyTypes`
 (server/tsconfig.json) вывод Zod для `.optional()`-полей — это буквально
 `X | undefined`, не просто `X?`. Приведено явно в `GameState.ts`
@@ -167,7 +170,8 @@ OpenAPI 3.0-подобное подмножество — WebSearch про по�
    ограничение grammar-компилятора constrained-decoding Gemini.
    `mergeIdenticalShapeBranches` схлопывает такие ветки в одну с
    `type: {enum: [...]}` — ослабляет только схему-для-генерации, реальная
-   валидация ответа (`actionSchemas.ts`) остаётся точной per-type.
+   валидация ответа (`actionSchemas.ts`, удалён 2026-08-02 — конверт переехал
+   в `responseSchemas.ts`) остаётся точной per-type.
 
 **Не подтверждено до конца, честно зафиксировано:** полный сквозной live-
 прогон исправленной (после мерджа, 7-ветвевой) схемы против реального
