@@ -10,28 +10,29 @@
    "R3": "островной огрызок административной единицы возвращается в неё",
    "R4": "регион не охватывает разные острова",
    "R5": "имя описывает то, что регион покрывает целиком",
-   "R6": "всё, чего нет в этой записи, остаётся как есть"
+   "R6": "всё, чего нет в этой записи, остаётся как есть",
+   "R7": "город-регион вливается в свою область; столица остаётся регионом. Города не теряются: они станут точками на карте. Китай и Корея под правило НЕ попадают — их собирает build_china_1946_v2.py"
   },
   "sources": {
    "islands_index": "scripts/map/out/islands_index.json",
    "scenario": "server\\data\\scenarios\\1946"
   },
   "counts": {
-   "operations": 24,
-   "merges": 20,
-   "regions_consumed_by_merges": 67,
-   "regions_produced_by_merges": 20,
-   "net_change_from_merges": -47,
+   "operations": 27,
+   "merges": 23,
+   "regions_consumed_by_merges": 73,
+   "regions_produced_by_merges": 23,
+   "net_change_from_merges": -50,
    "splits": 2,
    "resplits": 1,
    "renames": 1,
    "resolved_questions": 7,
    "open_questions": 0,
    "region_count_now": 1444,
-   "region_count_delta_merges": -47,
+   "region_count_delta_merges": -50,
    "region_count_delta_splits": 2,
    "region_count_delta_resplits": 45,
-   "region_count_projected": 1444
+   "region_count_projected": 1441
   },
   "downstream": "при слиянии население складывается, а доли групп усредняются ВЗВЕШЕННО по населению; deposits/extraction складываются; позиционные файлы (ownership_1946.json, names_ru.json, config/occupation_overlay.json) требуют build/remap_region_ids.py"
  },
@@ -955,6 +956,105 @@
    ]
   },
   {
+   "id": "MRG-CITY-EUR-0321",
+   "op": "merge",
+   "rule": "R7",
+   "target": {
+    "name_en": "Leningrad Oblast",
+    "name_ru": "Ленинградская область"
+   },
+   "note": "Ленинград вливается в свою область",
+   "member_count": 2,
+   "area_km2": 76081.1,
+   "population": 9895378,
+   "members": [
+    {
+     "index": 284,
+     "region_id": "EUR-0284",
+     "name_en": "Leningrad Oblast",
+     "name_ru": "Ленинградская область",
+     "owner": "SUN",
+     "area_km2": 74063.4,
+     "population": 8562020
+    },
+    {
+     "index": 321,
+     "region_id": "EUR-0321",
+     "name_en": "Leningrad",
+     "name_ru": "Ленинград",
+     "owner": "SUN",
+     "area_km2": 2017.7,
+     "population": 1333358
+    }
+   ]
+  },
+  {
+   "id": "MRG-CITY-EUR-0365",
+   "op": "merge",
+   "rule": "R7",
+   "target": {
+    "name_en": "Kiev",
+    "name_ru": "Киев"
+   },
+   "note": "Киев-город вливается в Киевскую область",
+   "member_count": 2,
+   "area_km2": 28655.7,
+   "population": 2740825,
+   "members": [
+    {
+     "index": 345,
+     "region_id": "EUR-0345",
+     "name_en": "Kiev",
+     "name_ru": "Киев",
+     "owner": "SUN",
+     "area_km2": 27013.5,
+     "population": 2219088
+    },
+    {
+     "index": 365,
+     "region_id": "EUR-0365",
+     "name_en": "Kiev City",
+     "name_ru": "Город Киев",
+     "owner": "SUN",
+     "area_km2": 1642.2,
+     "population": 521737
+    }
+   ]
+  },
+  {
+   "id": "MRG-CITY-EUR-0030",
+   "op": "merge",
+   "rule": "R7",
+   "target": {
+    "name_en": "Minsk",
+    "name_ru": "Минск"
+   },
+   "note": "Минск-город вливается в Минскую область",
+   "member_count": 2,
+   "area_km2": 40063.5,
+   "population": 1396761,
+   "members": [
+    {
+     "index": 29,
+     "region_id": "EUR-0029",
+     "name_en": "Minsk",
+     "name_ru": "Минск",
+     "owner": "SUN",
+     "area_km2": 39457.5,
+     "population": 1115004
+    },
+    {
+     "index": 30,
+     "region_id": "EUR-0030",
+     "name_en": "City of Minsk",
+     "name_ru": "Город Минск",
+     "owner": "SUN",
+     "area_km2": 606.0,
+     "population": 281757
+    }
+   ]
+  },
+  {
    "id": "SPL-SAKHALIN",
    "op": "split",
    "rule": "R4",
@@ -1368,6 +1468,45 @@
     "name_ru": "Ява"
    },
    "note": "регион покрывает всю Яву (131 764 км² при 138 800 у острова), а назван по одной провинции — Jawa Barat"
+  }
+ ],
+ "kept_capitals": [
+  {
+   "region_id": "EUR-0320",
+   "name": "Moscow",
+   "why": "столица СССР"
+  },
+  {
+   "region_id": "NAM-0216",
+   "name": "Washington",
+   "why": "столица США"
+  },
+  {
+   "region_id": "ASI-0152",
+   "name": "Delhi",
+   "why": "столица Индии"
+  },
+  {
+   "region_id": "ASI-0259",
+   "name": "Beirut",
+   "why": "столица Ливана"
+  }
+ ],
+ "city_like_open": [
+  {
+   "region_id": "ASI-0312",
+   "name": "F.C.T.",
+   "why": "соседствует с K.P. и Пенджабом — это Исламабад, созданный в 1960; в 1946 его не существовало"
+  },
+  {
+   "region_id": "ASI-0153",
+   "name": "Chandigarh",
+   "why": "создан в 1966 как общая столица Пенджаба и Харьяны; в 1946 его не существовало"
+  },
+  {
+   "region_id": "ASI-0044/0045/0047/0042/0228",
+   "name": "города Китая и Кореи",
+   "why": "Циндао, Гуанчжоу, Харбин, Далянь, Пусан — тот же вид, но область чужая: их собирает build_china_1946_v2.py, трогать только по отдельному разрешению"
   }
  ],
  "resolved_questions": [

@@ -9,14 +9,14 @@
   ],
   "counts": {
    "regions_before": 1444,
-   "regions_after": 1392,
-   "delta": -52,
-   "merges": 20,
+   "regions_after": 1389,
+   "delta": -55,
+   "merges": 23,
    "splits": 4,
-   "renames": 8,
+   "renames": 7,
    "philippines": 29,
-   "unchanged": 1331,
-   "needs_decision": 7,
+   "unchanged": 1326,
+   "needs_decision": 6,
    "population_unassigned_philippines": 18600000
   },
   "name_convention": "имя описывает то, что регион покрывает целиком, и опознаётся без карты; классы отклонений — в name_audit",
@@ -209,7 +209,7 @@
   },
   {
    "class": "одинаковые имена",
-   "count": 49,
+   "count": 47,
    "why": "два региона с одним именем неразличимы в списке и в отчётах",
    "examples": [
     {
@@ -270,16 +270,16 @@
      ]
     },
     {
-     "name_en": "Minsk",
-     "owners": [
-      "SUN"
-     ]
-    },
-    {
      "name_en": "La Rioja",
      "owners": [
       "ARG",
       "ESP"
+     ]
+    },
+    {
+     "name_en": "Norte",
+     "owners": [
+      "PRT"
      ]
     }
    ]
@@ -12473,6 +12473,38 @@
    "merged_from": []
   },
   {
+   "region_id": "EUR-0284",
+   "name_en": "Leningrad Oblast",
+   "name_ru": "Ленинградская область",
+   "owner": "SUN",
+   "area_km2": 76081.1,
+   "population": 9895378,
+   "op": "merge",
+   "op_id": "MRG-CITY-EUR-0321",
+   "rule": "R7",
+   "merged_from": [
+    {
+     "index": 284,
+     "region_id": "EUR-0284",
+     "name_en": "Leningrad Oblast",
+     "name_ru": "Ленинградская область",
+     "owner": "SUN",
+     "area_km2": 74063.4,
+     "population": 8562020
+    },
+    {
+     "index": 321,
+     "region_id": "EUR-0321",
+     "name_en": "Leningrad",
+     "name_ru": "Ленинград",
+     "owner": "SUN",
+     "area_km2": 2017.7,
+     "population": 1333358
+    }
+   ],
+   "note": "Ленинград вливается в свою область"
+  },
+  {
    "index": 271,
    "region_id": "EUR-0271",
    "name_en": "Gorky Oblast",
@@ -12491,17 +12523,6 @@
    "owner": "SUN",
    "area_km2": 75058.7,
    "population": 1722729,
-   "op": "unchanged",
-   "merged_from": []
-  },
-  {
-   "index": 284,
-   "region_id": "EUR-0284",
-   "name_en": "Leningrad Oblast",
-   "name_ru": "Ленинградская область",
-   "owner": "SUN",
-   "area_km2": 74063.4,
-   "population": 8562020,
    "op": "unchanged",
    "merged_from": []
   },
@@ -12803,6 +12824,38 @@
    "merged_from": []
   },
   {
+   "region_id": "EUR-0029",
+   "name_en": "Minsk",
+   "name_ru": "Минск",
+   "owner": "SUN",
+   "area_km2": 40063.5,
+   "population": 1396761,
+   "op": "merge",
+   "op_id": "MRG-CITY-EUR-0030",
+   "rule": "R7",
+   "merged_from": [
+    {
+     "index": 29,
+     "region_id": "EUR-0029",
+     "name_en": "Minsk",
+     "name_ru": "Минск",
+     "owner": "SUN",
+     "area_km2": 39457.5,
+     "population": 1115004
+    },
+    {
+     "index": 30,
+     "region_id": "EUR-0030",
+     "name_en": "City of Minsk",
+     "name_ru": "Город Минск",
+     "owner": "SUN",
+     "area_km2": 606.0,
+     "population": 281757
+    }
+   ],
+   "note": "Минск-город вливается в Минскую область"
+  },
+  {
    "index": 26,
    "region_id": "EUR-0026",
    "name_en": "Vitebsk",
@@ -12821,17 +12874,6 @@
    "owner": "SUN",
    "area_km2": 39591.1,
    "population": 1313281,
-   "op": "unchanged",
-   "merged_from": []
-  },
-  {
-   "index": 29,
-   "region_id": "EUR-0029",
-   "name_en": "Minsk",
-   "name_ru": "Минск",
-   "owner": "SUN",
-   "area_km2": 39457.5,
-   "population": 1115004,
    "op": "unchanged",
    "merged_from": []
   },
@@ -13045,6 +13087,38 @@
    "merged_from": []
   },
   {
+   "region_id": "EUR-0345",
+   "name_en": "Kiev",
+   "name_ru": "Киев",
+   "owner": "SUN",
+   "area_km2": 28655.7,
+   "population": 2740825,
+   "op": "merge",
+   "op_id": "MRG-CITY-EUR-0365",
+   "rule": "R7",
+   "merged_from": [
+    {
+     "index": 345,
+     "region_id": "EUR-0345",
+     "name_en": "Kiev",
+     "name_ru": "Киев",
+     "owner": "SUN",
+     "area_km2": 27013.5,
+     "population": 2219088
+    },
+    {
+     "index": 365,
+     "region_id": "EUR-0365",
+     "name_en": "Kiev City",
+     "name_ru": "Город Киев",
+     "owner": "SUN",
+     "area_km2": 1642.2,
+     "population": 521737
+    }
+   ],
+   "note": "Киев-город вливается в Киевскую область"
+  },
+  {
    "index": 359,
    "region_id": "EUR-0359",
    "name_en": "Poltava",
@@ -13074,17 +13148,6 @@
    "owner": "SUN",
    "area_km2": 27070.1,
    "population": 2127686,
-   "op": "unchanged",
-   "merged_from": []
-  },
-  {
-   "index": 345,
-   "region_id": "EUR-0345",
-   "name_en": "Kiev",
-   "name_ru": "Киев",
-   "owner": "SUN",
-   "area_km2": 27013.5,
-   "population": 2219088,
    "op": "unchanged",
    "merged_from": []
   },
@@ -13738,28 +13801,6 @@
    "merged_from": []
   },
   {
-   "index": 321,
-   "region_id": "EUR-0321",
-   "name_en": "Leningrad",
-   "name_ru": "Ленинград",
-   "owner": "SUN",
-   "area_km2": 2017.7,
-   "population": 1333358,
-   "op": "unchanged",
-   "merged_from": []
-  },
-  {
-   "index": 365,
-   "region_id": "EUR-0365",
-   "name_en": "Kiev City",
-   "name_ru": "Город Киев",
-   "owner": "SUN",
-   "area_km2": 1642.2,
-   "population": 521737,
-   "op": "unchanged",
-   "merged_from": []
-  },
-  {
    "index": 69,
    "region_id": "EUR-0069",
    "name_en": "Hiiu",
@@ -13780,31 +13821,6 @@
    "population": 132798,
    "op": "unchanged",
    "merged_from": []
-  },
-  {
-   "index": 30,
-   "region_id": "EUR-0030",
-   "name_en": "Minsk",
-   "name_ru": "Минск",
-   "owner": "SUN",
-   "area_km2": 606.0,
-   "population": 281757,
-   "op": "rename",
-   "merged_from": [
-    {
-     "index": 30,
-     "region_id": "EUR-0030",
-     "name_en": "City of Minsk",
-     "name_ru": "Город Минск",
-     "owner": "SUN",
-     "area_km2": 606.0,
-     "population": 281757
-    }
-   ],
-   "op_id": "REN-CAPITAL",
-   "rule": "R5",
-   "note": "City of Minsk",
-   "needs_decision": "СТОЛКНОВЕНИЕ: EUR-0029 уже называется «Minsk» (область). Нужно решение — переименовать область в «Minsk Oblast» либо оставить «City of Minsk»"
   },
   {
    "region_id": "EUR-0300",
