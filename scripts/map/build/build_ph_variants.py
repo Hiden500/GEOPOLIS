@@ -52,7 +52,60 @@ GEOD = Geod(ellps="WGS84")
 REF = "ph_provinces_1946.json"
 OUT_A = "ph_variant_a_1946.geojson"
 OUT_B = "ph_variant_b_recommended.geojson"
+OUT_C = "ph_variant_c_final.geojson"
 AREA_TOL_KM2 = 1.0
+
+# Вариант C — ВЫБОР ПОЛЬЗОВАТЕЛЯ (2026-08-02): вариант A плюс укрупнение
+# провинций 1946 в исторические области. Ключи слева — имена провинций 1946
+# из варианта A, а не современные.
+PH_FINAL_GROUPS = [
+    ("Panay", "Панай", ["Iloilo", "Capiz", "Antique", "Romblon"],
+     "остров Панай; Ромблон в 1946 был административно слит с Каписом"),
+    ("Negros", "Негрос", ["Negros Occidental", "Negros Oriental"], "остров Негрос целиком"),
+    ("Mindoro", "Миндоро", ["Mindoro", "Marinduque"], "Миндоро с Мариндуке"),
+    ("Ilocos", "Илокос", ["Ilocos Norte", "Abra", "Ilocos Sur", "La Union"], "область Илокос"),
+    ("Cagayan Valley", "Долина Кагаян", ["Batanes", "Cagayan", "Isabela"],
+     "долина Кагаян с островами Батанес"),
+    ("Southern Bicol", "Южный Бикол", ["Catanduanes", "Albay", "Sorsogon"],
+     "юг полуострова Бикол с Катандуанесом"),
+    ("Central Visayas", "Центральные Висайи", ["Bohol", "Cebu"], "Себу с Бохолем"),
+    ("Camarines", "Камаринес", ["Camarines Norte", "Camarines Sur"],
+     "до 1920 это была одна провинция Ambos Camarines"),
+    ("Southern Tagalog", "Южный Тагалог", ["Batangas", "Laguna", "Cavite"],
+     "тагальское ядро южнее Манилы"),
+    ("Central Luzon", "Центральный Лусон", ["Bulacan", "Nueva Ecija"],
+     "восточная часть центральной равнины; ядро восстания Хуков 1946-1954"),
+    ("Western Luzon", "Западный Лусон", ["Zambales", "Bataan", "Pampanga", "Tarlac", "Pangasinan"],
+     "западная часть равнины, Батаан и залив Лингайен; Пампанга и Тарлак — тоже "
+     "территория Хуков, то есть восстание оказывается разрезанным между двумя регионами"),
+]
+
+# Переименования внутри Филиппин: провинция 1946 -> имя в варианте C.
+PH_FINAL_RENAMES = {
+    "Rizal": ("Manila", "Манила",
+              "в варианте A Рисаль вобрал столичный регион; регион со столицей "
+              "называется по столице"),
+}
+
+# Русские имена провинций 1946, которые в вариант C вошли без слияния.
+# Без них итоговый файл мира имел бы 17 регионов с пустым `name_ru`.
+PH_RU_NAMES = {
+    "Cotabato": "Котабато", "Davao": "Давао", "Zamboanga": "Замбоанга",
+    "Mountain Province": "Горная провинция", "Palawan": "Палаван", "Samar": "Самар",
+    "Tayabas": "Таябас", "Agusan": "Агусан", "Bukidnon": "Букиднон", "Leyte": "Лейте",
+    "Surigao": "Суригао", "Nueva Vizcaya": "Нуэва-Виская", "Lanao": "Ланао",
+    "Misamis Oriental": "Восточный Мисамис", "Masbate": "Масбате", "Sulu": "Сулу",
+    "Misamis Occidental": "Западный Мисамис",
+}
+
+# Имена, требующие подтверждения: географически защитимы, но альтернатива не хуже.
+PH_NAME_NEEDS_DECISION = {
+    "Southern Bicol": "альтернатива — «Albay»",
+    "Central Visayas": "альтернатива — «Cebu»",
+    "Southern Tagalog": "альтернатива — «Batangas»",
+    "Central Luzon": "альтернатива — «Nueva Ecija»; спорно, что Хуки разделены с Западным Лусоном",
+    "Western Luzon": "альтернатива — «Pampanga»",
+}
 
 # Вариант B сливает только эти провинции-родители: их разделы были
 # административными и ничего значимого не стирают. Всё остальное, что создано
@@ -159,19 +212,67 @@ def main():
         r = KEPT_MODERN_REASON.get(to_1946.get(target, ""))
         return f"оставлено современным — {r}" if r and target in created else None
 
+    # C: вариант A, укрупнённый до исторических областей
+    to_final = {}
+    ru_of = {}
+    note_of = {}
+    for en_name, ru_name, members_1946, note in PH_FINAL_GROUPS:
+        for m in members_1946:
+            to_final[m] = en_name
+        ru_of[en_name] = ru_name
+        note_of[en_name] = note
+    unknown = [m for m in to_final if m not in groups_a]
+    if unknown:
+        raise SystemExit(f"вариант C ссылается на провинции, которых нет в A: {sorted(unknown)}")
+
+    groups_c = defaultdict(list)
+    for prov_1946, members in groups_a.items():
+        target = to_final.get(prov_1946, prov_1946)
+        if target in PH_FINAL_RENAMES:
+            target = PH_FINAL_RENAMES[target][0]
+        groups_c[target].extend(members)
+
+    def note_c(target, members):
+        if target in note_of:
+            return note_of[target]
+        for src, (new, _ru, why) in PH_FINAL_RENAMES.items():
+            if new == target:
+                return why
+        return note_a(target, members)
+
     feats_a = build(groups_a, "A_1946_full", note_a)
     feats_b = build(groups_b, "B_recommended", note_b)
+    feats_c = build(groups_c, "C_final", note_c)
+    for f in feats_c:
+        n = f["properties"]["name"]
+        f["properties"]["name_ru"] = ru_of.get(n) or PH_RU_NAMES.get(n, "")
+        for src, (new, ru, _why) in PH_FINAL_RENAMES.items():
+            if new == n:
+                f["properties"]["name_ru"] = ru
+        if n in PH_NAME_NEEDS_DECISION:
+            f["properties"]["needs_decision"] = PH_NAME_NEEDS_DECISION[n]
+    # ни один регион не уходит без русского имени: пустое имя в итоговом файле
+    # мира — дефект, который мы же и лечим
+    no_ru = [f["properties"]["name"] for f in feats_c if not f["properties"]["name_ru"]]
+    if no_ru:
+        raise SystemExit(f"вариант C: нет русских имён для {no_ru}")
 
     area_a = round(sum(f["properties"]["area_km2"] for f in feats_a), 1)
     area_b = round(sum(f["properties"]["area_km2"] for f in feats_b), 1)
+    area_c = round(sum(f["properties"]["area_km2"] for f in feats_c), 1)
     problems = []
-    if abs(area_a - base_area) > AREA_TOL_KM2:
-        problems.append(f"вариант A: площадь {area_a:,.1f} против исходных {base_area:,.1f}")
-    if abs(area_b - base_area) > AREA_TOL_KM2:
-        problems.append(f"вариант B: площадь {area_b:,.1f} против исходных {base_area:,.1f}")
+    for label, area in (("A", area_a), ("B", area_b), ("C", area_c)):
+        if abs(area - base_area) > AREA_TOL_KM2:
+            problems.append(f"вариант {label}: площадь {area:,.1f} против исходных {base_area:,.1f}")
     if not (len(feats_a) < len(feats_b) < len(modern)):
         problems.append(f"вариант B должен быть строго между A и исходной нарезкой: "
                         f"{len(feats_a)} / {len(feats_b)} / {len(modern)}")
+    if len(feats_c) >= len(feats_a):
+        problems.append(f"вариант C должен быть КРУПНЕЕ A: {len(feats_c)} против {len(feats_a)}")
+    # каждая из 81 современной провинции обязана попасть ровно в один регион C
+    seen_c = [m for f in feats_c for m in f["properties"]["members"]]
+    if sorted(seen_c) != sorted(modern):
+        problems.append(f"вариант C покрывает {len(seen_c)} провинций из {len(modern)}")
     if problems:
         print("ОШИБКИ — файлы не сохранены:", file=sys.stderr)
         for p in problems:
@@ -181,6 +282,7 @@ def main():
     for name, feats, label, desc in (
         (OUT_A, feats_a, "A_1946_full", "полный откат к провинциям 1946 года"),
         (OUT_B, feats_b, "B_recommended", "слиты только административные разделы; юг современный"),
+        (OUT_C, feats_c, "C_final", "ВЫБОР ПОЛЬЗОВАТЕЛЯ: вариант A, укрупнённый до исторических областей"),
     ):
         doc = {
             "type": "FeatureCollection",
@@ -206,7 +308,15 @@ def main():
     print(f"исходная нарезка по region_sub: {len(modern)} провинций, {base_area:,.1f} км²")
     print(f"A  полный откат к 1946:  {len(feats_a):3} регионов ({len(feats_a)-len(modern):+})  {area_a:,.1f} км²")
     print(f"B  рекомендуемый:        {len(feats_b):3} регионов ({len(feats_b)-len(modern):+})  {area_b:,.1f} км²")
+    print(f"C  выбранный:            {len(feats_c):3} регионов ({len(feats_c)-len(modern):+})  {area_c:,.1f} км²")
     print(f"разница между A и B: {len(feats_b)-len(feats_a)} регионов\n")
+    print("ВАРИАНТ C — итоговые регионы:")
+    for f in feats_c:
+        p = f["properties"]
+        nd = "  ⚠ имя требует решения" if p.get("needs_decision") else ""
+        src = f" <- {', '.join(p['members'])}" if p["member_count"] > 1 else ""
+        print(f"  {p['name']:20} {p.get('name_ru',''):22} {p['area_km2']:>9,.0f} км²{src}{nd}")
+    print()
 
     print("ЧТО СЛИВАЕТСЯ В ОБОИХ ВАРИАНТАХ:")
     for f in feats_b:
