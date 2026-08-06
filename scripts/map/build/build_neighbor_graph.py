@@ -16,19 +16,11 @@ region_id регионов, с которыми он физически гран
 разных источников данных), НЕ для перепрыгивания открытой воды - тот же
 принцип, что и везде в проекте: соединение не должно создавать связи
 там, где их нет физически.
-
-Отдельно обрабатывается линия перемены дат: для плоской геометрии фигуры на
--179.99 и +179.99 отстоят на весь мир, и никакой буфер их не соединит. Правило
-живёт в `adjacency.seam_pairs` — общее с графом морских зон.
 """
 from paths import out
 import json
-import sys
 from shapely.geometry import shape
 from shapely.strtree import STRtree
-
-sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
-from adjacency import real_touch, seam_pairs
 
 SRC = out("world_1946.geojson")
 OUT = out("neighbor_graph.json")
@@ -55,19 +47,13 @@ def main():
             if j <= i:
                 continue
             if buffered[i].intersects(buffered[j]):
+                inter = buffered[i].intersection(buffered[j])
                 # отбрасываем пары, касающиеся только в одной точке
                 # (геометрический "угол", не настоящая граница)
-                if not real_touch(buffered[i].intersection(buffered[j])):
+                if inter.length < 1e-6 and inter.area < 1e-9:
                     continue
                 a, b = ids[i], ids[j]
                 edges.add((a, b))
-
-    # Смежность через ±180: сюда попадают только пары, которых нет выше —
-    # буфер шов не перекрывает, поэтому пересечься "обычным" способом они не
-    # могли. Счётчик печатается всегда: ноль тоже результат.
-    seam = [(ids[i], ids[j]) for i, j in seam_pairs(buffered)]
-    seam_new = [e for e in seam if e not in edges and (e[1], e[0]) not in edges]
-    edges.update(seam_new)
 
     neighbors = {rid: [] for rid in ids}
     for a, b in edges:
@@ -83,7 +69,6 @@ def main():
 
     print(f"Регионов: {len(ids)}")
     print(f"Рёбер (пар соседей): {len(edges)}")
-    print(f"  из них только через ±180: {len(seam_new)}")
     print(f"Изолированных (без соседей вообще): {len(isolated)}")
     for rid in isolated[:30]:
         ft = next(f for f in feats if f["properties"]["region_id"] == rid)
