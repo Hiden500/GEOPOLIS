@@ -167,7 +167,74 @@ Indian 70.4, North Pacific 64.0, South Atlantic 41.5, North Atlantic 31.2.
 
 ---
 
-## 5. UNKNOWN
+## 5. GEBCO Gazetteer — скачан, лицензия выяснена (дополнение 2026-08-06)
+
+Добавлено после решения пользователя резать монолиты и называть куски именами
+форм рельефа дна. Endpoint найден через метаданные элемента ArcGIS у NCEI:
+
+`https://services2.arcgis.com/C8EMgrsFcRFL6LrL/arcgis/rest/services/Undersea_Features/FeatureServer`
+
+Три слоя, скачаны целиком (1.9 МБ):
+
+| слой | фич |
+|---|---|
+| точки | 2 914 |
+| линии | 1 104 |
+| полигоны | 1 171 |
+
+**Лицензия — разобрана, и здесь легко ошибиться.** Поиск подсовывает
+«CC BY 4.0» — это лицензия **другого** проекта (World Historical Gazetteer), к
+GEBCO отношения не имеющая; отвергнуто. Фактическое положение:
+
+- официальная страница условий GEBCO покрывает «The GEBCO Grid **and other
+  GEBCO-derived information products**»: данные **в общественном достоянии**,
+  **коммерческое использование прямо разрешено**, требуется указание источника;
+- сам газеттир на той странице поимённо не назван;
+- у официального распространителя (элемент NOAA NCEI) в поле лицензии стоит
+  **только требование цитирования**: «IHO-IOC GEBCO Gazetteer of Undersea
+  Feature Names, www.gebco.net». Никаких ограничений на использование там нет.
+
+**Вывод:** блокера нет — в отличие от MEOW, где запрет прописан явно. Но
+лицензия газеттира **выводится** из формулировки про «другие производные продукты GEBCO»,
+а не написана прямо. Риск низкий (набор фактических названий с координатами от
+межправительственной организации), но он есть, и решение принимает пользователь.
+Требование цитирования обязательно к исполнению в провенансе.
+
+**Что газеттир даёт и чего НЕ даёт.**
+
+Полигоны океан **не мостят**: медиана площади 207 км², состав — Seamount 334,
+Hill 212, Ridge 92, Basin 68, Knoll 67, Bank 50. Покрытие монолитов полигонами
+измерено и мало́:
+
+| монолит | покрыто полигонами GEBCO |
+|---|---|
+| North Pacific | 1% |
+| North Atlantic | 1% |
+| South Atlantic | 2% |
+| South Pacific | 6% |
+| Indian | 13% |
+| Arctic | 29% |
+| Southern | 49% |
+
+**Крупные имена лежат линиями и точками, а не площадями.** Проверено поимённо:
+`Mid-Atlantic Ridge`, `East Pacific Rise`, `Pacific-Antarctic Ridge`,
+`Southeast Indian Ridge`, `Southwest Indian Ridge`, `Walvis Ridge`,
+`Ninetyeast Ridge`, `Emperor Seamount Chain`, `Hawaiian Ridge`,
+`Peru-Chile Trench`, `Puerto Rico Trench`, `Reykjanes Ridge`, `Rockall Trough`,
+`Kerguelen Plateau`, `Ontong Java Plateau`, `Chatham Rise`, `Rio Grande Rise`,
+`Bermuda Rise`, `Azores-Biscay Rise` — все на месте. Типы линий: Canyon 249,
+**Ridge 213**, **Fracture Zone 143**, Trough 76, Valley 62, Escarpment 44,
+Trench 28.
+
+Это ровно тот набор, из которого HOI4 брал `North Atlantic Ridge`,
+`East Pacific Rise`, `Atlantic-Indian Ridge`, `Cap Verde Plain`.
+
+**Следствие для метода:** кусок разреза не может «совпадать с полигоном GEBCO» —
+их для этого нет. Правило именования другое: **кусок получает имя самого
+заметного объекта GEBCO внутри него** (по длине линии в куске либо по наличию
+точки). Проверяемо, воспроизводимо, ничего не выдумывается.
+
+## 6. UNKNOWN
 
 - Точный состав `featurecla: generic` (11 фич) в NE — не смотрел поимённо.
 - Насколько NE marine polys расходятся с IHO по линиям раздела между морями:
@@ -175,3 +242,5 @@ Indian 70.4, North Pacific 64.0, South Atlantic 41.5, North Atlantic 31.2.
   «переразметкой».
 - Реальный трафик 1946 года — источников не найдено.
 - Longhurst и LME по лицензии не проверялись.
+- Лицензия ГАЗЕТТИРА GEBCO явно не сформулирована — выводится из условий,
+  написанных для сетки глубин. Юридическую оценку не даю, факт зафиксирован.
