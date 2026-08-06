@@ -1,0 +1,235 @@
+{
+ "African Coast": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "North West Africa",
+    436
+   ],
+   [
+    "African Coast",
+    196
+   ]
+  ]
+ },
+ "Bay of Biscay": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Western France",
+    230
+   ],
+   [
+    "Northwestern Iberia",
+    122
+   ],
+   [
+    "Southern France",
+    86
+   ]
+  ]
+ },
+ "Denmark Strait": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Atlantic Ocean",
+    1516
+   ],
+   [
+    "Iceland",
+    808
+   ]
+  ]
+ },
+ "Eastern North Sea": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Jutland Peninsula",
+    422
+   ],
+   [
+    "Southern Norway",
+    404
+   ],
+   [
+    "Benelux Region",
+    117
+   ],
+   [
+    "North-West Germany",
+    107
+   ],
+   [
+    "Southern Sweden",
+    106
+   ]
+  ]
+ },
+ "Eastern Seaboard": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "East Coast",
+    759
+   ],
+   [
+    "New England",
+    478
+   ],
+   [
+    "Maritimes",
+    325
+   ]
+  ]
+ },
+ "Florida Coast": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Gulf Coast",
+    677
+   ],
+   [
+    "Florida Coast",
+    308
+   ],
+   [
+    "Caribbean",
+    219
+   ],
+   [
+    "East Coast",
+    164
+   ]
+  ]
+ },
+ "Gulf of Mexico": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "South West",
+    235
+   ],
+   [
+    "Yucatan Peninsula",
+    229
+   ],
+   [
+    "Mexico",
+    188
+   ],
+   [
+    "Gulf Coast",
+    163
+   ]
+  ]
+ },
+ "Labrador Sea": {
+  "terrain": "fjords",
+  "coasts": [
+   [
+    "Atlantic Ocean",
+    2118
+   ],
+   [
+    "Labrador and Newfoundland",
+    1622
+   ],
+   [
+    "Quebec",
+    1319
+   ]
+  ]
+ },
+ "Newfoundland Sea": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Labrador and Newfoundland",
+    953
+   ],
+   [
+    "Maritimes",
+    666
+   ],
+   [
+    "Eastern Canada",
+    273
+   ],
+   [
+    "Quebec",
+    54
+   ]
+  ]
+ },
+ "North Sea": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Scotland and Northern Ireland",
+    367
+   ],
+   [
+    "North Sea",
+    102
+   ],
+   [
+    "Northern England",
+    98
+   ],
+   [
+    "Southern England",
+    65
+   ]
+  ]
+ },
+ "Norwegian Coast": {
+  "terrain": "fjords",
+  "coasts": [
+   [
+    "Southern Norway",
+    1162
+   ],
+   [
+    "Northern Norway",
+    944
+   ]
+  ]
+ },
+ "Norwegian Sea": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Iceland",
+    302
+   ],
+   [
+    "Norwegian Sea",
+    224
+   ]
+  ]
+ },
+ "Western Approaches": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Scotland and Northern Ireland",
+    816
+   ],
+   [
+    "Ireland",
+    666
+   ],
+   [
+    "Northern England",
+    310
+   ],
+   [
+    "Southern England",
+    94
+   ]
+  ]
+ }
+}
