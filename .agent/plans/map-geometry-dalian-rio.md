@@ -66,11 +66,60 @@ rj_state_rump = modern["Rio de Janeiro"].difference(rj_city_geom.buffer(0.01))
 `Distrito Federal` — это Бразилиа 1960 года, а рядом лежат Токантинс (1988),
 Мату-Гросу-ду-Сул (1977), Рондония, Рорайма и Амапа.
 
+## ОГРАНИЧЕНИЕ, МЕНЯЮЩЕЕ МЕТОД: мастер пересобрать нельзя
+
+Замер 2026-08-02: **8 из 10 входов пайплайна отсутствуют** в
+`scripts/map/sources/` (каталог в `.gitignore` по конвенции «внешние тяжёлые
+входы вне git», строка 108).
+
+| Файл | Кто ждёт | Есть? |
+|---|---|---|
+| `geoBoundaries-BRA-ADM2.geojson` | `build_brazil_1946.py` | **нет** |
+| `geoBoundaries-CHN-ADM2.geojson`, `china_hist/1947-49/…` | `build_china_1946_v2.py` | **нет** |
+| `geoBoundaries-USA-ADM2.geojson` | `build_us_states_split_1946.py` | **нет** |
+| `palestine_hist/…ISR/PSE-ADM2.geojson` | `build_asia_1946.py`, `build_palestine_1946.py` | **нет** |
+| `naturalearth/ne_10m_lakes.geojson` | `refresh_lakes_from_ne10m.py` | **нет** |
+| `cyprus_hist/…CYP-ADM1.geojson` | `extract_kyrenia.py` | **нет** |
+| `germany_occupation_zones_1946.json` | `build_europe_1946.py` | есть |
+| `iho/oceans-seas.geo.json` | `build_seas_from_iho.py` | есть |
+
+Проверено прогоном: `build_brazil_1946.py` падает с `FileNotFoundError` на
+первой же строке чтения муниципий.
+
+**Следствия, обязательные к учёту:**
+
+- `make_1946.py --rebuild-master` сегодня НЕВОЗМОЖЕН. Правка внутри билдера
+  континента не может быть проверена прогоном;
+- `master/world_1946.master.geojson` (42,6 МБ) **под git вместе с
+  `master.meta.json`** — геометрия не потеряна, потеряна воспроизводимость;
+- значит обе правки делаются **хирургически по мастеру**, а не пересборкой.
+
+## Метод
+
+**Далянь.** Перенести 18 кусков из Ляонина обратно в Далянь прямо в
+`master/world_1946.master.geojson`. Эталон — `client/public/world_1946.geojson`
+коммита `0946506` (под git): взять `old_dalian.difference(new_dalian)`, отдать
+эту геометрию Даляню и вычесть из Ляонина. Пересчитать `master.meta.json`
+(площади суши и воды не меняются — это перенос внутри суши) и заново собрать
+клиентскую геометрию с сценарием через `import_to_game.py`.
+
+**Рио.** Ров шириной 1,11 км сейчас принадлежит `SEA-0096`. Отдать его сушe:
+кольцо `SAM-0013.buffer(0.011).difference(SAM-0013)` пересечь с `SEA-0096`,
+вычесть из моря и присоединить к штату `SAM-0014`, после чего город и штат
+касаются. Площадь суши вырастет примерно на 217 км², воды — уменьшится на
+столько же; обновить обе величины в `master.meta.json`.
+
+**Корень в билдере правится тоже, но остаётся НЕПРОВЕРЕННЫМ.** В
+`build_brazil_1946.py:116` заменить `rj_city_geom.buffer(0.01)` на вычитание без
+буфера (или буфер порядка `1e-9`), чтобы следующая пересборка не воссоздала ров.
+Прогнать этот файл сегодня нельзя — источника нет. Пометить правку в коде
+комментарием «не проверено прогоном, источник отсутствует с 2026-08-02».
+
 ## Scope and constraints
 
-Меняем: `build/rebuild_shared_edges.py` либо точечную коррекцию после него;
-`build/build_brazil_1946.py`; перезаморозку `master/world_1946.master.geojson`
-вместе с `master.meta.json`; пересборку клиентской геометрии и сценария.
+Меняем: `master/world_1946.master.geojson` и `master.meta.json`; строку буфера
+в `build/build_brazil_1946.py`; выходы `import_to_game.py` (клиентская
+геометрия, `names.*`, `regions.core`).
 
 НЕ трогаем: состав и число регионов; `SEA-` идентификаторы; экономику и
 население; Китай и Корею сверх самого Даляня (`build_china_1946_v2.py` —
