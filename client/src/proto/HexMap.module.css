@@ -1,0 +1,73 @@
+/*
+ * Условная карта прототипа. Настоящая MapLibre-карта сюда не подключена
+ * намеренно: проверяется поведение панелей, а не география. Сетка нужна,
+ * чтобы выделение региона и державы было настоящим кликом — иначе
+ * «инспектор открывается по выбору» проверить нечем.
+ */
+
+.map {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-map);
+  background: var(--surface-sunken);
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hex {
+  stroke: rgba(0, 0, 0, 0.35);
+  stroke-width: 1;
+  transition: filter var(--dur-fast) var(--ease);
+}
+
+.land {
+  cursor: pointer;
+}
+
+.land:hover {
+  filter: brightness(1.25);
+}
+
+.water {
+  fill: #10202b;
+}
+
+/* Выделенный регион обводится, а не перекрашивается: раскраска режима — это данные. */
+.selectedRegion {
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+
+/* Выделенная держава подсвечивается целиком, отсюда более тонкая обводка. */
+.selectedCountry {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.label {
+  fill: var(--text);
+  font-size: 10px;
+  text-anchor: middle;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.6);
+  stroke-width: 2.5;
+}
+
+.hint {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translateX(-50%);
+  z-index: var(--z-map-overlay);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--scrim);
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+  pointer-events: none;
+}

@@ -1,0 +1,132 @@
+/*
+ * Кнопка = МЕХАНИЗМ: нажал — произойдёт ровно это. Противоположный канал —
+ * поле свободного текста, где происходит то, как тебя поняли. Два канала
+ * обязаны выглядеть по-разному, иначе игрок перестаёт понимать, где
+ * гарантия (docs/PRIMITIVES.md §1, гибридный интерфейс игрока).
+ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-ui);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  border: var(--edge-width) solid transparent;
+  border-radius: var(--radius-inner);
+  transition:
+    background var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.button:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+}
+
+/* ── Размеры ──────────────────────────────────────────────────── */
+
+.sm {
+  height: 28px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.md {
+  height: 36px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.lg {
+  height: 44px;
+  padding: 0 var(--space-5);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.iconOnly.sm {
+  width: 28px;
+  padding: 0;
+}
+
+.iconOnly.md {
+  width: 36px;
+  padding: 0;
+}
+
+.iconOnly.lg {
+  width: 44px;
+  padding: 0;
+}
+
+/* ── Варианты ─────────────────────────────────────────────────── */
+
+/*
+ * primary — заливка акцентом. Правило применения, не стиля: на экране
+ * единовременно ОДНА такая кнопка. Сейчас это кнопка хода; вторая рядом
+ * означает, что игрок не понимает, чего от него ждут.
+ */
+.primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.default {
+  background: transparent;
+  border-color: var(--divider);
+  color: var(--text);
+}
+
+.default:hover:not(:disabled) {
+  border-color: var(--edge-strong);
+  background: var(--surface-raised);
+}
+
+.quiet {
+  background: transparent;
+  color: var(--text-dim);
+}
+
+.quiet:hover:not(:disabled) {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.danger {
+  background: transparent;
+  border-color: var(--over);
+  color: var(--fall);
+}
+
+.danger:hover:not(:disabled) {
+  background: var(--over-tint);
+  color: var(--text);
+}
+
+/*
+ * order — быстрый приказ. Выглядит как физический тумблер: приподнятая
+ * поверхность, отчётливый контур, разряженная подпись капителью. Это
+ * визуальное обещание предсказуемости, которого поле ввода не даёт.
+ */
+.order {
+  background: var(--surface-raised);
+  border-color: var(--edge-strong);
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  font-weight: var(--weight-bold);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+.order:hover:not(:disabled) {
+  background: var(--accent-tint);
+  border-color: var(--accent);
+}

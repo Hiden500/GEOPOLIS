@@ -1,0 +1,85 @@
+/*
+ * Ресурсы. Главное здесь не число, а ГЕЙТ: сырьё потребляется бинарно —
+ * нет ключевого ресурса, и слот техники просто не производится
+ * (docs/CONCEPT.md §5.1). Поэтому дефицит это не «плохая дельта», а
+ * отдельное состояние, и выглядеть оно обязано иначе, чем падение запаса.
+ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: stretch;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-inner);
+  border: var(--edge-width) solid transparent;
+}
+
+.list .item {
+  justify-content: space-between;
+}
+
+.shortage {
+  border-color: var(--over);
+  background: var(--over-tint);
+}
+
+.label {
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.figures {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.amount {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* Компактный вид для рамы: там ресурсы — фоновая сводка, а не предмет разбора. */
+.sm .amount {
+  font-size: var(--text-sm);
+}
+
+.sm .item {
+  padding: 0 var(--space-1);
+}
+
+.delta {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.good {
+  color: var(--rise);
+}
+
+.bad {
+  color: var(--fall);
+}
+
+.warning {
+  display: inline-flex;
+  color: var(--fall);
+}

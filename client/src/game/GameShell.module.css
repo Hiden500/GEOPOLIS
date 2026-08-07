@@ -1,0 +1,22 @@
+/*
+ * Сообщение об ошибке хода. Живёт поверх всего и снимается нажатием: это не
+ * состояние мира, а сбой связи — он не должен занимать место в раме и не
+ * должен исчезать сам, пока его не прочитали.
+ */
+.error {
+  position: absolute;
+  left: 50%;
+  top: var(--frame-gap);
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  max-width: min(44rem, calc(100vw - var(--frame-gap) * 2));
+  padding: var(--space-3) var(--space-4);
+  border: var(--panel-edge-width) solid var(--over);
+  border-radius: var(--panel-radius);
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
+  color: var(--text);
+  font-size: var(--text-sm);
+  line-height: var(--leading-tight);
+  cursor: pointer;
+}

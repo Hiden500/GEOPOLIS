@@ -18,10 +18,14 @@ body {
   height: 100%;
 }
 
+/*
+ * Сглаживание НЕ переключаем в `antialiased`: на тёмном фоне оно утончает
+ * штрих, и светлый текст на тёмной панели становится блёклым и рыхлым.
+ * Тема здесь единственная и тёмная, поэтому оставляем системное
+ * субпиксельное сглаживание — оно даёт более плотный, читаемый штрих.
+ */
 body {
   line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
