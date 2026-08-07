@@ -286,6 +286,37 @@ export interface ScreenActions {
     text: string,
     regionId: string | null,
   ) => Promise<{ primitives: unknown[]; recognized: string[] }>;
+
+  /**
+   * Ручной цикл ИИ-режиссёра (диагностический канал): получить промт вручную,
+   * подставить ответ вручную, либо прогнать оба шага автоматически. Обычный
+   * ход прогоняет ровно этот же серверный цикл сам — здесь то же самое
+   * доступно вручную, когда нужно увидеть промт или обойти автоматический
+   * ключ. Ни одно из трёх не задано — окно не откроется.
+   */
+  getLlmPrompt?: () => Promise<{ prompt: string; llmTurn: number }>;
+  submitLlmResponse?: (text: string) => Promise<ScreenLlmResult>;
+  runLlmCycle?: () => Promise<ScreenLlmResult>;
+}
+
+/**
+ * Итог ручного цикла ИИ-режиссёра. Строки уже отрендерены на границе
+ * (`GameShell`): экран не умеет разрешать `PrimitiveOutcomeLine`/
+ * `PrimitiveRejectionRecord` — это домен движка, а модель экрана его не
+ * знает (см. `recognizeOrder` выше — тот же приём).
+ */
+export interface ScreenLlmResult {
+  success: boolean;
+  /** Причина отказа ЗАПРОСА (сеть, невалидный JSON ответа) — не отказ примитивов. */
+  error?: string;
+  /** Стал ли ответ каноном. `false` — режиссёр предложил невозможное. */
+  narrativeCanonized: boolean;
+  title?: string;
+  descriptions?: string;
+  /** `undefined` — подтверждено полностью, отдельная оговорка не нужна. */
+  factuality?: "partial" | "unconfirmed";
+  applied: Array<{ headline: string; details: string[] }>;
+  rejected: string[];
 }
 
 const ScreenActionsContext = createContext<ScreenActions>({});

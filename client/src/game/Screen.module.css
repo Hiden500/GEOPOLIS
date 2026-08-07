@@ -731,6 +731,71 @@
   color: var(--text-faint);
 }
 
+/* ── ИИ-РЕЖИССЁР: ручной цикл ─────────────────────────────────── */
+
+/* Шире обычного диалога: рядом с кнопками живут промт и ответ. */
+.llmPanel {
+  width: min(44rem, calc(100% - var(--space-7)));
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.llmSection {
+  margin-bottom: var(--space-4);
+}
+
+.llmSection:last-child {
+  margin-bottom: 0;
+}
+
+.llmSectionTitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text-dim);
+}
+
+.llmField {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border: var(--edge-width) solid var(--divider);
+  border-radius: var(--radius-inner);
+  color: var(--text);
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-sm);
+  resize: vertical;
+}
+
+.llmField::placeholder {
+  color: var(--text-faint);
+}
+
+.llmField:focus {
+  border-color: var(--edge-strong);
+  outline: none;
+}
+
+.llmError {
+  color: var(--near);
+  font-size: var(--text-sm);
+}
+
+.llmFactuality {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+}
+
+.llmList {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-2);
+  padding-left: var(--space-4);
+  font-size: var(--text-sm);
+}
+
 
 /* Развилка кампании перекрывает даже подтверждение: без неё играть нечем. */
 .scrimCampaign {

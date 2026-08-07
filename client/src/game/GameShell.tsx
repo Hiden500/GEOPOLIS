@@ -5,20 +5,24 @@ import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { MapView } from "../map/MapView";
 import { MAP_MODE_ORDER, computeMapModeColors, type MapMode } from "../hud/mapModeColors";
 import { usePrimitiveOutcomeText } from "../components/primitiveOutcomeText";
+import { usePrimitiveRejectionText } from "../components/primitiveRejectionText";
 import {
   applyPrimitives,
   chooseSuccessor,
   getGameState,
+  getLlmPrompt as apiGetLlmPrompt,
   nextTurn,
   runAutoLlmCycle,
   savePlayerIntent,
+  submitLlmResponse as apiSubmitLlmResponse,
   translatePlayerOrder,
   updateBudget,
   type BudgetUpdate,
+  type LlmCycleResult,
 } from "../api/gameApi";
 import { Screen, type ScreenOrder } from "./Screen";
 import { buildScreenModel } from "./adapter";
-import type { ScreenActions, ScreenCampaign } from "./model";
+import type { ScreenActions, ScreenCampaign, ScreenLlmResult } from "./model";
 import styles from "./GameShell.module.css";
 
 /**
@@ -39,6 +43,7 @@ export function GameShell({
   const { t, i18n } = useTranslation("screen");
   const locale = i18n.language as Locale;
   const renderLine = usePrimitiveOutcomeText();
+  const renderRejection = usePrimitiveRejectionText();
 
   const [mapMode, setMapMode] = useState<MapMode>("pol");
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
@@ -150,6 +155,29 @@ export function GameShell({
   );
 
   /**
+   * Квитанция цикла на границе клиента: сервер присылает код + параметры
+   * (`ResponseReceipt`), а не готовый текст, — здесь единственное место,
+   * где это домен движка превращается в строки, которые умеет показать
+   * экран (`ScreenLlmResult`). Тот же приём, что у `recognizeOrder` выше.
+   */
+  const toScreenLlmResult = useCallback(
+    (res: LlmCycleResult): ScreenLlmResult => ({
+      success: res.success,
+      error: res.error,
+      narrativeCanonized: res.narrativeCanonized,
+      title: res.title,
+      descriptions: res.descriptions,
+      factuality: res.receipt.factuality === "confirmed" ? undefined : res.receipt.factuality,
+      applied: res.receipt.primitives.applied.map((record) => ({
+        headline: renderLine(record.headline),
+        details: record.details.map((line) => renderLine(line)),
+      })),
+      rejected: res.receipt.primitives.rejected.map((rejection) => renderRejection(rejection)),
+    }),
+    [renderLine, renderRejection],
+  );
+
+  /**
    * Действия экрана. Каждое перечитывает состояние после себя: мир изменился,
    * и интерфейс обязан догнать — иначе игрок правит доли на устаревшем снимке.
    */
@@ -182,8 +210,19 @@ export function GameShell({
           recognized: translation.preview.map((record) => renderLine(record.headline)),
         };
       },
+      getLlmPrompt: () => apiGetLlmPrompt(),
+      submitLlmResponse: async (text) => {
+        const res = await apiSubmitLlmResponse(text);
+        if (res.success) onGameUpdate(await getGameState());
+        return toScreenLlmResult(res);
+      },
+      runLlmCycle: async () => {
+        const res = await runAutoLlmCycle();
+        if (res.success) onGameUpdate(await getGameState());
+        return toScreenLlmResult(res);
+      },
     }),
-    [onGameUpdate, renderLine],
+    [onGameUpdate, renderLine, toScreenLlmResult],
   );
 
   /**

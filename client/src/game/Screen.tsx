@@ -44,6 +44,7 @@ import {
   ScreenModelProvider,
   type LedgerTabId,
   type ScreenActions,
+  type ScreenLlmResult,
   type RegionTab,
   type ScreenModel,
   type ScreenStat,
@@ -242,6 +243,7 @@ export function Screen({
   const [thinking, setThinking] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [llmOpen, setLlmOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [feedWidth, setFeedWidth] = useState<number | null>(null);
   /** C3: наука отдельным ТОМОМ или внутри ОБОРОНЫ — смотрим оба варианта. */
@@ -343,6 +345,7 @@ export function Screen({
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       if (confirming !== null) return setConfirming(null);
+      if (llmOpen) return setLlmOpen(false);
       if (menuOpen) return setMenuOpen(false);
       if (searchOpen) return setSearchOpen(false);
       if (ledgerOpen) return setLedgerOpen(false);
@@ -355,7 +358,7 @@ export function Screen({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [confirming, menuOpen, searchOpen, ledgerOpen, yashik, selectedRegionId, selectedCountryId, onSelectRegion]);
+  }, [confirming, llmOpen, menuOpen, searchOpen, ledgerOpen, yashik, selectedRegionId, selectedCountryId, onSelectRegion]);
 
   /* ── Ручки ширины ───────────────────────────────────────────── */
   const rootSize = () => parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -1069,6 +1072,24 @@ export function Screen({
         <div className={styles.searchWrap} onClick={() => setMenuOpen(false)}>
           <div className={styles.searchPanel} onClick={(event) => event.stopPropagation()}>
             <Panel title="Меню" meta="тумблеры макета" onClose={() => setMenuOpen(false)} density="control">
+              {(actions.getLlmPrompt !== undefined ||
+                actions.submitLlmResponse !== undefined ||
+                actions.runLlmCycle !== undefined) && (
+                <div style={{ marginBottom: "var(--space-4)" }}>
+                  <p className={styles.empty}>Диагностика: промт и ответ ИИ-режиссёра вручную.</p>
+                  <Button
+                    size="sm"
+                    variant="quiet"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setLlmOpen(true);
+                    }}
+                  >
+                    Ручной цикл ИИ-режиссёра
+                  </Button>
+                </div>
+              )}
+
               <p className={styles.empty}>Наука отдельным томом или внутри обороны — смотрим оба варианта.</p>
               <div style={{ display: "flex", gap: "var(--space-1)", marginBottom: "var(--space-4)" }}>
                 <Button size="sm" variant={scienceSeparate ? "order" : "quiet"} onClick={() => setScienceSeparate(true)}>
@@ -1140,8 +1161,206 @@ export function Screen({
           </div>
         </div>
       )}
+
+      {/* ── ИИ-РЕЖИССЁР: ручной цикл, диагностика ────────────── */}
+      {llmOpen && (
+        <div className={styles.searchWrap} onClick={() => setLlmOpen(false)}>
+          <div className={cx(styles.searchPanel, styles.llmPanel)} onClick={(event) => event.stopPropagation()}>
+            <LlmCycleWindow actions={actions} onClose={() => setLlmOpen(false)} />
+          </div>
+        </div>
+      )}
     </div>
     </ScreenActionsProvider>
     </ScreenModelProvider>
+  );
+}
+
+/**
+ * Ручной цикл ИИ-режиссёра (диагностика). Обычный ход прогоняет тот же
+ * серверный цикл сам (`onAdvance` → `runLlmCycle` внутри `GameShell`) — тут
+ * то же самое доступно вручную: увидеть промт, подставить ответ, обойти
+ * автоматический ключ. Действие не задано — соответствующая секция не
+ * рисуется (правило органов управления, `model.ts`).
+ */
+function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose: () => void }) {
+  const [prompt, setPrompt] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [responseText, setResponseText] = useState("");
+  const [result, setResult] = useState<ScreenLlmResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const handleGetPrompt = () => {
+    if (actions.getLlmPrompt === undefined) return;
+    setBusy(true);
+    setError(null);
+    setCopied(false);
+    void actions
+      .getLlmPrompt()
+      .then(({ prompt: text }) => {
+        setPrompt(text);
+        return navigator.clipboard.writeText(text).then(
+          () => setCopied(true),
+          // Буфер обмена недоступен (нет прав / не-secure context) — промт
+          // всё равно показан ниже, можно скопировать вручную.
+          () => setCopied(false),
+        );
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+        setError("Ошибка получения промта");
+      })
+      .finally(() => setBusy(false));
+  };
+
+  const handleApply = () => {
+    if (actions.submitLlmResponse === undefined) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    void actions
+      .submitLlmResponse(responseText)
+      .then((res) => {
+        setResult(res);
+        if (res.success) setResponseText("");
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+        setError("Ошибка применения ответа");
+      })
+      .finally(() => setBusy(false));
+  };
+
+  const handleAuto = () => {
+    if (actions.runLlmCycle === undefined) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    void actions
+      .runLlmCycle()
+      .then(setResult)
+      .catch((err: unknown) => {
+        console.error(err);
+        setError("Ошибка автоматического цикла");
+      })
+      .finally(() => setBusy(false));
+  };
+
+  return (
+    <Panel title="Ручной цикл ИИ-режиссёра" meta="диагностика" onClose={onClose} density="control">
+      {actions.runLlmCycle !== undefined && (
+        <section className={styles.llmSection}>
+          <h3 className={styles.llmSectionTitle}>Автоматически</h3>
+          <Button variant="order" size="sm" onClick={handleAuto} disabled={busy}>
+            Сгенерировать и применить автоматически
+          </Button>
+        </section>
+      )}
+
+      {actions.getLlmPrompt !== undefined && (
+        <section className={styles.llmSection}>
+          <h3 className={styles.llmSectionTitle}>1. Промт (ручной способ)</h3>
+          <Button variant="quiet" size="sm" onClick={handleGetPrompt} disabled={busy}>
+            {copied ? "Промт скопирован ✓" : "Получить и скопировать промт"}
+          </Button>
+          {prompt !== null && (
+            <textarea
+              className={styles.llmField}
+              aria-label="Промт для ИИ"
+              readOnly
+              value={prompt}
+              rows={6}
+              onFocus={(event) => event.currentTarget.select()}
+            />
+          )}
+        </section>
+      )}
+
+      {actions.submitLlmResponse !== undefined && (
+        <section className={styles.llmSection}>
+          <h3 className={styles.llmSectionTitle}>2. Ответ ИИ</h3>
+          <textarea
+            className={styles.llmField}
+            aria-label="Ответ ИИ (JSON)"
+            placeholder='Вставьте JSON-ответ: { "descriptions": "...", "primitives": [...] }'
+            value={responseText}
+            onChange={(event) => setResponseText(event.target.value)}
+            rows={6}
+          />
+          <Button variant="order" size="sm" onClick={handleApply} disabled={busy || responseText.trim() === ""}>
+            Применить ответ
+          </Button>
+        </section>
+      )}
+
+      {error !== null && <p className={styles.llmError}>{error}</p>}
+
+      {result !== null && result.success && <LlmCycleOutcome result={result} />}
+    </Panel>
+  );
+}
+
+function LlmCycleOutcome({ result }: { result: ScreenLlmResult }) {
+  return (
+    <section className={cx(styles.llmSection, styles.llmResult)}>
+      {result.narrativeCanonized ? (
+        <>
+          <h3 className={styles.llmSectionTitle}>{result.title ?? "Результат"}</h3>
+          {result.factuality !== undefined && (
+            <p className={styles.llmFactuality} role="note">
+              {result.factuality === "partial"
+                ? "Подтверждено частично: часть предложенного движок отклонил — текст выше мог описать и её. Что легло в мир на самом деле — ниже."
+                : "Фактами не подтверждено: движку режиссёр ничего не предлагал, мир этот текст не менял."}
+            </p>
+          )}
+          {result.descriptions !== undefined && <p className={styles.modalText}>{result.descriptions}</p>}
+        </>
+      ) : (
+        <>
+          <h3 className={styles.llmSectionTitle}>Режиссёр предложил невозможное</h3>
+          <p role="status" className={styles.modalText}>
+            Ни одно предложение режиссёра не применилось, поэтому событие не записано: мир не изменился, и
+            рассказывать о нём нечего. Причины ниже уйдут модели в следующий промт.
+          </p>
+        </>
+      )}
+
+      <p className={styles.empty}>
+        Применено приказов: {result.applied.length}
+        {result.rejected.length > 0 && `, отклонено: ${result.rejected.length}`}
+      </p>
+
+      {result.applied.length > 0 && (
+        <section aria-label="Что произошло на самом деле">
+          <h4 className={styles.llmSectionTitle}>Что произошло на самом деле</h4>
+          <ul className={styles.llmList}>
+            {result.applied.map((record, index) => (
+              <li key={index}>
+                {record.headline}
+                {record.details.length > 0 && (
+                  <ul>
+                    {record.details.map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {result.rejected.length > 0 && (
+        <section aria-label="Отклонено движком">
+          <h4 className={styles.llmSectionTitle}>Отклонено движком</h4>
+          <ul className={styles.llmList}>
+            {result.rejected.map((line, index) => (
+              <li key={index}>{line}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </section>
   );
 }
