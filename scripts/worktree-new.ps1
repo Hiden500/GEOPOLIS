@@ -151,6 +151,38 @@ else {
     }
 }
 
+# --- Источники карты: junction на общее хранилище -----------------------------
+# Внешние входы пайплайна (game_map.json 37 МБ, geoBoundaries ADM2, IHO,
+# исторические шейпы) в git не лежат: на GitHub вместо них реестр со ссылками,
+# `docs/provenance/MAP_GEOMETRY_PROVENANCE.md`. Хранилище одно на машину,
+# путь — в PAXMAP_SOURCES_STORE. Тот же приём, что с node_modules: данные не
+# дублируются по деревьям.
+$store = $env:PAXMAP_SOURCES_STORE
+$sourcesLink = Join-Path $treePath 'scripts/map/sources'
+if ($store -and (Test-Path $store)) {
+    if (Test-Path $sourcesLink) {
+        Write-Host ''
+        Write-Host "  scripts/map/sources уже существует — junction не создан." -ForegroundColor Yellow
+    }
+    else {
+        try {
+            New-Item -ItemType Junction -Path $sourcesLink -Target $store -ErrorAction Stop | Out-Null
+            Write-Host ''
+            Write-Host "  Источники карты подключены: scripts/map/sources -> $store" -ForegroundColor Green
+        }
+        catch {
+            Write-Host ''
+            Write-Host "  Не удалось подключить источники карты: $_" -ForegroundColor Yellow
+        }
+    }
+}
+else {
+    Write-Host ''
+    Write-Host '  PAXMAP_SOURCES_STORE не задана — источники карты НЕ подключены.' -ForegroundColor Yellow
+    Write-Host '  Пайплайн карты в этом дереве не соберётся. Как завести хранилище —' -ForegroundColor Yellow
+    Write-Host '  docs/provenance/MAP_GEOMETRY_PROVENANCE.md.' -ForegroundColor Yellow
+}
+
 Write-Host ''
 Write-Host '--- шапка для промта сессии ---' -ForegroundColor Cyan
 Write-Host ''

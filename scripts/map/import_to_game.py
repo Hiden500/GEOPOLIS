@@ -92,16 +92,61 @@ OWNER_CODE_ALIASES = {
     "SOM_GBR": "QSO",
 }
 
-# Скобочные хвосты в конце имени — от технических индексов ("Burgas (5)")
-# до прямых заметок составителя MAP, протёкших в данные ("Nepal (план:
-# 'каждый в отдельный регион')", "Gibraltar (отдельный iso_a2='GI', не
-# входил в список стран)"). Ни один не несёт смысла для игрового названия —
-# снимаем все хвостовые группы (может быть несколько подряд).
-TRAILING_PAREN_RE = re.compile(r"(?:\s*\([^()]*\))+\s*$")
+# Скобочные хвосты в конце имени бывают двух разных видов, и снимать надо
+# только один.
+#
+# ШУМ: технические индексы ("Burgas (5)") и протёкшие заметки составителя MAP
+# ("Nepal (план: 'каждый в отдельный регион')", "Gibraltar (отдельный
+# iso_a2='GI', не входил в список стран)"). Снимаем.
+#
+# СМЫСЛ: уточнение, которым пайплайн РАЗЛИЧАЕТ регионы. Раньше снималось тоже,
+# и это молча ломало данные (замер 2026-08-02 на 1577 фичах):
+#   - "Dalian (Port Arthur / Kwantung Leased Territory)" -> "Dalian",
+#     то есть курируемое историческое имя откатывалось при каждом экспорте;
+#   - "Distrito Federal (Rio de Janeiro)" и "Rio de Janeiro (estado)"
+#     превращались в неразличимую пару;
+#   - "Territoires du Sud (Deep Sahara)" и "(Saharan fringe)" — в одно имя;
+#   - "Australian Sector (West)" и "(East)" — в одно имя.
+# Всего 33 региона теряли уточнение, из них три пары давали дубликаты.
+#
+# Заметок составителя в данных на 2026-08-02 не осталось ни одной — их
+# вычистили у источника. Правило для них сохранено как страховка на будущее:
+# признак заметки — кириллица, знак "=" или апостроф внутри скобок.
+TRAILING_INDEX_RE = re.compile(r"(?:\s*\(\d+\))+\s*$")
+AUTHORING_NOTE_RE = re.compile(r"(?:\s*\([^()]*(?:[А-Яа-яЁё]|=|')[^()]*\))+\s*$")
 
 
 def strip_trailing_index(name: str) -> str:
-    return TRAILING_PAREN_RE.sub("", name).strip()
+    """Снимает шумовые хвосты, сохраняя различающие уточнения."""
+    prev = None
+    while prev != name:
+        prev = name
+        name = TRAILING_INDEX_RE.sub("", name)
+        name = AUTHORING_NOTE_RE.sub("", name)
+    return name.strip()
+
+
+# Скобок в игровых именах быть не должно (решение пользователя 2026-08-02).
+# Уточнение, которое РАЗЛИЧАЕТ два региона, нельзя ни срезать (получится пара
+# одинаковых имён), ни оставить в скобках — поэтому каждому такому региону
+# задано своё плоское имя в конфигурации.
+_NAME_OVERRIDES: dict[str, dict[str, str]] | None = None
+
+
+def name_overrides() -> dict[str, dict[str, str]]:
+    global _NAME_OVERRIDES
+    if _NAME_OVERRIDES is None:
+        path = CONFIG_DIR / "region_name_overrides.json"
+        _NAME_OVERRIDES = load_json(path).get("overrides", {}) if path.is_file() else {}
+    return _NAME_OVERRIDES
+
+
+def region_name(region_id: str, raw: str, lang: str) -> str:
+    """Плоское имя региона: переопределение из конфигурации, иначе очищенное сырое."""
+    ov = name_overrides().get(region_id)
+    if ov and ov.get(lang):
+        return ov[lang]
+    return strip_trailing_index(raw)
 
 
 def resolve_owner(region_id: str, ownership: dict, overlay: dict) -> str | None:
@@ -200,7 +245,7 @@ def main():
                 "id": numeric_id,
                 "region_id": region_id,
                 "type": TYPE_MAP.get(region_type, "region"),
-                "name": strip_trailing_index(props.get("name", "")),
+                "name": region_name(region_id, props.get("name", ""), "en"),
                 "iso_a2": props.get("iso_a2", ""),
                 "continent": props.get("continent"),
             },
@@ -239,8 +284,10 @@ def main():
         ]
         numeric_id = region_id_to_numeric[region_id]
 
-        names_en_out[region_id] = strip_trailing_index(name_entry.get("name_en", props.get("name", region_id)))
-        names_ru_out[region_id] = strip_trailing_index(name_entry.get("name_ru", name_entry.get("name_en", region_id)))
+        names_en_out[region_id] = region_name(
+            region_id, name_entry.get("name_en", props.get("name", region_id)), "en")
+        names_ru_out[region_id] = region_name(
+            region_id, name_entry.get("name_ru", name_entry.get("name_en", region_id)), "ru")
 
         regions_core.append({
             "id": numeric_id,
@@ -261,6 +308,18 @@ def main():
             "deposits": {},
             "extraction": {},
         })
+
+    # Инвариант решения 2026-08-02: скобок в игровых именах нет. Проверяем ВСЕ
+    # три выхода — клиентскую геометрию и оба словаря имён.
+    with_paren = sorted(
+        {f["properties"]["region_id"] for f in out_features if "(" in f["properties"]["name"]}
+        | {rid for rid, n in names_en_out.items() if "(" in n}
+        | {rid for rid, n in names_ru_out.items() if "(" in n}
+    )
+    if with_paren:
+        raise SystemExit(
+            "имена со скобками остались — добавь их в config/region_name_overrides.json: "
+            + ", ".join(with_paren[:20]))
 
     SCENARIO_DIR.mkdir(parents=True, exist_ok=True)
     with open(REGIONS_CORE_OUT, "w", encoding="utf-8") as f:

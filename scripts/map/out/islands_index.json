@@ -1,0 +1,5105 @@
+{
+ "_meta": {
+  "generated_by": "scripts/map/build/build_islands_index.py",
+  "purpose": "выработать правило слияния островных регионов; НИЧЕГО не сливает",
+  "island_definition": "связная компонента графа суши размером <= 50 регионов; крупнее — материк",
+  "merge_unit": "пара (остров, владелец) — Гаити и Доминикана не склеиваются",
+  "cluster_rule": "связная компонента единиц слияния по расстоянию центроидов <= 2.0° внутри одного владельца",
+  "sources": {
+   "geometry": "scripts\\map\\out\\world_1946.geojson",
+   "scenario": "server\\data\\scenarios\\1946",
+   "seas": "scripts\\map\\out\\seas_iho_coastline.geojson"
+  },
+  "counts": {
+   "scenario_regions": 1444,
+   "land_components": 200,
+   "continents": 2,
+   "continent_regions": 1117,
+   "islands": 198,
+   "island_regions": 327,
+   "merge_groups": 207,
+   "clusters": 149,
+   "regions_saved_merging_within_group": 120,
+   "regions_saved_merging_to_cluster": 178
+  },
+  "warnings": {
+   "sea_layer_missing": false,
+   "solo_island_regions_without_sea_neighbor": [],
+   "inland_regions_of_split_islands": 17,
+   "island_regions_without_geometry": []
+  }
+ },
+ "clusters": [
+  {
+   "cluster_id": "PHL-03",
+   "owner": "PHL",
+   "suggested_name": "Cagayan Valley",
+   "group_count": 14,
+   "region_count": 31,
+   "area_km2": 266896.5,
+   "population": 15955812,
+   "groups": [
+    {
+     "group_id": "ISL-014/PHL",
+     "island_id": "ISL-014",
+     "owner": "PHL",
+     "name": "Cagayan Valley",
+     "region_count": 7,
+     "area_km2": 106970.8,
+     "population": 3562129,
+     "centroid": [
+      121.4293,
+      15.9577
+     ],
+     "region_indices": [
+      678,
+      673,
+      681,
+      674,
+      677,
+      675,
+      676
+     ]
+    },
+    {
+     "group_id": "ISL-016/PHL",
+     "island_id": "ISL-016",
+     "owner": "PHL",
+     "name": "Davao",
+     "region_count": 8,
+     "area_km2": 96073.3,
+     "population": 4304805,
+     "centroid": [
+      124.7867,
+      7.6407
+     ],
+     "region_indices": [
+      666,
+      671,
+      669,
+      670,
+      667,
+      665,
+      811,
+      805
+     ]
+    },
+    {
+     "group_id": "ISL-033/PHL",
+     "island_id": "ISL-033",
+     "owner": "PHL",
+     "name": "Negros Occidental",
+     "region_count": 4,
+     "area_km2": 21447.4,
+     "population": 1775468,
+     "centroid": [
+      123.3914,
+      10.0613
+     ],
+     "region_indices": [
+      820,
+      679,
+      817,
+      818
+     ]
+    },
+    {
+     "group_id": "ISL-034/PHL",
+     "island_id": "ISL-034",
+     "owner": "PHL",
+     "name": "Eastern Visayas",
+     "region_count": 2,
+     "area_km2": 20178.5,
+     "population": 1238325,
+     "centroid": [
+      124.9791,
+      11.5237
+     ],
+     "region_indices": [
+      672,
+      812
+     ]
+    },
+    {
+     "group_id": "ISL-042/PHL",
+     "island_id": "ISL-042",
+     "owner": "PHL",
+     "name": "Western Visayas",
+     "region_count": 1,
+     "area_km2": 11663.1,
+     "population": 757819,
+     "centroid": [
+      122.4432,
+      11.2006
+     ],
+     "region_indices": [
+      680
+     ]
+    },
+    {
+     "group_id": "ISL-069/PHL",
+     "island_id": "ISL-069",
+     "owner": "PHL",
+     "name": "Masbate",
+     "region_count": 1,
+     "area_km2": 3936.9,
+     "population": 359850,
+     "centroid": [
+      123.5541,
+      12.2927
+     ],
+     "region_indices": [
+      815
+     ]
+    },
+    {
+     "group_id": "ISL-090/PHL",
+     "island_id": "ISL-090",
+     "owner": "PHL",
+     "name": "Catanduanes",
+     "region_count": 1,
+     "area_km2": 1489.0,
+     "population": 234858,
+     "centroid": [
+      124.2307,
+      13.787
+     ],
+     "region_indices": [
+      816
+     ]
+    },
+    {
+     "group_id": "ISL-092/PHL",
+     "island_id": "ISL-092",
+     "owner": "PHL",
+     "name": "Surigao del Norte",
+     "region_count": 1,
+     "area_km2": 1169.4,
+     "population": 199254,
+     "centroid": [
+      125.7752,
+      10.0731
+     ],
+     "region_indices": [
+      810
+     ]
+    },
+    {
+     "group_id": "ISL-093/PHL",
+     "island_id": "ISL-093",
+     "owner": "PHL",
+     "name": "Romblon",
+     "region_count": 1,
+     "area_km2": 1141.3,
+     "population": 185005,
+     "centroid": [
+      122.2421,
+      12.4098
+     ],
+     "region_indices": [
+      809
+     ]
+    },
+    {
+     "group_id": "ISL-102/PHL",
+     "island_id": "ISL-102",
+     "owner": "PHL",
+     "name": "Marinduque",
+     "region_count": 1,
+     "area_km2": 889.0,
+     "population": 792439,
+     "centroid": [
+      121.9615,
+      13.3914
+     ],
+     "region_indices": [
+      808
+     ]
+    },
+    {
+     "group_id": "ISL-118/PHL",
+     "island_id": "ISL-118",
+     "owner": "PHL",
+     "name": "Quezon",
+     "region_count": 1,
+     "area_km2": 578.8,
+     "population": 684345,
+     "centroid": [
+      121.9399,
+      14.8777
+     ],
+     "region_indices": [
+      814
+     ]
+    },
+    {
+     "group_id": "ISL-120/PHL",
+     "island_id": "ISL-120",
+     "owner": "PHL",
+     "name": "Guimaras",
+     "region_count": 1,
+     "area_km2": 574.0,
+     "population": 745811,
+     "centroid": [
+      122.6268,
+      10.582
+     ],
+     "region_indices": [
+      821
+     ]
+    },
+    {
+     "group_id": "ISL-127/PHL",
+     "island_id": "ISL-127",
+     "owner": "PHL",
+     "name": "Biliran",
+     "region_count": 1,
+     "area_km2": 460.9,
+     "population": 616486,
+     "centroid": [
+      124.494,
+      11.5877
+     ],
+     "region_indices": [
+      813
+     ]
+    },
+    {
+     "group_id": "ISL-140/PHL",
+     "island_id": "ISL-140",
+     "owner": "PHL",
+     "name": "Siquijor",
+     "region_count": 1,
+     "area_km2": 324.1,
+     "population": 499218,
+     "centroid": [
+      123.6071,
+      9.1855
+     ],
+     "region_indices": [
+      819
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "DOM-01",
+   "owner": "DOM",
+   "suggested_name": "San Cristóbal",
+   "group_count": 1,
+   "region_count": 19,
+   "area_km2": 48437.3,
+   "population": 1900002,
+   "groups": [
+    {
+     "group_id": "ISL-020/DOM",
+     "island_id": "ISL-020",
+     "owner": "DOM",
+     "name": "San Cristóbal",
+     "region_count": 19,
+     "area_km2": 48437.3,
+     "population": 1900002,
+     "centroid": [
+      -70.4963,
+      18.8951
+     ],
+     "region_indices": [
+      868,
+      862,
+      855,
+      871,
+      854,
+      869,
+      863,
+      860,
+      864,
+      858,
+      853,
+      867,
+      866,
+      865,
+      859,
+      861,
+      857,
+      870,
+      856
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-10",
+   "owner": "GBR",
+   "suggested_name": "Highlands and Islands",
+   "group_count": 2,
+   "region_count": 16,
+   "area_km2": 230176.1,
+   "population": 24123208,
+   "groups": [
+    {
+     "group_id": "ISL-008/GBR",
+     "island_id": "ISL-008",
+     "owner": "GBR",
+     "name": "Highlands and Islands",
+     "region_count": 15,
+     "area_km2": 229601.4,
+     "population": 24106890,
+     "centroid": [
+      -2.5896,
+      53.9907
+     ],
+     "region_indices": [
+      123,
+      114,
+      121,
+      120,
+      115,
+      119,
+      118,
+      112,
+      122,
+      113,
+      117,
+      116,
+      111,
+      124,
+      125
+     ]
+    },
+    {
+     "group_id": "ISL-119/GBR",
+     "island_id": "ISL-119",
+     "owner": "GBR",
+     "name": "Isle of Man",
+     "region_count": 1,
+     "area_km2": 574.7,
+     "population": 16318,
+     "centroid": [
+      -4.5328,
+      54.2298
+     ],
+     "region_indices": [
+      161
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-01",
+   "owner": "PNG",
+   "suggested_name": "Western",
+   "group_count": 1,
+   "region_count": 15,
+   "area_km2": 408398.2,
+   "population": 1051614,
+   "groups": [
+    {
+     "group_id": "ISL-003/PNG",
+     "island_id": "ISL-003",
+     "owner": "PNG",
+     "name": "Western",
+     "region_count": 15,
+     "area_km2": 408398.2,
+     "population": 1051614,
+     "centroid": [
+      144.3577,
+      -6.6481
+     ],
+     "region_indices": [
+      1410,
+      1411,
+      1409,
+      1418,
+      1413,
+      1412,
+      1416,
+      1427,
+      1414,
+      1415,
+      1425,
+      1428,
+      1426,
+      1424,
+      1417
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-01",
+   "owner": "JPN",
+   "suggested_name": "Tohoku",
+   "group_count": 1,
+   "region_count": 10,
+   "area_km2": 270062.6,
+   "population": 71219809,
+   "groups": [
+    {
+     "group_id": "ISL-007/JPN",
+     "island_id": "ISL-007",
+     "owner": "JPN",
+     "name": "Tohoku",
+     "region_count": 10,
+     "area_km2": 270062.6,
+     "population": 71219809,
+     "centroid": [
+      136.8599,
+      36.0233
+     ],
+     "region_indices": [
+      572,
+      571,
+      567,
+      573,
+      570,
+      569,
+      577,
+      576,
+      802,
+      797
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SLB-02",
+   "owner": "SLB",
+   "suggested_name": "Guadalcanal",
+   "group_count": 8,
+   "region_count": 9,
+   "area_km2": 26264.1,
+   "population": 85648,
+   "groups": [
+    {
+     "group_id": "ISL-061/SLB",
+     "island_id": "ISL-061",
+     "owner": "SLB",
+     "name": "Guadalcanal",
+     "region_count": 2,
+     "area_km2": 5348.2,
+     "population": 7643,
+     "centroid": [
+      160.1702,
+      -9.6226
+     ],
+     "region_indices": [
+      1434,
+      1433
+     ]
+    },
+    {
+     "group_id": "ISL-062/SLB",
+     "island_id": "ISL-062",
+     "owner": "SLB",
+     "name": "Western",
+     "region_count": 1,
+     "area_km2": 5168.4,
+     "population": 3775,
+     "centroid": [
+      157.258,
+      -8.1517
+     ],
+     "region_indices": [
+      1436
+     ]
+    },
+    {
+     "group_id": "ISL-066/SLB",
+     "island_id": "ISL-066",
+     "owner": "SLB",
+     "name": "Malaita",
+     "region_count": 1,
+     "area_km2": 4401.4,
+     "population": 10394,
+     "centroid": [
+      161.0263,
+      -9.0039
+     ],
+     "region_indices": [
+      1432
+     ]
+    },
+    {
+     "group_id": "ISL-067/SLB",
+     "island_id": "ISL-067",
+     "owner": "SLB",
+     "name": "Isabel",
+     "region_count": 1,
+     "area_km2": 4036.0,
+     "population": 10137,
+     "centroid": [
+      159.1595,
+      -8.0177
+     ],
+     "region_indices": [
+      1437
+     ]
+    },
+    {
+     "group_id": "ISL-073/SLB",
+     "island_id": "ISL-073",
+     "owner": "SLB",
+     "name": "Makira",
+     "region_count": 1,
+     "area_km2": 3095.5,
+     "population": 9024,
+     "centroid": [
+      161.8402,
+      -10.5481
+     ],
+     "region_indices": [
+      1430
+     ]
+    },
+    {
+     "group_id": "ISL-075/SLB",
+     "island_id": "ISL-075",
+     "owner": "SLB",
+     "name": "Choiseul",
+     "region_count": 1,
+     "area_km2": 3001.0,
+     "population": 9063,
+     "centroid": [
+      156.9744,
+      -7.039
+     ],
+     "region_indices": [
+      1438
+     ]
+    },
+    {
+     "group_id": "ISL-113/SLB",
+     "island_id": "ISL-113",
+     "owner": "SLB",
+     "name": "Rennell and Bellona",
+     "region_count": 1,
+     "area_km2": 664.2,
+     "population": 19033,
+     "centroid": [
+      160.252,
+      -11.6412
+     ],
+     "region_indices": [
+      1429
+     ]
+    },
+    {
+     "group_id": "ISL-123/SLB",
+     "island_id": "ISL-123",
+     "owner": "SLB",
+     "name": "Central",
+     "region_count": 1,
+     "area_km2": 549.4,
+     "population": 16579,
+     "centroid": [
+      159.8793,
+      -9.0787
+     ],
+     "region_indices": [
+      1435
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-04",
+   "owner": "PRT",
+   "suggested_name": "Santa Catarina",
+   "group_count": 9,
+   "region_count": 9,
+   "area_km2": 3912.1,
+   "population": 2116353,
+   "groups": [
+    {
+     "group_id": "ISL-099/PRT",
+     "island_id": "ISL-099",
+     "owner": "PRT",
+     "name": "Santa Catarina",
+     "region_count": 1,
+     "area_km2": 964.1,
+     "population": 215713,
+     "centroid": [
+      -23.6374,
+      15.0824
+     ],
+     "region_indices": [
+      1338
+     ]
+    },
+    {
+     "group_id": "ISL-110/PRT",
+     "island_id": "ISL-110",
+     "owner": "PRT",
+     "name": "Porto Novo",
+     "region_count": 1,
+     "area_km2": 740.1,
+     "population": 176423,
+     "centroid": [
+      -25.173,
+      17.0611
+     ],
+     "region_indices": [
+      1337
+     ]
+    },
+    {
+     "group_id": "ISL-114/PRT",
+     "island_id": "ISL-114",
+     "owner": "PRT",
+     "name": "Boa Vista",
+     "region_count": 1,
+     "area_km2": 633.7,
+     "population": 164911,
+     "centroid": [
+      -22.8163,
+      16.1057
+     ],
+     "region_indices": [
+      1332
+     ]
+    },
+    {
+     "group_id": "ISL-128/PRT",
+     "island_id": "ISL-128",
+     "owner": "PRT",
+     "name": "São Filipe",
+     "region_count": 1,
+     "area_km2": 457.8,
+     "population": 132589,
+     "centroid": [
+      -24.4001,
+      14.9287
+     ],
+     "region_indices": [
+      1335
+     ]
+    },
+    {
+     "group_id": "ISL-139/PRT",
+     "island_id": "ISL-139",
+     "owner": "PRT",
+     "name": "Ribeira Brava",
+     "region_count": 1,
+     "area_km2": 335.6,
+     "population": 129911,
+     "centroid": [
+      -24.2614,
+      16.6044
+     ],
+     "region_indices": [
+      1336
+     ]
+    },
+    {
+     "group_id": "ISL-146/PRT",
+     "island_id": "ISL-146",
+     "owner": "PRT",
+     "name": "Maio",
+     "region_count": 1,
+     "area_km2": 265.9,
+     "population": 102641,
+     "centroid": [
+      -23.1798,
+      15.2215
+     ],
+     "region_indices": [
+      1331
+     ]
+    },
+    {
+     "group_id": "ISL-148/PRT",
+     "island_id": "ISL-148",
+     "owner": "PRT",
+     "name": "São Vicente",
+     "region_count": 1,
+     "area_km2": 257.9,
+     "population": 541074,
+     "centroid": [
+      -24.9395,
+      16.8343
+     ],
+     "region_indices": [
+      1334
+     ]
+    },
+    {
+     "group_id": "ISL-152/PRT",
+     "island_id": "ISL-152",
+     "owner": "PRT",
+     "name": "Sal",
+     "region_count": 1,
+     "area_km2": 197.3,
+     "population": 432383,
+     "centroid": [
+      -22.9344,
+      16.7393
+     ],
+     "region_indices": [
+      1333
+     ]
+    },
+    {
+     "group_id": "ISL-174/PRT",
+     "island_id": "ISL-174",
+     "owner": "PRT",
+     "name": "Brava",
+     "region_count": 1,
+     "area_km2": 59.7,
+     "population": 220708,
+     "centroid": [
+      -24.7186,
+      14.8544
+     ],
+     "region_indices": [
+      1330
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IRL-01",
+   "owner": "IRL",
+   "suggested_name": "West",
+   "group_count": 1,
+   "region_count": 8,
+   "area_km2": 69487.4,
+   "population": 2960001,
+   "groups": [
+    {
+     "group_id": "ISL-018/IRL",
+     "island_id": "ISL-018",
+     "owner": "IRL",
+     "name": "West",
+     "region_count": 8,
+     "area_km2": 69487.4,
+     "population": 2960001,
+     "centroid": [
+      -8.149,
+      53.1637
+     ],
+     "region_indices": [
+      159,
+      153,
+      157,
+      156,
+      158,
+      160,
+      155,
+      154
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-06",
+   "owner": "GBR",
+   "suggested_name": "Northern Cyprus",
+   "group_count": 1,
+   "region_count": 8,
+   "area_km2": 9278.9,
+   "population": 1480025,
+   "groups": [
+    {
+     "group_id": "ISL-050/GBR",
+     "island_id": "ISL-050",
+     "owner": "GBR",
+     "name": "Northern Cyprus",
+     "region_count": 8,
+     "area_km2": 9278.9,
+     "population": 1480025,
+     "centroid": [
+      33.2275,
+      35.0496
+     ],
+     "region_indices": [
+      368,
+      41,
+      43,
+      42,
+      39,
+      40,
+      369,
+      370
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-01",
+   "owner": "AUS",
+   "suggested_name": "Western Australia",
+   "group_count": 1,
+   "region_count": 7,
+   "area_km2": 7622849.3,
+   "population": 7128236,
+   "groups": [
+    {
+     "group_id": "ISL-001/AUS",
+     "island_id": "ISL-001",
+     "owner": "AUS",
+     "name": "Western Australia",
+     "region_count": 7,
+     "area_km2": 7622849.3,
+     "population": 7128236,
+     "centroid": [
+      134.2791,
+      -25.3872
+     ],
+     "region_indices": [
+      1397,
+      1400,
+      1398,
+      1399,
+      1401,
+      1402,
+      1404
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "CUB-01",
+   "owner": "CUB",
+   "suggested_name": "Oriente",
+   "group_count": 1,
+   "region_count": 6,
+   "area_km2": 107479.1,
+   "population": 3524690,
+   "groups": [
+    {
+     "group_id": "ISL-013/CUB",
+     "island_id": "ISL-013",
+     "owner": "CUB",
+     "name": "Oriente",
+     "region_count": 6,
+     "area_km2": 107479.1,
+     "population": 3524690,
+     "centroid": [
+      -78.9372,
+      21.6183
+     ],
+     "region_indices": [
+      846,
+      845,
+      844,
+      843,
+      841,
+      842
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QWL-01",
+   "owner": "QWL",
+   "suggested_name": "Antigua and Barbuda",
+   "group_count": 6,
+   "region_count": 6,
+   "area_km2": 998.5,
+   "population": 107999,
+   "groups": [
+    {
+     "group_id": "ISL-131/QWL",
+     "island_id": "ISL-131",
+     "owner": "QWL",
+     "name": "Antigua and Barbuda",
+     "region_count": 1,
+     "area_km2": 442.7,
+     "population": 14926,
+     "centroid": [
+      -61.7918,
+      17.285
+     ],
+     "region_indices": [
+      872
+     ]
+    },
+    {
+     "group_id": "ISL-155/QWL",
+     "island_id": "ISL-155",
+     "owner": "QWL",
+     "name": "Saint Kitts",
+     "region_count": 1,
+     "area_km2": 174.2,
+     "population": 24906,
+     "centroid": [
+      -62.7582,
+      17.3324
+     ],
+     "region_indices": [
+      912
+     ]
+    },
+    {
+     "group_id": "ISL-125/QWL",
+     "island_id": "ISL-125",
+     "owner": "QWL",
+     "name": "British Virgin Islands",
+     "region_count": 1,
+     "area_km2": 115.6,
+     "population": 17817,
+     "centroid": [
+      -64.4924,
+      18.5231
+     ],
+     "region_indices": [
+      974
+     ]
+    },
+    {
+     "group_id": "ISL-165/QWL",
+     "island_id": "ISL-165",
+     "owner": "QWL",
+     "name": "Montserrat",
+     "region_count": 1,
+     "area_km2": 99.0,
+     "population": 18046,
+     "centroid": [
+      -62.1878,
+      16.738
+     ],
+     "region_indices": [
+      915
+     ]
+    },
+    {
+     "group_id": "ISL-170/QWL",
+     "island_id": "ISL-170",
+     "owner": "QWL",
+     "name": "Nevis",
+     "region_count": 1,
+     "area_km2": 86.8,
+     "population": 17219,
+     "centroid": [
+      -62.5812,
+      17.1496
+     ],
+     "region_indices": [
+      911
+     ]
+    },
+    {
+     "group_id": "ISL-171/QWL",
+     "island_id": "ISL-171",
+     "owner": "QWL",
+     "name": "Anguilla",
+     "region_count": 1,
+     "area_km2": 80.2,
+     "population": 15085,
+     "centroid": [
+      -63.0615,
+      18.225
+     ],
+     "region_indices": [
+      873
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "MDG-01",
+   "owner": "MDG",
+   "suggested_name": "Bongolava",
+   "group_count": 1,
+   "region_count": 5,
+   "area_km2": 592984.0,
+   "population": 3597717,
+   "groups": [
+    {
+     "group_id": "ISL-005/MDG",
+     "island_id": "ISL-005",
+     "owner": "MDG",
+     "name": "Bongolava",
+     "region_count": 5,
+     "area_km2": 592984.0,
+     "population": 3597717,
+     "centroid": [
+      46.7245,
+      -19.3239
+     ],
+     "region_indices": [
+      1257,
+      1256,
+      1255,
+      1254,
+      1253
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QRI-01",
+   "owner": "QRI",
+   "suggested_name": "Sumatera Selatan",
+   "group_count": 1,
+   "region_count": 5,
+   "area_km2": 448483.2,
+   "population": 45498915,
+   "groups": [
+    {
+     "group_id": "ISL-006/QRI",
+     "island_id": "ISL-006",
+     "owner": "QRI",
+     "name": "Sumatera Selatan",
+     "region_count": 5,
+     "area_km2": 448483.2,
+     "population": 45498915,
+     "centroid": [
+      101.4359,
+      -0.4176
+     ],
+     "region_indices": [
+      494,
+      497,
+      488,
+      489,
+      490
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "HTI-01",
+   "owner": "HTI",
+   "suggested_name": "Artibonite",
+   "group_count": 1,
+   "region_count": 5,
+   "area_km2": 26876.3,
+   "population": 3099999,
+   "groups": [
+    {
+     "group_id": "ISL-020/HTI",
+     "island_id": "ISL-020",
+     "owner": "HTI",
+     "name": "Artibonite",
+     "region_count": 5,
+     "area_km2": 26876.3,
+     "population": 3099999,
+     "centroid": [
+      -72.6916,
+      18.9368
+     ],
+     "region_indices": [
+      848,
+      851,
+      852,
+      849,
+      850
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TWN-02",
+   "owner": "TWN",
+   "suggested_name": "Southern Taiwan",
+   "group_count": 3,
+   "region_count": 4,
+   "area_km2": 36163.7,
+   "population": 5288051,
+   "groups": [
+    {
+     "group_id": "ISL-027/TWN",
+     "island_id": "ISL-027",
+     "owner": "TWN",
+     "name": "Southern Taiwan",
+     "region_count": 2,
+     "area_km2": 35929.6,
+     "population": 4950395,
+     "centroid": [
+      120.9641,
+      23.7479
+     ],
+     "region_indices": [
+      749,
+      748
+     ]
+    },
+    {
+     "group_id": "ISL-161/TWN",
+     "island_id": "ISL-161",
+     "owner": "TWN",
+     "name": "Kinmen",
+     "region_count": 1,
+     "area_km2": 154.1,
+     "population": 200779,
+     "centroid": [
+      118.3764,
+      24.458
+     ],
+     "region_indices": [
+      746
+     ]
+    },
+    {
+     "group_id": "ISL-172/TWN",
+     "island_id": "ISL-172",
+     "owner": "TWN",
+     "name": "Penghu",
+     "region_count": 1,
+     "area_km2": 80.0,
+     "population": 136877,
+     "centroid": [
+      119.5878,
+      23.5887
+     ],
+     "region_indices": [
+      747
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-03",
+   "owner": "USA",
+   "suggested_name": "Hawaii — Hawaii",
+   "group_count": 4,
+   "region_count": 4,
+   "area_km2": 16675.2,
+   "population": 452014,
+   "groups": [
+    {
+     "group_id": "ISL-046/USA",
+     "island_id": "ISL-046",
+     "owner": "USA",
+     "name": "Hawaii — Hawaii",
+     "region_count": 1,
+     "area_km2": 10443.8,
+     "population": 117093,
+     "centroid": [
+      -155.5191,
+      19.5998
+     ],
+     "region_indices": [
+      1054
+     ]
+    },
+    {
+     "group_id": "ISL-074/USA",
+     "island_id": "ISL-074",
+     "owner": "USA",
+     "name": "Hawaii — Maui",
+     "region_count": 1,
+     "area_km2": 3028.5,
+     "population": 68154,
+     "centroid": [
+      -156.5678,
+      20.8656
+     ],
+     "region_indices": [
+      1055
+     ]
+    },
+    {
+     "group_id": "ISL-087/USA",
+     "island_id": "ISL-087",
+     "owner": "USA",
+     "name": "Hawaii — Kauai",
+     "region_count": 1,
+     "area_km2": 1640.8,
+     "population": 47353,
+     "centroid": [
+      -159.5956,
+      22.0408
+     ],
+     "region_indices": [
+      1053
+     ]
+    },
+    {
+     "group_id": "ISL-089/USA",
+     "island_id": "ISL-089",
+     "owner": "USA",
+     "name": "Hawaii — Honolulu",
+     "region_count": 1,
+     "area_km2": 1562.1,
+     "population": 219414,
+     "centroid": [
+      -157.9742,
+      21.4595
+     ],
+     "region_indices": [
+      1052
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QWW-01",
+   "owner": "QWW",
+   "suggested_name": "Dominica",
+   "group_count": 4,
+   "region_count": 4,
+   "area_km2": 2035.9,
+   "population": 252000,
+   "groups": [
+    {
+     "group_id": "ISL-111/QWW",
+     "island_id": "ISL-111",
+     "owner": "QWW",
+     "name": "Dominica",
+     "region_count": 1,
+     "area_km2": 728.2,
+     "population": 74407,
+     "centroid": [
+      -61.3569,
+      15.4364
+     ],
+     "region_indices": [
+      892
+     ]
+    },
+    {
+     "group_id": "ISL-115/QWW",
+     "island_id": "ISL-115",
+     "owner": "QWW",
+     "name": "Saint Lucia",
+     "region_count": 1,
+     "area_km2": 605.4,
+     "population": 69653,
+     "centroid": [
+      -60.9703,
+      13.9029
+     ],
+     "region_indices": [
+      914
+     ]
+    },
+    {
+     "group_id": "ISL-137/QWW",
+     "island_id": "ISL-137",
+     "owner": "QWW",
+     "name": "Saint Vincent and the Grenadines",
+     "region_count": 1,
+     "area_km2": 357.0,
+     "population": 55494,
+     "centroid": [
+      -61.2012,
+      13.2275
+     ],
+     "region_indices": [
+      973
+     ]
+    },
+    {
+     "group_id": "ISL-138/QWW",
+     "island_id": "ISL-138",
+     "owner": "QWW",
+     "name": "Grenada",
+     "region_count": 1,
+     "area_km2": 345.3,
+     "population": 52446,
+     "centroid": [
+      -61.657,
+      12.1524
+     ],
+     "region_indices": [
+      893
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-02",
+   "owner": "IDN",
+   "suggested_name": "Kalimantan Timur",
+   "group_count": 1,
+   "region_count": 3,
+   "area_km2": 534538.0,
+   "population": 3383265,
+   "groups": [
+    {
+     "group_id": "ISL-004/IDN",
+     "island_id": "ISL-004",
+     "owner": "IDN",
+     "name": "Kalimantan Timur",
+     "region_count": 3,
+     "area_km2": 534538.0,
+     "population": 3383265,
+     "centroid": [
+      114.0253,
+      -0.1997
+     ],
+     "region_indices": [
+      479,
+      496,
+      481
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PHL-01",
+   "owner": "PHL",
+   "suggested_name": "MIMAROPA",
+   "group_count": 1,
+   "region_count": 3,
+   "area_km2": 24230.6,
+   "population": 1610288,
+   "groups": [
+    {
+     "group_id": "ISL-031/PHL",
+     "island_id": "ISL-031",
+     "owner": "PHL",
+     "name": "MIMAROPA",
+     "region_count": 3,
+     "area_km2": 24230.6,
+     "population": 1610288,
+     "centroid": [
+      119.7057,
+      11.2134
+     ],
+     "region_indices": [
+      668,
+      806,
+      807
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QND-01",
+   "owner": "QND",
+   "suggested_name": "Curaçao",
+   "group_count": 3,
+   "region_count": 3,
+   "area_km2": 898.1,
+   "population": 77138,
+   "groups": [
+    {
+     "group_id": "ISL-126/QND",
+     "island_id": "ISL-126",
+     "owner": "QND",
+     "name": "Curaçao",
+     "region_count": 1,
+     "area_km2": 462.1,
+     "population": 16392,
+     "centroid": [
+      -68.9717,
+      12.1941
+     ],
+     "region_indices": [
+      891
+     ]
+    },
+    {
+     "group_id": "ISL-147/QND",
+     "island_id": "ISL-147",
+     "owner": "QND",
+     "name": "Bonaire",
+     "region_count": 1,
+     "area_km2": 265.8,
+     "population": 35376,
+     "centroid": [
+      -68.288,
+      12.1865
+     ],
+     "region_indices": [
+      824
+     ]
+    },
+    {
+     "group_id": "ISL-157/QND",
+     "island_id": "ISL-157",
+     "owner": "QND",
+     "name": "Aruba",
+     "region_count": 1,
+     "area_km2": 170.2,
+     "population": 25370,
+     "centroid": [
+      -69.9738,
+      12.5165
+     ],
+     "region_indices": [
+      874
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-23",
+   "owner": "GBR",
+   "suggested_name": "Grand'Anse",
+   "group_count": 3,
+   "region_count": 3,
+   "area_km2": 232.7,
+   "population": 137780,
+   "groups": [
+    {
+     "group_id": "ISL-159/GBR",
+     "island_id": "ISL-159",
+     "owner": "GBR",
+     "name": "Grand'Anse",
+     "region_count": 1,
+     "area_km2": 161.4,
+     "population": 71657,
+     "centroid": [
+      55.468,
+      -4.677
+     ],
+     "region_indices": [
+      1342
+     ]
+    },
+    {
+     "group_id": "ISL-178/GBR",
+     "island_id": "ISL-178",
+     "owner": "GBR",
+     "name": "Grand'Anse Praslin",
+     "region_count": 1,
+     "area_km2": 39.4,
+     "population": 35909,
+     "centroid": [
+      55.7294,
+      -4.3241
+     ],
+     "region_indices": [
+      1341
+     ]
+    },
+    {
+     "group_id": "ISL-181/GBR",
+     "island_id": "ISL-181",
+     "owner": "GBR",
+     "name": "La Digue and Inner Islands",
+     "region_count": 1,
+     "area_km2": 31.9,
+     "population": 30214,
+     "centroid": [
+      55.4346,
+      -4.4386
+     ],
+     "region_indices": [
+      1340
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QND-02",
+   "owner": "QND",
+   "suggested_name": "Sint Maarten",
+   "group_count": 3,
+   "region_count": 3,
+   "area_km2": 45.7,
+   "population": 61863,
+   "groups": [
+    {
+     "group_id": "ISL-184/QND",
+     "island_id": "ISL-184",
+     "owner": "QND",
+     "name": "Sint Maarten",
+     "region_count": 1,
+     "area_km2": 23.1,
+     "population": 8356,
+     "centroid": [
+      -63.0697,
+      18.0407
+     ],
+     "region_indices": [
+      969
+     ]
+    },
+    {
+     "group_id": "ISL-185/QND",
+     "island_id": "ISL-185",
+     "owner": "QND",
+     "name": "St. Eustatius",
+     "region_count": 1,
+     "area_km2": 17.4,
+     "population": 33291,
+     "centroid": [
+      -62.9746,
+      17.4884
+     ],
+     "region_indices": [
+      825
+     ]
+    },
+    {
+     "group_id": "ISL-192/QND",
+     "island_id": "ISL-192",
+     "owner": "QND",
+     "name": "Saba",
+     "region_count": 1,
+     "area_km2": 5.2,
+     "population": 20216,
+     "centroid": [
+      -63.2378,
+      17.6294
+     ],
+     "region_indices": [
+      826
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-01",
+   "owner": "IDN",
+   "suggested_name": "Papua",
+   "group_count": 1,
+   "region_count": 2,
+   "area_km2": 407904.1,
+   "population": 1687021,
+   "groups": [
+    {
+     "group_id": "ISL-003/IDN",
+     "island_id": "ISL-003",
+     "owner": "IDN",
+     "name": "Papua",
+     "region_count": 2,
+     "area_km2": 407904.1,
+     "population": 1687021,
+     "centroid": [
+      137.3201,
+      -4.0256
+     ],
+     "region_indices": [
+      482,
+      485
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-03",
+   "owner": "IDN",
+   "suggested_name": "Sulawesi Selatan",
+   "group_count": 1,
+   "region_count": 2,
+   "area_km2": 185674.1,
+   "population": 2059514,
+   "groups": [
+    {
+     "group_id": "ISL-009/IDN",
+     "island_id": "ISL-009",
+     "owner": "IDN",
+     "name": "Sulawesi Selatan",
+     "region_count": 2,
+     "area_km2": 185674.1,
+     "population": 2059514,
+     "centroid": [
+      121.2842,
+      -2.0992
+     ],
+     "region_indices": [
+      495,
+      493
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-02",
+   "owner": "PNG",
+   "suggested_name": "West New Britain",
+   "group_count": 1,
+   "region_count": 2,
+   "area_km2": 36013.3,
+   "population": 107618,
+   "groups": [
+    {
+     "group_id": "ISL-026/PNG",
+     "island_id": "ISL-026",
+     "owner": "PNG",
+     "name": "West New Britain",
+     "region_count": 2,
+     "area_km2": 36013.3,
+     "population": 107618,
+     "centroid": [
+      150.649,
+      -5.471
+     ],
+     "region_indices": [
+      1420,
+      1421
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-06",
+   "owner": "JPN",
+   "suggested_name": "Shikoku",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 19401.8,
+   "population": 1766023,
+   "groups": [
+    {
+     "group_id": "ISL-038/JPN",
+     "island_id": "ISL-038",
+     "owner": "JPN",
+     "name": "Shikoku",
+     "region_count": 1,
+     "area_km2": 18803.4,
+     "population": 1541682,
+     "centroid": [
+      133.4666,
+      33.6656
+     ],
+     "region_indices": [
+      568
+     ]
+    },
+    {
+     "group_id": "ISL-116/JPN",
+     "island_id": "ISL-116",
+     "owner": "JPN",
+     "name": "Hyōgo",
+     "region_count": 1,
+     "area_km2": 598.4,
+     "population": 224341,
+     "centroid": [
+      134.839,
+      34.3638
+     ],
+     "region_indices": [
+      799
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "DNK-01",
+   "owner": "DNK",
+   "suggested_name": "Sjaælland",
+   "group_count": 1,
+   "region_count": 2,
+   "area_km2": 9697.0,
+   "population": 2020796,
+   "groups": [
+    {
+     "group_id": "ISL-047/DNK",
+     "island_id": "ISL-047",
+     "owner": "DNK",
+     "name": "Sjaælland",
+     "region_count": 2,
+     "area_km2": 9697.0,
+     "population": 2020796,
+     "centroid": [
+      12.0205,
+      55.393
+     ],
+     "region_indices": [
+      66,
+      67
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-05",
+   "owner": "USA",
+   "suggested_name": "Puerto Rico",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 9351.4,
+   "population": 2022488,
+   "groups": [
+    {
+     "group_id": "ISL-051/USA",
+     "island_id": "ISL-051",
+     "owner": "USA",
+     "name": "Puerto Rico",
+     "region_count": 1,
+     "area_km2": 8998.3,
+     "population": 1995913,
+     "centroid": [
+      -66.4676,
+      18.2239
+     ],
+     "region_indices": [
+      962
+     ]
+    },
+    {
+     "group_id": "ISL-125/USA",
+     "island_id": "ISL-125",
+     "owner": "USA",
+     "name": "United States Virgin Islands",
+     "region_count": 1,
+     "area_km2": 353.1,
+     "population": 26575,
+     "centroid": [
+      -64.7979,
+      17.9826
+     ],
+     "region_indices": [
+      975
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-16",
+   "owner": "GBR",
+   "suggested_name": "Rio Claro-Mayaro",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 5116.9,
+   "population": 702437,
+   "groups": [
+    {
+     "group_id": "ISL-065/GBR",
+     "island_id": "ISL-065",
+     "owner": "GBR",
+     "name": "Rio Claro-Mayaro",
+     "region_count": 1,
+     "area_km2": 4828.6,
+     "population": 480301,
+     "centroid": [
+      -61.2937,
+      10.4216
+     ],
+     "region_indices": [
+      972
+     ]
+    },
+    {
+     "group_id": "ISL-143/GBR",
+     "island_id": "ISL-143",
+     "owner": "GBR",
+     "name": "Eastern Tobago",
+     "region_count": 1,
+     "area_km2": 288.3,
+     "population": 222136,
+     "centroid": [
+      -60.6704,
+      11.247
+     ],
+     "region_indices": [
+      971
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SUN-02",
+   "owner": "SUN",
+   "suggested_name": "Saare",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 4041.8,
+   "population": 487429,
+   "groups": [
+    {
+     "group_id": "ISL-076/SUN",
+     "island_id": "ISL-076",
+     "owner": "SUN",
+     "name": "Saare",
+     "region_count": 1,
+     "area_km2": 2973.2,
+     "population": 309729,
+     "centroid": [
+      22.5377,
+      58.3927
+     ],
+     "region_indices": [
+      68
+     ]
+    },
+    {
+     "group_id": "ISL-096/SUN",
+     "island_id": "ISL-096",
+     "owner": "SUN",
+     "name": "Hiiu",
+     "region_count": 1,
+     "area_km2": 1068.6,
+     "population": 177700,
+     "centroid": [
+      22.6176,
+      58.8931
+     ],
+     "region_indices": [
+      69
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-03",
+   "owner": "JPN",
+   "suggested_name": "Okinawa",
+   "group_count": 1,
+   "region_count": 2,
+   "area_km2": 3266.7,
+   "population": 280157,
+   "groups": [
+    {
+     "group_id": "ISL-071/JPN",
+     "island_id": "ISL-071",
+     "owner": "JPN",
+     "name": "Okinawa",
+     "region_count": 2,
+     "area_km2": 3266.7,
+     "population": 280157,
+     "centroid": [
+      127.6651,
+      26.6404
+     ],
+     "region_indices": [
+      575,
+      801
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QZN-01",
+   "owner": "QZN",
+   "suggested_name": "Zanzibar South and Central",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 2504.2,
+   "population": 230000,
+   "groups": [
+    {
+     "group_id": "ISL-088/QZN",
+     "island_id": "ISL-088",
+     "owner": "QZN",
+     "name": "Zanzibar South and Central",
+     "region_count": 1,
+     "area_km2": 1579.2,
+     "population": 134461,
+     "centroid": [
+      39.3538,
+      -6.1329
+     ],
+     "region_indices": [
+      1258
+     ]
+    },
+    {
+     "group_id": "ISL-100/QZN",
+     "island_id": "ISL-100",
+     "owner": "QZN",
+     "name": "Kusini-Pemba",
+     "region_count": 1,
+     "area_km2": 925.0,
+     "population": 95539,
+     "centroid": [
+      39.7589,
+      -5.1834
+     ],
+     "region_indices": [
+      1259
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "MDG-02",
+   "owner": "MDG",
+   "suggested_name": "Comoros",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 2050.8,
+   "population": 698283,
+   "groups": [
+    {
+     "group_id": "ISL-085/MDG",
+     "island_id": "ISL-085",
+     "owner": "MDG",
+     "name": "Comoros",
+     "region_count": 1,
+     "area_km2": 1664.4,
+     "population": 483820,
+     "centroid": [
+      43.6792,
+      -11.8828
+     ],
+     "region_indices": [
+      1170
+     ]
+    },
+    {
+     "group_id": "ISL-134/MDG",
+     "island_id": "ISL-134",
+     "owner": "MDG",
+     "name": "Mayotte",
+     "region_count": 1,
+     "area_km2": 386.4,
+     "population": 214463,
+     "centroid": [
+      45.1428,
+      -12.8159
+     ],
+     "region_indices": [
+      1168
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PHL-02",
+   "owner": "PHL",
+   "suggested_name": "Basilan",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 1908.6,
+   "population": 1033900,
+   "groups": [
+    {
+     "group_id": "ISL-097/PHL",
+     "island_id": "ISL-097",
+     "owner": "PHL",
+     "name": "Basilan",
+     "region_count": 1,
+     "area_km2": 1038.4,
+     "population": 171874,
+     "centroid": [
+      122.0611,
+      6.5635
+     ],
+     "region_indices": [
+      803
+     ]
+    },
+    {
+     "group_id": "ISL-104/PHL",
+     "island_id": "ISL-104",
+     "owner": "PHL",
+     "name": "Sulu",
+     "region_count": 1,
+     "area_km2": 870.2,
+     "population": 862026,
+     "centroid": [
+      121.1299,
+      5.9777
+     ],
+     "region_indices": [
+      804
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VEN-01",
+   "owner": "VEN",
+   "suggested_name": "Nueva Esparta",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 1388.9,
+   "population": 289025,
+   "groups": [
+    {
+     "group_id": "ISL-094/VEN",
+     "island_id": "ISL-094",
+     "owner": "VEN",
+     "name": "Nueva Esparta",
+     "region_count": 1,
+     "area_km2": 1106.1,
+     "population": 83011,
+     "centroid": [
+      -64.0569,
+      10.9879
+     ],
+     "region_indices": [
+      1142
+     ]
+    },
+    {
+     "group_id": "ISL-145/VEN",
+     "island_id": "ISL-145",
+     "owner": "VEN",
+     "name": "Dependencias Federales",
+     "region_count": 1,
+     "area_km2": 282.8,
+     "population": 206014,
+     "centroid": [
+      -65.3703,
+      11.3266
+     ],
+     "region_indices": [
+      1143
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-05",
+   "owner": "PRT",
+   "suggested_name": "São Tomé",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 1035.6,
+   "population": 604775,
+   "groups": [
+    {
+     "group_id": "ISL-103/PRT",
+     "island_id": "ISL-103",
+     "owner": "PRT",
+     "name": "São Tomé",
+     "region_count": 1,
+     "area_km2": 880.6,
+     "population": 215948,
+     "centroid": [
+      6.6075,
+      0.2356
+     ],
+     "region_indices": [
+      1360
+     ]
+    },
+    {
+     "group_id": "ISL-160/PRT",
+     "island_id": "ISL-160",
+     "owner": "PRT",
+     "name": "Príncipe",
+     "region_count": 1,
+     "area_km2": 155.0,
+     "population": 388827,
+     "centroid": [
+      7.3961,
+      1.6213
+     ],
+     "region_indices": [
+      1361
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-19",
+   "owner": "GBR",
+   "suggested_name": "Jersey",
+   "group_count": 2,
+   "region_count": 2,
+   "area_km2": 187.0,
+   "population": 110647,
+   "groups": [
+    {
+     "group_id": "ISL-163/GBR",
+     "island_id": "ISL-163",
+     "owner": "GBR",
+     "name": "Jersey",
+     "region_count": 1,
+     "area_km2": 121.5,
+     "population": 64678,
+     "centroid": [
+      -2.1264,
+      49.2213
+     ],
+     "region_indices": [
+      183
+     ]
+    },
+    {
+     "group_id": "ISL-173/GBR",
+     "island_id": "ISL-173",
+     "owner": "GBR",
+     "name": "Guernsey",
+     "region_count": 1,
+     "area_km2": 65.5,
+     "population": 45969,
+     "centroid": [
+      -2.5482,
+      49.4825
+     ],
+     "region_indices": [
+      126
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GRL-01",
+   "owner": "GRL",
+   "suggested_name": "Greenland",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 2154667.7,
+   "population": 21000,
+   "groups": [
+    {
+     "group_id": "ISL-002/GRL",
+     "island_id": "ISL-002",
+     "owner": "GRL",
+     "name": "Greenland",
+     "region_count": 1,
+     "area_km2": 2154667.7,
+     "population": 21000,
+     "centroid": [
+      -41.3465,
+      74.7354
+     ],
+     "region_indices": [
+      894
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-01",
+   "owner": "NZL",
+   "suggested_name": "South Island",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 152463.6,
+   "population": 406045,
+   "groups": [
+    {
+     "group_id": "ISL-010/NZL",
+     "island_id": "ISL-010",
+     "owner": "NZL",
+     "name": "South Island",
+     "region_count": 1,
+     "area_km2": 152463.6,
+     "population": 406045,
+     "centroid": [
+      170.4886,
+      -44.0168
+     ],
+     "region_indices": [
+      1407
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QRI-02",
+   "owner": "QRI",
+   "suggested_name": "Jawa Barat",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 131764.1,
+   "population": 14501084,
+   "groups": [
+    {
+     "group_id": "ISL-011/QRI",
+     "island_id": "ISL-011",
+     "owner": "QRI",
+     "name": "Jawa Barat",
+     "region_count": 1,
+     "area_km2": 131764.1,
+     "population": 14501084,
+     "centroid": [
+      110.0757,
+      -7.2868
+     ],
+     "region_indices": [
+      498
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QSR-01",
+   "owner": "QSR",
+   "suggested_name": "Sarawak",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 122574.9,
+   "population": 500000,
+   "groups": [
+    {
+     "group_id": "ISL-004/QSR",
+     "island_id": "ISL-004",
+     "owner": "QSR",
+     "name": "Sarawak",
+     "region_count": 1,
+     "area_km2": 122574.9,
+     "population": 500000,
+     "centroid": [
+      113.2795,
+      2.5878
+     ],
+     "region_indices": [
+      655
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-02",
+   "owner": "NZL",
+   "suggested_name": "North Island",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 114405.0,
+   "population": 896090,
+   "groups": [
+    {
+     "group_id": "ISL-012/NZL",
+     "island_id": "ISL-012",
+     "owner": "NZL",
+     "name": "North Island",
+     "region_count": 1,
+     "area_km2": 114405.0,
+     "population": 896090,
+     "centroid": [
+      175.7309,
+      -38.5817
+     ],
+     "region_indices": [
+      1408
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ISL-01",
+   "owner": "ISL",
+   "suggested_name": "Iceland",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 102567.7,
+   "population": 130000,
+   "groups": [
+    {
+     "group_id": "ISL-015/ISL",
+     "island_id": "ISL-015",
+     "owner": "ISL",
+     "name": "Iceland",
+     "region_count": 1,
+     "area_km2": 102567.7,
+     "population": 130000,
+     "centroid": [
+      -18.5995,
+      64.9989
+     ],
+     "region_indices": [
+      162
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SUN-01",
+   "owner": "SUN",
+   "suggested_name": "Sakhalin Oblast",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 85930.2,
+   "population": 301716,
+   "groups": [
+    {
+     "group_id": "ISL-017/SUN",
+     "island_id": "ISL-017",
+     "owner": "SUN",
+     "name": "Sakhalin Oblast",
+     "region_count": 1,
+     "area_km2": 85930.2,
+     "population": 301716,
+     "centroid": [
+      143.6386,
+      49.9427
+     ],
+     "region_indices": [
+      300
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-02",
+   "owner": "JPN",
+   "suggested_name": "Hokkaido",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 78763.7,
+   "population": 1127953,
+   "groups": [
+    {
+     "group_id": "ISL-019/JPN",
+     "island_id": "ISL-019",
+     "owner": "JPN",
+     "name": "Hokkaido",
+     "region_count": 1,
+     "area_km2": 78763.7,
+     "population": 1127953,
+     "centroid": [
+      142.5667,
+      43.3827
+     ],
+     "region_indices": [
+      574
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QNB-01",
+   "owner": "QNB",
+   "suggested_name": "Sabah",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 73830.2,
+   "population": 325000,
+   "groups": [
+    {
+     "group_id": "ISL-004/QNB",
+     "island_id": "ISL-004",
+     "owner": "QNB",
+     "name": "Sabah",
+     "region_count": 1,
+     "area_km2": 73830.2,
+     "population": 325000,
+     "centroid": [
+      117.1316,
+      5.3459
+     ],
+     "region_indices": [
+      654
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-02",
+   "owner": "AUS",
+   "suggested_name": "Tasmania",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 68230.3,
+   "population": 367550,
+   "groups": [
+    {
+     "group_id": "ISL-021/AUS",
+     "island_id": "ISL-021",
+     "owner": "AUS",
+     "name": "Tasmania",
+     "region_count": 1,
+     "area_km2": 68230.3,
+     "population": 367550,
+     "centroid": [
+      146.6249,
+      -41.9631
+     ],
+     "region_indices": [
+      1403
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "LKA-01",
+   "owner": "LKA",
+   "suggested_name": "Ceylon",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 66283.8,
+   "population": 6300000,
+   "groups": [
+    {
+     "group_id": "ISL-022/LKA",
+     "island_id": "ISL-022",
+     "owner": "LKA",
+     "name": "Ceylon",
+     "region_count": 1,
+     "area_km2": 66283.8,
+     "population": 6300000,
+     "centroid": [
+      80.7034,
+      7.6158
+     ],
+     "region_indices": [
+      637
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NOR-01",
+   "owner": "NOR",
+   "suggested_name": "Svalbard",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 62061.9,
+   "population": 699181,
+   "groups": [
+    {
+     "group_id": "ISL-023/NOR",
+     "island_id": "ISL-023",
+     "owner": "NOR",
+     "name": "Svalbard",
+     "region_count": 1,
+     "area_km2": 62061.9,
+     "population": 699181,
+     "centroid": [
+      18.4796,
+      78.866
+     ],
+     "region_indices": [
+      204
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-04",
+   "owner": "IDN",
+   "suggested_name": "Nusa Tenggara Timur",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 46447.4,
+   "population": 640241,
+   "groups": [
+    {
+     "group_id": "ISL-024/IDN",
+     "island_id": "ISL-024",
+     "owner": "IDN",
+     "name": "Nusa Tenggara Timur",
+     "region_count": 1,
+     "area_km2": 46447.4,
+     "population": 640241,
+     "centroid": [
+      122.1836,
+      -9.254
+     ],
+     "region_indices": [
+      480
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-05",
+   "owner": "IDN",
+   "suggested_name": "Maluku",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 44865.6,
+   "population": 596743,
+   "groups": [
+    {
+     "group_id": "ISL-025/IDN",
+     "island_id": "ISL-025",
+     "owner": "IDN",
+     "name": "Maluku",
+     "region_count": 1,
+     "area_km2": 44865.6,
+     "population": 596743,
+     "centroid": [
+      129.7548,
+      -4.6911
+     ],
+     "region_indices": [
+      483
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TWN-01",
+   "owner": "TWN",
+   "suggested_name": "Hainan",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 33864.9,
+   "population": 3294051,
+   "groups": [
+    {
+     "group_id": "ISL-028/TWN",
+     "island_id": "ISL-028",
+     "owner": "TWN",
+     "name": "Hainan",
+     "region_count": 1,
+     "area_km2": 33864.9,
+     "population": 3294051,
+     "centroid": [
+      109.7398,
+      19.1973
+     ],
+     "region_indices": [
+      383
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-06",
+   "owner": "IDN",
+   "suggested_name": "Maluku Utara",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 31330.0,
+   "population": 565491,
+   "groups": [
+    {
+     "group_id": "ISL-029/IDN",
+     "island_id": "ISL-029",
+     "owner": "IDN",
+     "name": "Maluku Utara",
+     "region_count": 1,
+     "area_km2": 31330.0,
+     "population": 565491,
+     "centroid": [
+      127.5404,
+      0.2208
+     ],
+     "region_indices": [
+      486
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ITA-01",
+   "owner": "ITA",
+   "suggested_name": "Sicily",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 25848.6,
+   "population": 2870430,
+   "groups": [
+    {
+     "group_id": "ISL-030/ITA",
+     "island_id": "ISL-030",
+     "owner": "ITA",
+     "name": "Sicily",
+     "region_count": 1,
+     "area_km2": 25848.6,
+     "population": 2870430,
+     "centroid": [
+      14.1479,
+      37.5905
+     ],
+     "region_indices": [
+      180
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ITA-02",
+   "owner": "ITA",
+   "suggested_name": "Sardegna",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 24104.3,
+   "population": 1352340,
+   "groups": [
+    {
+     "group_id": "ISL-032/ITA",
+     "island_id": "ISL-032",
+     "owner": "ITA",
+     "name": "Sardegna",
+     "region_count": 1,
+     "area_km2": 24104.3,
+     "population": 1352340,
+     "centroid": [
+      9.0298,
+      40.0898
+     ],
+     "region_indices": [
+      181
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-07",
+   "owner": "IDN",
+   "suggested_name": "Nusa Tenggara Barat",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 19646.8,
+   "population": 445993,
+   "groups": [
+    {
+     "group_id": "ISL-035/IDN",
+     "island_id": "ISL-035",
+     "owner": "IDN",
+     "name": "Nusa Tenggara Barat",
+     "region_count": 1,
+     "area_km2": 19646.8,
+     "population": 445993,
+     "centroid": [
+      117.5008,
+      -8.6069
+     ],
+     "region_indices": [
+      484
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-01",
+   "owner": "FRA",
+   "suggested_name": "New Caledonia",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 18833.8,
+   "population": 663929,
+   "groups": [
+    {
+     "group_id": "ISL-036/FRA",
+     "island_id": "ISL-036",
+     "owner": "FRA",
+     "name": "New Caledonia",
+     "region_count": 1,
+     "area_km2": 18833.8,
+     "population": 663929,
+     "centroid": [
+      165.7025,
+      -21.3043
+     ],
+     "region_indices": [
+      1378
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-02",
+   "owner": "GBR",
+   "suggested_name": "Western",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 18828.9,
+   "population": 986102,
+   "groups": [
+    {
+     "group_id": "ISL-037/GBR",
+     "island_id": "ISL-037",
+     "owner": "GBR",
+     "name": "Western",
+     "region_count": 1,
+     "area_km2": 18828.9,
+     "population": 986102,
+     "centroid": [
+      178.5164,
+      -17.446
+     ],
+     "region_indices": [
+      1442
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-08",
+   "owner": "IDN",
+   "suggested_name": "Bangka-Belitung",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 16535.6,
+   "population": 1956518,
+   "groups": [
+    {
+     "group_id": "ISL-039/IDN",
+     "island_id": "ISL-039",
+     "owner": "IDN",
+     "name": "Bangka-Belitung",
+     "region_count": 1,
+     "area_km2": 16535.6,
+     "population": 1956518,
+     "centroid": [
+      106.5348,
+      -2.4329
+     ],
+     "region_indices": [
+      492
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-01",
+   "owner": "PRT",
+   "suggested_name": "Portuguese Timor",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 15078.7,
+   "population": 360924,
+   "groups": [
+    {
+     "group_id": "ISL-024/PRT",
+     "island_id": "ISL-024",
+     "owner": "PRT",
+     "name": "Portuguese Timor",
+     "region_count": 1,
+     "area_km2": 15078.7,
+     "population": 360924,
+     "centroid": [
+      125.8512,
+      -8.8238
+     ],
+     "region_indices": [
+      731
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-01",
+   "owner": "GBR",
+   "suggested_name": "Northern Ireland",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 14249.5,
+   "population": 780279,
+   "groups": [
+    {
+     "group_id": "ISL-018/GBR",
+     "island_id": "ISL-018",
+     "owner": "GBR",
+     "name": "Northern Ireland",
+     "region_count": 1,
+     "area_km2": 14249.5,
+     "population": 780279,
+     "centroid": [
+      -6.6933,
+      54.6085
+     ],
+     "region_indices": [
+      110
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-03",
+   "owner": "GBR",
+   "suggested_name": "Bahamas",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 12517.8,
+   "population": 850926,
+   "groups": [
+    {
+     "group_id": "ISL-040/GBR",
+     "island_id": "ISL-040",
+     "owner": "GBR",
+     "name": "Bahamas",
+     "region_count": 1,
+     "area_km2": 12517.8,
+     "population": 850926,
+     "centroid": [
+      -76.5536,
+      24.2234
+     ],
+     "region_indices": [
+      877
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VUT-01",
+   "owner": "VUT",
+   "suggested_name": "Sanma",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 12233.9,
+   "population": 45000,
+   "groups": [
+    {
+     "group_id": "ISL-041/VUT",
+     "island_id": "ISL-041",
+     "owner": "VUT",
+     "name": "Sanma",
+     "region_count": 1,
+     "area_km2": 12233.9,
+     "population": 45000,
+     "centroid": [
+      167.7005,
+      -16.2024
+     ],
+     "region_indices": [
+      1439
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-04",
+   "owner": "GBR",
+   "suggested_name": "Falkland Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 11570.8,
+   "population": 678643,
+   "groups": [
+    {
+     "group_id": "ISL-043/GBR",
+     "island_id": "ISL-043",
+     "owner": "GBR",
+     "name": "Falkland Islands",
+     "region_count": 1,
+     "area_km2": 11570.8,
+     "population": 678643,
+     "centroid": [
+      -59.3746,
+      -51.7336
+     ],
+     "region_indices": [
+      1119
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-05",
+   "owner": "GBR",
+   "suggested_name": "Jamaica",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 11035.5,
+   "population": 661459,
+   "groups": [
+    {
+     "group_id": "ISL-044/GBR",
+     "island_id": "ISL-044",
+     "owner": "GBR",
+     "name": "Jamaica",
+     "region_count": 1,
+     "area_km2": 11035.5,
+     "population": 661459,
+     "centroid": [
+      -77.3187,
+      18.1552
+     ],
+     "region_indices": [
+      910
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-02",
+   "owner": "USA",
+   "suggested_name": "Alaska — Aleutians West",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 10758.7,
+   "population": 5162,
+   "groups": [
+    {
+     "group_id": "ISL-045/USA",
+     "island_id": "ISL-045",
+     "owner": "USA",
+     "name": "Alaska — Aleutians West",
+     "region_count": 1,
+     "area_km2": 10758.7,
+     "population": 5162,
+     "centroid": [
+      -111.5836,
+      52.8241
+     ],
+     "region_indices": [
+      1015
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-03",
+   "owner": "PNG",
+   "suggested_name": "North Solomons",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 9398.1,
+   "population": 43825,
+   "groups": [
+    {
+     "group_id": "ISL-048/PNG",
+     "island_id": "ISL-048",
+     "owner": "PNG",
+     "name": "North Solomons",
+     "region_count": 1,
+     "area_km2": 9398.1,
+     "population": 43825,
+     "centroid": [
+      155.263,
+      -6.1421
+     ],
+     "region_indices": [
+      1419
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-04",
+   "owner": "PNG",
+   "suggested_name": "New Ireland",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 9325.9,
+   "population": 215376,
+   "groups": [
+    {
+     "group_id": "ISL-049/PNG",
+     "island_id": "ISL-049",
+     "owner": "PNG",
+     "name": "New Ireland",
+     "region_count": 1,
+     "area_km2": 9325.9,
+     "population": 215376,
+     "centroid": [
+      151.9494,
+      -3.4879
+     ],
+     "region_indices": [
+      1422
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-02",
+   "owner": "FRA",
+   "suggested_name": "Corse",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 8661.8,
+   "population": 472861,
+   "groups": [
+    {
+     "group_id": "ISL-052/FRA",
+     "island_id": "ISL-052",
+     "owner": "FRA",
+     "name": "Corse",
+     "region_count": 1,
+     "area_km2": 8661.8,
+     "population": 472861,
+     "centroid": [
+      9.1038,
+      42.1552
+     ],
+     "region_indices": [
+      107
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GRC-01",
+   "owner": "GRC",
+   "suggested_name": "Kriti",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 8313.5,
+   "population": 543056,
+   "groups": [
+    {
+     "group_id": "ISL-053/GRC",
+     "island_id": "ISL-053",
+     "owner": "GRC",
+     "name": "Kriti",
+     "region_count": 1,
+     "area_km2": 8313.5,
+     "population": 543056,
+     "centroid": [
+      24.8472,
+      35.2313
+     ],
+     "region_indices": [
+      138
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ECU-01",
+   "owner": "ECU",
+   "suggested_name": "Galápagos",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 7700.9,
+   "population": 1059952,
+   "groups": [
+    {
+     "group_id": "ISL-054/ECU",
+     "island_id": "ISL-054",
+     "owner": "ECU",
+     "name": "Galápagos",
+     "region_count": 1,
+     "area_km2": 7700.9,
+     "population": 1059952,
+     "centroid": [
+      -90.9042,
+      -0.5519
+     ],
+     "region_indices": [
+      1157
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-01",
+   "owner": "ESP",
+   "suggested_name": "Canary Is.",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 7428.6,
+   "population": 742741,
+   "groups": [
+    {
+     "group_id": "ISL-055/ESP",
+     "island_id": "ISL-055",
+     "owner": "ESP",
+     "name": "Canary Is.",
+     "region_count": 1,
+     "area_km2": 7428.6,
+     "population": 742741,
+     "centroid": [
+      -15.6792,
+      28.3385
+     ],
+     "region_indices": [
+      85
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-03",
+   "owner": "FRA",
+   "suggested_name": "French Southern Territories",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 7244.4,
+   "population": 48239,
+   "groups": [
+    {
+     "group_id": "ISL-056/FRA",
+     "island_id": "ISL-056",
+     "owner": "FRA",
+     "name": "French Southern Territories",
+     "region_count": 1,
+     "area_km2": 7244.4,
+     "population": 48239,
+     "centroid": [
+      69.0096,
+      -49.093
+     ],
+     "region_indices": [
+      1391
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IND-01",
+   "owner": "IND",
+   "suggested_name": "Andaman and Nicobar",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 7072.2,
+   "population": 13262957,
+   "groups": [
+    {
+     "group_id": "ISL-057/IND",
+     "island_id": "ISL-057",
+     "owner": "IND",
+     "name": "Andaman and Nicobar",
+     "region_count": 1,
+     "area_km2": 7072.2,
+     "population": 13262957,
+     "centroid": [
+      92.9745,
+      11.138
+     ],
+     "region_indices": [
+      527
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-09",
+   "owner": "IDN",
+   "suggested_name": "Kepulauan Riau",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 6749.9,
+   "population": 1226798,
+   "groups": [
+    {
+     "group_id": "ISL-058/IDN",
+     "island_id": "ISL-058",
+     "owner": "IDN",
+     "name": "Kepulauan Riau",
+     "region_count": 1,
+     "area_km2": 6749.9,
+     "population": 1226798,
+     "centroid": [
+      105.5374,
+      1.5468
+     ],
+     "region_indices": [
+      487
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "CAN-01",
+   "owner": "CAN",
+   "suggested_name": "Prince Edward Island",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 5735.2,
+   "population": 179763,
+   "groups": [
+    {
+     "group_id": "ISL-059/CAN",
+     "island_id": "ISL-059",
+     "owner": "CAN",
+     "name": "Prince Edward Island",
+     "region_count": 1,
+     "area_km2": 5735.2,
+     "population": 179763,
+     "centroid": [
+      -63.2507,
+      46.4007
+     ],
+     "region_indices": [
+      840
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "BRN-01",
+   "owner": "BRN",
+   "suggested_name": "Brunei",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 5713.9,
+   "population": 35000,
+   "groups": [
+    {
+     "group_id": "ISL-004/BRN",
+     "island_id": "ISL-004",
+     "owner": "BRN",
+     "name": "Brunei",
+     "region_count": 1,
+     "area_km2": 5713.9,
+     "population": 35000,
+     "centroid": [
+      114.727,
+      4.5164
+     ],
+     "region_indices": [
+      473
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IDN-10",
+   "owner": "IDN",
+   "suggested_name": "Bali",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 5585.3,
+   "population": 1138415,
+   "groups": [
+    {
+     "group_id": "ISL-060/IDN",
+     "island_id": "ISL-060",
+     "owner": "IDN",
+     "name": "Bali",
+     "region_count": 1,
+     "area_km2": 5585.3,
+     "population": 1138415,
+     "centroid": [
+      115.1411,
+      -8.3634
+     ],
+     "region_indices": [
+      491
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-02",
+   "owner": "ESP",
+   "suggested_name": "Islas Baleares",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 5107.3,
+   "population": 3033583,
+   "groups": [
+    {
+     "group_id": "ISL-063/ESP",
+     "island_id": "ISL-063",
+     "owner": "ESP",
+     "name": "Islas Baleares",
+     "region_count": 1,
+     "area_km2": 5107.3,
+     "population": 3033583,
+     "centroid": [
+      2.9039,
+      39.5718
+     ],
+     "region_indices": [
+      86
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GRC-02",
+   "owner": "GRC",
+   "suggested_name": "Notio Aigaio",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 4942.2,
+   "population": 355507,
+   "groups": [
+    {
+     "group_id": "ISL-064/GRC",
+     "island_id": "ISL-064",
+     "owner": "GRC",
+     "name": "Notio Aigaio",
+     "region_count": 1,
+     "area_km2": 4942.2,
+     "population": 355507,
+     "centroid": [
+      26.3399,
+      36.7315
+     ],
+     "region_indices": [
+      139
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-07",
+   "owner": "GBR",
+   "suggested_name": "South Georgia and the South Sandwich Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 3943.3,
+   "population": 452885,
+   "groups": [
+    {
+     "group_id": "ISL-068/GBR",
+     "island_id": "ISL-068",
+     "owner": "GBR",
+     "name": "South Georgia and the South Sandwich Islands",
+     "region_count": 1,
+     "area_km2": 3943.3,
+     "population": 452885,
+     "centroid": [
+      -35.9352,
+      -54.6639
+     ],
+     "region_indices": [
+      1118
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-04",
+   "owner": "FRA",
+   "suggested_name": "French Polynesia",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 3323.7,
+   "population": 242173,
+   "groups": [
+    {
+     "group_id": "ISL-070/FRA",
+     "island_id": "ISL-070",
+     "owner": "FRA",
+     "name": "French Polynesia",
+     "region_count": 1,
+     "area_km2": 3323.7,
+     "population": 242173,
+     "centroid": [
+      -145.148,
+      -15.2071
+     ],
+     "region_indices": [
+      1379
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SWE-01",
+   "owner": "SWE",
+   "suggested_name": "Gotland",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 3096.5,
+   "population": 924059,
+   "groups": [
+    {
+     "group_id": "ISL-072/SWE",
+     "island_id": "ISL-072",
+     "owner": "SWE",
+     "name": "Gotland",
+     "region_count": 1,
+     "area_km2": 3096.5,
+     "population": 924059,
+     "centroid": [
+      18.5374,
+      57.5088
+     ],
+     "region_indices": [
+      326
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "WSM-01",
+   "owner": "WSM",
+   "suggested_name": "Palauli",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 2777.3,
+   "population": 70000,
+   "groups": [
+    {
+     "group_id": "ISL-077/WSM",
+     "island_id": "ISL-077",
+     "owner": "WSM",
+     "name": "Palauli",
+     "region_count": 1,
+     "area_km2": 2777.3,
+     "population": 70000,
+     "centroid": [
+      -172.1614,
+      -13.7546
+     ],
+     "region_indices": [
+      1440
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-02",
+   "owner": "PRT",
+   "suggested_name": "Azores",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 2598.2,
+   "population": 378066,
+   "groups": [
+    {
+     "group_id": "ISL-078/PRT",
+     "island_id": "ISL-078",
+     "owner": "PRT",
+     "name": "Azores",
+     "region_count": 1,
+     "area_km2": 2598.2,
+     "population": 378066,
+     "centroid": [
+      -27.3312,
+      38.365
+     ],
+     "region_indices": [
+      226
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-05",
+   "owner": "FRA",
+   "suggested_name": "Réunion",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 2578.0,
+   "population": 1049953,
+   "groups": [
+    {
+     "group_id": "ISL-079/FRA",
+     "island_id": "ISL-079",
+     "owner": "FRA",
+     "name": "Réunion",
+     "region_count": 1,
+     "area_km2": 2578.0,
+     "population": 1049953,
+     "centroid": [
+      55.542,
+      -21.1195
+     ],
+     "region_indices": [
+      1167
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "CUB-02",
+   "owner": "CUB",
+   "suggested_name": "Isla de la Juventud",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 2357.4,
+   "population": 1275309,
+   "groups": [
+    {
+     "group_id": "ISL-080/CUB",
+     "island_id": "ISL-080",
+     "owner": "CUB",
+     "name": "Isla de la Juventud",
+     "region_count": 1,
+     "area_km2": 2357.4,
+     "population": 1275309,
+     "centroid": [
+      -82.8053,
+      21.6814
+     ],
+     "region_indices": [
+      847
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-03",
+   "owner": "ESP",
+   "suggested_name": "Bioko Sur",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1985.1,
+   "population": 2177474,
+   "groups": [
+    {
+     "group_id": "ISL-081/ESP",
+     "island_id": "ISL-081",
+     "owner": "ESP",
+     "name": "Bioko Sur",
+     "region_count": 1,
+     "area_km2": 1985.1,
+     "population": 2177474,
+     "centroid": [
+      8.6973,
+      3.4889
+     ],
+     "region_indices": [
+      1349
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PNG-05",
+   "owner": "PNG",
+   "suggested_name": "Manus",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1943.1,
+   "population": 81569,
+   "groups": [
+    {
+     "group_id": "ISL-082/PNG",
+     "island_id": "ISL-082",
+     "owner": "PNG",
+     "name": "Manus",
+     "region_count": 1,
+     "area_km2": 1943.1,
+     "population": 81569,
+     "centroid": [
+      146.9832,
+      -2.0869
+     ],
+     "region_indices": [
+      1423
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-08",
+   "owner": "GBR",
+   "suggested_name": "Flacq",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1898.3,
+   "population": 301113,
+   "groups": [
+    {
+     "group_id": "ISL-083/GBR",
+     "island_id": "ISL-083",
+     "owner": "GBR",
+     "name": "Flacq",
+     "region_count": 1,
+     "area_km2": 1898.3,
+     "population": 301113,
+     "centroid": [
+      57.5694,
+      -20.2795
+     ],
+     "region_indices": [
+      1358
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QKA-01",
+   "owner": "QKA",
+   "suggested_name": "Jeju",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1868.1,
+   "population": 276240,
+   "groups": [
+    {
+     "group_id": "ISL-084/QKA",
+     "island_id": "ISL-084",
+     "owner": "QKA",
+     "name": "Jeju",
+     "region_count": 1,
+     "area_km2": 1868.1,
+     "population": 276240,
+     "centroid": [
+      126.5575,
+      33.3856
+     ],
+     "region_indices": [
+      608
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GLP-01",
+   "owner": "GLP",
+   "suggested_name": "Guadeloupe",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1643.3,
+   "population": 190000,
+   "groups": [
+    {
+     "group_id": "ISL-086/GLP",
+     "island_id": "ISL-086",
+     "owner": "GLP",
+     "name": "Guadeloupe",
+     "region_count": 1,
+     "area_km2": 1643.3,
+     "population": 190000,
+     "centroid": [
+      -61.53,
+      16.2099
+     ],
+     "region_indices": [
+      823
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "DNK-02",
+   "owner": "DNK",
+   "suggested_name": "Faroe Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1321.5,
+   "population": 23088,
+   "groups": [
+    {
+     "group_id": "ISL-091/DNK",
+     "island_id": "ISL-091",
+     "owner": "DNK",
+     "name": "Faroe Islands",
+     "region_count": 1,
+     "area_km2": 1321.5,
+     "population": 23088,
+     "centroid": [
+      -6.875,
+      62.0714
+     ],
+     "region_indices": [
+      96
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "MTQ-01",
+   "owner": "MTQ",
+   "suggested_name": "Martinique",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1096.2,
+   "population": 209000,
+   "groups": [
+    {
+     "group_id": "ISL-095/MTQ",
+     "island_id": "ISL-095",
+     "owner": "MTQ",
+     "name": "Martinique",
+     "region_count": 1,
+     "area_km2": 1096.2,
+     "population": 209000,
+     "centroid": [
+      -61.018,
+      14.6561
+     ],
+     "region_indices": [
+      822
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-04",
+   "owner": "JPN",
+   "suggested_name": "Kagoshima",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 971.4,
+   "population": 292102,
+   "groups": [
+    {
+     "group_id": "ISL-098/JPN",
+     "island_id": "ISL-098",
+     "owner": "JPN",
+     "name": "Kagoshima",
+     "region_count": 1,
+     "area_km2": 971.4,
+     "population": 292102,
+     "centroid": [
+      130.7356,
+      30.4527
+     ],
+     "region_indices": [
+      798
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "JPN-05",
+   "owner": "JPN",
+   "suggested_name": "Niigata",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 896.5,
+   "population": 313957,
+   "groups": [
+    {
+     "group_id": "ISL-101/JPN",
+     "island_id": "ISL-101",
+     "owner": "JPN",
+     "name": "Niigata",
+     "region_count": 1,
+     "area_km2": 896.5,
+     "population": 313957,
+     "centroid": [
+      138.3953,
+      38.0359
+     ],
+     "region_indices": [
+      800
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "SLB-01",
+   "owner": "SLB",
+   "suggested_name": "Temotu",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 858.6,
+   "population": 4353,
+   "groups": [
+    {
+     "group_id": "ISL-105/SLB",
+     "island_id": "ISL-105",
+     "owner": "SLB",
+     "name": "Temotu",
+     "region_count": 1,
+     "area_km2": 858.6,
+     "population": 4353,
+     "centroid": [
+      166.2648,
+      -11.0192
+     ],
+     "region_indices": [
+      1431
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-03",
+   "owner": "NZL",
+   "suggested_name": "Chatham Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 817.5,
+   "population": 70996,
+   "groups": [
+    {
+     "group_id": "ISL-106/NZL",
+     "island_id": "ISL-106",
+     "owner": "NZL",
+     "name": "Chatham Islands",
+     "region_count": 1,
+     "area_km2": 817.5,
+     "population": 70996,
+     "centroid": [
+      -176.4882,
+      -43.9339
+     ],
+     "region_indices": [
+      1406
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "PRT-03",
+   "owner": "PRT",
+   "suggested_name": "Madeira",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 800.7,
+   "population": 190286,
+   "groups": [
+    {
+     "group_id": "ISL-107/PRT",
+     "island_id": "ISL-107",
+     "owner": "PRT",
+     "name": "Madeira",
+     "region_count": 1,
+     "area_km2": 800.7,
+     "population": 190286,
+     "centroid": [
+      -16.9513,
+      32.764
+     ],
+     "region_indices": [
+      225
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-04",
+   "owner": "NZL",
+   "suggested_name": "New Zealand Outlying Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 786.4,
+   "population": 68394,
+   "groups": [
+    {
+     "group_id": "ISL-108/NZL",
+     "island_id": "ISL-108",
+     "owner": "NZL",
+     "name": "New Zealand Outlying Islands",
+     "region_count": 1,
+     "area_km2": 786.4,
+     "population": 68394,
+     "centroid": [
+      156.1854,
+      -50.1024
+     ],
+     "region_indices": [
+      1405
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-09",
+   "owner": "GBR",
+   "suggested_name": "Kiribati",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 771.4,
+   "population": 179053,
+   "groups": [
+    {
+     "group_id": "ISL-109/GBR",
+     "island_id": "ISL-109",
+     "owner": "GBR",
+     "name": "Kiribati",
+     "region_count": 1,
+     "area_km2": 771.4,
+     "population": 179053,
+     "centroid": [
+      -92.169,
+      0.7714
+     ],
+     "region_indices": [
+      1394
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-01",
+   "owner": "QPS",
+   "suggested_name": "Pohnpei",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 665.4,
+   "population": 5947,
+   "groups": [
+    {
+     "group_id": "ISL-112/QPS",
+     "island_id": "ISL-112",
+     "owner": "QPS",
+     "name": "Pohnpei",
+     "region_count": 1,
+     "area_km2": 665.4,
+     "population": 5947,
+     "centroid": [
+      157.1362,
+      6.8167
+     ],
+     "region_indices": [
+      1444
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TON-01",
+   "owner": "TON",
+   "suggested_name": "Tonga",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 594.1,
+   "population": 45000,
+   "groups": [
+    {
+     "group_id": "ISL-117/TON",
+     "island_id": "ISL-117",
+     "owner": "TON",
+     "name": "Tonga",
+     "region_count": 1,
+     "area_km2": 594.1,
+     "population": 45000,
+     "centroid": [
+      -174.8375,
+      -19.9597
+     ],
+     "region_indices": [
+      1396
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-04",
+   "owner": "USA",
+   "suggested_name": "Guam",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 563.4,
+   "population": 38,
+   "groups": [
+    {
+     "group_id": "ISL-121/USA",
+     "island_id": "ISL-121",
+     "owner": "USA",
+     "name": "Guam",
+     "region_count": 1,
+     "area_km2": 563.4,
+     "population": 38,
+     "centroid": [
+      144.7724,
+      13.4438
+     ],
+     "region_indices": [
+      1381
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-02",
+   "owner": "QPS",
+   "suggested_name": "Northern Mariana Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 558.6,
+   "population": 16166,
+   "groups": [
+    {
+     "group_id": "ISL-122/QPS",
+     "island_id": "ISL-122",
+     "owner": "QPS",
+     "name": "Northern Mariana Islands",
+     "region_count": 1,
+     "area_km2": 558.6,
+     "population": 16166,
+     "centroid": [
+      145.6055,
+      16.1942
+     ],
+     "region_indices": [
+      1382
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-03",
+   "owner": "QPS",
+   "suggested_name": "Ngardmau",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 483.8,
+   "population": 14284,
+   "groups": [
+    {
+     "group_id": "ISL-124/QPS",
+     "island_id": "ISL-124",
+     "owner": "QPS",
+     "name": "Ngardmau",
+     "region_count": 1,
+     "area_km2": 483.8,
+     "population": 14284,
+     "centroid": [
+      134.3498,
+      7.1981
+     ],
+     "region_indices": [
+      1441
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ALA-01",
+   "owner": "ALA",
+   "suggested_name": "Åland Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 452.1,
+   "population": 28000,
+   "groups": [
+    {
+     "group_id": "ISL-129/ALA",
+     "island_id": "ISL-129",
+     "owner": "ALA",
+     "name": "Åland Islands",
+     "region_count": 1,
+     "area_km2": 452.1,
+     "population": 28000,
+     "centroid": [
+      20.1314,
+      60.1197
+     ],
+     "region_indices": [
+      12
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-11",
+   "owner": "GBR",
+   "suggested_name": "Barbados",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 444.1,
+   "population": 135336,
+   "groups": [
+    {
+     "group_id": "ISL-130/GBR",
+     "island_id": "ISL-130",
+     "owner": "GBR",
+     "name": "Barbados",
+     "region_count": 1,
+     "area_km2": 444.1,
+     "population": 135336,
+     "centroid": [
+      -59.5607,
+      13.1807
+     ],
+     "region_indices": [
+      875
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-12",
+   "owner": "GBR",
+   "suggested_name": "Turks and Caicos Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 422.3,
+   "population": 118564,
+   "groups": [
+    {
+     "group_id": "ISL-132/GBR",
+     "island_id": "ISL-132",
+     "owner": "GBR",
+     "name": "Turks and Caicos Islands",
+     "region_count": 1,
+     "area_km2": 422.3,
+     "population": 118564,
+     "centroid": [
+      -71.8671,
+      21.7866
+     ],
+     "region_indices": [
+      970
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-03",
+   "owner": "AUS",
+   "suggested_name": "Heard Island and McDonald Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 389.3,
+   "population": 2680,
+   "groups": [
+    {
+     "group_id": "ISL-133/AUS",
+     "island_id": "ISL-133",
+     "owner": "AUS",
+     "name": "Heard Island and McDonald Islands",
+     "region_count": 1,
+     "area_km2": 389.3,
+     "population": 2680,
+     "centroid": [
+      73.5056,
+      -53.0896
+     ],
+     "region_indices": [
+      1390
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-04",
+   "owner": "QPS",
+   "suggested_name": "Yap",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 370.4,
+   "population": 12048,
+   "groups": [
+    {
+     "group_id": "ISL-135/QPS",
+     "island_id": "ISL-135",
+     "owner": "QPS",
+     "name": "Yap",
+     "region_count": 1,
+     "area_km2": 370.4,
+     "population": 12048,
+     "centroid": [
+      139.2943,
+      9.8642
+     ],
+     "region_indices": [
+      1443
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-13",
+   "owner": "GBR",
+   "suggested_name": "Saint Helena, Ascension and Tristan da Cunha",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 363.6,
+   "population": 110975,
+   "groups": [
+    {
+     "group_id": "ISL-136/GBR",
+     "island_id": "ISL-136",
+     "owner": "GBR",
+     "name": "Saint Helena, Ascension and Tristan da Cunha",
+     "region_count": 1,
+     "area_km2": 363.6,
+     "population": 110975,
+     "centroid": [
+      -10.1738,
+      -24.9624
+     ],
+     "region_indices": [
+      1172
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-14",
+   "owner": "GBR",
+   "suggested_name": "Malta",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 314.3,
+   "population": 111920,
+   "groups": [
+    {
+     "group_id": "ISL-141/GBR",
+     "island_id": "ISL-141",
+     "owner": "GBR",
+     "name": "Malta",
+     "region_count": 1,
+     "area_km2": 314.3,
+     "population": 111920,
+     "centroid": [
+      14.4065,
+      35.9185
+     ],
+     "region_indices": [
+      198
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-15",
+   "owner": "GBR",
+   "suggested_name": "Cayman Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 308.0,
+   "population": 100775,
+   "groups": [
+    {
+     "group_id": "ISL-142/GBR",
+     "island_id": "ISL-142",
+     "owner": "GBR",
+     "name": "Cayman Islands",
+     "region_count": 1,
+     "area_km2": 308.0,
+     "population": 100775,
+     "centroid": [
+      -80.8742,
+      19.4271
+     ],
+     "region_indices": [
+      913
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "COL-01",
+   "owner": "COL",
+   "suggested_name": "San Andrés y Providencia",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 287.9,
+   "population": 323552,
+   "groups": [
+    {
+     "group_id": "ISL-144/COL",
+     "island_id": "ISL-144",
+     "owner": "COL",
+     "name": "San Andrés y Providencia",
+     "region_count": 1,
+     "area_km2": 287.9,
+     "population": 323552,
+     "centroid": [
+      -81.2171,
+      14.1185
+     ],
+     "region_indices": [
+      1127
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "HND-01",
+   "owner": "HND",
+   "suggested_name": "Islas de la Bahía",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 247.6,
+   "population": 109512,
+   "groups": [
+    {
+     "group_id": "ISL-149/HND",
+     "island_id": "ISL-149",
+     "owner": "HND",
+     "name": "Islas de la Bahía",
+     "region_count": 1,
+     "area_km2": 247.6,
+     "population": 109512,
+     "centroid": [
+      -86.399,
+      16.3434
+     ],
+     "region_indices": [
+      904
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-06",
+   "owner": "FRA",
+   "suggested_name": "Saint Pierre and Miquelon",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 241.3,
+   "population": 65716,
+   "groups": [
+    {
+     "group_id": "ISL-150/FRA",
+     "island_id": "ISL-150",
+     "owner": "FRA",
+     "name": "Saint Pierre and Miquelon",
+     "region_count": 1,
+     "area_km2": 241.3,
+     "population": 65716,
+     "centroid": [
+      -56.3088,
+      46.9334
+     ],
+     "region_indices": [
+      961
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-05",
+   "owner": "NZL",
+   "suggested_name": "Niue",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 218.2,
+   "population": 154760,
+   "groups": [
+    {
+     "group_id": "ISL-151/NZL",
+     "island_id": "ISL-151",
+     "owner": "NZL",
+     "name": "Niue",
+     "region_count": 1,
+     "area_km2": 218.2,
+     "population": 154760,
+     "centroid": [
+      -169.8688,
+      -19.049
+     ],
+     "region_indices": [
+      1384
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-06",
+   "owner": "USA",
+   "suggested_name": "American Samoa",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 177.4,
+   "population": 18,
+   "groups": [
+    {
+     "group_id": "ISL-153/USA",
+     "island_id": "ISL-153",
+     "owner": "USA",
+     "name": "American Samoa",
+     "region_count": 1,
+     "area_km2": 177.4,
+     "population": 18,
+     "centroid": [
+      -170.4127,
+      -14.2609
+     ],
+     "region_indices": [
+      1380
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "COK-01",
+   "owner": "COK",
+   "suggested_name": "Cook Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 175.4,
+   "population": 15000,
+   "groups": [
+    {
+     "group_id": "ISL-154/COK",
+     "island_id": "ISL-154",
+     "owner": "COK",
+     "name": "Cook Islands",
+     "region_count": 1,
+     "area_km2": 175.4,
+     "population": 15000,
+     "centroid": [
+      -158.7651,
+      -19.9509
+     ],
+     "region_indices": [
+      1383
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-17",
+   "owner": "GBR",
+   "suggested_name": "Outer Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 173.8,
+   "population": 78818,
+   "groups": [
+    {
+     "group_id": "ISL-156/GBR",
+     "island_id": "ISL-156",
+     "owner": "GBR",
+     "name": "Outer Islands",
+     "region_count": 1,
+     "area_km2": 173.8,
+     "population": 78818,
+     "centroid": [
+      46.9763,
+      -9.2714
+     ],
+     "region_indices": [
+      1339
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-07",
+   "owner": "FRA",
+   "suggested_name": "Wallis and Futuna",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 164.4,
+   "population": 47048,
+   "groups": [
+    {
+     "group_id": "ISL-158/FRA",
+     "island_id": "ISL-158",
+     "owner": "FRA",
+     "name": "Wallis and Futuna",
+     "region_count": 1,
+     "area_km2": 164.4,
+     "population": 47048,
+     "centroid": [
+      -177.2421,
+      -13.852
+     ],
+     "region_indices": [
+      1388
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-07",
+   "owner": "USA",
+   "suggested_name": "Massachusetts — Nantucket",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 138.1,
+   "population": 182840,
+   "groups": [
+    {
+     "group_id": "ISL-162/USA",
+     "island_id": "ISL-162",
+     "owner": "USA",
+     "name": "Massachusetts — Nantucket",
+     "region_count": 1,
+     "area_km2": 138.1,
+     "population": 182840,
+     "centroid": [
+      -70.0671,
+      41.2825
+     ],
+     "region_indices": [
+      1047
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QPS-05",
+   "owner": "QPS",
+   "suggested_name": "Marshall Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 119.7,
+   "population": 7555,
+   "groups": [
+    {
+     "group_id": "ISL-164/QPS",
+     "island_id": "ISL-164",
+     "owner": "QPS",
+     "name": "Marshall Islands",
+     "region_count": 1,
+     "area_km2": 119.7,
+     "population": 7555,
+     "centroid": [
+      170.0603,
+      7.2192
+     ],
+     "region_indices": [
+      1395
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NZL-06",
+   "owner": "NZL",
+   "suggested_name": "Tokelau",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 98.9,
+   "population": 108715,
+   "groups": [
+    {
+     "group_id": "ISL-166/NZL",
+     "island_id": "ISL-166",
+     "owner": "NZL",
+     "name": "Tokelau",
+     "region_count": 1,
+     "area_km2": 98.9,
+     "population": 108715,
+     "centroid": [
+      -171.8267,
+      -9.156
+     ],
+     "region_indices": [
+      1389
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-04",
+   "owner": "AUS",
+   "suggested_name": "Christmas Island",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 97.7,
+   "population": 1238,
+   "groups": [
+    {
+     "group_id": "ISL-167/AUS",
+     "island_id": "ISL-167",
+     "owner": "AUS",
+     "name": "Christmas Island",
+     "region_count": 1,
+     "area_km2": 97.7,
+     "population": 1238,
+     "centroid": [
+      105.6629,
+      -10.4928
+     ],
+     "region_indices": [
+      1376
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-18",
+   "owner": "GBR",
+   "suggested_name": "Rodrigues",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 97.4,
+   "population": 56561,
+   "groups": [
+    {
+     "group_id": "ISL-168/GBR",
+     "island_id": "ISL-168",
+     "owner": "GBR",
+     "name": "Rodrigues",
+     "region_count": 1,
+     "area_km2": 97.4,
+     "population": 56561,
+     "centroid": [
+      63.4111,
+      -19.7123
+     ],
+     "region_indices": [
+      1357
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "QLB-01",
+   "owner": "QLB",
+   "suggested_name": "Labuan",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 89.7,
+   "population": 10000,
+   "groups": [
+    {
+     "group_id": "ISL-169/QLB",
+     "island_id": "ISL-169",
+     "owner": "QLB",
+     "name": "Labuan",
+     "region_count": 1,
+     "area_km2": 89.7,
+     "population": 10000,
+     "centroid": [
+      115.2163,
+      5.318
+     ],
+     "region_indices": [
+      657
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-01",
+   "owner": "USA",
+   "suggested_name": "Guantanamo Bay",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 65.0,
+   "population": 10678,
+   "groups": [
+    {
+     "group_id": "ISL-013/USA",
+     "island_id": "ISL-013",
+     "owner": "USA",
+     "name": "Guantanamo Bay",
+     "region_count": 1,
+     "area_km2": 65.0,
+     "population": 10678,
+     "centroid": [
+      -75.1557,
+      19.9286
+     ],
+     "region_indices": [
+      827
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-20",
+   "owner": "GBR",
+   "suggested_name": "Maldives",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 57.6,
+   "population": 42842,
+   "groups": [
+    {
+     "group_id": "ISL-175/GBR",
+     "island_id": "ISL-175",
+     "owner": "GBR",
+     "name": "Maldives",
+     "region_count": 1,
+     "area_km2": 57.6,
+     "population": 42842,
+     "centroid": [
+      73.3921,
+      4.1295
+     ],
+     "region_indices": [
+      653
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NOR-02",
+   "owner": "NOR",
+   "suggested_name": "Bouvet Island",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 53.7,
+   "population": 68026,
+   "groups": [
+    {
+     "group_id": "ISL-176/NOR",
+     "island_id": "ISL-176",
+     "owner": "NOR",
+     "name": "Bouvet Island",
+     "region_count": 1,
+     "area_km2": 53.7,
+     "population": 68026,
+     "centroid": [
+      3.4134,
+      -54.4187
+     ],
+     "region_indices": [
+      205
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-21",
+   "owner": "GBR",
+   "suggested_name": "Bermuda",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 52.8,
+   "population": 40615,
+   "groups": [
+    {
+     "group_id": "ISL-177/GBR",
+     "island_id": "ISL-177",
+     "owner": "GBR",
+     "name": "Bermuda",
+     "region_count": 1,
+     "area_km2": 52.8,
+     "population": 40615,
+     "centroid": [
+      -64.7636,
+      32.3092
+     ],
+     "region_indices": [
+      876
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NFK-01",
+   "owner": "NFK",
+   "suggested_name": "Norfolk Island",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 39.4,
+   "population": 2000,
+   "groups": [
+    {
+     "group_id": "ISL-179/NFK",
+     "island_id": "ISL-179",
+     "owner": "NFK",
+     "name": "Norfolk Island",
+     "region_count": 1,
+     "area_km2": 39.4,
+     "population": 2000,
+     "centroid": [
+      167.9552,
+      -29.0349
+     ],
+     "region_indices": [
+      1385
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-22",
+   "owner": "GBR",
+   "suggested_name": "Pitcairn Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 38.5,
+   "population": 35157,
+   "groups": [
+    {
+     "group_id": "ISL-180/GBR",
+     "island_id": "ISL-180",
+     "owner": "GBR",
+     "name": "Pitcairn Islands",
+     "region_count": 1,
+     "area_km2": 38.5,
+     "population": 35157,
+     "centroid": [
+      -128.3171,
+      -24.366
+     ],
+     "region_indices": [
+      1386
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "NRU-01",
+   "owner": "NRU",
+   "suggested_name": "Nauru",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 27.4,
+   "population": 3000,
+   "groups": [
+    {
+     "group_id": "ISL-182/NRU",
+     "island_id": "ISL-182",
+     "owner": "NRU",
+     "name": "Nauru",
+     "region_count": 1,
+     "area_km2": 27.4,
+     "population": 3000,
+     "centroid": [
+      166.9325,
+      -0.5198
+     ],
+     "region_indices": [
+      1392
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-24",
+   "owner": "GBR",
+   "suggested_name": "British Indian Ocean Territory",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 27.0,
+   "population": 28717,
+   "groups": [
+    {
+     "group_id": "ISL-183/GBR",
+     "island_id": "ISL-183",
+     "owner": "GBR",
+     "name": "British Indian Ocean Territory",
+     "region_count": 1,
+     "area_km2": 27.0,
+     "population": 28717,
+     "centroid": [
+      72.4246,
+      -7.347
+     ],
+     "region_indices": [
+      1173
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "IND-02",
+   "owner": "IND",
+   "suggested_name": "Lakshadweep",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 16.8,
+   "population": 505845,
+   "groups": [
+    {
+     "group_id": "ISL-186/IND",
+     "island_id": "ISL-186",
+     "owner": "IND",
+     "name": "Lakshadweep",
+     "region_count": 1,
+     "area_km2": 16.8,
+     "population": 505845,
+     "centroid": [
+      72.7057,
+      9.7062
+     ],
+     "region_indices": [
+      526
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "USA-08",
+   "owner": "USA",
+   "suggested_name": "United States Minor Outlying Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 14.3,
+   "population": 5,
+   "groups": [
+    {
+     "group_id": "ISL-187/USA",
+     "island_id": "ISL-187",
+     "owner": "USA",
+     "name": "United States Minor Outlying Islands",
+     "region_count": 1,
+     "area_km2": 14.3,
+     "population": 5,
+     "centroid": [
+      -110.4285,
+      11.6769
+     ],
+     "region_indices": [
+      1387
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-25",
+   "owner": "GBR",
+   "suggested_name": "Agaléga",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 11.1,
+   "population": 16423,
+   "groups": [
+    {
+     "group_id": "ISL-188/GBR",
+     "island_id": "ISL-188",
+     "owner": "GBR",
+     "name": "Agaléga",
+     "region_count": 1,
+     "area_km2": 11.1,
+     "population": 16423,
+     "centroid": [
+      56.5428,
+      -10.357
+     ],
+     "region_indices": [
+      1356
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "ESP-04",
+   "owner": "ESP",
+   "suggested_name": "Annobón",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 9.7,
+   "population": 108619,
+   "groups": [
+    {
+     "group_id": "ISL-189/ESP",
+     "island_id": "ISL-189",
+     "owner": "ESP",
+     "name": "Annobón",
+     "region_count": 1,
+     "area_km2": 9.7,
+     "population": 108619,
+     "centroid": [
+      5.6333,
+      -1.4405
+     ],
+     "region_indices": [
+      1348
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-05",
+   "owner": "AUS",
+   "suggested_name": "Cocos (Keeling) Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 7.5,
+   "population": 269,
+   "groups": [
+    {
+     "group_id": "ISL-190/AUS",
+     "island_id": "ISL-190",
+     "owner": "AUS",
+     "name": "Cocos (Keeling) Islands",
+     "region_count": 1,
+     "area_km2": 7.5,
+     "population": 269,
+     "centroid": [
+      96.8337,
+      -12.1631
+     ],
+     "region_indices": [
+      1375
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "COL-02",
+   "owner": "COL",
+   "suggested_name": "",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 6.1,
+   "population": 35834,
+   "groups": [
+    {
+     "group_id": "ISL-191/COL",
+     "island_id": "ISL-191",
+     "owner": "COL",
+     "name": "",
+     "region_count": 1,
+     "area_km2": 6.1,
+     "population": 35834,
+     "centroid": [
+      -81.5984,
+      3.975
+     ],
+     "region_indices": [
+      1128
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "FRA-08",
+   "owner": "FRA",
+   "suggested_name": "Clipperton Island",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 3.1,
+   "population": 652,
+   "groups": [
+    {
+     "group_id": "ISL-193/FRA",
+     "island_id": "ISL-193",
+     "owner": "FRA",
+     "name": "Clipperton Island",
+     "region_count": 1,
+     "area_km2": 3.1,
+     "population": 652,
+     "centroid": [
+      -109.2216,
+      10.2974
+     ],
+     "region_indices": [
+      828
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "GBR-26",
+   "owner": "GBR",
+   "suggested_name": "Tuvalu",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 2.0,
+   "population": 5802,
+   "groups": [
+    {
+     "group_id": "ISL-194/GBR",
+     "island_id": "ISL-194",
+     "owner": "GBR",
+     "name": "Tuvalu",
+     "region_count": 1,
+     "area_km2": 2.0,
+     "population": 5802,
+     "centroid": [
+      179.2043,
+      -8.5272
+     ],
+     "region_indices": [
+      1393
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VNM-01",
+   "owner": "VNM",
+   "suggested_name": "Spratly Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 1.3,
+   "population": 20658,
+   "groups": [
+    {
+     "group_id": "ISL-195/VNM",
+     "island_id": "ISL-195",
+     "owner": "VNM",
+     "name": "Spratly Islands",
+     "region_count": 1,
+     "area_km2": 1.3,
+     "population": 20658,
+     "centroid": [
+      115.8212,
+      10.7299
+     ],
+     "region_indices": [
+      444
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "TWN-03",
+   "owner": "TWN",
+   "suggested_name": "Paracel Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 0.8,
+   "population": 9230,
+   "groups": [
+    {
+     "group_id": "ISL-196/TWN",
+     "island_id": "ISL-196",
+     "owner": "TWN",
+     "name": "Paracel Islands",
+     "region_count": 1,
+     "area_km2": 0.8,
+     "population": 9230,
+     "centroid": [
+      111.2012,
+      15.7823
+     ],
+     "region_indices": [
+      391
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "VEN-02",
+   "owner": "VEN",
+   "suggested_name": "",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 0.2,
+   "population": 3851,
+   "groups": [
+    {
+     "group_id": "ISL-197/VEN",
+     "island_id": "ISL-197",
+     "owner": "VEN",
+     "name": "",
+     "region_count": 1,
+     "area_km2": 0.2,
+     "population": 3851,
+     "centroid": [
+      -63.638,
+      15.6999
+     ],
+     "region_indices": [
+      1144
+     ]
+    }
+   ]
+  },
+  {
+   "cluster_id": "AUS-06",
+   "owner": "AUS",
+   "suggested_name": "Coral Sea Islands",
+   "group_count": 1,
+   "region_count": 1,
+   "area_km2": 0.1,
+   "population": 28,
+   "groups": [
+    {
+     "group_id": "ISL-198/AUS",
+     "island_id": "ISL-198",
+     "owner": "AUS",
+     "name": "Coral Sea Islands",
+     "region_count": 1,
+     "area_km2": 0.1,
+     "population": 28,
+     "centroid": [
+      150.0054,
+      -16.1356
+     ],
+     "region_indices": [
+      1377
+     ]
+    }
+   ]
+  }
+ ]
+}

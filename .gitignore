@@ -105,8 +105,13 @@ logs/
 # трекался; ветка gemini однажды закоммитила 362 файла индекса — не повторять.
 .repowise/
 
-# Map pipeline sources (external/heavy inputs, kept out of git)
+# Map pipeline sources (external/heavy inputs, kept out of git).
+# Хранилище одно на машину, путь в PAXMAP_SOURCES_STORE; в дереве это
+# junction. Как собрать — docs/provenance/MAP_GEOMETRY_PROVENANCE.md.
 scripts/map/sources/
+# game_map.json переехал в хранилище 2026-08-07; правило держит старое
+# место закрытым, чтобы 37 МБ не вернулись в git по недосмотру.
+client/src/assets/game_map.json
 
 # Выгрузки прогонов (server/scripts/runCampaign.ts) — данные замеров, не код.
 # Снимаются заново одной командой, в репозиторий не кладутся.

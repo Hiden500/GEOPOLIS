@@ -31,7 +31,16 @@ from shapely.strtree import STRtree
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
-SOURCES = os.path.join(ROOT, "scripts", "map", "sources")
+
+# Пути к источникам разрешает build/paths.py: с 2026-08-07 данные лежат в общем
+# хранилище вне репозитория (junction в scripts/map/sources), а game_map.json
+# из client/src/assets/ удалён. Свой резолв здесь молча читал бы не тот файл
+# или падал.
+sys.path.insert(0, os.path.join(ROOT, "scripts", "map", "build"))
+import paths  # noqa: E402
+
+SOURCES = str(paths.SOURCES_DIR)
+GAME_MAP = paths.game_map()
 
 HOI4_LOC = [
     r"D:/SteamLibrary/steamapps/workshop/content/394360/2149567872"
@@ -72,8 +81,7 @@ def load_free_names() -> set[str]:
                 if isinstance(val, str) and val.strip():
                     free.add(val.strip())
 
-    game_map = os.path.join(ROOT, "client", "src", "assets", "game_map.json")
-    for ft in json.load(open(game_map, encoding="utf-8"))["features"]:
+    for ft in json.load(open(GAME_MAP, encoding="utf-8"))["features"]:
         p = ft["properties"]
         for key in ("name", "name_en", "admin", "geonunit", "gn_name",
                     "name_alt", "region", "subregion"):
