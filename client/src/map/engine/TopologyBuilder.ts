@@ -1,4 +1,5 @@
-import type { FeatureCollection, Feature, LineString, Polygon, MultiPolygon } from 'geojson';
+import type { FeatureCollection, Feature, GeoJsonProperties, LineString, Polygon, MultiPolygon } from 'geojson';
+
 
 export interface SharedEdgeProperties {
   id: number;
@@ -43,7 +44,7 @@ function getSegmentKey(p1: [number, number], p2: [number, number]): string {
  * границы раздела между государствами и береговые линии.
  */
 export function buildTopologyEdges(
-  geojson: FeatureCollection<Polygon | MultiPolygon, any>
+  geojson: FeatureCollection<Polygon | MultiPolygon, GeoJsonProperties>
 ): {
   edges: FeatureCollection<LineString, SharedEdgeProperties>;
   regionNeighbours: Map<number, Set<number>>;
@@ -90,7 +91,7 @@ export function buildTopologyEdges(
   // Ключ: "regA_regB" (где regA < regB), значение: массив отрезков
   const boundaryGroups = new Map<string, { p1: [number, number]; p2: [number, number] }[]>();
   
-  for (const [_, segments] of segmentMap.entries()) {
+  for (const segments of segmentMap.values()) {
     if (segments.length === 0) continue;
     
     // Берем первые два уникальных региона (в нормальной топологии сегмент разделяет не более 2 регионов)
@@ -222,15 +223,16 @@ function buildChainsFromSegments(
       const chain: [number, number][] = [vertexMap.get(startKey)!];
       visited.add(startKey);
       
-      let currentKey = startKey;
       let next = edges[0];
-      
+
+      // Отдельная currentKey здесь не нужна: в этой ветке она нигде не читается
+      // после цикла (в отличие от обхода замкнутых циклов ниже, где ею
+      // проверяется смыкание с началом), а внутри цикла всегда равна next.key.
       while (next && !visited.has(next.key)) {
         chain.push(vertexMap.get(next.key)!);
         visited.add(next.key);
-        currentKey = next.key;
-        
-        const nextEdges = adj.get(currentKey) || [];
+
+        const nextEdges = adj.get(next.key) || [];
         const unvisitedNeighbours = nextEdges.filter(e => !visited.has(e.key));
         next = unvisitedNeighbours[0];
       }

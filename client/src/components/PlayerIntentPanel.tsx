@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type Region } from "@shared/types/map/Region";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
@@ -41,9 +41,15 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
   const [saved, setSaved] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
+  // Синхронизация поля с пропом делается СРАВНЕНИЕМ во время рендера, а не
+  // эффектом: эффект отрисовывал бы устаревший текст и тут же вызывал второй
+  // проход (react.dev, «You Might Not Need an Effect» → «Adjusting state when
+  // a prop changes»). Правило react-hooks/set-state-in-effect ловит ровно это.
+  const [prevIntent, setPrevIntent] = useState(intent);
+  if (intent !== prevIntent) {
+    setPrevIntent(intent);
     setText(intent);
-  }, [intent]);
+  }
 
   const suggestions = useMemo(() => {
     if (!mention) return [];
@@ -51,7 +57,7 @@ export function PlayerIntentPanel({ regions, intent, onSave }: Props) {
     return regions
       .filter(r => getText(r.names, locale).toLowerCase().includes(query))
       .slice(0, MAX_SUGGESTIONS);
-  }, [mention, regions]);
+  }, [mention, regions, locale]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
