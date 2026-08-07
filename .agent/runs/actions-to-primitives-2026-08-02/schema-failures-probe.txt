@@ -1,0 +1,54 @@
+дерево:   D:/Pax Historia LOCAL/.claude/worktrees/actions-to-primitives
+env:      D:\Pax Historia LOCAL\server\.env -> переменных подхвачено: 4 (имена: GEMINI_API_KEY, LOCAL_LLM_BASE_URL, LOCAL_LLM_MODEL, LOCAL_LLM_API_KEY)
+эндпоинт: http://localhost:8317/v1 | модель: gemini-3.6-flash-high
+прокси уже работает (моделей: 12), 'gemini-3.6-flash-high' доступна — не трогаю
+запускаю: npx tsx scripts/probeSchemaFailures.ts --turns 18
+
+
+=== ход 1 (1946-01-01): валидных 3, битых 0 ===
+
+=== ход 2 (1946-02-01): валидных 3, битых 0 ===
+
+=== ход 3 (1946-03-01): валидных 3, битых 0 ===
+
+=== ход 4 (1946-04-01): валидных 4, битых 0 ===
+
+=== ход 5 (1946-05-01): валидных 2, битых 0 ===
+
+=== ход 6 (1946-06-01): валидных 0, битых 6 ===
+  [0] verb=enact_reform
+      причина: target: Invalid input: expected object, received string
+      прислано: {"verb":"enact_reform","sourceCountryId":"ITA","target":"ITA","params":{"intensity":"moderate","politicalDirection":"democratic"}}
+  [1] verb=diplomacy
+      причина: target: Invalid input: expected object, received string
+      прислано: {"verb":"diplomacy","sourceCountryId":"SUN","target":"GBR","params":{"direction":"worsen","intensity":"moderate"}}
+  [2] verb=diplomacy
+      причина: target: Invalid input: expected object, received string
+      прислано: {"verb":"diplomacy","sourceCountryId":"GBR","target":"SUN","params":{"direction":"worsen","intensity":"moderate"}}
+  [3] verb=spawn_incident
+      причина: target: Invalid input: expected object, received string
+      прислано: {"verb":"spawn_incident","sourceCountryId":"SUN","target":"300","params":{"intensity":"moderate","incidentKind":"protest"}}
+  [4] verb=condemn
+      причина: target: Invalid input: expected object, received string
+      прислано: {"verb":"condemn","sourceCountryId":"GBR","target":"ESP","params":{"intensity":"moderate"}}
+  [5] verb=send_aid
+      причина: target: Invalid input: expected object, received string
+      прислано: {"verb":"send_aid","sourceCountryId":"GBR","target":"ETH","params":{"intensity":"mild"}}
+
+=== ход 7 (1946-07-01): валидных 4, битых 0 ===
+
+=== ход 8 (1946-08-01): валидных 3, битых 0 ===
+
+=== ход 9 (1946-09-01): валидных 4, битых 0 ===
+
+=== ход 10 (1946-10-01): валидных 2, битых 0 ===
+
+=== ход 11 (1946-11-01): валидных 4, битых 0 ===
+
+=== ход 12 (1946-12-01): валидных 4, битых 0 ===
+
+=== ход 13 (1947-01-01): валидных 5, битых 0 ===
+SyntaxError: Expected ',' or '}' after property value in JSON at position 2311 (line 1 column 2312)
+    at JSON.parse (<anonymous>)
+    at main (D:\Pax Historia LOCAL\.claude\worktrees\actions-to-primitives\server\scripts\probeSchemaFailures.ts:37:61)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)

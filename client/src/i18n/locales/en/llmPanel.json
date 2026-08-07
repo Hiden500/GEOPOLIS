@@ -14,7 +14,7 @@
   "responseSection": {
     "title": "2. LLM response",
     "ariaLabel": "LLM response (JSON)",
-    "placeholder": "Paste the LLM's JSON response: { \"descriptions\": \"...\", \"actions\": [...] }",
+    "placeholder": "Paste the LLM's JSON response: { \"descriptions\": \"...\", \"primitives\": [...] }",
     "applyButton": "Apply response"
   },
   "errors": {
@@ -24,7 +24,7 @@
   },
   "result": {
     "defaultTitle": "Result",
-    "appliedActionsCount": "Actions applied: {{count}}",
+    "appliedActionsCount": "Orders applied: {{count}}",
     "rejectedActionsSuffix": ", rejected: {{count}}",
     "notCanonizedTitle": "The director proposed the impossible",
     "notCanonized": "Nothing the director proposed was applied, so no event was recorded: the world did not change and there is nothing to narrate. The reasons below go to the model in the next prompt.",

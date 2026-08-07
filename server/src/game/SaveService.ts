@@ -32,11 +32,14 @@ function saveFilePath(slot: string): string {
 
 /**
  * Снимает транзиентные поля, которые не должны переживать сейв
- * (docs/plans/01_PERSISTENCE_STATE.md): llmContext/pendingLlmActions — не
- * сохраняются; llmResponse (кэш последнего ответа LLM) — намеренно остаётся.
+ * (docs/plans/01_PERSISTENCE_STATE.md): llmContext не сохраняется; llmResponse
+ * (кэш последнего ответа LLM) — намеренно остаётся.
+ *
+ * `pendingLlmActions` из списка ушёл вместе с самим полем (2026-08-02): оно
+ * было мёртвой scaffolding-механикой старого канала.
  */
 function stripTransientFields(game: GameState): GameState {
-  const { llmContext, pendingLlmActions, ...persisted } = game;
+  const { llmContext, ...persisted } = game;
   return persisted;
 }
 

@@ -188,10 +188,13 @@ function CycleResult({ result }: { result: LlmCycleResult }) {
         </>
       )}
 
+      {/* Счётчик считает ЕДИНСТВЕННЫЙ канал: старого `actions` больше нет
+          (2026-08-02), и складывать два числа, одно из которых всегда ноль,
+          значило бы показывать игроку несуществующее различие. */}
       <p>
-        {t("result.appliedActionsCount", { count: result.receipt.actions.applied.length })}
-        {result.receipt.actions.rejected.length > 0 &&
-          t("result.rejectedActionsSuffix", { count: result.receipt.actions.rejected.length })}
+        {t("result.appliedActionsCount", { count: result.receipt.primitives.applied.length })}
+        {result.receipt.primitives.rejected.length > 0 &&
+          t("result.rejectedActionsSuffix", { count: result.receipt.primitives.rejected.length })}
       </p>
 
       {result.receipt.primitives.applied.length > 0 && (
@@ -224,19 +227,6 @@ function CycleResult({ result }: { result: LlmCycleResult }) {
             ))}
           </ul>
         </section>
-      )}
-
-      {result.receipt.actions.rejected.length > 0 && (
-        /* Старый канал `actions` структурных кодов отказа не получил: его
-           причины по-прежнему английские строки валидатора (docs/TODO.md). */
-        <ul className="llm-rejected">
-          {result.receipt.actions.rejected.map((r, i) => (
-            <li key={i}>
-              {r.type ?? "?"} {r.sourceCountryId ?? "?"}
-              {r.targetCountryId ? ` → ${r.targetCountryId}` : ""}: {r.reason}
-            </li>
-          ))}
-        </ul>
       )}
     </section>
   );

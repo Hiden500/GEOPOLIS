@@ -120,7 +120,7 @@ docs/
   (метаданные слотов), `DELETE /game/saves/:slot`.
 * Автосейв — слот `autosave`, перезаписывается в конце каждого успешного
   `GameService.advanceMonth()`.
-* Транзиентные поля `llmContext`/`pendingLlmActions` не сохраняются;
+* Транзиентное поле `llmContext` не сохраняется;
   `llmResponse` (кэш последнего ответа LLM) сохраняется как есть.
 * `GameState.rngState: number` (`shared/src/utils/rng.ts`, mulberry32) —
   сериализуемое состояние seeded RNG, инфраструктура на будущее (текущей

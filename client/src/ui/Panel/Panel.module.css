@@ -1,0 +1,83 @@
+/*
+ * Панель — единственный контейнер системы. Том, реестр, лента, лист
+ * приказов и полоса региона это ОДНА панель с разным содержимым, а не пять
+ * разных коробок: именно поэтому два экрана читаются как один продукт.
+ */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Материал панели приходит оформлением (styles/skins.css), а не хардкодом. */
+  background-color: var(--panel-bg);
+  background-image: var(--panel-texture);
+  border: var(--panel-edge-width) solid var(--panel-edge);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-bevel), var(--panel-shadow);
+  backdrop-filter: var(--panel-backdrop);
+  color: var(--text);
+  text-shadow: var(--content-shadow);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--edge-width) solid var(--divider);
+}
+
+/*
+ * Заголовок панели читается как заголовок, а не как подпись: полный
+ * контраст, полужирный, без капители. Первая версия была набрана 11px
+ * капителью в приглушённом цвете — теоретически «тихая хрома», на практике
+ * поверхность выглядела безымянной, и глаз не находил, где он находится.
+ * Капитель осталась разделителям СЕКЦИЙ внутри панели — там она к месту.
+ */
+.title {
+  margin: 0;
+  text-shadow: var(--heading-shadow);
+  text-transform: var(--title-transform);
+  letter-spacing: var(--title-tracking);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--text);
+}
+
+.meta {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.instrument {
+  padding: var(--pad-instrument);
+}
+
+.control {
+  padding: var(--pad-control);
+}
+
+.prose {
+  padding: var(--pad-prose);
+}
+
+.flush {
+  padding: 0;
+}
+
+.scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}

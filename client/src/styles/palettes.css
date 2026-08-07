@@ -1,0 +1,130 @@
+/*
+ * Палитры. Выбор живёт на <html data-palette="...">.
+ *
+ * Разделение с темой эпохи намеренное: [data-era] отвечает за ШРИФТЫ и
+ * ассеты сценария (1836 / 1946 / 2000), [data-palette] — за ЦВЕТ. Это
+ * разные вопросы: одна эпоха может иметь несколько палитр, и наоборот.
+ *
+ * Общее для всех четырёх:
+ *  1. Подложка НЕЙТРАЛЬНАЯ — цветной фон конкурирует с раскраской карты и
+ *     заодно красит все панели в свой оттенок.
+ *  2. Поверхности разведены по светлоте заметными ступенями. «Всё
+ *     сливается» лечится разницей ступеней, а не яркостью акцента.
+ *  3. Цветов смысла ровно пять: выделение, рост, падение, у порога,
+ *     за порогом. Акцент ни в одной палитре не совпадает по тону с
+ *     порогом — иначе «активное» и «тревожное» читаются одинаково.
+ */
+
+/* ── Графит: нейтральный серый, бирюза. По умолчанию. ──────────── */
+:root,
+:root[data-palette="graphite"] {
+  --surface-sunken: #0e0f10;
+  --surface: #1a1c1e;
+  --surface-raised: #26282b;
+  --divider: #3a3d41;
+  --scrim: rgba(6, 7, 8, 0.76);
+
+  --text: #f0f2f3;
+  --text-dim: #b2b7bb;
+  --text-faint: #8a9096;
+  --text-on-accent: #06110f;
+
+  --accent: #35d0bb;
+  --accent-hover: #5ee0cf;
+  --accent-tint: rgba(53, 208, 187, 0.16);
+  --edge: rgba(53, 208, 187, 0.34);
+  --edge-strong: rgba(53, 208, 187, 0.8);
+  --focus: #7ff0e0;
+
+  --rise: #55cf7a;
+  --fall: #ff6156;
+  --near: #f2b23c;
+  --over: #e8483c;
+  --over-tint: rgba(232, 72, 60, 0.18);
+}
+
+/* ── Сталь: холодный сине-серый, голубой. ──────────────────────── */
+:root[data-palette="steel"] {
+  --surface-sunken: #0d1116;
+  --surface: #182027;
+  --surface-raised: #232d36;
+  --divider: #37444f;
+  --scrim: rgba(5, 8, 11, 0.76);
+
+  --text: #eef3f7;
+  --text-dim: #aeb9c4;
+  /* 4.65:1 на --surface-raised. Прежний #87929d давал 4.42 — ниже нормы. */
+  --text-faint: #8b96a1;
+  --text-on-accent: #06131c;
+
+  --accent: #5aa9e6;
+  --accent-hover: #7cc0f3;
+  --accent-tint: rgba(90, 169, 230, 0.16);
+  --edge: rgba(90, 169, 230, 0.34);
+  --edge-strong: rgba(90, 169, 230, 0.8);
+  --focus: #9ad4ff;
+
+  --rise: #4fce85;
+  --fall: #ff6a5e;
+  --near: #f5b73f;
+  --over: #ea4b3e;
+  --over-tint: rgba(234, 75, 62, 0.18);
+}
+
+/* ── Тушь: почти чёрный нейтральный, индиго, высокий контраст. ── */
+:root[data-palette="ink"] {
+  --surface-sunken: #08090b;
+  --surface: #141518;
+  --surface-raised: #202226;
+  --divider: #35373d;
+  --scrim: rgba(3, 4, 5, 0.8);
+
+  --text: #f5f6f8;
+  --text-dim: #b6b9c0;
+  --text-faint: #8c9098;
+  --text-on-accent: #080a18;
+
+  --accent: #7c8cf8;
+  --accent-hover: #9aa6ff;
+  --accent-tint: rgba(124, 140, 248, 0.18);
+  --edge: rgba(124, 140, 248, 0.36);
+  --edge-strong: rgba(124, 140, 248, 0.82);
+  --focus: #aab5ff;
+
+  --rise: #5ad07f;
+  --fall: #ff6b5f;
+  --near: #f6bc45;
+  --over: #ee4f42;
+  --over-tint: rgba(238, 79, 66, 0.18);
+}
+
+/* ── Хаки: тёплый нейтральный, латунь. ─────────────────────────── */
+:root[data-palette="khaki"] {
+  --surface-sunken: #100f0c;
+  --surface: #1c1b16;
+  --surface-raised: #292720;
+  --divider: #3d3a30;
+  --scrim: rgba(8, 7, 5, 0.78);
+
+  --text: #f4f1e8;
+  --text-dim: #bab5a5;
+  --text-faint: #948f80;
+  --text-on-accent: #141004;
+
+  --accent: #d9a441;
+  --accent-hover: #eebc5c;
+  --accent-tint: rgba(217, 164, 65, 0.16);
+  --edge: rgba(217, 164, 65, 0.34);
+  --edge-strong: rgba(217, 164, 65, 0.8);
+  --focus: #f2ce7d;
+
+  /*
+   * Здесь акцент сам тёплый, поэтому «у порога» уходит в оранжевый:
+   * янтарный порог рядом с латунным акцентом читался бы как одно и то же.
+   */
+  --rise: #8ab04f;
+  --fall: #e0655a;
+  --near: #e8853a;
+  --over: #cf4436;
+  --over-tint: rgba(207, 68, 54, 0.2);
+}

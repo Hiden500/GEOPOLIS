@@ -1,0 +1,18 @@
+Сводка квитанций годового прогона (2 года, 24 хода, gemini-3.6-flash-high)
+ходов в журнале: 24
+
+ПРИМЕНЕНО по глаголам:
+    38  diplomacy
+     7  repress
+     6  send_aid
+     4  enact_reform
+     3  spawn_incident
+     2  production_shift
+
+ОТКАЗЫ по кодам:
+    18  schemaInvalid
+     1  structuralRollback
+
+отказы по глаголам: {"enact_reform": 4, "diplomacy": 12, "production_shift": 1, "send_aid": 1, "repress": 1}
+
+квитанций с полем `actions`: 0 — канала не существует

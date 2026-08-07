@@ -15,8 +15,10 @@ function findRegion(game: GameState, regionId: number) {
 /**
  * Строит (delta>0) или частично сворачивает (delta<0) добывающие мощности
  * региона на один ресурс (docs/plans/04_RESOURCES.md, Шаг 3). Используется
- * LLM-действием "build_extraction" (±1 уровень за ход — кап в Zod-схеме,
- * server/src/llm/actionSchemas.ts). Наращивание требует контроля над
+ * глаголом алфавита "build_extraction" (±1 уровень за ход задаёт сам глагол:
+ * `params.direction`, величины движок считает сам — `PrimitiveEngine`; до
+ * 2026-08-02 это был кап Zod-схемы удалённого канала `actions`).
+ * Наращивание требует контроля над
  * регионом (docs/plans/08_WAR_WAVE1.md::effectiveController) и наличия
  * депозита ресурса; списывает EXTRACTION_BUILD_COST за уровень из казны.
  * Снятие мощностей — бесплатно, без проверки контроля (страна может

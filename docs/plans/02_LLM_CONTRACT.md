@@ -11,7 +11,7 @@ free-tier квоты Gemini — см. отклонения.
 
 1. **Ядро контракта нетипизировано.** `LLMAction.data?: Record<string, any>`
    (`shared/src/types/GameState.ts:80`) — самая важная граница системы без типов.
-   Валидатор — ~300 строк ручных `if` (`server/src/llm/LLMResponseValidator.ts`),
+   Валидатор — ~300 строк ручных `if` (`server/src/llm/LLMResponseValidator.ts` (УДАЛЁН 2026-08-02)),
    при том что Zod уже в зависимостях сервера и используется для HTTP-роутов.
    Каждый новый тип действия добавляет расхождения между промтом (текстовое
    описание формата в `LLMService.ts:257`), валидатором и применением.
@@ -28,7 +28,7 @@ free-tier квоты Gemini — см. отклонения.
 
 ### Шаг 1. Zod-схемы действий (дискриминированный union)
 
-`server/src/llm/actionSchemas.ts`:
+`server/src/llm/actionSchemas.ts` (УДАЛЁН 2026-08-02, конверт ответа переехал в `responseSchemas.ts`):
 
 ```ts
 const DiplomacyAction = z.object({
@@ -49,7 +49,7 @@ export const LLMResponseSchema = z.object({
 ```
 
 - Структурная и магнитудная валидация уходит в схемы; в
-  `LLMResponseValidator` остаётся только **семантическая применимость**
+  `LLMResponseValidator` (удалён 2026-08-02) оставалась только **семантическая применимость**
   (страна существует, война действительно идёт, не воюем сами с собой).
 - Тип `LLMAction` в shared выводится из схем (`z.infer`) — конец `data: any`.
 - Существующие тесты валидатора переиспользовать против схем.
@@ -120,7 +120,9 @@ fitness-функцией правила 6 конституции (`server/src/__
 существовала, реально использовался `shared/src/constants/`
 (`budgetSpendingShareCaps.ts`). Остановлен, доложено пользователю
 (`AskUserQuestion`) — **решение пользователя: создать `shared/src/defines/`
-сейчас** для капов LLM-действий (`llmActionCaps.ts`), не мигрируя
+сейчас** для капов LLM-действий (`llmActionCaps.ts` — файл удалён 2026-08-02
+вместе с каналом `actions`, капы переехали в `research.ts`/`military.ts`/
+`resources.ts`), не мигрируя
 существующие файлы `constants/` — оба каталога временно сосуществуют до
 отдельного захода по плану 03 (тот формально спроектирует полную структуру
 `defines/`, включая `defines.json`/`index.ts`/`defines.notes.md`).
@@ -128,7 +130,8 @@ fitness-функцией правила 6 конституции (`server/src/__
 ### Шаг 1 — `LLMAction` с явным `| undefined` на опциональных полях
 
 При компайл-тайм проверке эквивалентности `z.infer<LLMActionSchema>` и
-shared-типа `LLMAction` (`actionSchemas.ts`, `Equals<A,B>`-паттерн) —
+shared-типа `LLMAction` (`actionSchemas.ts` — удалён 2026-08-02,
+`Equals<A,B>`-паттерн) —
 tsc не проходил на пустом месте. Причина: под `exactOptionalPropertyTypes`
 (server/tsconfig.json) вывод Zod для `.optional()`-полей — это буквально
 `X | undefined`, не просто `X?`. Приведено явно в `GameState.ts`
@@ -167,7 +170,8 @@ OpenAPI 3.0-подобное подмножество — WebSearch про по�
    ограничение grammar-компилятора constrained-decoding Gemini.
    `mergeIdenticalShapeBranches` схлопывает такие ветки в одну с
    `type: {enum: [...]}` — ослабляет только схему-для-генерации, реальная
-   валидация ответа (`actionSchemas.ts`) остаётся точной per-type.
+   валидация ответа (`actionSchemas.ts`, удалён 2026-08-02 — конверт переехал
+   в `responseSchemas.ts`) остаётся точной per-type.
 
 **Не подтверждено до конца, честно зафиксировано:** полный сквозной live-
 прогон исправленной (после мерджа, 7-ветвевой) схемы против реального

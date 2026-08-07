@@ -1,41 +1,25 @@
 /*
- * Дизайн-токены темы «1946 — радарная ситуационная комната»
- * (docs/plans/12_UI_REDESIGN.md §3).
+ * Тема эпохи 1946 — ШРИФТЫ и типографические привычки сценария.
+ * Цвет сюда не входит: палитра выбирается независимо (styles/palettes.css,
+ * <html data-palette>), потому что «какая эпоха» и «какая палитра» — разные
+ * вопросы, и одна эпоха вправе иметь несколько палитр.
  *
- * Токены живут под [data-era="1946"], а не в голом :root, чтобы 1836/2000
- * могли подключиться как альтернативные наборы токенов + ассеты без
- * переписывания компонентов (архитектура тем плана, §3). data-era ставится
- * на <html> в index.html — сейчас единственная реализованная эпоха.
+ * data-era стоит на <html> в index.html.
  */
 
 :root[data-era="1946"] {
-  --ink: #0e1311;
-  --ink-2: #121815;
-
-  --steel: #182019;
-  --steel-2: #1f2a22;
-  --steel-3: #263329;
-
-  --hairline: #2c3a30;
-  --hairline-2: #3a4b3d;
-
-  --paper: #e8e4d4;
-  --paper-dim: #9ba08c;
-  --paper-faint: #6b7161;
-
-  --accent: #e6a338;
-  --accent-2: #f6bf5e;
-  --accent-dim: #8a6a2a;
-  --accent-tint: rgba(230, 163, 56, 0.13);
-
-  --ok: #7aa653;
-  --warn: #c9762a;
-  --crit: #cf4436;
-  --crit-tint: rgba(207, 68, 54, 0.15);
-
-  --font-display: "Oswald", "Arial Narrow", sans-serif;
-  --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /*
+   * IBM Plex Sans закрывает три роли из четырёх (показатели, ярлыки,
+   * интерфейс) — у него полная кириллица и табличные цифры через "tnum".
+   *
+   * --font-narrative пока указывает на ту же гарнитуру: нарратив режиссёра
+   * должен читаться иначе, чем подпись к кнопке, но подходящей второй
+   * гарнитуры с кириллицей в проекте сейчас нет. Кандидат — IBM Plex Serif
+   * (та же семья, OFL, кириллица есть), это добавление шрифтовых файлов и
+   * решается отдельно. До тех пор нарратив отличается размером,
+   * интерлиньяжем и шириной колонки, а не начертанием.
+   */
+  --font-ui: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-narrative: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", "Courier New", monospace;
-
-  --radius: 2px;
 }

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import type { FeatureCollection, LineString } from 'geojson';
+import type { Feature, FeatureCollection, LineString } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import type { MapFeature } from '@shared/types/map/MapFeature';
@@ -15,7 +15,7 @@ import { centroid } from '@turf/turf';
 
 
 function buildGraticule(): FeatureCollection {
-  const features: any[] = [];
+  const features: Feature[] = [];
   // Линии долготы (меридианы) с шагом 15 градусов
   for (let lon = -180; lon <= 180; lon += 15) {
     const coordinates: [number, number][] = [];
@@ -141,7 +141,7 @@ export function MapView({
         version: 8,
         sources: {},
         layers: [],
-      } as any,
+      } as maplibregl.StyleSpecification,
       center: [37.6173, 55.7558],
       zoom: 2,
       maxZoom: 12,
@@ -149,7 +149,9 @@ export function MapView({
       attributionControl: false
     });
 
-    (window as any).map = m;
+    // Отладочный хук: карта достаётся из консоли браузера. Каст точечный —
+    // глобальный тип Window ради него не расширяем.
+    (window as unknown as { map?: maplibregl.Map }).map = m;
 
     m.on('load', () => {
       // Регистрируем кастомные иконки для столиц и городов
@@ -767,7 +769,7 @@ export function MapView({
               feat => feat.properties?.regionId === f.regionId
             );
             if (geoFeature) {
-              const c = centroid(geoFeature as any);
+              const c = centroid(geoFeature);
               if (c && c.geometry && c.geometry.coordinates) {
                 coords = c.geometry.coordinates as [number, number];
               }
@@ -794,7 +796,7 @@ export function MapView({
             },
           };
         })
-        .filter(f => f !== null) as any[],
+        .filter((f): f is NonNullable<typeof f> => f !== null),
     };
 
     const source = m.getSource('map-features') as maplibregl.GeoJSONSource;
@@ -877,21 +879,19 @@ function createCapitalStarIcon(): ImageData {
   const innerRadius = 2.5;
 
   let rot = (Math.PI / 2) * 3;
-  let x = cx;
-  let y = cy;
   const step = Math.PI / spikes;
 
   ctx.beginPath();
   ctx.moveTo(cx, cy - outerRadius);
   for (let i = 0; i < spikes; i++) {
-    x = cx + Math.cos(rot) * outerRadius;
-    y = cy + Math.sin(rot) * outerRadius;
-    ctx.lineTo(x, y);
+    const outerX = cx + Math.cos(rot) * outerRadius;
+    const outerY = cy + Math.sin(rot) * outerRadius;
+    ctx.lineTo(outerX, outerY);
     rot += step;
 
-    x = cx + Math.cos(rot) * innerRadius;
-    y = cy + Math.sin(rot) * innerRadius;
-    ctx.lineTo(x, y);
+    const innerX = cx + Math.cos(rot) * innerRadius;
+    const innerY = cy + Math.sin(rot) * innerRadius;
+    ctx.lineTo(innerX, innerY);
     rot += step;
   }
   ctx.lineTo(cx, cy - outerRadius);

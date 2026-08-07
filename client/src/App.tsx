@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { type Locale } from "@shared/types/i18n/LocalizedText";
 import { ScenarioSelector } from "./components/ScenarioSelector";
-import { GameView } from "./components/GameView";
+import { GameShell } from "./game/GameShell";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { startGame } from "./api/gameApi";
 import "./App.css";
@@ -47,7 +47,7 @@ export default function App() {
   if (game) {
     return (
       <ErrorBoundary onReset={handleBack}>
-        <GameView game={game} onGameUpdate={setGame} onBack={handleBack} />
+        <GameShell game={game} onGameUpdate={setGame} />
       </ErrorBoundary>
     );
   }

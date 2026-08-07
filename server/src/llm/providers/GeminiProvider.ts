@@ -2,7 +2,7 @@ import { z } from "zod";
 import { LLMProviderError } from "../../errors/AppError";
 import { type LLMProvider } from "./LLMProvider";
 import { parseGeminiUsage, type TokenUsage } from "../tokenTelemetry";
-import { GeminiResponseSchema } from "../actionSchemas";
+import { ProviderResponseSchema } from "../responseSchemas";
 
 /** Модель по умолчанию. Экспортируется, чтобы журнал расхода назывался тем же
  * именем, каким сделан вызов: расход несопоставим между моделями. */
@@ -39,9 +39,9 @@ export const DEFAULT_MODEL = "gemini-3.1-flash-lite";
  *     Фикс — mergeIdenticalShapeBranches ниже: ветки с одинаковой формой
  *     схлопываются в одну с `type: {enum: [...все их discriminant-значения]}`.
  *     Это ослабляет только СХЕМУ ДЛЯ ГЕНЕРАЦИИ (направляет модель) — реальная
- *     валидация входящего ответа (actionSchemas.ts::LLMActionSchema,
+ *     валидация входящего ответа (responseSchemas.ts::ProviderResponseSchema,
  *     processResponse) остаётся точной per-type и не меняется.
- * Единый источник схемы (actionSchemas.ts) остаётся тем не менее верным
+ * Единый источник схемы (responseSchemas.ts) остаётся тем не менее верным
  * решением — было безальтернативно хуже: до 2026-07-10 ручная схема вообще
  * не содержала research_shift/production_shift.
  */
@@ -87,13 +87,12 @@ function mergeIdenticalShapeBranches(
 
 /**
  * mergeIdenticalShapeBranches предполагает дискриминированный union объектов
- * (ветка = `{type:"object", properties:{type:{...}, ...}}`) — паттерн
- * LLMActionSchema. Не каждый anyOf/oneOf в схеме такой: `delta:
- * z.union([z.literal(1), z.literal(-1)])` (build_extraction,
- * docs/plans/04_RESOURCES.md) даёт ветки-литералы (`{const:1}`/`{const:-1}`,
- * без `properties` вообще) — слепое применение схлопывания падает
- * (`branch.properties.type` — undefined). Схлопывание применимо только если
- * ВСЕ ветки — объекты с `type`-дискриминантом в properties.
+ * (ветка = `{type:"object", properties:{verb:{...}, ...}}`) — паттерн
+ * `primitiveSchema`. Не каждый anyOf/oneOf в схеме такой: union литералов
+ * (`{const:1}`/`{const:-1}`, без `properties` вообще) даёт ветки, на которых
+ * слепое применение схлопывания падает — `branch.properties` там undefined.
+ * Схлопывание применимо только если ВСЕ ветки — объекты с дискриминантом в
+ * properties.
  */
 function isMergeableDiscriminatedBranch(
   branch: Record<string, unknown>,
@@ -115,12 +114,13 @@ function isMergeableDiscriminatedBranch(
  * Имя поля-дискриминанта, общего для всех веток, — вместо захардкоженного
  * `type` (обобщено Милстоуном 1).
  *
- * Стало нужно потому, что дискриминированный union появился второй:
- * `LLMActionSchema` различает ветки по `type`, а примитив — по `verb`. Пока имя
- * было зашито, схема примитивов не схлопывалась вовсе, и в неё уезжали
+ * Стало нужно потому, что дискриминированный union появился второй: старый
+ * канал различал ветки по `type`, а примитив — по `verb`. Пока имя было зашито
+ * под `type`, схема примитивов не схлопывалась вовсе, и в неё уезжали
  * СТРУКТУРНО ОДИНАКОВЫЕ ветки (`repress` и `grant_autonomy` — одна и та же
  * форма цели и параметров), то есть ровно тот случай, на котором живой вызов
- * возвращал 400 (см. шапку модуля).
+ * возвращал 400 (см. шапку модуля). Канала `type` больше нет, но обобщение
+ * осталось верным: имя дискриминанта опознаётся по форме, а не по списку.
  *
  * Дискриминант опознаётся по форме, а не по имени: это поле, которое есть у
  * КАЖДОЙ ветки и в каждой описано как enum ровно из одного значения (`const`,
@@ -192,7 +192,7 @@ function enrichForGemini(node: unknown): unknown {
  * проверена живым тестом 2026-07-05 (docs/DECISIONS.md): без нужной формы
  * AI Studio заворачивает ответ в generic {response: string} и ломает
  * экранирование переносов строк при двойном JSON.parse. Генерируется из
- * GeminiResponseSchema (actionSchemas.ts) — единый источник истины с
+ * ProviderResponseSchema (responseSchemas.ts) — единый источник истины с
  * серверной валидацией входящего ответа, не второй ручной литерал
  * (docs/plans/02_LLM_CONTRACT.md, Шаг 4).
  */
@@ -209,7 +209,7 @@ export function toProviderSchema(schema: z.ZodType): Record<string, unknown> {
  * задокументированы выше. Второй ручной конвертер разъехался бы с этим при
  * первой же правке.
  */
-const RESPONSE_SCHEMA = toProviderSchema(GeminiResponseSchema);
+const RESPONSE_SCHEMA = toProviderSchema(ProviderResponseSchema);
 
 /**
  * Автоматизированный провайдер через Gemini API (generateContent).
@@ -228,14 +228,14 @@ export class GeminiProvider implements LLMProvider {
 
   async generateResponse(
     prompt: string,
-    schema: z.ZodType = GeminiResponseSchema
+    schema: z.ZodType = ProviderResponseSchema
   ): Promise<string> {
     // Конвертация переехала сюда из вызывающего слоя вместе с появлением
     // второго провайдера: диалект — свойство API, а не запроса (см.
     // `LLMProvider`). Схема мирового цикла берётся из готовой константы, чтобы
     // самый частый вызов не пересобирал её на каждый ход.
     const responseSchema =
-      schema === GeminiResponseSchema ? RESPONSE_SCHEMA : toProviderSchema(schema);
+      schema === ProviderResponseSchema ? RESPONSE_SCHEMA : toProviderSchema(schema);
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new LLMProviderError(

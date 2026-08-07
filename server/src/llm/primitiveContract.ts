@@ -33,8 +33,8 @@ import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
  *
  * Строка не читает состояние партии и потому собирается один раз на модуль.
  */
-export const PRIMITIVE_CONTRACT = `Impact primitives (the "primitives" array) — a separate, stricter channel than
-the legacy "actions". A primitive is one elementary verb of influence; the
+export const PRIMITIVE_CONTRACT = `Impact primitives (the "primitives" array) — the ONLY channel through which a
+response changes the world. A primitive is one elementary verb of influence; the
 engine validates its precondition, computes every magnitude itself, and applies
 it atomically or rejects it whole.
 
@@ -83,9 +83,8 @@ required target field is missing.
   an uprising needs: a region ready to revolt is not yet a region leaving the
   country.
 
-Relations between states are primitives too — there is no "actions" shortcut for
-them any more. All four take target {countryId}, which must NOT equal
-sourceCountryId.
+Relations between states are primitives too. All four take target {countryId},
+which must NOT equal sourceCountryId.
 
 - diplomacy — params {direction, intensity}, direction ("improve"/"worsen") is
   REQUIRED: improving and breaking a relationship are different events, not
@@ -121,8 +120,8 @@ them takes a magnitude either; all take params {intensity} only.
   donor to hold at least ${(SEND_AID_MIN_TREASURY_SHARE * 100).toFixed(0)}% of
   its GDP in the treasury.
   Aid also buys INFLUENCE over the recipient, in proportion to how visible the
-  money is against the recipient's economy. Influence is the only path to it —
-  there is no "influence" action any more. Note what aid does NOT do: it does
+  money is against the recipient's economy. Aid is the only path to influence.
+  Note what aid does NOT do: it does
   not move relations directly. Warmth follows later, through the sphere of
   influence and the drift of relations, because that is how patronage works.
 - capital_flight — target {regionId} — money leaves a region: its output drops
@@ -180,6 +179,39 @@ changes hands or it does not.
   group at all, and the source to keep at least one region — a state letting go
   of everything is dissolving itself, and that is split_country.
 
+Four more verbs cover commitments and budgets. They used to live in a separate
+"actions" channel that let you set numbers directly; that channel no longer
+exists, and here the engine decides every magnitude as it does everywhere else.
+
+- guarantee — target {countryId} — no params — the source promises to defend the
+  target's independence, and that promise DRAGS IT INTO THE TARGET'S WARS
+  automatically. It also warms the pair's relations. Refused if the guarantee is
+  already in force: promising it twice changes nothing.
+- research_shift — target {countryId}, which MUST equal sourceCountryId: a state
+  spends its own budget and only its own. params {domain, direction, intensity},
+  where domain is REQUIRED and must be a domain that country actually HAS — a
+  name that is not one of its domains is rejected even when it names a real
+  field of research. A country's Technology line shows only where it has already
+  advanced, not the full set of names it may be given; where the prompt lists the
+  domains that exist, copy the name from there verbatim.
+  direction is "toward" (default) or "away". How far
+  the share moves is decided by how much room is left to the ceiling — and the
+  ceiling drops for every war the country is currently fighting, because a
+  government fighting on several fronts is a distracted one. A domain already at
+  the ceiling moves by the minimum: "severe" then equals "mild".
+- production_shift — target {countryId}, same domestic rule. params
+  {equipmentType, direction, intensity}, equipmentType REQUIRED and one of
+  rifles/trucks/tanks/artillery/fighters/bombers/destroyers/submarines. The
+  ceiling here is flat — war concentrates production rather than distracting it.
+- build_extraction — target {regionId} — params {resource, direction}, resource
+  REQUIRED, direction "expand" (default) or "dismantle". One capacity level per
+  order; the engine computes actual output from richness × capacity, and you
+  never state a production number. Expanding requires the source to CONTROL the
+  region, the region to hold a deposit of that resource, the capacity to be below
+  its maximum, and the treasury to afford it. Dismantling requires none of those
+  except something to dismantle: a state may wind down its own works even on
+  ground it has lost.
+
 Rules the engine enforces, not requests:
 - You NEVER set a magnitude. params carry qualitative hints only —
   params.intensity is "mild" | "moderate" | "severe", and it selects a position
@@ -192,11 +224,17 @@ Rules the engine enforces, not requests:
   Send a structural one only when the rest of the response is meant to happen
   together with it. All four share the SAME single structural slot of the turn:
   a month that declares a war cannot also enact a reform.
-- The soft diplomatic verbs (diplomacy, sanction) share ONE slot per ordered
-  pair of countries per turn. Sanctioning a country you have already addressed
-  diplomatically this month is refused — not because the verb is wrong, but
-  because that month is over for that pair. Changing the verb does not widen
-  what one month may do to one relationship.
+- The soft bilateral verbs (diplomacy, sanction, guarantee) share ONE slot per
+  ordered pair of countries per turn. Sanctioning a country you have already
+  addressed diplomatically this month is refused — not because the verb is
+  wrong, but because that month is over for that pair. Changing the verb does not
+  widen what one month may do to one relationship: all three write into the same
+  relation between the same two states.
+- The budget verbs are counted per SUBJECT, not per country: research_shift on
+  aviation and production_shift on tanks in the same month are a legitimate pair,
+  a second shift of the SAME domain is not. build_extraction is counted per
+  (region, resource) for the same reason — oil and coal in one region are two
+  different building sites.
 - condemn and capital_flight are counted PER TARGET, not per source. They cost
   the source nothing, so a second condemnation of the same country in the same
   month is refused even when it comes from a different state — otherwise ten
@@ -232,8 +270,10 @@ Rules the engine enforces, not requests:
  * реформировать страну игрока. Обещать модели откат там, где движок его не
  * делает, значит учить её правилу, которого нет.
  */
-export const PRIMITIVE_PLAYER_AGENCY_NOTE = `- repress, grant_autonomy and enact_reform for the PLAYER's own country are
-  refused: creating pressure is your job, answering it is the player's. Put the
+export const PRIMITIVE_PLAYER_AGENCY_NOTE = `- Acts of STATE POLICY for the PLAYER's own country are refused — repress,
+  grant_autonomy, enact_reform, every diplomatic verb, and the commitment and
+  budget verbs (guarantee, research_shift, production_shift, build_extraction):
+  creating pressure is your job, answering it is the player's. Put the
   choice in front of them in "descriptions" instead. This refusal is the one
   exception to the whole-response rollback above: it removes only the primitive
   it refuses, so the soft primitives you sent alongside a refused enact_reform

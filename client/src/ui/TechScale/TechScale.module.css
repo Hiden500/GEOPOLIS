@@ -1,0 +1,124 @@
+/*
+ * Слот техники — не узел дерева, а ШКАЛА ПОКОЛЕНИЙ. Дерева в игре нет:
+ * игрок не выбирает узлы, он двигает фокус по доменам (docs/CONCEPT.md §5.3).
+ * Драматургия здесь в другом — в РАЗРЫВЕ между «умею проектировать»
+ * (capability) и «есть в парке» (readiness). Разрыв виден как пустота,
+ * и он стоит денег: модернизация платная.
+ */
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 11rem) auto minmax(0, 1fr) minmax(7rem, auto);
+  align-items: center;
+  column-gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+/*
+ * Количество. Шкала говорит, КАКОГО поколения парк, но не сколько его:
+ * триста устаревших танков и три современных — разные державы, а шкала у
+ * них может совпасть. Число живёт отдельной колонкой, чтобы колонки
+ * сравнивались взглядом по вертикали.
+ */
+.count {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+  text-align: right;
+  min-width: 3.5rem;
+}
+
+.countNone {
+  color: var(--text-faint);
+  font-weight: var(--weight-regular);
+}
+
+.name {
+  font-size: var(--text-sm);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.track {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  height: 14px;
+}
+
+.segment {
+  background: var(--surface-raised);
+  border-radius: 2px;
+}
+
+/* Парк: то, что реально произведено. */
+.filled {
+  background: var(--accent);
+}
+
+/* Разрыв — намеренно пустой: долг модернизации это отсутствие, а не вещь. */
+.gap {
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--divider);
+}
+
+/*
+ * Доктрина запрещает — не «нельзя построить», а «нельзя ставить в строй».
+ * Договоры вроде РСМД это posture, а не тех-уровень (docs/CONCEPT.md §7.3).
+ */
+.forbidden {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    var(--over-tint) 3px 6px
+  );
+  box-shadow: inset 0 0 0 1px var(--over);
+}
+
+/* Умение: где стоит текущий тир домена. */
+.capability {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--text);
+  transform: translateX(-1px);
+}
+
+.capability::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--text);
+}
+
+/* Маркер соперника — та же шкала, второй указатель. */
+.rival {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin-top: -4px;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--surface);
+  box-shadow: 0 0 0 1.5px var(--text-dim);
+}
+
+.note {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.behind {
+  color: var(--near);
+}

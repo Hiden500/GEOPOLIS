@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as _dt
 import json
 import re
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
@@ -184,6 +185,56 @@ def validate_no_conflict_markers() -> None:
     )
 
 
+CODE_SUFFIXES = (".ts", ".tsx", ".py")
+
+
+def _repo_code_files() -> set[str]:
+    """Все файлы кода репозитория, путями от корня, через индекс git.
+
+    ПОЧЕМУ НЕ СПИСОК КОРНЕЙ. Раньше множество собиралось обходом пяти каталогов
+    (`server/src`, `client/src`, `shared/src`, `scripts`, `.agent`), и корень,
+    заведённый позже, в него не попадал: на 2026-08-03 в списке не было
+    `server/scripts`, поэтому `runCampaignWithLLM.ts` и `probeMigratedVerbs.ts`
+    для проверки НЕ СУЩЕСТВОВАЛИ. Пока ссылки на них писались с путём, их
+    спасала проверка «файл есть на диске», и дефект был не виден.
+
+    ПОЧЕМУ НЕ ОБХОД ДЕРЕВА. `ROOT.rglob("*")` зашёл бы в `node_modules`, а в
+    linked worktree там лежат junction на пакеты главного checkout
+    (`scripts/worktree-new.ps1`) — обход пошёл бы по ссылкам наружу и стоил бы
+    минуты. Индекс git знает ровно содержимое репозитория и ничего сверх него.
+
+    Untracked-файлы добавлены отдельным вызовом: только что созданный и ещё не
+    закоммиченный файл — законная цель ссылки из документа той же правки.
+
+    Если git недоступен, проверка не падает и не молчит: возвращается прежнее
+    множество по корням — уже, но честнее, чем пустое.
+    """
+    files: set[str] = set()
+    for args in (["ls-files"], ["ls-files", "--others", "--exclude-standard"]):
+        try:
+            out = subprocess.run(
+                ["git", *args],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout
+        except (OSError, subprocess.CalledProcessError):
+            # Упал второй вызов (untracked), а первый дал индекс — отдаём его:
+            # он и есть основная часть. Пустой результат заменяем обходом корней.
+            if files:
+                return files
+            return {
+                str(p.relative_to(ROOT)).replace("\\", "/")
+                for base in ("server/src", "client/src", "shared/src", "scripts", ".agent")
+                if (ROOT / base).is_dir()
+                for p in (ROOT / base).rglob("*")
+                if p.is_file() and p.suffix in CODE_SUFFIXES
+            }
+        files.update(f for f in out.splitlines() if f.endswith(CODE_SUFFIXES))
+    return files
+
+
 def validate_rot() -> None:
     """Гниение документации: ссылки на код, которого нет, и просроченные срезы.
 
@@ -201,12 +252,15 @@ def validate_rot() -> None:
     # «server/src/commands/economy.ts»), и это законный стиль. Поэтому ссылка
     # засчитана, если ей соответствует ХОТЬ ОДИН реальный файл по окончанию
     # пути; ловим только те, которым не соответствует ничего.
-    existing = {
-        str(p.relative_to(ROOT)).replace("\\", "/")
-        for base in ("server/src", "client/src", "shared/src", "scripts", ".agent")
-        for p in (ROOT / base).rglob("*")
-        if p.is_file() and p.suffix in (".ts", ".tsx", ".py")
-    }
+    existing = _repo_code_files()
+    # Голое имя без пути («LLMResponseValidator.ts») — тот же вид ссылки, и
+    # проверяется по basename. До 2026-08-03 такие пропускались вовсе, и
+    # удаление файла оставляло их жить: интеграция ветки `actions-to-primitives`
+    # нашла ШЕСТЬ упоминаний удалённого `LLMResponseValidator.ts` в живых
+    # нормативных документах (`LLM_RULES.md`, `AI_RULES.md`, `WAR.md`,
+    # `TECH_TREE.md`, `PRIMITIVES.md`, `plans/13`) — все пережили удаление,
+    # потому что проверять их было некому.
+    existing_names = {full.rsplit("/", 1)[-1] for full in existing}
     missing: list[str] = []
     for doc in sorted((ROOT / "docs").rglob("*.md")):
         # Архив и провенанс фиксируют ПРОШЛОЕ состояние: путь, верный на момент
@@ -217,13 +271,16 @@ def validate_rot() -> None:
         text = doc.read_text(encoding="utf-8", errors="replace")
         for line in text.splitlines():
             for ref in set(code_ref.findall(line)):
-                if "/" not in ref or ref.startswith(("http", "<")):
+                if ref.startswith(("http", "<")):
                     continue
                 if "*" in ref or "…" in ref:
                     continue
                 if (ROOT / ref).exists():
                     continue
-                if any(full.endswith("/" + ref) for full in existing):
+                if "/" in ref:
+                    if any(full.endswith("/" + ref) for full in existing):
+                        continue
+                elif ref in existing_names:
                     continue
                 # Документ, который САМ сообщает об исчезновении файла, не гниёт:
                 # «удалён целиком», «заменяет X», «X → новая шапка» — это история
@@ -238,10 +295,12 @@ def validate_rot() -> None:
                 if any(m in lowered for m in markers):
                     continue
                 missing.append(f"{doc.relative_to(ROOT)} -> {ref}")
+    # Счётчик в детали, а не только первая пятёрка: без него «показано 5» и
+    # «найдено 5» неразличимы, и объём уборки виден только после правки первых.
     check(
         not missing,
         "docs reference only existing code files",
-        "; ".join(sorted(missing)[:5]),
+        (f"{len(missing)} шт., первые: " + "; ".join(sorted(missing)[:5])) if missing else "",
     )
 
     stale_marker = re.compile(r"актуально на (\d{4})-(\d{2})-(\d{2})")

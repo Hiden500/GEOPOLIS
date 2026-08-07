@@ -27,7 +27,9 @@ import ruPlayerIntentPanel from "./locales/ru/playerIntentPanel.json";
 import ruResearchPanel from "./locales/ru/researchPanel.json";
 import ruResourceTicker from "./locales/ru/resourceTicker.json";
 import ruScenarioSelector from "./locales/ru/scenarioSelector.json";
+import ruScreen from "./locales/ru/screen.json";
 import ruTerritoriesPanel from "./locales/ru/territoriesPanel.json";
+import ruUi from "./locales/ru/ui.json";
 import ruWindow from "./locales/ru/window.json";
 import ruWorldRankingPanel from "./locales/ru/worldRankingPanel.json";
 
@@ -51,7 +53,9 @@ import enPlayerIntentPanel from "./locales/en/playerIntentPanel.json";
 import enResearchPanel from "./locales/en/researchPanel.json";
 import enResourceTicker from "./locales/en/resourceTicker.json";
 import enScenarioSelector from "./locales/en/scenarioSelector.json";
+import enScreen from "./locales/en/screen.json";
 import enTerritoriesPanel from "./locales/en/territoriesPanel.json";
+import enUi from "./locales/en/ui.json";
 import enWindow from "./locales/en/window.json";
 import enWorldRankingPanel from "./locales/en/worldRankingPanel.json";
 
@@ -85,7 +89,9 @@ void i18n.use(initReactI18next).init({
       researchPanel: ruResearchPanel,
       resourceTicker: ruResourceTicker,
       scenarioSelector: ruScenarioSelector,
+      screen: ruScreen,
       territoriesPanel: ruTerritoriesPanel,
+      ui: ruUi,
       window: ruWindow,
       worldRankingPanel: ruWorldRankingPanel,
     },
@@ -110,7 +116,9 @@ void i18n.use(initReactI18next).init({
       researchPanel: enResearchPanel,
       resourceTicker: enResourceTicker,
       scenarioSelector: enScenarioSelector,
+      screen: enScreen,
       territoriesPanel: enTerritoriesPanel,
+      ui: enUi,
       window: enWindow,
       worldRankingPanel: enWorldRankingPanel,
     },

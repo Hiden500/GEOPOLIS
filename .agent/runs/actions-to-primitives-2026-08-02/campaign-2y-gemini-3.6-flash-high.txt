@@ -1,0 +1,39 @@
+дерево:   D:/Pax Historia LOCAL/.claude/worktrees/actions-to-primitives
+env:      D:\Pax Historia LOCAL\server\.env -> переменных подхвачено: 4 (имена: GEMINI_API_KEY, LOCAL_LLM_BASE_URL, LOCAL_LLM_MODEL, LOCAL_LLM_API_KEY)
+эндпоинт: http://localhost:8317/v1 | модель: gemini-3.6-flash-high
+прокси уже работает (моделей: 12), 'gemini-3.6-flash-high' доступна — не трогаю
+запускаю: npx tsx scripts/runCampaignWithLLM.ts --years 2
+
+сервер модели отвечает: http://localhost:8317/v1 (ключ задан)
+доступно моделей: 12 (gemini-3.1-flash-lite, claude-sonnet-4-6, gemini-pro-agent, gemini-3.5-flash-low, gemini-3.5-flash-extra-low, gemini-3.6-flash-high, claude-opus-4-6-thinking, gemini-3-flash, gemini-3-flash-agent, gemini-3.1-flash-image, gemini-3.1-pro-low, gpt-oss-120b-medium)
+
+партия: USA, 2 лет (24 ходов)
+
+  ход   1 (1946-02-01) 8.0с — +4 действий, −0
+  ход   2 (1946-03-01) 8.2с — +2 действий, −0
+  ход   3 (1946-04-01) 8.5с — +4 действий, −0
+  ход   4 (1946-05-01) 6.8с — +4 действий, −0
+  ход   5 (1946-06-01) 8.7с — +0 действий, −3
+  ход   6 (1946-07-01) 8.2с — +2 действий, −0
+  ход   7 (1946-08-01) 12.3с — +1 действий, −3
+  ход   8 (1946-09-01) 9.5с — +0 действий, −3
+  ход   9 (1946-10-01) 9.1с — +2 действий, −0
+  ход  10 (1946-11-01) 8.4с — +5 действий, −0
+  ход  11 (1946-12-01) 8.5с — +4 действий, −0
+  ход  12 (1947-01-01) 7.9с — +0 действий, −4
+  ход  13 (1947-02-01) 6.5с — +3 действий, −0
+  ход  14 (1947-03-01) 7.5с — +3 действий, −0
+  ход  15 (1947-04-01) 7.6с — +2 действий, −0
+  ход  16 (1947-05-01) 6.8с — +3 действий, −0
+  ход  17 (1947-06-01) 8.7с — +4 действий, −0
+  ход  18 (1947-07-01) 8.6с — +3 действий, −0
+  ход  19 (1947-08-01) 7.8с — +3 действий, −0
+  ход  20 (1947-09-01) 5.8с — +3 действий, −0
+  ход  21 (1947-10-01) 8.4с — +1 действий, −2
+  ход  22 (1947-11-01) 9.6с — +4 действий, −0
+  ход  23 (1947-12-01) 7.6с — +3 действий, −0
+  ход  24 (1948-01-01) 8.7с — +0 действий, −4
+
+готово за 3.3 мин
+  D:\Pax Historia LOCAL\.claude\worktrees\actions-to-primitives\.tmp\llm-campaign\world.csv
+  D:\Pax Historia LOCAL\.claude\worktrees\actions-to-primitives\.tmp\llm-campaign\llm.jsonl

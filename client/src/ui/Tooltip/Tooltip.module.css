@@ -1,0 +1,44 @@
+/*
+ * Подсказка системы вместо браузерной. Причина не вкус: после того как у
+ * ПОКАЗАТЕЛЕЙ и КОРЕШКОВ убраны текстовые подписи, подсказка стала
+ * ОСНОВНЫМ способом узнать значение иконки — а браузерная не поддаётся ни
+ * оформлению, ни размеру, ни задержке.
+ *
+ * Пузырёк position: fixed, поэтому выходит за пределы панелей с
+ * overflow: hidden — иначе внутри ПАНЕЛИ он обрезался бы.
+ */
+
+.wrap {
+  display: inline-flex;
+  position: relative;
+}
+
+.bubble {
+  position: fixed;
+  z-index: var(--z-toast);
+  transform: translateX(-50%);
+  max-width: 18rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-raised);
+  border: var(--edge-width) solid var(--edge-strong);
+  border-radius: var(--radius-inner);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  color: var(--text);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  white-space: normal;
+  text-align: center;
+  pointer-events: none;
+  animation: appear var(--dur-fast) var(--ease);
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}

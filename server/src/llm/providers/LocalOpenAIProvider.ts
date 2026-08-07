@@ -2,7 +2,7 @@ import { z } from "zod";
 import { LLMProviderError } from "../../errors/AppError";
 import { type LLMProvider } from "./LLMProvider";
 import { parseOpenAIUsage, type TokenUsage } from "../tokenTelemetry";
-import { GeminiResponseSchema } from "../actionSchemas";
+import { ProviderResponseSchema } from "../responseSchemas";
 import { localBaseUrl, localHeaders, hasApiKey } from "./localEndpoint";
 import { withJsonOnlyInstruction } from "../jsonOnlyInstruction";
 
@@ -138,7 +138,7 @@ export class LocalOpenAIProvider implements LLMProvider {
 
   async generateResponse(
     prompt: string,
-    responseSchema: z.ZodType = GeminiResponseSchema
+    responseSchema: z.ZodType = ProviderResponseSchema
   ): Promise<string> {
     const baseUrl = localBaseUrl();
     const model = process.env.LOCAL_LLM_MODEL || DEFAULT_MODEL;
