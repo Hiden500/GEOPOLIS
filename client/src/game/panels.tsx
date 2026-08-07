@@ -432,10 +432,10 @@ export function RegionDetail({
 }
 
 const COMPARE_ROWS: Array<[string, (c: ScreenCountry) => string]> = [
-  ["Ранг", (c) => `№${c.rank}`],
+  ["Место по ВВП", (c) => `№${c.rank}`],
   ["Тир", (c) => c.tier],
   ["ВВП", (c) => c.gdp],
-  ["Промвыпуск", (c) => c.industry],
+  ["Население", (c) => c.population],
   ["Армия", (c) => c.army],
   ["Курс", (c) => c.ideology],
   ["Блок", (c) => c.bloc],
@@ -545,7 +545,7 @@ export function LedgerBody({
                 <th onClick={() => toggleSort("rank")}>#{mark("rank")}</th>
                 <th onClick={() => toggleSort("name")}>Держава{mark("name")}</th>
                 <th onClick={() => toggleSort("gdp")}>ВВП{mark("gdp")}</th>
-                <th onClick={() => toggleSort("industry")}>Промвыпуск{mark("industry")}</th>
+                <th onClick={() => toggleSort("population")}>Население{mark("population")}</th>
                 <th onClick={() => toggleSort("army")}>Армия{mark("army")}</th>
                 <th onClick={() => toggleSort("relation")}>Отношения{mark("relation")}</th>
               </tr>
@@ -571,7 +571,7 @@ export function LedgerBody({
                       {country.short}
                     </td>
                     <td className={styles.numeric}>{country.gdp}</td>
-                    <td className={styles.numeric}>{country.industry}</td>
+                    <td className={styles.numeric}>{country.population}</td>
                     <td className={styles.numeric}>{country.army}</td>
                     <td className={styles.numeric}>{country.relation}</td>
                   </tr>

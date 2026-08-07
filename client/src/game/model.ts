@@ -25,11 +25,16 @@ export interface ScreenCountry {
   id: string;
   name: string;
   short: string;
-  /** Место в мировом рейтинге; 0 — не считается. */
+  /**
+   * Место по ВВП. Это НЕ «место в мире»: силу движок считает отдельно и по
+   * другой формуле. Смешивать их в одной колонке нельзя — получаются два
+   * четвёртых места подряд, и таблица начинает врать.
+   */
   rank: number;
   tier: string;
   gdp: string;
-  industry: string;
+  /** Население. Промышленного выпуска на уровне державы в состоянии нет. */
+  population: string;
   army: string;
   bloc: string;
   /** Отношение к игроку, −100…100. */
@@ -63,6 +68,11 @@ export interface ScreenEvent {
 }
 
 export interface ScreenStat {
+  /**
+   * Ключ смысла, а не подпись: по нему ШАПКА подбирает иконку, том и группу.
+   * Иконка и группировка — знание интерфейса, поэтому в модели их нет.
+   */
+  key?: string;
   label: string;
   value: string;
   delta?: { text: string; tone: "good" | "bad" | "neutral" };
@@ -147,6 +157,8 @@ export interface ScreenMapMode {
  */
 export interface ScreenModel {
   playerId: string;
+  /** Место игрока в мировом рейтинге СИЛЫ — то, что считает движок. */
+  playerRank: number;
   countries: Record<string, ScreenCountry>;
   regions: Record<string, ScreenRegion>;
   events: ScreenEvent[];

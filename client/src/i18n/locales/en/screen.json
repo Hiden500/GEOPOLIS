@@ -1,0 +1,22 @@
+{
+  "turnFailed": "The turn failed.",
+  "monthsNominative": [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ],
+  "monthsGenitive": [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ],
+  "irreversibleWords": ["war", "nuclear", "coup", "annex"],
+  "mapModes": {
+    "pol": "Powers",
+    "eco": "Industry",
+    "res": "Resources",
+    "pop": "Population",
+    "sta": "Unrest",
+    "dip": "Blocs",
+    "mil": "Armies",
+    "inf": "Infrastructure"
+  }
+}

@@ -16,7 +16,7 @@ export interface Country {
   rank: number;
   tier: string;
   gdp: string;
-  industry: string;
+  population: string;
   army: string;
   bloc: string;
   relation: number;
@@ -32,7 +32,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
     rank: 2,
     tier: "Сверхдержава",
     gdp: "1,46T",
-    industry: "42% от США",
+    population: "170,5M",
     army: "4.1M",
     bloc: "—",
     relation: 100,
@@ -46,7 +46,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
     rank: 1,
     tier: "Сверхдержава",
     gdp: "3,48T",
-    industry: "100%",
+    population: "141,4M",
     army: "1.9M",
     bloc: "—",
     relation: 20,
@@ -60,7 +60,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
     rank: 3,
     tier: "Великая держава",
     gdp: "0,71T",
-    industry: "21% от США",
+    population: "49,2M",
     army: "1.2M",
     bloc: "—",
     relation: 12,
@@ -74,7 +74,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
     rank: 6,
     tier: "Великая держава",
     gdp: "0,32T",
-    industry: "9% от США",
+    population: "40,3M",
     army: "0.6M",
     bloc: "—",
     relation: 34,
@@ -88,7 +88,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
     rank: 21,
     tier: "Региональная держава",
     gdp: "0,04T",
-    industry: "1% от США",
+    population: "19,0M",
     army: "0.4M",
     bloc: "—",
     relation: -28,
@@ -102,7 +102,7 @@ export const COUNTRIES: Record<CountryId, Country> = {
     rank: 38,
     tier: "Малая держава",
     gdp: "0,01T",
-    industry: "0,4% от США",
+    population: "3,8M",
     army: "40K",
     bloc: "Сфера СССР",
     relation: 6,

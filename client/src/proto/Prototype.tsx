@@ -41,6 +41,7 @@ export function Prototype() {
   const model = useMemo<ScreenModel>(
     () => ({
       playerId: "SUN",
+      playerRank: 2,
       countries: COUNTRIES,
       regions: REGIONS,
       events,
@@ -49,11 +50,12 @@ export function Prototype() {
       monthsNominative: MONTHS_NOMINATIVE,
       monthsGenitive: MONTHS,
       stats: [
-        { label: "ВВП", value: "1,46T", delta: { text: "+3,2%", tone: "good" } },
-        { label: "Баланс", value: "+12,4B", delta: { text: "+1,8B", tone: "good" } },
-        { label: "Долг к ВВП", value: "0,94", delta: { text: "+0,03", tone: "bad" }, threshold: "near" },
-        { label: "Стабильность", value: "71", delta: { text: "−1", tone: "bad" } },
-        { label: "Легитимность", value: "83", delta: { text: "+2", tone: "good" } },
+        { key: "gdp", label: "ВВП", value: "1,46T", delta: { text: "+3,2%", tone: "good" } },
+        { key: "balance", label: "Баланс", value: "+12,4B", delta: { text: "+1,8B", tone: "good" } },
+        { key: "debt", label: "Долг к ВВП", value: "0,94", delta: { text: "+0,03", tone: "bad" }, threshold: "near" },
+        { key: "pop", label: "Население", value: "170,5M", delta: { text: "+0,6M", tone: "good" } },
+        { key: "stab", label: "Стабильность", value: "71", delta: { text: "−1", tone: "bad" } },
+        { key: "legit", label: "Легитимность", value: "83", delta: { text: "+2", tone: "good" } },
       ],
       mapModes: MAP_MODES.map((mode) => ({ id: mode.id, name: mode.name })),
       resources: RESOURCES,

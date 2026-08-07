@@ -36,8 +36,6 @@ import {
   Stat,
   Tooltip,
   cx,
-  type DeltaTone,
-  type ThresholdState,
 } from "../ui";
 import { CountryDetail, LedgerBody, RegionDetail, TomeBody } from "./panels";
 import {
@@ -46,6 +44,7 @@ import {
   type LedgerTabId,
   type RegionTab,
   type ScreenModel,
+  type ScreenStat,
   type TomeId,
 } from "./model";
 import styles from "./Screen.module.css";
@@ -94,32 +93,23 @@ interface Order {
  * смысла помимо рисунка иконки — иначе «71» и «83» под похожими значками
  * неотличимы.
  */
-interface Pribor {
-  key: string;
-  /** Подпись не видна, но её читает скринридер и показывает подсказка. */
-  label: string;
-  value: string;
-  delta: { text: string; tone: DeltaTone };
-  threshold?: ThresholdState;
-  icon: React.ReactNode;
-  /** Куда ведёт нажатие. У производных показателей тома может не быть. */
-  tome?: TomeId;
-}
-
-const PRIBORY_GROUPS: Pribor[][] = [
-  [
-    { key: "gdp", label: "ВВП", value: "1,46T", delta: { text: "+3,2%", tone: "good" as const }, icon: <IconOutput />, tome: "economy" as TomeId },
-    { key: "balance", label: "Баланс", value: "+12,4B", delta: { text: "+1,8B", tone: "good" as const }, icon: <IconBalance />, tome: "economy" as TomeId },
-    { key: "debt", label: "Долг к ВВП", value: "0,94", delta: { text: "+0,03", tone: "bad" as const }, threshold: "near" as const, icon: <IconDebt />, tome: "economy" as TomeId },
-  ],
-  [
-    { key: "pop", label: "Население", value: "170,5M", delta: { text: "+0,6M", tone: "good" as const }, icon: <IconPeople />, tome: undefined },
-  ],
-  [
-    { key: "stab", label: "Стабильность", value: "71", delta: { text: "−1", tone: "bad" as const }, icon: <IconStability />, tome: "politics" as TomeId },
-    { key: "legit", label: "Легитимность", value: "83", delta: { text: "+2", tone: "good" as const }, icon: <IconLegitimacy />, tome: "politics" as TomeId },
-  ],
-];
+/**
+ * Оформление ПРИБОРА: иконка, куда ведёт нажатие и в какой группе он стоит.
+ * Значения приходят моделью, а вот группировка по смыслу (деньги · сила ·
+ * прочность) и рисунок — знание интерфейса: позиция в группе работает вторым
+ * носителем смысла помимо иконки, иначе «71» и «83» под похожими значками
+ * неотличимы. Ключ не найден — прибор всё равно покажется, просто без иконки.
+ */
+const PRIBOR_META: Record<string, { icon: React.ReactNode; tome?: TomeId; group: number }> = {
+  gdp: { icon: <IconOutput />, tome: "economy", group: 0 },
+  balance: { icon: <IconBalance />, tome: "economy", group: 0 },
+  treasury: { icon: <IconBalance />, tome: "economy", group: 0 },
+  debt: { icon: <IconDebt />, tome: "economy", group: 0 },
+  pop: { icon: <IconPeople />, group: 1 },
+  rank: { icon: <IconPeople />, group: 1 },
+  stab: { icon: <IconStability />, tome: "politics", group: 2 },
+  legit: { icon: <IconLegitimacy />, tome: "politics", group: 2 },
+};
 
 const TOME_ICONS: Record<TomeId, React.ReactNode> = {
   economy: <IconEconomy />,
@@ -292,6 +282,19 @@ export function Screen({
   });
 
   const monthLabel = `${model.monthsNominative[monthIndex]} ${year}`;
+
+  /*
+   * Пустые группы выпадают: разделитель между приборами имеет смысл только
+   * когда по обе стороны от него что-то есть.
+   */
+  const priborGroups = useMemo(() => {
+    const groups: ScreenStat[][] = [[], [], []];
+    for (const stat of model.stats) {
+      const group = (stat.key === undefined ? undefined : PRIBOR_META[stat.key]?.group) ?? 2;
+      groups[group].push(stat);
+    }
+    return groups.filter((group) => group.length > 0);
+  }, [model.stats]);
 
   const tomes: TomeId[] = scienceSeparate
     ? ["economy", "politics", "defence", "science", "diplomacy", "goals"]
@@ -510,32 +513,33 @@ export function Screen({
                 <span
                   className={cx(
                     styles.rankDisc,
-                    model.countries[model.playerId].rank <= 3 && styles.rankGold,
-                    model.countries[model.playerId].rank > 3 && model.countries[model.playerId].rank <= 10 && styles.rankSilver,
+                    model.playerRank <= 3 && styles.rankGold,
+                    model.playerRank > 3 && model.playerRank <= 10 && styles.rankSilver,
                   )}
                 >
-                  {model.countries[model.playerId].rank}
+                  {model.playerRank}
                 </span>
               </button>
             </Tooltip>
           }
           top={
             <div className={styles.pribory}>
-              {PRIBORY_GROUPS.map((group, groupIndex) => (
+              {priborGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className={styles.priboryGroup}>
                   {groupIndex > 0 && <span className={styles.priborySplit} />}
                   {group.map((stat) => {
+                    const meta = stat.key === undefined ? undefined : PRIBOR_META[stat.key];
                     // Локальная константа, иначе сужение типа не доживает
                     // до тела замыкания и `tome` остаётся возможно-undefined.
-                    const tome = stat.tome;
+                    const tome = meta?.tome;
                     return (
                       <Stat
-                        key={stat.key}
+                        key={stat.key ?? stat.label}
                         label={stat.label}
                         value={stat.value}
                         delta={stat.delta}
                         threshold={stat.threshold}
-                        icon={stat.icon}
+                        icon={meta?.icon}
                         labelMode="hidden"
                         onClick={tome === undefined ? undefined : () => setYashik({ kind: "tome", id: tome })}
                       />
