@@ -179,8 +179,8 @@ root:   python .agent/evals/public/run_public_evals.py
 - Локальный commit разрешён после релевантных проверок и просмотра diff. Push,
   merge, force-push, release, deploy и удаление веток/деревьев требуют
   отдельного разрешения — и выдаются командой, запускаемой одной кнопкой:
-  `pwsh -File "D:/Pax Historia LOCAL/scripts/worktree-drop.ps1" <имя>
-  -DeleteBranch`. Путь с пробелом — в кавычках.
+  `.ps1` — через `pwsh -File "D:/Pax Historia LOCAL/scripts/worktree-drop.ps1"
+  <имя> -DeleteBranch`, git — как есть.
 - Меняешь поведение или архитектуру — обнови профильный source of truth в тот
   же turn: завершённое удали из `TODO`, реальные решения и отсрочки внеси
   краткой датированной записью в `DECISIONS`. Read-only аудит сам по себе docs
