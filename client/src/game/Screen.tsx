@@ -63,6 +63,13 @@ import styles from "./Screen.module.css";
  * значение, поэтому два тома открытыми быть не могут.
  */
 
+/** Приказ в том виде, в каком экран отдаёт его наружу. */
+export interface ScreenOrder {
+  text: string;
+  primitives?: unknown[];
+  idempotencyKey: string;
+}
+
 export interface ScreenProps {
   model: ScreenModel;
   /** Что экран умеет попросить сделать. Пусто — органы управления скрыты. */
@@ -73,7 +80,7 @@ export interface ScreenProps {
    * Ход. Приказы уходят ПАЧКОЙ (docs/PRIMITIVES.md §1) — экран отдаёт их
    * список и ждёт; пока ждёт, показывает, что режиссёр думает.
    */
-  onAdvance: (orders: string[]) => Promise<void> | void;
+  onAdvance: (orders: ScreenOrder[]) => Promise<void> | void;
   /** Выбор режима карты живёт снаружи: раскраску считает не интерфейс. */
   mapMode: string;
   onMapMode: (mode: string) => void;
@@ -86,9 +93,31 @@ type Yashik =
   | { kind: "tome"; id: TomeId }
   | { kind: "country"; id: string };
 
+/**
+ * Приказ в ЛИСТЕ. Две дороги к одному движку (docs/PRIMITIVES.md §1): то, что
+ * движок распознал, уходит примитивами и даёт гарантию; остальное уходит
+ * текстом режиссёру и гарантии не даёт. Игрок видит, КАКОЙ дорогой пойдёт его
+ * приказ, до хода — но не видит, ЧТО изменится: величин до применения не
+ * существует.
+ */
 interface Order {
   id: string;
   text: string;
+  /** Как поняли. Пусто — не распознано, приказ уйдёт режиссёру текстом. */
+  recognized?: string[];
+  primitives?: unknown[];
+  /**
+   * Ключ идемпотентности рождается вместе с приказом и переживает повторную
+   * ОТПРАВКУ: после сетевого сбоя тот же приказ уходит с тем же ключом, и
+   * сервер узнаёт дубль вместо того, чтобы применить приказ дважды.
+   */
+  idempotencyKey: string;
+}
+
+function newOrderKey(): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `order-${Math.random().toString(36).slice(2)}`;
 }
 
 /*
@@ -178,6 +207,8 @@ export function Screen({
   const { monthIndex, year, events } = model;
   const [orders, setOrders] = useState<Order[]>([]);
   const [draft, setDraft] = useState("");
+  /** Приказы, по которым идёт распознавание. */
+  const [recognizing, setRecognizing] = useState<string[]>([]);
   const [yashik, setYashik] = useState<Yashik>({ kind: "none" });
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
   /*
@@ -414,11 +445,35 @@ export function Screen({
   });
 
   /* ── Приказы ────────────────────────────────────────────────── */
+  /*
+   * Добавление приказа спрашивает движок, как он его понял. Ответ показывается
+   * рядом с приказом — это единственное место петли, где возможна ошибка
+   * ПОНИМАНИЯ, и увидеть её игрок обязан ДО хода, а не после.
+   */
   const addOrder = () => {
     const text = draft.trim();
     if (text === "") return;
-    setOrders((prev) => [...prev, { id: nextId("o"), text }]);
+    const order: Order = { id: nextId("o"), text, idempotencyKey: newOrderKey() };
+    setOrders((prev) => [...prev, order]);
     setDraft("");
+
+    if (actions.recognizeOrder === undefined) return;
+    setRecognizing((prev) => [...prev, order.id]);
+    void actions
+      .recognizeOrder(text, pinned ? pinnedRegionId : selectedRegionId)
+      .then((result) => {
+        setOrders((prev) =>
+          prev.map((item) =>
+            item.id === order.id
+              ? { ...item, recognized: result.recognized, primitives: result.primitives }
+              : item,
+          ),
+        );
+      })
+      .catch(() => {
+        // Молча: нераспознанный приказ — не ошибка, он просто уйдёт режиссёру.
+      })
+      .finally(() => setRecognizing((prev) => prev.filter((id) => id !== order.id)));
   };
 
   const moveOrder = (from: number, to: number) => {
@@ -444,7 +499,7 @@ export function Screen({
   const advance = () => {
     setThinking(true);
     setConfirming(null);
-    void Promise.resolve(onAdvance(orders.map((order) => order.text)))
+    void Promise.resolve(onAdvance(orders))
       .finally(() => {
         setOrders([]);
         setThinking(false);
@@ -889,6 +944,8 @@ export function Screen({
                     <OrderCard
                       index={index + 1}
                       text={order.text}
+                      recognized={order.recognized}
+                      pending={recognizing.includes(order.id)}
                       onRemove={() => setOrders((prev) => prev.filter((item) => item.id !== order.id))}
                     />
                   </li>

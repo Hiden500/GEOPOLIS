@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Screen } from "../game/Screen";
+import { Screen, type ScreenOrder } from "../game/Screen";
 import type { ScreenEvent, ScreenModel } from "../game/model";
 import { HexMap } from "./HexMap";
 import {
@@ -110,12 +110,12 @@ export function Prototype() {
    * НАМЕРЕННО: отказ — такая же часть правды, как исполнение, и его форму
    * надо видеть.
    */
-  const advance = (texts: string[]) =>
+  const advance = (orders: ScreenOrder[]) =>
     new Promise<void>((resolve) => {
       window.setTimeout(() => {
         const nextMonth = (monthIndex + 1) % 12;
         const day = 4 + ((turnCount * 7) % 20);
-        const produced: ScreenEvent[] = texts.map((text, index) => {
+        const produced: ScreenEvent[] = orders.map(({ text }, index) => {
           const rejected = index > 0 && index % 3 === 2;
           return {
             id: `e${turnCount}-${index}`,

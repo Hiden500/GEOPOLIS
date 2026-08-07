@@ -6,6 +6,7 @@ import { MapView } from "../map/MapView";
 import { MAP_MODE_ORDER, computeMapModeColors, type MapMode } from "../hud/mapModeColors";
 import { usePrimitiveOutcomeText } from "../components/primitiveOutcomeText";
 import {
+  applyPrimitives,
   chooseSuccessor,
   getGameState,
   nextTurn,
@@ -15,7 +16,7 @@ import {
   updateBudget,
   type BudgetUpdate,
 } from "../api/gameApi";
-import { Screen } from "./Screen";
+import { Screen, type ScreenOrder } from "./Screen";
 import { buildScreenModel } from "./adapter";
 import type { ScreenActions, ScreenCampaign } from "./model";
 import styles from "./GameShell.module.css";
@@ -195,10 +196,27 @@ export function GameShell({
    * реализации (docs/PRIMITIVES.md §1).
    */
   const advance = useCallback(
-    async (orders: string[]) => {
+    async (orders: ScreenOrder[]) => {
       setError(null);
       try {
-        if (orders.length > 0) await savePlayerIntent(orders.join("\n"));
+        /*
+         * Две дороги, и обе применяются здесь. Распознанное идёт примитивами —
+         * это гарантия: движок делает ровно то, что показано в приказе.
+         * Нераспознанное уходит режиссёру текстом, и гарантии нет.
+         *
+         * Строго последовательно, а не Promise.all: движок применяет приказы
+         * сверху вниз, и каждый следующий видит мир после предыдущего
+         * (docs/PRIMITIVES.md §4) — порядок здесь механика, а не оформление.
+         */
+        for (const order of orders) {
+          if (order.primitives !== undefined && order.primitives.length > 0) {
+            await applyPrimitives(order.primitives, order.idempotencyKey);
+          }
+        }
+        const freeform = orders
+          .filter((order) => order.primitives === undefined || order.primitives.length === 0)
+          .map((order) => order.text);
+        if (freeform.length > 0) await savePlayerIntent(freeform.join("\n"));
         await runAutoLlmCycle();
         onGameUpdate(await nextTurn());
       } catch (err) {
