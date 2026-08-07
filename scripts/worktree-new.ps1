@@ -161,8 +161,21 @@ $store = $env:PAXMAP_SOURCES_STORE
 $sourcesLink = Join-Path $treePath 'scripts/map/sources'
 if ($store -and (Test-Path $store)) {
     if (Test-Path $sourcesLink) {
+        # Каталог уже есть — значит в ветке остался отслеживаемый файл внутри
+        # sources/ и git создал папку при checkout. Junction не встанет, а
+        # пайплайн найдёт только этот файл и промолчит. Так и случилось
+        # 2026-08-07 с germany_occupation_zones_1946.json: он был закоммичен
+        # раньше, чем появилось правило .gitignore, а на уже отслеживаемое
+        # правило не действует. Поэтому предупреждение громкое и с диагнозом.
+        $tracked = git -C $treePath ls-files 'scripts/map/sources' 2>$null
         Write-Host ''
-        Write-Host "  scripts/map/sources уже существует — junction не создан." -ForegroundColor Yellow
+        Write-Host '  ИСТОЧНИКИ НЕ ПОДКЛЮЧЕНЫ: scripts/map/sources уже существует.' -ForegroundColor Red
+        if ($tracked) {
+            Write-Host '  Причина — внутри есть файлы под git:' -ForegroundColor Red
+            $tracked | Select-Object -First 5 | ForEach-Object { Write-Host "    $_" -ForegroundColor Red }
+            Write-Host '  Источникам в git не место: git rm --cached их и положи в хранилище.' -ForegroundColor Red
+        }
+        Write-Host '  Пайплайн карты увидит только содержимое этой папки, а не хранилище.' -ForegroundColor Red
     }
     else {
         try {
