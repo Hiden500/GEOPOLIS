@@ -106,8 +106,10 @@
   (главный блокер; §2 концепта). — L
 - Атомарный command-pipeline (§7.2): plan → валидация на клоне → пост-инварианты → commit;
   idempotency-key; нарратив только после commit. — **сделано 2026-07-27**: батч работает на
-  `structuredClone`, у каждого примитива свой снимок и откат, последняя фаза даёт
-  `postInvariantViolated` и уносит весь ответ (`server/src/primitives/PrimitiveEngine.ts`);
+  `structuredClone`, у каждого примитива свой снимок и откат
+  (`server/src/primitives/PrimitiveEngine.ts`), последняя фаза даёт
+  `postInvariantViolated` и уносит весь ответ (код отказа — `primitives/rejections.ts`,
+  выдаётся из `services/LLMService.ts`);
   ключи идемпотентности — `turnBatch.ts`; тесты — `server/src/__tests__/milestone1Contracts.test.ts`.
 - Агентность: `player_proposed` (LLM за игрока — предложением) + approval необратимого. — M.
   Половина сделана: approval необратимого есть (выбор осколка, `succession_choice_pending` в
