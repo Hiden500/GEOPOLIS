@@ -216,7 +216,7 @@ RESPLITS = [
         "id": "RSP-PHILIPPINES",
         "rule": "R2",
         "owner": "PHL",
-        "source_file": "client/src/assets/game_map.json",
+        "source_file": "game_map.json (хранилище источников, paths.game_map())",
         "source_filter": 'iso_a2 == "PH"',
         "source_key": "region_sub",
         "expect_source_features": 118,

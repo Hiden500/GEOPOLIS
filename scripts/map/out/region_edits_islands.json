@@ -160,8 +160,8 @@
     {
      "index": 1433,
      "region_id": "OCE-0059",
-     "name_en": "Capital Territory",
-     "name_ru": "Столичная территория",
+     "name_en": "Honiara",
+     "name_ru": "Хониара",
      "owner": "SLB",
      "area_km2": 31.1,
      "population": 3778
@@ -1113,7 +1113,7 @@
    "op": "resplit_from_source",
    "rule": "R2",
    "owner": "PHL",
-   "source_file": "client/src/assets/game_map.json",
+   "source_file": "game_map.json (хранилище источников, paths.game_map())",
    "source_filter": "iso_a2 == \"PH\"",
    "source_key": "region_sub",
    "expect_source_features": 118,
@@ -1163,8 +1163,8 @@
     {
      "index": 681,
      "region_id": "ASI-0304",
-     "name_en": "Cordillera Administrative Region",
-     "name_ru": "Административный регион Кордильеры",
+     "name_en": "Cordillera",
+     "name_ru": "Кордильеры",
      "owner": "PHL",
      "area_km2": 17985.2,
      "population": 333991
@@ -1245,7 +1245,7 @@
      "index": 680,
      "region_id": "ASI-0303",
      "name_en": "Western Visayas",
-     "name_ru": "Западные Висайские острова",
+     "name_ru": "Западные Висайи",
      "owner": "PHL",
      "area_km2": 11663.1,
      "population": 757819
@@ -1262,8 +1262,8 @@
     {
      "index": 665,
      "region_id": "ASI-0288",
-     "name_en": "Autonomous Region in Muslim Mindanao",
-     "name_ru": "Автономный регион на мусульманском Минданао",
+     "name_en": "Muslim Mindanao",
+     "name_ru": "Мусульманский Минданао",
      "owner": "PHL",
      "area_km2": 9251.0,
      "population": 655760
@@ -1290,7 +1290,7 @@
      "index": 679,
      "region_id": "ASI-0302",
      "name_en": "Central Visayas",
-     "name_ru": "Центральные Висайские острова",
+     "name_ru": "Центральные Висайи",
      "owner": "PHL",
      "area_km2": 5636.4,
      "population": 465309

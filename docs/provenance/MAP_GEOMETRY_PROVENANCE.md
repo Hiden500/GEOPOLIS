@@ -8,11 +8,77 @@
 Документ описательный, не нормативный: он фиксирует, откуда данные взяты, и не
 задаёт правил пайплайна. Правила — в `scripts/map/AGENTS.md`.
 
+## Где лежат сами данные (2026-08-07)
+
+**Источников в репозитории нет и не будет.** Они внешние, тяжёлые и не наши:
+на GitHub вместо них — этот реестр со ссылками и благодарностями, по которому
+файлы собираются заново.
+
+Данные лежат в одном каталоге на машину, вне репозитория. Путь задаётся
+переменной окружения `PAXMAP_SOURCES_STORE`; каждое рабочее дерево получает на
+него junction в `scripts/map/sources/` — это делает `scripts/worktree-new.ps1`
+тем же приёмом, каким подключает `node_modules`. Данные не дублируются по
+деревьям, а `scripts/map/sources/` в `.gitignore`, поэтому junction гиту не
+виден.
+
+Разово настроить хранилище:
+
+```powershell
+setx PAXMAP_SOURCES_STORE "D:\Pax Historia SOURCES"
+```
+
+Подключить его в уже существующем дереве:
+
+```powershell
+New-Item -ItemType Junction -Path "<дерево>\scripts\map\sources" -Target $env:PAXMAP_SOURCES_STORE
+```
+
+Порядок разрешения путей в `build/paths.py`: точечная переменная
+(`PAXMAP_GAME_MAP`, `PAXMAP_SOURCES`) → junction/хранилище → путь внутри
+репозитория. Скриптам достаточно junction: переменная нужна только чтобы его
+создать.
+
+### Что положить в хранилище
+
+| Файл в хранилище | Кто читает | Состояние 2026-08-07 |
+|---|---|---|
+| `game_map.json` | 12 скриптов через `paths.game_map()` | **есть** |
+| `iho/oceans-seas.geo.json` | `build_seas_from_iho.py` | **есть** |
+| `germany_occupation_zones_1946.json` | `build_europe_1946.py` | **есть** |
+| `geoBoundaries-BRA-ADM2.geojson` | `build_brazil_1946.py` | нет |
+| `geoBoundaries-CHN-ADM2.geojson` | `build_china_1946_v2.py` | нет |
+| `geoBoundaries-USA-ADM2.geojson` | `build_us_states_split_1946.py` | нет |
+| `china_hist/1947-49/1947_1949` | `build_china_1946_v2.py` | нет |
+| `palestine_hist/geoBoundaries-ISR-ADM2.geojson` | `build_asia_1946.py` | нет |
+| `palestine_hist/geoBoundaries-PSE-ADM2.geojson` | `build_palestine_1946.py` | нет |
+| `naturalearth/ne_10m_lakes.geojson` | `refresh_lakes_from_ne10m.py` | нет |
+| `cyprus_hist/geoBoundaries-CYP-ADM1.geojson` | `extract_kyrenia.py` | нет |
+
+**Восемь из одиннадцати отсутствуют**, поэтому `make_1946.py --rebuild-master`
+сегодня невозможен. Это не авария: мастер-карта
+(`scripts/map/master/world_1946.master.geojson`) под git и остаётся
+единственным согласованным источником геометрии. Правки делаются по мастеру
+хирургически — см. `.agent/plans/map-geometry-dalian-rio.md`. URL для
+восстановления — в разделах ниже.
+
+## Благодарности
+
+Проект пользуется чужой работой и обязан назвать её поимённо:
+
+- **Natural Earth** (`nvkelso/natural-earth-vector`) — общественное достояние.
+  Основа всей суши и берегов;
+- **geoBoundaries** (`wmgeolab/geoBoundaries`, Университет Уильяма и Мэри) —
+  уездный уровень; лицензия зависит от страны, проверяется поштучно;
+- **IHO Sea Areas v3** через обёртку `alvinometric/oceans-seas.geojson` —
+  делимитация морских областей;
+- **Virtual Shanghai** (virtualshanghai.net) — исторические провинции Китая
+  1947–49.
+
 ## Сводка
 
 | Источник | Что даёт | Куда попало |
 |---|---|---|
-| Natural Earth ADM1 | основа всей суши, все берега | `client/src/assets/game_map.json` |
+| Natural Earth ADM1 | основа всей суши, все берега | `game_map.json` (хранилище) |
 | IHO Sea Areas v3 | морские области | `out/seas_1946.geojson` |
 | Natural Earth 10m Lakes | озёра | `out/lakes_1946.geojson` |
 | geoBoundaries ADM2 | уездный уровень US/BR/DE/CN | сплиты в `build/` |

@@ -291,7 +291,7 @@ def main():
                 "variant": label,
                 "description": desc,
                 "status": "ВАРИАНТ ДЛЯ СРАВНЕНИЯ. Живая карта не изменена.",
-                "source": "client/src/assets/game_map.json (iso_a2 == PH), ключ region_sub",
+                "source": "game_map.json из хранилища источников (iso_a2 == PH), ключ region_sub",
                 "reference": f"scripts/map/out/{REF}",
                 "counts": {
                     "modern_provinces": len(modern),

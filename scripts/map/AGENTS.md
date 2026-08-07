@@ -47,7 +47,11 @@
 
 ## Источники геометрии (уроки 2026-07-19, ветка codex/1946-country-borders)
 
-- **`client/src/assets/game_map.json` — первичный источник геометрии.**
+- **`game_map.json` — первичный источник геометрии.** С 2026-08-07 лежит не в
+  репозитории, а в общем хранилище источников: путь в `PAXMAP_SOURCES_STORE`,
+  в дереве — junction `scripts/map/sources/`, который создаёт
+  `scripts/worktree-new.ps1`. Код обращается только через `paths.game_map()`;
+  собрать хранилище — `docs/provenance/MAP_GEOMETRY_PROVENANCE.md`.
   Прежде чем заключить «территории X в нём нет» и тянуть внешний источник,
   выполни протокол скилла `find-existing-solutions`: поиск НЕ только по
   `iso_a2` целевой страны, но и по `iso_a2 == "-1"` (не-страны: спорные и
