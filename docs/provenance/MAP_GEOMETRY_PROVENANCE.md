@@ -53,8 +53,16 @@ New-Item -ItemType Junction -Path "<дерево>\scripts\map\sources" -Target $
 | `palestine_hist/geoBoundaries-PSE-ADM2.geojson` | `build_palestine_1946.py` | нет |
 | `naturalearth/ne_10m_lakes.geojson` | `refresh_lakes_from_ne10m.py` | нет |
 | `cyprus_hist/geoBoundaries-CYP-ADM1.geojson` | `extract_kyrenia.py` | нет |
+| `gebco/gebco_{points,lines,polygons}.geojson` | `rename_zones.py` (имена морских зон) | **есть** (2026-08-07) |
+| `naturalearth/ne_10m_geography_marine_polys.geojson` | `rename_zones.py` | **есть** (2026-08-07) |
+| `naturalearth/ne_10m_ports.geojson` | `rename_zones.py` | **есть** (2026-08-07) |
+| `searoute/marnet_plus_50km.gpkg` | пока никто; вход для «где резать мелко» | **есть** (2026-08-07) |
 
-**Восемь из одиннадцати отсутствуют**, поэтому `make_1946.py --rebuild-master`
+Четыре нижние строки добавлены 2026-08-07 при вливании ветки морских зон:
+источники лежали локальным каталогом в её дереве и после перехода на junction
+исчезли бы, а с ними — воспроизводимость имён зон.
+
+**Восемь из пятнадцати отсутствуют**, поэтому `make_1946.py --rebuild-master`
 сегодня невозможен. Это не авария: мастер-карта
 (`scripts/map/master/world_1946.master.geojson`) под git и остаётся
 единственным согласованным источником геометрии. Правки делаются по мастеру
