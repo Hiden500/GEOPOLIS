@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 import {
   Button,
   EventItem,
@@ -373,6 +374,21 @@ export function Prototype() {
     }
   };
 
+  /*
+   * Сворачивание по всему заголовку, а не только по кнопке у края: до кнопки
+   * в углу панели надо тянуться курсором через полпанели. Кнопка осталась —
+   * она несёт подсказку и работает с клавиатуры. Клик внутри кнопки сюда не
+   * доходит, иначе крестик сначала срабатывал бы, а потом панель схлопывалась.
+   */
+  const foldOnHeader = (fold: () => void) => ({
+    className: styles.foldHeader,
+    title: "Свернуть",
+    onClick: (event: ReactMouseEvent<HTMLElement>) => {
+      if ((event.target as HTMLElement).closest("button") !== null) return;
+      fold();
+    },
+  });
+
   /* ── Приказы ────────────────────────────────────────────────── */
   const addOrder = () => {
     const text = draft.trim();
@@ -706,6 +722,7 @@ export function Prototype() {
               density="flush"
               scroll
               className={styles.lentaPanel}
+              headerProps={foldOnHeader(() => setLentaOpen(false))}
               actions={
                 <Tooltip label="Убрать ленту к правому краю">
                   <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть ленту" onClick={() => setLentaOpen(false)}>
@@ -797,8 +814,8 @@ export function Prototype() {
             title={selectedRegion.name}
             meta={COUNTRIES[selectedRegion.owner].short}
             density="control"
-            scroll
             className={styles.polosaPanel}
+            bodyClassName={styles.polosaBody}
             onClose={() => {
               setSelectedRegionId(null);
               setPinned(false);
@@ -829,7 +846,9 @@ export function Prototype() {
                 </Button>
               ))}
             </div>
-            <RegionDetail region={selectedRegion} tab={polosaTab} onSelectCountry={selectCountry} />
+            <div className={styles.polosaScroll}>
+              <RegionDetail region={selectedRegion} tab={polosaTab} onSelectCountry={selectCountry} />
+            </div>
           </Panel>
         </div>
       )}
@@ -842,6 +861,7 @@ export function Prototype() {
             title="Приказы"
             meta={orders.length === 0 ? monthLabel.toLowerCase() : `${monthLabel.toLowerCase()} · ${orders.length} из 10`}
             density="control"
+            headerProps={foldOnHeader(() => setListOpen(false))}
             actions={
               <Tooltip label="Свернуть лист приказов">
                 <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть приказы" onClick={() => setListOpen(false)}>

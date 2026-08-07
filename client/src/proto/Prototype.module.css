@@ -279,6 +279,14 @@
   padding: 0 var(--space-3);
 }
 
+/*
+ * Весь заголовок сворачивает панель. Кнопка у края осталась — она несёт
+ * подсказку и доступна с клавиатуры, — но тянуться к ней курсором не нужно.
+ */
+.foldHeader {
+  cursor: pointer;
+}
+
 .lentaTabs {
   display: flex;
   gap: var(--space-1);
@@ -565,7 +573,14 @@
   z-index: var(--z-surface);
   display: flex;
   width: clamp(19rem, 23vw, 26rem);
-  max-height: 44vh;
+  /*
+   * Высота ФИКСИРОВАННАЯ, а не по содержимому. Панель прижата к низу, поэтому
+   * рост содержимого двигал бы её верхний край вверх — и ряд вкладок уезжал
+   * бы из-под курсора при каждом переключении. «История» длиннее «Хозяйства»,
+   * и переключаться становилось невозможно. Место под самую длинную вкладку
+   * отведено сразу; лишнее прокручивается внутри.
+   */
+  height: 21rem;
 }
 
 .polosaPanel {
@@ -573,11 +588,26 @@
   min-width: 0;
 }
 
+/* Вкладки НАД прокруткой: уехавшие вместе с текстом вкладки — не вкладки. */
+.polosaBody {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .polosaTabs {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
+  flex: 0 0 auto;
   margin-bottom: var(--space-3);
+}
+
+.polosaScroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .orderList {
