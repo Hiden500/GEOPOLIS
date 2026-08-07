@@ -12,7 +12,7 @@
 
 Запуск:  python build_ocean.py "North Atlantic Ocean"
 """
-import csv, json, math, re, sys
+import csv, json, math, os, re, sys
 from pathlib import Path
 import numpy as np
 
@@ -33,6 +33,16 @@ NEVER_CUT = {"Southern Ocean", "Arctic Ocean", "Black Sea", "Sea of Azov",
 OCEAN = sys.argv[1] if len(sys.argv) > 1 else "North Atlantic Ocean"
 SIMPLIFY_PX = 2.5          # упрощение контура в их пикселях (~28 км)
 MIN_PIECE_KM2 = 25000
+# ниже этого куску нужен берег, чтобы остаться отдельной зоной, иначе он
+# сливается в соседа: маленькое пятно вдали от суши — обрезок, не залив
+MIN_COASTLESS_KM2 = 100000
+
+# Негативный контроль: SEAZONE_RAW=1 возвращает поведение ДО правок (без
+# отбраковки чужих кусков и без слияния обрезков). Нужен, чтобы показать, что
+# фильтры действительно что-то меняют, а не просто печатают строчки.
+RAW = os.environ.get("SEAZONE_RAW") == "1"
+if RAW:
+    print("!! SEAZONE_RAW=1 — фильтры выключены, это прогон старого поведения")
 
 # получаем model, names, nav, terr, reg, seam из подгонки
 exec(open(SCR / "warp_wa.py", encoding="utf-8").read().split("# --- переносим")[0])
@@ -44,9 +54,59 @@ iho = [(f["properties"]["name"], f["properties"], shape(f["geometry"]))
        for f in json.load(open(REPO / "scripts/map/out/seas_iho_coastline.geojson",
                                encoding="utf-8"))["features"]]
 iho = [(n, p, g if g.is_valid else g.buffer(0)) for n, p, g in iho]
+# NEVER_CUT сверяется с именами по строке: опечатка или переименование зоны в
+# слое молча снимут защиту, и запрет пользователя перестанет действовать без
+# единого сообщения. Поэтому имена проверяются на существование, а не верятся.
+_layer = {n for n, p, g in iho}
+_lost = sorted(NEVER_CUT - _layer)
+if _lost:
+    raise SystemExit("NEVER_CUT ссылается на зоны, которых нет в слое — запрет "
+                     "не сработает: " + ", ".join(_lost))
+
 target = next(g for n, p, g in iho if n == OCEAN)
 tprops = next(p for n, p, g in iho if n == OCEAN)
 print(f"режем: {OCEAN}, {tprops['area_km2']:,.0f} км²".replace(",", " "))
+
+
+def norm(s):
+    """Имя для сравнения: регистр, пунктуация и лишние пробелы не значимы."""
+    return re.sub(r"[^a-z0-9]+", " ", s.lower()).strip()
+
+
+# Имена, которые в нашем слое УЖЕ существуют отдельной зоной. Кусок с таким
+# именем внутри другого океана — не зона, а полоска, сдвинутая деформацией.
+DUP = {norm(n) for n, p, g in iho if n != OCEAN}
+ihotree = STRtree([g for n, p, g in iho])
+
+# наша суша: нужна и для подсчёта берегов при слиянии обрезков, и для рендера
+land = [(p.get("iso_a2"), p.get("name"), shape(f["geometry"]))
+        for f in json.load(open(REPO / "scripts/map/master/world_1946.master.geojson",
+                                encoding="utf-8"))["features"]
+        for p in [f["properties"]] if p.get("region_type") == "land"]
+ltree = STRtree([g for _, _, g in land])
+
+
+def coast_count(g):
+    """Сколько наших сухопутных регионов граничит с этим куском воды."""
+    gb = g.buffer(0.02)
+    return sum(1 for k in ltree.query(gb) if land[int(k)][2].intersects(gb))
+
+
+def home_zone(g):
+    """В какой нашей зоне лежит бо́льшая часть площади их зоны."""
+    best, best_a = None, 0.0
+    for k in ihotree.query(g):
+        n, p, zg = iho[int(k)]
+        try:
+            inter = g.intersection(zg)
+        except Exception:
+            continue
+        if inter.is_empty:
+            continue
+        a = area_km2(inter)
+        if a > best_a:
+            best, best_a = n, a
+    return best, best_a
 
 # --- какие их зоны вообще попадают в этот океан ---------------------------
 H, W = reg.shape
@@ -118,17 +178,40 @@ def zone_polygon(rid):
 
 
 pieces = []
+rejected = []
 for rid in cands:
     g = zone_polygon(rid)
     if g is None:
         continue
+    nm = names[rid]
+
+    # (1) имя уже занято отдельной зоной нашего слоя -> это чужой кусок
+    if not RAW and norm(nm) in DUP:
+        rejected.append((nm, "имя занято нашей зоной", area_km2(g.intersection(target))))
+        continue
+
+    # (2) бо́льшая часть их зоны лежит в ДРУГОЙ нашей зоне -> тоже чужой кусок.
+    #     Ловит то, что имя не ловит: "West Caribbean Sea" при нашем
+    #     "Caribbean Sea", "South Atlantic Gap" при "South Atlantic Ocean".
+    hz, ha = home_zone(g)
+    if not RAW and hz is not None and hz != OCEAN:
+        rejected.append((nm, f"дом — {hz}", area_km2(g.intersection(target))))
+        continue
+
     g = g.intersection(target)
     if g.is_empty:
         continue
     a = area_km2(g)
     if a < MIN_PIECE_KM2:
         continue
-    pieces.append([g, names[rid], terr[rid], a])
+    pieces.append([g, nm, terr[rid], a])
+
+if rejected:
+    rejected.sort(key=lambda t: -t[2])
+    print(f"отброшено чужих кусков: {len(rejected)}"
+          f" (суммарно {sum(t[2] for t in rejected):,.0f} км², уйдут соседям)".replace(",", " "))
+    for nm, why, a in rejected:
+        print("   %-28s %-34s %10.0f км²" % (nm[:28], why[:34], a))
 print(f"зон после обрезки океаном: {len(pieces)}")
 
 # --- снять наложения: спорное достаётся зоне с большей долей ---------------
@@ -143,52 +226,236 @@ for it in pieces:
 pieces = [p for p in pieces if not p[0].is_empty and area_km2(p[0]) >= MIN_PIECE_KM2]
 
 # --- остаток раздать ближайшему -------------------------------------------
+SEED_DEG = 0.35     # шаг посева точек по контуру зоны
+
+
+def voronoi_share(parts):
+    """Делит остаток между зонами по срединной линии: каждая точка достаётся
+    той зоне, чей контур ближе.
+
+    Сеткой этого делать нельзя — она режет по осям координат, и на карте
+    вылезает лесенка (ограничение пользователя: линии плавные). Здесь граница
+    идёт по середине между контурами соседей и потому повторяет их форму.
+    """
+    seeds, owner = [], []
+    for i, p in enumerate(pieces):
+        b = p[0].boundary
+        for ls in (b.geoms if hasattr(b, "geoms") else [b]):
+            n = max(2, int(ls.length / SEED_DEG))
+            for k in range(n):
+                pt_ = ls.interpolate(k / n, normalized=True)
+                seeds.append(pt_); owner.append(i)
+    from shapely.geometry import MultiPoint
+    from shapely.ops import voronoi_diagram
+    env = target.buffer(2.0).envelope
+    vor = voronoi_diagram(MultiPoint(seeds), envelope=env)
+    stree = STRtree(seeds)
+    add = {}
+    rest = unary_union(parts)
+    for cell in vor.geoms:
+        got = cell.intersection(rest)
+        if got.is_empty:
+            continue
+        # ячейка Вороного содержит ровно одну точку посева — она и владелец
+        cand = stree.query(cell)
+        j = None
+        for k in cand:
+            if cell.contains(seeds[int(k)]):
+                j = owner[int(k)]
+                break
+        if j is None:
+            continue
+        add.setdefault(j, []).append(got)
+    return add, len(seeds)
+
+
 covered = unary_union([p[0] for p in pieces])
 left = target.difference(covered)
 if not left.is_empty and area_km2(left) > 1:
     parts = list(left.geoms) if hasattr(left, "geoms") else [left]
-    pt = STRtree([p[0] for p in pieces])
-    add = {}
-    for q in parts:
-        c = [int(k) for k in pt.query(q.buffer(1.0))] or list(range(len(pieces)))
-        j = min(c, key=lambda i: pieces[i][0].distance(q))
-        add.setdefault(j, []).append(q)
+    if RAW:
+        pt = STRtree([p[0] for p in pieces])
+        add = {}
+        for q in parts:
+            c = [int(k) for k in pt.query(q.buffer(1.0))] or list(range(len(pieces)))
+            j = min(c, key=lambda i: pieces[i][0].distance(q))
+            add.setdefault(j, []).append(q)
+        print(f"остаток {area_km2(left):,.0f} км² ({len(parts)} кусков) роздан соседям".replace(",", " "))
+    else:
+        add, nseed = voronoi_share(parts)
+        print(f"остаток {area_km2(left):,.0f} км² ({len(parts)} кусков) роздан по срединной "
+              f"линии, {nseed} точек посева".replace(",", " "))
     for j, qs in add.items():
         pieces[j][0] = unary_union([pieces[j][0]] + qs)
-    print(f"остаток {area_km2(left):,.0f} км² ({len(parts)} кусков) роздан соседям".replace(",", " "))
+        if not pieces[j][0].is_valid:
+            pieces[j][0] = pieces[j][0].buffer(0)
 for p in pieces:
     p[3] = area_km2(p[0])
 pieces.sort(key=lambda t: -t[3])
 
-land = [(p.get("iso_a2"), p.get("name"), shape(f["geometry"]))
-        for f in json.load(open(REPO / "scripts/map/master/world_1946.master.geojson",
-                                encoding="utf-8"))["features"]
-        for p in [f["properties"]] if p.get("region_type") == "land"]
-ltree = STRtree([g for _, _, g in land])
+# --- слить обрезки: мал И без берега -> в соседа по самой длинной границе ---
+# Соседа выбираем по длине общей границы, а не по расстоянию до центра: обрезок
+# вытянут вдоль чужой зоны, и ближайший центр запросто окажется не той зоной,
+# с которой он реально смежен.
+coasts = [coast_count(p[0]) for p in pieces]
+merged = []
+while True:
+    small = [] if RAW else [i for i, p in enumerate(pieces)
+             if p[3] < MIN_COASTLESS_KM2 and coasts[i] == 0]
+    if not small:
+        break
+    i = min(small, key=lambda k: pieces[k][3])
+    rest = [j for j in range(len(pieces)) if j != i]
+    if not rest:
+        break
+
+    ibuf = pieces[i][0].buffer(0.02)
+
+    def shared(j):
+        try:
+            b = ibuf.intersection(pieces[j][0])
+            return area_km2(b) if not b.is_empty else 0.0
+        except Exception:
+            return 0.0
+
+    touch = [(shared(j), j) for j in rest]
+    best = max(touch, key=lambda t: t[0])
+    j = best[1] if best[0] > 0 else min(rest, key=lambda k: pieces[k][0].distance(pieces[i][0]))
+    merged.append((pieces[i][1], pieces[i][3], pieces[j][1],
+                   "общая граница" if best[0] > 0 else "ближайший"))
+    pieces[j][0] = unary_union([pieces[j][0], pieces[i][0]])
+    pieces[j][3] = area_km2(pieces[j][0])
+    coasts[j] = coast_count(pieces[j][0])
+    pieces.pop(i); coasts.pop(i)
+
+if merged:
+    print(f"слито обрезков без берега (< {MIN_COASTLESS_KM2:,} км²): {len(merged)}".replace(",", " "))
+    for nm, a, into, why in merged:
+        print("   %-28s %9.0f км²  ->  %-24s (%s)" % (nm[:28], a, into[:24], why))
+
+order = sorted(range(len(pieces)), key=lambda i: -pieces[i][3])
+pieces = [pieces[i] for i in order]; coasts = [coasts[i] for i in order]
 print("\n%-28s %-12s %12s %6s" % ("зона", "местность", "площадь км²", "приб."))
 tot = 0
-for g, nm, t, a in pieces:
-    gb2 = g.buffer(0.02)
-    c = sum(1 for k in ltree.query(gb2) if land[int(k)][2].intersects(gb2))
+for (g, nm, t, a), c in zip(pieces, coasts):
     tot += a
     print("%-28s %-12s %12.0f %6d" % (nm[:28], t, a, c))
+print("максимум прибрежных регионов на зону: %d | зон без берега: %d"
+      % (max(coasts) if coasts else 0, sum(1 for c in coasts if c == 0)))
 print(f"\nзон {len(pieces)} | сумма {tot:,.0f} | океан {tprops['area_km2']:,.0f} | "
       f"разница {tot - tprops['area_km2']:,.0f} км²".replace(",", " "))
+
+# --- самопроверка: разбиение, а не набор кусков ----------------------------
+# Расхождение суммы с площадью океана само по себе ничего не говорит: его даёт
+# и наложение зон, и непокрытая дыра, и они друг друга гасят. Меряем раздельно.
+ptree = STRtree([p[0] for p in pieces])
+ov_tot, ov_worst = 0.0, ("", "", 0.0)
+for i, (g, nm, t, a) in enumerate(pieces):
+    for k in ptree.query(g):
+        j = int(k)
+        if j <= i:
+            continue
+        try:
+            inter = g.intersection(pieces[j][0])
+        except Exception:
+            continue
+        if inter.is_empty or inter.geom_type in ("Point", "LineString", "MultiLineString"):
+            continue
+        ia = area_km2(inter)
+        ov_tot += ia
+        if ia > ov_worst[2]:
+            ov_worst = (nm, pieces[j][1], ia)
+allz = unary_union([p[0] for p in pieces])
+hole = area_km2(target.difference(allz))
+spill = area_km2(allz.difference(target))
+bad = [nm for g, nm, t, a in pieces if not g.is_valid]
+print("самопроверка: наложение %.0f км² | непокрыто %.0f | вне океана %.0f | "
+      "битых геометрий %d" % (ov_tot, hole, spill, len(bad)))
+if ov_worst[2] > 1:
+    print("   худшее наложение: %s / %s — %.0f км²" % ov_worst)
+if bad:
+    print("   битые:", ", ".join(bad[:6]))
+
+# --- антимеридиан: зона, разорванная ±180, — артефакт координат, не география
+EPS = 0.01
+west = [nm for g, nm, t, a in pieces
+        if any(pp.bounds[0] <= -180 + EPS for pp in (g.geoms if hasattr(g, "geoms") else [g]))]
+east = [nm for g, nm, t, a in pieces
+        if any(pp.bounds[2] >= 180 - EPS for pp in (g.geoms if hasattr(g, "geoms") else [g]))]
+both = sorted(set(west) & set(east))
+if west or east:
+    print("на ±180: зон слева %d, справа %d, разорванных надвое %d"
+          % (len(east), len(west), len(both)))
+    if both:
+        print("   разорваны:", ", ".join(both))
+
+# --- сохранить нарезку, иначе результат прогона теряется -------------------
+from shapely.geometry import mapping
+dump = {"type": "FeatureCollection", "features": [
+    {"type": "Feature",
+     "properties": {"name": nm, "naval_terrain": t, "area_km2": round(a, 1),
+                    "coastal_regions": c, "source": "World Ablaze via warp",
+                    "parent": OCEAN},
+     "geometry": mapping(g)}
+    for (g, nm, t, a), c in zip(pieces, coasts)]}
+dpath = SCR / ("zones_" + re.sub(r"\W+", "_", OCEAN).lower() + ".geojson")
+json.dump(dump, open(dpath, "w", encoding="utf-8"), ensure_ascii=False)
+print("нарезка сохранена:", dpath.name)
 
 # --- рендер ---------------------------------------------------------------
 from matplotlib.patches import Polygon as MplPoly
 import matplotlib.patches as mp
 PAL = {"shallow_sea": (126, 186, 222), "deep_ocean": (28, 68, 122),
        "fjords": (96, 150, 140), "ocean": (58, 116, 178), "southern_sea": (150, 170, 200)}
-bb = target.bounds
-fig, ax = plt.subplots(figsize=(17, 15))
+
+# Океан через ±180 (Пацифика) в обычных координатах растягивает картинку на
+# весь мир: его края уезжают влево и вправо, а посередине оказывается Евразия.
+# Для рендера переводим долготы в 0..360 — карта центрируется на океане.
+# Части полигонов через антимеридиан не идут: слой обрезан по ±180.
+DATELINE = (target.bounds[2] - target.bounds[0]) > 350
+
+
+def shift(g):
+    """Западное полушарие сдвигается на +360 ЦЕЛЫМИ частями.
+
+    По вершинам сдвигать нельзя: полигон на нулевом меридиане (Испания,
+    Британия, Африка) разорвётся, станет самопересекающимся, и первое же
+    пересечение с ним упадёт TopologyException. Часть, лежащая на нуле,
+    остаётся на месте — до тихоокеанского кадра ей всё равно далеко.
+    """
+    if not DATELINE:
+        return g
+    from shapely.affinity import translate
+    parts = list(g.geoms) if hasattr(g, "geoms") else [g]
+    out_ = []
+    for pp in parts:
+        if pp.is_empty:
+            continue
+        out_.append(translate(pp, xoff=360) if pp.bounds[2] <= 0 else pp)
+    if not out_:
+        return g
+    return out_[0] if len(out_) == 1 else MultiPolygon(
+        [q for o in out_ for q in (o.geoms if hasattr(o, "geoms") else [o])
+         if q.geom_type == "Polygon"])
+
+
+if DATELINE:
+    xs_ = [c for p_ in (shift(target).geoms if hasattr(shift(target), "geoms")
+                        else [shift(target)]) for c in (p_.bounds[0], p_.bounds[2])]
+    ys_ = [c for p_ in (shift(target).geoms if hasattr(shift(target), "geoms")
+                        else [shift(target)]) for c in (p_.bounds[1], p_.bounds[3])]
+    bb = (min(xs_), min(ys_), max(xs_), max(ys_))
+else:
+    bb = target.bounds
+fig, ax = plt.subplots(figsize=(17, 15) if not DATELINE else (20, 12))
 ax.set_xlim(bb[0] - 2, bb[2] + 2); ax.set_ylim(bb[1] - 2, bb[3] + 2)
 ax.set_aspect(1.0 / math.cos(math.radians((bb[1] + bb[3]) / 2)))
 ax.set_facecolor("#eef3f7")
 clip = box(bb[0] - 5, bb[1] - 5, bb[2] + 5, bb[3] + 5)
 for iso, nm, g in land:
-    if g.intersects(clip):
-        gg = g.intersection(clip)
+    gs = shift(g)
+    if gs.intersects(clip):
+        gg = gs.intersection(clip)
         for pp in (gg.geoms if hasattr(gg, "geoms") else [gg]):
             if pp.geom_type == "Polygon":
                 ax.add_patch(MplPoly(list(pp.exterior.coords), closed=True,
@@ -197,16 +464,26 @@ rng = np.random.default_rng(12)
 for g, nm, t, a in pieces:
     base = np.array(PAL.get(t, (58, 116, 178))) / 255.0
     col = np.clip(base * rng.uniform(0.82, 1.18), 0, 1)
-    for pp in (g.geoms if hasattr(g, "geoms") else [g]):
+    gs = shift(g)
+    # Части, разорванные ±180, после сдвига стыкуются вплотную. Не склеив их,
+    # обводка нарисует по 180° белую линию через весь океан — глаз прочтёт её
+    # как границу зон, которой нет.
+    if DATELINE:
+        gs = unary_union(gs)
+    biggest, ba = None, -1.0
+    for pp in (gs.geoms if hasattr(gs, "geoms") else [gs]):
         if pp.geom_type == "Polygon":
             ax.add_patch(MplPoly(list(pp.exterior.coords), closed=True,
                                  facecolor=col, edgecolor="white", lw=1.1, alpha=0.93))
-    c = g.representative_point()
+            if pp.area > ba:
+                biggest, ba = pp, pp.area
+    # подпись — в самой крупной части, иначе на разорванной зоне она уезжает
+    c = (biggest or gs).representative_point()
     ax.annotate(nm, (c.x, c.y), ha="center", va="center", fontsize=7.5,
                 bbox=dict(boxstyle="round,pad=0.15", fc="white", ec="none", alpha=0.8))
 ax.set_xticks([]); ax.set_yticks([])
 ax.legend(handles=[mp.Patch(color=np.array(v) / 255, label=k) for k, v in PAL.items()],
-          loc="lower left", fontsize=10)
+          loc="upper left", bbox_to_anchor=(1.005, 1.0), fontsize=10, frameon=False)
 ax.set_title(f"{OCEAN} -> {len(pieces)} зон по World Ablaze.\n"
              f"Границы — контуры их карты, прогнанные через деформацию: линии плавные.",
              fontsize=14)
