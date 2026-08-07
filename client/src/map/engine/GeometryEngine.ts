@@ -1,5 +1,5 @@
 import { centroid, bbox } from '@turf/turf';
-import type { Feature, FeatureCollection, Point, Polygon, MultiPolygon } from 'geojson';
+import type { Feature, FeatureCollection, GeoJsonProperties, Point, Polygon, MultiPolygon } from 'geojson';
 import type { Region } from '@shared/types/map/Region';
 import type { GameMapData } from '../GeoJsonLoader';
 
@@ -154,7 +154,7 @@ export function getPointAlongLine(
   return { point: line[m], tangent: [1, 0] };
 }
 
-function getGeometryPoints(features: Feature<Polygon | MultiPolygon, any>[]): { lon: number; lat: number }[] {
+function getGeometryPoints(features: Feature<Polygon | MultiPolygon, GeoJsonProperties>[]): { lon: number; lat: number }[] {
   const points: { lon: number; lat: number }[] = [];
   for (const f of features) {
     const geom = f.geometry;
@@ -185,8 +185,8 @@ function getGeometryPoints(features: Feature<Polygon | MultiPolygon, any>[]): { 
  * Определяет наклон, длину и ширину территории.
  */
 export function computeCountryAxis(
-  features: Feature<Polygon | MultiPolygon, any>[],
-  paired: { region: Region; feature: Feature<Polygon | MultiPolygon, any> }[]
+  features: Feature<Polygon | MultiPolygon, GeoJsonProperties>[],
+  paired: { region: Region; feature: Feature<Polygon | MultiPolygon, GeoJsonProperties> }[]
 ): LabelAxis {
   const points = getGeometryPoints(features);
 
@@ -312,7 +312,7 @@ export function computeAppearZoom(name: string, spanLongAxisDeg: number): number
 }
 
 export function buildCountryLabelLine(
-  paired: { region: Region; feature: Feature<Polygon | MultiPolygon, any> }[],
+  paired: { region: Region; feature: Feature<Polygon | MultiPolygon, GeoJsonProperties> }[],
   axis: LabelAxis
 ): [number, number][] {
   const thetaRad = (axis.rotateDeg * Math.PI) / 180;
@@ -323,7 +323,7 @@ export function buildCountryLabelLine(
     const [cx, cy] = lonLatToMercator(axis.lon, axis.lat);
     const dx = halfLen * Math.cos(thetaRad);
     const dy = halfLen * Math.sin(thetaRad);
-    let line: [number, number][] = [
+    const line: [number, number][] = [
       [cx - dx, cy - dy],
       [cx + dx, cy + dy]
     ];
@@ -427,13 +427,15 @@ export function largestMainlandCluster(ownedRegions: Region[]): Region[] {
  * Генерирует надписи стран в виде FeatureCollection.
  */
 export function buildCountryLabels(
-  featureCollection: FeatureCollection<Polygon | MultiPolygon, any>,
+  featureCollection: FeatureCollection<Polygon | MultiPolygon, GeoJsonProperties>,
   regions: Region[]
 ): FeatureCollection<Point, CountryLabelProps> {
-  const featureByRegionId = new Map<number, Feature<Polygon | MultiPolygon, any>>();
+  const featureByRegionId = new Map<number, Feature<Polygon | MultiPolygon, GeoJsonProperties>>();
   for (const feature of featureCollection.features) {
+    // properties у GeoJSON-фичи по спецификации может быть null. Раньше это
+    // скрывал `any`: фича без свойств роняла бы обход на ровном месте.
     const props = feature.properties;
-    if (props.type === 'region' && props.regionId != null) {
+    if (props && props.type === 'region' && props.regionId != null) {
       featureByRegionId.set(props.regionId, feature);
     }
   }
@@ -451,13 +453,13 @@ export function buildCountryLabels(
 
     const paired = mainland
       .map(region => ({ region, feature: featureByRegionId.get(region.id) }))
-      .filter((p): p is { region: Region; feature: Feature<Polygon | MultiPolygon, any> } => p.feature != null);
+      .filter((p): p is { region: Region; feature: Feature<Polygon | MultiPolygon, GeoJsonProperties> } => p.feature != null);
     if (paired.length === 0) continue;
 
     const mainlandFeatures = paired.map(p => p.feature);
     const axis = computeCountryAxis(mainlandFeatures, paired);
 
-    const name = mainlandFeatures[0].properties.ownerName || '';
+    const name = mainlandFeatures[0]?.properties?.ownerName || '';
     if (!name) continue;
 
     const totalArea = mainland.reduce((sum, r) => sum + (r.area || 0), 0);
@@ -544,7 +546,7 @@ export function buildCountryLabels(
 }
 
 export function buildRegionLabels(mapData: GameMapData): FeatureCollection<Point, { name: string; regionId: number }> {
-  const featuresByRegionId = new Map<number, Feature<Polygon | MultiPolygon, any>[]>();
+  const featuresByRegionId = new Map<number, Feature<Polygon | MultiPolygon, GeoJsonProperties>[]>();
   
   for (const feature of mapData.featureCollection.features) {
     const props = feature.properties;
@@ -570,7 +572,7 @@ export function buildRegionLabels(mapData: GameMapData): FeatureCollection<Point
       }
     }
 
-    const name = mainFeature.properties.name || `Region ${regionId}`;
+    const name = mainFeature.properties?.name || `Region ${regionId}`;
     const ctr = centroid(mainFeature);
 
     labelFeatures.push({
