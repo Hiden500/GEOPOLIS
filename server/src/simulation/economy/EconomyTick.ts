@@ -46,7 +46,9 @@ import {
  * выводится в createGame); остальные компоненты дохода пока статичны —
  * см. docs/DECISIONS.md. `spendingShares` есть у КАЖДОЙ страны, не только у
  * игрока (2026-08-01, `CreateGame.ts`): *Spending пересчитываются из
- * income × доля каждый тик — тот же паттерн, что taxRate → taxRevenue выше.
+ * РАСПОЛАГАЕМОГО дохода × доля каждый тик — тот же паттерн, что
+ * taxRate → taxRevenue выше. Располагаемый = доход минус импорт (2026-08-04,
+ * см. ниже): роспись распределяет то, что осталось после обязательных закупок.
  * Игрок задаёт свои доли через PUT /budget (docs/DECISIONS.md 2026-07-04
  * "Бюджет: доли/проценты"), доли ИИ двигает AiBehaviorTick.
  */
@@ -70,12 +72,30 @@ function updateBudget(country: Country): { income: number; expenses: number } {
     economy.stateEnterpriseIncome +
     economy.otherIncome;
 
+  // Импорт — обязательный платёж, а не строка росписи: сырьё закупается до
+  // того, как государство распределяет дискреционные статьи, и доли
+  // расписывают ТО, ЧТО ОСТАЛОСЬ (решение пользователя 2026-08-03: учитывать
+  // импорт, стартовые доли не нормировать). Пока доли считались от полного
+  // дохода, пять статей (84,9%) вместе с импортом, процентами и прочими
+  // расходами превышали 100% дохода: на 12-м месяце 85 стран из 157 обязаны
+  // были потратить больше, чем зарабатывают, и 107 набирали долг на ровном
+  // месте, не приняв ни одного решения.
+  //
+  // Кламп не косметика: страна, чей импорт превысил доход, иначе получила бы
+  // ОТРИЦАТЕЛЬНЫЕ расходы — то есть доход из ниоткуда.
+  //
+  // Импорт здесь прошломесячный: `economyTick` идёт до `tradeTick`
+  // (`SimulationEngine.ts`), и порядок тиков — архитектурное решение
+  // (`docs/AI_RULES.md`). На первом ходу импорта ещё нет, и роспись
+  // расписывает весь доход — так и задумано.
+  const disposableIncome = Math.max(0, income - economy.importSpending);
+
   if (economy.spendingShares) {
-    economy.militarySpending = income * economy.spendingShares.military;
-    economy.researchSpending = income * economy.spendingShares.research;
-    economy.educationSpending = income * economy.spendingShares.education;
-    economy.infrastructureSpending = income * economy.spendingShares.infrastructure;
-    economy.welfareSpending = income * economy.spendingShares.welfare;
+    economy.militarySpending = disposableIncome * economy.spendingShares.military;
+    economy.researchSpending = disposableIncome * economy.spendingShares.research;
+    economy.educationSpending = disposableIncome * economy.spendingShares.education;
+    economy.infrastructureSpending = disposableIncome * economy.spendingShares.infrastructure;
+    economy.welfareSpending = disposableIncome * economy.spendingShares.welfare;
   }
 
   const expenses =
