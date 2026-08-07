@@ -16,6 +16,7 @@ import {
   type LedgerTabId,
   type ProtoEvent,
   type Region,
+  type RegionTab,
   type TomeId,
 } from "./data";
 import styles from "./panels.module.css";
@@ -332,77 +333,90 @@ export function TomeBody({
 
 export function RegionDetail({
   region,
+  tab,
   onSelectCountry,
 }: {
   region: Region;
+  tab: RegionTab;
   onSelectCountry: (countryId: CountryId) => void;
 }) {
+  if (tab === "lyudi") {
+    return (
+      <div className={styles.groups}>
+        {region.groups.map((group) => (
+          <div key={group.name} className={styles.groupRow}>
+            <span className={styles.rowName}>{group.name}</span>
+            <span className={cx(styles.rowValue, styles.numeric)}>
+              {Math.round(group.share * 100)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (tab === "hozyaystvo") {
+    return (
+      <>
+        <div className={styles.row}>
+          <span className={styles.rowName}>Промышленность</span>
+          <span className={styles.rowValue}>{region.industry}</span>
+        </div>
+        <Section title="Добыча">
+          <div className={styles.rows}>
+            {region.resources.map((resource) => (
+              <div key={resource} className={styles.rowName}>
+                · {resource}
+              </div>
+            ))}
+          </div>
+        </Section>
+      </>
+    );
+  }
+
+  if (tab === "istoriya") {
+    return (
+      <div className={styles.history}>
+        {region.history.map((entry) => (
+          <div key={entry.when} className={styles.historyRow}>
+            <span className={styles.historyWhen}>{entry.when}</span>
+            <span className={styles.rowName}>{entry.text}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <>
-      <Section title="Общее">
-        <div className={styles.rows}>
-          <div className={styles.row}>
-            <span className={styles.rowName}>Держава</span>
-            <Tag
-              label={COUNTRIES[region.owner].short}
-              kind="country"
-              onClick={() => onSelectCountry(region.owner)}
-            />
-          </div>
-          <div className={styles.row}>
-            <span className={styles.rowName}>Население</span>
-            <span className={styles.rowValue}>{region.population}</span>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.rowName}>Промышленность</span>
-            <span className={styles.rowValue}>{region.industry}</span>
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Состав населения">
-        <div className={styles.groups}>
-          {region.groups.map((group) => (
-            <div key={group.name} className={styles.groupRow}>
-              <span className={styles.rowName}>{group.name}</span>
-              <span className={cx(styles.rowValue, styles.numeric)}>
-                {Math.round(group.share * 100)}%
-              </span>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="Недовольство">
+      <div className={styles.rows}>
         <div className={styles.row}>
-          <span className={styles.rowName}>Текущий уровень</span>
+          <span className={styles.rowName}>Держава</span>
+          <Tag
+            label={COUNTRIES[region.owner].short}
+            kind="country"
+            onClick={() => onSelectCountry(region.owner)}
+          />
+        </div>
+        <div className={styles.row}>
+          <span className={styles.rowName}>Население</span>
+          <span className={styles.rowValue}>{region.population}</span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.rowName}>Крупнейшая группа</span>
+          <span className={styles.rowValue}>
+            {region.groups[0].name} {Math.round(region.groups[0].share * 100)}%
+          </span>
+        </div>
+        <div className={styles.row}>
+          <span className={styles.rowName}>Недовольство</span>
           <span className={styles.rowValue}>{region.discontent.toFixed(2)}</span>
         </div>
-        <div style={{ marginTop: "var(--space-2)" }}>
-          <Meter value={region.discontent} warn={region.discontent > 0.45} />
-        </div>
-      </Section>
-
-      <Section title="Добыча">
-        <div className={styles.rows}>
-          {region.resources.map((resource) => (
-            <div key={resource} className={styles.rowName}>
-              · {resource}
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      <Section title="История места">
-        <div className={styles.history}>
-          {region.history.map((entry) => (
-            <div key={entry.when} className={styles.historyRow}>
-              <span className={styles.historyWhen}>{entry.when}</span>
-              <span className={styles.rowName}>{entry.text}</span>
-            </div>
-          ))}
-        </div>
-      </Section>
+      </div>
+      <div style={{ marginTop: "var(--space-2)" }}>
+        <Meter value={region.discontent} warn={region.discontent > 0.45} />
+      </div>
     </>
   );
 }

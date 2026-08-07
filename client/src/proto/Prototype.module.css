@@ -239,9 +239,9 @@
 
 /* ── Правая сторона под ХОДОМ: ЛЕНТА и РЕЖИМЫ ─────────────────── */
 
-/* Справа внизу остались только РЕЖИМЫ с ЛЕГЕНДОЙ — ЛЕНТА ушла в левый угол. */
 .rightStack {
   position: absolute;
+  top: calc(var(--frame-h, 6rem) + var(--frame-gap));
   right: var(--frame-gap);
   bottom: var(--frame-gap);
   z-index: var(--z-surface);
@@ -249,6 +249,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: var(--space-2);
+  min-height: 0;
+  /* Столбец не ловит клики сам — только его панели. */
   pointer-events: none;
 }
 
@@ -257,20 +259,15 @@
 }
 
 /*
- * ЛЕНТА живёт в ЛЕВОМ НИЖНЕМ углу отдельной панелью, а не колонкой справа.
- * Колонка во всю высоту забирала полосу карты сверху донизу ради содержимого,
- * которое читают эпизодически; угол отдаёт карте всю правую половину.
- * Внутри вкладки: мир и свои приказы — разные вопросы, а не один список.
+ * ЛЕНТА — правый столбец: единственное, что тянется по высоте. Остальные
+ * панели правой стороны своего размера.
  */
 .lenta {
-  position: absolute;
-  left: var(--frame-gap);
-  bottom: var(--frame-gap);
-  z-index: var(--z-surface);
+  position: relative;
   display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
   width: var(--feed-col, var(--feed-width));
-  max-width: calc(100vw - var(--bottom-width) - var(--frame-gap) * 4);
-  max-height: 46vh;
 }
 
 .lentaPanel {
@@ -288,12 +285,37 @@
   padding: var(--space-2) var(--space-3) 0;
 }
 
-/* Ручка ширины на ПРАВОМ крае: панель прижата к левому краю экрана. */
-.resizerRight {
+/* Свёрнутая ЛЕНТА — узкий корешок у правого края. */
+.lentaTab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+  padding: var(--space-3) var(--space-2);
+  background: var(--panel-bg);
+  background-image: var(--panel-texture);
+  border: var(--panel-edge-width) solid var(--panel-edge);
+  border-radius: var(--panel-radius);
+  color: var(--text-dim);
+}
+
+.lentaTab:hover {
+  color: var(--text);
+}
+
+.lentaTabCount {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text);
+}
+
+/* Ручка ширины на ЛЕВОМ крае: панель прижата к правому краю экрана. */
+.resizerLeft {
   position: absolute;
   top: 0;
   bottom: 0;
-  right: calc(var(--space-2) * -1);
+  left: calc(var(--space-2) * -1);
   width: var(--space-2);
   cursor: ew-resize;
   border: none;
@@ -302,8 +324,8 @@
   transition: background var(--dur-fast) var(--ease);
 }
 
-.resizerRight:hover,
-.resizerRight:focus-visible {
+.resizerLeft:hover,
+.resizerLeft:focus-visible {
   background: var(--edge-strong);
 }
 
@@ -314,8 +336,17 @@
  * поднимались к верху экрана: панель, которая переезжает через полэкрана от
  * сворачивания соседа, — это потерянная привычка «режимы всегда в углу».
  */
+/*
+ * РЕЖИМЫ прижаты к низу столбца: панель, которая переезжает через полэкрана
+ * от сворачивания соседа, — это потерянная привычка «режимы всегда в углу».
+ */
 .rezhimy {
   flex: 0 0 auto;
+  margin-top: auto;
+}
+
+.legenda + .rezhimy {
+  margin-top: 0;
 }
 
 .rezhimyRow {
@@ -370,7 +401,7 @@
 .yashik {
   position: absolute;
   top: calc(var(--frame-h, 6rem) + var(--rank-h) + var(--frame-gap));
-  bottom: calc(var(--lenta-h, 0px) + var(--frame-gap) * 2);
+  bottom: calc(var(--polosa-h, 0px) + var(--frame-gap) * 2);
   z-index: var(--z-surface);
   display: flex;
   /*
@@ -469,8 +500,8 @@
 /* ── Низ: ПОЛОСА и ЛИСТ ───────────────────────────────────────── */
 
 /*
- * По центру СВОБОДНОЙ части экрана — между левым краем и ЛЕНТОЙ.
- * Центрирование по всему окну уводило бы блок под ленту.
+ * Внизу по центру осталась только ПОЛОСА выделенного региона: ЛИСТ переехал
+ * в левый нижний угол.
  */
 .bottom {
   position: absolute;
@@ -522,47 +553,31 @@
  * равна min-content, и длинное имя региона с фактами и кнопками распирало
  * полосу шире отведённой колонки — она уезжала под ЛЕНТУ.
  */
+/*
+ * ПОЛОСА — регион в ЛЕВОМ НИЖНЕМ углу. Ширина умеренная и фиксированная:
+ * панель, которая меняет ширину от длины названия региона, заставляет глаз
+ * заново искать вкладки при каждом клике по карте.
+ */
 .polosa {
+  position: absolute;
+  left: var(--frame-gap);
+  bottom: var(--frame-gap);
+  z-index: var(--z-surface);
   display: flex;
-  align-items: center;
-  min-width: 0;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  background: var(--panel-bg);
-  background-image: var(--panel-texture);
-  border: var(--panel-edge-width) solid var(--panel-edge);
-  border-radius: var(--panel-radius);
-  box-shadow: var(--panel-bevel), var(--panel-shadow);
-  backdrop-filter: var(--panel-backdrop);
-  text-shadow: var(--content-shadow);
+  width: clamp(19rem, 23vw, 26rem);
+  max-height: 44vh;
 }
 
-.polosaName {
-  font-size: var(--text-md);
-  font-weight: var(--weight-bold);
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 0 1 auto;
-}
-
-.polosaFacts {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  min-width: 0;
-  overflow: hidden;
-}
-
-.fact {
-  font-size: var(--text-sm);
-  color: var(--text-dim);
-  white-space: nowrap;
-}
-
-.grow {
+.polosaPanel {
   flex: 1 1 auto;
+  min-width: 0;
+}
+
+.polosaTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
 }
 
 .orderList {

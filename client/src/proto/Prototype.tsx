@@ -6,8 +6,9 @@ import {
   IconBalance,
   IconBlocs,
   IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
   IconChevronUp,
-  IconClose,
   IconDebt,
   IconDefence,
   IconDiplomacy,
@@ -45,11 +46,13 @@ import {
   IRREVERSIBLE_WORDS,
   MONTHS,
   MONTHS_NOMINATIVE,
+  REGION_TABS,
   REGIONS,
   type CountryId,
   type LedgerTabId,
   type MapModeId,
   type ProtoEvent,
+  type RegionTab,
   type TomeId,
 } from "./data";
 import styles from "./Prototype.module.css";
@@ -65,8 +68,7 @@ import styles from "./Prototype.module.css";
 type Yashik =
   | { kind: "none" }
   | { kind: "tome"; id: TomeId }
-  | { kind: "country"; id: CountryId }
-  | { kind: "region"; id: string };
+  | { kind: "country"; id: CountryId };
 
 interface Order {
   id: string;
@@ -185,6 +187,7 @@ export function Prototype() {
   /** Мир и свои приказы — разные вопросы, поэтому вкладки, а не один список. */
   const [lentaTab, setLentaTab] = useState<"all" | "world" | "mine">("all");
   const [listOpen, setListOpen] = useState(true);
+  const [polosaTab, setPolosaTab] = useState<RegionTab>("obzor");
   const [confirming, setConfirming] = useState<string | null>(null);
   const [thinking, setThinking] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -209,6 +212,7 @@ export function Prototype() {
   const hodRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const lentaRef = useRef<HTMLDivElement>(null);
+  const polosaRef = useRef<HTMLDivElement>(null);
   const yashikRef = useRef<HTMLDivElement>(null);
   const dragTarget = useRef<"lenta" | "yashik" | null>(null);
   const dragOrder = useRef<number | null>(null);
@@ -250,15 +254,15 @@ export function Prototype() {
       if (bottomRef.current !== null) {
         shell.style.setProperty("--bottom-h", `${bottomRef.current.offsetHeight}px`);
       }
-      // ЯЩИК останавливается над ЛЕНТОЙ: обе живут у левого края.
-      shell.style.setProperty("--lenta-h", `${lentaRef.current?.offsetHeight ?? 0}px`);
+      // ЯЩИК останавливается над ПОЛОСОЙ: обе панели живут у левого края.
+      shell.style.setProperty("--polosa-h", `${polosaRef.current?.offsetHeight ?? 0}px`);
     };
     apply();
     const observer = new ResizeObserver(apply);
     if (shapkaRef.current !== null) observer.observe(shapkaRef.current);
     if (hodRef.current !== null) observer.observe(hodRef.current);
     if (bottomRef.current !== null) observer.observe(bottomRef.current);
-    if (lentaRef.current !== null) observer.observe(lentaRef.current);
+    if (polosaRef.current !== null) observer.observe(polosaRef.current);
     window.addEventListener("resize", apply);
     return () => {
       observer.disconnect();
@@ -307,14 +311,9 @@ export function Prototype() {
   const onDragMove = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
     if (dragTarget.current === null || lentaRef.current === null) return;
     const unit = rootSize();
-    const left = lentaRef.current.getBoundingClientRect().left;
-    /*
-     * Потолок — левая граница ЛИСТА, который стоит по центру окна: дальше
-     * ЛЕНТА поехала бы поверх приказов.
-     */
-    const listW = parseFloat(getComputedStyle(shellRef.current!).getPropertyValue("--bottom-width")) || 0;
-    const cap = (window.innerWidth - listW) / 2 - 2 * unit;
-    setFeedWidth(Math.max(17 * unit, Math.min(event.clientX - left, cap)));
+    const right = lentaRef.current.getBoundingClientRect().right;
+    // Потолок — половина окна: дальше ЛЕНТА душит карту.
+    setFeedWidth(Math.max(17 * unit, Math.min(right - event.clientX, window.innerWidth * 0.45)));
   }, []);
 
   const onDragEnd = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
@@ -367,10 +366,10 @@ export function Prototype() {
   const openTag = (id: string) => {
     if (id in COUNTRIES) selectCountry(id as CountryId);
     else if (id in REGIONS) {
+      // Регион живёт в ПОЛОСЕ, а не в ЯЩИКЕ: отдельного «подробно» больше нет.
       setPinned(false);
       setSelectedRegionId(id);
       setSelectedCountryId(null);
-      setYashik({ kind: "region", id });
     }
   };
 
@@ -652,18 +651,6 @@ export function Prototype() {
             </Panel>
           )}
 
-          {yashik.kind === "region" && (
-            <Panel
-              title={REGIONS[yashik.id].name}
-              meta={COUNTRIES[REGIONS[yashik.id].owner].short}
-              onClose={() => setYashik({ kind: "none" })}
-              density="control"
-              scroll
-              className={styles.yashikPanel}
-            >
-              <RegionDetail region={REGIONS[yashik.id]} onSelectCountry={selectCountry} />
-            </Panel>
-          )}
         </div>
       )}
 
@@ -694,7 +681,6 @@ export function Prototype() {
               onSelectRegion={(regionId) => {
                 setPinned(false);
                 setSelectedRegionId(regionId);
-                setYashik({ kind: "region", id: regionId });
               }}
               events={events}
             />
@@ -704,6 +690,70 @@ export function Prototype() {
 
       {/* ── ЛЕНТА и РЕЖИМЫ ──────────────────────────────────── */}
       <div className={styles.rightStack}>
+        {lentaOpen ? (
+          <div ref={lentaRef} className={styles.lenta}>
+            <button
+              type="button"
+              className={styles.resizerLeft}
+              aria-label="Ширина ленты"
+              onPointerDown={onDragStart}
+              onPointerMove={onDragMove}
+              onPointerUp={onDragEnd}
+            />
+            <Panel
+              title="Этот ход"
+              meta={monthLabel.toLowerCase()}
+              density="flush"
+              scroll
+              className={styles.lentaPanel}
+              actions={
+                <Tooltip label="Убрать ленту к правому краю">
+                  <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть ленту" onClick={() => setLentaOpen(false)}>
+                    <IconChevronRight />
+                  </Button>
+                </Tooltip>
+              }
+            >
+              <div className={styles.lentaTabs}>
+                {([
+                  ["all", `Всё · ${events.length}`],
+                  ["world", "Мир"],
+                  ["mine", "Мои приказы"],
+                ] as const).map(([id, name]) => (
+                  <Button key={id} size="sm" variant={lentaTab === id ? "order" : "quiet"} onClick={() => setLentaTab(id)}>
+                    {name}
+                  </Button>
+                ))}
+              </div>
+              <div className={styles.lentaBody}>
+                {events
+                  .filter((event) =>
+                    lentaTab === "all" ? true : lentaTab === "mine" ? event.order !== undefined : event.order === undefined,
+                  )
+                  .map((event) => (
+                    <EventItem
+                      key={event.id}
+                      date={event.date}
+                      title={event.title}
+                      body={event.body}
+                      factuality={event.factuality}
+                      order={event.order === undefined ? undefined : { text: event.order }}
+                      tags={event.tags}
+                      onTagClick={openTag}
+                    />
+                  ))}
+              </div>
+            </Panel>
+          </div>
+        ) : (
+          <Tooltip label={`Развернуть ленту · событий: ${events.length}`}>
+            <button type="button" className={styles.lentaTab} aria-label="Развернуть ленту" onClick={() => setLentaOpen(true)}>
+              <IconChevronLeft />
+              <span className={styles.lentaTabCount}>{events.length}</span>
+            </button>
+          </Tooltip>
+        )}
+
         <Panel density="instrument" className={styles.rezhimy}>
           <div className={styles.rezhimyRow}>
             {legend !== undefined && (
@@ -734,183 +784,119 @@ export function Prototype() {
         </Panel>
       </div>
 
-      {/* ── ЛЕНТА: левый нижний угол ─────────────────────────── */}
-      <div ref={lentaRef} className={styles.lenta}>
-        <button
-          type="button"
-          className={styles.resizerRight}
-          aria-label="Ширина ленты"
-          onPointerDown={onDragStart}
-          onPointerMove={onDragMove}
-          onPointerUp={onDragEnd}
-        />
-        <Panel
-          title="Этот ход"
-          meta={monthLabel.toLowerCase()}
-          density="flush"
-          scroll={lentaOpen}
-          className={styles.lentaPanel}
-          actions={
-            <Tooltip label={lentaOpen ? "Свернуть ленту" : "Развернуть ленту"}>
-              <Button
-                size="sm"
-                variant="quiet"
-                iconOnly
-                aria-label={lentaOpen ? "Свернуть ленту" : "Развернуть ленту"}
-                onClick={() => setLentaOpen((open) => !open)}
-              >
-                {lentaOpen ? <IconChevronDown /> : <IconChevronUp />}
-              </Button>
-            </Tooltip>
-          }
-        >
-          {lentaOpen && (
-            <>
-              <div className={styles.lentaTabs}>
-                {([
-                  ["all", `Всё · ${events.length}`],
-                  ["world", "Мир"],
-                  ["mine", "Мои приказы"],
-                ] as const).map(([id, name]) => (
-                  <Button
-                    key={id}
-                    size="sm"
-                    variant={lentaTab === id ? "order" : "quiet"}
-                    onClick={() => setLentaTab(id)}
-                  >
-                    {name}
-                  </Button>
-                ))}
-              </div>
-              <div className={styles.lentaBody}>
-                {events
-                  .filter((event) =>
-                    lentaTab === "all"
-                      ? true
-                      : lentaTab === "mine"
-                        ? event.order !== undefined
-                        : event.order === undefined,
-                  )
-                  .map((event) => (
-                    <EventItem
-                      key={event.id}
-                      date={event.date}
-                      title={event.title}
-                      body={event.body}
-                      factuality={event.factuality}
-                      order={event.order === undefined ? undefined : { text: event.order }}
-                      tags={event.tags}
-                      onTagClick={openTag}
-                    />
-                  ))}
-              </div>
-            </>
-          )}
-        </Panel>
-      </div>
+      {/*
+        * ПОЛОСА — регион. Раньше это была тонкая строка внизу с четырьмя
+        * фактами и кнопкой «Подробно»; шаг «выделил → нажал → открылось» ничего
+        * не давал, кроме лишнего клика на самом частом действии в игре. Теперь
+        * ЛКМ по карте сразу открывает регион подробно, панелью в левом нижнем
+        * углу, а разделы разведены вкладками, чтобы панель не росла.
+        */}
+      {selectedRegion !== null && (
+        <div ref={polosaRef} className={styles.polosa}>
+          <Panel
+            title={selectedRegion.name}
+            meta={COUNTRIES[selectedRegion.owner].short}
+            density="control"
+            scroll
+            className={styles.polosaPanel}
+            onClose={() => {
+              setSelectedRegionId(null);
+              setPinned(false);
+            }}
+            actions={
+              <Tooltip label={pinned ? "Открепить" : "Закрепить: не сбрасывать при клике по карте"}>
+                <Button
+                  size="sm"
+                  variant={pinned ? "order" : "quiet"}
+                  iconOnly
+                  aria-label={pinned ? "Открепить" : "Закрепить"}
+                  onClick={() => setPinned((prev) => !prev)}
+                >
+                  <IconLock />
+                </Button>
+              </Tooltip>
+            }
+          >
+            <div className={styles.polosaTabs}>
+              {REGION_TABS.map(([id, name]) => (
+                <Button
+                  key={id}
+                  size="sm"
+                  variant={polosaTab === id ? "order" : "quiet"}
+                  onClick={() => setPolosaTab(id)}
+                >
+                  {name}
+                </Button>
+              ))}
+            </div>
+            <RegionDetail region={selectedRegion} tab={polosaTab} onSelectCountry={selectCountry} />
+          </Panel>
+        </div>
+      )}
 
-      {/* ── Низ: ПОЛОСА и ЛИСТ ──────────────────────────────── */}
+      {/* ── ЛИСТ: низ по центру ─────────────────────────────── */}
       <div className={styles.bottom}>
         <div ref={bottomRef} className={styles.bottomInner}>
-          {selectedRegion !== null && (
-            <div className={styles.polosa}>
-              <span className={styles.polosaName}>{selectedRegion.name}</span>
-              <div className={styles.polosaFacts}>
-                <span className={styles.fact}>{COUNTRIES[selectedRegion.owner].short}</span>
-                <span className={styles.fact}>{selectedRegion.population}</span>
-                <span className={styles.fact}>
-                  {selectedRegion.groups[0].name} {Math.round(selectedRegion.groups[0].share * 100)}%
-                </span>
-                <span className={styles.fact}>недовольство {selectedRegion.discontent.toFixed(2)}</span>
-              </div>
-              <span className={styles.grow} />
-              <Button
-                size="sm"
-                variant={pinned ? "order" : "quiet"}
-                iconOnly
-                aria-label={pinned ? "Открепить" : "Закрепить"}
-                title={pinned ? "Открепить" : "Закрепить"}
-                onClick={() => setPinned((prev) => !prev)}
-              >
-                <IconLock />
-              </Button>
-              <Button size="sm" variant="default" onClick={() => setYashik({ kind: "region", id: selectedRegion.id })}>
-                Подробно
-              </Button>
-              <Button
-                size="sm"
-                variant="quiet"
-                iconOnly
-                aria-label="Снять выделение"
-                onClick={() => {
-                  setSelectedRegionId(null);
-                  setPinned(false);
+        {listOpen ? (
+          <Panel
+            title="Приказы"
+            meta={orders.length === 0 ? monthLabel.toLowerCase() : `${monthLabel.toLowerCase()} · ${orders.length} из 10`}
+            density="control"
+            actions={
+              <Tooltip label="Свернуть лист приказов">
+                <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть приказы" onClick={() => setListOpen(false)}>
+                  <IconChevronDown />
+                </Button>
+              </Tooltip>
+            }
+          >
+            {orders.length > 0 && (
+              <ul className={styles.orderList}>
+                {orders.map((order, index) => (
+                  <li
+                    key={order.id}
+                    draggable
+                    onDragStart={() => {
+                      dragOrder.current = index;
+                    }}
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={() => {
+                      if (dragOrder.current !== null && dragOrder.current !== index) moveOrder(dragOrder.current, index);
+                      dragOrder.current = null;
+                    }}
+                  >
+                    <OrderCard
+                      index={index + 1}
+                      text={order.text}
+                      onRemove={() => setOrders((prev) => prev.filter((item) => item.id !== order.id))}
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className={styles.vvod}>
+              <input
+                className={styles.field}
+                placeholder="Введите приказ…"
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") addOrder();
                 }}
-              >
-                <IconClose />
+              />
+              <Button variant="order" size="sm" onClick={addOrder} disabled={draft.trim() === ""}>
+                Добавить
               </Button>
             </div>
-          )}
-
-          {listOpen ? (
-            <Panel
-              title="Приказы"
-              meta={orders.length === 0 ? monthLabel.toLowerCase() : `${monthLabel.toLowerCase()} · ${orders.length} из 10`}
-              density="control"
-              actions={
-                <Tooltip label="Свернуть лист приказов">
-                  <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть приказы" onClick={() => setListOpen(false)}>
-                    <IconChevronDown />
-                  </Button>
-                </Tooltip>
-              }
-            >
-              {orders.length > 0 && (
-                <ul className={styles.orderList}>
-                  {orders.map((order, index) => (
-                    <li
-                      key={order.id}
-                      draggable
-                      onDragStart={() => {
-                        dragOrder.current = index;
-                      }}
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={() => {
-                        if (dragOrder.current !== null && dragOrder.current !== index) moveOrder(dragOrder.current, index);
-                        dragOrder.current = null;
-                      }}
-                    >
-                      <OrderCard
-                        index={index + 1}
-                        text={order.text}
-                        onRemove={() => setOrders((prev) => prev.filter((item) => item.id !== order.id))}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <div className={styles.vvod}>
-                <input
-                  className={styles.field}
-                  placeholder="Введите приказ…"
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") addOrder();
-                  }}
-                />
-                <Button variant="order" size="sm" onClick={addOrder} disabled={draft.trim() === ""}>
-                  Добавить
-                </Button>
-              </div>
-            </Panel>
-          ) : (
-            <button type="button" className={styles.listTab} onClick={() => setListOpen(true)}>
-              Приказы
-              <span className={styles.listTabCount}>{orders.length}</span>
-            </button>
-          )}
+          </Panel>
+        ) : (
+          <button type="button" className={styles.listTab} onClick={() => setListOpen(true)}>
+            <IconChevronUp />
+            Приказы
+            <span className={styles.listTabCount}>{orders.length}</span>
+          </button>
+        )}
         </div>
       </div>
 

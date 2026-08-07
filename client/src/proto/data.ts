@@ -428,3 +428,17 @@ export const MONTHS_NOMINATIVE = [
 
 /** Слова, по которым прототип считает приказ необратимым. */
 export const IRREVERSIBLE_WORDS = ["войн", "ядерн", "переворот", "аннекс", "блок"];
+
+/*
+ * Разделы региона разложены по ВКЛАДКАМ, а не сложены в одну простыню:
+ * ПОЛОСА сидит в углу и не имеет права расти на пол-экрана. Порядок — от
+ * «чей это регион» к «что здесь было», то есть от решения к контексту.
+ */
+export type RegionTab = "obzor" | "lyudi" | "hozyaystvo" | "istoriya";
+
+export const REGION_TABS: Array<[RegionTab, string]> = [
+  ["obzor", "Обзор"],
+  ["lyudi", "Люди"],
+  ["hozyaystvo", "Хозяйство"],
+  ["istoriya", "История"],
+];
