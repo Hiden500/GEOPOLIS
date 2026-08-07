@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 200" width="300" height="200"><svg viewBox="0.0 0.0 120.0 80.0" x="0.0000" y="0.0000" width="300.0000" height="200.0000" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" xmlns:xlink="http://www.w3.org/1999/xlink">
+<path fill="#fe0000" d="M0 0h120v80H0z"/>
+<path fill="#000094" d="M0 0h60v40H0z"/>
+<path id="a" d="M30 5l4 15-4 15-4-15zM15 20l15 4 15-4-15-4z" fill="#fff"/>
+<use transform="rotate(30,30,20)" href="#a"/>
+<use transform="rotate(60,30,20)" href="#a"/>
+<circle fill="#fff" stroke="#000094" cx="30" cy="20" r="8"/>
+</svg></svg>
