@@ -22,7 +22,7 @@ SCR = Path(__file__).parent
 sys.path.insert(0, str(REPO / "scripts/map/build"))
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-from shapely.geometry import shape, Polygon, MultiPolygon, box
+from shapely.geometry import shape, Polygon, MultiPolygon, box, LineString
 from shapely.ops import unary_union
 from shapely.strtree import STRtree
 from geometry_cleanup import area_km2
@@ -378,6 +378,112 @@ for i, p in enumerate(pieces):
     p[0] = g if g.is_valid else g.buffer(0)
     p[3] = area_km2(p[0])
 print(f"чистка: закрыто дыр-артефактов {filled}, зазоры между частями снапнуты")
+
+# --- упрощение швов: топологическое, не пополигонное ------------------------
+# Зачем: на швах оставалась мелкая пила от точек посева Вороного, а прямые
+# участки несли сотни вершин там, где хватает двух. Пополигонный `simplify`
+# здесь запрещён: он двигает общую границу двух зон по-разному с каждой
+# стороны и раскрывает между ними щели.
+#
+# Поэтому: все границы нодируются в общую сеть, `linemerge` собирает ДУГИ
+# (участки между узлами, где сходятся 3+ зоны), каждая дуга упрощается ОДИН
+# раз и потому одинакова для обоих соседей, затем полигоны собираются заново.
+#
+# Берег не упрощается: его вершины пришли из нашего водного слоя, а не от меня,
+# и сдвигать их — менять форму океана.
+SIMPLIFY_DEG = 0.04       # ~4 км: съедает зубцы, оставляет форму
+from shapely.ops import linemerge, polygonize
+
+coast = target.boundary
+# Берег берётся ЦЕЛИКОМ и не участвует в упрощении: он вычитается из границ
+# зон, и упрощается только остаток — чистые швы. Классифицировать дуги
+# «берег/шов» уже пробовал дважды и оба раза ошибся: сначала по `distance == 0`
+# (ноль даёт простое касание концом), потом по доле длины (дуга «90% берег +
+# 10% шов» упрощалась целиком и уводила побережье — 25 тыс. км² зон вылезло на
+# сушу). Вычитание не оставляет места для такой ошибки.
+allb = unary_union([p[0].boundary for p in pieces])
+seams_raw = allb.difference(coast.buffer(1e-9))
+merged = linemerge(seams_raw) if not seams_raw.is_empty else seams_raw
+arcs = [a for a in (merged.geoms if hasattr(merged, "geoms") else [merged])
+        if a.geom_type == "LineString" and len(a.coords) >= 2]
+v_before = sum(len(a.coords) for a in arcs) + sum(
+    len(l.coords) for l in (coast.geoms if hasattr(coast, "geoms") else [coast]))
+OVERSHOOT_DEG = 0.05
+
+
+def extend(ls):
+    """Продлить шов на концах, чтобы он заведомо пересёк берег.
+
+    Вычитание берега отодвигает конец шва внутрь моря на ширину буфера, шов
+    перестаёт доходить до берега, грань не замыкается — и зона остаётся без
+    геометрии. Хвост за берегом безвреден: он висит вне океана и в грань не
+    попадает.
+    """
+    c = list(ls.coords)
+    if len(c) < 2:
+        return ls
+    for i, j, end in ((0, 1, "head"), (-1, -2, "tail")):
+        (x1, y1), (x2, y2) = c[i], c[j]
+        dx, dy = x1 - x2, y1 - y2
+        n = math.hypot(dx, dy)
+        if n == 0:
+            continue
+        p = (x1 + dx / n * OVERSHOOT_DEG, y1 + dy / n * OVERSHOOT_DEG)
+        if end == "head":
+            c.insert(0, p)
+        else:
+            c.append(p)
+    return LineString(c)
+
+
+simp = []
+for a in arcs:
+    s = a.simplify(SIMPLIFY_DEG)
+    simp.append(extend(s if len(s.coords) >= 2 else a))
+kept_coast = len(coast.geoms) if hasattr(coast, "geoms") else 1
+v_after = sum(len(a.coords) for a in simp) + sum(
+    len(l.coords) for l in (coast.geoms if hasattr(coast, "geoms") else [coast]))
+
+faces = list(polygonize(unary_union(simp + [coast])))
+ptree2 = STRtree([p[0] for p in pieces])
+bucket = {}
+lost = 0
+for fc_ in faces:
+    rp = fc_.representative_point()
+    if not target.contains(rp):
+        continue                       # дыра острова или кусок вне океана
+    owner_ = None
+    for k in ptree2.query(rp):
+        if pieces[int(k)][0].contains(rp):
+            owner_ = int(k); break
+    if owner_ is None:
+        cand = [int(k) for k in ptree2.query(fc_.buffer(0.5))] or list(range(len(pieces)))
+        owner_ = min(cand, key=lambda i: pieces[i][0].distance(rp))
+        lost += 1
+    bucket.setdefault(owner_, []).append(fc_)
+
+# Защита: пересборка идёт ТОЛЬКО если грани нашлись для КАЖДОЙ зоны. Иначе
+# часть зон осталась бы со старой геометрией поверх новой — прошлый прогон так
+# дал 11.3 млн км² наложения. Полусобранная карта хуже неупрощённой.
+missing = [pieces[i][1] for i in range(len(pieces)) if not bucket.get(i)]
+if missing:
+    print("упрощение ОТКАЧЕНО: без граней остались зоны: "
+          + ", ".join(missing[:6]) + (" ..." if len(missing) > 6 else ""))
+    rebuilt = 0
+else:
+    rebuilt = 0
+    for i, p in enumerate(pieces):
+        g = unary_union(bucket[i])
+        if not g.is_valid:
+            g = g.buffer(0)
+        if g.is_empty:
+            print("упрощение ОТКАЧЕНО: пустая геометрия у", p[1]); rebuilt = 0; break
+        p[0] = g; p[3] = area_km2(g); rebuilt += 1
+    coasts = [coast_count(p[0]) for p in pieces]
+print("упрощение швов: дуг %d (из них берег %d, не тронут) | вершин %d -> %d "
+      "(%.0f%%) | зон пересобрано %d | граней по соседу %d"
+      % (len(arcs), kept_coast, v_before, v_after,
+         100 * (1 - v_after / max(1, v_before)), rebuilt, lost))
 
 order = sorted(range(len(pieces)), key=lambda i: -pieces[i][3])
 pieces = [pieces[i] for i in order]; coasts = [coasts[i] for i in order]
