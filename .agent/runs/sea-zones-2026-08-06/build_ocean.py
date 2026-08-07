@@ -269,8 +269,17 @@ def voronoi_share(parts):
             bucket.setdefault(j, []).append(cell)
     add = {}
     for j, cells in bucket.items():
-        merged_cells = unary_union(cells)
-        got = merged_cells.intersection(rest)
+        # GEOS роняет unary_union на вырожденной ячейке ("side location
+        # conflict"): в Южной Пацифике это случилось на -158.6, 2.6. Повтор
+        # через buffer(0) чинит невалидный вход, не меняя валидные ячейки.
+        try:
+            merged_cells = unary_union(cells)
+        except Exception:
+            merged_cells = unary_union([c.buffer(0) for c in cells])
+        try:
+            got = merged_cells.intersection(rest)
+        except Exception:
+            got = merged_cells.buffer(0).intersection(rest.buffer(0))
         if not got.is_empty:
             add[j] = [got]
     return add, len(seeds)
@@ -586,10 +595,16 @@ for i, (g, nm, t, a) in enumerate(pieces):
             continue
         for ring in pp.interiors:
             h = ShpPoly(ring)
+            # Дыра законна, если внутри земля ЛИБО другая зона (анклав). Раньше
+            # проверялась только земля, и анклав `West Polynesia` внутри
+            # `French Polynesia` (23.6 км²) считался артефактом — проверка
+            # кричала на норму, хотя шаг чистки её правильно оставлял.
             has_land = any(land[int(k)][2].intersects(h) for k in ltree.query(h))
-            if not has_land:
+            has_zone = any(pieces[int(k)][0].intersection(h).area > 0.01 * h.area
+                           for k in ptree.query(h) if int(k) != i)
+            if not (has_land or has_zone):
                 thread_bad += 1
-            elif compactness(h) < 0.12:
+            elif has_land and compactness(h) < 0.12:
                 island_thin += 1
     for x in range(len(ps)):
         for y in range(x + 1, len(ps)):
