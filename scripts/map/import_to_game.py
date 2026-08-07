@@ -126,6 +126,29 @@ def strip_trailing_index(name: str) -> str:
     return name.strip()
 
 
+# Скобок в игровых именах быть не должно (решение пользователя 2026-08-02).
+# Уточнение, которое РАЗЛИЧАЕТ два региона, нельзя ни срезать (получится пара
+# одинаковых имён), ни оставить в скобках — поэтому каждому такому региону
+# задано своё плоское имя в конфигурации.
+_NAME_OVERRIDES: dict[str, dict[str, str]] | None = None
+
+
+def name_overrides() -> dict[str, dict[str, str]]:
+    global _NAME_OVERRIDES
+    if _NAME_OVERRIDES is None:
+        path = CONFIG_DIR / "region_name_overrides.json"
+        _NAME_OVERRIDES = load_json(path).get("overrides", {}) if path.is_file() else {}
+    return _NAME_OVERRIDES
+
+
+def region_name(region_id: str, raw: str, lang: str) -> str:
+    """Плоское имя региона: переопределение из конфигурации, иначе очищенное сырое."""
+    ov = name_overrides().get(region_id)
+    if ov and ov.get(lang):
+        return ov[lang]
+    return strip_trailing_index(raw)
+
+
 def resolve_owner(region_id: str, ownership: dict, overlay: dict) -> str | None:
     entry = ownership.get(region_id) or {}
     owner = entry.get("owner")
@@ -222,7 +245,7 @@ def main():
                 "id": numeric_id,
                 "region_id": region_id,
                 "type": TYPE_MAP.get(region_type, "region"),
-                "name": strip_trailing_index(props.get("name", "")),
+                "name": region_name(region_id, props.get("name", ""), "en"),
                 "iso_a2": props.get("iso_a2", ""),
                 "continent": props.get("continent"),
             },
@@ -261,8 +284,10 @@ def main():
         ]
         numeric_id = region_id_to_numeric[region_id]
 
-        names_en_out[region_id] = strip_trailing_index(name_entry.get("name_en", props.get("name", region_id)))
-        names_ru_out[region_id] = strip_trailing_index(name_entry.get("name_ru", name_entry.get("name_en", region_id)))
+        names_en_out[region_id] = region_name(
+            region_id, name_entry.get("name_en", props.get("name", region_id)), "en")
+        names_ru_out[region_id] = region_name(
+            region_id, name_entry.get("name_ru", name_entry.get("name_en", region_id)), "ru")
 
         regions_core.append({
             "id": numeric_id,
@@ -283,6 +308,18 @@ def main():
             "deposits": {},
             "extraction": {},
         })
+
+    # Инвариант решения 2026-08-02: скобок в игровых именах нет. Проверяем ВСЕ
+    # три выхода — клиентскую геометрию и оба словаря имён.
+    with_paren = sorted(
+        {f["properties"]["region_id"] for f in out_features if "(" in f["properties"]["name"]}
+        | {rid for rid, n in names_en_out.items() if "(" in n}
+        | {rid for rid, n in names_ru_out.items() if "(" in n}
+    )
+    if with_paren:
+        raise SystemExit(
+            "имена со скобками остались — добавь их в config/region_name_overrides.json: "
+            + ", ".join(with_paren[:20]))
 
     SCENARIO_DIR.mkdir(parents=True, exist_ok=True)
     with open(REGIONS_CORE_OUT, "w", encoding="utf-8") as f:

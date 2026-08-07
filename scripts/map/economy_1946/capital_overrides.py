@@ -172,7 +172,11 @@ CAPITAL_REGION_ANCHOR_NAMES: dict[str, str] = {
     "FRA": "Île-de-France",
     "DNK": "Hovedstaden",
     "CAN": "Ontario",
-    "BRA": "Distrito Federal",
+    # 2026-08-02: регион переименован «Distrito Federal (Rio de Janeiro)» ->
+    # «Rio de Janeiro» (скобок в игровых именах больше нет). Id 1101 прежний и
+    # указывает на тот же город-округ; штат рядом называется «Rio de Janeiro
+    # State», поэтому якорь по-прежнему однозначен.
+    "BRA": "Rio de Janeiro",
     "ITA": "Lazio",
     "JPN": "Kanto",
     "TWN": "Nanjing",
