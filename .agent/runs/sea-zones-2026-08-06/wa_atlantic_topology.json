@@ -1,0 +1,422 @@
+{
+ "African Coast": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Western Sahara",
+    220
+   ],
+   [
+    "Morocco",
+    214
+   ],
+   [
+    "Sub-Saharan Africa",
+    159
+   ]
+  ]
+ },
+ "Antillas Mayores": {
+  "terrain": "fjords",
+  "coasts": []
+ },
+ "Argentine Sea": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Southern Tip",
+    814
+   ],
+   [
+    "Southern Cone",
+    397
+   ],
+   [
+    "Southern Brazil",
+    215
+   ]
+  ]
+ },
+ "Azores Region": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "Bay of Biscay": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Western France",
+    310
+   ],
+   [
+    "Northern Spain",
+    152
+   ]
+  ]
+ },
+ "Bristol Channel": {
+  "terrain": "fjords",
+  "coasts": [
+   [
+    "Southern England",
+    38
+   ]
+  ]
+ },
+ "Cap Verde Plain": {
+  "terrain": "deep_ocean",
+  "coasts": [
+   [
+    "Northern Brazil",
+    427
+   ]
+  ]
+ },
+ "Central Atlantic Gap": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "Denmark Strait": {
+  "terrain": "deep_ocean",
+  "coasts": [
+   [
+    "Greenland",
+    542
+   ]
+  ]
+ },
+ "East African Coast": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "East Africa",
+    381
+   ],
+   [
+    "381",
+    336
+   ],
+   [
+    "Madagascar",
+    217
+   ],
+   [
+    "South East Africa",
+    74
+   ]
+  ]
+ },
+ "East Caribbean Sea": {
+  "terrain": "fjords",
+  "coasts": [
+   [
+    "Northern South America",
+    669
+   ]
+  ]
+ },
+ "Eastern Seaboard": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "New England",
+    480
+   ],
+   [
+    "Canadian Maritimes",
+    349
+   ],
+   [
+    "Southeast Coast",
+    240
+   ],
+   [
+    "Northeast Coast",
+    113
+   ]
+  ]
+ },
+ "English Channel": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Southern England",
+    196
+   ],
+   [
+    "Northern France",
+    154
+   ],
+   [
+    "Western France",
+    85
+   ]
+  ]
+ },
+ "Florida Coast": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Southeast Coast",
+    347
+   ]
+  ]
+ },
+ "Greenland Iceland Rise": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Greenland",
+    803
+   ],
+   [
+    "Iceland",
+    623
+   ]
+  ]
+ },
+ "Gulf Of Guinea": {
+  "terrain": "deep_ocean",
+  "coasts": [
+   [
+    "383",
+    349
+   ],
+   [
+    "Sub-Saharan Africa",
+    252
+   ],
+   [
+    "West Africa",
+    240
+   ],
+   [
+    "Central Africa",
+    93
+   ]
+  ]
+ },
+ "Gulf of Mexico": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Southeast Coast",
+    657
+   ],
+   [
+    "Yucatan Peninsula",
+    240
+   ],
+   [
+    "Southern US",
+    235
+   ],
+   [
+    "Transvolcanic Belt",
+    188
+   ]
+  ]
+ },
+ "Iberian Coast": {
+  "terrain": "deep_ocean",
+  "coasts": [
+   [
+    "Portugal",
+    181
+   ],
+   [
+    "Northern Spain",
+    67
+   ],
+   [
+    "Southern Spain",
+    51
+   ]
+  ]
+ },
+ "Irish Sea": {
+  "terrain": "fjords",
+  "coasts": [
+   [
+    "Scotland",
+    259
+   ],
+   [
+    "Northern England",
+    245
+   ],
+   [
+    "Ireland",
+    163
+   ]
+  ]
+ },
+ "Labrador Basin": {
+  "terrain": "deep_ocean",
+  "coasts": [
+   [
+    "Greenland",
+    422
+   ]
+  ]
+ },
+ "Labrador Sea": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Greenland",
+    1853
+   ],
+   [
+    "North Québec & Labrador",
+    955
+   ]
+  ]
+ },
+ "Mid Atlantic gap": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "Mozambique Channel": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "South East Africa",
+    455
+   ],
+   [
+    "Madagascar",
+    222
+   ]
+  ]
+ },
+ "Newfoundland Ridge": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Canadian Maritimes",
+    516
+   ],
+   [
+    "North Québec & Labrador",
+    146
+   ]
+  ]
+ },
+ "Newfoundland Sea": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Canadian Maritimes",
+    554
+   ]
+  ]
+ },
+ "North Atlantic Ridge": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "North Sea": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "Scotland",
+    377
+   ]
+  ]
+ },
+ "Norwegian Basin": {
+  "terrain": "ocean",
+  "coasts": []
+ },
+ "Norwegian Sea": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "Norwegian Trench": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "Southern Norway",
+    669
+   ]
+  ]
+ },
+ "Sargasso Sea": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "South Atlantic Gap": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "South Atlantic Platau": {
+  "terrain": "deep_ocean",
+  "coasts": [
+   [
+    "Greenland",
+    35
+   ]
+  ]
+ },
+ "South Central Atlantic": {
+  "terrain": "deep_ocean",
+  "coasts": [
+   [
+    "Southern Brazil",
+    526
+   ],
+   [
+    "Northern Brazil",
+    275
+   ]
+  ]
+ },
+ "St. Lawrence River": {
+  "terrain": "shallow_sea",
+  "coasts": [
+   [
+    "South Québec",
+    143
+   ],
+   [
+    "North Québec & Labrador",
+    90
+   ]
+  ]
+ },
+ "West Caribbean Sea": {
+  "terrain": "fjords",
+  "coasts": [
+   [
+    "Central America",
+    421
+   ],
+   [
+    "Yucatan Peninsula",
+    242
+   ],
+   [
+    "Western South America",
+    207
+   ]
+  ]
+ },
+ "Western Approaches": {
+  "terrain": "deep_ocean",
+  "coasts": []
+ },
+ "Western Seaboard": {
+  "terrain": "ocean",
+  "coasts": [
+   [
+    "California",
+    362
+   ],
+   [
+    "Sierra Madre",
+    68
+   ]
+  ]
+ }
+}

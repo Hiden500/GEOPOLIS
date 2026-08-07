@@ -450,6 +450,28 @@ def finalize_no_overlaps(seas_feats):
     print("Финализация завершена.")
 
 
+def measure_growth(before_geom, new_raw):
+    """Симметричное измерение роста моря: ОБЕ стороны нормализуются одинаково.
+
+    `to_polygonal` намеренно выбрасывает части меньше DEGENERATE_AREA_DEG2
+    (1e-4 deg2 — до ~1.2 км² у экватора, не «машинный шум»). Раньше `after`
+    проходил эту нормализацию, а `before` — нет, поэтому выброшенная часть
+    печаталась как ОТРИЦАТЕЛЬНЫЙ рост («+-1.0 km2»): скрипт сообщал об
+    удалении в графе добавления. Дефект найден 2026-07-23 на Norwegian Sea
+    (-12.7 км²) и Индийском океане (-0.6 км²), причина установлена 2026-07-31.
+
+    Возвращает (new_g, added_km2, dropped_km2): рост считается между
+    одинаково нормализованными геометриями, а срезанное нормализацией
+    возвращается отдельно, чтобы не прятать его внутри роста.
+    """
+    if not new_raw.is_valid:
+        new_raw = new_raw.buffer(0)
+    new_g = to_polygonal(new_raw)
+    before_norm = to_polygonal(before_geom)
+    dropped = area_km2(before_geom) - area_km2(before_norm)
+    return new_g, area_km2(new_g) - area_km2(before_norm), dropped
+
+
 def main():
     only = set(sys.argv[1:]) or None  # опционально: имена морей для теста
 
@@ -554,17 +576,14 @@ def main():
                 total_context_n += len(context)
                 total_water_n += len(water)
 
-            new_g = unary_union(grown_parts)
-            if not new_g.is_valid:
-                new_g = new_g.buffer(0)
-            new_g = to_polygonal(new_g)
+            new_g, added, dropped = measure_growth(orig_geom, unary_union(grown_parts))
             ft["geometry"] = mapping(new_g)
-            after_area = area_km2(new_g)
-            added = after_area - before_area
             total_added_km2 += added
             dt = time.time() - t0
-            print(f"[{i+1}/{len(seas_feats)}] {name}: +{added:.1f} km2 "
-                  f"(parts={len(parts)}, context={total_context_n}, water={total_water_n}, {dt:.1f}s)")
+            drop_note = f", нормализацией отброшено {dropped:.1f} km2" if dropped > 0.05 else ""
+            print(f"[{i+1}/{len(seas_feats)}] {name}: {added:+.1f} km2 "
+                  f"(parts={len(parts)}, context={total_context_n}, water={total_water_n}, "
+                  f"{dt:.1f}s){drop_note}")
     else:
         # Новый tile-batched multi-sea путь (2026-07-20) — заменяет старый
         # per-sea-по-очереди проход для полного (без --only) прогона. Все
@@ -619,21 +638,22 @@ def main():
             absorb_compact_gaps_multi(mutable_feats, context, water_fixed, tile_box, label=tile_label)
 
             tile_added = 0.0
+            tile_dropped = 0.0
             for pos, i in enumerate(orig_idx_by_pos):
                 grown_piece = shape(mutable_feats[pos]["geometry"])
                 full_before = shape(seas_feats[i]["geometry"])
-                new_g = unary_union([full_before, grown_piece])
-                if not new_g.is_valid:
-                    new_g = new_g.buffer(0)
-                new_g = to_polygonal(new_g)
-                added = area_km2(new_g) - area_km2(full_before)
+                new_g, added, dropped = measure_growth(
+                    full_before, unary_union([full_before, grown_piece]))
                 tile_added += added
+                tile_dropped += dropped
                 total_added_km2 += added
                 seas_feats[i]["geometry"] = mapping(new_g)
                 seas_feats[i]["properties"]["area_km2"] = round(area_km2(new_g), 1)
 
             dt = time.time() - t0
-            print(f"[{tile_label}] морей: {len(mutable_feats)}, +{tile_added:.1f} km2, {dt:.1f}s")
+            drop_note = f", нормализацией отброшено {tile_dropped:.1f} km2" if tile_dropped > 0.05 else ""
+            print(f"[{tile_label}] морей: {len(mutable_feats)}, {tile_added:+.1f} km2, "
+                  f"{dt:.1f}s{drop_note}")
 
     print(f"\nВсего добавлено к морям: {total_added_km2:,.1f} km2")
 

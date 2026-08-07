@@ -2,8 +2,7 @@
 diagnose_coastline_gaps.py
 
 Пермаментный диагностический скрипт (read-only, НЕ шаг пайплайна — как
-diagnose_sea_holes.py/diagnose_missing_land.py/diagnose_scattered_
-regions.py). Находит РЕАЛЬНЫЕ визуальные разрывы суша<->вода — те же
+diagnose_sea_holes.py). Находит РЕАЛЬНЫЕ визуальные разрывы суша<->вода — те же
 непокрытые ячейки, что ищет `absorb_slivers` (`geometry_cleanup.py`) при
 поглощении, но здесь ЧИСТО ДЛЯ ПРОВЕРКИ: ничего не меняет, не пишет
 файлы, только считает и (по флагу) рисует.
@@ -234,6 +233,49 @@ def scan():
             print(f"  {a:8.1f} km2  [{label}]  at ({pt[0]:.3f},{pt[1]:.3f})")
 
 
+def _polygon_patch(p, edgecolor=None, linewidth=0, **kw):
+    # PathPatch с exterior+interior кольцами вместо ax.fill(exterior) +
+    # ax.fill(interior, color="white") поверх. Разница критична: у второго
+    # подхода "дыра" красится НЕПРОЗРАЧНЫМ белым НАД уже отрисованным ниже
+    # (напр. соседним легитимным регионом, чья территория как раз и
+    # находится в этой дыре — обычный исход resolve-overlap между двумя
+    # реальными фичами, не разрыв). PathPatch с чётно-нечётным правилом
+    # заливки оставляет дыру ПРОЗРАЧНОЙ — сквозь неё виден слой ниже, как и
+    # должно быть. Найдено 2026-07-29 (пользователь, Washington — San Juan):
+    # "Белые пятна - это суша, не пойму только почему у тебя не
+    # отображаются" — 7 из 8 дыр в полигоне San Juan оказались точно
+    # территорией British Columbia (легитимный сосед), белый цвет рисовал
+    # эту реальную сушу как якобы отсутствующую.
+    #
+    # edgecolor здесь ВСЕГДА None (fill-only) — PathPatch обводит ВЕСЬ Path
+    # одним цветом, включая interior-кольца, а interior-кольцо часто НЕ
+    # реальный берег (та же легитимная граница с соседом, что и породила
+    # дыру) — обведённое чёрным, оно рисуется как "чёрная полоса прямо в
+    # середине суши" (тот же рендер, пользователь, 2026-07-29, после
+    # первого фикса дыр этим же PathPatch). Обводка экстерьера рисуется
+    # ОТДЕЛЬНО через _exterior_line ниже, только по внешнему контуру.
+    from matplotlib.path import Path
+    from matplotlib.patches import PathPatch
+
+    vertices, codes = [], []
+    for ring in (p.exterior, *p.interiors):
+        coords = list(ring.coords)
+        vertices.extend(coords)
+        codes.append(Path.MOVETO)
+        codes.extend([Path.LINETO] * (len(coords) - 2))
+        codes.append(Path.CLOSEPOLY)
+    return PathPatch(Path(vertices, codes), edgecolor="none", linewidth=0, **kw)
+
+
+def _exterior_line(p, ax, **kw):
+    """Обводка ТОЛЬКО внешнего контура полигона — используется вместо
+    edgecolor у _polygon_patch, чтобы дыры (interior-кольца) не получали
+    видимую чёрную рамку, когда дыра — легитимная граница с соседом, а не
+    настоящий берег."""
+    x, y = p.exterior.xy
+    ax.plot(x, y, **kw)
+
+
 def render(minx, miny, maxx, maxy, out_path, title=None):
     import matplotlib
     matplotlib.use("Agg")
@@ -243,23 +285,34 @@ def render(minx, miny, maxx, maxy, out_path, title=None):
     land_geoms, water_geoms = load_all_geoms(box)
 
     fig, ax = plt.subplots(figsize=(10, 10))
-    for g in land_geoms:
-        polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
-        for p in polys:
-            if p.is_empty:
-                continue
-            xs, ys = p.exterior.xy
-            ax.fill(xs, ys, color="wheat", edgecolor="saddlebrown", linewidth=0.5, zorder=2)
-            for interior in p.interiors:
-                ixs, iys = interior.xy
-                ax.fill(ixs, iys, color="white", zorder=2.5)
+    # Фон осей = цвет воды, а НЕ белый (2026-07-30). Причина: соседние
+    # полигоны рисуются отдельными патчами, и на их стыке антиалиасинг
+    # оставляет субпиксельный зазор, через который просвечивает фон. При
+    # белом фоне это читается как «щель в карте» — пользователь несколько
+    # раз обводил такие места как дефект, хотя данные там сплошные
+    # (замер: непокрытая площадь 81 м² на 49 297 км² тайла). Тот же приём
+    # уже применён в клиенте: `background-color: '#1a3a5c'` подобран под
+    # тон океана (см. client/src/map/MapView.tsx).
+    ax.set_facecolor("#a8d8f0")
     for g in water_geoms:
         polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
         for p in polys:
             if p.is_empty:
                 continue
-            xs, ys = p.exterior.xy
-            ax.fill(xs, ys, color="#a8d8f0", zorder=1)
+            ax.add_patch(_polygon_patch(p, facecolor="#a8d8f0", zorder=1))
+    for g in land_geoms:
+        polys = [g] if g.geom_type == "Polygon" else (list(g.geoms) if g.geom_type == "MultiPolygon" else [])
+        for p in polys:
+            if p.is_empty:
+                continue
+            # edgecolor = facecolor у самого патча: каждый полигон
+            # докрашивает свой край собственным цветом и шов между
+            # соседями не просвечивает. Отдельная тонкая линия контура
+            # рисуется поверх — она нужна, чтобы границы были видны, но
+            # уже не создаёт зазора.
+            ax.add_patch(_polygon_patch(p, facecolor="wheat", zorder=2))
+            _exterior_line(p, ax, color="wheat", linewidth=1.2, zorder=2.05)
+            _exterior_line(p, ax, color="saddlebrown", linewidth=0.5, zorder=2.1)
 
     gaps = _gap_cells(box, land_geoms, water_geoms)
     counts = {"COASTLINE": 0, "LAND_HOLE": 0, "LAND_SEAM": 0}

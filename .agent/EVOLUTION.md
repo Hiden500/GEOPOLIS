@@ -630,6 +630,52 @@ Fresh-session status: pending — discovery и применимость блок
 
 Decision: keep.
 
+## 2026-07-29 — `map-geometry-qa` skill: composite positional shifts, majority-vote pitfall, render-tool recurrence
+
+Problem evidence: same working session (Panama/Washington/Aral Sea fixes,
+`docs/DECISIONS.md` 2026-07-29 entries) hit three new failure modes not yet
+captured in the skill, plus found one already-documented lesson (interior-
+ring render holes, Faroe Islands case) had recurred verbatim in the
+PERMANENT `diagnose_coastline_gaps.py::render()` tool itself, proving the
+existing writeup didn't generalize past its first fix site. Also found the
+skill's `CAPITAL_REGION_OVERRIDES` note was stale (said "deferred, don't
+fix" — this session fixed all 26 drifted entries using the anchor-name
+protocol already built into the file).
+
+Layer changed: `.claude/skills/map-geometry-qa/SKILL.md` +
+`references/{build_pipeline_gotchas,cross_source_merging}.md` (Claude-local
+skill, no `.agents/skills/map-geometry-qa` canonical counterpart — not
+subject to the byte-parity eval check).
+
+Expected benefit: (1) a future composite/non-uniform positional shift gets
+fixed by content-matching immediately instead of after a failed
+single-offset attempt is caught on re-verification; (2) ownership-repair
+work doesn't trust majority-vote inside an already-corrupted bucket without
+an independent ground truth; (3) `CAPITAL_REGION_OVERRIDES` drift gets
+resynced via the existing anchor-name protocol instead of being silently
+left growing past its documented (now stale) baseline; (4) any new render
+function gets checked against the interior-ring-white-paint anti-pattern
+before being trusted, not just the one instance already fixed; (5) a
+manual `merge_world_1946.py` rerun is followed by `translate_world.py`
+without needing to rediscover the dependency; (6) external reference
+snapshots (D:\MAP) aren't assumed internally self-consistent just because
+they're "the source of truth."
+
+Risks and containment: additive only — no existing rule removed or
+contradicted, one stale note corrected to match current reality. Skill grew
+from 347 to ~410 lines (SKILL.md) plus two reference-file additions;
+accepted per the file's own existing size (already the largest skill in
+this repo) since each addition is a distinct failure mode with its own
+trigger, not overlapping content.
+
+Validation: `python .agent/evals/public/run_public_evals.py` run after the
+edit (see session log). No canonical/mirror pair involves this skill, so
+parity checks are not applicable here.
+
+Fresh-session status: pending — not yet exercised by a session that hits
+one of these five failure modes from a cold start.
+Decision: keep.
+
 ## 2026-07-30 — `delegate-data-layer`
 
 Дата / change id: 2026-07-30 / delegate-data-layer
@@ -978,6 +1024,119 @@ Fresh-session status: pending — сработает ли триггер в св
 Decision: keep.
 
 
+## 2026-07-31 — `map-task-approval-gate`
+
+Дата / change id: 2026-07-31 / map-task-approval-gate
+
+Problem evidence: прямое требование пользователя («в прошлой сессии мы часто
+действовали вслепую и чинили баги точечно») подтверждается историей репозитория,
+а не только впечатлением. Три предыдущие записи этого журнала фиксируют тот же
+класс на карте: `map-session-recurring-failures` (2026-07-19, пять повторяющихся
+отказов за день), `missing-land-diagnostic-permanent` (2026-07-22, пропажа целых
+территорий всплывала только по случайной жалобе), `map-geometry-qa` skill
+(2026-07-29, три новых режима отказа плюс уже задокументированный урок,
+повторившийся дословно в самом ПОСТОЯННОМ инструменте). Секция «Карта/регионы»
+в `docs/TODO.md` на момент правки содержала 16 закрытых пунктов, и в нескольких
+фикс порождал следующий дефект: точечный `unary_union` пробил дыру-донат в
+Karakalpakstan, а первая версия защиты чуть не съела Байконур; первая «починка»
+рендера Washington — San Juan скрыла два других бага. Дополнительно в самой
+сессии: инструмент `Read` отдал 67-строчную версию `scripts/map/AGENTS.md` для
+пути, где на диске лежало 126 строк, — расхождение поймано только сверкой
+`wc -l`. Это ровно тот класс «действие на непроверенном состоянии».
+
+Layer changed: два узких слоя. (1) Корневой `AGENTS.md` — ОДНА строка-триггер в
+«Инженерных правилах»; корень нужен потому, что шаг «пересказ до изучения»
+обязан сработать в первом же ходе, а nested `scripts/map/AGENTS.md` по
+`.claude/CLAUDE.md` читается лишь перед правкой, то есть уже после исследования.
+(2) `scripts/map/AGENTS.md` — полный протокол: четыре шага, гранулярность (гейт
+на задачу, не на шаг внутри одобренного плана), список исключений и явное
+указание, что гейт не заменяет ExecPlan и скилл `map-geometry-qa`. Код, данные,
+скиллы и пайплайн не тронуты.
+
+Expected benefit: правка карты перестаёт начинаться с догадки о причине.
+Пользователь получает точку вмешательства ДО реализации, где расхождение в
+понимании стоит одну реплику, а не откат сессии.
+
+Risks and containment: (а) гейт замедляет мелкие правки — сдержано списком
+исключений (read-only ответ, продолжение одобренного плана, откат только что
+отклонённой итерации); (б) риск вырождения в ритуал — сдержан тем, что причина
+записана в самом правиле, а шаг 3 требует назвать владеющий скрипт и прошлые
+попытки, то есть проверяемое содержание, а не формальную фразу; (в) **бюджет
+свода почти исчерпан: 16 348 из 16 384 байт, запас 36.** Следующая правка
+корневого файла потребует компрессии — предупреждение из записи
+`docs-layout-and-two-rules` (запас был 202) подтвердилось на первой же правке.
+
+Validation: `python .agent/evals/public/run_public_evals.py` после правки.
+Негативного контроля у текстового правила нет по построению — сработает или нет,
+покажет поведение следующей сессии.
+
+Fresh-session status: pending — правило введено той же сессией, которая его
+пишет; срабатывание в СЛЕДУЮЩЕЙ независимой сессии не проверено.
+
+Decision: keep (по прямому требованию пользователя).
+
+## 2026-07-31 — `unchanged-measurement-means-wrong-path`
+
+Дата / change id: 2026-07-31 / unchanged-measurement-means-wrong-path
+
+Problem evidence (одна сессия, четыре независимых случая, все измеримые):
+
+1. **Три правки подряд не сдвинули замер НИ НА ОДНУ ТОЧКУ.** Прибрежные хвосты
+   линий раздела в `build_seas_from_iho.py`: Гибралтар 298 точек / 297 строго
+   по осям. После правки «разрез линией делимитации» — 298/297. После правки
+   «перебор пар вместо двух ближайших» — 298/297. Побайтно то же и у
+   Восточно-Китайского (662/661) и Сев.–Норвежского (709/708). Каждый раз
+   результат выяснялся ПОЛНОЙ пересборкой (5-8 минут), то есть цена одной
+   непроверенной гипотезы — прогон.
+2. **Изолированный тест вводил в заблуждение.** Воспроизведение того же куска
+   в окне 1° давало `assign_by_divide -> True`, 2 чистых осколка — то есть
+   «код работает». В живом прогоне тот же участок шёл другим путём: дефект был
+   контекстным (кусок в реальном тайле имел другую форму и 3 кандидата).
+3. **Инструментовка дала ответ ОДНОЙ строкой:** `кусок 2.744 км², кандидатов 3
+   -> СЕТКА, осколков 869`. Причина оказалась не в механизме разреза, который
+   правился трижды, а в обработке его отказа. После правки: 0/0 точек по осям,
+   вершин в слое 288 498 против 674 275 (−57%), размер 27.5 → 11.7 МБ.
+4. **Тот же класс, но с обратным знаком, в этой же сессии:** сборка упала на
+   `UnboundLocalError`, а диагностика прочитала СТАРЫЙ выходной файл и выдала
+   правдоподобные числа (`GAP 9134.74`, как и в прошлый раз). Едва не был сдан
+   отчёт о результате несуществующего прогона; поймано только потому, что
+   счётчик проходов напечатал «проход 1» и замолчал.
+
+Общий корень: замер молчаливо относился не к тому, что правилось. В случаях
+1-3 — правился путь, по которому данные не идут; в случае 4 — читался артефакт,
+которого правка не касалась.
+
+Layer changed: только запись в этом журнале. Durable-правило требует места, и
+оно СЕЙЧАС НЕДОСТУПНО: корневой `AGENTS.md` — 16 348 из 16 384 байт, запас 36.
+Правило общее (относится к любой отладке, не только к карте), поэтому
+`scripts/map/AGENTS.md` для него — неверный слой, хотя все четыре случая
+пришли оттуда. Решение о месте (сжать свод или принять узкий слой) остаётся за
+пользователем; до него запись работает как evidence, а не как инструкция.
+
+Формулировка правила: **повторный замер, не изменившийся после правки,
+означает, что правится не тот путь. Следующий шаг — инструментовка живого
+прогона, а не новая гипотеза.** И симметрично: **числа, снятые с артефакта, не
+являются результатом прогона, пока не проверен его код возврата.**
+
+Expected benefit: цена ошибочной гипотезы падает с полной пересборки до одной
+отладочной строки. В этой сессии правило сэкономило бы два прогона из трёх.
+
+Risks and containment: инструментовка добавляет код, живущий после отладки.
+Сдержано тем, что она включается переменной окружения (`SEAS_DEBUG_POINT`) и в
+обычном прогоне не печатает ничего. Второй риск — соблазн инструментировать
+всё подряд вместо чтения кода; правило намеренно привязано к УСЛОВИЮ
+(замер не изменился), а не к «когда непонятно».
+
+Validation: правило выведено из измеримых фактов, а не из впечатления — числа
+до/после приведены выше. Прямой проверки самого правила нет по построению:
+оно про процесс, а не про код. Public eval 170/0 после правок сессии.
+
+Fresh-session status: pending — сработает ли рефлекс «замер не изменился →
+инструментировать» в СЛЕДУЮЩЕЙ независимой сессии, не проверено; в этой оно
+применено тем же агентом, который его выводит, и лишь с третьего раза.
+
+Decision: keep (по прямому требованию пользователя). Место для durable-правила
+— открытый вопрос, см. Layer changed.
 ## 2026-08-01 — `session-handoff`: перенос работы в свежую сессию
 
 Problem evidence: запрос пользователя («сессии не раздувались и ты не успевал

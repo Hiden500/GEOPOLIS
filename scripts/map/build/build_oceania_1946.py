@@ -45,11 +45,31 @@ SINGLE_COUNTRY = {"NR": "Науру", "TV": "Тувалу", "KI": "Кириба�
 # Детализация снижена по запросу - острова одной страны объединяются по
 # архипелагу большим буфером (см. ARCHIPELAGO_BUFFER_DEG), но НИКОГДА не
 # смешиваются между разными странами/владельцами.
+#
+# PG/SB здесь НЕ перечислены (были 5/3 до 2026-07-29) - каждая сырая
+# adm1-фича этих двух стран уже отдельная настоящая провинция (PG: 20 шт,
+# SB: 10 шт, ни одного повтора имени - подтверждено прямым подсчётом), не
+# избыточная детализация уровня округа/графства, как у США/России в этом
+# датасете. Принудительное сжатие до 5/3 заставляло reduce_clusters сливать
+# ГЕОГРАФИЧЕСКИ НЕСВЯЗАННЫЕ провинции только чтобы уложиться в целевое число
+# (ARCHIPELAGO_BUFFER_DEG=3.0 буфер "соседства" считал соседями всё в
+# ~330 км) - "Isabel" поглотил почти всю остальную цепь Соломоновых
+# островов (42 куска, разброс 9.6°), "Southern Highlands" (материковая, без
+# выхода к морю) вобрал часть архипелага Бисмарка (разброс 8.1°) и т.д.
+# (см. docs/DECISIONS.md 2026-07-29, класс SCATTERED в audit_map_geometry.py). См.
+# RAW_PASSTHROUGH ниже - обе страны идут как есть, без укрупнения.
 GEOMETRIC_TARGETS = {
-    "PG": 5, "SB": 3, "VU": 1, "WS": 1, "PW": 1, "FJ": 1, "FM": 1,
+    "VU": 1, "WS": 1, "PW": 1, "FJ": 1, "FM": 1,
 }
 # эти имена никогда не сливаем с другими при геометрическом укрупнении
 PROTECTED_NAMES = {"North Solomons", "Guadalcanal", "Malaita"}
+
+# Страны, где каждая сырая adm1-фича уже настоящая, самодостаточная
+# провинция - выводятся 1:1 без геометрического укрупнения (см. комментарий
+# у GEOMETRIC_TARGETS выше). НЕ архипелаг-буфер (там нет разбросанных
+# островов одной провинции, которые надо было бы сшить) - именно raw
+# passthrough.
+RAW_PASSTHROUGH = {"PG", "SB"}
 
 SINGLE_ORPHANS = {
     "NC": "Новая Каледония", "PF": "Французская Полинезия", "AS": "Американское Самоа",
@@ -68,7 +88,7 @@ SINGLE_ORPHANS = {
 # iso_a2='-1' (не страна в датасете), у которых реально ЕСТЬ собственный
 # полигон. Тот же паттерн, что EXTRA_SINGLE_FEATURES в build_asia_1946.py/
 # build_namerica_1946.py. Cocos/Christmas/Coral Sea Islands (2026-07-22,
-# diagnose_missing_land.py) — sov_a3='AU1', австралийские внешние
+# класс MISSING_LAND в audit_map_geometry.py) — sov_a3='AU1', австралийские внешние
 # территории, выходной iso_a2='AU' (владелец по сюзерену).
 EXTRA_SINGLE_FEATURES = [
     ("IOA-1928", "Кокосовые (Килинг) острова", "AU"),
@@ -163,7 +183,7 @@ def main():
     ALL_GEOM = set(GEOMETRIC_TARGETS)
     ALL_REGION = set(REGION_FIELD)
     ALL_SINGLE = set(SINGLE_COUNTRY)
-    ALL_COUNTRIES = ALL_GEOM | ALL_REGION | ALL_SINGLE | {"AU"}
+    ALL_COUNTRIES = ALL_GEOM | ALL_REGION | ALL_SINGLE | RAW_PASSTHROUGH | {"AU"}
 
     by_country = {}
     for f in feats:
@@ -249,6 +269,15 @@ def main():
         for name, g, codes in clusters:
             out_features.append(make_feature(iso2, name, g, "region_field", codes))
         print(f"{iso2}: {len(items)} -> {len(clusters)} (region field)")
+
+    # Raw passthrough (PG/SB) - каждая сырая adm1-фича уже настоящая
+    # провинция, выводится как есть, без укрупнения (см. комментарий у
+    # GEOMETRIC_TARGETS/RAW_PASSTHROUGH выше).
+    for iso2 in sorted(RAW_PASSTHROUGH):
+        items = by_country.get(iso2, [])
+        for it in items:
+            out_features.append(make_feature(iso2, it["names"][0], it["geom"], "raw_passthrough", it["codes"]))
+        print(f"{iso2}: {len(items)} -> {len(items)} (raw passthrough, без укрупнения)")
 
     # Геометрическое укрупнение с защитой значимых провинций - большой
     # буфер для объединения островов одной страны по архипелагу (безопасно,

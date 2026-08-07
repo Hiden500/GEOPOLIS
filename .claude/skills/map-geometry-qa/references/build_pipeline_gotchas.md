@@ -129,6 +129,30 @@ data-sourcing traps, and live-server verification pitfalls.
   PSE/CYP, via `media.githubusercontent.com` not `raw.` — same Git-LFS trap
   documented for CYP-ADM1) was the correct call, not skipping the step.
 
+- **"External source is missing" checked only inside the WORKTREE is a false
+  conclusion — `scripts/map/sources/` is gitignored, so a linked worktree
+  starts EMPTY of it while the main checkout has everything.** This one cost
+  real damage (2026-07-29): `build_us_states_split_1946.py` failed on a
+  missing `geoBoundaries-USA-ADM2.geojson`, and the session concluded "cannot
+  be regenerated in this worktree" — then, acting on that conclusion,
+  substituted `D:\MAP\namerica_1946.geojson` as a replacement base, which
+  triggered a cascade of positional shifts across `ownership_1946.json`,
+  `names_ru.json` and `CAPITAL_REGION_OVERRIDES` (~33 + 213 + 26 entries) that
+  took the rest of the session to repair. The user pointed out the file was
+  simply there, in `D:\Pax Historia LOCAL\scripts\map\sources\` (10.5 MB),
+  along with `palestine_hist/geoBoundaries-ISR-ADM2.geojson` (the "missing"
+  Golan source that made `build_asia_1946.py` look unrunnable too) and
+  `geoBoundaries-CHN-ADM2.geojson`. Only the Virtual Shanghai shapefile for
+  `build_china_1946_v2.py` is genuinely absent everywhere.
+  **Before ever concluding a source is unavailable: `ls` the MAIN checkout's
+  `scripts/map/sources/`, not just the worktree's.** No copying needed —
+  `build/paths.py` reads `PAXMAP_SOURCES`, so
+  `PAXMAP_SOURCES="D:/Pax Historia LOCAL/scripts/map/sources" python build/...`
+  runs the real builder against the real source. This is exactly the
+  `find-existing-solutions` protocol applied to a *path* rather than to code:
+  one `ls` in the right directory would have prevented the entire positional
+  cascade.
+
 - **Whole small territories drop silently during country-filtered builds — a
   raw-vs-output land-coverage diagnostic catches them; a manual world scan
   never will.** Akrotiri (adm0_a3=WSB) was never in the map at all; Maldives
@@ -289,6 +313,38 @@ data-sourcing traps, and live-server verification pitfalls.
   wanting a real county boundary instead of an arbitrary line) without
   deleting the evidence. `grep` for suspiciously-specific unused constants
   near the feature you're fixing before opening a browser.
+
+- **A manual `merge_world_1946.py` rerun (outside `make_1946.py`) must be
+  IMMEDIATELY followed by `translate_world.py`, every time, no exceptions.**
+  `make_1946.py --full-rebuild` runs both in the right order automatically;
+  running `merge_world_1946.py` by hand (e.g. to pick up a point-fix to one
+  continent's `out/*.geojson` without a full rebuild) regenerates `out/
+  world_1946.geojson` from the continent builders' raw output, which still
+  has untranslated Russian `name` values for every manually-patched entry
+  (small dependent territories, disputed-status enclaves) — 221 regions
+  world-wide, 2026-07-29. Nothing errors; the Russian text just flows
+  straight through `import_to_game.py` into `names.en.json` and breaks any
+  test/lookup keyed on the English name (`test_country_entities_1946.py`
+  looking for `("Spratly Islands", "PGA")` found only `"Спратли"`). The
+  pipeline's own `translate_world.py::main()` prints "Не переведено: N" —
+  treat any N > 0 after a manual merge as a hard stop, not a warning to
+  skim past.
+
+- **Two intermediate files copied from the SAME external snapshot directory
+  can still disagree with each other — "it's from D:\MAP" is not proof of
+  internal consistency, even for the snapshot's own files.**
+  `D:\MAP\namerica_1946.geojson` (an intermediate pipeline file) held a
+  stale, coarse Panama Canal Zone that matched what this session had
+  ALREADY identified as wrong — while `D:\MAP\world_1946.geojson` (that
+  same external tree's own FINAL merged output, timestamped 5 minutes
+  earlier despite being logically downstream) had the correct, refined
+  version. The "stale hand-maintained intermediate" class of bug documented
+  elsewhere in this session (South America/Great Lakes/Aral Sea) isn't
+  specific to THIS worktree's neglect — it can just as easily be baked into
+  whatever external reference you're copying from. Diff a substituted
+  file's specific properties of interest against the SAME external tree's
+  own final output before trusting it as ground truth, don't assume
+  "external snapshot" implies "internally coherent snapshot."
 
 - **When a gitignored, regenerated `out/*.geojson` gets corrupted mid-
   session and there's no git history to fall back on, check whether

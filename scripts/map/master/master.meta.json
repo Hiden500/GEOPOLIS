@@ -1,0 +1,51 @@
+{
+  "_comment": "Мастер-карта: единственный стартовый источник геометрии. Геометрия согласована один раз (weld_map_gaps.py + rebuild_shared_edges.py); пайплайн читает этот файл вместо повторного согласования источников. Менять только осознанно, вместе с записью в docs/DECISIONS.md.",
+  "frozen_at": "2026-07-30T10:26:50Z",
+  "built_from_commit": "a9530ea2254cd8ce30202dbd78652259bc5f5b4f",
+  "built_from_branch": "claude/1946-map-coastline-fixes",
+  "source": "scripts/map/out/world_1946.geojson",
+  "produced_by": [
+    "build/weld_map_gaps.py",
+    "build/rebuild_shared_edges.py",
+    "build/merge_world_1946.py",
+    "build/translate_world.py"
+  ],
+  "_surgical_edits": [
+    {
+      "date": "2026-08-07",
+      "script": "build/fix_dalian_rio_master.py",
+      "why": "пересобрать мастер нельзя — 8 из 10 входов пайплайна отсутствуют (замер 2026-08-02), поэтому два дефекта геометрии исправлены по мастеру напрямую",
+      "changed": [
+        "ASI-0042 Далянь 2116.6 -> 3540.8 км², ASI-0027 Ляонин 57408.2 -> 55984.0 км²: возврат 1424.2 км², переназначенных коммитом a9530ea; суша не менялась, это перенос",
+        "SAM-0014 штат Рио 42747.3 -> 42818.3 км², SEA-0096 -70.9 км²: ров шириной 0.00997° вокруг федерального округа, прорезанный buffer(0.01) в build_brazil_1946.py, возвращён суше"
+      ],
+      "delta": "land_area_km2 +70.9, water_area_km2 -70.9; число фич и region_id не менялись"
+    }
+  ],
+  "checks": {
+    "features": 1577,
+    "by_prefix": {
+      "AFR": 208,
+      "ANT": 7,
+      "ASI": 444,
+      "EUR": 377,
+      "LAK": 13,
+      "NAM": 267,
+      "OCE": 70,
+      "SAM": 78,
+      "SEA": 113
+    },
+    "by_region_type": {
+      "lake": 13,
+      "land": 1451,
+      "sea": 113
+    },
+    "land_area_km2": 146325935.0,
+    "water_area_km2": 363739363.4,
+    "invalid_geometries": 0,
+    "union_holes": 0,
+    "union_hole_area_km2": 0.0,
+    "coverage_is_valid": true,
+    "coverage_invalid_edge_length_deg": 0.0
+  }
+}

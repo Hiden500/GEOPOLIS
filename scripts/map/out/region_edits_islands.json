@@ -1,0 +1,1557 @@
+{
+ "_meta": {
+  "generated_by": "scripts/map/build/build_region_edits_islands.py",
+  "status": "ЗАПИСЬ РЕШЕНИЙ, НЕ ПРИМЕНЕНО. Применение — отдельная задача с ExecPlan.",
+  "decided_by": "пользователь, 2026-08-02",
+  "purpose": "машиночитаемый список изменений состава регионов, чтобы по нему пересчитать население, ресурсы и остальные слои",
+  "rules": {
+   "R1": "одна периферийная политическая единица 1946 года = один регион",
+   "R2": "театр режется по источнику, а не по нашей нарезке",
+   "R3": "островной огрызок административной единицы возвращается в неё",
+   "R4": "регион не охватывает разные острова",
+   "R5": "имя описывает то, что регион покрывает целиком",
+   "R6": "всё, чего нет в этой записи, остаётся как есть",
+   "R7": "город-регион вливается в свою область; столица остаётся регионом. Города не теряются: они станут точками на карте. Китай и Корея под правило НЕ попадают — их собирает build_china_1946_v2.py"
+  },
+  "sources": {
+   "islands_index": "scripts/map/out/islands_index.json",
+   "scenario": "server\\data\\scenarios\\1946"
+  },
+  "counts": {
+   "operations": 27,
+   "merges": 23,
+   "regions_consumed_by_merges": 73,
+   "regions_produced_by_merges": 23,
+   "net_change_from_merges": -50,
+   "splits": 2,
+   "resplits": 1,
+   "renames": 1,
+   "resolved_questions": 7,
+   "open_questions": 0,
+   "region_count_now": 1444,
+   "region_count_delta_merges": -50,
+   "region_count_delta_splits": 2,
+   "region_count_delta_resplits": 45,
+   "region_count_projected": 1441
+  },
+  "downstream": "при слиянии население складывается, а доли групп усредняются ВЗВЕШЕННО по населению; deposits/extraction складываются; позиционные файлы (ownership_1946.json, names_ru.json, config/occupation_overlay.json) требуют build/remap_region_ids.py"
+ },
+ "operations": [
+  {
+   "id": "MRG-PNG-02",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "PNG-02",
+   "target": {
+    "name_en": "New Britain",
+    "name_ru": "Новая Британия"
+   },
+   "note": "две половины одного острова; имя по острову, а не по западной части",
+   "member_count": 2,
+   "area_km2": 36013.3,
+   "population": 107618,
+   "members": [
+    {
+     "index": 1420,
+     "region_id": "OCE-0046",
+     "name_en": "West New Britain",
+     "name_ru": "Западная Новая Британия",
+     "owner": "PNG",
+     "area_km2": 20585.1,
+     "population": 59730
+    },
+    {
+     "index": 1421,
+     "region_id": "OCE-0047",
+     "name_en": "East New Britain",
+     "name_ru": "Восточная Новая Британия",
+     "owner": "PNG",
+     "area_km2": 15428.2,
+     "population": 47888
+    }
+   ]
+  },
+  {
+   "id": "MRG-SLB-02",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "SLB-02",
+   "target": {
+    "name_en": "Solomon Islands",
+    "name_ru": "Соломоновы Острова"
+   },
+   "note": "британский протекторат целиком; Гуадалканал перестаёт быть отдельной целью — решение пользователя",
+   "member_count": 9,
+   "area_km2": 26264.1,
+   "population": 85648,
+   "members": [
+    {
+     "index": 1434,
+     "region_id": "OCE-0060",
+     "name_en": "Guadalcanal",
+     "name_ru": "Гуадалканал",
+     "owner": "SLB",
+     "area_km2": 5317.1,
+     "population": 3865
+    },
+    {
+     "index": 1436,
+     "region_id": "OCE-0062",
+     "name_en": "Western",
+     "name_ru": "Западный",
+     "owner": "SLB",
+     "area_km2": 5168.4,
+     "population": 3775
+    },
+    {
+     "index": 1432,
+     "region_id": "OCE-0058",
+     "name_en": "Malaita",
+     "name_ru": "Малаита",
+     "owner": "SLB",
+     "area_km2": 4401.4,
+     "population": 10394
+    },
+    {
+     "index": 1437,
+     "region_id": "OCE-0063",
+     "name_en": "Isabel",
+     "name_ru": "Изабель",
+     "owner": "SLB",
+     "area_km2": 4036.0,
+     "population": 10137
+    },
+    {
+     "index": 1430,
+     "region_id": "OCE-0056",
+     "name_en": "Makira",
+     "name_ru": "Макира",
+     "owner": "SLB",
+     "area_km2": 3095.5,
+     "population": 9024
+    },
+    {
+     "index": 1438,
+     "region_id": "OCE-0064",
+     "name_en": "Choiseul",
+     "name_ru": "Шуазёль",
+     "owner": "SLB",
+     "area_km2": 3001.0,
+     "population": 9063
+    },
+    {
+     "index": 1429,
+     "region_id": "OCE-0055",
+     "name_en": "Rennell and Bellona",
+     "name_ru": "Реннелл и Беллона",
+     "owner": "SLB",
+     "area_km2": 664.2,
+     "population": 19033
+    },
+    {
+     "index": 1435,
+     "region_id": "OCE-0061",
+     "name_en": "Central",
+     "name_ru": "Центральный",
+     "owner": "SLB",
+     "area_km2": 549.4,
+     "population": 16579
+    },
+    {
+     "index": 1433,
+     "region_id": "OCE-0059",
+     "name_en": "Honiara",
+     "name_ru": "Хониара",
+     "owner": "SLB",
+     "area_km2": 31.1,
+     "population": 3778
+    }
+   ]
+  },
+  {
+   "id": "MRG-MDG-02",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "MDG-02",
+   "target": {
+    "name_en": "Comoros",
+    "name_ru": "Коморские Острова"
+   },
+   "note": "Коморы вместе с Майоттой",
+   "member_count": 2,
+   "area_km2": 2050.8,
+   "population": 698283,
+   "members": [
+    {
+     "index": 1170,
+     "region_id": "AFR-0004",
+     "name_en": "Comoros",
+     "name_ru": "Коморы",
+     "owner": "MDG",
+     "area_km2": 1664.4,
+     "population": 483820
+    },
+    {
+     "index": 1168,
+     "region_id": "AFR-0002",
+     "name_en": "Mayotte",
+     "name_ru": "Майотта",
+     "owner": "MDG",
+     "area_km2": 386.4,
+     "population": 214463
+    }
+   ]
+  },
+  {
+   "id": "MRG-QZN-01",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "QZN-01",
+   "target": {
+    "name_en": "Zanzibar",
+    "name_ru": "Занзибар"
+   },
+   "note": "Занзибар и Пемба — один протекторат",
+   "member_count": 2,
+   "area_km2": 2504.2,
+   "population": 230000,
+   "members": [
+    {
+     "index": 1258,
+     "region_id": "AFR-0092",
+     "name_en": "Zanzibar South and Central",
+     "name_ru": "Занзибар Южный и Центральный",
+     "owner": "QZN",
+     "area_km2": 1579.2,
+     "population": 134461
+    },
+    {
+     "index": 1259,
+     "region_id": "AFR-0093",
+     "name_en": "Kusini-Pemba",
+     "name_ru": "Кусини-Пемба",
+     "owner": "QZN",
+     "area_km2": 925.0,
+     "population": 95539
+    }
+   ]
+  },
+  {
+   "id": "MRG-GBR-23",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "GBR-23",
+   "target": {
+    "name_en": "Seychelles",
+    "name_ru": "Сейшельские Острова"
+   },
+   "note": "одна колония",
+   "member_count": 3,
+   "area_km2": 232.7,
+   "population": 137780,
+   "members": [
+    {
+     "index": 1342,
+     "region_id": "AFR-0176",
+     "name_en": "Grand'Anse",
+     "name_ru": "Гранд Анс",
+     "owner": "GBR",
+     "area_km2": 161.4,
+     "population": 71657
+    },
+    {
+     "index": 1341,
+     "region_id": "AFR-0175",
+     "name_en": "Grand'Anse Praslin",
+     "name_ru": "Гранд Анс Праслин",
+     "owner": "GBR",
+     "area_km2": 39.4,
+     "population": 35909
+    },
+    {
+     "index": 1340,
+     "region_id": "AFR-0174",
+     "name_en": "La Digue and Inner Islands",
+     "name_ru": "Ла-Диг и Внутренние острова",
+     "owner": "GBR",
+     "area_km2": 31.9,
+     "population": 30214
+    }
+   ]
+  },
+  {
+   "id": "MRG-PRT-04",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "PRT-04",
+   "target": {
+    "name_en": "Cape Verde",
+    "name_ru": "Кабо-Верде"
+   },
+   "note": "одна колония, девять регионов",
+   "member_count": 9,
+   "area_km2": 3912.1,
+   "population": 2116353,
+   "members": [
+    {
+     "index": 1338,
+     "region_id": "AFR-0172",
+     "name_en": "Santa Catarina",
+     "name_ru": "Санта-Катарина",
+     "owner": "PRT",
+     "area_km2": 964.1,
+     "population": 215713
+    },
+    {
+     "index": 1337,
+     "region_id": "AFR-0171",
+     "name_en": "Porto Novo",
+     "name_ru": "Порто-Ново",
+     "owner": "PRT",
+     "area_km2": 740.1,
+     "population": 176423
+    },
+    {
+     "index": 1332,
+     "region_id": "AFR-0166",
+     "name_en": "Boa Vista",
+     "name_ru": "Боа-Виста",
+     "owner": "PRT",
+     "area_km2": 633.7,
+     "population": 164911
+    },
+    {
+     "index": 1335,
+     "region_id": "AFR-0169",
+     "name_en": "São Filipe",
+     "name_ru": "Сан-Филипи",
+     "owner": "PRT",
+     "area_km2": 457.8,
+     "population": 132589
+    },
+    {
+     "index": 1336,
+     "region_id": "AFR-0170",
+     "name_en": "Ribeira Brava",
+     "name_ru": "Рибейра Брава",
+     "owner": "PRT",
+     "area_km2": 335.6,
+     "population": 129911
+    },
+    {
+     "index": 1331,
+     "region_id": "AFR-0165",
+     "name_en": "Maio",
+     "name_ru": "Майо",
+     "owner": "PRT",
+     "area_km2": 265.9,
+     "population": 102641
+    },
+    {
+     "index": 1334,
+     "region_id": "AFR-0168",
+     "name_en": "São Vicente",
+     "name_ru": "Сан-Висенте",
+     "owner": "PRT",
+     "area_km2": 257.9,
+     "population": 541074
+    },
+    {
+     "index": 1333,
+     "region_id": "AFR-0167",
+     "name_en": "Sal",
+     "name_ru": "Сал",
+     "owner": "PRT",
+     "area_km2": 197.3,
+     "population": 432383
+    },
+    {
+     "index": 1330,
+     "region_id": "AFR-0164",
+     "name_en": "Brava",
+     "name_ru": "Брава",
+     "owner": "PRT",
+     "area_km2": 59.7,
+     "population": 220708
+    }
+   ]
+  },
+  {
+   "id": "MRG-QND-01",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "QND-01",
+   "target": {
+    "name_en": "Leeward Antilles",
+    "name_ru": "Подветренные Антилы"
+   },
+   "note": "Кюрасао, Бонайре, Аруба — голландские ABC-острова",
+   "member_count": 3,
+   "area_km2": 898.1,
+   "population": 77138,
+   "members": [
+    {
+     "index": 891,
+     "region_id": "NAM-0070",
+     "name_en": "Curaçao",
+     "name_ru": "Кюрасао",
+     "owner": "QND",
+     "area_km2": 462.1,
+     "population": 16392
+    },
+    {
+     "index": 824,
+     "region_id": "NAM-0003",
+     "name_en": "Bonaire",
+     "name_ru": "Бонайре",
+     "owner": "QND",
+     "area_km2": 265.8,
+     "population": 35376
+    },
+    {
+     "index": 874,
+     "region_id": "NAM-0053",
+     "name_en": "Aruba",
+     "name_ru": "Аруба",
+     "owner": "QND",
+     "area_km2": 170.2,
+     "population": 25370
+    }
+   ]
+  },
+  {
+   "id": "MRG-VEN-01",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "VEN-01",
+   "target": {
+    "name_en": "Venezuelan Antilles",
+    "name_ru": "Венесуэльские Антилы"
+   },
+   "note": "Нуэва-Эспарта и федеральные владения",
+   "member_count": 2,
+   "area_km2": 1388.9,
+   "population": 289025,
+   "members": [
+    {
+     "index": 1142,
+     "region_id": "SAM-0054",
+     "name_en": "Nueva Esparta",
+     "name_ru": "Нуэва Эспарта",
+     "owner": "VEN",
+     "area_km2": 1106.1,
+     "population": 83011
+    },
+    {
+     "index": 1143,
+     "region_id": "SAM-0055",
+     "name_en": "Dependencias Federales",
+     "name_ru": "Федеральные зависимости",
+     "owner": "VEN",
+     "area_km2": 282.8,
+     "population": 206014
+    }
+   ]
+  },
+  {
+   "id": "MRG-GBR-16",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "GBR-16",
+   "target": {
+    "name_en": "Trinidad and Tobago",
+    "name_ru": "Тринидад и Тобаго"
+   },
+   "note": "имя региона было по одному округу Тринидада — дефект класса R5",
+   "member_count": 2,
+   "area_km2": 5116.9,
+   "population": 702437,
+   "members": [
+    {
+     "index": 972,
+     "region_id": "NAM-0151",
+     "name_en": "Rio Claro-Mayaro",
+     "name_ru": "Рио Кларо-Маяро",
+     "owner": "GBR",
+     "area_km2": 4828.6,
+     "population": 480301
+    },
+    {
+     "index": 971,
+     "region_id": "NAM-0150",
+     "name_en": "Eastern Tobago",
+     "name_ru": "Восточный Тобаго",
+     "owner": "GBR",
+     "area_km2": 288.3,
+     "population": 222136
+    }
+   ]
+  },
+  {
+   "id": "MRG-QWW-01",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "QWW-01",
+   "target": {
+    "name_en": "Windward Islands",
+    "name_ru": "Наветренные острова"
+   },
+   "note": "британская колониальная группа",
+   "member_count": 4,
+   "area_km2": 2035.9,
+   "population": 252000,
+   "members": [
+    {
+     "index": 892,
+     "region_id": "NAM-0071",
+     "name_en": "Dominica",
+     "name_ru": "Доминика",
+     "owner": "QWW",
+     "area_km2": 728.2,
+     "population": 74407
+    },
+    {
+     "index": 914,
+     "region_id": "NAM-0093",
+     "name_en": "Saint Lucia",
+     "name_ru": "Сент-Люсия",
+     "owner": "QWW",
+     "area_km2": 605.4,
+     "population": 69653
+    },
+    {
+     "index": 973,
+     "region_id": "NAM-0152",
+     "name_en": "Saint Vincent and the Grenadines",
+     "name_ru": "Сент-Винсент и Гренадины",
+     "owner": "QWW",
+     "area_km2": 357.0,
+     "population": 55494
+    },
+    {
+     "index": 893,
+     "region_id": "NAM-0072",
+     "name_en": "Grenada",
+     "name_ru": "Гренада",
+     "owner": "QWW",
+     "area_km2": 345.3,
+     "population": 52446
+    }
+   ]
+  },
+  {
+   "id": "MRG-QWL-01",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "QWL-01",
+   "target": {
+    "name_en": "Leeward Islands",
+    "name_ru": "Подветренные острова"
+   },
+   "note": "британская группа; не путать с голландскими Подветренными Антилами",
+   "member_count": 6,
+   "area_km2": 998.5,
+   "population": 107999,
+   "members": [
+    {
+     "index": 872,
+     "region_id": "NAM-0051",
+     "name_en": "Antigua and Barbuda",
+     "name_ru": "Антигуа и Барбуда",
+     "owner": "QWL",
+     "area_km2": 442.7,
+     "population": 14926
+    },
+    {
+     "index": 912,
+     "region_id": "NAM-0091",
+     "name_en": "Saint Kitts",
+     "name_ru": "Сент-Китс",
+     "owner": "QWL",
+     "area_km2": 174.2,
+     "population": 24906
+    },
+    {
+     "index": 974,
+     "region_id": "NAM-0153",
+     "name_en": "British Virgin Islands",
+     "name_ru": "Виргинские о-ва",
+     "owner": "QWL",
+     "area_km2": 115.6,
+     "population": 17817
+    },
+    {
+     "index": 915,
+     "region_id": "NAM-0094",
+     "name_en": "Montserrat",
+     "name_ru": "Монтсеррат",
+     "owner": "QWL",
+     "area_km2": 99.0,
+     "population": 18046
+    },
+    {
+     "index": 911,
+     "region_id": "NAM-0090",
+     "name_en": "Nevis",
+     "name_ru": "Невис",
+     "owner": "QWL",
+     "area_km2": 86.8,
+     "population": 17219
+    },
+    {
+     "index": 873,
+     "region_id": "NAM-0052",
+     "name_en": "Anguilla",
+     "name_ru": "Ангилья",
+     "owner": "QWL",
+     "area_km2": 80.2,
+     "population": 15085
+    }
+   ]
+  },
+  {
+   "id": "MRG-PRT-05",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "PRT-05",
+   "target": {
+    "name_en": "São Tomé and Príncipe",
+    "name_ru": "Сан-Томе и Принсипи"
+   },
+   "note": "одна колония",
+   "member_count": 2,
+   "area_km2": 1035.6,
+   "population": 604775,
+   "members": [
+    {
+     "index": 1360,
+     "region_id": "AFR-0194",
+     "name_en": "São Tomé",
+     "name_ru": "Сан-Томе",
+     "owner": "PRT",
+     "area_km2": 880.6,
+     "population": 215948
+    },
+    {
+     "index": 1361,
+     "region_id": "AFR-0195",
+     "name_en": "Príncipe",
+     "name_ru": "Принсипи",
+     "owner": "PRT",
+     "area_km2": 155.0,
+     "population": 388827
+    }
+   ]
+  },
+  {
+   "id": "MRG-QND-02",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "QND-02",
+   "target": {
+    "name_en": "Windward Netherlands Antilles",
+    "name_ru": "Наветренные Нидерландские Антилы"
+   },
+   "note": "Синт-Мартен, Саба, Синт-Эстатиус — вторая половина Нидерландских Антил; первая (ABC) слита как Leeward Antilles",
+   "member_count": 3,
+   "area_km2": 45.7,
+   "population": 61863,
+   "members": [
+    {
+     "index": 969,
+     "region_id": "NAM-0148",
+     "name_en": "Sint Maarten",
+     "name_ru": "Синт-Мартен",
+     "owner": "QND",
+     "area_km2": 23.1,
+     "population": 8356
+    },
+    {
+     "index": 825,
+     "region_id": "NAM-0004",
+     "name_en": "St. Eustatius",
+     "name_ru": "Св. Эстатиус",
+     "owner": "QND",
+     "area_km2": 17.4,
+     "population": 33291
+    },
+    {
+     "index": 826,
+     "region_id": "NAM-0005",
+     "name_en": "Saba",
+     "name_ru": "Саба",
+     "owner": "QND",
+     "area_km2": 5.2,
+     "population": 20216
+    }
+   ]
+  },
+  {
+   "id": "MRG-GBR-19",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "GBR-19",
+   "target": {
+    "name_en": "Channel Islands",
+    "name_ru": "Нормандские острова"
+   },
+   "note": "Джерси и Гернси — одна коронная зависимость",
+   "member_count": 2,
+   "area_km2": 187.0,
+   "population": 110647,
+   "members": [
+    {
+     "index": 183,
+     "region_id": "EUR-0183",
+     "name_en": "Jersey",
+     "name_ru": "Джерси",
+     "owner": "GBR",
+     "area_km2": 121.5,
+     "population": 64678
+    },
+    {
+     "index": 126,
+     "region_id": "EUR-0126",
+     "name_en": "Guernsey",
+     "name_ru": "Гернси",
+     "owner": "GBR",
+     "area_km2": 65.5,
+     "population": 45969
+    }
+   ]
+  },
+  {
+   "id": "MRG-USA-03",
+   "op": "merge",
+   "rule": "R1",
+   "source_cluster": "USA-03",
+   "target": {
+    "name_en": "Hawaii",
+    "name_ru": "Гавайи"
+   },
+   "note": "территория США четырьмя регионами; слито по решению пользователя, несмотря на статус базы",
+   "member_count": 4,
+   "area_km2": 16675.2,
+   "population": 452014,
+   "members": [
+    {
+     "index": 1054,
+     "region_id": "NAM-0233",
+     "name_en": "Hawaii — Hawaii",
+     "name_ru": "Гавайи — Гавайи",
+     "owner": "USA",
+     "area_km2": 10443.8,
+     "population": 117093
+    },
+    {
+     "index": 1055,
+     "region_id": "NAM-0234",
+     "name_en": "Hawaii — Maui",
+     "name_ru": "Гавайи — Мауи",
+     "owner": "USA",
+     "area_km2": 3028.5,
+     "population": 68154
+    },
+    {
+     "index": 1053,
+     "region_id": "NAM-0232",
+     "name_en": "Hawaii — Kauai",
+     "name_ru": "Гавайи — Кауаи",
+     "owner": "USA",
+     "area_km2": 1640.8,
+     "population": 47353
+    },
+    {
+     "index": 1052,
+     "region_id": "NAM-0231",
+     "name_en": "Hawaii — Honolulu",
+     "name_ru": "Гавайи — Гонолулу",
+     "owner": "USA",
+     "area_km2": 1562.1,
+     "population": 219414
+    }
+   ]
+  },
+  {
+   "id": "MRG-JPN-OKINAWA",
+   "op": "merge",
+   "rule": "R3",
+   "target": {
+    "name_en": "Okinawa",
+    "name_ru": "Окинава"
+   },
+   "note": "две части Окинавы на одном острове ISL-071",
+   "member_count": 2,
+   "area_km2": 3266.7,
+   "population": 280157,
+   "members": [
+    {
+     "index": 575,
+     "region_id": "ASI-0198",
+     "name_en": "Okinawa",
+     "name_ru": "Окинава",
+     "owner": "JPN",
+     "area_km2": 2588.6,
+     "population": 188125
+    },
+    {
+     "index": 801,
+     "region_id": "ASI-0424",
+     "name_en": "Okinawa",
+     "name_ru": "Окинава",
+     "owner": "JPN",
+     "area_km2": 678.1,
+     "population": 92032
+    }
+   ]
+  },
+  {
+   "id": "MRG-JPN-WEST-KYUSHU",
+   "op": "merge",
+   "rule": "R3",
+   "target": {
+    "name_en": "Western Kyushu",
+    "name_ru": "Западный Кюсю"
+   },
+   "note": "Сага + материковая Нагасаки + островная Нагасаки; имя выбрано пользователем 2026-08-02 (альтернатива «Nagasaki and Saga» отклонена)",
+   "member_count": 3,
+   "area_km2": 6447.6,
+   "population": 509867,
+   "members": [
+    {
+     "index": 577,
+     "region_id": "ASI-0200",
+     "name_en": "Nagasaki",
+     "name_ru": "Нагасаки",
+     "owner": "JPN",
+     "area_km2": 3158.2,
+     "population": 204180
+    },
+    {
+     "index": 576,
+     "region_id": "ASI-0199",
+     "name_en": "Saga",
+     "name_ru": "Сага",
+     "owner": "JPN",
+     "area_km2": 2450.3,
+     "population": 197584
+    },
+    {
+     "index": 802,
+     "region_id": "ASI-0425",
+     "name_en": "Nagasaki",
+     "name_ru": "Нагасаки",
+     "owner": "JPN",
+     "area_km2": 839.1,
+     "population": 108103
+    }
+   ]
+  },
+  {
+   "id": "MRG-JPN-KYUSHU",
+   "op": "merge",
+   "rule": "R3",
+   "target": {
+    "name_en": "Kyushu",
+    "name_ru": "Кюсю"
+   },
+   "note": "островные части Кагосимы и Кумамото возвращаются в Кюсю",
+   "member_count": 3,
+   "area_km2": 34380.5,
+   "population": 11858347,
+   "members": [
+    {
+     "index": 567,
+     "region_id": "ASI-0190",
+     "name_en": "Kyushu",
+     "name_ru": "Кюсю",
+     "owner": "JPN",
+     "area_km2": 32817.9,
+     "population": 11316053
+    },
+    {
+     "index": 798,
+     "region_id": "ASI-0421",
+     "name_en": "Kagoshima",
+     "name_ru": "Кагосима",
+     "owner": "JPN",
+     "area_km2": 971.4,
+     "population": 292102
+    },
+    {
+     "index": 797,
+     "region_id": "ASI-0420",
+     "name_en": "Kumamoto",
+     "name_ru": "Кумамото",
+     "owner": "JPN",
+     "area_km2": 591.2,
+     "population": 250192
+    }
+   ]
+  },
+  {
+   "id": "MRG-JPN-CHUBU",
+   "op": "merge",
+   "rule": "R3",
+   "target": {
+    "name_en": "Chubu",
+    "name_ru": "Тюбу"
+   },
+   "note": "остров Садо (числится регионом «Niigata») возвращается в Тюбу",
+   "member_count": 2,
+   "area_km2": 66667.4,
+   "population": 16915851,
+   "members": [
+    {
+     "index": 571,
+     "region_id": "ASI-0194",
+     "name_en": "Chubu",
+     "name_ru": "Чубу",
+     "owner": "JPN",
+     "area_km2": 65770.9,
+     "population": 16601894
+    },
+    {
+     "index": 800,
+     "region_id": "ASI-0423",
+     "name_en": "Niigata",
+     "name_ru": "Ниигата",
+     "owner": "JPN",
+     "area_km2": 896.5,
+     "population": 313957
+    }
+   ]
+  },
+  {
+   "id": "MRG-JPN-KINKI",
+   "op": "merge",
+   "rule": "R3",
+   "target": {
+    "name_en": "Kinki",
+    "name_ru": "Кинки"
+   },
+   "note": "остров Авадзи (числится регионом «Hyōgo») возвращается в Кинки",
+   "member_count": 2,
+   "area_km2": 32939.8,
+   "population": 10311002,
+   "members": [
+    {
+     "index": 570,
+     "region_id": "ASI-0193",
+     "name_en": "Kinki",
+     "name_ru": "Кинки",
+     "owner": "JPN",
+     "area_km2": 32341.4,
+     "population": 10086661
+    },
+    {
+     "index": 799,
+     "region_id": "ASI-0422",
+     "name_en": "Hyōgo",
+     "name_ru": "Хёго",
+     "owner": "JPN",
+     "area_km2": 598.4,
+     "population": 224341
+    }
+   ]
+  },
+  {
+   "id": "MRG-CITY-EUR-0321",
+   "op": "merge",
+   "rule": "R7",
+   "target": {
+    "name_en": "Leningrad Oblast",
+    "name_ru": "Ленинградская область"
+   },
+   "note": "Ленинград вливается в свою область",
+   "member_count": 2,
+   "area_km2": 76081.1,
+   "population": 9895378,
+   "members": [
+    {
+     "index": 284,
+     "region_id": "EUR-0284",
+     "name_en": "Leningrad Oblast",
+     "name_ru": "Ленинградская область",
+     "owner": "SUN",
+     "area_km2": 74063.4,
+     "population": 8562020
+    },
+    {
+     "index": 321,
+     "region_id": "EUR-0321",
+     "name_en": "Leningrad",
+     "name_ru": "Ленинград",
+     "owner": "SUN",
+     "area_km2": 2017.7,
+     "population": 1333358
+    }
+   ]
+  },
+  {
+   "id": "MRG-CITY-EUR-0365",
+   "op": "merge",
+   "rule": "R7",
+   "target": {
+    "name_en": "Kiev",
+    "name_ru": "Киев"
+   },
+   "note": "Киев-город вливается в Киевскую область",
+   "member_count": 2,
+   "area_km2": 28655.7,
+   "population": 2740825,
+   "members": [
+    {
+     "index": 345,
+     "region_id": "EUR-0345",
+     "name_en": "Kiev",
+     "name_ru": "Киев",
+     "owner": "SUN",
+     "area_km2": 27013.5,
+     "population": 2219088
+    },
+    {
+     "index": 365,
+     "region_id": "EUR-0365",
+     "name_en": "Kiev City",
+     "name_ru": "Город Киев",
+     "owner": "SUN",
+     "area_km2": 1642.2,
+     "population": 521737
+    }
+   ]
+  },
+  {
+   "id": "MRG-CITY-EUR-0030",
+   "op": "merge",
+   "rule": "R7",
+   "target": {
+    "name_en": "Minsk",
+    "name_ru": "Минск"
+   },
+   "note": "Минск-город вливается в Минскую область",
+   "member_count": 2,
+   "area_km2": 40063.5,
+   "population": 1396761,
+   "members": [
+    {
+     "index": 29,
+     "region_id": "EUR-0029",
+     "name_en": "Minsk",
+     "name_ru": "Минск",
+     "owner": "SUN",
+     "area_km2": 39457.5,
+     "population": 1115004
+    },
+    {
+     "index": 30,
+     "region_id": "EUR-0030",
+     "name_en": "City of Minsk",
+     "name_ru": "Город Минск",
+     "owner": "SUN",
+     "area_km2": 606.0,
+     "population": 281757
+    }
+   ]
+  },
+  {
+   "id": "SPL-SAKHALIN",
+   "op": "split",
+   "rule": "R4",
+   "source": {
+    "index": 300,
+    "region_id": "EUR-0300",
+    "name_en": "Sakhalin Oblast",
+    "name_ru": "Сахалинская область",
+    "owner": "SUN",
+    "area_km2": 85930.2,
+    "population": 301716
+   },
+   "into": [
+    {
+     "name_en": "Sakhalin",
+     "name_ru": "Сахалин"
+    },
+    {
+     "name_en": "Kuril Islands",
+     "name_ru": "Курильские острова"
+    }
+   ],
+   "method": "полигоны разделяются по принадлежности к телу Сахалина и к цепи Курил; критерий задаёт исполнитель и показывает площади обеих частей",
+   "note": "один регион Sakhalin Oblast несёт и остров, и цепь; Курилы — отдельная спорная с Японией цепь",
+   "needs_decision": "границы раздела и итоговые площади подтверждает пользователь"
+  },
+  {
+   "id": "SPL-WEST-TIMOR",
+   "op": "split",
+   "rule": "R4",
+   "source": {
+    "index": 480,
+    "region_id": "ASI-0103",
+    "name_en": "Nusa Tenggara Timur",
+    "name_ru": "Нуса Тенгара Тимур",
+    "owner": "IDN",
+    "area_km2": 46447.4,
+    "population": 640241
+   },
+   "into": [
+    {
+     "name_en": "West Timor",
+     "name_ru": "Западный Тимор"
+    },
+    {
+     "name_en": "Nusa Tenggara Timur",
+     "name_ru": "Восточные Малые Зондские острова"
+    }
+   ],
+   "method": "из Nusa Tenggara Timur выделяются полигоны, лежащие на острове Тимор (те, что граничат с ASI-0354 Portuguese Timor); остальное остаётся NTT",
+   "note": "Тимор разделён международной границей — его часть обязана быть своим регионом",
+   "needs_decision": "границы раздела и итоговые площади подтверждает пользователь"
+  },
+  {
+   "id": "RSP-PHILIPPINES",
+   "op": "resplit_from_source",
+   "rule": "R2",
+   "owner": "PHL",
+   "source_file": "game_map.json (хранилище источников, paths.game_map())",
+   "source_filter": "iso_a2 == \"PH\"",
+   "source_key": "region_sub",
+   "expect_source_features": 118,
+   "expect_target_regions": 81,
+   "note": "текущая нарезка в 36 регионов заменяется нарезкой источника по region_sub; region_sub заполнен у всех 118 фич, пустых нет",
+   "cascade_warning": "рост числа регионов на +45 сдвигает позиционную нумерацию всего, что идёт после Филиппин: обязателен build/remap_region_ids.py и ExecPlan (scripts/map/AGENTS.md)",
+   "replaces_count": 36,
+   "replaces_area_km2": 293035.7,
+   "replaces_population": 18600000,
+   "replaces": [
+    {
+     "index": 678,
+     "region_id": "ASI-0301",
+     "name_en": "Cagayan Valley",
+     "name_ru": "Долина Кагаян",
+     "owner": "PHL",
+     "area_km2": 26069.4,
+     "population": 378802
+    },
+    {
+     "index": 673,
+     "region_id": "ASI-0296",
+     "name_en": "Central Luzon",
+     "name_ru": "Центральный Лусон",
+     "owner": "PHL",
+     "area_km2": 21334.6,
+     "population": 339885
+    },
+    {
+     "index": 666,
+     "region_id": "ASI-0289",
+     "name_en": "Davao",
+     "name_ru": "Давао",
+     "owner": "PHL",
+     "area_km2": 19000.1,
+     "population": 326252
+    },
+    {
+     "index": 671,
+     "region_id": "ASI-0294",
+     "name_en": "SOCCSKSARGEN",
+     "name_ru": "СОКСКСАРГЕН",
+     "owner": "PHL",
+     "area_km2": 18232.2,
+     "population": 342485
+    },
+    {
+     "index": 681,
+     "region_id": "ASI-0304",
+     "name_en": "Cordillera",
+     "name_ru": "Кордильеры",
+     "owner": "PHL",
+     "area_km2": 17985.2,
+     "population": 333991
+    },
+    {
+     "index": 669,
+     "region_id": "ASI-0292",
+     "name_en": "Dinagat Islands",
+     "name_ru": "Острова Динагат",
+     "owner": "PHL",
+     "area_km2": 17074.5,
+     "population": 330718
+    },
+    {
+     "index": 674,
+     "region_id": "ASI-0297",
+     "name_en": "CALABARZON",
+     "name_ru": "КАЛАБАРСОН",
+     "owner": "PHL",
+     "area_km2": 16039.1,
+     "population": 311405
+    },
+    {
+     "index": 670,
+     "region_id": "ASI-0293",
+     "name_en": "Northern Mindanao",
+     "name_ru": "Северный Минданао",
+     "owner": "PHL",
+     "area_km2": 15540.4,
+     "population": 809162
+    },
+    {
+     "index": 667,
+     "region_id": "ASI-0290",
+     "name_en": "Zamboanga Peninsula",
+     "name_ru": "Полуостров Замбоанга",
+     "owner": "PHL",
+     "area_km2": 14342.9,
+     "population": 878720
+    },
+    {
+     "index": 672,
+     "region_id": "ASI-0295",
+     "name_en": "Eastern Visayas",
+     "name_ru": "Восточные Висайи",
+     "owner": "PHL",
+     "area_km2": 13184.2,
+     "population": 699457
+    },
+    {
+     "index": 677,
+     "region_id": "ASI-0300",
+     "name_en": "Ilocos",
+     "name_ru": "Илокос",
+     "owner": "PHL",
+     "area_km2": 13097.2,
+     "population": 724403
+    },
+    {
+     "index": 668,
+     "region_id": "ASI-0291",
+     "name_en": "MIMAROPA",
+     "name_ru": "МИМАРОПА",
+     "owner": "PHL",
+     "area_km2": 12359.9,
+     "population": 673138
+    },
+    {
+     "index": 675,
+     "region_id": "ASI-0298",
+     "name_en": "Bicol",
+     "name_ru": "Бикол",
+     "owner": "PHL",
+     "area_km2": 11718.5,
+     "population": 684555
+    },
+    {
+     "index": 680,
+     "region_id": "ASI-0303",
+     "name_en": "Western Visayas",
+     "name_ru": "Западные Висайи",
+     "owner": "PHL",
+     "area_km2": 11663.1,
+     "population": 757819
+    },
+    {
+     "index": 806,
+     "region_id": "ASI-0429",
+     "name_en": "Mindoro Occidental",
+     "name_ru": "Западный Миндоро",
+     "owner": "PHL",
+     "area_km2": 9878.9,
+     "population": 687841
+    },
+    {
+     "index": 665,
+     "region_id": "ASI-0288",
+     "name_en": "Muslim Mindanao",
+     "name_ru": "Мусульманский Минданао",
+     "owner": "PHL",
+     "area_km2": 9251.0,
+     "population": 655760
+    },
+    {
+     "index": 820,
+     "region_id": "ASI-0443",
+     "name_en": "Negros Occidental",
+     "name_ru": "Западный Негрос",
+     "owner": "PHL",
+     "area_km2": 7555.9,
+     "population": 520670
+    },
+    {
+     "index": 812,
+     "region_id": "ASI-0435",
+     "name_en": "Leyte",
+     "name_ru": "Лейте",
+     "owner": "PHL",
+     "area_km2": 6994.3,
+     "population": 538868
+    },
+    {
+     "index": 679,
+     "region_id": "ASI-0302",
+     "name_en": "Central Visayas",
+     "name_ru": "Центральные Висайи",
+     "owner": "PHL",
+     "area_km2": 5636.4,
+     "population": 465309
+    },
+    {
+     "index": 817,
+     "region_id": "ASI-0440",
+     "name_en": "Cebu",
+     "name_ru": "Себу",
+     "owner": "PHL",
+     "area_km2": 4504.1,
+     "population": 418835
+    },
+    {
+     "index": 815,
+     "region_id": "ASI-0438",
+     "name_en": "Masbate",
+     "name_ru": "Масбате",
+     "owner": "PHL",
+     "area_km2": 3936.9,
+     "population": 359850
+    },
+    {
+     "index": 818,
+     "region_id": "ASI-0441",
+     "name_en": "Bohol",
+     "name_ru": "Бохоль",
+     "owner": "PHL",
+     "area_km2": 3751.0,
+     "population": 370654
+    },
+    {
+     "index": 811,
+     "region_id": "ASI-0434",
+     "name_en": "Misamis Occidental",
+     "name_ru": "Западный Мисамис",
+     "owner": "PHL",
+     "area_km2": 2032.7,
+     "population": 291953
+    },
+    {
+     "index": 807,
+     "region_id": "ASI-0430",
+     "name_en": "Palawan",
+     "name_ru": "Палаван",
+     "owner": "PHL",
+     "area_km2": 1991.8,
+     "population": 249309
+    },
+    {
+     "index": 816,
+     "region_id": "ASI-0439",
+     "name_en": "Catanduanes",
+     "name_ru": "Катандуанес",
+     "owner": "PHL",
+     "area_km2": 1489.0,
+     "population": 234858
+    },
+    {
+     "index": 810,
+     "region_id": "ASI-0433",
+     "name_en": "Surigao del Norte",
+     "name_ru": "Северный Суригао",
+     "owner": "PHL",
+     "area_km2": 1169.4,
+     "population": 199254
+    },
+    {
+     "index": 809,
+     "region_id": "ASI-0432",
+     "name_en": "Romblon",
+     "name_ru": "Ромблон",
+     "owner": "PHL",
+     "area_km2": 1141.3,
+     "population": 185005
+    },
+    {
+     "index": 803,
+     "region_id": "ASI-0426",
+     "name_en": "Basilan",
+     "name_ru": "Басилан",
+     "owner": "PHL",
+     "area_km2": 1038.4,
+     "population": 171874
+    },
+    {
+     "index": 808,
+     "region_id": "ASI-0431",
+     "name_en": "Marinduque",
+     "name_ru": "Мариндуке",
+     "owner": "PHL",
+     "area_km2": 889.0,
+     "population": 792439
+    },
+    {
+     "index": 804,
+     "region_id": "ASI-0427",
+     "name_en": "Sulu",
+     "name_ru": "Сулу",
+     "owner": "PHL",
+     "area_km2": 870.2,
+     "population": 862026
+    },
+    {
+     "index": 676,
+     "region_id": "ASI-0299",
+     "name_en": "National Capital Region",
+     "name_ru": "Национальный столичный регион",
+     "owner": "PHL",
+     "area_km2": 726.8,
+     "population": 789088
+    },
+    {
+     "index": 805,
+     "region_id": "ASI-0428",
+     "name_en": "Tawi-Tawi",
+     "name_ru": "Тави-Тави",
+     "owner": "PHL",
+     "area_km2": 599.5,
+     "population": 669755
+    },
+    {
+     "index": 814,
+     "region_id": "ASI-0437",
+     "name_en": "Quezon",
+     "name_ru": "Кесон",
+     "owner": "PHL",
+     "area_km2": 578.8,
+     "population": 684345
+    },
+    {
+     "index": 821,
+     "region_id": "ASI-0444",
+     "name_en": "Guimaras",
+     "name_ru": "Гимарас",
+     "owner": "PHL",
+     "area_km2": 574.0,
+     "population": 745811
+    },
+    {
+     "index": 813,
+     "region_id": "ASI-0436",
+     "name_en": "Biliran",
+     "name_ru": "Билиран",
+     "owner": "PHL",
+     "area_km2": 460.9,
+     "population": 616486
+    },
+    {
+     "index": 819,
+     "region_id": "ASI-0442",
+     "name_en": "Siquijor",
+     "name_ru": "Сикихор",
+     "owner": "PHL",
+     "area_km2": 324.1,
+     "population": 499218
+    }
+   ]
+  },
+  {
+   "id": "REN-JAVA",
+   "op": "rename",
+   "rule": "R5",
+   "source": {
+    "index": 498,
+    "region_id": "ASI-0121",
+    "name_en": "Jawa Barat",
+    "name_ru": "Джава Барат",
+    "owner": "QRI",
+    "area_km2": 131764.1,
+    "population": 14501084
+   },
+   "target": {
+    "name_en": "Java",
+    "name_ru": "Ява"
+   },
+   "note": "регион покрывает всю Яву (131 764 км² при 138 800 у острова), а назван по одной провинции — Jawa Barat"
+  }
+ ],
+ "kept_capitals": [
+  {
+   "region_id": "EUR-0320",
+   "name": "Moscow",
+   "why": "столица СССР"
+  },
+  {
+   "region_id": "NAM-0216",
+   "name": "Washington",
+   "why": "столица США"
+  },
+  {
+   "region_id": "ASI-0152",
+   "name": "Delhi",
+   "why": "столица Индии"
+  },
+  {
+   "region_id": "ASI-0259",
+   "name": "Beirut",
+   "why": "столица Ливана"
+  }
+ ],
+ "city_like_open": [
+  {
+   "region_id": "ASI-0312",
+   "name": "F.C.T.",
+   "why": "соседствует с K.P. и Пенджабом — это Исламабад, созданный в 1960; в 1946 его не существовало"
+  },
+  {
+   "region_id": "ASI-0153",
+   "name": "Chandigarh",
+   "why": "создан в 1966 как общая столица Пенджаба и Харьяны; в 1946 его не существовало"
+  },
+  {
+   "region_id": "ASI-0044/0045/0047/0042/0228",
+   "name": "города Китая и Кореи",
+   "why": "Циндао, Гуанчжоу, Харбин, Далянь, Пусан — тот же вид, но область чужая: их собирает build_china_1946_v2.py, трогать только по отдельному разрешению"
+  }
+ ],
+ "resolved_questions": [
+  {
+   "id": "Q-QND-02",
+   "answer": "да, слить",
+   "what": "Sint Maarten + St. Eustatius + Saba — те же Нидерландские Антилы, что и слитый кластер Curaçao",
+   "became": "MRG-QND-02"
+  },
+  {
+   "id": "Q-GBR-19",
+   "answer": "да, слить",
+   "what": "Jersey + Guernsey — Нормандские острова",
+   "became": "MRG-GBR-19"
+  },
+  {
+   "id": "Q-SUN-02",
+   "answer": "НЕТ, оставить раздельными",
+   "what": "Saare + Hiiu (4 042 км², 487 429 чел) — эстонские острова в составе СССР",
+   "became": null
+  },
+  {
+   "id": "Q-USA-03",
+   "answer": "да, слить",
+   "what": "Гавайи, 4 региона — статус передовой базы США слиянию не помешал",
+   "became": "MRG-USA-03"
+  },
+  {
+   "id": "Q-JPN-SADO-AWAJI",
+   "answer": "да, вернуть в Тюбу и Кинки",
+   "what": "Sado (ASI-0423 «Niigata») и Awaji (ASI-0422 «Hyōgo») — огрызки префектур",
+   "became": "MRG-JPN-CHUBU, MRG-JPN-KINKI"
+  },
+  {
+   "id": "Q-JAWA-NAME",
+   "answer": "да, переименовать",
+   "what": "«Jawa Barat» покрывает всю Яву",
+   "became": "REN-JAVA"
+  },
+  {
+   "id": "Q-JPN-WEST-KYUSHU-NAME",
+   "answer": "«Западный Кюсю»",
+   "what": "имя для слияния Саги с Нагасаки; альтернатива «Nagasaki and Saga» отклонена",
+   "became": "MRG-JPN-WEST-KYUSHU"
+  }
+ ],
+ "open_questions": []
+}
