@@ -70,16 +70,43 @@ CTRL = {
     "Asia minor": ("TR", (38, 41), (30, 36)), "Cyrenaica": ("LY", (30, 33), (20, 24)),
 }
 
+# Контрольные точки В ОТКРЫТОМ ОКЕАНЕ.
+#
+# Зачем: все точки выше стоят на материках и прибрежных островах, а сплайн вне
+# их окружения ничем не удерживается. Замер 2026-08-07: зона `Hawaii` вышла в
+# 1548 км от настоящих Гавайев, `West Polynesia` — вообще в Индийском океане.
+# Медиана 141 км характеризовала контрольные точки, а не карту.
+#
+# Откуда брать: у 64 МОРСКИХ регионов WA внутри есть сухопутные провинции —
+# это и есть острова. Точка слева = центр их СУШИ внутри морского региона.
+#
+# Что сюда не попало: `West Polynesia`, `Caroline Sea`, `Micronesian Islands`,
+# `Wakean Atoll`, `Johnston Gap` — их имена не определяют острова однозначно, а
+# неверная привязка имени уже стоила 1430 км ошибки. Лучше меньше точек, чем
+# точка, тянущая карту не туда.
+ISLAND_CTRL = {
+    "Hawaii":             (("US",), (18, 23), (-161, -154)),
+    "Azores Region":      (("PT",), (36, 40), (-32, -24)),
+    "Cap Verde Plain":    (("CV",), None, None),
+    "Sargasso Sea":       (("BM",), None, None),      # Бермуды — единственная суша
+    "Marshall Islands":   (("MH",), None, None),
+    "Mariana Islands":    (("GU", "MP"), None, None),
+    "Solomon Islands":    (("SB",), None, None),
+    "New Caledonia Basin": (("NC",), None, None),
+}
+
 # --- наши точки ------------------------------------------------------------
 land = [(p.get("iso_a2"), p.get("name"), shape(f["geometry"]))
         for f in json.load(open(REPO / "scripts/map/master/world_1946.master.geojson",
                                 encoding="utf-8"))["features"]
         for p in [f["properties"]] if p.get("region_type") == "land"]
 ours = {}
-for nm, (iso, latr, lonr) in CTRL.items():
+_spec = {nm: ((iso,), latr, lonr) for nm, (iso, latr, lonr) in CTRL.items()}
+_spec.update(ISLAND_CTRL)
+for nm, (isos, latr, lonr) in _spec.items():
     sel = []
     for i2, n2, g in land:
-        if i2 != iso:
+        if i2 not in isos:
             continue
         c = g.representative_point()
         if latr and not (latr[0] <= c.y <= latr[1]):
@@ -90,7 +117,10 @@ for nm, (iso, latr, lonr) in CTRL.items():
     if sel:
         c = unary_union(sel).centroid
         ours[nm] = (c.x, c.y)
-print(f"контрольных точек с нашей стороны: {len(ours)} из {len(CTRL)}")
+    elif nm in ISLAND_CTRL:
+        print(f"  ВНИМАНИЕ: островной якорь {nm} не найден в нашем слое — пропущен")
+print(f"контрольных точек с нашей стороны: {len(ours)} из {len(_spec)} "
+      f"(в т.ч. океанских островов: {sum(1 for n in ISLAND_CTRL if n in ours)})")
 
 # --- их точки --------------------------------------------------------------
 INT = re.compile(r"^\d+$")
@@ -117,12 +147,17 @@ reg = np.load(SCR / "wa_reg.npy"); seam = np.load(SCR / "wa_sea.npy")
 H, W = reg.shape
 by = {}
 for rid, nm in names.items():
-    if nm in ours:
-        ys, xs = np.where(reg == rid)
-        if len(xs):
-            by[nm] = (xs.mean(), ys.mean())
+    if nm not in ours:
+        continue
+    # У островного якоря берём центр СУШИ внутри морского региона, а не всего
+    # региона: центр региона стоит в открытой воде и островом не является.
+    m = (reg == rid) & (~seam if nm in ISLAND_CTRL else True)
+    ys, xs = np.where(m)
+    if len(xs):
+        by[nm] = (xs.mean(), ys.mean())
 pairs = [(by[n], ours[n]) for n in by]
-print(f"пар для подгонки: {len(pairs)}")
+print(f"пар для подгонки: {len(pairs)} "
+      f"(океанских островов среди них: {sum(1 for n in by if n in ISLAND_CTRL)})")
 
 from scipy.interpolate import RBFInterpolator
 P = np.array([p[0] for p in pairs]); Q = np.array([p[1] for p in pairs])
@@ -146,9 +181,44 @@ print(f"до чистки: медиана {np.median(err):.0f} км | худша
 # Отбрасываем такие и говорим, сколько отброшено, а не прячем.
 names_ctrl = list(by)
 DROP_KM = 800.0
-keep = [i for i in range(len(P)) if err[i] <= DROP_KM]
-dropped = [names_ctrl[i] for i in range(len(P)) if err[i] > DROP_KM]
-print(f"отброшено {len(dropped)} точек с ошибкой >{DROP_KM:.0f} км: {', '.join(dropped)}")
+
+# Островной якорь нельзя судить по leave-one-out: он ОДИН в своей части океана,
+# и модель без него там ничем не удерживается — большая ошибка неизбежна по
+# построению, а не по вине привязки. Первый прогон с островами это и показал:
+# фильтр выбросил Гавайи, ровно ту точку, ради которой они добавлялись.
+#
+# Настоящую ошибку привязки (Полинезия, уехавшая в Индийский океан) ловит
+# другое: она видна даже грубому линейному приближению карты. Порог щедрый —
+# `hoi4_fit.py` показал, что линейная модель сама врёт до 1456 км, поэтому
+# наказываем только за промах в разы больший, чем её собственная ошибка.
+LINEAR_DROP_KM = 2500.0
+_A = np.column_stack([P, np.ones(len(P))])
+_cx, _, _, _ = np.linalg.lstsq(_A, Q[:, 0], rcond=None)
+_cy, _, _, _ = np.linalg.lstsq(_A, Q[:, 1], rcond=None)
+lin_err = []
+for i in range(len(P)):
+    px, py = _A[i] @ _cx, _A[i] @ _cy
+    dx = (px - Q[i][0]) * 111 * math.cos(math.radians((py + Q[i][1]) / 2))
+    lin_err.append(math.hypot(dx, (py - Q[i][1]) * 111))
+lin_err = np.array(lin_err)
+
+keep, dropped = [], []
+for i in range(len(P)):
+    isle = names_ctrl[i] in ISLAND_CTRL
+    limit = LINEAR_DROP_KM if isle else DROP_KM
+    val = lin_err[i] if isle else err[i]
+    (keep if val <= limit else dropped).append(i)
+print(f"отброшено {len(dropped)} точек: "
+      + ", ".join(f"{names_ctrl[i]} ({'линейно ' if names_ctrl[i] in ISLAND_CTRL else ''}"
+                  f"{(lin_err[i] if names_ctrl[i] in ISLAND_CTRL else err[i]):.0f} км)"
+                  for i in dropped))
+_isles = [i for i in keep if names_ctrl[i] in ISLAND_CTRL]
+if _isles:
+    print("островные якоря (их leave-one-out велик по построению, это не брак):")
+    for i in _isles:
+        print(f"   {names_ctrl[i]:22s} leave-one-out {err[i]:6.0f} км | "
+              f"линейная согласованность {lin_err[i]:6.0f} км")
+dropped = [names_ctrl[i] for i in dropped]
 P = P[keep]; Q = Q[keep]; names_ctrl = [names_ctrl[i] for i in keep]
 err = []
 for i in range(len(P)):

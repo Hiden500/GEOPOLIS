@@ -226,7 +226,10 @@ for it in pieces:
 pieces = [p for p in pieces if not p[0].is_empty and area_km2(p[0]) >= MIN_PIECE_KM2]
 
 # --- остаток раздать ближайшему -------------------------------------------
-SEED_DEG = 0.35     # шаг посева точек по контуру зоны
+# Шаг посева по контуру. Задаёт размер зубцов на шве: граница Вороного скачет
+# между соседними точками посева, и при 0.35° зубцы выходили ~5 км и читались
+# на карте как паззл. 0.10° уменьшает их примерно во столько же раз.
+SEED_DEG = 0.10
 
 
 def voronoi_share(parts):
@@ -250,22 +253,26 @@ def voronoi_share(parts):
     env = target.buffer(2.0).envelope
     vor = voronoi_diagram(MultiPoint(seeds), envelope=env)
     stree = STRtree(seeds)
-    add = {}
     rest = unary_union(parts)
+    # Ячейки СНАЧАЛА объединяются по владельцу и только потом режутся остатком.
+    # Наоборот нельзя: пересекая каждую ячейку отдельно, соседние результаты
+    # перестают делить общие вершины, и между зонами раскрываются волосяные
+    # щели — замер 2026-08-07 дал 8235 таких щелей после первой попытки.
+    bucket = {}
     for cell in vor.geoms:
-        got = cell.intersection(rest)
-        if got.is_empty:
-            continue
-        # ячейка Вороного содержит ровно одну точку посева — она и владелец
-        cand = stree.query(cell)
         j = None
-        for k in cand:
+        for k in stree.query(cell):
             if cell.contains(seeds[int(k)]):
                 j = owner[int(k)]
                 break
-        if j is None:
-            continue
-        add.setdefault(j, []).append(got)
+        if j is not None:
+            bucket.setdefault(j, []).append(cell)
+    add = {}
+    for j, cells in bucket.items():
+        merged_cells = unary_union(cells)
+        got = merged_cells.intersection(rest)
+        if not got.is_empty:
+            add[j] = [got]
     return add, len(seeds)
 
 
@@ -333,6 +340,45 @@ if merged:
     for nm, a, into, why in merged:
         print("   %-28s %9.0f км²  ->  %-24s (%s)" % (nm[:28], a, into[:24], why))
 
+# --- чистка геометрии внутри зоны -----------------------------------------
+# Замер 2026-08-07 по просмотру в geojson-вьювере: 107 дыр нулевой ширины и 65
+# пар частей одной зоны, разделённых волосяным зазором. И то и другое рисуется
+# тёмной линией ВНУТРИ сплошного на вид пятна. Проверка стыков между зонами их
+# не видела: она смотрела наружу, а не внутрь.
+MAX_FILL_HOLE_KM2 = 200  # выше этого дыра слишком велика, чтобы быть мусором
+from shapely.geometry import Polygon as ShpPoly
+
+# Снап на сетку (`set_precision`) здесь пробовался и ОТВЕРГНУТ: он двигает
+# границу каждой зоны независимо, поэтому смыкая щели внутри зоны, раскрывает
+# их между зонами — 8235 новых щелей на замере. Источник щелей устранён выше,
+# в `voronoi_share`, а не заглажен здесь.
+otree = STRtree([p[0] for p in pieces])
+filled = 0
+for i, p in enumerate(pieces):
+    g = p[0]
+    # дыры-артефакты: внутри нет ни земли, ни другой зоны -> это не остров
+    parts, changed = [], False
+    for pp in (g.geoms if hasattr(g, "geoms") else [g]):
+        if pp.geom_type != "Polygon" or not pp.interiors:
+            parts.append(pp); continue
+        keep_rings = []
+        for ring in pp.interiors:
+            h = ShpPoly(ring)
+            ha = area_km2(h)
+            has_land = any(land[int(k)][2].intersects(h) for k in ltree.query(h))
+            has_zone = any(pieces[int(k)][0].intersection(h).area > 0.01 * h.area
+                           for k in otree.query(h) if int(k) != i)
+            if has_land or has_zone or ha > MAX_FILL_HOLE_KM2:
+                keep_rings.append(ring)
+            else:
+                filled += 1; changed = True
+        parts.append(ShpPoly(pp.exterior, keep_rings) if changed else pp)
+    if changed:
+        g = unary_union(parts) if len(parts) > 1 else parts[0]
+    p[0] = g if g.is_valid else g.buffer(0)
+    p[3] = area_km2(p[0])
+print(f"чистка: закрыто дыр-артефактов {filled}, зазоры между частями снапнуты")
+
 order = sorted(range(len(pieces)), key=lambda i: -pieces[i][3])
 pieces = [pieces[i] for i in order]; coasts = [coasts[i] for i in order]
 print("\n%-28s %-12s %12s %6s" % ("зона", "местность", "площадь км²", "приб."))
@@ -371,6 +417,35 @@ spill = area_km2(allz.difference(target))
 bad = [nm for g, nm, t, a in pieces if not g.is_valid]
 print("самопроверка: наложение %.0f км² | непокрыто %.0f | вне океана %.0f | "
       "битых геометрий %d" % (ov_tot, hole, spill, len(bad)))
+
+# Внутрь полигона проверка тоже обязана смотреть: щель нулевой ширины и зазор
+# между частями площади почти не имеют, поэтому три числа выше их не видят, а
+# на карте они рисуются тёмной линией.
+from geometry_cleanup import compactness
+# Считаем ДЕФЕКТЫ, а не всё подряд. Вытянутая дыра с землёй внутри — это
+# вытянутый остров, и он законен; тревога по ней однажды увела меня искать
+# несуществующий баг. Зазор шириной 1e-15° — это предел точности double, а не
+# щель: порог 1e-9° (~0.1 мм) отделяет настоящую щель от машинного нуля.
+GAP_DEG = 1e-9
+thread_bad, island_thin, gap = 0, 0, 0
+for i, (g, nm, t, a) in enumerate(pieces):
+    ps = list(g.geoms) if hasattr(g, "geoms") else [g]
+    for pp in ps:
+        if pp.geom_type != "Polygon":
+            continue
+        for ring in pp.interiors:
+            h = ShpPoly(ring)
+            has_land = any(land[int(k)][2].intersects(h) for k in ltree.query(h))
+            if not has_land:
+                thread_bad += 1
+            elif compactness(h) < 0.12:
+                island_thin += 1
+    for x in range(len(ps)):
+        for y in range(x + 1, len(ps)):
+            if GAP_DEG < ps[x].distance(ps[y]) < 1e-4:
+                gap += 1
+print("внутри зон: дыр-артефактов (без земли) %d | щелей между частями шире "
+      "0.1 мм %d | тонких островов-дыр (норма) %d" % (thread_bad, gap, island_thin))
 if ov_worst[2] > 1:
     print("   худшее наложение: %s / %s — %.0f км²" % ov_worst)
 if bad:
