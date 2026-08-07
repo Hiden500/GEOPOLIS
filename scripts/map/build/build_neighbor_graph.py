@@ -17,12 +17,20 @@ region_id регионов, с которыми он физически гран
 принцип, что и везде в проекте: соединение не должно создавать связи
 там, где их нет физически.
 """
-from paths import out
+from paths import REPO_ROOT, out
 import json
+from pathlib import Path
 from shapely.geometry import shape
 from shapely.strtree import STRtree
 
-SRC = out("world_1946.geojson")
+# Геометрия берётся из МАСТЕРА, а не из out/world_1946.geojson (2026-08-07).
+# Причина: out/ в .gitignore и с ветками не путешествует, а пересобрать его
+# нечем — восемь из одиннадцати источников пайплайна отсутствуют. Мастер под
+# git, содержит те же 1577 фич и является каноническим источником геометрии;
+# `import_to_game.py` перешёл на него ещё 2026-07-30. Fallback на out/ оставлен
+# для момента пересборки мастера, когда он ещё не заморожен.
+_MASTER = REPO_ROOT / "scripts" / "map" / "master" / "world_1946.master.geojson"
+SRC = str(_MASTER) if _MASTER.exists() else out("world_1946.geojson")
 OUT = out("neighbor_graph.json")
 BUFFER_DEG = 0.01  # ~1км, ловит цифровые микрозазоры, не реальные проливы
 
