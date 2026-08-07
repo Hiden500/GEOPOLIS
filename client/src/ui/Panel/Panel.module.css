@@ -9,12 +9,14 @@
   flex-direction: column;
   min-height: 0;
   /* Материал панели приходит оформлением (styles/skins.css), а не хардкодом. */
-  background-color: var(--surface);
+  background-color: var(--panel-bg);
   background-image: var(--panel-texture);
-  border: var(--panel-edge-width) solid var(--edge);
+  border: var(--panel-edge-width) solid var(--panel-edge);
   border-radius: var(--panel-radius);
   box-shadow: var(--panel-bevel), var(--panel-shadow);
+  backdrop-filter: var(--panel-backdrop);
   color: var(--text);
+  text-shadow: var(--content-shadow);
   overflow: hidden;
 }
 
@@ -37,6 +39,8 @@
 .title {
   margin: 0;
   text-shadow: var(--heading-shadow);
+  text-transform: var(--title-transform);
+  letter-spacing: var(--title-tracking);
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
@@ -45,7 +49,7 @@
 
 .meta {
   font-size: var(--text-sm);
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .spacer {

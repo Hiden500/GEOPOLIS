@@ -1,4 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { cx } from "../cx";
 import styles from "./Tooltip.module.css";
 
@@ -28,6 +29,11 @@ const GAP = 8;
  * пузырёк измеряется и зажимается в окно по своей фактической ширине.
  * Прикидка «зажать центр на 100px от края» не работает: ширина пузырька
  * зависит от текста, и у крайних иконок он уезжал за край.
+ *
+ * Пузырёк рисуется ПОРТАЛОМ в body. `position: fixed` и высокий z-index не
+ * помогают: панель-предок со своим z-index создаёт контекст наложения, внутри
+ * которого любой z-index потомка остаётся локальным, — подсказка уходила под
+ * соседнюю панель.
  */
 export function Tooltip({ label, children, className }: TooltipProps) {
   const hostRef = useRef<HTMLSpanElement>(null);
@@ -74,22 +80,24 @@ export function Tooltip({ label, children, className }: TooltipProps) {
       onBlurCapture={hide}
     >
       {children}
-      {anchor !== null && (
-        <span
-          ref={bubbleRef}
-          className={styles.bubble}
-          role="tooltip"
-          style={
-            place === null
-              ? // Первый кадр: пузырёк уже в потоке, но невидим — иначе он
-                // мигнёт в неверном месте до замера.
-                { left: 0, top: 0, visibility: "hidden" }
-              : { left: place.left, top: place.top }
-          }
-        >
-          {label}
-        </span>
-      )}
+      {anchor !== null &&
+        createPortal(
+          <span
+            ref={bubbleRef}
+            className={styles.bubble}
+            role="tooltip"
+            style={
+              place === null
+                ? // Первый кадр: пузырёк уже в потоке, но невидим — иначе он
+                  // мигнёт в неверном месте до замера.
+                  { left: 0, top: 0, visibility: "hidden" }
+                : { left: place.left, top: place.top }
+            }
+          >
+            {label}
+          </span>,
+          document.body,
+        )}
     </span>
   );
 }

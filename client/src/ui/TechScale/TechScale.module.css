@@ -114,7 +114,7 @@
 
 .note {
   font-size: var(--text-xs);
-  color: var(--text-faint);
+  color: var(--text-dim);
   text-align: right;
   white-space: nowrap;
 }

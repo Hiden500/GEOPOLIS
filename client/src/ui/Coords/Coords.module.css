@@ -59,7 +59,7 @@
 .zone {
   position: absolute;
   font-size: var(--text-xs);
-  color: var(--text-faint);
+  color: var(--text-dim);
   padding: var(--space-1) var(--space-2);
   max-width: 48%;
   line-height: 1.2;
@@ -94,8 +94,8 @@
 .axisNames {
   display: grid;
   gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--text-faint);
+  font-size: var(--text-sm);
+  color: var(--text-dim);
 }
 
 .axisRow {

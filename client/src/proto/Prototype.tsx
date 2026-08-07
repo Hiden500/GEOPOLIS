@@ -6,8 +6,7 @@ import {
   IconBalance,
   IconBlocs,
   IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
+  IconChevronUp,
   IconClose,
   IconDebt,
   IconDefence,
@@ -183,6 +182,8 @@ export function Prototype() {
   const [compareId, setCompareId] = useState<CountryId | null>(null);
   const [mapMode, setMapMode] = useState<MapModeId>("powers");
   const [lentaOpen, setLentaOpen] = useState(true);
+  /** Мир и свои приказы — разные вопросы, поэтому вкладки, а не один список. */
+  const [lentaTab, setLentaTab] = useState<"all" | "world" | "mine">("all");
   const [listOpen, setListOpen] = useState(true);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [thinking, setThinking] = useState(false);
@@ -249,12 +250,15 @@ export function Prototype() {
       if (bottomRef.current !== null) {
         shell.style.setProperty("--bottom-h", `${bottomRef.current.offsetHeight}px`);
       }
+      // ЯЩИК останавливается над ЛЕНТОЙ: обе живут у левого края.
+      shell.style.setProperty("--lenta-h", `${lentaRef.current?.offsetHeight ?? 0}px`);
     };
     apply();
     const observer = new ResizeObserver(apply);
     if (shapkaRef.current !== null) observer.observe(shapkaRef.current);
     if (hodRef.current !== null) observer.observe(hodRef.current);
     if (bottomRef.current !== null) observer.observe(bottomRef.current);
+    if (lentaRef.current !== null) observer.observe(lentaRef.current);
     window.addEventListener("resize", apply);
     return () => {
       observer.disconnect();
@@ -303,14 +307,14 @@ export function Prototype() {
   const onDragMove = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
     if (dragTarget.current === null || lentaRef.current === null) return;
     const unit = rootSize();
-    const right = lentaRef.current.getBoundingClientRect().right;
+    const left = lentaRef.current.getBoundingClientRect().left;
     /*
-     * Потолок — левая граница ЛИСТА: ЛЕНТА вправе дорасти до него и не
-     * дальше, иначе она поедет поверх приказов.
+     * Потолок — левая граница ЛИСТА, который стоит по центру окна: дальше
+     * ЛЕНТА поехала бы поверх приказов.
      */
     const listW = parseFloat(getComputedStyle(shellRef.current!).getPropertyValue("--bottom-width")) || 0;
     const cap = (window.innerWidth - listW) / 2 - 2 * unit;
-    setFeedWidth(Math.max(17 * unit, Math.min(right - event.clientX, cap)));
+    setFeedWidth(Math.max(17 * unit, Math.min(event.clientX - left, cap)));
   }, []);
 
   const onDragEnd = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
@@ -321,6 +325,11 @@ export function Prototype() {
   const onLedgerDown = useCallback((event: React.PointerEvent<HTMLElement>) => {
     const node = ledgerRef.current;
     if (node === null) return;
+    /*
+     * Нажатие по кнопке в шапке не начинает перетаскивание: захват указателя
+     * уводил последующий клик на шапку, и крестик переставал закрывать окно.
+     */
+    if ((event.target as HTMLElement).closest("button") !== null) return;
     const box = node.getBoundingClientRect();
     ledgerDrag.current = { dx: event.clientX - box.left, dy: event.clientY - box.top };
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -695,59 +704,6 @@ export function Prototype() {
 
       {/* ── ЛЕНТА и РЕЖИМЫ ──────────────────────────────────── */}
       <div className={styles.rightStack}>
-        {lentaOpen ? (
-          <div ref={lentaRef} className={styles.lenta}>
-            <button
-              type="button"
-              className={styles.resizerLeft}
-              aria-label="Ширина ленты"
-              onPointerDown={onDragStart}
-              onPointerMove={onDragMove}
-              onPointerUp={onDragEnd}
-            />
-            <Panel
-              title="Этот ход"
-              meta={`${events.length} событий`}
-              density="flush"
-              scroll
-              className={styles.lentaPanel}
-              actions={
-                <Tooltip label="Убрать ленту к правому краю">
-                  <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть ленту" onClick={() => setLentaOpen(false)}>
-                    <IconChevronRight />
-                  </Button>
-                </Tooltip>
-              }
-            >
-              <div className={styles.lentaBody}>
-                {events.map((event) => (
-                  <EventItem
-                    key={event.id}
-                    date={event.date}
-                    title={event.title}
-                    body={event.body}
-                    factuality={event.factuality}
-                    order={event.order === undefined ? undefined : { text: event.order }}
-                    tags={event.tags}
-                    onTagClick={openTag}
-                  />
-                ))}
-              </div>
-            </Panel>
-          </div>
-        ) : (
-          /*
-           * Свёрнутая ЛЕНТА уходит ВПРАВО узким корешком, а не остаётся
-           * заголовком на полэкрана: сворачивают её, чтобы освободить карту.
-           */
-          <Tooltip label={`Развернуть ленту · событий: ${events.length}`}>
-            <button type="button" className={styles.lentaTab} aria-label="Развернуть ленту" onClick={() => setLentaOpen(true)}>
-              <IconChevronLeft />
-              <span className={styles.lentaTabCount}>{events.length}</span>
-            </button>
-          </Tooltip>
-        )}
-
         <Panel density="instrument" className={styles.rezhimy}>
           <div className={styles.rezhimyRow}>
             {legend !== undefined && (
@@ -775,6 +731,81 @@ export function Prototype() {
               ))}
             </div>
           </div>
+        </Panel>
+      </div>
+
+      {/* ── ЛЕНТА: левый нижний угол ─────────────────────────── */}
+      <div ref={lentaRef} className={styles.lenta}>
+        <button
+          type="button"
+          className={styles.resizerRight}
+          aria-label="Ширина ленты"
+          onPointerDown={onDragStart}
+          onPointerMove={onDragMove}
+          onPointerUp={onDragEnd}
+        />
+        <Panel
+          title="Этот ход"
+          meta={monthLabel.toLowerCase()}
+          density="flush"
+          scroll={lentaOpen}
+          className={styles.lentaPanel}
+          actions={
+            <Tooltip label={lentaOpen ? "Свернуть ленту" : "Развернуть ленту"}>
+              <Button
+                size="sm"
+                variant="quiet"
+                iconOnly
+                aria-label={lentaOpen ? "Свернуть ленту" : "Развернуть ленту"}
+                onClick={() => setLentaOpen((open) => !open)}
+              >
+                {lentaOpen ? <IconChevronDown /> : <IconChevronUp />}
+              </Button>
+            </Tooltip>
+          }
+        >
+          {lentaOpen && (
+            <>
+              <div className={styles.lentaTabs}>
+                {([
+                  ["all", `Всё · ${events.length}`],
+                  ["world", "Мир"],
+                  ["mine", "Мои приказы"],
+                ] as const).map(([id, name]) => (
+                  <Button
+                    key={id}
+                    size="sm"
+                    variant={lentaTab === id ? "order" : "quiet"}
+                    onClick={() => setLentaTab(id)}
+                  >
+                    {name}
+                  </Button>
+                ))}
+              </div>
+              <div className={styles.lentaBody}>
+                {events
+                  .filter((event) =>
+                    lentaTab === "all"
+                      ? true
+                      : lentaTab === "mine"
+                        ? event.order !== undefined
+                        : event.order === undefined,
+                  )
+                  .map((event) => (
+                    <EventItem
+                      key={event.id}
+                      date={event.date}
+                      title={event.title}
+                      body={event.body}
+                      factuality={event.factuality}
+                      order={event.order === undefined ? undefined : { text: event.order }}
+                      tags={event.tags}
+                      onTagClick={openTag}
+                    />
+                  ))}
+              </div>
+            </>
+          )}
         </Panel>
       </div>
 
@@ -967,10 +998,11 @@ export function Prototype() {
               <p className={styles.empty}>Оформление — материал панелей, а не цвет.</p>
               <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", marginBottom: "var(--space-4)" }}>
                 {[
-                  ["flat", "Плоское"],
-                  ["cast", "Литая рама"],
-                  ["paper", "Бумага"],
-                  ["gauge", "Приборная"],
+                  ["flat", "Панель"],
+                  ["bare", "Без рам"],
+                  ["print", "Печать"],
+                  ["glow", "Свет"],
+                  ["gauge", "Прибор"],
                 ].map(([id, name]) => (
                   <Button
                     key={id}

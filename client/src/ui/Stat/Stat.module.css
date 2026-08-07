@@ -97,11 +97,15 @@
   color: var(--fall);
 }
 
+/*
+ * Ярлык числа — не третьестепенный текст: без него число не значит ничего.
+ * Погашенный тон формально проходил норму контраста, но читался плохо.
+ */
 .label {
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
   white-space: nowrap;
 }
 

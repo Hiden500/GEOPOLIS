@@ -20,7 +20,7 @@
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .rows {
@@ -59,7 +59,7 @@
 
 .rowNote {
   font-size: var(--text-sm);
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .meter {
