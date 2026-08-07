@@ -25,7 +25,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 from shapely.geometry import shape, Polygon, MultiPolygon, box, LineString
 from shapely.ops import unary_union
 from shapely.strtree import STRtree
-from geometry_cleanup import area_km2
+from geometry_cleanup import area_km2, to_polygonal
 
 NEVER_CUT = {"Southern Ocean", "Arctic Ocean", "Black Sea", "Sea of Azov",
              "Mediterranean Sea - Western Basin", "Mediterranean Sea - Eastern Basin"}
@@ -513,6 +513,19 @@ while True:
     coasts[j] = coast_count(pieces[j][0])
     pieces.pop(i); coasts.pop(i)
 
+# Висячие линии нулевой площади: `unary_union` в шагах Вороного и слияния умеет
+# вернуть GeometryCollection из полигонов И LineString. Замер 2026-08-07: в
+# Южной Атлантике так вышли `Antarctica Ridge` (21 полигон + 3 линии) и
+# `Cape Basin`. `is_valid` на такое отвечает True, поэтому самопроверка их не
+# видела. Чистит `to_polygonal` из `geometry_cleanup` — там этот же дефект уже
+# описан по находке на Белом море.
+_fixed = 0
+for p in pieces:
+    if p[0].geom_type not in ("Polygon", "MultiPolygon"):
+        p[0] = to_polygonal(p[0]); p[3] = area_km2(p[0]); _fixed += 1
+if _fixed:
+    print(f"чистка: убраны висячие линии нулевой площади у {_fixed} зон")
+
 order = sorted(range(len(pieces)), key=lambda i: -pieces[i][3])
 pieces = [pieces[i] for i in order]; coasts = [coasts[i] for i in order]
 print("\n%-28s %-12s %12s %6s" % ("зона", "местность", "площадь км²", "приб."))
@@ -549,8 +562,12 @@ allz = unary_union([p[0] for p in pieces])
 hole = area_km2(target.difference(allz))
 spill = area_km2(allz.difference(target))
 bad = [nm for g, nm, t, a in pieces if not g.is_valid]
+# is_valid на висячей линии отвечает True — тип проверяем отдельно.
+nonpoly = [nm for g, nm, t, a in pieces
+           if g.geom_type not in ("Polygon", "MultiPolygon")]
 print("самопроверка: наложение %.0f км² | непокрыто %.0f | вне океана %.0f | "
-      "битых геометрий %d" % (ov_tot, hole, spill, len(bad)))
+      "битых геометрий %d | не-полигонов %d"
+      % (ov_tot, hole, spill, len(bad), len(nonpoly)))
 
 # Внутрь полигона проверка тоже обязана смотреть: щель нулевой ширины и зазор
 # между частями площади почти не имеют, поэтому три числа выше их не видят, а
