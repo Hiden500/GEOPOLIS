@@ -10,7 +10,7 @@
 натягивается тонкопластинчатый сплайн, и качество меряется на отложенной
 выборке, а не заявляется.
 """
-import csv, json, math, re, sys
+import csv, json, math, os, re, sys
 from pathlib import Path
 import numpy as np
 
@@ -95,6 +95,44 @@ ISLAND_CTRL = {
     "New Caledonia Basin": (("NC",), None, None),
 }
 
+# Якоря по подводным объектам GEBCO. WA называет океанские зоны по реальным
+# хребтам и котловинам, а GEBCO Gazetteer даёт их координаты.
+#
+# ВАЖНО: в GEBCO имя разложено на NAME и TYPE («Emperor» + «Seamount Chain»),
+# поэтому матчинг по одному NAME даёт 2 совпадения из 186 зон, а по
+# конкатенации NAME+TYPE — 18. Замер 2026-08-07.
+#
+# Слабое место, из-за которого эти якоря НЕ равны островным: зона названа по
+# хребту, но не центрирована на нём — у якоря есть встроенное смещение. Поэтому
+# польза здесь не предполагается, а проверяется отложенным тестом (см. ниже):
+# помогают ли они предсказывать ОСТРОВНЫЕ якоря, которым мы уже доверяем.
+NO_GEBCO = os.environ.get("SEAZONE_NOGEBCO") == "1"
+GEBCO_DIR = REPO / "scripts/map/sources/gebco"
+
+
+def _nz(s):
+    return re.sub(r"[^a-z0-9]+", " ", (s or "").lower()).strip()
+
+
+GEBCO_PT = {}
+if not NO_GEBCO and GEBCO_DIR.exists():
+    for _fn in ("gebco_points.geojson", "gebco_lines.geojson", "gebco_polygons.geojson"):
+        _p = GEBCO_DIR / _fn
+        if not _p.exists():
+            continue
+        for _f in json.load(open(_p, encoding="utf-8"))["features"]:
+            _pr = _f["properties"]
+            _key = _nz(f"{_pr.get('NAME', '')} {_pr.get('TYPE', '')}")
+            if not _key or _key in GEBCO_PT:
+                continue
+            try:
+                _c = shape(_f["geometry"]).centroid
+            except Exception:
+                continue
+            if not _c.is_empty:
+                GEBCO_PT[_key] = (_c.x, _c.y)
+    print(f"GEBCO Gazetteer: {len(GEBCO_PT)} именованных объектов")
+
 # --- наши точки ------------------------------------------------------------
 land = [(p.get("iso_a2"), p.get("name"), shape(f["geometry"]))
         for f in json.load(open(REPO / "scripts/map/master/world_1946.master.geojson",
@@ -143,6 +181,38 @@ for p in (WA / "map/strategicregions").glob("*.txt"):
     if nt or (prov and sea / max(1, len(prov)) > 0.5):
         nav.add(rid); terr[rid] = nt.group(1).replace("water_", "") if nt else "ocean"
 
+# GEBCO-якорь: имя МОРСКОЙ зоны WA совпало с NAME+TYPE объекта GEBCO
+# Якорь GEBCO смещён по построению (зона названа по хребту, но не центрирована
+# на нём), островной — проверен и не смещён. Рядом они конкурируют: замер
+# 2026-08-07 показал, что `Hawaiian Trough` и `Necker Ridge` перекашивают поле
+# у Гавайев, и зона `Hawaii` переставала накрывать два острова из четырёх.
+# Поэтому в окрестности острова побеждает остров.
+GEBCO_MIN_KM = 1500.0
+GEBCO_CTRL, _near = {}, []
+for _rid, _nm in names.items():
+    if not (_rid in nav and _nz(_nm) in GEBCO_PT and _nm not in ours
+            and _nm not in ISLAND_CTRL):
+        continue
+    _pt = GEBCO_PT[_nz(_nm)]
+    _clash = None
+    for _in in ISLAND_CTRL:
+        if _in not in ours:
+            continue
+        _o = ours[_in]
+        _dx = (_pt[0] - _o[0]) * 111 * math.cos(math.radians((_pt[1] + _o[1]) / 2))
+        if math.hypot(_dx, (_pt[1] - _o[1]) * 111) < GEBCO_MIN_KM:
+            _clash = _in; break
+    if _clash:
+        _near.append(f"{_nm} (рядом {_clash})")
+    else:
+        GEBCO_CTRL[_nm] = _pt
+if _near:
+    print(f"  якорей GEBCO отклонено как соседей острова: {len(_near)} — "
+          + ", ".join(_near[:5]))
+ours.update(GEBCO_CTRL)
+print(f"якорей по объектам GEBCO: {len(GEBCO_CTRL)}"
+      + (" (выключены)" if NO_GEBCO else ""))
+
 reg = np.load(SCR / "wa_reg.npy"); seam = np.load(SCR / "wa_sea.npy")
 H, W = reg.shape
 by = {}
@@ -151,7 +221,12 @@ for rid, nm in names.items():
         continue
     # У островного якоря берём центр СУШИ внутри морского региона, а не всего
     # региона: центр региона стоит в открытой воде и островом не является.
-    m = (reg == rid) & (~seam if nm in ISLAND_CTRL else True)
+    if nm in ISLAND_CTRL:
+        m = (reg == rid) & ~seam          # остров: центр СУШИ внутри морской зоны
+    elif nm in GEBCO_CTRL:
+        m = (reg == rid) & seam           # подводный объект: центр ВОДЫ зоны
+    else:
+        m = (reg == rid)
     ys, xs = np.where(m)
     if len(xs):
         by[nm] = (xs.mean(), ys.mean())
@@ -204,13 +279,13 @@ lin_err = np.array(lin_err)
 
 keep, dropped = [], []
 for i in range(len(P)):
-    isle = names_ctrl[i] in ISLAND_CTRL
+    isle = names_ctrl[i] in ISLAND_CTRL or names_ctrl[i] in GEBCO_CTRL
     limit = LINEAR_DROP_KM if isle else DROP_KM
     val = lin_err[i] if isle else err[i]
     (keep if val <= limit else dropped).append(i)
 print(f"отброшено {len(dropped)} точек: "
       + ", ".join(f"{names_ctrl[i]} ({'линейно ' if names_ctrl[i] in ISLAND_CTRL else ''}"
-                  f"{(lin_err[i] if names_ctrl[i] in ISLAND_CTRL else err[i]):.0f} км)"
+                  f"{(lin_err[i] if (names_ctrl[i] in ISLAND_CTRL or names_ctrl[i] in GEBCO_CTRL) else err[i]):.0f} км)"
                   for i in dropped))
 _isles = [i for i in keep if names_ctrl[i] in ISLAND_CTRL]
 if _isles:
@@ -232,6 +307,14 @@ print(f"после чистки ({len(P)} точек): медиана {np.median
       f"75%% {np.percentile(err,75):.0f} | худшая {err.max():.0f} км")
 worst = np.argsort(-err)[:4]
 print("  худшие:", ", ".join(f"{names_ctrl[i]} {err[i]:.0f}км" for i in worst))
+# Отложенный тест пользы GEBCO: смотрим ошибку на ОСТРОВНЫХ якорях, которым
+# доверяем независимо. Если якоря GEBCO смещены, они её ухудшат — и это будет
+# видно, а не предположено. Сравнивать с прогоном SEAZONE_NOGEBCO=1.
+_isl_err = [err[i] for i in range(len(P)) if names_ctrl[i] in ISLAND_CTRL]
+if _isl_err:
+    print("КОНТРОЛЬ на островных якорях (%d шт.): медиана %.0f км | худшая %.0f км"
+          % (len(_isl_err), float(np.median(_isl_err)), max(_isl_err)))
+
 model = fit(list(range(len(P))))
 
 # --- переносим их морскую карту на наши координаты -------------------------
