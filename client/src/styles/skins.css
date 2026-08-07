@@ -1,0 +1,129 @@
+/*
+ * ОФОРМЛЕНИЕ (skin) — ИЗ ЧЕГО СДЕЛАН интерфейс. Выбор живёт на
+ * <html data-skin="...">.
+ *
+ * Первая попытка была неудачной и это стоит помнить: четыре «разных»
+ * оформления отличались только параметрами фаски и фактуры у одной и той же
+ * тёмной панели. Это не разные концепции, а один вариант с крутилками.
+ *
+ * Здесь варианты отвечают на вопрос ПО-РАЗНОМУ:
+ *   панель  — интерфейс это коробка с содержимым (нейтральный базовый ответ);
+ *   без рам — коробок нет вовсе, содержимое лежит прямо на карте;
+ *   печать  — интерфейс напечатан: линейки, капитель, ноль скруглений;
+ *   свет    — интерфейс не предмет, а проекция: стекло и свечение;
+ *   прибор  — интерфейс это корпус с утопленными окнами под показания.
+ *
+ * Разделение с палитрой намеренное: палитра меняет числа цвета и потому не
+ * может увести интерфейс от плоского дашборда — плоским он остаётся в любой
+ * палитре.
+ */
+
+:root {
+  /* ── Панель ──────────────────────────────────────────────────── */
+  --panel-bg: var(--surface);
+  --panel-texture: none;
+  --panel-bevel: none;
+  --panel-shadow: none;
+  --panel-backdrop: none;
+  --panel-edge: var(--edge);
+  --panel-edge-width: 1px;
+  --panel-radius: var(--radius-panel);
+
+  /* ── Заголовок панели ────────────────────────────────────────── */
+  --title-transform: none;
+  --title-tracking: var(--tracking-tight);
+  --heading-shadow: none;
+
+  /* ── «Окно» под число ────────────────────────────────────────── */
+  --well-bg: transparent;
+  --well-bevel: none;
+  --well-pad: 0;
+  --well-radius: 0;
+
+  /* ── Прочее ──────────────────────────────────────────────────── */
+  --band-tint: rgba(0, 0, 0, 0.22);
+  /* Тень у текста нужна только там, где текст лежит прямо на карте. */
+  --content-shadow: none;
+}
+
+/* ── БЕЗ РАМ ────────────────────────────────────────────────────
+ * Коробок нет. Содержимое лежит прямо на карте и держится тенью,
+ * расстоянием и типографикой. Карта не закрыта ничем — это максимум того,
+ * что можно отдать главному экрану.
+ *
+ * Цена честная: поверх пёстрой раскраски читается хуже любого другого
+ * варианта, и держится всё на тени под текстом.
+ */
+:root[data-skin="bare"] {
+  --panel-bg: transparent;
+  --panel-edge: transparent;
+  --panel-edge-width: 0px;
+  --panel-radius: 0px;
+  --panel-shadow: none;
+  --band-tint: transparent;
+  --content-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.8);
+  --heading-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 14px rgba(0, 0, 0, 0.85);
+  --title-transform: uppercase;
+  --title-tracking: var(--tracking-label);
+}
+
+/* ── ПЕЧАТЬ ─────────────────────────────────────────────────────
+ * Интерфейс напечатан: ноль скруглений, толстая сплошная линейка вместо
+ * волосяной, никаких теней и градиентов, заголовки капителью в разрядку.
+ * Ближе всего к военному бланку 1946 года.
+ */
+:root[data-skin="print"] {
+  --panel-bg: var(--surface-sunken);
+  --panel-edge: var(--text-dim);
+  --panel-edge-width: 2px;
+  --panel-radius: 0px;
+  --panel-shadow: none;
+  --panel-bevel: none;
+  --title-transform: uppercase;
+  --title-tracking: 0.14em;
+  --band-tint: rgba(255, 255, 255, 0.05);
+  --well-bg: transparent;
+  --well-pad: 0;
+  --well-radius: 0;
+}
+
+/* ── СВЕТ ───────────────────────────────────────────────────────
+ * Интерфейс не предмет, а проекция: полупрозрачное стекло с размытием,
+ * светящаяся кромка, свечение у заголовков. Карта просвечивает насквозь,
+ * но остаётся читаемой — в отличие от варианта без рам.
+ */
+:root[data-skin="glow"] {
+  --panel-bg: color-mix(in srgb, var(--surface) 55%, transparent);
+  --panel-backdrop: blur(14px) saturate(1.1);
+  --panel-edge: var(--accent);
+  --panel-edge-width: 1px;
+  --panel-radius: var(--radius-panel);
+  --panel-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent),
+    0 0 24px color-mix(in srgb, var(--accent) 18%, transparent);
+  --heading-shadow: 0 0 10px color-mix(in srgb, var(--accent) 55%, transparent);
+  --content-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  --band-tint: color-mix(in srgb, var(--accent) 10%, transparent);
+  --well-bg: color-mix(in srgb, var(--accent) 8%, transparent);
+  --well-pad: var(--space-1) var(--space-2);
+  --well-radius: var(--radius-inner);
+}
+
+/* ── ПРИБОР ─────────────────────────────────────────────────────
+ * Интерфейс это корпус: матовая поверхность, а показания сидят в
+ * УТОПЛЕННЫХ окнах. Единственное оформление, которое помогает содержимому,
+ * а не украшает контейнер: чисел в игре много, и окно отделяет показание от
+ * корпуса.
+ */
+:root[data-skin="gauge"] {
+  --panel-bg: var(--surface);
+  --panel-texture: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.1));
+  --panel-bevel: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  --panel-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --band-tint: rgba(0, 0, 0, 0.4);
+  --well-bg: rgba(0, 0, 0, 0.38);
+  --well-bevel:
+    inset 0 2px 3px rgba(0, 0, 0, 0.6),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+  --well-pad: var(--space-1) var(--space-2);
+  --well-radius: var(--radius-inner);
+}

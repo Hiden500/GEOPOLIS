@@ -1,0 +1,160 @@
+/*
+ * Событие несёт два независимых вопроса, поэтому у них две фиксированные
+ * позиции: СЛЕВА — откуда оно взялось, СПРАВА — насколько подтверждено.
+ *
+ * Левая колонка отведена всегда, даже у событий мира: тогда текст выровнен,
+ * а точки складываются в вертикальный ряд, и месяц читается одним взглядом,
+ * а не по одному событию.
+ */
+
+.item {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  column-gap: var(--space-3);
+  row-gap: var(--space-2);
+  padding: var(--space-3) var(--space-1);
+  border-bottom: var(--edge-width) solid var(--divider);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.gutter {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.content {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.mark {
+  grid-column: 3;
+  grid-row: 1;
+  padding-top: 2px;
+}
+
+.reveal {
+  grid-column: 2 / -1;
+  grid-row: 2;
+}
+
+/*
+ * Дата — надстрочник над заголовком. Лента группируется по ходу, но каждое
+ * событие всё равно несёт свой день: месяц вмещает несколько остановок, и
+ * «когда именно» — часть факта, а не украшение.
+ */
+.date {
+  display: block;
+  margin-bottom: 2px;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--text);
+}
+
+.body {
+  margin-top: var(--space-2);
+  font-family: var(--font-narrative);
+  font-size: var(--text-md);
+  line-height: var(--leading-prose);
+  color: var(--text-dim);
+}
+
+/* ── Метка источника ──────────────────────────────────────────── */
+
+.dot {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: var(--radius-pill);
+}
+
+.dot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.dot:hover::before {
+  transform: scale(1.35);
+}
+
+.orderText {
+  padding: var(--space-2) var(--space-3);
+  border-left: 2px solid var(--accent);
+  background: var(--surface-raised);
+  border-radius: 0 var(--radius-inner) var(--radius-inner) 0;
+  font-family: var(--font-narrative);
+  font-size: var(--text-md);
+  line-height: var(--leading-prose);
+  color: var(--text-dim);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.orderPrefix {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 2px;
+}
+
+/* ── Метка достоверности ──────────────────────────────────────── */
+
+/*
+ * Цвет уже занят картой и дельтами, поэтому достоверность держится знаком
+ * и СТИЛЕМ ЛИНИИ: штриховая — частично, пунктирная — не подтверждено.
+ * Заодно это читается при дальтонизме.
+ *
+ * Помечается только неподтверждённое: отсутствие метки — утверждение
+ * «всё, что было предложено движку, применилось», а не молчание.
+ */
+.factuality {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  line-height: 1;
+  color: var(--text-faint);
+}
+
+.partial {
+  border: 1px dashed var(--near);
+  color: var(--near);
+}
+
+.unconfirmed {
+  border: 1px dotted var(--text-faint);
+}

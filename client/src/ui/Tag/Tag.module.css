@@ -1,0 +1,62 @@
+/*
+ * Ярлык — ссылка на МЕСТО или СУЩНОСТЬ, а не украшение события. По нему
+ * переходят: к региону на карте, к панели державы, к объекту. Поэтому он
+ * нажимаем и выглядит нажимаемым; ярлык без действия — это уже подпись,
+ * и её место в тексте.
+ *
+ * Ярлыки есть не у всех событий: их ставит движок из фактически
+ * применённого (затронутые регионы, страна-источник, созданный объект),
+ * а не модель из своего текста.
+ */
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  padding: 2px var(--space-2);
+  border: var(--edge-width) solid var(--divider);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    border-color var(--dur-fast) var(--ease),
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.interactive:hover {
+  border-color: var(--edge-strong);
+  background: var(--accent-tint);
+  color: var(--text);
+}
+
+/*
+ * Точка перед подписью кодирует РОД цели, а не важность: куда именно
+ * приведёт нажатие. Форма одна, различает цвет — но род дублируется в
+ * подсказке и в тексте для скринридера, поэтому цвет здесь не единственный
+ * носитель смысла.
+ */
+.kind {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.region {
+  background: var(--accent);
+}
+
+.country {
+  background: var(--text-dim);
+}
+
+.object {
+  background: var(--near);
+}
