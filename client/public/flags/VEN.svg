@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 200" width="300" height="200"><svg viewBox="0 0 900.0 600.0" x="0.0000" y="0.0000" width="300.0000" height="200.0000" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="900" height="600" fill="#cf142b"/>
+<rect width="900" height="400" fill="#0033ab"/>
+<rect width="900" height="200" fill="#f7d117"/>
+<g fill="#fff">
+<path id="star" d="M450,218.8023 465.251088,265.740321 425.323222,236.731029H474.676778L434.748912,265.740321z"/>
+<g id="star3">
+<use xlink:href="#star" transform="rotate(24,450,412.241)"/>
+<use xlink:href="#star" transform="rotate(48,450,412.241)"/>
+<use xlink:href="#star" transform="rotate(72,450,412.241)"/>
+</g>
+<use xlink:href="#star3" transform="matrix(-1,0,0,1,900,0)"/>
+</g>
+</svg></svg>
