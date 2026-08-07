@@ -485,6 +485,34 @@ print("упрощение швов: дуг %d (из них берег %d, не �
       % (len(arcs), kept_coast, v_before, v_after,
          100 * (1 - v_after / max(1, v_before)), rebuilt, lost))
 
+# Слияние обрезков повторяется ПОСЛЕ упрощения: пересборка через полигонизацию
+# может ужать зону до крошки, и первый проход (он идёт до упрощения) этого уже
+# не увидит. Замер: `Cocos Basin` в Индийском вышел 13 км² при пороге 100 тыс.
+while True:
+    small = [i for i, p in enumerate(pieces)
+             if p[3] < MIN_COASTLESS_KM2 and coasts[i] == 0]
+    if not small or len(pieces) < 2:
+        break
+    i = min(small, key=lambda k: pieces[k][3])
+    rest = [j for j in range(len(pieces)) if j != i]
+    ibuf = pieces[i][0].buffer(0.02)
+    touch = []
+    for j in rest:
+        try:
+            b = ibuf.intersection(pieces[j][0])
+            touch.append((area_km2(b) if not b.is_empty else 0.0, j))
+        except Exception:
+            touch.append((0.0, j))
+    best = max(touch, key=lambda t: t[0])
+    j = best[1] if best[0] > 0 else min(rest, key=lambda k: pieces[k][0].distance(pieces[i][0]))
+    print("   после упрощения слито: %s (%.0f км²) -> %s"
+          % (pieces[i][1], pieces[i][3], pieces[j][1]))
+    g = unary_union([pieces[j][0], pieces[i][0]])
+    pieces[j][0] = g if g.is_valid else g.buffer(0)
+    pieces[j][3] = area_km2(pieces[j][0])
+    coasts[j] = coast_count(pieces[j][0])
+    pieces.pop(i); coasts.pop(i)
+
 order = sorted(range(len(pieces)), key=lambda i: -pieces[i][3])
 pieces = [pieces[i] for i in order]; coasts = [coasts[i] for i in order]
 print("\n%-28s %-12s %12s %6s" % ("зона", "местность", "площадь км²", "приб."))
