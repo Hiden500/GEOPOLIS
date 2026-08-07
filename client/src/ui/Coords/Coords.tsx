@@ -12,7 +12,8 @@ export interface CoordsPoint {
 export interface CoordsProps {
   point: CoordsPoint;
   /** Вторая точка для сравнения: расстояние между ними и есть смысл. */
-  rival?: CoordsPoint;
+  /** null — соперник не выбран; сравнивать не с чем. */
+  rival?: CoordsPoint | null;
   /** Подписи концов осей. */
   xFrom: string;
   xTo: string;
@@ -46,7 +47,7 @@ export function Coords({ point, rival, xFrom, xTo, yFrom, yTo, zones, className 
           </>
         )}
 
-        {rival !== undefined && (
+        {rival !== undefined && rival !== null && (
           <span
             className={styles.dotRival}
             style={{ left: px(rival.x), top: py(rival.y) }}

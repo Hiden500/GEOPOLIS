@@ -1,24 +1,15 @@
 import { Fragment, useState } from "react";
 import { Button, Coords, ResourceBar, Stat, Tag, TechScale, cx } from "../ui";
 import {
-  BUDGET,
-  COUNTRIES,
-  DOMAINS,
-  GOALS,
   LEDGER_TABS,
-  PROJECTS,
-  RED_LINES,
-  REGIONS,
-  RESOURCES,
-  TECH_SLOTS,
-  type Country,
-  type CountryId,
+  useModel,
   type LedgerTabId,
-  type ProtoEvent,
-  type Region,
+  type ScreenCountry,
+  type ScreenEvent,
+  type ScreenRegion,
   type RegionTab,
   type TomeId,
-} from "./data";
+} from "./model";
 import styles from "./panels.module.css";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -41,7 +32,7 @@ function Meter({ value, warn = false }: { value: number; warn?: boolean }) {
   );
 }
 
-function FlagChip({ country }: { country: Country }) {
+function FlagChip({ country }: { country: ScreenCountry }) {
   return (
     <span
       className={styles.flagChip}
@@ -53,22 +44,24 @@ function FlagChip({ country }: { country: Country }) {
 /* ── Тома ──────────────────────────────────────────────────────── */
 
 function EconomyTome() {
-  const [budget, setBudget] = useState(BUDGET.map((item) => item.share));
+  const model = useModel();
+  const [budget, setBudget] = useState(model.budget.map((item) => item.share));
 
   return (
     <>
-      <Section title="Ключевые показатели">
-        <div className={styles.statTable}>
-          <Stat layout="table" label="ВВП" value="1,46T" delta={{ text: "+3,2%", tone: "good" }} size="lg" />
-          <Stat layout="table" label="Баланс" value="+12,4B" delta={{ text: "+1,8B", tone: "good" }} size="lg" />
-          <Stat layout="table" label="Долг к ВВП" value="0,94" delta={{ text: "+0,03", tone: "bad" }} threshold="near" size="lg" />
-          <Stat layout="table" label="Инфляция" value="6,1%" delta={{ text: "+0,4", tone: "bad" }} size="lg" />
-        </div>
-      </Section>
+      {model.economyStats.length > 0 && (
+        <Section title="Ключевые показатели">
+          <div className={styles.statTable}>
+            {model.economyStats.map((stat) => (
+              <Stat key={stat.label} layout="table" size="lg" {...stat} />
+            ))}
+          </div>
+        </Section>
+      )}
 
       <Section title="Доли бюджета">
         <div className={styles.rows}>
-          {BUDGET.map((item, index) => (
+          {model.budget.map((item, index) => (
             <div key={item.name}>
               <div className={styles.row}>
                 <span className={styles.rowName}>{item.name}</span>
@@ -92,18 +85,21 @@ function EconomyTome() {
         </div>
       </Section>
 
-      <Section title="Сырьё">
-        <ResourceBar items={RESOURCES} layout="list" />
-      </Section>
+      {model.resources.length > 0 && (
+        <Section title="Сырьё">
+          <ResourceBar items={model.resources} layout="list" />
+        </Section>
+      )}
     </>
   );
 }
 
 function DefenceTome({ withScience = false }: { withScience?: boolean }) {
+  const model = useModel();
   return (
     <>
       <Section title="Слоты, парк и количество">
-        {TECH_SLOTS.map((slot) => (
+        {model.techSlots.map((slot) => (
           <TechScale key={slot.name} {...slot} />
         ))}
       </Section>
@@ -120,15 +116,19 @@ function DefenceTome({ withScience = false }: { withScience?: boolean }) {
         </div>
       </Section>
 
-      <Section title="Ядерное">
-        <div className={styles.row}>
-          <span className={styles.rowName}>Заряды</span>
-          <span className={styles.rowValue}>0</span>
-        </div>
-        <p className={styles.rowNote} style={{ marginTop: "var(--space-2)" }}>
-          Носителей нет. Программа РДС даст первый заряд не раньше 1949 года.
-        </p>
-      </Section>
+      {model.nuclear !== null && (
+        <Section title="Ядерное">
+          <div className={styles.row}>
+            <span className={styles.rowName}>Заряды</span>
+            <span className={styles.rowValue}>{model.nuclear.warheads}</span>
+          </div>
+          {model.nuclear.note !== "" && (
+            <p className={styles.rowNote} style={{ marginTop: "var(--space-2)" }}>
+              {model.nuclear.note}
+            </p>
+          )}
+        </Section>
+      )}
 
       {/*
        * Вариант «наука внутри обороны»: домены и проекты приезжают сюда, и
@@ -141,11 +141,12 @@ function DefenceTome({ withScience = false }: { withScience?: boolean }) {
 }
 
 function ScienceTome() {
+  const model = useModel();
   return (
     <>
       <Section title="Домены и фокус исследований">
         <div className={styles.rows}>
-          {DOMAINS.map((domain) => (
+          {model.domains.map((domain) => (
             <div key={domain.name}>
               <div className={styles.row}>
                 <span className={styles.rowName}>
@@ -164,7 +165,7 @@ function ScienceTome() {
 
       <Section title="Проекты">
         <div className={styles.rows}>
-          {PROJECTS.map((project) => (
+          {model.projects.map((project) => (
             <div key={project.name}>
               <div className={styles.row}>
                 <span className={styles.rowName}>{project.name}</span>
@@ -181,36 +182,40 @@ function ScienceTome() {
 }
 
 function PoliticsTome() {
+  const model = useModel();
   return (
     <>
-      <Section title="Оси власти">
-        <div className={styles.statTable}>
-          <Stat layout="table" label="Стабильность" value="71" delta={{ text: "−1", tone: "bad" }} size="lg" />
-          <Stat layout="table" label="Легитимность" value="83" delta={{ text: "+2", tone: "good" }} size="lg" />
-          <Stat layout="table" label="Коррупция" value="34" delta={{ text: "0", tone: "neutral" }} size="lg" />
-          <Stat layout="table" label="Поддержка" value="66" delta={{ text: "−3", tone: "bad" }} size="lg" />
-        </div>
-      </Section>
+      {model.politicsStats.length > 0 && (
+        <Section title="Оси власти">
+          <div className={styles.statTable}>
+            {model.politicsStats.map((stat) => (
+              <Stat key={stat.label} layout="table" size="lg" {...stat} />
+            ))}
+          </div>
+        </Section>
+      )}
 
+      {model.ideology !== null && (
       <Section title="Курс">
         <Coords
-          point={{ x: -0.82, y: -0.91, label: "СССР" }}
-          rival={{ x: 0.74, y: 0.68, label: "США" }}
-          xFrom="лево"
-          xTo="право"
-          yFrom="авторитаризм"
-          yTo="демократия"
-          zones={["соц-демократия", "либеральная демократия", "консерватизм", "коммунизм"]}
+          point={model.ideology.point}
+          rival={model.ideology.rival}
+          xFrom={model.ideology.xFrom}
+          xTo={model.ideology.xTo}
+          yFrom={model.ideology.yFrom}
+          yTo={model.ideology.yTo}
+          zones={model.ideology.zones}
         />
         <p className={styles.rowNote} style={{ marginTop: "var(--space-3)" }}>
-          Точка — ваш курс, ромб — США. Недовольство групп и близость союзов считаются как
-          расстояние между позициями, поэтому важно не само число, а насколько вы далеко.
+          Точка — ваш курс, ромб — соперник. Недовольство групп и близость союзов считаются
+          как расстояние между позициями, поэтому важно не само число, а насколько вы далеко.
         </p>
       </Section>
+      )}
 
       <Section title="Очаги недовольства">
         <div className={styles.rows}>
-          {Object.values(REGIONS)
+          {Object.values(model.regions)
             .filter((region) => region.discontent > 0.3)
             .sort((a, b) => b.discontent - a.discontent)
             .map((region) => (
@@ -228,12 +233,13 @@ function PoliticsTome() {
   );
 }
 
-function DiplomacyTome({ onSelectCountry }: { onSelectCountry: (id: CountryId) => void }) {
+function DiplomacyTome({ onSelectCountry }: { onSelectCountry: (id: string) => void }) {
+  const model = useModel();
   return (
     <Section title="Отношения">
       <div className={styles.rows}>
-        {Object.values(COUNTRIES)
-          .filter((country) => country.id !== "SUN")
+        {Object.values(model.countries)
+          .filter((country) => country.id !== model.playerId)
           .map((country) => (
             <div key={country.id} className={styles.row}>
               <span className={styles.rowName}>
@@ -259,11 +265,12 @@ function DiplomacyTome({ onSelectCountry }: { onSelectCountry: (id: CountryId) =
 }
 
 function GoalsTome() {
+  const model = useModel();
   return (
     <>
       <Section title="Цели державы">
         <div className={styles.rows}>
-          {GOALS.map((goal) => (
+          {model.goals.map((goal) => (
             <div key={goal.text}>
               <div className={styles.row}>
                 <span className={styles.rowName}>{goal.text}</span>
@@ -276,29 +283,31 @@ function GoalsTome() {
         </div>
       </Section>
 
+      {model.redLines.length > 0 && (
       <Section title="Красные линии">
         <div className={styles.rows}>
-          {RED_LINES.map((line) => (
+          {model.redLines.map((line) => (
             <div key={line} className={styles.rowName}>
               · {line}
             </div>
           ))}
         </div>
       </Section>
+      )}
 
-      <Section title="Советник">
-        <p className={styles.prose}>
-          <strong>Оценка.</strong> Разрыв по промышленному выпуску не сокращается третий год.
-          Бюджет обороны в 34% удерживает паритет, но съедает то, что должно было стать станками.
-        </p>
-        <p className={styles.prose} style={{ marginTop: "var(--space-2)" }}>
-          <strong>Предположение.</strong> Если доля обороны упадёт до 28%, разрыв начнёт сокращаться
-          к 1949 году — ценой риска на западной границе.
-        </p>
-        <p className={styles.rowNote} style={{ marginTop: "var(--space-2)" }}>
-          Это оценка и предположение, а не факт. Решение за вами.
-        </p>
-      </Section>
+      {model.advisor !== null && (
+        <Section title="Советник">
+          <p className={styles.prose}>
+            <strong>Оценка.</strong> {model.advisor.assessment}
+          </p>
+          <p className={styles.prose} style={{ marginTop: "var(--space-2)" }}>
+            <strong>Предположение.</strong> {model.advisor.guess}
+          </p>
+          <p className={styles.rowNote} style={{ marginTop: "var(--space-2)" }}>
+            Это оценка и предположение, а не факт. Решение за вами.
+          </p>
+        </Section>
+      )}
     </>
   );
 }
@@ -311,7 +320,7 @@ export function TomeBody({
   id: TomeId;
   /** Наука не отдельным ТОМОМ, а разделами внутри ОБОРОНЫ. */
   withScience?: boolean;
-  onSelectCountry: (countryId: CountryId) => void;
+  onSelectCountry: (countryId: string) => void;
 }) {
   switch (id) {
     case "economy":
@@ -336,10 +345,11 @@ export function RegionDetail({
   tab,
   onSelectCountry,
 }: {
-  region: Region;
+  region: ScreenRegion;
   tab: RegionTab;
-  onSelectCountry: (countryId: CountryId) => void;
+  onSelectCountry: (countryId: string) => void;
 }) {
+  const model = useModel();
   if (tab === "lyudi") {
     return (
       <div className={styles.groups}>
@@ -394,7 +404,7 @@ export function RegionDetail({
         <div className={styles.row}>
           <span className={styles.rowName}>Держава</span>
           <Tag
-            label={COUNTRIES[region.owner].short}
+            label={model.countries[region.owner].short}
             kind="country"
             onClick={() => onSelectCountry(region.owner)}
           />
@@ -421,7 +431,7 @@ export function RegionDetail({
   );
 }
 
-const COMPARE_ROWS: Array<[string, (c: Country) => string]> = [
+const COMPARE_ROWS: Array<[string, (c: ScreenCountry) => string]> = [
   ["Ранг", (c) => `№${c.rank}`],
   ["Тир", (c) => c.tier],
   ["ВВП", (c) => c.gdp],
@@ -437,12 +447,13 @@ export function CountryDetail({
   onCompare,
   onClearCompare,
 }: {
-  country: Country;
-  rival: Country | null;
-  onCompare: (countryId: CountryId) => void;
+  country: ScreenCountry;
+  rival: ScreenCountry | null;
+  onCompare: (countryId: string) => void;
   onClearCompare: () => void;
 }) {
-  const isPlayer = country.id === "SUN";
+  const model = useModel();
+  const isPlayer = country.id === model.playerId;
 
   return (
     <>
@@ -470,7 +481,7 @@ export function CountryDetail({
 
       <Section title="Сравнить">
         <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
-          {Object.values(COUNTRIES)
+          {Object.values(model.countries)
             .filter((other) => other.id !== country.id)
             .map((other) => (
               <Button
@@ -499,15 +510,16 @@ export function LedgerBody({
 }: {
   tab: LedgerTabId;
   onTab: (tab: LedgerTabId) => void;
-  onSelectCountry: (countryId: CountryId) => void;
+  onSelectCountry: (countryId: string) => void;
   onSelectRegion: (regionId: string) => void;
-  events: ProtoEvent[];
+  events: ScreenEvent[];
 }) {
   const [sort, setSort] = useState<{ key: string; desc: boolean }>({ key: "rank", desc: false });
 
   const toggleSort = (key: string) =>
     setSort((prev) => ({ key, desc: prev.key === key ? !prev.desc : true }));
 
+  const model = useModel();
   const mark = (key: string) => (sort.key === key ? <span className={styles.sortMark}> ▾</span> : null);
 
   return (
@@ -539,7 +551,7 @@ export function LedgerBody({
               </tr>
             </thead>
             <tbody>
-              {Object.values(COUNTRIES)
+              {Object.values(model.countries)
                 .slice()
                 .sort((a, b) => {
                   const dir = sort.desc ? -1 : 1;
@@ -580,7 +592,7 @@ export function LedgerBody({
               </tr>
             </thead>
             <tbody>
-              {Object.values(REGIONS)
+              {Object.values(model.regions)
                 .slice()
                 .sort((a, b) => {
                   const dir = sort.desc ? -1 : 1;
@@ -591,7 +603,7 @@ export function LedgerBody({
                 .map((region) => (
                   <tr key={region.id} onClick={() => onSelectRegion(region.id)}>
                     <td>{region.name}</td>
-                    <td>{COUNTRIES[region.owner].short}</td>
+                    <td>{model.countries[region.owner].short}</td>
                     <td className={styles.numeric}>{region.population}</td>
                     <td className={styles.numeric}>{region.discontent.toFixed(2)}</td>
                     <td className={styles.numeric}>{region.industry}</td>

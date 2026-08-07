@@ -7,16 +7,16 @@ import {
   HEX_OWNERS,
   REGIONS,
   type CountryId,
-  type MapModeId,
 } from "./data";
 import styles from "./HexMap.module.css";
 
 interface HexMapProps {
-  mode: MapModeId;
+  /** Экран отдаёт режим строкой: раскраску знает карта, не рама. */
+  mode: string;
   selectedRegionId: string | null;
-  selectedCountryId: CountryId | null;
+  selectedCountryId: string | null;
   onSelectRegion: (regionId: string) => void;
-  onSelectCountry: (countryId: CountryId) => void;
+  onSelectCountry: (countryId: string) => void;
 }
 
 const HEX_W = 100;
