@@ -96,6 +96,7 @@ export function Prototype() {
         warheads: "0",
         note: "Носителей нет. Программа РДС даст первый заряд не раньше 1949 года.",
       },
+      campaign: null,
       ordersPerTurn: 10,
       isIrreversible: (text) =>
         IRREVERSIBLE_WORDS.some((word) => text.toLowerCase().includes(word)),

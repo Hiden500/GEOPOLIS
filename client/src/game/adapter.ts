@@ -18,11 +18,13 @@ import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { type PrimitiveOutcomeLine } from "@shared/types/politics/PrimitiveOutcome";
+import { getDomainTier } from "@shared/utils/technology";
 import {
   type ScreenCountry,
   type ScreenEvent,
   type ScreenModel,
   type ScreenRegion,
+  type ScreenCampaign,
   type ScreenStat,
 } from "./model";
 
@@ -227,19 +229,23 @@ function politicsStats(country: Country): ScreenStat[] {
   ];
 }
 
-/** Доли бюджета — из уже посчитанных расходных статей, не из отдельного поля. */
-function budgetShares(country: Country): Array<{ name: string; share: number }> {
+/**
+ * Доли бюджета — из уже посчитанных расходных статей, не из отдельного поля.
+ * Ключ совпадает с полем `BudgetUpdate`: по нему правка уходит обратно на
+ * сервер, а подпись локализуема и для этого не годится.
+ */
+function budgetShares(country: Country): Array<{ key: string; name: string; share: number }> {
   const economy = country.economy;
-  const rows: Array<[string, number]> = [
-    ["Оборона", economy.militarySpending],
-    ["Наука", economy.researchSpending],
-    ["Образование", economy.educationSpending],
-    ["Инфраструктура", economy.infrastructureSpending],
-    ["Социальное", economy.welfareSpending],
+  const rows: Array<[string, string, number]> = [
+    ["military", "Оборона", economy.militarySpending],
+    ["research", "Наука", economy.researchSpending],
+    ["education", "Образование", economy.educationSpending],
+    ["infrastructure", "Инфраструктура", economy.infrastructureSpending],
+    ["welfare", "Социальное", economy.welfareSpending],
   ];
-  const total = rows.reduce((sum, [, value]) => sum + value, 0);
+  const total = rows.reduce((sum, [, , value]) => sum + value, 0);
   if (total <= 0) return [];
-  return rows.map(([name, value]) => ({ name, share: value / total }));
+  return rows.map(([key, name, value]) => ({ key, name, share: value / total }));
 }
 
 function goalText(goal: Country["goals"][number]): string {
@@ -274,6 +280,13 @@ export interface ScreenModelInput {
   monthsNominative: string[];
   monthsGenitive: string[];
   ordersPerTurn: number;
+  /** Человеческое имя домена технологий по его идентификатору. */
+  domainName: (id: string) => string;
+  /**
+   * Развилка кампании приходит уже переведённой: её текст собирается из
+   * словаря интерфейса, а адаптер словаря не знает и знать не должен.
+   */
+  campaign: ScreenCampaign | null;
 }
 
 export function buildScreenModel({
@@ -285,6 +298,8 @@ export function buildScreenModel({
   monthsNominative,
   monthsGenitive,
   ordersPerTurn,
+  domainName,
+  campaign,
 }: ScreenModelInput): ScreenModel {
   const player = game.countries.find((c) => c.id === game.playerCountryId);
   const ranks = ranksByGdp(game.countries);
@@ -363,15 +378,26 @@ export function buildScreenModel({
     // связи в состоянии пока нет, и придумывать её интерфейс не будет.
     techSlots: [],
 
+    /*
+     * Тир считает общая утилита, а не интерфейс: порог тира — правило игры, и
+     * второе мнение о нём в клиенте разошлось бы с движком при первой правке.
+     */
     domains:
       player === undefined
         ? []
-        : Object.entries(player.technology.domains).map(([name, tier]) => ({
-            name,
-            tier: Math.floor(tier),
-            progress: tier - Math.floor(tier),
-            unlocks: "",
-          })),
+        : Object.entries(player.technology.domains)
+            .sort(([, a], [, b]) => b - a)
+            .map(([id, progress]) => {
+              const tier = getDomainTier(progress);
+              const step = progress / (tier + 1 || 1);
+              return {
+                name: domainName(id),
+                tier,
+                progress: Math.max(0, Math.min(1, step - Math.floor(step))),
+                unlocks: "",
+                focus: player.technology.researchAllocation?.[id],
+              };
+            }),
 
     // Проектов как сущности в состоянии нет.
     projects: [],
@@ -416,6 +442,7 @@ export function buildScreenModel({
       player === undefined
         ? null
         : { warheads: String(player.military.nuclearWarheads), note: "" },
+    campaign,
     ordersPerTurn,
     isIrreversible,
   };

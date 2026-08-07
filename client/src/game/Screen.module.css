@@ -731,3 +731,14 @@
   color: var(--text-faint);
 }
 
+
+/* Развилка кампании перекрывает даже подтверждение: без неё играть нечем. */
+.scrimCampaign {
+  z-index: calc(var(--z-modal) + 1);
+}
+
+.successors {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}

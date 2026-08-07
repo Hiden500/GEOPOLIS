@@ -100,8 +100,11 @@ export interface ScreenTechSlot {
 export interface ScreenDomain {
   name: string;
   tier: number;
+  /** Доля пути до следующего тира, 0…1. */
   progress: number;
   unlocks: string;
+  /** Доля исследовательских денег, направленная в домен. undefined — не задана. */
+  focus?: number;
 }
 
 export interface ScreenProject {
@@ -146,6 +149,19 @@ export const LEDGER_TABS = [
 
 export type LedgerTabId = (typeof LEDGER_TABS)[number]["id"];
 
+/**
+ * КОНЕЦ ИЛИ РАЗВИЛКА КАМПАНИИ (docs/CONCEPT.md §6, §7.1). Не панель, а
+ * состояние, которое перекрывает всё: пока держава распалась и осколок не
+ * выбран, играть нечем. Выбор осколка — необратимое действие, поэтому окно не
+ * закрывается само и не имеет крестика.
+ */
+export interface ScreenCampaign {
+  kind: "succession" | "defeated";
+  title: string;
+  lead: string;
+  successors: Array<{ id: string; label: string }>;
+}
+
 export interface ScreenMapMode {
   id: string;
   name: string;
@@ -179,7 +195,11 @@ export interface ScreenModel {
   techSlots: ScreenTechSlot[];
   domains: ScreenDomain[];
   projects: ScreenProject[];
-  budget: Array<{ name: string; share: number }>;
+  /**
+   * Доли бюджета. `key` — статья расхода на сервере, `name` — подпись; без
+   * ключа доли пришлось бы сопоставлять по подписи, а она локализуемая.
+   */
+  budget: Array<{ key: string; name: string; share: number }>;
   goals: ScreenGoal[];
   redLines: string[];
 
@@ -212,6 +232,9 @@ export interface ScreenModel {
   /** Ядерное: заряды и одна поясняющая строка. null — раздела нет. */
   nuclear: { warheads: string; note: string } | null;
 
+  /** Развилка преемника или конец партии. null — партия идёт. */
+  campaign: ScreenCampaign | null;
+
   /** Бюджет приказов на ход. */
   ordersPerTurn: number;
 
@@ -235,4 +258,40 @@ export function useModel(): ScreenModel {
   const model = useContext(ScreenModelContext);
   if (model === null) throw new Error("useModel вызван вне ScreenModelProvider");
   return model;
+}
+
+
+/**
+ * ДЕЙСТВИЯ экрана — то, что интерфейс умеет ПОПРОСИТЬ сделать. Отдельно от
+ * модели намеренно: модель это снимок мира, а действие — обращение наружу.
+ * Смешав их, мы получили бы экран, который нельзя открыть без сервера, — и
+ * песочница перестала бы существовать.
+ *
+ * Действие отсутствует — соответствующий орган управления не рисуется. Кнопка,
+ * которая ничего не делает, хуже отсутствующей кнопки: она обещает.
+ */
+export interface ScreenActions {
+  /** Сохранить доли бюджета. Ключи — те же, что в `ScreenModel.budget`. */
+  saveBudget?: (shares: Record<string, number>) => Promise<void>;
+
+  /** Выбрать осколок-преемника после распада державы. */
+  chooseSuccessor?: (countryId: string) => Promise<void>;
+
+  /**
+   * Распознать приказ: что из свободного текста понял движок. Показывается
+   * игроку ДО того, как приказ попадёт в список, и не содержит величин —
+   * их ещё не существует (docs/PRIMITIVES.md §1).
+   */
+  recognizeOrder?: (
+    text: string,
+    regionId: string | null,
+  ) => Promise<{ primitives: unknown[]; recognized: string[] }>;
+}
+
+const ScreenActionsContext = createContext<ScreenActions>({});
+
+export const ScreenActionsProvider = ScreenActionsContext.Provider;
+
+export function useActions(): ScreenActions {
+  return useContext(ScreenActionsContext);
 }

@@ -326,8 +326,8 @@ export const TECH_SLOTS = [
 ];
 
 export const DOMAINS = [
-  { name: "Индустрия", tier: 3, progress: 0.62, unlocks: "Поточные линии: +8% к выпуску" },
-  { name: "Ракетная техника", tier: 2, progress: 0.41, unlocks: "Баллистическая ракета малой дальности" },
+  { name: "Индустрия", tier: 3, progress: 0.62, unlocks: "Поточные линии: +8% к выпуску", focus: 0.3 },
+  { name: "Ракетная техника", tier: 2, progress: 0.41, unlocks: "Баллистическая ракета малой дальности", focus: 0.25 },
   { name: "Ядерная физика", tier: 1, progress: 0.18, unlocks: "Программа расщепляющихся материалов" },
   { name: "Электроника", tier: 2, progress: 0.77, unlocks: "Бортовые радиолокаторы" },
   { name: "Авиация", tier: 3, progress: 0.29, unlocks: "Реактивный двигатель второго поколения" },
@@ -340,11 +340,11 @@ export const PROJECTS = [
 ];
 
 export const BUDGET = [
-  { name: "Оборона", share: 0.34 },
-  { name: "Промышленность", share: 0.28 },
-  { name: "Наука", share: 0.11 },
-  { name: "Социальное", share: 0.19 },
-  { name: "Резерв", share: 0.08 },
+  { key: "military", name: "Оборона", share: 0.34 },
+  { key: "infrastructure", name: "Промышленность", share: 0.28 },
+  { key: "research", name: "Наука", share: 0.11 },
+  { key: "welfare", name: "Социальное", share: 0.19 },
+  { key: "education", name: "Образование", share: 0.08 },
 ];
 
 export const GOALS = [

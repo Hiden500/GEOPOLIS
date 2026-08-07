@@ -40,8 +40,10 @@ import {
 import { CountryDetail, LedgerBody, RegionDetail, TomeBody } from "./panels";
 import {
   REGION_TABS,
+  ScreenActionsProvider,
   ScreenModelProvider,
   type LedgerTabId,
+  type ScreenActions,
   type RegionTab,
   type ScreenModel,
   type ScreenStat,
@@ -63,6 +65,8 @@ import styles from "./Screen.module.css";
 
 export interface ScreenProps {
   model: ScreenModel;
+  /** Что экран умеет попросить сделать. Пусто — органы управления скрыты. */
+  actions?: ScreenActions;
   /** Карта: настоящая MapLibre в игре, гекс-сетка в песочнице. */
   mapSlot: ReactNode;
   /**
@@ -163,6 +167,7 @@ function FlagSU() {
 
 export function Screen({
   model,
+  actions = {},
   mapSlot,
   onAdvance,
   mapMode,
@@ -181,6 +186,8 @@ export function Screen({
    * показывает закреплённое, что бы ни выбирали на карте. Иначе пришлось бы
    * учить каждый источник выделения про состояние одной панели.
    */
+  /** Осколок, по которому идёт запрос: второй клик должен быть невозможен. */
+  const [succeeding, setSucceeding] = useState<string | null>(null);
   const [pinned, setPinned] = useState(false);
   const [pinnedRegionId, setPinnedRegionId] = useState<string | null>(null);
   const [ledgerTab, setLedgerTab] = useState<LedgerTabId>("powers");
@@ -478,6 +485,7 @@ export function Screen({
 
   return (
     <ScreenModelProvider value={model}>
+    <ScreenActionsProvider value={actions}>
     <div ref={shellRef} className={styles.shell} style={shellStyle}>
       {mapSlot}
 
@@ -913,6 +921,38 @@ export function Screen({
         </div>
       </div>
 
+      {/*
+        * КАМПАНИЯ — распад державы или конец партии. Перекрывает всё и не
+        * закрывается: пока осколок не выбран, играть нечем, а выбор осколка
+        * необратим (docs/CONCEPT.md §7.1), поэтому ни крестика, ни таймаута
+        * здесь нет — подтверждение с таймаутом подтверждением не является.
+        */}
+      {model.campaign !== null && (
+        <div className={cx(styles.scrim, styles.scrimCampaign)}>
+          <Panel title={model.campaign.title} density="prose" className={styles.modal}>
+            <p className={styles.modalText}>{model.campaign.lead}</p>
+            {model.campaign.successors.length > 0 && (
+              <div className={styles.successors}>
+                {model.campaign.successors.map((successor) => (
+                  <Button
+                    key={successor.id}
+                    variant="order"
+                    disabled={succeeding !== null}
+                    onClick={() => {
+                      if (actions.chooseSuccessor === undefined) return;
+                      setSucceeding(successor.id);
+                      void actions.chooseSuccessor(successor.id).finally(() => setSucceeding(null));
+                    }}
+                  >
+                    {successor.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </Panel>
+        </div>
+      )}
+
       {/* ── ПОДТВЕРЖДЕНИЕ ───────────────────────────────────── */}
       {confirming !== null && (
         <div className={styles.scrim}>
@@ -1044,6 +1084,7 @@ export function Screen({
         </div>
       )}
     </div>
+    </ScreenActionsProvider>
     </ScreenModelProvider>
   );
 }
