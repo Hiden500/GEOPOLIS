@@ -23,22 +23,25 @@ function sharesFromCountry(country: Country): BudgetFormState {
   if (shares) return { ...shares };
 
   // Страна без spendingShares (ИИ-архетип на старте, до первого сохранения
-  // игроком) — приблизить текущими абсолютными *Spending / income, чтобы
-  // слайдеры не стартовали с нуля при первом открытии панели.
+  // игроком) — приблизить текущими абсолютными *Spending, делённые на ту же
+  // базу, из которой их считает движок: доход за вычетом импорта
+  // (`EconomyTick.updateBudget`). Делить на полный доход значило бы показать
+  // слайдеры ниже реальных долей ровно на размер закупок.
   const income =
     country.economy.taxRevenue +
     country.economy.exportIncome +
     country.economy.stateEnterpriseIncome +
     country.economy.otherIncome;
-  if (income <= 0) {
+  const disposableIncome = Math.max(0, income - country.economy.importSpending);
+  if (disposableIncome <= 0) {
     return { military: 0, research: 0, education: 0, infrastructure: 0, welfare: 0 };
   }
   return {
-    military: country.economy.militarySpending / income,
-    research: country.economy.researchSpending / income,
-    education: country.economy.educationSpending / income,
-    infrastructure: country.economy.infrastructureSpending / income,
-    welfare: country.economy.welfareSpending / income,
+    military: country.economy.militarySpending / disposableIncome,
+    research: country.economy.researchSpending / disposableIncome,
+    education: country.economy.educationSpending / disposableIncome,
+    infrastructure: country.economy.infrastructureSpending / disposableIncome,
+    welfare: country.economy.welfareSpending / disposableIncome,
   };
 }
 
@@ -74,9 +77,18 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
     country.economy.stateEnterpriseIncome +
     country.economy.otherIncome;
 
+  // Импорт — обязательный платёж ДО росписи, и доли применяются к остатку
+  // (`EconomyTick.updateBudget`, 2026-08-04). Панель обязана считать той же
+  // формулой: пока она делила доли на полный доход и не включала импорт в
+  // расходы, игрок видел баланс, которого в движке нет — тем более
+  // оптимистичный, чем больше страна закупает.
+  const imports = country.economy.importSpending;
+  const disposableIncome = Math.max(0, income - imports);
+
   const discretionaryExpenses =
-    (shares.military + shares.research + shares.education + shares.infrastructure + shares.welfare) * income;
-  const totalExpenses = discretionaryExpenses + country.economy.debtInterest + country.economy.otherExpenses;
+    (shares.military + shares.research + shares.education + shares.infrastructure + shares.welfare) * disposableIncome;
+  const totalExpenses =
+    discretionaryExpenses + country.economy.debtInterest + country.economy.otherExpenses + imports;
   const balance = income - totalExpenses;
 
   const handleSave = () => {
@@ -140,7 +152,7 @@ export function BudgetPanel({ country, onUpdateBudget }: Props) {
           <div className="slider-group" key={field}>
             <label htmlFor={`budget-${field}`}>
               {t(`categories.${field}`)}: {(shares[field] * 100).toFixed(1)}%
-              {" "}({Math.round(shares[field] * income).toLocaleString(i18n.language)})
+              {" "}({Math.round(shares[field] * disposableIncome).toLocaleString(i18n.language)})
             </label>
             <input
               id={`budget-${field}`}
