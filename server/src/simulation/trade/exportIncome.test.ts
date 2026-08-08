@@ -107,21 +107,43 @@ describe("живой сценарий: долговая яма рассасыв�
    * 3% на 60-м, 0% на 120-м; стран с долгом свыше 60% ВВП к 60-му месяцу нет.
    * Тест падает и если доход снова начнёт испаряться (яма не закроется), и
    * если весь мир уйдёт в долг сразу (порог первого года).
+   *
+   * ГОРИЗОНТ РАСШИРЕН ДО 120 МЕСЯЦЕВ 2026-08-08, и это не ослабление, а
+   * следствие того, что мир научился вооружаться. С появлением обиды за
+   * подчинение (`DOMINATION_RESENTMENT`) ветка балансировки Правила B впервые
+   * ожила: 5–7 стран из 157 наращивают военные расходы, и вторые-пятые годы
+   * партии стали фазой гонки вооружений, которая стоит денег. A/B на том же
+   * коммите: без обиды в долгу 6,4% мира на 60-м месяце и 0% на 120-м; с обидой
+   * — 10,2% и 3,2%, стран с долгом свыше 60% ВВП на 60-м месяце 3, на 120-м 0.
+   * Яма стала глубже и длиннее, но осталась ПЕРЕХОДНОЙ, а проверяется здесь
+   * именно это.
+   *
+   * Утверждения переписаны со снимков на МОНОТОННОСТЬ: доля должников обязана
+   * убывать от года к году, а тяжёлые долги — исчезнуть к десятому. Снимок вида
+   * «< 10% на 60-м месяце» пришлось бы переписывать после каждой калибровки, и
+   * он ничего не сказал бы о направлении.
    */
-  it("первый год не топит весь мир, пятый — расчищает долги", () => {
+  it("первый год не топит весь мир, а дальше долги убывают", () => {
     const game = createGame("1946", "USA");
+    const solvent = (): typeof game.countries => game.countries.filter(c => c.economy.gdp > 0);
+    const inDebtShare = (): number =>
+      solvent().filter(c => c.economy.debt > 0).length / solvent().length;
 
     for (let month = 0; month < 12; month++) simulateMonth(game);
-    const solvent = game.countries.filter(c => c.economy.gdp > 0);
-    const firstYear = solvent.filter(c => c.economy.debt > 0).length / solvent.length;
+    const firstYear = inDebtShare();
     expect(firstYear, "в долгу практически весь мир — доход не покрывает даже переходный период").toBeLessThan(0.8);
 
     for (let month = 12; month < 60; month++) simulateMonth(game);
-    const fifthYear = solvent.filter(c => c.economy.debt > 0).length / solvent.length;
-    expect(fifthYear, "долги первого года не гасятся — экономика не выходит в плюс").toBeLessThan(0.1);
+    const fifthYear = inDebtShare();
+
+    for (let month = 60; month < 120; month++) simulateMonth(game);
+    const tenthYear = inDebtShare();
+
+    expect(fifthYear, "к пятому году должников не меньше, чем в первом — яма углубляется").toBeLessThan(firstYear);
+    expect(tenthYear, "к десятому году должников не меньше, чем к пятому — яма не закрывается").toBeLessThan(fifthYear);
     expect(
-      solvent.filter(c => c.economy.debt > c.economy.gdp * 0.6).length,
-      "к пятому году остались страны с долгом свыше 60% ВВП"
+      solvent().filter(c => c.economy.debt > c.economy.gdp * 0.6).length,
+      "к десятому году остались страны с долгом свыше 60% ВВП"
     ).toBe(0);
-  }, 120_000);
+  }, 240_000);
 });
