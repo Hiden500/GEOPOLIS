@@ -10,6 +10,7 @@ import {
   AUSTERITY_RESTORE,
   AUSTERITY_RECOVERY_SURPLUS_MARGIN,
 } from "@shared/defines/ai";
+import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 import { type Country } from "@shared/types/Country";
 
 // Хелпер: страна с заданным id и переопределением экономики/дипломатии/военки.
@@ -220,6 +221,50 @@ describe("aiBehaviorTick — Правило B (угроза)", () => {
     expect(rival.economy.spendingShares!.military).toBeCloseTo((30 / 180) * 1.05, 6);
   });
 
+  /**
+   * ОБРАТНЫЙ ХОД ВОЕННОГО ОТВЕТА (2026-08-08) — третье правило, которому
+   * потребовалась вторая сторона, после аустерити и сдвига по стабильности.
+   * Пока ветка балансировки не бралась (замер 2026-08-08: 0 балансирующих из 11
+   * угрожаемых на пяти контрольных точках), храповик был невидим; с появлением
+   * обиды за подчинение он стал стоить миру 6 стран в вечном долгу.
+   */
+  it("разоружение: страна, которой больше не угрожают, возвращает military к стартовой доле", () => {
+    const calm = country("CALM");
+    // Состояние «Правило B уже подняло долю»: выше стартовой, ниже потолка.
+    const startShare = calm.economy.spendingFloor!.militarySpending * 2;
+    calm.economy.spendingShares!.military = startShare * 1.2;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), calm] });
+
+    aiBehaviorTick(game);
+
+    expect(calm.economy.spendingShares!.military).toBeLessThan(startShare * 1.2);
+    expect(calm.economy.spendingShares!.military).toBeGreaterThanOrEqual(startShare);
+  });
+
+  it("разоружение отменяет ровно СВОЙ сдвиг: ниже стартовой доли не опускает", () => {
+    const calm = country("CALM");
+    const startShare = calm.economy.spendingFloor!.militarySpending * 2;
+    calm.economy.spendingShares!.military = startShare;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [country("PLAYER"), calm] });
+
+    for (let i = 0; i < 24; i++) aiBehaviorTick(game);
+
+    expect(calm.economy.spendingShares!.military).toBeCloseTo(startShare, 6);
+  });
+
+  it("вооружается только платёжеспособный: придавленный долгом не наращивает армию", () => {
+    const rival = weakRival("RIVAL", -20);
+    // Долг выше порога, с которого Правило A начинает резать расходы: два
+    // правила обязаны реагировать на одно событие согласованно, а не спорить.
+    rival.economy.debt = rival.economy.gdp * (DEBT_GDP_PENALTY_THRESHOLD + 0.1);
+    const before = rival.economy.spendingShares!.military;
+    const game = createTestGameState({ playerCountryId: "PLAYER", countries: [strongPlayer("RIVAL"), rival] });
+
+    aiBehaviorTick(game);
+
+    expect(rival.economy.spendingShares!.military).toBeLessThanOrEqual(before);
+  });
+
   it("балансировка: со-угрожаемые соперники сближаются (контр-блок, +5 обоюдно)", () => {
     const a = weakRival("A", -10);
     const b = weakRival("B", -10);
@@ -300,9 +345,18 @@ describe("aiBehaviorTick — Правило C (кризис → welfare, кри�
     c.economy.militarySpending = 500;
     c.economy.welfareSpending = 100;
     // Пол и доли — ДОЛИ дохода 1800 (2026-08-01): у военных запас над полом
-    // 500/1800 − 200/1800, у welfare место до потолка.
+    // 500/1800 − 250/1800, у welfare место до потолка.
+    //
+    // ПОЛ ВОЕННЫХ ПРИВЕДЁН К ИНВАРИАНТУ ИГРЫ 2026-08-08 (было 200/1800). В
+    // продакшне пол — РОВНО половина стартовой доли (`CreateGame.ts`), и на этом
+    // равенстве стоит вся арифметика возвратов: Правило C считает стартовую долю
+    // как `пол × 2`, а с 2026-08-08 так же считает её обратный ход военного
+    // ответа Правила B. Фикстура с полом 200/1800 при доле 500/1800 утверждала,
+    // что страна СТАРТОВАЛА выше своей стартовой доли, — состояние, которого в
+    // игре не бывает, и ловила бы ошибки, которых нет в продакшне (то же
+    // требование записано в `test-utils/fixtures.ts`).
     c.economy.spendingFloor = {
-      militarySpending: 200 / 1800,
+      militarySpending: 250 / 1800,
       researchSpending: 50 / 1800,
       educationSpending: 50 / 1800,
       infrastructureSpending: 50 / 1800,

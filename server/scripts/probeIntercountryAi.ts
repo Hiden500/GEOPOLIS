@@ -27,6 +27,8 @@ import {
 import {
   RIVAL_RELATION_THRESHOLD,
   INFLUENCE_SCALE_MAX,
+  DOMINATION_RESENTMENT,
+  SPHERE_INFLUENCE_ENTER_THRESHOLD,
   DEPENDENCY_PUPPET_STRENGTH,
   DEPENDENCY_GUARANTEE_STRENGTH,
   DEPENDENCY_SPHERE_STRENGTH,
@@ -243,6 +245,74 @@ function contestCensus(game: GameState, label: string, borderPresence = 0): void
 }
 
 /**
+ * ДОХОДИТ ЛИ ОБИДА ЗА ПОДЧИНЕНИЕ ДО ПОРОГА СОПЕРНИЧЕСТВА.
+ *
+ * Член направленный, поэтому считается по УПОРЯДОЧЕННЫМ парам: у каждой пары
+ * два разных ответа. Сравниваются три величины — сколько направленных пар вообще
+ * ощущают доминирование, сколько из них уходит ниже порога соперничества и
+ * сколько ушло бы без обиды. Разность последних двух и есть вся работа
+ * механизма; ноль в ней означает, что член формулы написан, а поведения не
+ * прибавил.
+ */
+function resentmentCensus(game: GameState, label: string): void {
+  const byId = new Map(game.countries.map(c => [c.id, c] as [string, Country]));
+  const standings = collectPairStandings(game, byId);
+
+  let felt = 0;
+  let belowWith = 0;
+  let belowWithout = 0;
+  const pressures: number[] = [];
+  const shifted: Array<[string, number, number, number]> = [];
+
+  for (const [key, standing] of standings) {
+    const [aId, bId] = key.split("|") as [string, string];
+    const a = byId.get(aId)!;
+    const b = byId.get(bId)!;
+    const symmetric = structuralAffinity(standing);
+
+    for (const [subject, dominator] of [[a, b], [b, a]] as const) {
+      // Реплика `subordinationTo` из тика: гарантия не считается подчинением.
+      const d = dominator.diplomacy;
+      const pressure = Math.max(
+        d.puppets.includes(subject.id) ? DEPENDENCY_PUPPET_STRENGTH : 0,
+        d.sphereOfInfluence.includes(subject.id) ? DEPENDENCY_SPHERE_STRENGTH : 0,
+        Math.min(1, (d.influence[subject.id] ?? 0) / INFLUENCE_SCALE_MAX)
+      );
+      const directed = symmetric - DOMINATION_RESENTMENT * pressure;
+
+      if (pressure > 0) {
+        felt++;
+        pressures.push(pressure);
+        shifted.push([`${subject.id}→${dominator.id}`, pressure, symmetric, directed]);
+      }
+      if (directed < RIVAL_RELATION_THRESHOLD) belowWith++;
+      if (symmetric < RIVAL_RELATION_THRESHOLD) belowWithout++;
+    }
+  }
+
+  pressures.sort((x, y) => x - y);
+  shifted.sort((x, y) => x[3] - y[3]);
+  console.log(
+    `\n[${label}] направленных пар, ощущающих доминирование: ${felt} | ` +
+      `ниже порога соперничества С обидой ${belowWith}, БЕЗ обиды ${belowWithout} ` +
+      `(вклад механизма: ${belowWith - belowWithout})`
+  );
+  if (pressures.length) {
+    console.log(
+      `  сила ощущения: медиана ${fmt(quantile(pressures, 0.5))} | ` +
+        `макс ${fmt(quantile(pressures, 1))}`
+    );
+    console.log("  самые тяготящиеся (цель дрейфа после обиды):");
+    for (const [pair, pressure, symmetric, directed] of shifted.slice(0, 10)) {
+      console.log(
+        `    ${pair.padEnd(9)} подчинённость ${fmt(pressure)} | ` +
+          `тяготение ${fmt(symmetric).padStart(7)} → ${fmt(directed).padStart(7)}`
+      );
+    }
+  }
+}
+
+/**
  * Живо ли ПРИСУТСТВИЕ как таковое — авторский слой `influence.json` против
  * безусловного затухания `INFLUENCE_DECAY_RATE`.
  *
@@ -267,6 +337,21 @@ function influenceCensus(game: GameState, month: number): void {
   console.log(
     `           влияние: связей ${String(links).padStart(4)} | сумма ${String(Math.round(sum)).padStart(6)} | ` +
       `выше порога сферы ${String(aboveSphere).padStart(3)} | сфер ${String(spheres).padStart(3)} | вассалов ${puppets}`
+  );
+
+  // Цена ожившей балансировки: угрожаемая страна наращивает военные расходы, а
+  // это деньги. Проверяется здесь же, чтобы дипломатическая правка не оплачивалась
+  // экономикой молча.
+  const solvent = game.countries.filter(c => c.economy.gdp > 0);
+  const inDebt = solvent.filter(c => c.economy.debt > 0).length;
+  const heavy = solvent.filter(c => c.economy.debt > c.economy.gdp * 0.6).length;
+  const militaryShares = solvent
+    .map(c => c.economy.spendingShares?.military ?? 0)
+    .sort((a, b) => a - b);
+  console.log(
+    `           экономика: с долгом ${inDebt} из ${solvent.length} ` +
+      `(${fmt((100 * inDebt) / solvent.length)}%) | свыше 60% ВВП ${heavy} | ` +
+      `доля military: медиана ${fmt(quantile(militaryShares, 0.5))} | макс ${fmt(quantile(militaryShares, 1))}`
   );
 }
 
@@ -350,7 +435,7 @@ function main(): void {
 
   reachability(game, "старт");
   contestCensus(game, "старт");
-  contestCensus(game, "старт", 0.5);
+  resentmentCensus(game, "старт");
   observe(game);
 
   const warsSeen = new Set<string>();
@@ -367,7 +452,7 @@ function main(): void {
 
   reachability(game, `месяц ${HORIZON}`);
   contestCensus(game, `месяц ${HORIZON}`);
-  contestCensus(game, `месяц ${HORIZON}`, 0.5);
+  resentmentCensus(game, `месяц ${HORIZON}`);
 
   const total = game.countries.length;
   const neverEither = game.countries.filter(

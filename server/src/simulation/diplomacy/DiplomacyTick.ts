@@ -29,6 +29,7 @@ import {
 import {
   type PairStanding,
   structuralAffinity,
+  directedAffinity,
   allianceThreshold,
   allianceBreakThreshold,
   driftedRelation,
@@ -353,10 +354,39 @@ export function collectPairStandings(
 }
 
 /**
- * Дрейф отношений к структурному тяготению пары.
+ * Насколько `subject` подчинён `dominator`, 0..1 — вход обиды.
  *
- * Обе стороны тянутся к ОДНОЙ цели (тяготение симметрично), но каждая со
- * своего значения — асимметрию, накопленную делами, дрейф не стирает разом.
+ * ЭТО ТА ЖЕ ВЕЛИЧИНА, ЧТО СЧИТАЕТ `dependencyStrength`, но взятая В ОДНУ
+ * СТОРОНУ, и совпадение намеренное: приязнь патрона к клиенту и тяготение
+ * клиента патроном обязаны расти из одного числа, иначе связь, дающая одному
+ * плюс, давала бы другому минус по своей отдельной шкале — и баланс пары
+ * зависел бы от того, какую из двух шкал калибровали последней.
+ *
+ * ГАРАНТИИ В ПОДЧИНЕНИИ НЕТ, хотя в зависимости она есть: гарантия — это
+ * защита, а не власть над внешней политикой. Тяготиться защитой не за что.
+ *
+ * Считается по СОСТОЯВШЕМУСЯ подчинению, а не по потолку, который держала бы
+ * одна разница в силе (`calculateBaseInfluence`). Разница содержательная:
+ * потолок означал бы, что слабый обижен на сильного за одну лишь его
+ * СПОСОБНОСТЬ подчинить, — это страх, а не обида, и он сделал бы соперниками
+ * половину мира без единого чужого хода.
+ */
+export function subordinationTo(dominator: Country, subjectId: string): number {
+  const d = dominator.diplomacy;
+  return Math.max(
+    d.puppets.includes(subjectId) ? DEPENDENCY_PUPPET_STRENGTH : 0,
+    d.sphereOfInfluence.includes(subjectId) ? DEPENDENCY_SPHERE_STRENGTH : 0,
+    clamp01((d.influence[subjectId] ?? 0) / INFLUENCE_SCALE_MAX)
+  );
+}
+
+/**
+ * Дрейф отношений к тяготению пары.
+ *
+ * Цель у сторон РАЗНАЯ с 2026-08-08: общая часть симметрична, а обида за
+ * собственное подчинение — нет (`directedAffinity`). Каждая сторона к тому же
+ * идёт со своего значения — асимметрию, накопленную делами, дрейф не стирает
+ * разом.
  */
 function driftRelations(
   byId: Map<string, Country>,
@@ -368,9 +398,8 @@ function driftRelations(
     const b = byId.get(bId);
     if (!a || !b) continue;
 
-    const target = structuralAffinity(standing);
-    driftOneSide(a, bId, target);
-    driftOneSide(b, aId, target);
+    driftOneSide(a, bId, directedAffinity(standing, subordinationTo(b, aId)));
+    driftOneSide(b, aId, directedAffinity(standing, subordinationTo(a, bId)));
   }
 }
 
