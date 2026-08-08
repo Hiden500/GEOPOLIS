@@ -5,7 +5,7 @@
   "status": "НЕ ПРИМЕНЕНО к живой карте. Геометрии здесь нет намеренно.",
   "geometry_preview": [
    "scripts/map/out/islands_preview.geojson",
-   "scripts/map/out/ph_variant_c_final.geojson"
+   "scripts/map/out/ph_regions_1946.geojson"
   ],
   "counts": {
    "regions_before": 1444,
@@ -209,7 +209,7 @@
   },
   {
    "class": "одинаковые имена",
-   "count": 47,
+   "count": 43,
    "why": "два региона с одним именем неразличимы в списке и в отчётах",
    "examples": [
     {
@@ -676,8 +676,8 @@
   {
    "index": 1375,
    "region_id": "OCE-0001",
-   "name_en": "Cocos (Keeling) Islands",
-   "name_ru": "Кокосовые (Килинг) острова",
+   "name_en": "Cocos Islands",
+   "name_ru": "Кокосовые острова",
    "owner": "AUS",
    "area_km2": 7.5,
    "population": 269,
@@ -869,7 +869,7 @@
    "name_ru": "Амазонас",
    "owner": "BRA",
    "area_km2": 1565685.7,
-   "population": 663131,
+   "population": 667083,
    "op": "unchanged",
    "merged_from": []
   },
@@ -880,7 +880,7 @@
    "name_ru": "Пара",
    "owner": "BRA",
    "area_km2": 1232176.3,
-   "population": 542909,
+   "population": 546144,
    "op": "unchanged",
    "merged_from": []
   },
@@ -891,7 +891,7 @@
    "name_ru": "Мату-Гросу",
    "owner": "BRA",
    "area_km2": 1210289.9,
-   "population": 566943,
+   "population": 570322,
    "op": "unchanged",
    "merged_from": []
   },
@@ -902,7 +902,7 @@
    "name_ru": "Гояс",
    "owner": "BRA",
    "area_km2": 625997.4,
-   "population": 353941,
+   "population": 356050,
    "op": "unchanged",
    "merged_from": []
   },
@@ -913,7 +913,7 @@
    "name_ru": "Минас-Жерайс",
    "owner": "BRA",
    "area_km2": 586377.9,
-   "population": 6813115,
+   "population": 6853722,
    "op": "unchanged",
    "merged_from": []
   },
@@ -924,7 +924,7 @@
    "name_ru": "Баия",
    "owner": "BRA",
    "area_km2": 560069.1,
-   "population": 6591716,
+   "population": 6631003,
    "op": "unchanged",
    "merged_from": []
   },
@@ -935,7 +935,7 @@
    "name_ru": "Мараньян",
    "owner": "BRA",
    "area_km2": 326232.3,
-   "population": 2130514,
+   "population": 2143212,
    "op": "unchanged",
    "merged_from": []
   },
@@ -946,7 +946,7 @@
    "name_ru": "Риу-Гранди-ду-Сул",
    "owner": "BRA",
    "area_km2": 272284.6,
-   "population": 4522426,
+   "population": 4549380,
    "op": "unchanged",
    "merged_from": []
   },
@@ -957,7 +957,7 @@
    "name_ru": "Пиауи",
    "owner": "BRA",
    "area_km2": 252011.9,
-   "population": 1839850,
+   "population": 1850816,
    "op": "unchanged",
    "merged_from": []
   },
@@ -968,7 +968,7 @@
    "name_ru": "Сан-Паулу",
    "owner": "BRA",
    "area_km2": 248639.2,
-   "population": 4412720,
+   "population": 4439021,
    "op": "unchanged",
    "merged_from": []
   },
@@ -979,7 +979,7 @@
    "name_ru": "Гуапоре",
    "owner": "BRA",
    "area_km2": 237934.1,
-   "population": 247947,
+   "population": 249425,
    "op": "unchanged",
    "merged_from": []
   },
@@ -990,7 +990,7 @@
    "name_ru": "Рио-Бранко",
    "owner": "BRA",
    "area_km2": 224755.5,
-   "population": 216479,
+   "population": 217769,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1001,7 +1001,7 @@
    "name_ru": "Акко",
    "owner": "BRA",
    "area_km2": 153865.7,
-   "population": 171483,
+   "population": 172505,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1012,7 +1012,7 @@
    "name_ru": "Сеара",
    "owner": "BRA",
    "area_km2": 150238.2,
-   "population": 3087944,
+   "population": 3106349,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1023,7 +1023,7 @@
    "name_ru": "Парана",
    "owner": "BRA",
    "area_km2": 142952.9,
-   "population": 1408596,
+   "population": 1416992,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1034,7 +1034,7 @@
    "name_ru": "Амапа",
    "owner": "BRA",
    "area_km2": 139190.1,
-   "population": 177803,
+   "population": 178863,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1045,7 +1045,7 @@
    "name_ru": "Пернамбуку",
    "owner": "BRA",
    "area_km2": 97635.2,
-   "population": 2433917,
+   "population": 2448423,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1056,7 +1056,7 @@
    "name_ru": "Санта-Катарина",
    "owner": "BRA",
    "area_km2": 85288.2,
-   "population": 1123824,
+   "population": 1130522,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1067,7 +1067,7 @@
    "name_ru": "Игуасу",
    "owner": "BRA",
    "area_km2": 65527.5,
-   "population": 1024210,
+   "population": 1030314,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1078,7 +1078,7 @@
    "name_ru": "Параиба",
    "owner": "BRA",
    "area_km2": 56510.9,
-   "population": 1836032,
+   "population": 1846975,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1089,7 +1089,7 @@
    "name_ru": "Риу-Гранди-ду-Норти",
    "owner": "BRA",
    "area_km2": 52795.0,
-   "population": 901851,
+   "population": 907226,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1100,7 +1100,7 @@
    "name_ru": "Понта-Поран",
    "owner": "BRA",
    "area_km2": 48909.9,
-   "population": 833924,
+   "population": 838894,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1111,18 +1111,18 @@
    "name_ru": "Эспириту-Санту",
    "owner": "BRA",
    "area_km2": 45810.2,
-   "population": 766903,
+   "population": 771474,
    "op": "unchanged",
    "merged_from": []
   },
   {
    "index": 1102,
    "region_id": "SAM-0014",
-   "name_en": "Rio de Janeiro",
-   "name_ru": "Рио-де-Жанейро",
+   "name_en": "Rio de Janeiro State",
+   "name_ru": "штат Рио-де-Жанейро",
    "owner": "BRA",
-   "area_km2": 42747.3,
-   "population": 1523509,
+   "area_km2": 42818.3,
+   "population": 1533988,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1133,7 +1133,7 @@
    "name_ru": "Алагоас",
    "owner": "BRA",
    "area_km2": 27614.7,
-   "population": 1379722,
+   "population": 1387946,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1144,7 +1144,7 @@
    "name_ru": "Сержипи",
    "owner": "BRA",
    "area_km2": 21605.8,
-   "population": 1215007,
+   "population": 1222249,
    "op": "unchanged",
    "merged_from": []
   },
@@ -1155,17 +1155,17 @@
    "name_ru": "Рио-де-Жанейро",
    "owner": "BRA",
    "area_km2": 1121.4,
-   "population": 502915,
+   "population": 222601,
    "op": "rename",
    "merged_from": [
     {
      "index": 1101,
      "region_id": "SAM-0013",
-     "name_en": "Distrito Federal",
-     "name_ru": "Федеральный округ",
+     "name_en": "Rio de Janeiro",
+     "name_ru": "Рио-де-Жанейро",
      "owner": "BRA",
      "area_km2": 1121.4,
-     "population": 502915
+     "population": 222601
     }
    ],
    "op_id": "REN-CAPITAL",
@@ -1180,7 +1180,7 @@
    "name_ru": "Фернандо де Норонья",
    "owner": "BRA",
    "area_km2": 17.9,
-   "population": 10669,
+   "population": 10732,
    "op": "unchanged",
    "merged_from": []
   },
@@ -2386,8 +2386,8 @@
   {
    "index": 1188,
    "region_id": "AFR-0022",
-   "name_en": "New Valley",
-   "name_ru": "Новая Долина",
+   "name_en": "Western Desert",
+   "name_ru": "Западная пустыня",
    "owner": "EGY",
    "area_km2": 453137.0,
    "population": 1864433,
@@ -2441,8 +2441,8 @@
   {
    "index": 1182,
    "region_id": "AFR-0016",
-   "name_en": "Nile Delta",
-   "name_ru": "Дельта Нила",
+   "name_en": "Lower Egypt",
+   "name_ru": "Нижний Египет",
    "owner": "EGY",
    "area_km2": 27782.5,
    "population": 1134288,
@@ -2452,8 +2452,8 @@
   {
    "index": 1184,
    "region_id": "AFR-0018",
-   "name_en": "Nile Valley",
-   "name_ru": "Долина Нила",
+   "name_en": "Upper Egypt",
+   "name_ru": "Верхний Египет",
    "owner": "EGY",
    "area_km2": 24402.5,
    "population": 1114784,
@@ -2496,8 +2496,8 @@
   {
    "index": 1171,
    "region_id": "AFR-0005",
-   "name_en": "Western Sahara",
-   "name_ru": "Западная Сахара",
+   "name_en": "Spanish Sahara",
+   "name_ru": "Испанская Сахара",
    "owner": "ESP",
    "area_km2": 90492.9,
    "population": 1243889,
@@ -2859,8 +2859,8 @@
   {
    "index": 1192,
    "region_id": "AFR-0026",
-   "name_en": "Territoires du Sud",
-   "name_ru": "Territoires du Sud",
+   "name_en": "Deep Sahara",
+   "name_ru": "Глубокая Сахара",
    "owner": "FRA",
    "area_km2": 1433566.1,
    "population": 6842684,
@@ -2870,8 +2870,8 @@
   {
    "index": 1193,
    "region_id": "AFR-0027",
-   "name_en": "Territoires du Sud",
-   "name_ru": "Territoires du Sud",
+   "name_en": "Saharan Fringe",
+   "name_ru": "Сахарская окраина",
    "owner": "FRA",
    "area_km2": 597073.9,
    "population": 4933083,
@@ -3965,8 +3965,8 @@
   {
    "index": 1173,
    "region_id": "AFR-0007",
-   "name_en": "British Indian Ocean Territory",
-   "name_ru": "Брит. территория в Индийском океане",
+   "name_en": "Chagos Islands",
+   "name_ru": "Архипелаг Чагос",
    "owner": "GBR",
    "area_km2": 27.0,
    "population": 28717,
@@ -10709,7 +10709,7 @@
    "name_ru": "Хинган",
    "owner": "QMS",
    "area_km2": 283138.6,
-   "population": 5478395,
+   "population": 5484570,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10720,7 +10720,7 @@
    "name_ru": "Хэйлунцзян",
    "owner": "QMS",
    "area_km2": 224461.9,
-   "population": 4588536,
+   "population": 4593708,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10731,7 +10731,7 @@
    "name_ru": "Ляобэй",
    "owner": "QMS",
    "area_km2": 120527.1,
-   "population": 3438041,
+   "population": 3441916,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10742,7 +10742,7 @@
    "name_ru": "Хэцзян",
    "owner": "QMS",
    "area_km2": 118143.4,
-   "population": 3420806,
+   "population": 3424662,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10753,7 +10753,7 @@
    "name_ru": "Цзилинь",
    "owner": "QMS",
    "area_km2": 101273.5,
-   "population": 2877919,
+   "population": 2881162,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10764,7 +10764,7 @@
    "name_ru": "Нэньцзян",
    "owner": "QMS",
    "area_km2": 81324.9,
-   "population": 2767082,
+   "population": 2770201,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10775,7 +10775,7 @@
    "name_ru": "Сунцзян",
    "owner": "QMS",
    "area_km2": 76035.4,
-   "population": 2695400,
+   "population": 2698438,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10786,7 +10786,7 @@
    "name_ru": "Аньдун",
    "owner": "QMS",
    "area_km2": 58445.5,
-   "population": 2272447,
+   "population": 2275008,
    "op": "unchanged",
    "merged_from": []
   },
@@ -10796,8 +10796,8 @@
    "name_en": "Liaoning",
    "name_ru": "Ляонин",
    "owner": "QMS",
-   "area_km2": 57408.2,
-   "population": 2461373,
+   "area_km2": 55984.0,
+   "population": 2430335,
    "op": "unchanged",
    "merged_from": []
   },
@@ -11781,8 +11781,8 @@
     {
      "index": 1433,
      "region_id": "OCE-0059",
-     "name_en": "Capital Territory",
-     "name_ru": "Столичная территория",
+     "name_en": "Honiara",
+     "name_ru": "Хониара",
      "owner": "SLB",
      "area_km2": 31.1,
      "population": 3778
@@ -14436,7 +14436,7 @@
    "name_ru": "Синьцзян",
    "owner": "TWN",
    "area_km2": 1630207.8,
-   "population": 3929723,
+   "population": 4029268,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14447,7 +14447,7 @@
    "name_ru": "Цинхай",
    "owner": "TWN",
    "area_km2": 714460.8,
-   "population": 2361998,
+   "population": 2421830,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14458,7 +14458,7 @@
    "name_ru": "Сикан",
    "owner": "TWN",
    "area_km2": 392853.9,
-   "population": 1554089,
+   "population": 1593457,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14469,7 +14469,7 @@
    "name_ru": "Юньнань",
    "owner": "TWN",
    "area_km2": 385384.3,
-   "population": 14820853,
+   "population": 15196286,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14480,7 +14480,7 @@
    "name_ru": "Сычуань",
    "owner": "TWN",
    "area_km2": 335812.0,
-   "population": 29141065,
+   "population": 29879249,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14491,7 +14491,7 @@
    "name_ru": "Гуанси",
    "owner": "TWN",
    "area_km2": 237339.7,
-   "population": 11422364,
+   "population": 11711709,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14502,7 +14502,7 @@
    "name_ru": "Хунань",
    "owner": "TWN",
    "area_km2": 211359.2,
-   "population": 22164218,
+   "population": 22725668,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14513,7 +14513,7 @@
    "name_ru": "Хубэй",
    "owner": "TWN",
    "area_km2": 180780.0,
-   "population": 18362897,
+   "population": 18828055,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14524,7 +14524,7 @@
    "name_ru": "Гуйчжоу",
    "owner": "TWN",
    "area_km2": 175161.2,
-   "population": 9553302,
+   "population": 9795301,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14535,7 +14535,7 @@
    "name_ru": "Гуандун",
    "owner": "TWN",
    "area_km2": 174071.6,
-   "population": 18258229,
+   "population": 18720736,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14546,7 +14546,7 @@
    "name_ru": "Цзянси",
    "owner": "TWN",
    "area_km2": 167808.8,
-   "population": 9359150,
+   "population": 9596231,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14557,7 +14557,7 @@
    "name_ru": "Хэнань",
    "owner": "TWN",
    "area_km2": 166134.2,
-   "population": 17446244,
+   "population": 17888181,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14568,7 +14568,7 @@
    "name_ru": "Шаньдун",
    "owner": "TWN",
    "area_km2": 154818.5,
-   "population": 18099319,
+   "population": 18557800,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14579,7 +14579,7 @@
    "name_ru": "Аньхой",
    "owner": "TWN",
    "area_km2": 140199.7,
-   "population": 16392440,
+   "population": 16807684,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14590,7 +14590,7 @@
    "name_ru": "Фуцзянь",
    "owner": "TWN",
    "area_km2": 120712.6,
-   "population": 7653300,
+   "population": 7847169,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14601,7 +14601,7 @@
    "name_ru": "Чжэцзян",
    "owner": "TWN",
    "area_km2": 101344.5,
-   "population": 14310287,
+   "population": 14672786,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14612,7 +14612,7 @@
    "name_ru": "Цзянсу",
    "owner": "TWN",
    "area_km2": 99092.4,
-   "population": 14922384,
+   "population": 15300389,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14623,7 +14623,7 @@
    "name_ru": "Чунцин",
    "owner": "TWN",
    "area_km2": 82360.7,
-   "population": 5962390,
+   "population": 6113426,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14634,7 +14634,7 @@
    "name_ru": "Хайнань",
    "owner": "TWN",
    "area_km2": 33864.9,
-   "population": 3294051,
+   "population": 3377494,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14645,7 +14645,7 @@
    "name_ru": "Южный Тайвань",
    "owner": "TWN",
    "area_km2": 24618.6,
-   "population": 2845026,
+   "population": 2917095,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14656,7 +14656,7 @@
    "name_ru": "Пекин",
    "owner": "TWN",
    "area_km2": 16255.3,
-   "population": 28733684,
+   "population": 29461548,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14667,7 +14667,7 @@
    "name_ru": "Тяньцзинь",
    "owner": "TWN",
    "area_km2": 11479.2,
-   "population": 22132659,
+   "population": 22693310,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14678,7 +14678,7 @@
    "name_ru": "Северный Тайвань",
    "owner": "TWN",
    "area_km2": 11311.0,
-   "population": 2105369,
+   "population": 2158701,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14689,7 +14689,7 @@
    "name_ru": "Шанхай",
    "owner": "TWN",
    "area_km2": 6744.7,
-   "population": 16341744,
+   "population": 16755703,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14700,18 +14700,18 @@
    "name_ru": "Ханькоу",
    "owner": "TWN",
    "area_km2": 4815.5,
-   "population": 1252037,
+   "population": 1283753,
    "op": "unchanged",
    "merged_from": []
   },
   {
    "index": 419,
    "region_id": "ASI-0042",
-   "name_en": "Dalian",
-   "name_ru": "Далянь",
+   "name_en": "Kwantung",
+   "name_ru": "Квантунская область",
    "owner": "TWN",
-   "area_km2": 2116.6,
-   "population": 9722140,
+   "area_km2": 3540.8,
+   "population": 1102426,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14722,7 +14722,7 @@
    "name_ru": "Харбин",
    "owner": "TWN",
    "area_km2": 1485.0,
-   "population": 7297484,
+   "population": 7482339,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14733,7 +14733,7 @@
    "name_ru": "Гуанчжоу",
    "owner": "TWN",
    "area_km2": 1454.5,
-   "population": 7437962,
+   "population": 7626376,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14744,7 +14744,7 @@
    "name_ru": "Циндао",
    "owner": "TWN",
    "area_km2": 1071.1,
-   "population": 6190847,
+   "population": 6347670,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14755,7 +14755,7 @@
    "name_ru": "Нанкин",
    "owner": "TWN",
    "area_km2": 1004.6,
-   "population": 6585859,
+   "population": 6752688,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14766,7 +14766,7 @@
    "name_ru": "Цзиньмэнь",
    "owner": "TWN",
    "area_km2": 154.1,
-   "population": 200779,
+   "population": 205865,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14777,7 +14777,7 @@
    "name_ru": "Пэнху",
    "owner": "TWN",
    "area_km2": 80.0,
-   "population": 136877,
+   "population": 140344,
    "op": "unchanged",
    "merged_from": []
   },
@@ -14788,7 +14788,7 @@
    "name_ru": "Парасельские острова",
    "owner": "TWN",
    "area_km2": 0.8,
-   "population": 9230,
+   "population": 9464,
    "op": "unchanged",
    "merged_from": []
   },
@@ -16200,8 +16200,8 @@
   {
    "index": 1387,
    "region_id": "OCE-0013",
-   "name_en": "United States Minor Outlying Islands",
-   "name_ru": "Малые отдалённые о-ва США",
+   "name_en": "US Pacific Islands",
+   "name_ru": "Тихоокеанские острова США",
    "owner": "USA",
    "area_km2": 14.3,
    "population": 5,

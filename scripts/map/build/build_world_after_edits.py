@@ -40,7 +40,7 @@ from paths import REPO_ROOT, out
 
 SCENARIO = REPO_ROOT / "server" / "data" / "scenarios" / "1946"
 EDITS = "region_edits_islands.json"
-PH_C = "ph_variant_c_final.geojson"
+PH_C = "ph_regions_1946.geojson"
 OUT_NAME = "world_after_edits.json"
 AREA_TOL_KM2 = 5.0
 

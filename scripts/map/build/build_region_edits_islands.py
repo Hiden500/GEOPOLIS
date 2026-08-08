@@ -220,12 +220,26 @@ RESPLITS = [
         "source_filter": 'iso_a2 == "PH"',
         "source_key": "region_sub",
         "expect_source_features": 118,
-        "expect_target_regions": 81,
-        "note": ("текущая нарезка в 36 регионов заменяется нарезкой источника по region_sub; "
-                 "region_sub заполнен у всех 118 фич, пустых нет"),
-        "cascade_warning": ("рост числа регионов на +45 сдвигает позиционную нумерацию всего, "
-                            "что идёт после Филиппин: обязателен build/remap_region_ids.py "
-                            "и ExecPlan (scripts/map/AGENTS.md)"),
+        # ИТОГ, а не промежуточный шаг. Раньше здесь стояло 81 — число после
+        # пере-нарезки по region_sub, — и запись расходилась с world_after_edits,
+        # где Филиппины уже 29. Решение пользователя принято 2026-08-02 и состоит
+        # из ДВУХ шагов, второй из которых и есть итог.
+        "expect_target_regions": 29,
+        "stages": [
+            {"step": 1, "regions": 81,
+             "what": "нарезка источника по region_sub вместо нынешних 36"},
+            {"step": 2, "regions": 29,
+             "what": "укрупнение до провинций 1946 и далее до исторических областей; "
+                     "плюс переименование Rizal -> Manila",
+             "built_by": "build/build_ph_regions_1946.py -> out/ph_regions_1946.geojson"},
+        ],
+        "note": ("итоговый состав — 29 регионов. Первый шаг (81 по region_sub) сохранён в "
+                 "stages как промежуточный: без него не объяснить, откуда взялись "
+                 "исторические группы. Варианты A и B — леса решения, строятся флагом "
+                 "--variants и в состав карты не входят"),
+        "cascade_warning": ("Филиппины уменьшаются с 36 до 29 регионов: позиционная нумерация "
+                            "всего, что идёт после них, сдвигается на -7. Обязателен "
+                            "build/remap_region_ids.py и ExecPlan (scripts/map/AGENTS.md)"),
     },
 ]
 
@@ -389,6 +403,7 @@ def main():
             "source_key": spec["source_key"],
             "expect_source_features": spec["expect_source_features"],
             "expect_target_regions": spec["expect_target_regions"],
+            "stages": spec["stages"],
             "note": spec["note"],
             "cascade_warning": spec["cascade_warning"],
             "replaces_count": len(current),
