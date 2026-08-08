@@ -23,6 +23,8 @@ import {
   DEPENDENCY_PUPPET_STRENGTH,
   DEPENDENCY_GUARANTEE_STRENGTH,
   DEPENDENCY_SPHERE_STRENGTH,
+  PRESENCE_FLOOR_COMMITMENT,
+  PRESENCE_FLOOR_VASSAL,
 } from "@shared/defines/diplomacy";
 import {
   type PairStanding,
@@ -74,11 +76,15 @@ export function diplomacyTick(game: GameState): void {
   driftRelations(byId, standings);
 
   for (const country of countries) {
-    // Естественное затухание влияния
+    // Естественное затухание влияния — до пола, который держит взятое ходом
+    // обязательство (`presenceFloor`). Без пола затухание доводило любую связь
+    // до ровного нуля за конечное число месяцев, и авторский слой присутствия
+    // растворялся к середине партии.
     for (const [targetId, influence] of Object.entries(country.diplomacy.influence)) {
-      if (influence > 0) {
+      const floor = presenceFloor(country, targetId);
+      if (influence > floor) {
         const decay = Math.min(INFLUENCE_DECAY_CAP, influence * INFLUENCE_DECAY_RATE);
-        country.diplomacy.influence[targetId] = Math.max(0, influence - decay);
+        country.diplomacy.influence[targetId] = Math.max(floor, influence - decay);
       }
     }
 
@@ -205,6 +211,28 @@ function foesOf(game: GameState): Map<string, Set<string>> {
     }
   }
   return foes;
+}
+
+/**
+ * Ниже какого присутствия обязательство источника перед целью не даёт связи
+ * опуститься. Ноль, если обязательства нет.
+ *
+ * Источники пола — только связи, СОЗДАННЫЕ ХОДОМ: вассалитет, гарантия, союз.
+ * Сферы влияния среди них нет намеренно — она выведена движком из самого
+ * влияния, и пол от неё замкнул бы ярлык на собственный вход (обоснование и
+ * числа — `shared/src/defines/diplomacy.ts`, блок «Пол присутствия»).
+ *
+ * Пол только УДЕРЖИВАЕТ: влияние ниже пола он не поднимает, потому что поднять
+ * присутствие способны лишь ход и помощь. Поэтому вассал, взятый силой при
+ * нулевом влиянии, присутствия не получает.
+ */
+function presenceFloor(source: Country, targetId: string): number {
+  const d = source.diplomacy;
+  if (d.puppets.includes(targetId)) return PRESENCE_FLOOR_VASSAL;
+  if (d.guarantees.includes(targetId) || d.allies.includes(targetId)) {
+    return PRESENCE_FLOOR_COMMITMENT;
+  }
+  return 0;
 }
 
 /** Формальная зависимость пары — максимум по видам связи в ОБЕ стороны. */
