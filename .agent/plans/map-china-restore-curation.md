@@ -1,8 +1,9 @@
 # Китай: вернуть курацию 23.07, снесённую пересборкой 27.07
 
-Status: proposed (2026-08-08, оркестратор геометрии карты)
-Owner: не назначен — отдельная сессия в своём worktree
-Starting commit: 06ec34f (ветка `claude/map-orchestrator`)
+Status: ready (2026-08-08, оркестратор геометрии карты)
+Owner: сессия-исполнитель в `D:/Pax Historia LOCAL/.claude/worktrees/map-china-restore`,
+ветка `claude/map-china-restore`
+Starting commit: de7ba4d (от `claude/map-orchestrator`)
 
 ## Objective and observable outcome
 
