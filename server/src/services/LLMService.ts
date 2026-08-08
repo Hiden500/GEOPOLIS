@@ -35,6 +35,8 @@ import {
 } from "../llm/crisisDigest";
 import { regionDiscontent } from "@shared/utils/discontent";
 import { type Region } from "@shared/types/map/Region";
+import { type ResourceType } from "@shared/types/resources/ResourcesType";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 import {
   MAX_PROMPT_CRISES,
   MAX_PROMPT_REGIONS_PER_COUNTRY,
@@ -1042,6 +1044,13 @@ repress, grant_autonomy, build_extraction). Copy an id verbatim from here — a
 region that is not listed is not addressable this cycle, and a guessed number
 is refused. "discontent" is the same 0..1 index as in Regional Crises: high
 means the ground is ready, low means unrest there would need a cause first.
+"can expand" lists the resources whose extraction in that region is still below
+its ceiling, with the level it stands at. build_extraction with direction
+"expand" works ONLY on a resource named there — and a region without that part
+of the line has nothing left to expand, either because the ground holds nothing
+or because its works are already built out to the ceiling. Silence there is an
+answer, not an omission: in a world whose extraction is fully built, no region
+carries the line at all. Dismantling has no such condition.
 ${this.getAddressableRegionsInfo()}
 
 ## Rejected Attempts Last Cycle
@@ -1610,6 +1619,34 @@ Hard limits:
    * (`MAX_PROMPT_REGIONS_PER_COUNTRY`), причина там же.
    */
   private getAddressableRegionsInfo(): string {
+    /**
+     * Месторождения региона строкой — предпосылка `build_extraction`, которую
+     * модель до 2026-08-08 не видела ВООБЩЕ.
+     *
+     * Замер, ради которого строка появилась: перечисление ресурсов в контракте
+     * подняло число попыток глагола с 1 до 7 за 72 хода, но применённых
+     * осталось 0 — все семь ушли в отказы `extractionAtMaximum` (5) и
+     * `noDepositInRegion` (2). То есть словарь научил модель НАЗЫВАТЬ ресурс, а
+     * промахивалась она по тому, чего в промте нет: где залежь есть и где
+     * мощность ещё не на потолке.
+     *
+     * Показывается уровень и потолок, а не «можно/нельзя»: «coal 2/10» — это
+     * свойство мира, из которого модель делает вывод сама, а готовый вердикт
+     * пришлось бы держать в согласии с предпосылками движка в двух местах.
+     */
+    const extractionLine = (region: Region): string => {
+      const expandable = Object.entries(region.deposits)
+        .filter(([resource, size]) => {
+          if ((size ?? 0) <= 0) return false;
+          return (region.extraction[resource as ResourceType] ?? 0) < MAX_EXTRACTION_LEVEL;
+        })
+        .map(
+          ([resource]) =>
+            `${resource} ${region.extraction[resource as ResourceType] ?? 0}/${MAX_EXTRACTION_LEVEL}`
+        );
+      return expandable.length > 0 ? `, can expand: ${expandable.join(", ")}` : "";
+    };
+
     const wanted = new Map<string, Country>();
     const add = (id: string | undefined): void => {
       if (!id || wanted.has(id)) return;
@@ -1641,7 +1678,8 @@ Hard limits:
       const shown = regions.slice(0, MAX_PROMPT_REGIONS_PER_COUNTRY);
       const lines = shown.map(
         ({ region, discontent }) =>
-          `  - ${region.id} ${getText(region.names, LLM_LOCALE)} — discontent ${discontent.toFixed(2)}`
+          `  - ${region.id} ${getText(region.names, LLM_LOCALE)} — discontent ${discontent.toFixed(2)}` +
+          extractionLine(region)
       );
       const rest = regions.length - shown.length;
       if (rest > 0) {

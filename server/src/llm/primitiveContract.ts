@@ -16,6 +16,19 @@ import {
   VASSALAGE_MIN_INFLUENCE,
 } from "@shared/defines/diplomacy";
 import { CAPITAL_FLIGHT_MAX_STABILITY } from "@shared/defines/economy";
+import { ResourceType } from "@shared/types/resources/ResourcesType";
+
+/**
+ * Список ресурсов для промта — ИЗ КАТАЛОГА, а не переписанный руками.
+ *
+ * Так же, как домены исследований (`LLMService.getResearchDomainsLine`): пока
+ * закрытый перечень существует только в схеме, модель узнаёт о нём из отказа —
+ * то есть уже потратив ход. Ровно этот дефект стоил рычагу исследований
+ * практически всей его жизни (1 применение за 72 хода → 154 после того, как
+ * домены перечислили). Второе объявление того же перечня разъехалось бы с
+ * `ResourceType` при первом же добавлении ресурса.
+ */
+const RESOURCE_NAMES = Object.values(ResourceType).join(", ");
 
 /**
  * Контракт примитивов, как он предъявляется модели (docs/PRIMITIVES.md §1-§4).
@@ -204,7 +217,10 @@ exists, and here the engine decides every magnitude as it does everywhere else.
   rifles/trucks/tanks/artillery/fighters/bombers/destroyers/submarines. The
   ceiling here is flat — war concentrates production rather than distracting it.
 - build_extraction — target {regionId} — params {resource, direction}, resource
-  REQUIRED, direction "expand" (default) or "dismantle". One capacity level per
+  REQUIRED and one of ${RESOURCE_NAMES} — a name outside that list is refused
+  even when it names a real commodity ("steel" and "aluminium" are outputs of
+  industry here, not resources of a region). direction "expand" (default) or
+  "dismantle". One capacity level per
   order; the engine computes actual output from richness × capacity, and you
   never state a production number. Expanding requires the source to CONTROL the
   region, the region to hold a deposit of that resource, the capacity to be below
