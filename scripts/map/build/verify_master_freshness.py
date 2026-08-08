@@ -75,13 +75,24 @@ OFF_CHAIN = [
 ]
 
 
+# Шаги цепочки, которые геометрию НЕ порождают, а записывают или проверяют
+# уже готовую. Их правка устареть мастер не может по построению, поэтому в
+# сторожа они не идут — иначе он падает на самом себе: добавление блока
+# `generators` в `freeze_master_map.py` тут же объявляло мастер устаревшим по
+# скрипту, который его и записал.
+NOT_GENERATORS = {
+    "build/freeze_master_map.py",     # пишет мастер и проверяет дыры/покрытие
+    "build/build_neighbor_graph.py",  # производит граф соседей, не геометрию
+}
+
+
 def generator_paths():
     """Пути генераторов относительно корня репозитория, без дублей."""
     sys.path.insert(0, str(REPO_ROOT / "scripts" / "map"))
     from make_1946 import MASTER_REBUILD_STEPS  # noqa: E402
 
     seen, out = set(), []
-    for rel in [*MASTER_REBUILD_STEPS, *OFF_CHAIN]:
+    for rel in [r for r in MASTER_REBUILD_STEPS if r not in NOT_GENERATORS] + OFF_CHAIN:
         p = f"scripts/map/{rel}"
         if p not in seen and (REPO_ROOT / p).is_file():
             seen.add(p)
