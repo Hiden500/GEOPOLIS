@@ -1,0 +1,998 @@
+[
+ {
+  "name": "East Caribbean Sea",
+  "terrain": "fjords",
+  "area_km2": 1397873.3,
+  "coastal": 43
+ },
+ {
+  "name": "South China Sea",
+  "terrain": "ocean",
+  "area_km2": 1618507.7,
+  "coastal": 31
+ },
+ {
+  "name": "Western Canal zone",
+  "terrain": "ocean",
+  "area_km2": 1715428.4,
+  "coastal": 29
+ },
+ {
+  "name": "Levantine Sea",
+  "terrain": "ocean",
+  "area_km2": 259074.1,
+  "coastal": 29
+ },
+ {
+  "name": "Sulu Sea",
+  "terrain": "fjords",
+  "area_km2": 436120.7,
+  "coastal": 27
+ },
+ {
+  "name": "Sea of Japan",
+  "terrain": "ocean",
+  "area_km2": 1194698.4,
+  "coastal": 26
+ },
+ {
+  "name": "Mexican Coast",
+  "terrain": "ocean",
+  "area_km2": 961120.7,
+  "coastal": 25
+ },
+ {
+  "name": "Bismarck Sea",
+  "terrain": "deep_ocean",
+  "area_km2": 1570356.3,
+  "coastal": 20
+ },
+ {
+  "name": "West Caribbean Sea",
+  "terrain": "fjords",
+  "area_km2": 1500135.9,
+  "coastal": 20
+ },
+ {
+  "name": "Yellow Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 527658.2,
+  "coastal": 20
+ },
+ {
+  "name": "Gulf Of Guinea",
+  "terrain": "deep_ocean",
+  "area_km2": 3864820.9,
+  "coastal": 19
+ },
+ {
+  "name": "Black Sea",
+  "terrain": "ocean",
+  "area_km2": 430358.0,
+  "coastal": 17
+ },
+ {
+  "name": "Demerara Plain",
+  "terrain": "deep_ocean",
+  "area_km2": 3061398.4,
+  "coastal": 16
+ },
+ {
+  "name": "East African Coast",
+  "terrain": "ocean",
+  "area_km2": 3038625.2,
+  "coastal": 15
+ },
+ {
+  "name": "Riau Archipelago",
+  "terrain": "shallow_sea",
+  "area_km2": 1161464.1,
+  "coastal": 15
+ },
+ {
+  "name": "Eastern Seaboard",
+  "terrain": "shallow_sea",
+  "area_km2": 739632.6,
+  "coastal": 15
+ },
+ {
+  "name": "Gulf of Mexico",
+  "terrain": "ocean",
+  "area_km2": 1365462.4,
+  "coastal": 14
+ },
+ {
+  "name": "S. Philippine Sea",
+  "terrain": "deep_ocean",
+  "area_km2": 1464737.1,
+  "coastal": 13
+ },
+ {
+  "name": "Aegean Sea",
+  "terrain": "fjords",
+  "area_km2": 313454.8,
+  "coastal": 13
+ },
+ {
+  "name": "South Central Atlantic",
+  "terrain": "deep_ocean",
+  "area_km2": 3849156.8,
+  "coastal": 12
+ },
+ {
+  "name": "Arabian Sea",
+  "terrain": "ocean",
+  "area_km2": 2694895.7,
+  "coastal": 12
+ },
+ {
+  "name": "Micronesian Islands",
+  "terrain": "deep_ocean",
+  "area_km2": 2548495.5,
+  "coastal": 12
+ },
+ {
+  "name": "Adriatic Sea",
+  "terrain": "fjords",
+  "area_km2": 127863.8,
+  "coastal": 12
+ },
+ {
+  "name": "South American coast",
+  "terrain": "ocean",
+  "area_km2": 5141876.9,
+  "coastal": 11
+ },
+ {
+  "name": "Sierra-Leone Rise",
+  "terrain": "deep_ocean",
+  "area_km2": 1491621.2,
+  "coastal": 11
+ },
+ {
+  "name": "Red Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 458325.5,
+  "coastal": 11
+ },
+ {
+  "name": "Baleric Sea",
+  "terrain": "ocean",
+  "area_km2": 441239.1,
+  "coastal": 11
+ },
+ {
+  "name": "Upper Baltic Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 111154.6,
+  "coastal": 11
+ },
+ {
+  "name": "Irish Sea",
+  "terrain": "fjords",
+  "area_km2": 48045.5,
+  "coastal": 11
+ },
+ {
+  "name": "Micronesia",
+  "terrain": "deep_ocean",
+  "area_km2": 6608365.4,
+  "coastal": 10
+ },
+ {
+  "name": "Cap Verde Plain",
+  "terrain": "deep_ocean",
+  "area_km2": 4858448.0,
+  "coastal": 10
+ },
+ {
+  "name": "African Coast",
+  "terrain": "ocean",
+  "area_km2": 1883032.4,
+  "coastal": 10
+ },
+ {
+  "name": "Persian Gulf",
+  "terrain": "shallow_sea",
+  "area_km2": 235561.8,
+  "coastal": 10
+ },
+ {
+  "name": "Southern Bight",
+  "terrain": "shallow_sea",
+  "area_km2": 214970.2,
+  "coastal": 10
+ },
+ {
+  "name": "Chesapeake Bay",
+  "terrain": "shallow_sea",
+  "area_km2": 77752.8,
+  "coastal": 10
+ },
+ {
+  "name": "Central Atlantic Gap",
+  "terrain": "deep_ocean",
+  "area_km2": 5318404.8,
+  "coastal": 9
+ },
+ {
+  "name": "Argentine Sea",
+  "terrain": "ocean",
+  "area_km2": 4295577.3,
+  "coastal": 9
+ },
+ {
+  "name": "Java Sea",
+  "terrain": "fjords",
+  "area_km2": 766427.9,
+  "coastal": 9
+ },
+ {
+  "name": "Ionian Sea",
+  "terrain": "ocean",
+  "area_km2": 283153.8,
+  "coastal": 9
+ },
+ {
+  "name": "German Bight",
+  "terrain": "shallow_sea",
+  "area_km2": 104058.4,
+  "coastal": 9
+ },
+ {
+  "name": "Danish Belts",
+  "terrain": "fjords",
+  "area_km2": 44941.5,
+  "coastal": 9
+ },
+ {
+  "name": "Sea of Okhotsk",
+  "terrain": "ocean",
+  "area_km2": 3431814.7,
+  "coastal": 8
+ },
+ {
+  "name": "Mozambique Channel",
+  "terrain": "ocean",
+  "area_km2": 1248323.2,
+  "coastal": 8
+ },
+ {
+  "name": "Iberian Coast",
+  "terrain": "deep_ocean",
+  "area_km2": 1005333.3,
+  "coastal": 8
+ },
+ {
+  "name": "Andaman Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 856109.4,
+  "coastal": 8
+ },
+ {
+  "name": "Gulf of Oman",
+  "terrain": "ocean",
+  "area_km2": 598515.2,
+  "coastal": 8
+ },
+ {
+  "name": "Selat Karimata",
+  "terrain": "fjords",
+  "area_km2": 474473.1,
+  "coastal": 8
+ },
+ {
+  "name": "British Isles",
+  "terrain": "ocean",
+  "area_km2": 334116.9,
+  "coastal": 8
+ },
+ {
+  "name": "Gulf of Bothnia",
+  "terrain": "fjords",
+  "area_km2": 125608.0,
+  "coastal": 8
+ },
+ {
+  "name": "Tasman Basin",
+  "terrain": "ocean",
+  "area_km2": 12268161.5,
+  "coastal": 7
+ },
+ {
+  "name": "Great Australian Bight",
+  "terrain": "ocean",
+  "area_km2": 6613954.1,
+  "coastal": 7
+ },
+ {
+  "name": "West Indian Ocean",
+  "terrain": "deep_ocean",
+  "area_km2": 6159758.7,
+  "coastal": 7
+ },
+ {
+  "name": "South West Indian Ocean",
+  "terrain": "deep_ocean",
+  "area_km2": 5660835.5,
+  "coastal": 7
+ },
+ {
+  "name": "Bay of Bengal",
+  "terrain": "shallow_sea",
+  "area_km2": 750253.4,
+  "coastal": 7
+ },
+ {
+  "name": "East China Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 436982.0,
+  "coastal": 7
+ },
+ {
+  "name": "Gulf of Thailand",
+  "terrain": "shallow_sea",
+  "area_km2": 432603.1,
+  "coastal": 7
+ },
+ {
+  "name": "Celebes Sea",
+  "terrain": "ocean",
+  "area_km2": 416056.4,
+  "coastal": 7
+ },
+ {
+  "name": "Bay of Biscay",
+  "terrain": "ocean",
+  "area_km2": 311053.5,
+  "coastal": 7
+ },
+ {
+  "name": "English Channel",
+  "terrain": "shallow_sea",
+  "area_km2": 96424.8,
+  "coastal": 7
+ },
+ {
+  "name": "West Polynesia",
+  "terrain": "ocean",
+  "area_km2": 5574595.4,
+  "coastal": 6
+ },
+ {
+  "name": "Central N.E. Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 3871373.6,
+  "coastal": 6
+ },
+ {
+  "name": "Northern Philippine Sea",
+  "terrain": "deep_ocean",
+  "area_km2": 2051226.5,
+  "coastal": 6
+ },
+ {
+  "name": "Barents Sea",
+  "terrain": "ocean",
+  "area_km2": 1274128.8,
+  "coastal": 6
+ },
+ {
+  "name": "Banda Sea",
+  "terrain": "fjords",
+  "area_km2": 1250718.3,
+  "coastal": 6
+ },
+ {
+  "name": "N.E. Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 469558.6,
+  "coastal": 6
+ },
+ {
+  "name": "South Sea of Japan",
+  "terrain": "shallow_sea",
+  "area_km2": 313262.8,
+  "coastal": 6
+ },
+ {
+  "name": "Strait of Sicily",
+  "terrain": "shallow_sea",
+  "area_km2": 238357.5,
+  "coastal": 6
+ },
+ {
+  "name": "Tyrrhenian Sea",
+  "terrain": "ocean",
+  "area_km2": 174989.6,
+  "coastal": 6
+ },
+ {
+  "name": "Lower Baltic Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 96844.9,
+  "coastal": 6
+ },
+ {
+  "name": "Algerian Coast",
+  "terrain": "ocean",
+  "area_km2": 73686.6,
+  "coastal": 6
+ },
+ {
+  "name": "Bering Sea",
+  "terrain": "ocean",
+  "area_km2": 4083510.4,
+  "coastal": 5
+ },
+ {
+  "name": "Caroline Sea",
+  "terrain": "deep_ocean",
+  "area_km2": 2486690.7,
+  "coastal": 5
+ },
+ {
+  "name": "Java Trench",
+  "terrain": "deep_ocean",
+  "area_km2": 1254287.4,
+  "coastal": 5
+ },
+ {
+  "name": "Florida Coast",
+  "terrain": "shallow_sea",
+  "area_km2": 855912.3,
+  "coastal": 5
+ },
+ {
+  "name": "Gulf of Aden",
+  "terrain": "ocean",
+  "area_km2": 408005.3,
+  "coastal": 5
+ },
+ {
+  "name": "Newfoundland Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 283633.7,
+  "coastal": 5
+ },
+ {
+  "name": "Straits of Malacca",
+  "terrain": "fjords",
+  "area_km2": 82174.1,
+  "coastal": 5
+ },
+ {
+  "name": "Alboran Sea",
+  "terrain": "ocean",
+  "area_km2": 51965.1,
+  "coastal": 5
+ },
+ {
+  "name": "South Atlantic Platau",
+  "terrain": "deep_ocean",
+  "area_km2": 7905741.5,
+  "coastal": 4
+ },
+ {
+  "name": "Cape of Africa",
+  "terrain": "ocean",
+  "area_km2": 7268153.6,
+  "coastal": 4
+ },
+ {
+  "name": "Tasman Sea",
+  "terrain": "ocean",
+  "area_km2": 3975248.3,
+  "coastal": 4
+ },
+ {
+  "name": "Central Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 3144206.3,
+  "coastal": 4
+ },
+ {
+  "name": "Kora Sea",
+  "terrain": "ocean",
+  "area_km2": 2166221.9,
+  "coastal": 4
+ },
+ {
+  "name": "Hudson Bay",
+  "terrain": "ocean",
+  "area_km2": 1922788.2,
+  "coastal": 4
+ },
+ {
+  "name": "Peruvian Coast",
+  "terrain": "ocean",
+  "area_km2": 1787245.5,
+  "coastal": 4
+ },
+ {
+  "name": "Marshall Islands",
+  "terrain": "deep_ocean",
+  "area_km2": 1761881.1,
+  "coastal": 4
+ },
+ {
+  "name": "Angola Basin",
+  "terrain": "deep_ocean",
+  "area_km2": 1740312.5,
+  "coastal": 4
+ },
+ {
+  "name": "Arabian Basin",
+  "terrain": "deep_ocean",
+  "area_km2": 1662908.7,
+  "coastal": 4
+ },
+ {
+  "name": "Gulf of Alaska",
+  "terrain": "deep_ocean",
+  "area_km2": 1381878.6,
+  "coastal": 4
+ },
+ {
+  "name": "Labrador Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 1309409.8,
+  "coastal": 4
+ },
+ {
+  "name": "Levantine Basin",
+  "terrain": "ocean",
+  "area_km2": 222436.9,
+  "coastal": 4
+ },
+ {
+  "name": "Ligurian Sea",
+  "terrain": "ocean",
+  "area_km2": 57095.3,
+  "coastal": 4
+ },
+ {
+  "name": "Skagerrak",
+  "terrain": "shallow_sea",
+  "area_km2": 27098.3,
+  "coastal": 4
+ },
+ {
+  "name": "South-Eastern Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 17635094.1,
+  "coastal": 3
+ },
+ {
+  "name": "Crozet Basin",
+  "terrain": "deep_ocean",
+  "area_km2": 9054034.8,
+  "coastal": 3
+ },
+ {
+  "name": "Antarctica Ridge",
+  "terrain": "deep_ocean",
+  "area_km2": 8929623.9,
+  "coastal": 3
+ },
+ {
+  "name": "East Central Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 4897132.6,
+  "coastal": 3
+ },
+ {
+  "name": "Kerguelen Plateau",
+  "terrain": "deep_ocean",
+  "area_km2": 4332876.9,
+  "coastal": 3
+ },
+ {
+  "name": "Micronesian Gap",
+  "terrain": "deep_ocean",
+  "area_km2": 3786787.3,
+  "coastal": 3
+ },
+ {
+  "name": "Cape Basin",
+  "terrain": "deep_ocean",
+  "area_km2": 2426497.6,
+  "coastal": 3
+ },
+ {
+  "name": "Andaman Basin",
+  "terrain": "ocean",
+  "area_km2": 1994991.0,
+  "coastal": 3
+ },
+ {
+  "name": "Norwegian Sea",
+  "terrain": "deep_ocean",
+  "area_km2": 1877417.6,
+  "coastal": 3
+ },
+ {
+  "name": "W. Mariana Region",
+  "terrain": "deep_ocean",
+  "area_km2": 1755172.5,
+  "coastal": 3
+ },
+ {
+  "name": "Coast of Japan",
+  "terrain": "ocean",
+  "area_km2": 1412411.0,
+  "coastal": 3
+ },
+ {
+  "name": "Timor Sea",
+  "terrain": "ocean",
+  "area_km2": 1095248.9,
+  "coastal": 3
+ },
+ {
+  "name": "Mariana Islands",
+  "terrain": "deep_ocean",
+  "area_km2": 772448.5,
+  "coastal": 3
+ },
+ {
+  "name": "Hudson Strait",
+  "terrain": "fjords",
+  "area_km2": 698248.2,
+  "coastal": 3
+ },
+ {
+  "name": "Arafura Sea",
+  "terrain": "fjords",
+  "area_km2": 536245.2,
+  "coastal": 3
+ },
+ {
+  "name": "Cocos Basin",
+  "terrain": "deep_ocean",
+  "area_km2": 361005.3,
+  "coastal": 3
+ },
+ {
+  "name": "North Sea",
+  "terrain": "shallow_sea",
+  "area_km2": 242176.7,
+  "coastal": 3
+ },
+ {
+  "name": "Voring Plateau",
+  "terrain": "fjords",
+  "area_km2": 221097.1,
+  "coastal": 3
+ },
+ {
+  "name": "Western Seaboard",
+  "terrain": "ocean",
+  "area_km2": 55050.2,
+  "coastal": 3
+ },
+ {
+  "name": "Gulf of Aqaba",
+  "terrain": "ocean",
+  "area_km2": 38993.3,
+  "coastal": 3
+ },
+ {
+  "name": "Far South Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 15270785.7,
+  "coastal": 2
+ },
+ {
+  "name": "Diamantina Zone",
+  "terrain": "deep_ocean",
+  "area_km2": 8846674.8,
+  "coastal": 2
+ },
+ {
+  "name": "Pacific Line Ridge",
+  "terrain": "deep_ocean",
+  "area_km2": 4865426.4,
+  "coastal": 2
+ },
+ {
+  "name": "Mid Atlantic gap",
+  "terrain": "deep_ocean",
+  "area_km2": 4326119.8,
+  "coastal": 2
+ },
+ {
+  "name": "South Georgia Sea",
+  "terrain": "ocean",
+  "area_km2": 3205340.9,
+  "coastal": 2
+ },
+ {
+  "name": "Sargasso Sea",
+  "terrain": "deep_ocean",
+  "area_km2": 2710531.0,
+  "coastal": 2
+ },
+ {
+  "name": "N.W. Emperor Chain",
+  "terrain": "deep_ocean",
+  "area_km2": 2279018.3,
+  "coastal": 2
+ },
+ {
+  "name": "North Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 1934690.4,
+  "coastal": 2
+ },
+ {
+  "name": "Central N. Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 1780950.6,
+  "coastal": 2
+ },
+ {
+  "name": "New Caledonia Basin",
+  "terrain": "fjords",
+  "area_km2": 1364508.8,
+  "coastal": 2
+ },
+ {
+  "name": "Johnston Gap",
+  "terrain": "deep_ocean",
+  "area_km2": 1196396.4,
+  "coastal": 2
+ },
+ {
+  "name": "Greenland Iceland Rise",
+  "terrain": "ocean",
+  "area_km2": 560861.2,
+  "coastal": 2
+ },
+ {
+  "name": "Coral Sea",
+  "terrain": "ocean",
+  "area_km2": 521741.6,
+  "coastal": 2
+ },
+ {
+  "name": "Norwegian Basin",
+  "terrain": "ocean",
+  "area_km2": 429981.0,
+  "coastal": 2
+ },
+ {
+  "name": "Antillas Mayores",
+  "terrain": "fjords",
+  "area_km2": 366111.8,
+  "coastal": 2
+ },
+ {
+  "name": "Ionian Basin",
+  "terrain": "ocean",
+  "area_km2": 244965.5,
+  "coastal": 2
+ },
+ {
+  "name": "Gulf of Carpentaria",
+  "terrain": "shallow_sea",
+  "area_km2": 235864.4,
+  "coastal": 2
+ },
+ {
+  "name": "Gulf of Lawrence",
+  "terrain": "shallow_sea",
+  "area_km2": 125729.1,
+  "coastal": 2
+ },
+ {
+  "name": "Seto Naikai",
+  "terrain": "ocean",
+  "area_km2": 56765.6,
+  "coastal": 2
+ },
+ {
+  "name": "South Atlantic Gap",
+  "terrain": "deep_ocean",
+  "area_km2": 9766295.3,
+  "coastal": 1
+ },
+ {
+  "name": "East Pacific Rise",
+  "terrain": "deep_ocean",
+  "area_km2": 5804638.0,
+  "coastal": 1
+ },
+ {
+  "name": "Foundation Seamounts",
+  "terrain": "deep_ocean",
+  "area_km2": 4510753.0,
+  "coastal": 1
+ },
+ {
+  "name": "Central Indian Ocean",
+  "terrain": "deep_ocean",
+  "area_km2": 4118617.8,
+  "coastal": 1
+ },
+ {
+  "name": "French Polynesia",
+  "terrain": "deep_ocean",
+  "area_km2": 3965992.4,
+  "coastal": 1
+ },
+ {
+  "name": "S.E. Emperor Chain",
+  "terrain": "deep_ocean",
+  "area_km2": 3494909.9,
+  "coastal": 1
+ },
+ {
+  "name": "E. Emperor Chain",
+  "terrain": "deep_ocean",
+  "area_km2": 2990944.8,
+  "coastal": 1
+ },
+ {
+  "name": "N.E. Emperor Chain",
+  "terrain": "deep_ocean",
+  "area_km2": 2989615.2,
+  "coastal": 1
+ },
+ {
+  "name": "East Indian Ocean",
+  "terrain": "deep_ocean",
+  "area_km2": 2007798.8,
+  "coastal": 1
+ },
+ {
+  "name": "North Western Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 2000988.6,
+  "coastal": 1
+ },
+ {
+  "name": "South East Indian Ocean",
+  "terrain": "deep_ocean",
+  "area_km2": 1765248.6,
+  "coastal": 1
+ },
+ {
+  "name": "Azores Region",
+  "terrain": "deep_ocean",
+  "area_km2": 1598941.7,
+  "coastal": 1
+ },
+ {
+  "name": "Solomon Sea",
+  "terrain": "ocean",
+  "area_km2": 1451804.1,
+  "coastal": 1
+ },
+ {
+  "name": "S.W. Emperor Chain",
+  "terrain": "deep_ocean",
+  "area_km2": 1387022.9,
+  "coastal": 1
+ },
+ {
+  "name": "S. Mariana Region",
+  "terrain": "deep_ocean",
+  "area_km2": 1372576.8,
+  "coastal": 1
+ },
+ {
+  "name": "Wakean Atoll",
+  "terrain": "deep_ocean",
+  "area_km2": 1303459.5,
+  "coastal": 1
+ },
+ {
+  "name": "E. Mariana Region",
+  "terrain": "deep_ocean",
+  "area_km2": 927252.1,
+  "coastal": 1
+ },
+ {
+  "name": "Solomon Islands",
+  "terrain": "fjords",
+  "area_km2": 883885.5,
+  "coastal": 1
+ },
+ {
+  "name": "Labrador Basin",
+  "terrain": "deep_ocean",
+  "area_km2": 865233.9,
+  "coastal": 1
+ },
+ {
+  "name": "Icelandic Basin",
+  "terrain": "ocean",
+  "area_km2": 778492.0,
+  "coastal": 1
+ },
+ {
+  "name": "Alaskan Coast",
+  "terrain": "fjords",
+  "area_km2": 581108.7,
+  "coastal": 1
+ },
+ {
+  "name": "Newfoundland Ridge",
+  "terrain": "shallow_sea",
+  "area_km2": 488562.9,
+  "coastal": 1
+ },
+ {
+  "name": "Denmark Strait",
+  "terrain": "deep_ocean",
+  "area_km2": 412969.3,
+  "coastal": 1
+ },
+ {
+  "name": "Perth Basin",
+  "terrain": "deep_ocean",
+  "area_km2": 118354.8,
+  "coastal": 1
+ },
+ {
+  "name": "Norwegian Trench",
+  "terrain": "ocean",
+  "area_km2": 99323.8,
+  "coastal": 1
+ },
+ {
+  "name": "North Central Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 5552619.4,
+  "coastal": 0
+ },
+ {
+  "name": "South Central Pacific",
+  "terrain": "deep_ocean",
+  "area_km2": 5448997.0,
+  "coastal": 0
+ },
+ {
+  "name": "South Indian Ocean",
+  "terrain": "deep_ocean",
+  "area_km2": 3468743.6,
+  "coastal": 0
+ },
+ {
+  "name": "Nekker Ridge",
+  "terrain": "deep_ocean",
+  "area_km2": 2180613.3,
+  "coastal": 0
+ },
+ {
+  "name": "W. Emperor Chain",
+  "terrain": "deep_ocean",
+  "area_km2": 1939756.6,
+  "coastal": 0
+ },
+ {
+  "name": "Western Approaches",
+  "terrain": "deep_ocean",
+  "area_km2": 1553329.8,
+  "coastal": 0
+ },
+ {
+  "name": "North Atlantic Ridge",
+  "terrain": "deep_ocean",
+  "area_km2": 1419691.4,
+  "coastal": 0
+ },
+ {
+  "name": "Hawaiian Trough",
+  "terrain": "deep_ocean",
+  "area_km2": 1004985.3,
+  "coastal": 0
+ },
+ {
+  "name": "Hawaii",
+  "terrain": "deep_ocean",
+  "area_km2": 608620.8,
+  "coastal": 0
+ }
+]

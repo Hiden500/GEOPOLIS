@@ -104,6 +104,61 @@ cell-mosaic logic.
   Use `matplotlib.path.Path`/`PathPatch` with both the exterior AND each
   interior ring's vertices/codes when the verification depends on holes
   being visible, not a bare `ax.fill` per exterior only.
+  **This exact bug recurred in the PERMANENT tool itself, not just a
+  one-off script** — `diagnose_coastline_gaps.py::render()` (the canonical,
+  reused-dozens-of-times-per-session verification renderer) painted
+  interior rings `color="white"` OVER whatever was drawn underneath, rather
+  than leaving them transparent; when a polygon's hole happens to be a
+  neighboring feature's legitimate territory (routine after any
+  `resolve_same_iso_overlaps` — see `cross_source_merging.md`), the render
+  showed that neighbor's real land as a blank "gap" (2026-07-29, Washington
+  — San Juan, 7 of 8 holes were British Columbia). The general rule above
+  was already written down after the FIRST occurrence (Faroe Islands) — it
+  didn't stop this second one, because it wasn't checked against every
+  render call site, just fixed where it was first found. Fixed now via
+  `PathPatch` in the shared tool; if you write or touch ANY new render
+  function in this codebase, grep for `color=.white.`/`color="#a8d8f0"`
+  near an `interiors` loop before trusting it.
+  **The `PathPatch` fix itself introduced a NEW render artifact** — it
+  strokes the ENTIRE compound path with one `edgecolor`, including
+  interior rings, so a legitimate hole (a neighbor's real territory) now
+  got a visible black outline traced right through the middle of the
+  polygon on the very next render (same day, same user report: "чёрная
+  полоса в полигоне"). Fix: never pass `edgecolor` to the fill patch at
+  all — draw the exterior ring's stroke as a SEPARATE `ax.plot(*exterior.
+  xy, ...)` call, so interior rings are used only for the even-odd fill
+  exclusion and never get their own visible border.
+- **A user pointing at several visually-similar defects in one screenshot
+  can be describing MULTIPLE independent bugs sharing one symptom — fixing
+  the first plausible explanation and re-rendering "clean" doesn't mean
+  the rest are explained by it too, verify each circled item separately.**
+  The white-hole render bug above was real and WAS the correct fix for
+  "white patches" — but the same user complaint also circled genuinely
+  disconnected `MultiPolygon` fragments (see next bullet) and genuine
+  unclosed coastline gaps that had been separately triaged as "deferred
+  backlog" earlier the same session. Declaring the area "fixed" after
+  solving only the render bug, without independently re-checking geometry
+  (part connectivity) and running the numeric gap scanner again, produced
+  a second render that still showed real defects the user had already
+  pointed at once. Each distinct-looking annotation needs its own
+  independent verification method (containment check for coverage,
+  distance-to-different-country for orphan parts, a fresh `diagnose_
+  coastline_gaps.py` scan for gaps) — don't let one satisfying root cause
+  explain away everything else in the same screenshot.
+- **A disconnected `MultiPolygon` part that touches a DIFFERENT country's
+  land at distance ≈0 is very likely misattributed territory, not
+  noise — check whether raw source confirms ownership before assuming
+  it's fine.** Washington — San Juan carried 4 parts beyond its main body;
+  3 (touching ONLY British Columbia, north of the US/Canada line or on
+  Vancouver Island's own coast) had NO raw `game_map.json` feature under
+  Washington at that location at all — genuine Canadian territory that had
+  drifted into the wrong feature (most likely the same "`unary_union`
+  shifts float coordinates elsewhere in the geometry" mechanism already
+  documented for Alaska/British Columbia). The 4th DID have a raw
+  Washington source — legitimately Washington, just in the wrong cluster.
+  Decisive test, not a judgment call: does the disconnected part touch
+  EXACTLY ONE other feature (reassign to it) — a part touching zero or
+  several needs a human look, don't auto-resolve those.
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake
@@ -243,17 +298,71 @@ checkout --` the 4 positional files back to the last clean commit, then run
 code edit is done). Batch all edits before remapping; don't remap after
 each intermediate step.
 
-**A third sibling, same disease, different location:** `generate_country_
-registry.py::CAPITAL_REGION_OVERRIDES` is a hardcoded Python dict of
-`region_id -> number`, baked in at whatever numbering existed when it was
-written (commit `6c1cf56`) — every later region-count change anywhere in the
-world drifts it too. This is the `capitalRegionId` violation category that
-`validate_region_economy_1946.py` already reports every run (~31-33 entries,
-count drifts slightly with every region-count change) — **already known,
-already deferred by the user to a single dedicated pass once the whole map is
-done. Do not try to fix all of them as a side effect of an unrelated geometry
-change** — confirm the count is in the same ballpark as before your change
-(not exploding) and move on.
+**When a positional shift is composite/non-uniform (not a clean "+N from
+here on"), match by CONTENT instead of computing an offset.** Substituting
+an external snapshot as a new base file (see `cross_source_merging.md`'s
+D:\MAP entries) can shift `ownership_1946.json`/`names_ru.json` by a
+DIFFERENT amount in different sub-ranges of the same continent, because the
+snapshot's own internal feature order doesn't match this tree's — a
+"shift every id ≥ N by -1" fix (the obvious first attempt, mirroring
+`remap_region_ids.py`'s single-offset model) silently only fixes the FIRST
+sub-range and leaves everything after the second break point still wrong
+(2026-07-29: fixed NAM-0055..0093, left NAM-0094..0267 broken, discovered
+only by re-verifying after the "fix" instead of trusting it). Diagnosing
+the exact composite offset pattern is unnecessary work — instead, build a
+`name_en -> value` map from ALL existing (even mis-positioned) entries in
+the stale file, then for every region_id in the CURRENT world file, look up
+its `name` in that map and write the value at the CURRENT (correct)
+position. This is immune to however many breakpoints the shift has, because
+it never computes an offset at all — it only requires that content (a
+name, an owner code) survives somewhere in the stale file under SOME wrong
+key, which is true for any pure reordering (nothing added or removed, just
+moved). Verify 0 remaining mismatches by re-comparing `name_en` (or
+`owner`) against the live world file afterward — don't trust the fix
+without this, exactly like the shift-based attempt above wasn't caught
+until re-verified.
+
+**Majority-vote across a small bucket can be fooled by the SAME corruption
+it's trying to detect — needs an independent ground truth, not internal
+consensus.** Repairing `ownership_1946.json` after a large positional shift,
+grouping entries by `iso_a2` and trusting whichever `owner` value appears
+most often in each bucket "fixed" 2 small Caribbean buckets (Saint Kitts,
+Trinidad — 2 entries each) by making BOTH entries agree on a value that was
+WRONG for both of them (the shift had corrupted every entry in those small
+buckets identically, so "majority" just confirmed the shared error and
+overwrote the one entry that had coincidentally still been correct). Caught
+by cross-checking against a source truly independent of the file being
+repaired: `iso_a2 -> iso3` derived directly from `game_map.json`'s raw
+`adm0_a3`/`sov_a3` fields (with explicit, already-decided overrides for
+this game's deliberate 1946 anachronisms — Baltic/Belarus/Ukraine/Caucasus/
+Central Asian SSRs read `SUN` not their modern code, Yugoslav/Czechoslovak
+successor states read `YUG`/`CSK`, undivided Korea reads `KOR`, Taiwan
+reads `CHN`, and this game's convention of small dependent territories
+getting their OWN iso3 rather than the administering power's — Aruba=ABW
+not NLD, confirmed already-correct examples before trusting the pattern for
+new ones). Use majority-vote only as a candidate generator on a dataset you
+don't already suspect is corrupted; once corruption is suspected, the
+final check needs a source the corruption couldn't have touched.
+
+**A third sibling, same disease, different location:**
+`economy_1946/capital_overrides.py::CAPITAL_REGION_OVERRIDES` is a hardcoded
+Python dict of `country_code -> numeric region id` (NOT a `region_id` string
+like `"NAM-0055"` — a plain int, `regions.core.json`'s own sequential
+`id` field, assigned by `import_to_game.py` from feature order) — every
+later region-count change ANYWHERE in the world earlier in build order
+drifts it. **This got fully resynced 2026-07-29** (26/55 entries had drifted
++22..+25 from that session's own Oceania/Philippines/Panama work) using a
+protocol already built into the same file: `CAPITAL_REGION_ANCHOR_NAMES`
+pairs each code with the expected English name of the region currently at
+that id (added 2026-07-26, checked by `validate_region_economy_1946.py`
+every run). To resync: for each `(code, id)` whose current name ≠ the
+anchor name, search `names.en.json` for a region whose name EXACTLY matches
+the anchor (filtering by `ownerCountryId == code` when the anchor name is
+ambiguous across countries, e.g. "Northern"/"Eastern" appear in several
+African countries) — a unique match is the corrected id. Do this any time
+the violation count balloons past its prior baseline, not just once —
+it's cheap (pure lookup, no geometry) and the anchor-name table makes it
+mechanical, not a research task each time.
 
 After any region-count change run `scripts/map/build/remap_region_ids.py
 --old <pre-edit world snapshot> --prefix <XXX-> --apply` (a snapshot of the
@@ -283,19 +392,38 @@ neighbour id — validate: "region N: сосед M не существует").
    step → `build_oceania` if water changed → `merge_world_1946.py` →
    `build_neighbor_graph.py` → `translate_world.py` → `import_to_game.py` →
    `generate_country_registry.py` → `fill_region_economy_1946.py`), or
-   `python scripts/map/make_1946.py --full-rebuild` for a full pass.
+   `python scripts/map/make_1946.py --rebuild-master` for a full pass.
+   Since 2026-07-30 the plain `make_1946.py` does NOT rebuild geometry — it
+   reads the frozen `scripts/map/master/world_1946.master.geojson`. Editing
+   geometry means rebuilding the master (`--rebuild-master`, needs
+   `sources/` + `PAXMAP_SOURCES` in a linked worktree) and committing the
+   new master file; otherwise your change reaches nothing.
 2. **Numeric pairwise scan** for every edited country pair + water: for A,B print
    `A.buffer(0.01)∩B.buffer(0.01) − A − B − water` (residual gap) and
    `A∩B` (overlap). Overlaps must be 0; gaps at real disputed tripoints may leave
    a µ-residual 2-3 orders below anything visible — note it, don't chase it.
 3. **Diagnostic polygonize** of the final file: 0 absorbable inter-land cells
    (only coastal strips + pure-water slivers remain, by design).
-3b. **Missing-land scan** after any build that changes country/region
-   membership: `python scripts/map/build/diagnose_missing_land.py` — flags
-   whole territories present in raw `game_map.json` but absent from output
-   (the manual-scan-is-impossible class: Akrotiri, Maldives, Channel
-   Islands). Layer-1/2 `*** ПРОПАЖА ***` lines are genuine drops; Layer-3
-   `[LAKE]` tags are lake-adjacent false positives, not drops.
+3b. **Acceptance audit — the gate, not an option:** `python scripts/map/
+   build/audit_map_geometry.py` (12 classes: `INFLATED`, `ORPHAN_FOREIGN`,
+   `ORPHAN_UNSOURCED`, `WATER_SHATTERED`, `SPIKE`, `SCATTERED`,
+   `MISSING_LAND`, `COASTLINE_GAP`, `SEA_HOLE`, `UNION_HOLE`,
+   `COVERAGE_INVALID`, `FALSE_COAST`). Any finding outside
+   `config/geometry_audit_baseline.json` exits non-zero; it runs inside
+   `make_1946.py` before `import_to_game.py`. `diagnose_missing_land.py` and
+   `diagnose_scattered_regions.py` no longer exist — their logic is inside
+   the audit. Update the baseline only with `--update-baseline` plus a dated
+   `docs/DECISIONS.md` entry, never silently.
+   Three classes answer three DIFFERENT questions and none substitutes for
+   another: `UNION_HOLE` = "is there a hole in the map" (no shape
+   thresholds, unlike `COASTLINE_GAP`), `COVERAGE_INVALID` = "does GEOS
+   consider neighbour edges matched", `FALSE_COAST` = "will the CLIENT draw
+   a coastline inside land". The last one exists because a geometrically
+   valid coverage still fails in the client: `TopologyBuilder.ts` compares
+   segments by endpoints rounded to 1e-5, so one extra vertex on a
+   neighbour's edge splits the keys and paints `coastline-solid` (2.5px) +
+   glow (4px) through a continent. Measured on the pre-weld snapshot: 5217
+   such segments, longest 148 km.
 3c. **Sea/lake hole scan**, a different class 3b can't see (no ADM1 record
    required to be a real gap): `python scripts/map/build/diagnose_sea_
    holes.py` — finds interior-ring holes in sea/lake polygons with no
@@ -313,6 +441,31 @@ neighbour id — validate: "region N: сосед M не существует").
 4. **Per-seam renders** (matplotlib → PNG → Read tool), yellow/beige background so
    any void is loud. Label placement must skip collisions (largest-area first) or
    dense clusters are illegible — that itself was a complaint.
+4b. **Shots of the REAL client** when the question is "what does the user
+   see" (line/seam/colour complaints), because matplotlib does not reproduce
+   `coastline-glow`/`internal-borders`/opacity stacking. Recipe that worked
+   2026-07-30 after the Browser pane again refused to composite frames
+   ("pane is not displayed"):
+   - `npm install` inside the worktree's `client/` and `server/` (a linked
+     worktree has no `node_modules`, and Node's upward resolution does not
+     reach the main checkout's `client/node_modules`) — seconds on a warm
+     cache;
+   - start `npx tsx src/index.ts` (server, `PORT=3000`) and `npx vite --port
+     <free> --strictPort` (client) as background tasks; the client proxies to
+     3000, so the pair must match the same worktree or region ids diverge;
+   - drive it with Playwright: scenario → country → "Начать игру", then use
+     `window.map` (MapView already exposes it) for exact framing:
+     `m.jumpTo({center, zoom})` + `await new Promise(r => m.once('idle', r))`
+     before each `page.screenshot`. Do NOT add your own debug hook — check
+     for an existing one first.
+   - hide the HUD before shooting (walk up from `canvas`, `display:none` on
+     each sibling, then `map.resize()`), else a third of the frame is panels;
+   - for a before/after pair, swap ONLY the data with `git checkout <ref> --
+     client/public/world_1946.geojson server/data/scenarios/1946/`, restart
+     the server, shoot, then `git checkout HEAD -- …` back. Comparing against
+     the main checkout instead is a trap: `main` may carry other agents' newer
+     systems (its client crashed on missing campaign data on 2026-07-30) and
+     its region ids differ, so colours/owners would not line up.
 5. **Pipeline gates:** `test_country_entities_1946.py`,
    `validate_region_economy_1946.py` (expect only the known deferred
    `capitalRegionId` fails — a *new* fail count is a regression),
@@ -341,6 +494,10 @@ neighbour id — validate: "region N: сосед M не существует").
 - `scripts/map/build/remap_region_ids.py` — the positional-fragility remap tool.
 - `scripts/map/build/diagnose_coastline_gaps.py` — permanent world-wide
   coastline/land-hole gap scanner + bbox render tool (read-only).
+- `scripts/map/build/audit_map_geometry.py` — the 12-class acceptance gate
+  and its baseline; read a class's docstring before trusting or changing it.
+- `scripts/map/build/freeze_master_map.py` — refuses to freeze a torn map
+  (0 holes + valid coverage are preconditions, not aspirations).
 - `references/absorb_slivers_internals.md` — `absorb_slivers` gates/thresholds/classifier pitfalls.
 - `references/cross_source_merging.md` — merging/clipping geometry from independently-digitized sources.
 - `references/build_pipeline_gotchas.md` — running/testing/verifying the build pipeline safely.

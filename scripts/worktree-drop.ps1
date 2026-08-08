@@ -113,6 +113,25 @@ if ($removedLinks -gt 0) {
     Write-Host "Снято ссылок на пакеты: $removedLinks" -ForegroundColor Green
 }
 
+# Источники карты (2026-08-07). Здесь reparse point — САМ каталог
+# scripts/map/sources, а не его содержимое, поэтому цикл выше его не видел:
+# он перебирает ДЕТЕЙ перечисленных корней. Ссылка ведёт в общее хранилище
+# PAXMAP_SOURCES_STORE, и рекурсивное удаление по ней снесло бы game_map.json,
+# источники и _frozen_out — 120 МБ, из которых 82 невоспроизводимы.
+$sourcesLink = Join-Path $treePath 'scripts/map/sources'
+if (Test-Path $sourcesLink) {
+    $item = Get-Item -LiteralPath $sourcesLink -Force
+    if ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) {
+        try {
+            [System.IO.Directory]::Delete($sourcesLink, $false)
+            Write-Host 'Снята ссылка на хранилище источников карты' -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  не снялась ссылка: $sourcesLink" -ForegroundColor Yellow
+        }
+    }
+}
+
 # Остались ли reparse points: git пойдёт удалять дерево рекурсивно, и уцелевшая
 # ссылка — единственный способ добраться до пакетов главного checkout.
 $survivors = @(Get-ChildItem -Path $treePath -Recurse -Force -ErrorAction SilentlyContinue |

@@ -810,6 +810,7 @@ export function Screen({
                       title={event.title}
                       body={event.body}
                       factuality={event.factuality}
+                      dated={event.dated}
                       order={event.order === undefined ? undefined : { text: event.order }}
                       tags={event.tags}
                       onTagClick={openTag}

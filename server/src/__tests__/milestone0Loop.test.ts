@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { responseEvent } from "../test-utils/fixtures";
 import { createGame } from "../game/CreateGame";
 import { simulateMonth } from "../simulation/SimulationEngine";
 import { LLMService } from "../services/LLMService";
@@ -84,9 +85,26 @@ describe("Милстоун 0: петля замыкается на данных 
     expect(rendered.consumption.facts.filter(f => f.kind === "region_crisis"))
       .toHaveLength(crisisFacts.length);
 
-    // Самый острый регион — цель режиссуры. Берётся из промта, а не зашит
-    // числом: тест не должен ломаться от калибровки коэффициентов.
-    const hottestId = Number(shown[0]!.match(/^- region (\d+)/)![1]);
+    // Цель режиссуры — самый острый регион ИЗ ТЕХ, которыми игрок реально
+    // распоряжается. Берётся из промта, а не зашит числом: тест не должен
+    // ломаться от калибровки коэффициентов.
+    //
+    // Фильтр по контролю добавлен 2026-08-08 по той же причине, по которой
+    // выше появился `playerCrisisRegion`: петля меряется до конца, а её
+    // последнее звено — ответ игрока, и `repress` по чужому региону законно
+    // отклоняется кодом `regionNotControlled`. Пока самый острый регион
+    // случайно принадлежал СССР, разницы не было; сборка мира 2026-08-08
+    // изменила состав регионов, первым стал чужой — и тест упал не на
+    // предмете своей проверки. Предмет не тронут: проверяется то же
+    // замыкание, просто цель выбирается по свойству, а не по месту в списке.
+    const playerControlled = shown
+      .map(line => Number(line.match(/^- region (\d+)/)![1]))
+      .find(id => {
+        const candidate = game.regions.find(r => r.id === id);
+        return candidate !== undefined && effectiveController(candidate) === PLAYER;
+      });
+    expect(playerControlled).toBeDefined();
+    const hottestId: number = playerControlled!;
     const hottest = game.regions.find(r => r.id === hottestId)!;
     const groupId = [...hottest.demographics!].sort((a, b) => b.share - a.share)[0]!.groupId;
     const discontentBefore = regionDiscontent(game, hottest)!;
@@ -126,17 +144,17 @@ describe("Милстоун 0: петля замыкается на данных 
     // одну прозу: по нему потребитель проверяет заголовок, не заглядывая в мир.
     const event = game.eventHistory.at(-1)!;
     expect(event.title).toBe("Волнения вспыхнули и вылились на улицы");
-    expect(event.receipt.primitives.applied).toHaveLength(2);
+    expect(responseEvent(event).receipt.primitives.applied).toHaveLength(2);
     // Квитанция всегда полная: пустой список отказов означает «отказов не
     // было», а не «поля нет» (Милстоун 1 — до него отсутствие поля и пустоту
     // приходилось различать потребителю).
-    expect(event.receipt.primitives.rejected).toEqual([]);
+    expect(responseEvent(event).receipt.primitives.rejected).toEqual([]);
     // `countries` считается из применённых примитивов, а не из старого канала
     // `actions` (его здесь нет вовсе): без этого чистое primitive-событие
     // получало `countries: []` и выпадало из памяти собственной страны.
     const owner = game.regions.find(r => r.id === hottestId)!.ownerCountryId;
-    expect(event.receipt.countries).toContain(owner);
-    expect(event.receipt.countries).toContain("USA");
+    expect(responseEvent(event).receipt.countries).toContain(owner);
+    expect(responseEvent(event).receipt.countries).toContain("USA");
     expect(new LLMService(game).generatePrompt().prompt).toContain(
       "Волнения вспыхнули и вылились на улицы"
     );
@@ -208,8 +226,21 @@ describe("Милстоун 0: петля замыкается на данных 
     // счётчики капов жили внутри вызова, десять кликов «Подавить» по одной паре
     // за один месяц упирали оба поля памяти в потолок — ровно то, что коридор
     // магнитуды запрещает делать одним примитивом.
-    const REGION = 68; // Saare
+    // Регион выбирается ПО СВОЙСТВУ: любой регион игрока с этой группой.
+    // Был литерал `68 // Saare`; позиционный id сдвигается при изменении
+    // числа регионов, и после сборки мира 2026-08-08 на 68 оказался Hiiu —
+    // тест продолжал проходить, но проверял уже не тот регион, что назван в
+    // комментарии. Молча устаревший литерал хуже упавшего.
     const GROUP = "estonians";
+    const REGION = (() => {
+      const probe = startedGame();
+      const region = probe.regions.find(
+        r => effectiveController(r) === PLAYER
+          && r.demographics?.some(d => d.groupId === GROUP)
+      );
+      expect(region).toBeDefined();
+      return region!.id;
+    })();
 
     const order = {
       verb: "repress" as const,
@@ -376,7 +407,7 @@ describe("Милстоун 0: петля замыкается на данных 
       // …но законное событие ≠ установленный факт: подтверждать в нём нечего,
       // и в ленте игрок увидит его помеченным (решение 2026-07-27).
       expect(cycle.receipt.factuality).toBe("unconfirmed");
-      expect(game.eventHistory.at(-1)!.receipt.factuality).toBe("unconfirmed");
+      expect(responseEvent(game.eventHistory.at(-1)).receipt.factuality).toBe("unconfirmed");
     });
 
     it("частично применённый ответ помечен, а не выдан за факт", () => {
@@ -416,7 +447,7 @@ describe("Милстоун 0: петля замыкается на данных 
 
       const event = game.eventHistory.at(-1)!;
       expect(event.title).toBe("Волнения вспыхнули, и войска их подавили");
-      expect(event.receipt.factuality).toBe("partial");
+      expect(responseEvent(event).receipt.factuality).toBe("partial");
     });
 
     it("летопись доносит применённое, а не заявленное", () => {

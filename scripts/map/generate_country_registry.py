@@ -772,6 +772,27 @@ def main():
             diplomacy = country.setdefault("diplomacy", {"puppets": [], "sphereOfInfluence": []})
             diplomacy["sphereOfInfluence"].extend(extra_sphere)
 
+    # Ссылка на страну, которой в сценарии НЕТ, — это не дипломатия, а битая
+    # ссылка: `findStateViolations` (server/src/primitives/invariants.ts) валит
+    # на ней загрузку боевых данных 1946. Италия тянула сюда довоенные колонии
+    # SOM/ERI/LBY, которых среди стран 1946 нет; данные починили руками
+    # (5bc2deb, 2026-07-27), генератор — нет, и первый же полный прогон
+    # воскрешал дефект (16 упавших тестов, 2026-08-08).
+    known_ids = {c["id"] for c in countries}
+    for country in countries:
+        diplomacy = country.get("diplomacy")
+        if not diplomacy:
+            continue
+        for field in ("puppets", "sphereOfInfluence"):
+            dropped = [c for c in diplomacy.get(field, []) if c not in known_ids]
+            if dropped:
+                print(f"  {country['id']}.diplomacy.{field}: отброшены "
+                      f"несуществующие в сценарии {dropped}")
+            diplomacy[field] = [c for c in diplomacy.get(field, [])
+                                if c in known_ids]
+        if not diplomacy["puppets"] and not diplomacy["sphereOfInfluence"]:
+            del country["diplomacy"]
+
     COUNTRIES_OUT.parent.mkdir(parents=True, exist_ok=True)
     COUNTRIES_OUT.write_text(json.dumps(countries, ensure_ascii=False, indent=2), encoding="utf-8")
 

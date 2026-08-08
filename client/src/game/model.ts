@@ -62,6 +62,13 @@ export interface ScreenEvent {
   title: string;
   body: string;
   factuality?: "confirmed" | "partial" | "unconfirmed";
+  /**
+   * Датированное событие — один факт из прозы месяца, а не сама месячная
+   * запись. Два уровня обязаны различаться взглядом, без чтения (контракт
+   * «Лента кампании», `docs/UI_DESIGN.md`), поэтому вид приходит моделью:
+   * решать по длине текста или по наличию тегов интерфейс не должен.
+   */
+  dated?: boolean;
   /** Текст приказа, породившего событие. Есть только у своих действий. */
   order?: string;
   tags?: Array<{ id: string; label: string; kind: "region" | "country" | "object" }>;

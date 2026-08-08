@@ -75,11 +75,20 @@ describe("simulateMonth — детерминированные вехи (pending
                     // модель стала возвратом к цели: инфляция подтягивается
                     // постепенно, скачков на десять пунктов за месяц больше нет.
                     // Поэтому проверяется САМО пересечение и факт, а не срок.
+                    //
+                    // Дефицит задаётся расходом ВНЕ росписи (2026-08-04). Пять
+                    // статей росписи создать его больше не могут: они считаются
+                    // от располагаемого дохода, и при сумме долей меньше единицы
+                    // баланс по построению неотрицателен. Прежняя фикстура
+                    // получала дефицит из того самого структурного разрыва,
+                    // который правка «импорт в росписи» и устранила, — и
+                    // проверяла бы уже не свойство, а исчезнувший дефект.
                     inflation: 19,
                     gdp: 1_000_000,
                     taxRevenue: 0, exportIncome: 0, stateEnterpriseIncome: 0, otherIncome: 0,
-                    militarySpending: 100_000_000, researchSpending: 0, educationSpending: 0,
-                    infrastructureSpending: 0, welfareSpending: 0, debt: 0, debtInterest: 0, otherExpenses: 0,
+                    militarySpending: 0, researchSpending: 0, educationSpending: 0,
+                    infrastructureSpending: 0, welfareSpending: 0, debt: 0, debtInterest: 0,
+                    otherExpenses: 100_000_000,
                     importSpending: 0,
                 },
             })],

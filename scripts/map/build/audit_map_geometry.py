@@ -1,0 +1,824 @@
+"""
+audit_map_geometry.py — единая приёмка геометрии карты (2026-07-29).
+
+ЗАЧЕМ. До этого скрипта диагностика была россыпью из четырёх независимых
+инструментов (diagnose_coastline_gaps / _sea_holes / _missing_land /
+_scattered_regions), каждый со своей метрикой, своим форматом вывода и
+своим запуском. Пользователь смотрел на карту и находил дефекты, которых
+НИ ОДИН из четырёх не показывал, потому что:
+
+  - `diagnose_scattered_regions.py` явно пропускал SEA-/LAK- (моря вообще
+    не проверялись) и искал только "часть далеко от своего тела", но не
+    "часть, приросшая к ЧУЖОЙ стране";
+  - никто не сверял площадь региона с сырым `game_map.json` — из-за чего
+    "Washington — San Juan" жил с 9706 км² при 412 км² реальной суши
+    (96% — акватория пролива Хуан-де-Фука и 2475 км² канадской земли
+    севернее 49-й параллели), а `clip_sea_by_land.py` покорно резал МОРЕ
+    по этой ложной суше, разбив North Pacific — American Sector на 17
+    кусков (1 кусок в 628a3bd → 15 в main → 17 к 2026-07-29: дефект
+    молча РОС с каждой серией фиксов берега);
+  - никто не искал тонкие иглы-выступы (обе "линии" у входов Панамского
+    канала).
+
+ЧТО ДЕЛАЕТ. Один вход, один отчёт, ВОСЕМЬ классов дефектов, и — главное —
+baseline: множество уже известных находок в
+`config/geometry_audit_baseline.json`. Появилась находка, которой в
+baseline нет → ненулевой exit. Это и есть защита от "числа молча растут":
+любая правка геометрии, породившая новый дефект, валит пайплайн сразу, а
+не через три сессии по чужому скриншоту.
+
+Классы (ID стабильны — по ним ведётся baseline):
+
+  INFLATED        площадь региона не подтверждена сырым game_map.json
+                  (>INFLATED_FRACTION). Ловит "суша, покрывающая
+                  акваторию" — корневой класс San Juan.
+  ORPHAN_FOREIGN  отсоединённая часть фичи, касающаяся ЧУЖОЙ фичи
+                  (другой iso_a2) и НЕ касающаяся своего тела. Ловит
+                  "3 куска British Columbia, приписанные Вашингтону".
+  WATER_SHATTERED водная фича, разбитая на куски, каждый из которых мал
+                  относительно главного. Ловит изрезанное сушей море.
+  SPIKE           тонкий выступ (морфологическое открытие срезает кусок
+                  >SPIKE_MIN_KM2). Ловит иглы у входов канала.
+  COASTLINE_GAP   непокрытая ячейка суша↔вода (переиспользует проверенный
+                  `_gap_cells` из diagnose_coastline_gaps.py).
+  SEA_HOLE        дыра-остров в море без покрывающей суши
+                  (переиспользует find_holes/classify из
+                  diagnose_sea_holes.py).
+  MISSING_LAND    сырая фича, чей representative_point не покрыт выходной
+                  сушей (логика бывшего diagnose_missing_land.py, слой 3).
+  SCATTERED       части фичи разбросаны дальше порога (логика бывшего
+                  diagnose_scattered_regions.py, теперь И ДЛЯ ВОДЫ ТОЖЕ).
+
+diagnose_missing_land.py и diagnose_scattered_regions.py удалены — их
+логика здесь. diagnose_coastline_gaps.py и diagnose_sea_holes.py
+ОСТАВЛЕНЫ: они импортируются fix_*-скриптами как библиотеки (_gap_cells,
+find_holes) и несут собственный рендер; отдельный запуск их CLI больше не
+нужен — всё, что они считают, попадает в этот отчёт.
+
+ЗАПУСК:
+  python scripts/map/build/audit_map_geometry.py            # проверить
+  python scripts/map/build/audit_map_geometry.py --update-baseline
+  python scripts/map/build/audit_map_geometry.py --only INFLATED,SPIKE
+  python scripts/map/build/audit_map_geometry.py --quick    # без тяжёлых
+
+Читает out/world_1946.geojson (НЕ client/public — у того другая схема
+свойств, без region_type, см. references/build_pipeline_gotchas.md).
+"""
+import argparse
+import json
+import math
+import sys
+from pathlib import Path
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from paths import game_map, out  # noqa: E402
+from geometry_cleanup import area_km2  # noqa: E402
+import shapely  # noqa: E402
+from shapely.geometry import (shape, box as shp_box, Polygon,  # noqa: E402
+                             Point, LineString)
+from shapely.ops import unary_union  # noqa: E402
+from shapely.strtree import STRtree  # noqa: E402
+
+BASELINE_PATH = (Path(__file__).resolve().parents[1] / "config"
+                 / "geometry_audit_baseline.json")
+
+# --- пороги (менять осознанно: сдвиг порога = сдвиг всего baseline) ---
+
+# Доля площади, не подтверждённая сырым источником, выше которой регион
+# считается раздутым. 15% выбрано по фактическому распределению: реальные
+# расхождения оцифровки берега дают <10%, а найденные дефекты — 15%+.
+INFLATED_FRACTION = 0.15
+INFLATED_MIN_KM2 = 50.0        # мелочь ниже этого не разбираем
+
+# Отсоединённая часть считается "приросшей к чужому", если она ближе
+# этого к фиче с другим iso_a2 (и дальше от собственного тела).
+FOREIGN_TOUCH_DEG = 0.005
+ORPHAN_MIN_KM2 = 0.05
+
+# Вода: кусок меньше этой доли главного и есть — признак изрезанности.
+WATER_PART_MAX_FRACTION = 0.02
+WATER_MIN_PARTS = 3
+
+# Игла: морфологическое открытие с этим радиусом (в градусах) срезает
+# кусок площадью больше порога.
+SPIKE_ERODE_DEG = 0.004        # ~440 м
+SPIKE_MIN_KM2 = 3.0
+
+# Ниже этого дыра — машинный шум noding'а, а не география (тот же смысл,
+# что у MIN_CELL_AREA_DEG2 в geometry_cleanup.py).
+MIN_HOLE_AREA_DEG2 = 1e-12
+
+SCATTERED_THRESHOLD_DEG = 0.5
+ANTIMERIDIAN_DEG = 180.0       # разброс больше — артефакт склейки, не дефект
+
+# Радиус пробы вокруг середины отрезка в FALSE_COAST: ~22 м. Больше —
+# начнёт задевать регион через узкий пролив и объявит настоящий берег
+# ложным; меньше — не заметит соседа, отстоящего на округление клиента.
+FALSE_COAST_PROBE_DEG = 2e-4
+
+
+def load_features(path):
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)["features"]
+
+
+def valid(g):
+    return g if g.is_valid else g.buffer(0)
+
+
+def parts_of(g):
+    return list(g.geoms) if g.geom_type == "MultiPolygon" else [g]
+
+
+def planar_km2(g):
+    """Грубая площадь по планарным градусам с поправкой на широту — тот же
+    приём, что `km2()` в diagnose_sea_holes.py.
+
+    Нужна как ЗДРАВАЯ ОЦЕНКА против геодезической `area_km2`, которая на
+    фигурах, вытянутых вдоль параллели, даёт абсурд: геодезическая линия
+    между двумя точками одной широты идёт СЕВЕРНЕЕ параллели, и pyproj
+    считает площадь серпа между ними. Поймано 2026-07-30 на British
+    Columbia: часть площадью 0.0000636 deg² с bounds
+    (-139.06, 59.992, -120.0, 60.0) — полоса вдоль ровно 60-й параллели
+    (граница BC/Юкон) — дала геодезические 25 070 км² при реальных ~0.4,
+    то есть «часть» вышла больше целого (весь diff был 25 047 км²)."""
+    b = g.bounds
+    lat = (b[1] + b[3]) / 2.0
+    return g.area * 111.0 * 111.0 * abs(math.cos(math.radians(lat)))
+
+
+def safe_area_km2(g):
+    """Геодезическая площадь, но не больше здравой планарной оценки.
+
+    Артефакт «вдоль параллели» всегда ЗАВЫШАЕТ, поэтому минимум из двух
+    оценок отсекает его, не мешая нормальным фигурам (у них планарная
+    оценка грубее и обычно больше геодезической)."""
+    return min(area_km2(g), planar_km2(g))
+
+
+def finding(cls, fid, name, value, detail):
+    """value — числовая величина дефекта (км² / штуки / градусы). В
+    baseline сравниваются ТОЛЬКО (cls, fid): величина печатается для
+    человека и может дрейфовать от float-шума, ключ — нет.
+
+    ИЗВЕСТНОЕ ОГРАНИЧЕНИЕ: для пофичевых классов (SPIKE, ORPHAN_*,
+    SCATTERED) fid — это region_id, поэтому несколько находок в ОДНОМ
+    регионе схлопываются в один ключ, и вторая игла у уже известного
+    региона не поднимет тревогу. Осознанный компромисс: ключ с
+    координатами был бы точнее, но дрейфует от float-шума при каждой
+    пересборке и превращал бы baseline в постоянный источник ложных
+    "новых" находок. Классы, где место важнее фичи (COASTLINE_GAP,
+    SEA_HOLE), используют координатный ключ с округлением до 0.01°."""
+    return {"class": cls, "id": fid, "name": name,
+            "value": round(float(value), 2), "detail": detail}
+
+
+# ----------------------------------------------------------------------
+# Проверки
+# ----------------------------------------------------------------------
+
+def check_inflated(world, raw_geoms, raw_tree):
+    """Площадь региона против сырого источника.
+
+    Именно этот чек находит корневой дефект класса "суша нарисована
+    поверх воды": пайплайн такую сушу считает истиной и режет по ней
+    море (clip_sea_by_land.py), поэтому НИ проверка пересечений, НИ
+    проверка разрывов её не видят — с точки зрения топологии всё
+    сходится, просто вода объявлена землёй."""
+    res = []
+    for ft in world:
+        p = ft["properties"]
+        if p.get("region_type") != "land":
+            continue
+        g = valid(shape(ft["geometry"]))
+        a = area_km2(g)
+        if a < INFLATED_MIN_KM2:
+            continue
+        idx = raw_tree.query(g)
+        covered = 0.0
+        if len(idx):
+            cov = unary_union([raw_geoms[int(i)] for i in idx])
+            covered = area_km2(g.intersection(cov))
+        frac = 1.0 - covered / a if a > 0 else 0.0
+        if frac > INFLATED_FRACTION:
+            res.append(finding(
+                "INFLATED", p.get("region_id"), p.get("name"), a - covered,
+                f"{frac*100:.1f}% площади ({a - covered:.0f} из {a:.0f} км²) "
+                f"не подтверждено сырым game_map.json"))
+    return res
+
+
+def check_orphan_foreign(world, raw):
+    """Отсоединённая часть, лежащая на ЧУЖОЙ земле по сырому источнику.
+
+    Отличается от SCATTERED: там вопрос "далеко ли часть от своего тела"
+    (архипелаг — это нормально), здесь — "не принадлежит ли она на самом
+    деле соседу".
+
+    Первая версия чека (2026-07-29) считала признаком дефекта "часть
+    оторвана от своего тела И касается чужой фичи" — и выдала 74
+    находки, из которых почти все ЛОЖНЫЕ: остров Ванкувер законно
+    оторван от материковой British Columbia и касается соседа, Огненная
+    Земля разделена между Чили и Аргентиной, Бруней физически разрезан
+    Сараваком, Тимор — между Индонезией и португальской частью. Касание
+    соседа на общем острове — норма, а не дефект.
+
+    Решающий признак — не топология, а СЫРОЙ ИСТОЧНИК: если земля под
+    частью в game_map.json принадлежит другому iso_a2, значит кусок
+    приписан не той стране (ровно случай трёх кусков британской
+    Колумбии, оказавшихся у Washington — San Juan).
+
+    Сравнение идёт НЕ с номинальным iso_a2 региона, а с грунтом его
+    ГЛАВНОЙ части. Вторая версия чека сравнивала с номинальным — и снова
+    дала ложные: Ньюфаундленд числится за `NF` (отдельный доминион 1946),
+    а сырьё современное и знает там только `CA`, так что каждый его
+    остров выглядел "чужим". Историческая переразметка (NF/SUN/YUG/CSK и
+    прочие 1946-исключения) сдвигает номинальный код у ВСЕГО региона
+    сразу, поэтому грунт главной части — устойчивый эталон: у
+    Ньюфаундленда и тело, и острова лежат на CA (совпадает → норма), у
+    Washington — San Juan тело на US, а спорные куски на CA (расходится
+    → дефект).
+
+    Часть, не покрытая сырьём вообще, репортится отдельной формулировкой:
+    это либо синтез из дыры моря (легитимный, уходит в baseline), либо
+    мусор."""
+    res = []
+    raw_geoms = [valid(shape(ft["geometry"])) for ft in raw]
+    raw_tree = STRtree(raw_geoms)
+
+    def ground_iso(geom):
+        """Доминирующий iso_a2 сырой земли под геометрией (None — нет)."""
+        by_iso = {}
+        for ci in raw_tree.query(geom):
+            ci = int(ci)
+            inter = geom.intersection(raw_geoms[ci])
+            if inter.is_empty:
+                continue
+            iso = raw[ci]["properties"].get("iso_a2")
+            by_iso[iso] = by_iso.get(iso, 0.0) + area_km2(inter)
+        if not by_iso:
+            return None
+        return max(by_iso, key=by_iso.get)
+
+    for ft in world:
+        if ft["properties"].get("region_type") != "land":
+            continue
+        g = valid(shape(ft["geometry"]))
+        if g.geom_type != "MultiPolygon":
+            continue
+        ps = sorted(g.geoms, key=lambda q: -q.area)
+        main = ps[0]
+        main_iso = ground_iso(main)
+        if main_iso is None:
+            # Тело региона само не подтверждено сырьём (регион целиком
+            # синтезирован из дыр моря — Tokelau, Yap, San Andrés). Эталона
+            # для сравнения нет, любая часть на реальной земле выглядела бы
+            # "чужой" — это ложный сигнал. Раздутость такого региона ловит
+            # INFLATED, здесь сравнивать не с чем.
+            continue
+        for part in ps[1:]:
+            a = area_km2(part)
+            if a < ORPHAN_MIN_KM2:
+                continue
+            if part.distance(main) < FOREIGN_TOUCH_DEG:
+                continue  # висит на своём же теле — не сирота
+            owner_iso = ground_iso(part)
+            if owner_iso is None:
+                # Отдельный класс, а не ORPHAN_FOREIGN: почти всегда это
+                # легитимный синтез острова из дыры моря (атоллы Французской
+                # Полинезии, дельта Амазонки, Понпеи) — большой стабильный
+                # baseline. Держать их вместе с "лежит на чужой земле"
+                # значило бы утопить редкий острый сигнал в постоянном шуме.
+                res.append(finding(
+                    "ORPHAN_UNSOURCED", ft["properties"].get("region_id"),
+                    ft["properties"].get("name"), a,
+                    f"часть {a:.1f} км² у {part.centroid.x:.3f},"
+                    f"{part.centroid.y:.3f} не покрыта сырым источником вообще"))
+                continue
+            # "-1" в Natural Earth = спорная/безISO территория: она законно
+            # входит в состав соседа, это не признак чужого грунта
+            if owner_iso in (main_iso, "-1", None):
+                continue
+            res.append(finding(
+                "ORPHAN_FOREIGN", ft["properties"].get("region_id"),
+                ft["properties"].get("name"), a,
+                f"часть {a:.1f} км² у {part.centroid.x:.3f},"
+                f"{part.centroid.y:.3f} лежит на земле {owner_iso}, "
+                f"а тело региона — на {main_iso}"))
+    return res
+
+
+def check_water_shattered(world):
+    """Вода, изрезанная на мелкие куски.
+
+    Море, разбитое сушей, — не косметика: сироты моря ломают соседство
+    (build_neighbor_graph) и выглядят на карте как рваная акватория.
+    Крупные океанские секторы законно состоят из нескольких частей
+    (антимеридиан), поэтому критерий — не число частей само по себе, а
+    сколько частей ПРЕНЕБРЕЖИМО малы относительно главной."""
+    res = []
+    for ft in world:
+        p = ft["properties"]
+        if p.get("region_type") not in ("sea", "lake"):
+            continue
+        g = valid(shape(ft["geometry"]))
+        if g.geom_type != "MultiPolygon":
+            continue
+        ps = sorted(g.geoms, key=lambda q: -q.area)
+        main_a = area_km2(ps[0])
+        small = [q for q in ps[1:] if area_km2(q) < main_a * WATER_PART_MAX_FRACTION]
+        if len(small) >= WATER_MIN_PARTS:
+            res.append(finding(
+                "WATER_SHATTERED", p.get("region_id"), p.get("name"), len(small),
+                f"{len(small)} мелких кусков (из {len(ps)}), "
+                f"суммарно {sum(area_km2(q) for q in small):.1f} км²"))
+    return res
+
+
+def check_spikes(world):
+    """Тонкие иглы-выступы.
+
+    Морфологическое открытие (erode → dilate) убирает всё тоньше
+    2*SPIKE_ERODE_DEG; разница с оригиналом — как раз иглы. Порог по
+    площади отсекает обычную изрезанность берега (она даёт множество
+    крошечных срезов), оставляя выраженные "шипы".
+
+    Устойчивость: buffer на сложных берегах регулярно рождает геометрию,
+    на которой GEOS падает с "non-noded intersection" (поймано на Мичигане
+    при первом полном прогоне). Поэтому каждый шаг нормализуется buffer(0),
+    а вся тройка erode/dilate/difference обёрнута в try — упавшая фича
+    пропускается с предупреждением, а не роняет весь аудит: диагностика,
+    которая падает на одной фиче из полутора тысяч, бесполезна как
+    приёмка."""
+    res = []
+    skipped = 0
+    for ft in world:
+        p = ft["properties"]
+        g = valid(shape(ft["geometry"]))
+        try:
+            opened = valid(valid(g.buffer(-SPIKE_ERODE_DEG)).buffer(SPIKE_ERODE_DEG))
+            if opened.is_empty:
+                continue
+            diff = g.difference(opened)
+        except Exception as exc:
+            skipped += 1
+            print(f"      [SPIKE] пропущен {p.get('region_id')} {p.get('name')}: "
+                  f"{type(exc).__name__}", flush=True)
+            continue
+        if diff.is_empty:
+            continue
+        for piece in parts_of(diff):
+            # safe_area_km2, а не area_km2: на полосе вдоль параллели
+            # геодезическая площадь даёт абсурд (см. её докстринг —
+            # British Columbia, 25 070 км² вместо ~0.4).
+            a = safe_area_km2(piece)
+            if a >= SPIKE_MIN_KM2:
+                res.append(finding(
+                    "SPIKE", p.get("region_id"), p.get("name"), a,
+                    f"тонкий выступ {a:.1f} км² у "
+                    f"{piece.centroid.x:.3f},{piece.centroid.y:.3f}"))
+    if skipped:
+        print(f"      [SPIKE] всего пропущено фич из-за ошибок GEOS: {skipped}")
+    return res
+
+
+def check_scattered(world):
+    """Разброс частей — теперь и для воды тоже (раньше SEA-/LAK- явно
+    пропускались, из-за чего изрезанные моря были невидимы)."""
+    res = []
+    for ft in world:
+        p = ft["properties"]
+        g = valid(shape(ft["geometry"]))
+        if g.geom_type != "MultiPolygon":
+            continue
+        ps = sorted(g.geoms, key=lambda q: -q.area)
+        main = ps[0]
+        dmax = max((q.distance(main) for q in ps[1:]), default=0.0)
+        if SCATTERED_THRESHOLD_DEG < dmax < ANTIMERIDIAN_DEG:
+            res.append(finding(
+                "SCATTERED", p.get("region_id"), p.get("name"), dmax,
+                f"{len(ps)} частей, максимальный разброс {dmax:.2f}°"))
+    return res
+
+
+def check_missing_land(world, raw):
+    """Сырая фича, чей representative_point не покрыт выходной сушей
+    (слой 3 бывшего diagnose_missing_land.py). Точки, попавшие в
+    вырезанное озеро, — не пропажа (приозёрный район), помечаются и не
+    считаются дефектом."""
+    lands, lake_geoms = [], []
+    for ft in world:
+        rt = ft["properties"].get("region_type")
+        if rt == "land":
+            lands.append(valid(shape(ft["geometry"])))
+        elif rt == "lake":
+            lake_geoms.append(valid(shape(ft["geometry"])))
+    tree = STRtree(lands)
+    lake_tree = STRtree(lake_geoms) if lake_geoms else None
+
+    res = []
+    for ft in raw:
+        g = valid(shape(ft["geometry"]))
+        if g.is_empty:
+            continue
+        rp = g.representative_point()
+        if any(lands[int(i)].contains(rp) for i in tree.query(rp)):
+            continue
+        if lake_tree is not None and any(
+                lake_geoms[int(i)].contains(rp) for i in lake_tree.query(rp)):
+            continue
+        p = ft["properties"]
+        code = p.get("adm1_code") or p.get("name")
+        res.append(finding(
+            "MISSING_LAND", code, p.get("name"), area_km2(g),
+            f"сырая фича {code} ({p.get('iso_a2')}) не покрыта выходной сушей"))
+    return res
+
+
+def check_union_holes(world):
+    """Внутренние дыры в объединении карты — прямая проверка требования
+    «все полигоны прилипают друг к другу».
+
+    Почему нужен отдельный класс, хотя есть COASTLINE_GAP: тот считается
+    через `_gap_cells` с порогом `MIN_AREA_KM2 = 0.5` и отбрасывает
+    вытянутые полосы как `LAND_SEAM` (MRR aspect >= 8) — «шум несовпадения
+    независимо оцифрованных границ». Именно эти два фильтра скрывали 718
+    настоящих дыр суммарно 3312 км² с медианной шириной 156 м, пока их не
+    нашли прямым замером `interior_rings` глобального union (2026-07-30).
+    Здесь порогов формы нет вовсе: дыра — это дыра.
+
+    Отсекается только машинный шум noding'а (< MIN_HOLE_AREA_DEG2): union
+    такой площади лишь сдвигает координаты, порождая фантом на следующем
+    проходе — тот же механизм, что у `MIN_CELL_AREA_DEG2` в
+    geometry_cleanup.py."""
+    geoms = [valid(shape(ft["geometry"])) for ft in world]
+    u = unary_union(geoms)
+    parts = list(u.geoms) if u.geom_type == "MultiPolygon" else [u]
+    res = []
+    for pl in parts:
+        for ring in pl.interiors:
+            h = Polygon(ring)
+            if not h.is_valid:
+                h = h.buffer(0)
+            if h.is_empty or h.area < MIN_HOLE_AREA_DEG2:
+                continue
+            a = safe_area_km2(h)
+            c = h.centroid
+            per = h.length
+            w = (2 * h.area / per * 111000) if per else 0.0
+            res.append(finding(
+                "UNION_HOLE", f"{c.x:.2f},{c.y:.2f}", "union", a,
+                f"дыра {a:.3f} км² (ширина ~{w:.0f} м) — не принадлежит ни "
+                f"одной фиче, окружена картой"))
+    return res
+
+
+def check_coverage(world):
+    """Строгая топологическая валидность: граница двух соседей — одно ребро.
+
+    Прямая проверка второй половины требования. Дыр может не быть (площадь
+    сходится), а узлы соседей всё равно свои у каждого — и тогда клиент
+    рисует ложный берег: `TopologyBuilder.ts` считает отрезок береговым,
+    если он встречается ровно у ОДНОГО региона. До пересборки таких ложных
+    берегов было ~9200 при `coverage_is_valid=False` и 171° невалидных
+    рёбер на одном тайле."""
+    import numpy as np
+    arr = np.array([valid(shape(ft["geometry"])) for ft in world], dtype=object)
+    try:
+        if shapely.coverage_is_valid(arr, gap_width=0.0):
+            return []
+        edges = shapely.coverage_invalid_edges(arr, gap_width=0.0)
+    except Exception as exc:
+        print(f"      [COVERAGE] проверка не выполнена: {type(exc).__name__}: {exc}")
+        return []
+    res = []
+    for ft, e in zip(world, edges):
+        if e is None or e.is_empty:
+            continue
+        p = ft["properties"]
+        res.append(finding(
+            "COVERAGE_INVALID", p.get("region_id"), p.get("name"), e.length,
+            f"рёбра длиной {e.length:.6f}° не совпадают с соседними "
+            f"(граница не общая)"))
+    return res
+
+
+def _is_water(props):
+    """Вода по любому из признаков, встречающихся в наших файлах.
+
+    Мастер несёт `region_type`, экспорт для клиента — `type: "ocean"`, а
+    исторические срезы (для негативного контроля) — только `region_id` с
+    префиксом. Проверка по одному полю на другом формате молча считает
+    океан сушей: так первый прогон FALSE_COAST нашёл 149 858 «дефектов» на
+    границах морских секторов по 60°E и 125°W."""
+    if props.get("region_type") in ("sea", "lake"):
+        return True
+    if props.get("type") == "ocean":
+        return True
+    rid = props.get("region_id")
+    return isinstance(rid, str) and rid.startswith(("SEA-", "LAK-"))
+
+
+def check_false_coast(world):
+    """Отрезки, которые КЛИЕНТ нарисует берегом внутри суши.
+
+    Зачем отдельно от COVERAGE_INVALID: тот спрашивает GEOS «совпадают ли
+    рёбра», и на текущем мастере ответ «да» (0 невалидных рёбер). Клиент же
+    сравнивает не рёбра, а отрезки по округлённым до 1e-5 концам
+    (`getSegmentKey` в client/src/map/engine/TopologyBuilder.ts) и считает
+    отрезок берегом, если тот встретился ровно у ОДНОГО региона. Достаточно
+    соседу иметь на том же ребре лишнюю вершину — ключи разойдутся, и внутри
+    материка появится чёрная линия `coastline-solid` (2.5px) с glow (4px).
+    Геометрически валидная карта такой артефакт не исключает, поэтому
+    проверка воспроизводит клиентскую логику, а не геометрическую.
+
+    Вырожденные отрезки (после округления концы слиплись) пропускаем: длины
+    у них нет, линию из одной точки MapLibre не рисует (line-cap butt)."""
+    from collections import defaultdict
+
+    land_seg = defaultdict(set)
+    water_keys = set()
+    seg_pts = {}
+    land_geoms, land_ids, land_names = [], [], {}
+
+    def js_round5(v):
+        # именно как клиентский roundCoord: Math.round(c*1e5)/1e5. Питоновский
+        # round() округляет половину к ЧЁТНОМУ (round(0.5)==0), Math.round —
+        # всегда вверх; на координате, попавшей ровно на половину 1e-5, ключи
+        # разошлись бы, и проверка искала бы не то, что рисует клиент.
+        return math.floor(v * 100000 + 0.5) / 100000
+
+    def key(p1, p2):
+        # тот же ключ, что в клиенте: округление до 5 знаков (~1.1 м) и
+        # нормализация направления
+        x1, y1 = js_round5(p1[0]), js_round5(p1[1])
+        x2, y2 = js_round5(p2[0]), js_round5(p2[1])
+        if x1 < x2 or (x1 == x2 and y1 <= y2):
+            return (x1, y1, x2, y2)
+        return (x2, y2, x1, y1)
+
+    def rings_of(geom):
+        if geom.geom_type == "Polygon":
+            return [geom.exterior] + list(geom.interiors)
+        out = []
+        for part in geom.geoms:
+            out.append(part.exterior)
+            out.extend(part.interiors)
+        return out
+
+    for ft in world:
+        p = ft["properties"]
+        g = valid(shape(ft["geometry"]))
+        is_water = _is_water(p)
+        if not is_water:
+            land_geoms.append(g)
+            land_ids.append(p.get("region_id"))
+            land_names[p.get("region_id")] = p.get("name")
+        for ring in rings_of(g):
+            cs = list(ring.coords)
+            for i in range(len(cs) - 1):
+                k = key(cs[i], cs[i + 1])
+                if is_water:
+                    water_keys.add(k)
+                else:
+                    land_seg[k].add(p.get("region_id"))
+                    seg_pts.setdefault(k, (cs[i], cs[i + 1]))
+
+    tree = STRtree(land_geoms)
+    res = []
+    for k, regs in land_seg.items():
+        if len(regs) != 1 or k in water_keys:
+            continue
+        if k[0] == k[2] and k[1] == k[3]:
+            continue                       # вырожденный: рисовать нечего
+        rid = next(iter(regs))
+        a, b = seg_pts[k]
+        mid = Point((a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0)
+        probe = mid.buffer(FALSE_COAST_PROBE_DEG)
+        neigh = [land_ids[int(i)] for i in tree.query(probe)
+                 if land_ids[int(i)] != rid and land_geoms[int(i)].intersects(probe)]
+        if not neigh:
+            continue                       # настоящий берег/край карты
+        length_m = LineString([a, b]).length * 111000.0
+        res.append(finding(
+            "FALSE_COAST", f"{rid}@{mid.x:.4f},{mid.y:.4f}", land_names.get(rid),
+            length_m,
+            f"отрезок {length_m:.0f} м внутри суши (рядом {neigh[0]}) клиент "
+            f"нарисует берегом: узлы соседей не совпали"))
+    return res
+
+
+def check_coastline_gaps(world):
+    """Переиспользует проверенный _gap_cells из diagnose_coastline_gaps.py
+    (не переписан заново — своя реализация поиска ячеек уже однажды дала
+    0 находок там, где настоящая нашла реальные разрывы).
+
+    TILES там — СПИСОК пар (label, bbox), не словарь: первая версия этой
+    обёртки вызывала .items() по памяти и падала. Сверяться с реальной
+    сигнатурой, а не с воспоминанием о ней.
+
+    Геометрия берётся из УЖЕ ЗАГРУЖЕННОГО world, а не через
+    `load_all_geoms()` (2026-07-30). Тот читает континентальные
+    `out/*.geojson`, из-за чего аудит мастера частично проверял бы другой
+    файл — и мастер перестал бы быть самодостаточным источником: удали
+    `out/`, и эта проверка развалилась бы, хотя игре `out/` больше не нужен.
+    Разделение на сушу и воду делается по `region_type`, который в мастере
+    есть у каждой фичи."""
+    from diagnose_coastline_gaps import TILES, _gap_cells
+
+    land_all, water_all = [], []
+    for ft in world:
+        g = valid(shape(ft["geometry"]))
+        if ft["properties"].get("region_type") in ("sea", "lake"):
+            water_all.append(g)
+        else:
+            land_all.append(g)
+    land_tree, water_tree = STRtree(land_all), STRtree(water_all)
+
+    res = []
+    for label, (minx, miny, maxx, maxy) in TILES:
+        b = shp_box(minx, miny, maxx, maxy)
+        # клип по тайлу — как в load_all_geoms: иначе polygonize получает
+        # геометрию всего мира и рождает фантомные ячейки у далёких берегов
+        land = [g for g in (land_all[int(i)].intersection(b) for i in land_tree.query(b))
+                if not g.is_empty]
+        water = [g for g in (water_all[int(i)].intersection(b) for i in water_tree.query(b))
+                 if not g.is_empty]
+        for cell, a, pt, cat in _gap_cells(b, land, water):
+            if cat != "COASTLINE":
+                continue
+            res.append(finding(
+                "COASTLINE_GAP", f"{label}@{pt[0]:.2f},{pt[1]:.2f}", label, a,
+                f"разрыв суша↔вода {a:.1f} км² в тайле {label}"))
+    return res
+
+
+def check_sea_holes(world, raw):
+    """Переиспользует find_holes/classify из diagnose_sea_holes.py.
+
+    Дефектом считается дыра БЕЗ сырого источника: дыра, под которой
+    нашёлся реальный остров в game_map.json, — это уже задача
+    fill_sea_holes.py, а не признак поломки."""
+    from diagnose_sea_holes import find_holes, classify
+    land_feats = [ft for ft in world if ft["properties"].get("region_type") == "land"]
+    water_feats = [ft for ft in world
+                   if ft["properties"].get("region_type") in ("sea", "lake")]
+    world_land = [(valid(shape(ft["geometry"])), ft["properties"].get("name"))
+                  for ft in land_feats]
+    raw_geoms = [(valid(shape(ft["geometry"])), ft["properties"]) for ft in raw]
+
+    res = []
+    for h in classify(find_holes(world_land, water_feats), raw_geoms):
+        if h.get("raw_match"):
+            continue
+        cx, cy = h["centroid"]
+        res.append(finding(
+            "SEA_HOLE", f"{h['sea_name']}@{cx:.2f},{cy:.2f}", h["sea_name"],
+            h["residual_km2"],
+            f"дыра {h['residual_km2']:.1f} км² в воде без сырого источника"))
+    return res
+
+
+CHECKS = {
+    "INFLATED": ("raw", check_inflated),
+    # один проход даёт находки двух классов — регистрируем обе, чтобы они
+    # существовали в baseline даже когда пусты
+    "ORPHAN_FOREIGN": ("world+raw", check_orphan_foreign),
+    "ORPHAN_UNSOURCED": ("alias", "ORPHAN_FOREIGN"),
+    "WATER_SHATTERED": ("world", check_water_shattered),
+    "SPIKE": ("world", check_spikes),
+    "SCATTERED": ("world", check_scattered),
+    "MISSING_LAND": ("world+raw", check_missing_land),
+    "COASTLINE_GAP": ("world", check_coastline_gaps),
+    # Прямые проверки требования «полигоны прилипают друг к другу»:
+    # дыр в объединении нет и границы соседей — общие рёбра.
+    "UNION_HOLE": ("world", check_union_holes),
+    "COVERAGE_INVALID": ("world", check_coverage),
+    # Геометрия может быть валидна, а клиент всё равно нарисует берег внутри
+    # суши — проверяем это отдельно, клиентской же логикой.
+    "FALSE_COAST": ("world", check_false_coast),
+    "SEA_HOLE": ("world+raw", check_sea_holes),
+}
+HEAVY = {"COASTLINE_GAP", "SEA_HOLE", "MISSING_LAND", "SPIKE",
+         "UNION_HOLE", "COVERAGE_INVALID", "FALSE_COAST"}
+
+
+def load_baseline():
+    if not BASELINE_PATH.exists():
+        return {}
+    with open(BASELINE_PATH, encoding="utf-8") as f:
+        return json.load(f).get("known", {})
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--update-baseline", action="store_true",
+                    help="записать текущие находки как новый baseline")
+    ap.add_argument("--only", default=None,
+                    help="список классов через запятую")
+    ap.add_argument("--quick", action="store_true",
+                    help="пропустить тяжёлые проверки (%s)" % ", ".join(sorted(HEAVY)))
+    ap.add_argument("--world", default=None,
+                    help="путь к world geojson (по умолчанию out/world_1946.geojson); "
+                         "нужен для негативного контроля на историческом снимке")
+    args = ap.parse_args()
+
+    selected = set(CHECKS)
+    if args.only:
+        selected = {c.strip().upper() for c in args.only.split(",")}
+        unknown = selected - set(CHECKS)
+        if unknown:
+            print("Неизвестные классы:", ", ".join(sorted(unknown)))
+            return 2
+    if args.quick:
+        selected -= HEAVY
+
+    # класс-алиас считается тем же проходом, что и его источник
+    to_run = set()
+    for cls in selected:
+        kind, target = CHECKS[cls]
+        to_run.add(target if kind == "alias" else cls)
+
+    # По умолчанию проверяем МАСТЕР, если он заморожен: именно он —
+    # источник истины для игры (см. build/freeze_master_map.py). Пока
+    # мастер пересобирают, его ещё нет — тогда работаем по свежему out/.
+    master = Path(__file__).resolve().parents[1] / "master" / "world_1946.master.geojson"
+    default_world = str(master) if master.exists() else out("world_1946.geojson")
+    world_path = args.world or default_world
+    print(f"  геометрия: {Path(world_path).name}", flush=True)
+    world = load_features(world_path)
+    need_raw = any(CHECKS[c][0] in ("raw", "world+raw") for c in to_run)
+    raw = load_features(game_map()) if need_raw else []
+    raw_geoms = [valid(shape(ft["geometry"])) for ft in raw]
+    raw_tree = STRtree(raw_geoms) if raw_geoms else None
+
+    findings = []
+    for cls in sorted(to_run):
+        kind, fn = CHECKS[cls]
+        print(f"  … {cls}", flush=True)
+        if kind == "raw":
+            findings += fn(world, raw_geoms, raw_tree)
+        elif kind == "world":
+            findings += fn(world)
+        elif kind == "world+raw":
+            findings += fn(world, raw)
+        else:
+            findings += fn()
+    # алиасные классы отфильтровываем обратно по фактическому f["class"]
+    findings = [f for f in findings if f["class"] in selected]
+
+    baseline = load_baseline()
+    by_class = {}
+    for f in findings:
+        by_class.setdefault(f["class"], []).append(f)
+
+    if args.update_baseline:
+        known = {cls: sorted({f["id"] for f in fs}) for cls, fs in by_class.items()}
+        for cls in selected:
+            known.setdefault(cls, [])
+        BASELINE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with open(BASELINE_PATH, "w", encoding="utf-8") as f:
+            json.dump({
+                "_comment": "Известные находки audit_map_geometry.py. "
+                            "Новая находка вне этого списка = регрессия "
+                            "(ненулевой exit). Обновлять ТОЛЬКО осознанно, "
+                            "вместе с записью в docs/DECISIONS.md.",
+                "known": known,
+            }, f, ensure_ascii=False, indent=2)
+        print(f"\nBaseline обновлён: {BASELINE_PATH}")
+        for cls in sorted(known):
+            print(f"  {cls:16s} {len(known[cls])}")
+        return 0
+
+    print("\n" + "=" * 72)
+    regressions = []
+    for cls in sorted(selected):
+        fs = by_class.get(cls, [])
+        known = set(baseline.get(cls, []))
+        new = [f for f in fs if f["id"] not in known]
+        gone = known - {f["id"] for f in fs}
+        status = "НОВЫЕ: %d" % len(new) if new else "ok"
+        print(f"{cls:16s} найдено {len(fs):5d} | известно {len(known):5d} | {status}"
+              + (f" | исчезло {len(gone)}" if gone else ""))
+        for f in sorted(new, key=lambda x: -x["value"])[:10]:
+            print(f"    [NEW] {f['id']} {f['name']}: {f['detail']}")
+        if len(new) > 10:
+            print(f"    … и ещё {len(new)-10}")
+        regressions += new
+    print("=" * 72)
+
+    if regressions:
+        print(f"\nПРОВАЛ: {len(regressions)} новых находок вне baseline.")
+        print("Либо это регрессия (чинить), либо осознанное изменение — тогда")
+        print("`--update-baseline` + датированная запись в docs/DECISIONS.md.")
+        return 1
+    print("\nOK: новых дефектов геометрии нет.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

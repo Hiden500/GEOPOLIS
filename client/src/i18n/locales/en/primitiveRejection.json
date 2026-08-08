@@ -59,5 +59,6 @@
   "extractionAtMaximum": "{{resource}} extraction in {{region}} already stands at level {{level}} of {{max}} — nothing left to build",
   "noExtractionToDismantle": "There is no {{resource}} extraction in {{region}} to dismantle",
   "extractionUnaffordable": "{{source}} cannot pay for it: the capacity costs {{cost}} and the treasury holds {{treasury}}",
+  "datedEventInvalid": "Dated event #{{position}} was discarded: the entry failed validation",
   "legacyActionsChannel": "The director used the “actions” channel ({{count}}), which no longer exists — the entries were discarded"
 }

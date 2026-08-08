@@ -446,6 +446,75 @@ def validate_instructions_and_skills() -> None:
     )
 
 
+def validate_orchestrator_roles() -> None:
+    """Роль оркестратора держится хуком, а хук молча деградирует.
+
+    `role-guard.mjs` при отсутствии секции `## Якорь` в уставе не падает, а
+    просто перестаёт напоминать роль: сессия внешне работает, но защита от
+    сползания роли выключена. Такой отказ невидим в работе и виден только
+    здесь. Проверяется проводка хука в обоих событиях и структура уставов.
+    """
+    check((ROOT / "scripts/hooks/role-guard.mjs").is_file(), "Role guard hook exists")
+    check(
+        (ROOT / "scripts/hooks/test-role-guard.mjs").is_file(),
+        "Role guard hook has a live test",
+    )
+
+    settings = load_json(ROOT / ".claude/settings.json")
+    hooks = settings.get("hooks", {}) if isinstance(settings, dict) else {}
+    for event in ("PreToolUse", "UserPromptSubmit"):
+        wired = json.dumps(hooks.get(event, []), ensure_ascii=False)
+        check("role-guard.mjs" in wired, f"Role guard is wired into {event}")
+
+    for path in (
+        ".agent/roles/README.md",
+        ".agent/orchestration/README.md",
+        # На этот прогон ссылается якорь роли `lead`: пропавший скрипт делает
+        # инструкцию невыполнимой, а роль — слепой к пересечениям веток.
+        "scripts/worktree-report.mjs",
+    ):
+        check((ROOT / path).is_file(), f"Role infrastructure doc exists: {path}")
+
+    # Статусы реестра — контракт между документом и регулярками хука.
+    ledger_doc = read(".agent/orchestration/README.md")
+    hook_source = read("scripts/hooks/role-guard.mjs")
+    for status in ("выдано", "на аудите", "возвращено"):
+        check(
+            f"Статус:\\s*{status}" in hook_source or f"Статус:\\s*{status}\\s*$" in hook_source,
+            f"Role guard counts ledger status: {status}",
+        )
+        check(status in ledger_doc, f"Ledger format documents status: {status}")
+
+    required_sections = (
+        "## Якорь",
+        "## Область",
+        "## Что решает сам, что несёт пользователю",
+        "## Кому выдаёт задания",
+        "## Приёмка",
+        "## Типовые ловушки",
+    )
+    charters = sorted(
+        p for p in (ROOT / ".agent/roles").glob("*.md") if p.name != "README.md"
+    )
+    check(bool(charters), "At least one role charter exists")
+    roles_readme = read(".agent/roles/README.md")
+    for path in charters:
+        text = path.read_text(encoding="utf-8")
+        name = path.stem
+        # Роль, которой нет в таблице README, не находит ни пользователь, ни
+        # соседняя сессия: `!роль` покажет её, но чем она отличается — нет.
+        check(f"`{name}`" in roles_readme, f"Role {name} is listed in roles README")
+        for section in required_sections:
+            check(section in text, f"Role {name} defines {section[3:]}")
+        if "## Якорь" not in text:
+            continue  # уже провалено выше; мерить нечего
+        anchor = text.split("## Якорь", 1)[1].split("\n## ", 1)[0].strip()
+        check(bool(anchor), f"Role {name} anchor is not empty")
+        # Якорь уходит в контекст КАЖДЫЙ ход: длинный якорь — постоянный
+        # налог на сессию, поэтому порог держится жёстким.
+        check(len(anchor) <= 900, f"Role {name} anchor stays compact ({len(anchor)} chars)")
+
+
 def validate_experiment_layer() -> None:
     # CHARTER.proposed.md удалён аудитом 2026-08-01: провисел в статусе
     # PROPOSED без движения с 2026-07-23, а всё нормативное содержимое
@@ -569,6 +638,7 @@ def main() -> int:
         validate_rot,
         validate_audit_freshness,
         validate_instructions_and_skills,
+        validate_orchestrator_roles,
         validate_experiment_layer,
         validate_markdown_links,
         validate_documented_workflow,

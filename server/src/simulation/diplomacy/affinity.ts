@@ -14,6 +14,7 @@ import {
   COMMON_ENEMY_AFFINITY,
   DEPENDENCY_AFFINITY,
   AT_WAR_AFFINITY,
+  DOMINATION_RESENTMENT,
 } from "@shared/defines/diplomacy";
 
 /**
@@ -105,6 +106,34 @@ export function structuralAffinity(standing: PairStanding): number {
     DEPENDENCY_AFFINITY * clamp01(standing.dependency) +
     (standing.atWarWithEachOther ? AT_WAR_AFFINITY : 0);
   return clampRelation(raw);
+}
+
+/**
+ * Куда тянет отношения ОДНОЙ стороны к другой — тяготение пары минус обида за
+ * собственное подчинение.
+ *
+ * ЕДИНСТВЕННЫЙ НАПРАВЛЕННЫЙ ЧЛЕН МОДЕЛИ, и его появление 2026-08-08 — решение
+ * архитектурное, а не калибровочное: до него обе стороны дрейфовали к ОДНОЙ
+ * цели, потому что все входы тяготения (идеология, общий враг, зависимость,
+ * идущая война) симметричны по построению. Подчинение — первый вход, который
+ * симметричным не является: сюзерен и вассал переживают одну и ту же связь
+ * по-разному, и складывать их в одно число значило бы утверждать, что
+ * подчинённый рад подчинению ровно настолько же, насколько патрон — обладанию.
+ *
+ * Асимметрия ограничена ровно этим членом: `structuralAffinity` осталась общей
+ * для пары, и накопленная делами разница значений по-прежнему не стирается
+ * дрейфом.
+ *
+ * `dominationPressure` нормирует тик (0..1) — здесь, как и во всём модуле, на
+ * входе доли, а не состояние мира.
+ */
+export function directedAffinity(
+  standing: PairStanding,
+  dominationPressure: number
+): number {
+  return clampRelation(
+    structuralAffinity(standing) - DOMINATION_RESENTMENT * clamp01(dominationPressure)
+  );
 }
 
 /** Смещение порога по дистанции вокруг его пивота. */

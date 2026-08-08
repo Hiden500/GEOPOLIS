@@ -9,9 +9,10 @@ import {
   MAX_PROMPT_REGIONS_PER_COUNTRY,
   REGION_CRISIS_DISCONTENT_THRESHOLD,
 } from "@shared/defines/discontent";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 import { applyPrimitiveTurn } from "../../primitives/turnBatch";
 import { chronicleTick } from "../../simulation/chronicle/ChronicleTick";
-import { createTestRegion } from "../../test-utils/fixtures";
+import { createTestRegion, responseEvent } from "../../test-utils/fixtures";
 import {
   createDiscontentTestGame,
   TEST_GROUP_TITULAR,
@@ -670,8 +671,8 @@ describe("граница агентности против правила «ст
     expect(game.eventHistory).toHaveLength(1);
 
     const event = game.eventHistory[0]!;
-    expect(event.receipt.primitives.rejected?.map(r => r.verb)).toEqual(["enact_reform"]);
-    expect(event.receipt.primitives.applied?.map(o => o.verb)).toEqual(["incite_unrest"]);
+    expect(responseEvent(event).receipt.primitives.rejected?.map(r => r.verb)).toEqual(["enact_reform"]);
+    expect(responseEvent(event).receipt.primitives.applied?.map(o => o.verb)).toEqual(["incite_unrest"]);
   });
 
   it("но отказ ДВИЖКА по структурному по-прежнему откатывает весь ответ", () => {
@@ -730,14 +731,18 @@ describe("граница агентности против правила «ст
       primitiveNoopBatchKeys: [],
       pendingWorldFacts: [],
       llmResponse: "",
-      eventHistory: game.eventHistory.map(e => ({
-        ...e,
-        receipt: {
-          ...e.receipt,
-          factuality: "confirmed" as const,
-          primitives: { ...e.receipt.primitives, rejected: [] },
-        },
-      })),
+      eventHistory: game.eventHistory.map(e =>
+        e.kind === "response"
+          ? {
+              ...e,
+              receipt: {
+                ...e.receipt,
+                factuality: "confirmed" as const,
+                primitives: { ...e.receipt.primitives, rejected: [] },
+              },
+            }
+          : e
+      ),
     });
 
     expect(comparable(withForbidden)).toEqual(comparable(withoutIt));
@@ -790,8 +795,8 @@ describe("правдивость летописи: в долгую память 
     // лежит факт.
     expect(result.narrativeCanonized).toBe(true);
     expect(result.receipt.factuality).toBe("partial");
-    expect(game.eventHistory[0]!.receipt.factuality).toBe("partial");
-    expect(game.eventHistory[0]!.receipt.primitives.rejected).toHaveLength(1);
+    expect(responseEvent(game.eventHistory[0]).receipt.factuality).toBe("partial");
+    expect(responseEvent(game.eventHistory[0]).receipt.primitives.rejected).toHaveLength(1);
 
     // В ЛЕНТЕ событие остаётся целиком, вместе со своим заголовком: игрок
     // читает заявление режиссёра, а не пустоту.
@@ -904,6 +909,47 @@ describe("регионы как адресуемые цели в промте", 
     for (const region of playerRegions) {
       expect(section).toContain(`- ${region.id} `);
     }
+  });
+
+  it("показывает месторождения и уровень добычи — предпосылку build_extraction", () => {
+    // Замер 2026-08-08: перечисления ресурсов оказалось мало. Модель стала
+    // называть ресурс верно (попыток 1 → 7 за 72 хода), но все они ушли в
+    // отказы `extractionAtMaximum` и `noDepositInRegion` — предпосылку она не
+    // видела. Строка обязана нести И залежь, И то, сколько уже построено:
+    // «есть уголь» без уровня снова отправляет модель в потолок.
+    const game = createDiscontentTestGame();
+    const region = game.regions.find(r => r.ownerCountryId === game.playerCountryId)!;
+    region.deposits = { coal: 0.7, oil: 0.2 };
+    region.extraction = { coal: MAX_EXTRACTION_LEVEL, oil: 3 };
+
+    const prompt = new LLMService(game).generatePrompt().prompt;
+    const line = prompt
+      .slice(prompt.indexOf("## Regions You Can Address"), prompt.indexOf("## Rejected Attempts"))
+      .split(/\r?\n/)
+      .find(l => l.includes(`- ${region.id} `))!;
+
+    // Расширяемое названо, исчерпанное — нет: строка отвечает на вопрос «где
+    // ещё можно строить», а не пересказывает геологию. Замер 2026-08-08:
+    // полный список залежей стоил +10,6% промта на каждом ходу ради сообщения,
+    // которое в стартовом мире всюду одинаково («10/10»).
+    expect(line).toContain(`oil 3/${MAX_EXTRACTION_LEVEL}`);
+    expect(line).not.toContain("coal");
+  });
+
+  it("регион без места для расширения не получает строки вовсе", () => {
+    const game = createDiscontentTestGame();
+    const region = game.regions.find(r => r.ownerCountryId === game.playerCountryId)!;
+    // Именно стартовый случай мира 1946: залежь есть, но мощности на потолке.
+    region.deposits = { coal: 0.7 };
+    region.extraction = { coal: MAX_EXTRACTION_LEVEL };
+
+    const prompt = new LLMService(game).generatePrompt().prompt;
+    const line = prompt
+      .slice(prompt.indexOf("## Regions You Can Address"), prompt.indexOf("## Rejected Attempts"))
+      .split(/\r?\n/)
+      .find(l => l.includes(`- ${region.id} `))!;
+
+    expect(line).not.toContain("can expand");
   });
 
   it("режет список регионов страны капом и честно называет остаток", () => {

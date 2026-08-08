@@ -80,7 +80,9 @@ describe("economyTick", () => {
     expect(country.economy.taxRevenue).toBe(42);
   });
 
-  it("пересчитывает *Spending из spendingShares × income каждый тик (тот же паттерн, что taxRate → taxRevenue)", () => {
+  // Импорт в этой фикстуре нулевой, поэтому располагаемый доход равен доходу —
+  // база долей проверяется отдельно тестом ниже, с ненулевым импортом.
+  it("пересчитывает *Spending из spendingShares × располагаемый доход каждый тик (тот же паттерн, что taxRate → taxRevenue)", () => {
     const country = createTestCountry({
       economy: {
         ...createTestCountry().economy,
@@ -100,6 +102,63 @@ describe("economyTick", () => {
     expect(country.economy.educationSpending).toBe(income * 0.1);
     expect(country.economy.infrastructureSpending).toBe(income * 0.05);
     expect(country.economy.welfareSpending).toBe(income * 0.05);
+  });
+
+  it("роспись не расписывает деньги, ушедшие на импорт: доли считаются от дохода за вычетом importSpending", () => {
+    const base = createTestCountry().economy;
+    const imports = 30_000_000_000;
+    const country = createTestCountry({
+      economy: {
+        ...base,
+        importSpending: imports,
+        // Обнулено намеренно: проверяется база долей, а не сумма всех
+        // обязательств — прочие расходы и проценты по долгу к росписи
+        // отношения не имеют и своей величиной размыли бы проверку.
+        otherExpenses: 0,
+        debt: 0,
+        debtInterest: 0,
+        spendingShares: { military: 0.2, research: 0.1, education: 0.1, infrastructure: 0.05, welfare: 0.05 },
+      },
+    });
+    const income = base.taxRevenue + base.exportIncome + base.stateEnterpriseIncome + base.otherIncome;
+    const disposable = income - imports;
+
+    economyTick(country, []);
+
+    expect(country.economy.militarySpending).toBe(disposable * 0.2);
+    expect(country.economy.welfareSpending).toBe(disposable * 0.05);
+
+    // Свойство, ради которого правка и делалась: при сумме долей меньше единицы
+    // роспись вместе с импортом помещается в доход, и страна не уходит в долг,
+    // не приняв ни одного решения.
+    const five =
+      country.economy.militarySpending +
+      country.economy.researchSpending +
+      country.economy.educationSpending +
+      country.economy.infrastructureSpending +
+      country.economy.welfareSpending;
+    expect(five + country.economy.importSpending).toBeLessThanOrEqual(income);
+    expect(country.economy.budgetBalance).toBeGreaterThanOrEqual(0);
+  });
+
+  it("импорт больше дохода не делает расходы отрицательными (дефицит остаётся дефицитом, а не доходом из ниоткуда)", () => {
+    const base = createTestCountry().economy;
+    const income = base.taxRevenue + base.exportIncome + base.stateEnterpriseIncome + base.otherIncome;
+    const country = createTestCountry({
+      economy: {
+        ...base,
+        importSpending: income * 2,
+        spendingShares: { military: 0.2, research: 0.1, education: 0.1, infrastructure: 0.05, welfare: 0.05 },
+      },
+    });
+
+    economyTick(country, []);
+
+    expect(country.economy.militarySpending).toBe(0);
+    expect(country.economy.welfareSpending).toBe(0);
+    // Дефицит при этом никуда не делся — он и должен быть: страна купила
+    // больше, чем заработала.
+    expect(country.economy.budgetBalance).toBeLessThan(0);
   });
 
   it("не трогает *Spending, когда spendingShares не задан (ИИ-страны — AiBehaviorTick двигает абсолюты напрямую)", () => {

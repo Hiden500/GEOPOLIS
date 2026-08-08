@@ -1,0 +1,1126 @@
+{
+ "_meta": {
+  "generated_by": "scripts/map/build/build_ph_1946_provinces.py",
+  "status": "СПРАВОЧНИК. Ничего не применяется.",
+  "checked": "2026-08-02",
+  "sources": {
+   "S1": "statoids.com/uph.html",
+   "S2": "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+  },
+  "caveat": "docs/HISTORICAL_ACCURACY.md ставит приоритетом совместимость с будущими конфликтами, а не архивную точность на дату снимка. Поле `erases` важнее поля `created`.",
+  "counts": {
+   "modern_provinces": 81,
+   "created_after_1946": 37,
+   "existed_1946": 44,
+   "provinces_1946_after_mapping": 50,
+   "entries_erasing_conflict_line": 8
+  }
+ },
+ "provinces_1946": [
+  "Abra",
+  "Agusan",
+  "Albay",
+  "Antique",
+  "Bataan",
+  "Batanes",
+  "Batangas",
+  "Bohol",
+  "Bukidnon",
+  "Bulacan",
+  "Cagayan",
+  "Camarines Norte",
+  "Camarines Sur",
+  "Capiz",
+  "Catanduanes",
+  "Cavite",
+  "Cebu",
+  "Cotabato",
+  "Davao",
+  "Ilocos Norte",
+  "Ilocos Sur",
+  "Iloilo",
+  "Isabela",
+  "La Union",
+  "Laguna",
+  "Lanao",
+  "Leyte",
+  "Marinduque",
+  "Masbate",
+  "Mindoro",
+  "Misamis Occidental",
+  "Misamis Oriental",
+  "Mountain Province",
+  "Negros Occidental",
+  "Negros Oriental",
+  "Nueva Ecija",
+  "Nueva Vizcaya",
+  "Palawan",
+  "Pampanga",
+  "Pangasinan",
+  "Rizal",
+  "Romblon",
+  "Samar",
+  "Sorsogon",
+  "Sulu",
+  "Surigao",
+  "Tarlac",
+  "Tayabas",
+  "Zambales",
+  "Zamboanga"
+ ],
+ "entries": [
+  {
+   "modern": "Abra",
+   "status": "existed_1946",
+   "province_1946": "Abra",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Agusan del Norte",
+   "status": "created_after_1946",
+   "province_1946": "Agusan",
+   "created": 1967,
+   "confidence": "medium",
+   "year_note": "S1 1967 (закон), S2 1970 (вступление в силу)",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Agusan del Sur",
+   "status": "created_after_1946",
+   "province_1946": "Agusan",
+   "created": 1967,
+   "confidence": "medium",
+   "year_note": "S1 1967 (закон), S2 1970 (вступление в силу)",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Aklan",
+   "status": "created_after_1946",
+   "province_1946": "Capiz",
+   "created": 1956,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Albay",
+   "status": "existed_1946",
+   "province_1946": "Albay",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Antique",
+   "status": "existed_1946",
+   "province_1946": "Antique",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Apayao",
+   "status": "created_after_1946",
+   "province_1946": "Mountain Province",
+   "created": 1966,
+   "confidence": "medium",
+   "year_note": "1966 как Kalinga-Apayao, разделена 1995",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Aurora",
+   "status": "created_after_1946",
+   "province_1946": "Tayabas",
+   "created": 1979,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "тихоокеанское побережье Лусона; для десантных сценариев может пригодиться отдельно",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Basilan",
+   "status": "created_after_1946",
+   "province_1946": "Sulu",
+   "created": 1973,
+   "confidence": "medium",
+   "year_note": "родителя даёт только S2; до 1973 — город-хартия",
+   "erases": "ЛИНИЯ КОНФЛИКТА: моро-архипелаг",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Bataan",
+   "status": "existed_1946",
+   "province_1946": "Bataan",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Batanes",
+   "status": "existed_1946",
+   "province_1946": "Batanes",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Batangas",
+   "status": "existed_1946",
+   "province_1946": "Batangas",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Benguet",
+   "status": "created_after_1946",
+   "province_1946": "Mountain Province",
+   "created": 1966,
+   "confidence": "high",
+   "year_note": "S2 датирует 1536 — это не дата провинции",
+   "erases": "горный кордильерский узел; отдельно полезен рельефом, не конфликтом",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Biliran",
+   "status": "created_after_1946",
+   "province_1946": "Leyte",
+   "created": 1992,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "отдельный остров теряет самостоятельность",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Bohol",
+   "status": "existed_1946",
+   "province_1946": "Bohol",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Bukidnon",
+   "status": "existed_1946",
+   "province_1946": "Bukidnon",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Bulacan",
+   "status": "existed_1946",
+   "province_1946": "Bulacan",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Cagayan",
+   "status": "existed_1946",
+   "province_1946": "Cagayan",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Camarines Norte",
+   "status": "existed_1946",
+   "province_1946": "Camarines Norte",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Camarines Sur",
+   "status": "existed_1946",
+   "province_1946": "Camarines Sur",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Camiguin",
+   "status": "created_after_1946",
+   "province_1946": "Misamis Oriental",
+   "created": 1966,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "отдельный остров теряет самостоятельность",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Capiz",
+   "status": "existed_1946",
+   "province_1946": "Capiz",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Catanduanes",
+   "status": "existed_1946",
+   "province_1946": "Catanduanes",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Cavite",
+   "status": "existed_1946",
+   "province_1946": "Cavite",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Cebu",
+   "status": "existed_1946",
+   "province_1946": "Cebu",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Compostela Valley",
+   "status": "created_after_1946",
+   "province_1946": "Davao",
+   "created": 1998,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого: раздел административный",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Cotabato",
+   "status": "existed_1946",
+   "province_1946": "Cotabato",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Davao Oriental",
+   "status": "created_after_1946",
+   "province_1946": "Davao",
+   "created": 1967,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого: раздел административный",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Davao del Norte",
+   "status": "created_after_1946",
+   "province_1946": "Davao",
+   "created": 1967,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого: раздел административный",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Davao del Sur",
+   "status": "created_after_1946",
+   "province_1946": "Davao",
+   "created": 1967,
+   "confidence": "high",
+   "year_note": "S2 датирует 1904 — это дата материнского Davao",
+   "erases": "ничего значимого: раздел административный",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Eastern Samar",
+   "status": "created_after_1946",
+   "province_1946": "Samar",
+   "created": 1965,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "восточное побережье Самара — точка высадки Лейте-Самар 1944",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Guimaras",
+   "status": "created_after_1946",
+   "province_1946": "Iloilo",
+   "created": 1992,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "отдельный остров теряет самостоятельность",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Ifugao",
+   "status": "created_after_1946",
+   "province_1946": "Mountain Province",
+   "created": 1966,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Ilocos Norte",
+   "status": "existed_1946",
+   "province_1946": "Ilocos Norte",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Ilocos Sur",
+   "status": "existed_1946",
+   "province_1946": "Ilocos Sur",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Iloilo",
+   "status": "existed_1946",
+   "province_1946": "Iloilo",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Isabela",
+   "status": "existed_1946",
+   "province_1946": "Isabela",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Kalinga",
+   "status": "created_after_1946",
+   "province_1946": "Mountain Province",
+   "created": 1966,
+   "confidence": "medium",
+   "year_note": "1966 как Kalinga-Apayao, разделена 1995",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "La Union",
+   "status": "existed_1946",
+   "province_1946": "La Union",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Laguna",
+   "status": "existed_1946",
+   "province_1946": "Laguna",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Lanao del Norte",
+   "status": "created_after_1946",
+   "province_1946": "Lanao",
+   "created": 1959,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ЛИНИЯ КОНФЛИКТА: раздел Ланао 1959 прошёл по христианско-мусульманской границе",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Lanao del Sur",
+   "status": "created_after_1946",
+   "province_1946": "Lanao",
+   "created": 1959,
+   "confidence": "high",
+   "year_note": "S2 датирует 1914 — это дата материнского Lanao",
+   "erases": "ЛИНИЯ КОНФЛИКТА: ядро моро-конфликта",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Leyte",
+   "status": "existed_1946",
+   "province_1946": "Leyte",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Maguindanao",
+   "status": "created_after_1946",
+   "province_1946": "Cotabato",
+   "created": 1973,
+   "confidence": "high",
+   "year_note": "S2 датирует 1802 — это дата исторической области",
+   "erases": "ЛИНИЯ КОНФЛИКТА: ядро моро-автономии, создана во время войны с МНФО",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Marinduque",
+   "status": "existed_1946",
+   "province_1946": "Marinduque",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Masbate",
+   "status": "existed_1946",
+   "province_1946": "Masbate",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Mindoro Occidental",
+   "status": "created_after_1946",
+   "province_1946": "Mindoro",
+   "created": 1950,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого: раздел острова Миндоро административный",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Mindoro Oriental",
+   "status": "created_after_1946",
+   "province_1946": "Mindoro",
+   "created": 1950,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого: раздел острова Миндоро административный",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Misamis Occidental",
+   "status": "existed_1946",
+   "province_1946": "Misamis Occidental",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Misamis Oriental",
+   "status": "existed_1946",
+   "province_1946": "Misamis Oriental",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Mountain Province",
+   "status": "existed_1946",
+   "province_1946": "Mountain Province",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "National Capital Region",
+   "status": "created_after_1946",
+   "province_1946": "Rizal",
+   "created": 1975,
+   "confidence": "medium",
+   "year_note": "Метро-Манила образована 1975; в 1946 муниципалитеты входили в Rizal, а Манила была городом-хартией вне провинции",
+   "erases": "ГОРОД МАНИЛА: в 1946 административно отдельна от провинции, слияние с Rizal её растворяет",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Negros Occidental",
+   "status": "existed_1946",
+   "province_1946": "Negros Occidental",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Negros Oriental",
+   "status": "existed_1946",
+   "province_1946": "Negros Oriental",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Northern Samar",
+   "status": "created_after_1946",
+   "province_1946": "Samar",
+   "created": 1965,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Nueva Ecija",
+   "status": "existed_1946",
+   "province_1946": "Nueva Ecija",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Nueva Vizcaya",
+   "status": "existed_1946",
+   "province_1946": "Nueva Vizcaya",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Palawan",
+   "status": "existed_1946",
+   "province_1946": "Palawan",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Pampanga",
+   "status": "existed_1946",
+   "province_1946": "Pampanga",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Pangasinan",
+   "status": "existed_1946",
+   "province_1946": "Pangasinan",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Pateros",
+   "status": "created_after_1946",
+   "province_1946": "Rizal",
+   "created": 1975,
+   "confidence": "medium",
+   "year_note": "единственный муниципалитет Метро-Манилы",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Quezon",
+   "status": "existed_1946",
+   "province_1946": "Tayabas",
+   "created": null,
+   "confidence": "high",
+   "year_note": "переименована в Quezon в сентябре 1946 после смерти Мануэля Кесона; на 1946-01-01 ещё Tayabas",
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Quirino",
+   "status": "created_after_1946",
+   "province_1946": "Nueva Vizcaya",
+   "created": 1971,
+   "confidence": "medium",
+   "year_note": "S1 1971 (полноценная провинция), S2 1966 (субпровинция)",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Rizal",
+   "status": "existed_1946",
+   "province_1946": "Rizal",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Romblon",
+   "status": "existed_1946",
+   "province_1946": "Romblon",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Samar",
+   "status": "existed_1946",
+   "province_1946": "Samar",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Sarangani",
+   "status": "created_after_1946",
+   "province_1946": "Cotabato",
+   "created": 1992,
+   "confidence": "high",
+   "year_note": "выделена из South Cotabato, тот — из Cotabato",
+   "erases": "ЛИНИЯ КОНФЛИКТА (опосредованно, через South Cotabato)",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Siquijor",
+   "status": "created_after_1946",
+   "province_1946": "Negros Oriental",
+   "created": 1971,
+   "confidence": "medium",
+   "year_note": "S1 1972 (референдум), S2 1971 (закон)",
+   "erases": "отдельный остров теряет самостоятельность",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Sorsogon",
+   "status": "existed_1946",
+   "province_1946": "Sorsogon",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "South Cotabato",
+   "status": "created_after_1946",
+   "province_1946": "Cotabato",
+   "created": 1966,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ЛИНИЯ КОНФЛИКТА: раздел Котабато шёл по христианско-мусульманскому расселению",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Southern Leyte",
+   "status": "created_after_1946",
+   "province_1946": "Leyte",
+   "created": 1959,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Sultan Kudarat",
+   "status": "created_after_1946",
+   "province_1946": "Cotabato",
+   "created": 1973,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ЛИНИЯ КОНФЛИКТА: создана во время войны с МНФО",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Sulu",
+   "status": "existed_1946",
+   "province_1946": "Sulu",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Surigao del Norte",
+   "status": "created_after_1946",
+   "province_1946": "Surigao",
+   "created": 1960,
+   "confidence": "high",
+   "year_note": "S2 датирует 1901 — это дата материнского Surigao",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Surigao del Sur",
+   "status": "created_after_1946",
+   "province_1946": "Surigao",
+   "created": 1960,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Tarlac",
+   "status": "existed_1946",
+   "province_1946": "Tarlac",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Tawi-Tawi",
+   "status": "created_after_1946",
+   "province_1946": "Sulu",
+   "created": 1973,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ЛИНИЯ КОНФЛИКТА: моро-архипелаг",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Zambales",
+   "status": "existed_1946",
+   "province_1946": "Zambales",
+   "created": null,
+   "confidence": "high",
+   "year_note": null,
+   "erases": null,
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Zamboanga Sibugay",
+   "status": "created_after_1946",
+   "province_1946": "Zamboanga",
+   "created": 2001,
+   "confidence": "high",
+   "year_note": "выделена из Zamboanga del Sur",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Zamboanga del Norte",
+   "status": "created_after_1946",
+   "province_1946": "Zamboanga",
+   "created": 1952,
+   "confidence": "high",
+   "year_note": null,
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  },
+  {
+   "modern": "Zamboanga del Sur",
+   "status": "created_after_1946",
+   "province_1946": "Zamboanga",
+   "created": 1952,
+   "confidence": "high",
+   "year_note": "S2 датирует 1914 — это дата материнской Zamboanga",
+   "erases": "ничего значимого",
+   "sources": [
+    "statoids.com/uph.html",
+    "en.wikipedia.org/wiki/Provinces_of_the_Philippines"
+   ]
+  }
+ ]
+}

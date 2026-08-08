@@ -179,6 +179,9 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
     c => (dom.get(c.id) ?? 0) > THREAT_LEVEL && !player.diplomacy.allies.includes(c.id)
   );
 
+  // Кто в этом тике реально наращивает армию: остальным полагается обратный ход.
+  const rampingUp = new Set<string>();
+
   for (const c of threatened) {
     const relToPlayer = c.diplomacy.relations[player.id] ?? 0;
 
@@ -189,9 +192,24 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
       // (2026-08-01). Раньше и кап, и ramp считались от суммы, а сумма у ИИ
       // не следовала за доходом — поэтому «военный ответ» слабел с каждым
       // годом, хотя страна богатела.
+      // ВООРУЖАЕТСЯ ТОЛЬКО ПЛАТЁЖЕСПОСОБНЫЙ (2026-08-08). Страна, уже
+      // придавленная долгом, сперва выбирается из ямы: иначе ramp спорит с
+      // аустерити Правила A, которое режет расходы по ТОМУ ЖЕ порогу долга, и
+      // выигрывает — доля упирается в потолок и остаётся там навсегда.
+      //
+      // Дефект вскрылся, когда ветка балансировки впервые ожила: до 2026-08-08
+      // её условие (`rel < 0` к доминирующему) не выполнялось практически
+      // никогда, и спорить было некому. Замер: 6 стран садились в долг свыше
+      // 60% ВВП НАВСЕГДА, держа военные расходы на потолке 40% дохода. Порог
+      // взят у Правила A, а не назначен свой: «долг начал вредить» — одно
+      // событие, и реагировать на него два правила обязаны согласованно.
+      const debtBurden = c.economy.gdp > 0 ? c.economy.debt / c.economy.gdp : 0;
       const share = c.economy.spendingShares?.military ?? 0;
-      if (share < MILITARY_CAP_SHARE) {
-        economyCommands.setMilitaryShare(game, c.id, Math.min(share * MILITARY_RAMP, MILITARY_CAP_SHARE));
+      if (debtBurden <= DEBT_GDP_PENALTY_THRESHOLD) {
+        rampingUp.add(c.id);
+        if (share < MILITARY_CAP_SHARE) {
+          economyCommands.setMilitaryShare(game, c.id, Math.min(share * MILITARY_RAMP, MILITARY_CAP_SHARE));
+        }
       }
 
       for (const other of threatened) {
@@ -207,6 +225,38 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
       // при влиянии > 50 она входит в сферу игрока (порог в DiplomacyTick).
       const target = dom.get(c.id) ?? 0;
       diplomacyCommands.nudgeInfluenceTowardTarget(game, player.id, c.id, target, INFLUENCE_GRAVITY);
+    }
+  }
+
+  // ОБРАТНЫЙ ХОД ВОЕННОГО ОТВЕТА (2026-08-08) — третье правило, которому
+  // потребовалась вторая сторона, после аустерити (2026-08-02) и сдвига по
+  // стабильности (2026-08-01). Причина каждый раз одна: односторонний храповик
+  // выглядит исправным ровно до тех пор, пока его вход не оживёт.
+  //
+  // Здесь вход ожил 2026-08-08 вместе с обидой за подчинение, и цена вскрылась
+  // замером: страны, которым больше не угрожают ИЛИ которым уже нечем платить,
+  // держали военные расходы на потолке 40% дохода ДО КОНЦА ПАРТИИ. Мир, где
+  // никто не разоружается, к 240-му месяцу оставлял 6 стран в долгу и 2 из них
+  // с долгом свыше 60% ВВП, тогда как без обиды таких не было ни одной.
+  //
+  // ГРАНИЦА ВОЗВРАТА — стартовая доля (пол × 2), то есть правило отменяет ровно
+  // СВОЙ сдвиг и ничего сверх него. Ниже старта военные расходы двигает только
+  // Правило C (кризис стабильности) и аустерити Правила A, и спорить с ними
+  // здесь не с чем. Шаг зеркален подъёму (`/ MILITARY_RAMP`), отдельного числа
+  // не заводит.
+  for (const c of aiCountries) {
+    if (rampingUp.has(c.id)) continue;
+    const shares = c.economy.spendingShares;
+    const floor = c.economy.spendingFloor;
+    if (!shares || !floor) continue;
+
+    const startShare = floor.militarySpending * 2;
+    if (shares.military > startShare) {
+      economyCommands.setMilitaryShare(
+        game,
+        c.id,
+        Math.max(startShare, shares.military / MILITARY_RAMP)
+      );
     }
   }
 }

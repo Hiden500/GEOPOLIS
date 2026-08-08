@@ -14,6 +14,29 @@
             "statusMessage": "guard: worktree/данные/git-safety"
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/role-guard.mjs",
+            "timeout": 10,
+            "statusMessage": "роль: оркестратор не исполняет"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/role-guard.mjs",
+            "timeout": 10,
+            "statusMessage": "роль: якорь и реестр"
+          }
+        ]
       }
     ]
   }
