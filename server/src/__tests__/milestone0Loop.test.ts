@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { responseEvent } from "../test-utils/fixtures";
 import { createGame } from "../game/CreateGame";
 import { simulateMonth } from "../simulation/SimulationEngine";
 import { LLMService } from "../services/LLMService";
@@ -143,17 +144,17 @@ describe("Милстоун 0: петля замыкается на данных 
     // одну прозу: по нему потребитель проверяет заголовок, не заглядывая в мир.
     const event = game.eventHistory.at(-1)!;
     expect(event.title).toBe("Волнения вспыхнули и вылились на улицы");
-    expect(event.receipt.primitives.applied).toHaveLength(2);
+    expect(responseEvent(event).receipt.primitives.applied).toHaveLength(2);
     // Квитанция всегда полная: пустой список отказов означает «отказов не
     // было», а не «поля нет» (Милстоун 1 — до него отсутствие поля и пустоту
     // приходилось различать потребителю).
-    expect(event.receipt.primitives.rejected).toEqual([]);
+    expect(responseEvent(event).receipt.primitives.rejected).toEqual([]);
     // `countries` считается из применённых примитивов, а не из старого канала
     // `actions` (его здесь нет вовсе): без этого чистое primitive-событие
     // получало `countries: []` и выпадало из памяти собственной страны.
     const owner = game.regions.find(r => r.id === hottestId)!.ownerCountryId;
-    expect(event.receipt.countries).toContain(owner);
-    expect(event.receipt.countries).toContain("USA");
+    expect(responseEvent(event).receipt.countries).toContain(owner);
+    expect(responseEvent(event).receipt.countries).toContain("USA");
     expect(new LLMService(game).generatePrompt().prompt).toContain(
       "Волнения вспыхнули и вылились на улицы"
     );
@@ -406,7 +407,7 @@ describe("Милстоун 0: петля замыкается на данных 
       // …но законное событие ≠ установленный факт: подтверждать в нём нечего,
       // и в ленте игрок увидит его помеченным (решение 2026-07-27).
       expect(cycle.receipt.factuality).toBe("unconfirmed");
-      expect(game.eventHistory.at(-1)!.receipt.factuality).toBe("unconfirmed");
+      expect(responseEvent(game.eventHistory.at(-1)).receipt.factuality).toBe("unconfirmed");
     });
 
     it("частично применённый ответ помечен, а не выдан за факт", () => {
@@ -446,7 +447,7 @@ describe("Милстоун 0: петля замыкается на данных 
 
       const event = game.eventHistory.at(-1)!;
       expect(event.title).toBe("Волнения вспыхнули, и войска их подавили");
-      expect(event.receipt.factuality).toBe("partial");
+      expect(responseEvent(event).receipt.factuality).toBe("partial");
     });
 
     it("летопись доносит применённое, а не заявленное", () => {

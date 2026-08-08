@@ -35,6 +35,8 @@ import {
 } from "../llm/crisisDigest";
 import { regionDiscontent } from "@shared/utils/discontent";
 import { type Region } from "@shared/types/map/Region";
+import { type ResourceType } from "@shared/types/resources/ResourcesType";
+import { MAX_EXTRACTION_LEVEL } from "@shared/defines/resources";
 import {
   MAX_PROMPT_CRISES,
   MAX_PROMPT_REGIONS_PER_COUNTRY,
@@ -42,6 +44,7 @@ import {
 } from "@shared/defines/discontent";
 import { PRIMITIVE_CONTRACT, PRIMITIVE_PLAYER_AGENCY_NOTE } from "../llm/primitiveContract";
 import { parsePrimitives } from "../primitives/primitiveSchemas";
+import { parseDatedEvents, MAX_DATED_EVENTS } from "../llm/datedEvents";
 import { pushRejectionFact, rejectionFactText, restore } from "../primitives/PrimitiveEngine";
 import {
   applyPrimitiveTurn,
@@ -368,7 +371,7 @@ export class LLMService {
       );
     }
 
-    const { title, descriptions, actions, primitives } = envelope.data;
+    const { title, descriptions, actions, primitives, events } = envelope.data;
 
     const digest = createHash("sha256").update(rawResponse).digest("hex").slice(0, 16);
     const idempotencyKey = `llm:${this.game.currentDate}:${digest}`;
@@ -524,6 +527,37 @@ export class LLMService {
       proposedLegacyActions: actions?.length ?? 0,
     });
 
+    /**
+     * Датированные события разбираются ПОСЛЕ вывода `factuality` и в его счёт
+     * намеренно не входят.
+     *
+     * Причина не в аккуратности, а в смысле: `factuality` аттестует, сколько из
+     * ПРЕДЛОЖЕННОГО ДВИЖКУ он применил. Датированное событие движку ничего не
+     * предлагает — это текст. Считай мы его отказы вместе с примитивами, ответ
+     * без единого примитива, но с одной кривой датой, перестал бы быть
+     * `unconfirmed` и, по правилу канонизации ниже, потерял бы вместе с
+     * событием ещё и всю прозу. Отказ по тексту не должен стирать текст.
+     */
+    const knownCountries = new Set(this.game.countries.map(country => country.id));
+    const datedEvents = parseDatedEvents(events, this.game.currentDate, id =>
+      knownCountries.has(id)
+    );
+    // Причина уходит и игроку (кодом в квитанции), и модели (фактом в промт) —
+    // тем же способом, что у канала `actions`: отброшенное молча модель считает
+    // записанным.
+    for (const rejection of datedEvents.rejections) {
+      rejectedPrimitiveRecords.push(rejectionRecord(rejection));
+      pushRejectionFact(
+        this.game,
+        "action_rejected",
+        {
+          countryId: this.game.playerCountryId,
+          text: rejectionPromptText(rejection),
+        },
+        "director"
+      );
+    }
+
     const receipt: ResponseReceipt = {
       date: this.game.currentDate,
       duplicate: false,
@@ -559,8 +593,11 @@ export class LLMService {
 
     const eventTitle = title?.trim() || `Мировые события (LLM, ход ${this.game.llmTurn})`;
 
+    const responseEventId = `llm-turn-${this.game.llmTurn}`;
+
     this.game.eventHistory.push({
-      id: `llm-turn-${this.game.llmTurn}`,
+      kind: "response",
+      id: responseEventId,
       date: this.game.currentDate,
       title: eventTitle,
       description: descriptions,
@@ -568,6 +605,24 @@ export class LLMService {
       // поэтому по самому событию отличить «применилось всё» от «применилось
       // частично» задним числом уже нельзя.
       receipt,
+    });
+
+    /**
+     * Датированные события пишутся ТОЛЬКО здесь, за той же границей
+     * канонизации, что и проза: ответ, не применивший ничего, не оставляет ни
+     * того, ни другого (docs/PRIMITIVES.md §3). Квитанции у них нет — есть
+     * ссылка на запись ответа, по которой подтверждённость и разрешается.
+     */
+    datedEvents.drafts.forEach((draft, index) => {
+      this.game.eventHistory.push({
+        kind: "dated",
+        id: `${responseEventId}-event-${index + 1}`,
+        date: draft.date,
+        title: draft.title,
+        description: draft.description,
+        responseEventId,
+        claimedCountries: draft.claimedCountries,
+      });
     });
 
     return {
@@ -989,6 +1044,13 @@ repress, grant_autonomy, build_extraction). Copy an id verbatim from here — a
 region that is not listed is not addressable this cycle, and a guessed number
 is refused. "discontent" is the same 0..1 index as in Regional Crises: high
 means the ground is ready, low means unrest there would need a cause first.
+"can expand" lists the resources whose extraction in that region is still below
+its ceiling, with the level it stands at. build_extraction with direction
+"expand" works ONLY on a resource named there — and a region without that part
+of the line has nothing left to expand, either because the ground holds nothing
+or because its works are already built out to the ceiling. Silence there is an
+answer, not an omission: in a world whose extraction is fully built, no region
+carries the line at all. Dismantling has no such condition.
 ${this.getAddressableRegionsInfo()}
 
 ## Rejected Attempts Last Cycle
@@ -1068,6 +1130,16 @@ Narrative requirements (strict):
   A name that is not on that list is rejected even when it names a real field of
   research — "military", "land_forces", "aeronautics" are not domains here. A
   broad goal is pursued through whichever listed domains carry it.
+- Alongside the prose, fill "events" with the datable turning points you have
+  ALREADY written about in "descriptions" — at most ${MAX_DATED_EVENTS}, newest last. This is
+  not a second story: an entry that the prose does not carry does not belong
+  there, and the list is meant to make what you already said addressable, not
+  longer. Each entry needs the exact day inside this month on which it happened;
+  a development you cannot pin to a day stays in the prose and out of the list,
+  and a month without a datable turning point legitimately returns an empty
+  list. Unlike the prose, "date" is a structured field — the ISO form belongs
+  there and only there. "countries" holds the ids of the countries the entry is
+  about, copied verbatim from ## Country IDs.
 - A country's research "tier" is just accumulated investment — there is no fixed
   catalog of named technologies. When a domain tier crosses a meaningful new
   threshold, narrate what this represents in concrete terms (what got invented or
@@ -1087,6 +1159,14 @@ Return your response in JSON format with the following structure:
       "sourceCountryId": "country_id",
       "target": { "countryId": "country_id" },
       "params": { "intensity": "mild|moderate|severe" }
+    }
+  ],
+  "events": [
+    {
+      "date": "${this.game.currentDate}",
+      "title": "Short headline of one dated development from the prose above",
+      "description": "One or two sentences: what happened on that day and what follows from it",
+      "countries": ["country_id"]
     }
   ]
 }
@@ -1199,7 +1279,13 @@ Hard limits:
    * стране ещё не было событий (не засорять промт для новой партии).
    */
   private getRecentTitlesLine(countryId: string, limit: number): string {
-    const relevant = this.game.eventHistory.filter(e => e.receipt.countries.includes(countryId));
+    // Только записи ОТВЕТОВ: у датированного события нет квитанции, а его
+    // список стран — заявление модели, не факт применения. Пустить их сюда
+    // значило бы молча изменить вес месяца в памяти страны — месяц с четырьмя
+    // событиями вытеснил бы из показа три предыдущих.
+    const relevant = this.game.eventHistory.filter(
+      e => e.kind === "response" && e.receipt.countries.includes(countryId)
+    );
     if (relevant.length === 0) return '';
 
     const recent = relevant.slice(-limit).reverse();
@@ -1533,6 +1619,34 @@ Hard limits:
    * (`MAX_PROMPT_REGIONS_PER_COUNTRY`), причина там же.
    */
   private getAddressableRegionsInfo(): string {
+    /**
+     * Месторождения региона строкой — предпосылка `build_extraction`, которую
+     * модель до 2026-08-08 не видела ВООБЩЕ.
+     *
+     * Замер, ради которого строка появилась: перечисление ресурсов в контракте
+     * подняло число попыток глагола с 1 до 7 за 72 хода, но применённых
+     * осталось 0 — все семь ушли в отказы `extractionAtMaximum` (5) и
+     * `noDepositInRegion` (2). То есть словарь научил модель НАЗЫВАТЬ ресурс, а
+     * промахивалась она по тому, чего в промте нет: где залежь есть и где
+     * мощность ещё не на потолке.
+     *
+     * Показывается уровень и потолок, а не «можно/нельзя»: «coal 2/10» — это
+     * свойство мира, из которого модель делает вывод сама, а готовый вердикт
+     * пришлось бы держать в согласии с предпосылками движка в двух местах.
+     */
+    const extractionLine = (region: Region): string => {
+      const expandable = Object.entries(region.deposits)
+        .filter(([resource, size]) => {
+          if ((size ?? 0) <= 0) return false;
+          return (region.extraction[resource as ResourceType] ?? 0) < MAX_EXTRACTION_LEVEL;
+        })
+        .map(
+          ([resource]) =>
+            `${resource} ${region.extraction[resource as ResourceType] ?? 0}/${MAX_EXTRACTION_LEVEL}`
+        );
+      return expandable.length > 0 ? `, can expand: ${expandable.join(", ")}` : "";
+    };
+
     const wanted = new Map<string, Country>();
     const add = (id: string | undefined): void => {
       if (!id || wanted.has(id)) return;
@@ -1564,7 +1678,8 @@ Hard limits:
       const shown = regions.slice(0, MAX_PROMPT_REGIONS_PER_COUNTRY);
       const lines = shown.map(
         ({ region, discontent }) =>
-          `  - ${region.id} ${getText(region.names, LLM_LOCALE)} — discontent ${discontent.toFixed(2)}`
+          `  - ${region.id} ${getText(region.names, LLM_LOCALE)} — discontent ${discontent.toFixed(2)}` +
+          extractionLine(region)
       );
       const rest = regions.length - shown.length;
       if (rest > 0) {
@@ -1654,7 +1769,11 @@ Hard limits:
    * Получает информацию о последних событиях.
    */
   private getRecentEventsInfo(): string {
-    const recentEvents = this.game.eventHistory.slice(-5);
+    // Записи ОТВЕТОВ, а не всё подряд: пять последних записей после появления
+    // датированных событий были бы одним-двумя месяцами вместо пяти, и модель
+    // потеряла бы горизонт. Показывать датированные события отдельной секцией —
+    // отдельная правка промта со своим замером.
+    const recentEvents = this.game.eventHistory.filter(e => e.kind === "response").slice(-5);
     if (recentEvents.length === 0) return 'No recent events';
 
     return recentEvents.map(e => 

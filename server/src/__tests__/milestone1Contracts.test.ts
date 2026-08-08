@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { responseEvent } from "../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { MAX_PENDING_REJECTION_FACTS_PER_SOURCE } from "@shared/defines/discontent";
@@ -269,7 +270,7 @@ describe("транзакция ответа: весь ответ коммити�
     );
 
     expect(result.narrativeCanonized).toBe(true);
-    expect(game.eventHistory.at(-1)!.receipt).toEqual(result.receipt);
+    expect(responseEvent(game.eventHistory.at(-1)).receipt).toEqual(result.receipt);
     // Квитанция называет и страны, и место — до Милстоуна 1 регионов в ней не было.
     expect(result.receipt.countries).toContain("USA");
     expect(result.receipt.countries).toContain("SUN");
