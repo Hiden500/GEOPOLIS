@@ -1243,20 +1243,29 @@ describe("кольцо соседей: побочный эффект не обх
   );
 
   /**
-   * То же кольцо, но не синтетическое: регион 192 сценария 1946 граничит с
-   * шестью регионами, и во всех шести живут `russians` (все семь — СССР).
+   * То же кольцо, но не синтетическое: в сценарии 1946 берётся настоящий
+   * регион СССР, у которого не меньше пяти соседей с группой `russians`.
+   *
+   * Хаб ищется ПО СВОЙСТВУ, а не по числовому id (был литерал 192 —
+   * латвийский Земгале). Позиционный `id` сдвигается при любом изменении
+   * числа регионов где угодно раньше по порядку сборки: 2026-08-08 сборка
+   * мира сдвинула Земгале на 190, а на 192 оказалось Монако — тест упал,
+   * и правильно. Литерал чинить литералом бессмысленно, он протухнет снова.
    */
-  it("реальное кольцо вокруг региона 192 (сценарий 1946) не доводит хаб до потолка", () => {
-    const HUB_ID = 192;
+  it("реальное кольцо соседей (сценарий 1946) не доводит хаб до потолка", () => {
     const GROUP = "russians";
     const state = createGame("1946", "SUN", "ru", 1);
 
-    const hub = state.regions.find(r => r.id === HUB_ID)!;
-    const ring = hub.neighboringRegionIds.filter(id =>
-      state.regions.find(r => r.id === id)?.demographics?.some(d => d.groupId === GROUP)
+    const hasGroup = (id: number) =>
+      state.regions.find(r => r.id === id)?.demographics?.some(d => d.groupId === GROUP);
+    const hub = state.regions.find(
+      r => r.ownerCountryId === "SUN" && r.neighboringRegionIds.filter(hasGroup).length >= 5
     );
     // Если разметка датасета поедет, тест обязан сказать об этом, а не тихо
-    // проверять пустой батч.
+    // проверять пустой батч: такого хаба в сценарии 1946 обязано существовать.
+    expect(hub).toBeDefined();
+    const HUB_ID = hub!.id;
+    const ring = hub!.neighboringRegionIds.filter(hasGroup);
     expect(ring.length).toBeGreaterThanOrEqual(5);
 
     const result = applyPrimitiveBatch(
@@ -1809,15 +1818,25 @@ describe("числа — движок, не LLM (docs/PRIMITIVES.md §1)", () =>
 
   /**
    * Тот же инвариант на боевых данных и в той форме, в которой его нашёл
-   * рецензент: `repress` по региону 187 целиком, где доминант (`lithuanians`,
-   * доля 0.94) стоит на потолке обоих полей. Прежний текст не упоминал его
-   * ВООБЩЕ — «suppression +0.420 for russians, +0.424 for latvians, +0.424 for
-   * jews», — и сессия, пишущая по нему нарратив, сказала бы, что репрессия
-   * обрушилась на литовцев.
+   * рецензент: `repress` по региону целиком, где доминант стоит на потолке
+   * обоих полей. Прежний текст не упоминал его ВООБЩЕ — «suppression +0.420
+   * for russians, +0.424 for latvians, +0.424 for jews», — и сессия, пишущая
+   * по нему нарратив, сказала бы, что репрессия обрушилась на доминанта.
+   *
+   * Регион ищется ПО СВОЙСТВУ (первый регион игрока с доминантом больше
+   * половины). Был литерал `187`; позиционный id сдвигается при изменении
+   * числа регионов, и после сборки мира 2026-08-08 на 187 оказался латвийский
+   * Vidzeme вместо литовского региона, названного в комментарии, — тест
+   * продолжал проходить, описывая уже не тот регион.
    */
   it("на данных 1946 резюме называет доминанта, по которому удар не прошёл", () => {
     const state = createGame("1946", "SUN", "ru", 1);
-    const region = state.regions.find(r => r.id === 187)!;
+    const region = state.regions.find(
+      r => r.ownerCountryId === "SUN"
+        && (r.demographics?.length ?? 0) > 1
+        && Math.max(...r.demographics!.map(d => d.share)) > 0.5
+    )!;
+    expect(region).toBeDefined();
     const dominant = [...region.demographics!].sort((a, b) => b.share - a.share)[0]!;
     expect(dominant.share).toBeGreaterThan(0.5);
     state.groupImpactMemory.push({

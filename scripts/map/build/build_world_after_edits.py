@@ -2,14 +2,14 @@
 build_world_after_edits.py — весь мир после правок, файл для ЗАПОЛНЕНИЯ слоёв.
 
 Зачем. Правки разбросаны по трём записям: острова (`region_edits_islands.json`),
-Филиппины (`ph_variant_c_final.geojson`) и переименования столичных регионов.
+Филиппины (`ph_regions_1946.geojson`) и переименования столичных регионов.
 Чтобы пересчитать население, ресурсы и остальные слои, нужен ОДИН плоский
 список всех регионов после правок, где у каждого видно, из чего он собран.
 Этот скрипт его и делает.
 
 Файл предназначен для заполнения, а не для рендера: геометрии в нём нет
 намеренно — она весит мегабайты и мешает править данные руками. Геометрию
-показывают `islands_preview.geojson` и `ph_variant_c_final.geojson`.
+показывают `islands_preview.geojson` и `ph_regions_1946.geojson`.
 
 СКРИПТ НИЧЕГО НЕ МЕНЯЕТ в живой карте. Применение — отдельная задача с
 ExecPlan из-за позиционного каскада `region_id` (`scripts/map/AGENTS.md`).
@@ -40,7 +40,7 @@ from paths import REPO_ROOT, out
 
 SCENARIO = REPO_ROOT / "server" / "data" / "scenarios" / "1946"
 EDITS = "region_edits_islands.json"
-PH_C = "ph_variant_c_final.geojson"
+PH_C = "ph_regions_1946.geojson"
 OUT_NAME = "world_after_edits.json"
 AREA_TOL_KM2 = 5.0
 
@@ -139,7 +139,7 @@ def main():
     for p in (Path(out(EDITS)), Path(out(PH_C))):
         if not p.is_file():
             raise SystemExit(f"нет {p}: сначала запусти build_region_edits_islands.py "
-                             f"и build_ph_variants.py")
+                             f"и build_ph_regions_1946.py")
     edits = load_json(Path(out(EDITS)))
     ph_c = load_json(Path(out(PH_C)))
 
