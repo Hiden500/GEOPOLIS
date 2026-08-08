@@ -33,6 +33,12 @@ from pathlib import Path
 
 from paths import REPO_ROOT, out
 
+# Без этого скрипт падает UnicodeEncodeError на последней строке отчёта
+# («км²» в консоли cp1251) уже ПОСЛЕ записи PNG: картинка есть, числа к ней
+# нет, а код возврата 1. Тот же приём стоит в остальных скриптах пайплайна.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 try:
     import matplotlib
     matplotlib.use("Agg")
