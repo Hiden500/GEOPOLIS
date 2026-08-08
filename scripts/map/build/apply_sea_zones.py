@@ -23,24 +23,28 @@ apply_sea_zones.py — заменяет океанские секторы мас
 секторов — ПЕРЕРАСПРЕДЕЛЯЕТСЯ между зонами, а не подменяется.
 
   1. каждая зона обрезается по `U`   -> ничего чужого и ничего за берегом;
-  2. взаимные наложения зон снимаются по порядку -> разбиение, а не покрытие;
-  3. остаток `U` минус зоны раздаётся по САМОЙ ДЛИННОЙ общей границе
-     (принцип gap-first, `geometry_cleanup.absorb_slivers`), кусок без
-     соседей — ближайшей зоне.
+  2. взаимные наложения зон снимаются попарно -> разбиение, а не покрытие;
+  3. границы нодируются и `polygonize` даёт мозаику, чьи рёбра общие ПО
+     ПОСТРОЕНИЮ; ячейка без хозяина уходит соседу с самой длинной общей
+     границей (gap-first), изолированная — ближайшей зоне.
 
-Отсюда площадь воды сходится тождественно: `U` разбит без потерь и без
-дублей, а берег взят из мастера и не сдвинут ни на одну вершину.
+Шаг 3 — не украшение: без него у двух соседних зон вдоль общего шва разное
+число вершин, `coverage_is_valid` ложится и `freeze_master_map.py` отказывается
+писать мастер. Примитивы вынесены в `build/geo_partition.py` — та же задача
+встала второй раз на Филиппинах.
+
+Берег при этом не трогается вовсе: `U` взят из самого мастера, и обрезка по
+нему не может сдвинуть ни одной береговой вершины.
 
 ПРОВЕРКИ — В САМОМ СКРИПТЕ, а не в отчёте: сумма площадей зон обязана совпасть
-с суммой площадей заменённых секторов (допуск `AREA_TOL_KM2`), взаимных
-наложений 0, непокрытого остатка 0, пустых зон 0. Не сошлось — файл не
-записывается.
+с суммой площадей заменённых секторов, взаимных наложений 0, непокрытого
+остатка 0, пустых зон 0. Не сошлось — файл не записывается.
 
 Площадь: считать союз секторов геодезически ЦЕЛИКОМ нельзя — область больше
 полусферы, и `Geod` возвращает дополнение (замер: 236 796 689 вместо
 273 271 745 км², то есть ровно поверхность Земли минус искомое). Поэтому
 суммы всегда берутся по отдельным фичам, а союзы — только для разностей,
-которые заведомо малы.
+которые заведомо малы. Это же соображение — в `geo_partition.area_km2`.
 
 Вход:
   scripts/map/master/world_1946.master.geojson
@@ -62,17 +66,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from paths import REPO_ROOT, out, source  # noqa: E402
+from geo_partition import (  # noqa: E402
+    area_km2, clean, overlap_report, parts, strip_overlaps, tile_by_cells,
+)
 
-from pyproj import Geod  # noqa: E402
-from shapely import prepared  # noqa: E402
-from shapely.geometry import MultiPolygon, mapping, shape  # noqa: E402
-from shapely.ops import polygonize, unary_union  # noqa: E402
-from shapely.strtree import STRtree  # noqa: E402
+from shapely.geometry import mapping, shape  # noqa: E402
+from shapely.ops import unary_union  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-GEOD = Geod(ellps="WGS84")
 MASTER = REPO_ROOT / "scripts" / "map" / "master" / "world_1946.master.geojson"
 ZONES_DIR = "sea_zones_2026-08-06"
 
@@ -100,41 +103,6 @@ AREA_TOL_REL = 5e-7
 # геометрии такого размера оставляет нити машинной точности (площадь
 # 1e-9 км² и меньше), которые не являются дырой ни для кого.
 RESIDUAL_TOL_KM2 = 1e-4
-TOUCH_EPS = 1e-7
-
-
-def parts(geom):
-    if geom.is_empty:
-        return []
-    if geom.geom_type in ("MultiPolygon", "GeometryCollection"):
-        return [g for g in geom.geoms if g.geom_type == "Polygon"]
-    return [geom] if geom.geom_type == "Polygon" else []
-
-
-def area_km2(geom):
-    """Геодезическая площадь по частям — устойчива к областям больше полусферы."""
-    return sum(abs(GEOD.geometry_area_perimeter(p)[0]) / 1e6 for p in parts(geom))
-
-
-def clean(geom):
-    """Валидная чисто-полигональная геометрия БЕЗ порога по площади.
-
-    `geometry_cleanup.to_polygonal` здесь не годится: он отбрасывает части
-    мельче `DEGENERATE_AREA_DEG2` (1e-4 deg², ~1,2 км² на экваторе). Для
-    absorb_slivers это шум, а для перераспределения с сохранением площади —
-    потеря: первый прогон так потерял 184 км² и 780 кусков остатка из 1225.
-    Убираем только НЕполигональные компоненты — висячие `LineString`,
-    которые `unary_union` умеет вернуть в `GeometryCollection` и на которые
-    `is_valid` отвечает `True` (находка сессии нарезки на Cape Basin).
-    """
-    if not geom.is_valid:
-        geom = geom.buffer(0)
-    if geom.geom_type in ("GeometryCollection", "MultiPolygon"):
-        polys = [g for g in geom.geoms if g.geom_type == "Polygon" and not g.is_empty]
-        if not polys:
-            return geom if geom.is_empty else MultiPolygon()
-        geom = polys[0] if len(polys) == 1 else MultiPolygon(polys)
-    return geom
 
 
 def is_replaced_sector(props) -> bool:
@@ -164,114 +132,6 @@ def load_zones():
                 "geom": clean(shape(ft["geometry"])),
             })
     return zones
-
-
-def tile_by_cells(clipped, U):
-    """Мозаика U с ОБЩИМИ рёбрами: нодирование -> polygonize -> раздача ячеек.
-
-    Метод взят у `build/rebuild_shared_edges.py` (он же собрал нынешний
-    мастер) и применён локально к заменяемой воде. Почему не хватает
-    «обрезать и залатать остаток»: у двух соседних зон вдоль общего шва
-    РАЗНОЕ число вершин, поэтому шов не сокращается в сумме площадей и
-    `coverage_is_valid` ложится. Замер прежней версии: пара соседних
-    секторов Южной Атлантики разошлась на +633 / -541 км² при нулевых
-    дырах и наложениях, а `freeze_master_map.py` отказывается писать
-    мастер с невалидным покрытием.
-
-    После нодирования общий участок двух зон — физически один отрезок,
-    поэтому вершины совпадают по построению, а не по удаче.
-    """
-    print("  нодирую границы (U + зоны)…", flush=True)
-    bnd = unary_union([U.boundary] + [g.boundary for g in clipped if not g.is_empty])
-    cells = [c for c in polygonize(bnd)]
-    print(f"    ячеек: {len(cells)}", flush=True)
-
-    # Ячейки в дырах U (острова, чужие моря) в разбиение не входят.
-    pts = [c.representative_point() for c in cells]
-    prep_u = prepared.prep(U)
-    keep = [i for i, p in enumerate(pts) if prep_u.contains(p)]
-    print(f"    внутри U: {len(keep)}")
-
-    tree = STRtree(clipped)
-    owner = {}
-    unassigned = []
-    for i in keep:
-        p = pts[i]
-        cand = [int(j) for j in tree.query(p) if clipped[int(j)].intersects(p)]
-        if len(cand) == 1:
-            owner[i] = cand[0]
-        elif cand:
-            # точка на общем шве — берём зону с наибольшим перекрытием ячейки
-            owner[i] = max(cand, key=lambda j: clipped[j].intersection(cells[i]).area)
-        else:
-            unassigned.append(i)
-    print(f"    ячеек без хозяина (остаток): {len(unassigned)}")
-
-    # Остаток раздаётся по САМОЙ ДЛИННОЙ общей границе — принцип gap-first.
-    # Итеративно: ячейка может граничить только с другими бесхозными.
-    ctree = STRtree([cells[i] for i in keep])
-    pending = list(unassigned)
-    while pending:
-        progressed = False
-        still = []
-        for i in pending:
-            best, best_len = None, 0.0
-            for k in ctree.query(cells[i].buffer(TOUCH_EPS)):
-                j = keep[int(k)]
-                if j == i or j not in owner:
-                    continue
-                shared = cells[i].boundary.intersection(cells[j].boundary).length
-                if shared > best_len:
-                    best, best_len = owner[j], shared
-            if best is None:
-                still.append(i)
-            else:
-                owner[i] = best
-                progressed = True
-        if not progressed:
-            for i in still:  # изолированный кусок воды — ближайшей зоне
-                owner[i] = min(range(len(clipped)),
-                               key=lambda j: (cells[i].distance(clipped[j])
-                                              if not clipped[j].is_empty else float("inf")))
-            print(f"    изолированных ячеек, отданных ближайшей зоне: {len(still)}")
-            break
-        pending = still
-
-    by_zone = {}
-    for i, z in owner.items():
-        by_zone.setdefault(z, []).append(cells[i])
-    result = []
-    for j in range(len(clipped)):
-        chunk = by_zone.get(j, [])
-        result.append(clean(unary_union(chunk)) if chunk else clipped[j])
-    return result
-
-
-def strip_overlaps(geoms):
-    """Снимает взаимные наложения ПОПАРНО и локально: у пары (i, j), i < j,
-    спорная площадь остаётся младшему индексу.
-
-    Накопительный `taken = union(taken, g)` для этого не годится: на 85
-    геометриях такого размера союз накапливает погрешность, `U.difference
-    (taken)` возвращает уже покрытые нити, они попадают в раздачу и площадь
-    учитывается дважды. Замер первой версии: +33,8 км² при 4,07 км²
-    настоящих наложений."""
-    removed = 0.0
-    tree = STRtree(geoms)
-    for j, g in enumerate(geoms):
-        if g.is_empty:
-            continue
-        earlier = [geoms[i] for i in (int(i) for i in tree.query(g))
-                   if i < j and not geoms[i].is_empty and geoms[i].intersects(g)]
-        if not earlier:
-            continue
-        cut = unary_union(earlier)
-        inter = g.intersection(cut)
-        if inter.is_empty:
-            continue
-        removed += area_km2(inter)
-        geoms[j] = clean(g.difference(cut))
-    return removed
 
 
 def repartition(zones, U):
@@ -320,22 +180,10 @@ def main() -> int:
         problems.append(f"площадь воды: было {area_before:,.3f}, стало {area_after:,.3f} "
                         f"(допуск {tol:,.1f} км²)")
 
-    tree = STRtree(geoms)
-    overlap = 0.0
-    worst = []
-    for i, g in enumerate(geoms):
-        for j in (int(j) for j in tree.query(g)):
-            if j <= i:
-                continue
-            inter = g.intersection(geoms[j])
-            if not inter.is_empty:
-                a = area_km2(inter)
-                overlap += a
-                if a > RESIDUAL_TOL_KM2:
-                    worst.append((a, zones[i]["name"], zones[j]["name"]))
+    overlap, worst = overlap_report(geoms, [z["name"] for z in zones], RESIDUAL_TOL_KM2)
     if overlap > RESIDUAL_TOL_KM2:
         problems.append(f"взаимные наложения зон: {overlap:,.6f} км²")
-        for a, n1, n2 in sorted(worst, reverse=True)[:10]:
+        for a, n1, n2 in worst[:10]:
             problems.append(f"    {a:12,.6f} км²  {n1} / {n2}")
 
     left = area_km2(clean(U.difference(unary_union(geoms))))
