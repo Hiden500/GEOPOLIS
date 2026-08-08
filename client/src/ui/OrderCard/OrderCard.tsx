@@ -10,10 +10,22 @@ export interface OrderCardProps {
   text: string;
   /** Порядковый номер: приказы применяются сверху вниз. */
   index: number;
+  /**
+   * КАК ПОНЯЛИ. Единственное место петли, где возможна ошибка понимания, —
+   * перевод свободного текста, и увидеть её игрок обязан до хода, а не после
+   * (docs/PRIMITIVES.md §1). Здесь только намерение: величин до применения не
+   * существует, движок их ещё не считал.
+   *
+   * `undefined` — ещё спрашиваем; пустой массив — не распознано, приказ уйдёт
+   * режиссёру текстом и гарантии не даёт.
+   */
+  recognized?: string[];
+  /** Идёт распознавание. */
+  pending?: boolean;
   onRemove?: () => void;
 }
 
-export function OrderCard({ text, index, onRemove }: OrderCardProps) {
+export function OrderCard({ text, index, recognized, pending = false, onRemove }: OrderCardProps) {
   const { t } = useTranslation("ui");
   const textRef = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -40,6 +52,17 @@ export function OrderCard({ text, index, onRemove }: OrderCardProps) {
           <span className={styles.index}>{index}. </span>
           {text}
         </p>
+        {pending && <p className={styles.recognizing}>{t("order.recognizing")}</p>}
+        {!pending && recognized !== undefined && recognized.length > 0 && (
+          <ul className={styles.recognized}>
+            {recognized.map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ul>
+        )}
+        {!pending && recognized !== undefined && recognized.length === 0 && (
+          <p className={styles.recognizing}>{t("order.freeform")}</p>
+        )}
         {(clampable || expanded) && (
           <button
             type="button"

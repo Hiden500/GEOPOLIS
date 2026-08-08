@@ -9,6 +9,32 @@
  * карточки есть ручка перетаскивания — это рычаг, а не украшение.
  */
 
+/*
+ * КАК ПОНЯЛИ. Набрано тише самого приказа: слова игрока — главное, разбор
+ * движка — сноска к ним. Свой маркер, чтобы разбор не путался с перечислением
+ * внутри самого приказа.
+ */
+.recognized {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+}
+
+.recognized li::before {
+  content: "→ ";
+  color: var(--accent);
+}
+
+.recognizing {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+}
+
 .card {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

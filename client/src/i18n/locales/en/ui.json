@@ -32,7 +32,9 @@
     "drag": "reorder this order",
     "remove": "remove this order",
     "expand": "expand",
-    "collapse": "collapse"
+    "collapse": "collapse",
+    "recognizing": "Reading the order…",
+    "freeform": "No direct execution — goes to the director as intent"
   },
   "capability": "can design",
   "readiness": "in service",

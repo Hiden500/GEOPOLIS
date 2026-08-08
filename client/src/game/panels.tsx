@@ -2,6 +2,7 @@ import { Fragment, useState } from "react";
 import { Button, Coords, ResourceBar, Stat, Tag, TechScale, cx } from "../ui";
 import {
   LEDGER_TABS,
+  useActions,
   useModel,
   type LedgerTabId,
   type ScreenCountry,
@@ -45,7 +46,32 @@ function FlagChip({ country }: { country: ScreenCountry }) {
 
 function EconomyTome() {
   const model = useModel();
-  const [budget, setBudget] = useState(model.budget.map((item) => item.share));
+  const { saveBudget } = useActions();
+  /*
+   * Черновик долей живёт локально, пока игрок тянет ползунок: отправлять на
+   * каждое движение — это десятки запросов на одну правку. Но и оставлять его
+   * навсегда локальным нельзя: ползунок, который двигается и ничего не меняет,
+   * — это интерфейс, который врёт.
+   */
+  const [draft, setDraft] = useState<number[] | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const budget = draft ?? model.budget.map((item) => item.share);
+  const dirty = draft !== null && model.budget.some((item, i) => Math.abs(item.share - budget[i]) > 0.001);
+
+  const commit = () => {
+    if (saveBudget === undefined || draft === null) return;
+    setSaving(true);
+    setFailed(false);
+    const shares: Record<string, number> = {};
+    model.budget.forEach((item, i) => {
+      shares[item.key] = budget[i];
+    });
+    void saveBudget(shares)
+      .then(() => setDraft(null))
+      .catch(() => setFailed(true))
+      .finally(() => setSaving(false));
+  };
 
   return (
     <>
@@ -74,15 +100,29 @@ function EconomyTome() {
                 max={60}
                 value={Math.round(budget[index] * 100)}
                 aria-label={item.name}
+                disabled={saveBudget === undefined || saving}
                 onChange={(event) =>
-                  setBudget((prev) =>
-                    prev.map((share, i) => (i === index ? Number(event.target.value) / 100 : share)),
+                  setDraft(
+                    budget.map((share, i) => (i === index ? Number(event.target.value) / 100 : share)),
                   )
                 }
               />
             </div>
           ))}
         </div>
+        {saveBudget !== undefined && (
+          <div className={styles.budgetActions}>
+            <Button size="sm" variant="order" disabled={!dirty || saving} onClick={commit}>
+              {saving ? "Сохраняю…" : "Сохранить доли"}
+            </Button>
+            {dirty && !saving && (
+              <Button size="sm" variant="quiet" onClick={() => setDraft(null)}>
+                Вернуть
+              </Button>
+            )}
+            {failed && <span className={styles.budgetFailed}>Не сохранилось</span>}
+          </div>
+        )}
       </Section>
 
       {model.resources.length > 0 && (
@@ -155,9 +195,16 @@ function ScienceTome() {
                 <span className={styles.rowValue}>{Math.round(domain.progress * 100)}%</span>
               </div>
               <Meter value={domain.progress} />
-              <p className={styles.rowNote} style={{ marginTop: 2 }}>
-                Следующий тир: {domain.unlocks}
-              </p>
+              {domain.focus !== undefined && (
+                <p className={styles.rowNote} style={{ marginTop: 2 }}>
+                  Фокус исследований: {Math.round(domain.focus * 100)}%
+                </p>
+              )}
+              {domain.unlocks !== "" && (
+                <p className={styles.rowNote} style={{ marginTop: 2 }}>
+                  Следующий тир: {domain.unlocks}
+                </p>
+              )}
             </div>
           ))}
         </div>

@@ -40,8 +40,11 @@ import {
 import { CountryDetail, LedgerBody, RegionDetail, TomeBody } from "./panels";
 import {
   REGION_TABS,
+  ScreenActionsProvider,
   ScreenModelProvider,
   type LedgerTabId,
+  type ScreenActions,
+  type ScreenLlmResult,
   type RegionTab,
   type ScreenModel,
   type ScreenStat,
@@ -61,15 +64,24 @@ import styles from "./Screen.module.css";
  * значение, поэтому два тома открытыми быть не могут.
  */
 
+/** Приказ в том виде, в каком экран отдаёт его наружу. */
+export interface ScreenOrder {
+  text: string;
+  primitives?: unknown[];
+  idempotencyKey: string;
+}
+
 export interface ScreenProps {
   model: ScreenModel;
+  /** Что экран умеет попросить сделать. Пусто — органы управления скрыты. */
+  actions?: ScreenActions;
   /** Карта: настоящая MapLibre в игре, гекс-сетка в песочнице. */
   mapSlot: ReactNode;
   /**
    * Ход. Приказы уходят ПАЧКОЙ (docs/PRIMITIVES.md §1) — экран отдаёт их
    * список и ждёт; пока ждёт, показывает, что режиссёр думает.
    */
-  onAdvance: (orders: string[]) => Promise<void> | void;
+  onAdvance: (orders: ScreenOrder[]) => Promise<void> | void;
   /** Выбор режима карты живёт снаружи: раскраску считает не интерфейс. */
   mapMode: string;
   onMapMode: (mode: string) => void;
@@ -82,9 +94,31 @@ type Yashik =
   | { kind: "tome"; id: TomeId }
   | { kind: "country"; id: string };
 
+/**
+ * Приказ в ЛИСТЕ. Две дороги к одному движку (docs/PRIMITIVES.md §1): то, что
+ * движок распознал, уходит примитивами и даёт гарантию; остальное уходит
+ * текстом режиссёру и гарантии не даёт. Игрок видит, КАКОЙ дорогой пойдёт его
+ * приказ, до хода — но не видит, ЧТО изменится: величин до применения не
+ * существует.
+ */
 interface Order {
   id: string;
   text: string;
+  /** Как поняли. Пусто — не распознано, приказ уйдёт режиссёру текстом. */
+  recognized?: string[];
+  primitives?: unknown[];
+  /**
+   * Ключ идемпотентности рождается вместе с приказом и переживает повторную
+   * ОТПРАВКУ: после сетевого сбоя тот же приказ уходит с тем же ключом, и
+   * сервер узнаёт дубль вместо того, чтобы применить приказ дважды.
+   */
+  idempotencyKey: string;
+}
+
+function newOrderKey(): string {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `order-${Math.random().toString(36).slice(2)}`;
 }
 
 /*
@@ -163,6 +197,7 @@ function FlagSU() {
 
 export function Screen({
   model,
+  actions = {},
   mapSlot,
   onAdvance,
   mapMode,
@@ -173,6 +208,8 @@ export function Screen({
   const { monthIndex, year, events } = model;
   const [orders, setOrders] = useState<Order[]>([]);
   const [draft, setDraft] = useState("");
+  /** Приказы, по которым идёт распознавание. */
+  const [recognizing, setRecognizing] = useState<string[]>([]);
   const [yashik, setYashik] = useState<Yashik>({ kind: "none" });
   const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
   /*
@@ -181,6 +218,8 @@ export function Screen({
    * показывает закреплённое, что бы ни выбирали на карте. Иначе пришлось бы
    * учить каждый источник выделения про состояние одной панели.
    */
+  /** Осколок, по которому идёт запрос: второй клик должен быть невозможен. */
+  const [succeeding, setSucceeding] = useState<string | null>(null);
   const [pinned, setPinned] = useState(false);
   const [pinnedRegionId, setPinnedRegionId] = useState<string | null>(null);
   const [ledgerTab, setLedgerTab] = useState<LedgerTabId>("powers");
@@ -204,6 +243,7 @@ export function Screen({
   const [thinking, setThinking] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [llmOpen, setLlmOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [feedWidth, setFeedWidth] = useState<number | null>(null);
   /** C3: наука отдельным ТОМОМ или внутри ОБОРОНЫ — смотрим оба варианта. */
@@ -305,6 +345,7 @@ export function Screen({
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       if (confirming !== null) return setConfirming(null);
+      if (llmOpen) return setLlmOpen(false);
       if (menuOpen) return setMenuOpen(false);
       if (searchOpen) return setSearchOpen(false);
       if (ledgerOpen) return setLedgerOpen(false);
@@ -317,7 +358,7 @@ export function Screen({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [confirming, menuOpen, searchOpen, ledgerOpen, yashik, selectedRegionId, selectedCountryId, onSelectRegion]);
+  }, [confirming, llmOpen, menuOpen, searchOpen, ledgerOpen, yashik, selectedRegionId, selectedCountryId, onSelectRegion]);
 
   /* ── Ручки ширины ───────────────────────────────────────────── */
   const rootSize = () => parseFloat(getComputedStyle(document.documentElement).fontSize);
@@ -407,11 +448,35 @@ export function Screen({
   });
 
   /* ── Приказы ────────────────────────────────────────────────── */
+  /*
+   * Добавление приказа спрашивает движок, как он его понял. Ответ показывается
+   * рядом с приказом — это единственное место петли, где возможна ошибка
+   * ПОНИМАНИЯ, и увидеть её игрок обязан ДО хода, а не после.
+   */
   const addOrder = () => {
     const text = draft.trim();
     if (text === "") return;
-    setOrders((prev) => [...prev, { id: nextId("o"), text }]);
+    const order: Order = { id: nextId("o"), text, idempotencyKey: newOrderKey() };
+    setOrders((prev) => [...prev, order]);
     setDraft("");
+
+    if (actions.recognizeOrder === undefined) return;
+    setRecognizing((prev) => [...prev, order.id]);
+    void actions
+      .recognizeOrder(text, pinned ? pinnedRegionId : selectedRegionId)
+      .then((result) => {
+        setOrders((prev) =>
+          prev.map((item) =>
+            item.id === order.id
+              ? { ...item, recognized: result.recognized, primitives: result.primitives }
+              : item,
+          ),
+        );
+      })
+      .catch(() => {
+        // Молча: нераспознанный приказ — не ошибка, он просто уйдёт режиссёру.
+      })
+      .finally(() => setRecognizing((prev) => prev.filter((id) => id !== order.id)));
   };
 
   const moveOrder = (from: number, to: number) => {
@@ -437,7 +502,7 @@ export function Screen({
   const advance = () => {
     setThinking(true);
     setConfirming(null);
-    void Promise.resolve(onAdvance(orders.map((order) => order.text)))
+    void Promise.resolve(onAdvance(orders))
       .finally(() => {
         setOrders([]);
         setThinking(false);
@@ -478,6 +543,7 @@ export function Screen({
 
   return (
     <ScreenModelProvider value={model}>
+    <ScreenActionsProvider value={actions}>
     <div ref={shellRef} className={styles.shell} style={shellStyle}>
       {mapSlot}
 
@@ -744,6 +810,7 @@ export function Screen({
                       title={event.title}
                       body={event.body}
                       factuality={event.factuality}
+                      dated={event.dated}
                       order={event.order === undefined ? undefined : { text: event.order }}
                       tags={event.tags}
                       onTagClick={openTag}
@@ -881,6 +948,8 @@ export function Screen({
                     <OrderCard
                       index={index + 1}
                       text={order.text}
+                      recognized={order.recognized}
+                      pending={recognizing.includes(order.id)}
                       onRemove={() => setOrders((prev) => prev.filter((item) => item.id !== order.id))}
                     />
                   </li>
@@ -912,6 +981,38 @@ export function Screen({
         )}
         </div>
       </div>
+
+      {/*
+        * КАМПАНИЯ — распад державы или конец партии. Перекрывает всё и не
+        * закрывается: пока осколок не выбран, играть нечем, а выбор осколка
+        * необратим (docs/CONCEPT.md §7.1), поэтому ни крестика, ни таймаута
+        * здесь нет — подтверждение с таймаутом подтверждением не является.
+        */}
+      {model.campaign !== null && (
+        <div className={cx(styles.scrim, styles.scrimCampaign)}>
+          <Panel title={model.campaign.title} density="prose" className={styles.modal}>
+            <p className={styles.modalText}>{model.campaign.lead}</p>
+            {model.campaign.successors.length > 0 && (
+              <div className={styles.successors}>
+                {model.campaign.successors.map((successor) => (
+                  <Button
+                    key={successor.id}
+                    variant="order"
+                    disabled={succeeding !== null}
+                    onClick={() => {
+                      if (actions.chooseSuccessor === undefined) return;
+                      setSucceeding(successor.id);
+                      void actions.chooseSuccessor(successor.id).finally(() => setSucceeding(null));
+                    }}
+                  >
+                    {successor.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </Panel>
+        </div>
+      )}
 
       {/* ── ПОДТВЕРЖДЕНИЕ ───────────────────────────────────── */}
       {confirming !== null && (
@@ -972,6 +1073,24 @@ export function Screen({
         <div className={styles.searchWrap} onClick={() => setMenuOpen(false)}>
           <div className={styles.searchPanel} onClick={(event) => event.stopPropagation()}>
             <Panel title="Меню" meta="тумблеры макета" onClose={() => setMenuOpen(false)} density="control">
+              {(actions.getLlmPrompt !== undefined ||
+                actions.submitLlmResponse !== undefined ||
+                actions.runLlmCycle !== undefined) && (
+                <div style={{ marginBottom: "var(--space-4)" }}>
+                  <p className={styles.empty}>Диагностика: промт и ответ ИИ-режиссёра вручную.</p>
+                  <Button
+                    size="sm"
+                    variant="quiet"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setLlmOpen(true);
+                    }}
+                  >
+                    Ручной цикл ИИ-режиссёра
+                  </Button>
+                </div>
+              )}
+
               <p className={styles.empty}>Наука отдельным томом или внутри обороны — смотрим оба варианта.</p>
               <div style={{ display: "flex", gap: "var(--space-1)", marginBottom: "var(--space-4)" }}>
                 <Button size="sm" variant={scienceSeparate ? "order" : "quiet"} onClick={() => setScienceSeparate(true)}>
@@ -1043,7 +1162,206 @@ export function Screen({
           </div>
         </div>
       )}
+
+      {/* ── ИИ-РЕЖИССЁР: ручной цикл, диагностика ────────────── */}
+      {llmOpen && (
+        <div className={styles.searchWrap} onClick={() => setLlmOpen(false)}>
+          <div className={cx(styles.searchPanel, styles.llmPanel)} onClick={(event) => event.stopPropagation()}>
+            <LlmCycleWindow actions={actions} onClose={() => setLlmOpen(false)} />
+          </div>
+        </div>
+      )}
     </div>
+    </ScreenActionsProvider>
     </ScreenModelProvider>
+  );
+}
+
+/**
+ * Ручной цикл ИИ-режиссёра (диагностика). Обычный ход прогоняет тот же
+ * серверный цикл сам (`onAdvance` → `runLlmCycle` внутри `GameShell`) — тут
+ * то же самое доступно вручную: увидеть промт, подставить ответ, обойти
+ * автоматический ключ. Действие не задано — соответствующая секция не
+ * рисуется (правило органов управления, `model.ts`).
+ */
+function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose: () => void }) {
+  const [prompt, setPrompt] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [responseText, setResponseText] = useState("");
+  const [result, setResult] = useState<ScreenLlmResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const handleGetPrompt = () => {
+    if (actions.getLlmPrompt === undefined) return;
+    setBusy(true);
+    setError(null);
+    setCopied(false);
+    void actions
+      .getLlmPrompt()
+      .then(({ prompt: text }) => {
+        setPrompt(text);
+        return navigator.clipboard.writeText(text).then(
+          () => setCopied(true),
+          // Буфер обмена недоступен (нет прав / не-secure context) — промт
+          // всё равно показан ниже, можно скопировать вручную.
+          () => setCopied(false),
+        );
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+        setError("Ошибка получения промта");
+      })
+      .finally(() => setBusy(false));
+  };
+
+  const handleApply = () => {
+    if (actions.submitLlmResponse === undefined) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    void actions
+      .submitLlmResponse(responseText)
+      .then((res) => {
+        setResult(res);
+        if (res.success) setResponseText("");
+      })
+      .catch((err: unknown) => {
+        console.error(err);
+        setError("Ошибка применения ответа");
+      })
+      .finally(() => setBusy(false));
+  };
+
+  const handleAuto = () => {
+    if (actions.runLlmCycle === undefined) return;
+    setBusy(true);
+    setError(null);
+    setResult(null);
+    void actions
+      .runLlmCycle()
+      .then(setResult)
+      .catch((err: unknown) => {
+        console.error(err);
+        setError("Ошибка автоматического цикла");
+      })
+      .finally(() => setBusy(false));
+  };
+
+  return (
+    <Panel title="Ручной цикл ИИ-режиссёра" meta="диагностика" onClose={onClose} density="control">
+      {actions.runLlmCycle !== undefined && (
+        <section className={styles.llmSection}>
+          <h3 className={styles.llmSectionTitle}>Автоматически</h3>
+          <Button variant="order" size="sm" onClick={handleAuto} disabled={busy}>
+            Сгенерировать и применить автоматически
+          </Button>
+        </section>
+      )}
+
+      {actions.getLlmPrompt !== undefined && (
+        <section className={styles.llmSection}>
+          <h3 className={styles.llmSectionTitle}>1. Промт (ручной способ)</h3>
+          <Button variant="quiet" size="sm" onClick={handleGetPrompt} disabled={busy}>
+            {copied ? "Промт скопирован ✓" : "Получить и скопировать промт"}
+          </Button>
+          {prompt !== null && (
+            <textarea
+              className={styles.llmField}
+              aria-label="Промт для ИИ"
+              readOnly
+              value={prompt}
+              rows={6}
+              onFocus={(event) => event.currentTarget.select()}
+            />
+          )}
+        </section>
+      )}
+
+      {actions.submitLlmResponse !== undefined && (
+        <section className={styles.llmSection}>
+          <h3 className={styles.llmSectionTitle}>2. Ответ ИИ</h3>
+          <textarea
+            className={styles.llmField}
+            aria-label="Ответ ИИ (JSON)"
+            placeholder='Вставьте JSON-ответ: { "descriptions": "...", "primitives": [...] }'
+            value={responseText}
+            onChange={(event) => setResponseText(event.target.value)}
+            rows={6}
+          />
+          <Button variant="order" size="sm" onClick={handleApply} disabled={busy || responseText.trim() === ""}>
+            Применить ответ
+          </Button>
+        </section>
+      )}
+
+      {error !== null && <p className={styles.llmError}>{error}</p>}
+
+      {result !== null && result.success && <LlmCycleOutcome result={result} />}
+    </Panel>
+  );
+}
+
+function LlmCycleOutcome({ result }: { result: ScreenLlmResult }) {
+  return (
+    <section className={cx(styles.llmSection, styles.llmResult)}>
+      {result.narrativeCanonized ? (
+        <>
+          <h3 className={styles.llmSectionTitle}>{result.title ?? "Результат"}</h3>
+          {result.factuality !== undefined && (
+            <p className={styles.llmFactuality} role="note">
+              {result.factuality === "partial"
+                ? "Подтверждено частично: часть предложенного движок отклонил — текст выше мог описать и её. Что легло в мир на самом деле — ниже."
+                : "Фактами не подтверждено: движку режиссёр ничего не предлагал, мир этот текст не менял."}
+            </p>
+          )}
+          {result.descriptions !== undefined && <p className={styles.modalText}>{result.descriptions}</p>}
+        </>
+      ) : (
+        <>
+          <h3 className={styles.llmSectionTitle}>Режиссёр предложил невозможное</h3>
+          <p role="status" className={styles.modalText}>
+            Ни одно предложение режиссёра не применилось, поэтому событие не записано: мир не изменился, и
+            рассказывать о нём нечего. Причины ниже уйдут модели в следующий промт.
+          </p>
+        </>
+      )}
+
+      <p className={styles.empty}>
+        Применено приказов: {result.applied.length}
+        {result.rejected.length > 0 && `, отклонено: ${result.rejected.length}`}
+      </p>
+
+      {result.applied.length > 0 && (
+        <section aria-label="Что произошло на самом деле">
+          <h4 className={styles.llmSectionTitle}>Что произошло на самом деле</h4>
+          <ul className={styles.llmList}>
+            {result.applied.map((record, index) => (
+              <li key={index}>
+                {record.headline}
+                {record.details.length > 0 && (
+                  <ul>
+                    {record.details.map((line, i) => (
+                      <li key={i}>{line}</li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {result.rejected.length > 0 && (
+        <section aria-label="Отклонено движком">
+          <h4 className={styles.llmSectionTitle}>Отклонено движком</h4>
+          <ul className={styles.llmList}>
+            {result.rejected.map((line, index) => (
+              <li key={index}>{line}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </section>
   );
 }

@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client'
 import './styles/index.css'
 import './i18n'
 import App from './App.tsx'
-import { PrimitivesShowcase } from './dev/PrimitivesShowcase.tsx'
 import { SystemShowcase } from './dev/SystemShowcase.tsx'
 import { Prototype } from './proto/Prototype.tsx'
 import { ShapeGallery } from './dev/ShapeGallery.tsx'
@@ -13,8 +12,8 @@ import { ShapeGallery } from './dev/ShapeGallery.tsx'
 //   ?showcase=screen     — кликабельный макет игрового экрана (витрина
 //                          встраивает его в iframe заданного размера,
 //                          поэтому он отдельный вход);
-//   ?showcase=shapes     — выбор силуэта ШАПКИ (варианты формы рядом);
-//   ?showcase=primitives — витрина отменённого слоя primitives/, до его удаления.
+//   ?showcase=shapes     — выбор силуэта ШАПКИ (варианты формы рядом).
+// Витрина ?showcase=primitives удалена вместе со слоем primitives/.
 const showcase = new URLSearchParams(window.location.search).get('showcase')
 
 createRoot(document.getElementById('root')!).render(
@@ -25,8 +24,6 @@ createRoot(document.getElementById('root')!).render(
       <Prototype />
     ) : showcase === 'shapes' ? (
       <ShapeGallery />
-    ) : showcase === 'primitives' ? (
-      <PrimitivesShowcase />
     ) : (
       <App />
     )}

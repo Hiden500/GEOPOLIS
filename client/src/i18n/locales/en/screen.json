@@ -9,6 +9,15 @@
     "July", "August", "September", "October", "November", "December"
   ],
   "irreversibleWords": ["war", "nuclear", "coup", "annex"],
+  "campaign": {
+    "successionTitle": "Choose a successor",
+    "successionLead": "{{predecessor}} broke apart on {{date}}. Choose the shard you will continue as.",
+    "successor": "{{country}} — regions: {{regions}}",
+    "defeatTitle": "Campaign over",
+    "absorbed": "The state was absorbed by {{country}}.",
+    "dissolved": "The state ceased to exist, and no successor remained to continue as.",
+    "since": "Date: {{date}}"
+  },
   "mapModes": {
     "pol": "Powers",
     "eco": "Industry",

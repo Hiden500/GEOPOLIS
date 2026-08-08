@@ -18,11 +18,13 @@ import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { type PrimitiveOutcomeLine } from "@shared/types/politics/PrimitiveOutcome";
+import { getDomainTier } from "@shared/utils/technology";
 import {
   type ScreenCountry,
   type ScreenEvent,
   type ScreenModel,
   type ScreenRegion,
+  type ScreenCampaign,
   type ScreenStat,
 } from "./model";
 
@@ -180,10 +182,24 @@ function toEvents(
     return source?.kind === "response" ? source.receipt : undefined;
   };
 
+  /*
+   * ЛЕНТА строится ПО ДАТЕ, новое сверху, — не по порядку записи движком
+   * (контракт «Лента кампании», `docs/UI_DESIGN.md`). Датированные события
+   * месяца приходят вместе с записью ответа, у которой дата — первое число,
+   * но происходят позже неё, и модель перечисляет их не обязательно по
+   * возрастанию. Порядок записи дал бы ленту, где 5 марта стоит выше 20-го.
+   *
+   * Сортировка устойчивая: при равных датах порядок остаётся тем, в котором
+   * писал движок. Ограничение применяется ПОСЛЕ сортировки — иначе поздно
+   * записанное раннее событие вытеснило бы из окна действительно свежее.
+   */
   return game.eventHistory
-    .slice(-limit)
-    .reverse()
-    .map((event) => {
+    .map((event, index) => ({ event, index }))
+    .sort((a, b) =>
+      a.event.date === b.event.date ? b.index - a.index : a.event.date < b.event.date ? 1 : -1,
+    )
+    .slice(0, limit)
+    .map(({ event }) => {
       const receipt = receiptOf(event);
       // Ярлыки применённого — только у записи ответа: применённые примитивы
       // относятся к ответу целиком, и приписать их одному датированному факту
@@ -198,6 +214,7 @@ function toEvents(
         title: event.title,
         body: event.description,
         factuality: receipt?.factuality,
+        dated: event.kind === "dated",
         order: applied.length > 0 ? applied.map((item) => renderLine(item.headline)).join("; ") : undefined,
         tags: [
           ...countryTags.map((id) => ({
@@ -244,19 +261,60 @@ function politicsStats(country: Country): ScreenStat[] {
   ];
 }
 
-/** Доли бюджета — из уже посчитанных расходных статей, не из отдельного поля. */
-function budgetShares(country: Country): Array<{ name: string; share: number }> {
+/**
+ * Доли бюджета — из уже посчитанных расходных статей, не из отдельного поля.
+ * Ключ совпадает с полем `BudgetUpdate`: по нему правка уходит обратно на
+ * сервер, а подпись локализуема и для этого не годится.
+ */
+/**
+ * Статьи росписи. Ключ совпадает с полем `spendingShares` и с телом
+ * `PUT /budget`: по нему правка уходит обратно на сервер, а подпись
+ * локализуема и для этого не годится.
+ */
+type SpendingShareKey = keyof NonNullable<Country["economy"]["spendingShares"]>;
+
+function budgetShares(country: Country): Array<{ key: string; name: string; share: number }> {
   const economy = country.economy;
-  const rows: Array<[string, number]> = [
-    ["Оборона", economy.militarySpending],
-    ["Наука", economy.researchSpending],
-    ["Образование", economy.educationSpending],
-    ["Инфраструктура", economy.infrastructureSpending],
-    ["Социальное", economy.welfareSpending],
+  const names: Array<[SpendingShareKey, string]> = [
+    ["military", "Оборона"],
+    ["research", "Наука"],
+    ["education", "Образование"],
+    ["infrastructure", "Инфраструктура"],
+    ["welfare", "Социальное"],
   ];
-  const total = rows.reduce((sum, [, value]) => sum + value, 0);
-  if (total <= 0) return [];
-  return rows.map(([name, value]) => ({ name, share: value / total }));
+
+  /*
+   * Доли берутся ИЗ `spendingShares`, а не пересчитываются из абсолютных
+   * статей. Это то самое поле, которое движок применяет к росписи и которое
+   * `PUT /budget` перезаписывает дословно (`CountryService.updateBudget`) —
+   * показывать что-то другое значит показывать не тот бюджет, который будет
+   * применён.
+   *
+   * Прежняя версия делила статью на СУММУ статей. Ошибка была не в точности:
+   * нормировка на сумму даёт единицу ВСЕГДА, поэтому недорасписанный бюджет
+   * показать было нечем, а «открыл том → ничего не трогал → Сохранить доли»
+   * молча переписывал роспись (доли уходят на сервер как есть).
+   *
+   * Поле есть у всех стран с 2026-08-01 (`EconomyState.ts`); фолбэк — для
+   * состояния, где его почему-то нет. База фолбэка та же, что у движка:
+   * доход за вычетом импорта, а не полный доход.
+   */
+  const shares = economy.spendingShares;
+  if (shares) return names.map(([key, name]) => ({ key, name, share: shares[key] }));
+
+  const income =
+    economy.taxRevenue + economy.exportIncome + economy.stateEnterpriseIncome + economy.otherIncome;
+  const disposableIncome = Math.max(0, income - economy.importSpending);
+  if (disposableIncome <= 0) return [];
+
+  const spending: Record<SpendingShareKey, number> = {
+    military: economy.militarySpending,
+    research: economy.researchSpending,
+    education: economy.educationSpending,
+    infrastructure: economy.infrastructureSpending,
+    welfare: economy.welfareSpending,
+  };
+  return names.map(([key, name]) => ({ key, name, share: spending[key] / disposableIncome }));
 }
 
 function goalText(goal: Country["goals"][number]): string {
@@ -291,6 +349,13 @@ export interface ScreenModelInput {
   monthsNominative: string[];
   monthsGenitive: string[];
   ordersPerTurn: number;
+  /** Человеческое имя домена технологий по его идентификатору. */
+  domainName: (id: string) => string;
+  /**
+   * Развилка кампании приходит уже переведённой: её текст собирается из
+   * словаря интерфейса, а адаптер словаря не знает и знать не должен.
+   */
+  campaign: ScreenCampaign | null;
 }
 
 export function buildScreenModel({
@@ -302,6 +367,8 @@ export function buildScreenModel({
   monthsNominative,
   monthsGenitive,
   ordersPerTurn,
+  domainName,
+  campaign,
 }: ScreenModelInput): ScreenModel {
   const player = game.countries.find((c) => c.id === game.playerCountryId);
   const ranks = ranksByGdp(game.countries);
@@ -380,15 +447,26 @@ export function buildScreenModel({
     // связи в состоянии пока нет, и придумывать её интерфейс не будет.
     techSlots: [],
 
+    /*
+     * Тир считает общая утилита, а не интерфейс: порог тира — правило игры, и
+     * второе мнение о нём в клиенте разошлось бы с движком при первой правке.
+     */
     domains:
       player === undefined
         ? []
-        : Object.entries(player.technology.domains).map(([name, tier]) => ({
-            name,
-            tier: Math.floor(tier),
-            progress: tier - Math.floor(tier),
-            unlocks: "",
-          })),
+        : Object.entries(player.technology.domains)
+            .sort(([, a], [, b]) => b - a)
+            .map(([id, progress]) => {
+              const tier = getDomainTier(progress);
+              const step = progress / (tier + 1 || 1);
+              return {
+                name: domainName(id),
+                tier,
+                progress: Math.max(0, Math.min(1, step - Math.floor(step))),
+                unlocks: "",
+                focus: player.technology.researchAllocation?.[id],
+              };
+            }),
 
     // Проектов как сущности в состоянии нет.
     projects: [],
@@ -433,6 +511,7 @@ export function buildScreenModel({
       player === undefined
         ? null
         : { warheads: String(player.military.nuclearWarheads), note: "" },
+    campaign,
     ordersPerTurn,
     isIrreversible,
   };
