@@ -53,8 +53,13 @@ function run(event) {
 }
 
 const prompt = (text) => run({ hook_event_name: "UserPromptSubmit", prompt: text });
-const edit = (file) =>
-  run({ hook_event_name: "PreToolUse", tool_name: "Write", tool_input: { file_path: file } });
+const edit = (file, extra = {}) =>
+  run({
+    hook_event_name: "PreToolUse",
+    tool_name: "Write",
+    tool_input: { file_path: file },
+    ...extra,
+  });
 const bash = (command) =>
   run({ hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: { command } });
 
@@ -107,6 +112,11 @@ try {
     "файл вне репозитория пишется"
   );
   check(bash("npm test").code === 0, "проверки запускаются");
+
+  console.log("Раздача — исполнитель работает, оркестратор нет:");
+  const executor = { agent_id: "sub-42", agent_type: "general-purpose" };
+  check(edit(CODE_FILE, executor).code === 0, "субагент-исполнитель правит код");
+  check(edit(CODE_FILE).code === 2, "главный поток роли — по-прежнему нет");
 
   console.log("Якорь на каждом ходу:");
   const anchored = context(prompt("что дальше?"));

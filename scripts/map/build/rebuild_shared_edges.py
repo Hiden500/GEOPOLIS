@@ -64,6 +64,16 @@ True, невалидных рёбер ровно 0.000000°, площадь +0.1
 `out/seas_1946.geojson` + `out/lakes_1946.geojson`. НЕ пишет
 `out/world_1946.geojson` — он производный (`merge_world_1946.py`).
 
+РЕЖИМ ОДНОГО ФАЙЛА `--world PATH` (2026-08-08). Континентальных слоёв в
+рабочем дереве больше нет: с переходом на мастер (2026-07-30) пайплайн их не
+производит, а пересобрать нечем — 8 из 11 входов отсутствуют. При этом правка
+геометрии ПО МАСТЕРУ (единственный оставшийся способ) ровно так же требует
+пересборки общих рёбер: `build/apply_sea_zones.py` вставил швы 85 морских зон,
+их концы упёрлись в берег в точках, которых нет у сухопутных соседей, и
+`coverage_is_valid` лёг (96.59° невалидных рёбер, замер 2026-08-08).
+Алгоритм от источника не зависит — от слоёв зависела только загрузка, поэтому
+режим добавлен, а не написан заново.
+
 Идемпотентен: повторный прогон на уже сшитой карте даёт те же геометрии
 (мозаика уже совпадает с фичами) и `coverage_is_valid` остаётся True.
 """
@@ -110,11 +120,15 @@ def main():
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--check", action="store_true",
                     help="посчитать и проверить, ничего не записывать")
+    ap.add_argument("--world", metavar="PATH",
+                    help="работать по ОДНОМУ объединённому файлу (мастер или "
+                         "out/world_1946.geojson) вместо континентальных слоёв")
     args = ap.parse_args()
 
+    names = [args.world] if args.world else [out(n) for n in LAYERS]
     layers, entries, geoms = {}, [], []
-    for name in LAYERS:
-        with open(out(name), encoding="utf-8") as f:
+    for name in names:
+        with open(name, encoding="utf-8") as f:
             data = json.load(f)
         layers[name] = data
         for i, ft in enumerate(data["features"]):
@@ -211,9 +225,9 @@ def main():
         ft["geometry"] = mapping(g)
         ft["properties"]["area_km2"] = round(area_km2(g), 1)
         changed.add(name)
-    for name in LAYERS:
+    for name in names:
         if name in changed:
-            with open(out(name), "w", encoding="utf-8") as f:
+            with open(name, "w", encoding="utf-8") as f:
                 json.dump(layers[name], f, ensure_ascii=False)
     print(f"\n  Записано слоёв: {len(changed)}")
     return 0

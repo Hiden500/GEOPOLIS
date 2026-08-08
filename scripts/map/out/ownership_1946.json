@@ -2,26 +2,26 @@
   "AFR-0001": {
     "owner": "FRA"
   },
-  "AFR-0002": {
-    "owner": "FRA"
-  },
   "AFR-0003": {
     "owner": "SOM_GBR"
   },
-  "AFR-0004": {
+  "AFR-0002": {
     "owner": "COM"
   },
-  "AFR-0005": {
+  "AFR-0004": {
     "owner": "ESH"
   },
-  "AFR-0006": {
+  "AFR-0005": {
     "owner": "SHN"
   },
-  "AFR-0007": {
+  "AFR-0006": {
     "owner": "IOT"
   },
-  "AFR-0008": {
+  "AFR-0007": {
     "owner": "GMB"
+  },
+  "AFR-0008": {
+    "owner": "RWA"
   },
   "AFR-0009": {
     "owner": "RWA"
@@ -36,7 +36,7 @@
     "owner": "RWA"
   },
   "AFR-0013": {
-    "owner": "RWA"
+    "owner": "EGY"
   },
   "AFR-0014": {
     "owner": "EGY"
@@ -63,7 +63,9 @@
     "owner": "EGY"
   },
   "AFR-0022": {
-    "owner": "EGY"
+    "controller": "GBR",
+    "note": "Under British Military Administration",
+    "owner": "LBY"
   },
   "AFR-0023": {
     "controller": "GBR",
@@ -71,14 +73,12 @@
     "owner": "LBY"
   },
   "AFR-0024": {
-    "controller": "GBR",
-    "note": "Under British Military Administration",
-    "owner": "LBY"
-  },
-  "AFR-0025": {
     "controller": "FRA",
     "note": "Under French Military Administration",
     "owner": "LBY"
+  },
+  "AFR-0025": {
+    "owner": "DZA"
   },
   "AFR-0026": {
     "owner": "DZA"
@@ -93,7 +93,7 @@
     "owner": "DZA"
   },
   "AFR-0030": {
-    "owner": "DZA"
+    "owner": "BFA"
   },
   "AFR-0031": {
     "owner": "BFA"
@@ -132,7 +132,7 @@
     "owner": "BFA"
   },
   "AFR-0043": {
-    "owner": "BFA"
+    "owner": "GIN"
   },
   "AFR-0044": {
     "owner": "GIN"
@@ -156,7 +156,7 @@
     "owner": "GIN"
   },
   "AFR-0051": {
-    "owner": "GIN"
+    "owner": "GNB"
   },
   "AFR-0052": {
     "owner": "GNB"
@@ -168,7 +168,7 @@
     "owner": "GNB"
   },
   "AFR-0055": {
-    "owner": "GNB"
+    "owner": "MWI"
   },
   "AFR-0056": {
     "owner": "MWI"
@@ -186,7 +186,7 @@
     "owner": "MWI"
   },
   "AFR-0061": {
-    "owner": "MWI"
+    "owner": "SDN"
   },
   "AFR-0062": {
     "owner": "SDN"
@@ -213,7 +213,7 @@
     "owner": "SDN"
   },
   "AFR-0070": {
-    "owner": "SDN"
+    "owner": "UGA"
   },
   "AFR-0071": {
     "owner": "UGA"
@@ -225,7 +225,7 @@
     "owner": "UGA"
   },
   "AFR-0074": {
-    "owner": "UGA"
+    "owner": "NGA"
   },
   "AFR-0075": {
     "owner": "NGA"
@@ -234,7 +234,7 @@
     "owner": "NGA"
   },
   "AFR-0077": {
-    "owner": "NGA"
+    "owner": "ZAF"
   },
   "AFR-0078": {
     "owner": "ZAF"
@@ -246,7 +246,7 @@
     "owner": "ZAF"
   },
   "AFR-0081": {
-    "owner": "ZAF"
+    "owner": "ETH"
   },
   "AFR-0082": {
     "owner": "ETH"
@@ -261,7 +261,7 @@
     "owner": "ETH"
   },
   "AFR-0086": {
-    "owner": "ETH"
+    "owner": "MDG"
   },
   "AFR-0087": {
     "owner": "MDG"
@@ -275,9 +275,6 @@
   "AFR-0090": {
     "owner": "MDG"
   },
-  "AFR-0091": {
-    "owner": "MDG"
-  },
   "AFR-0092": {
     "owner": "TZA"
   },
@@ -288,10 +285,10 @@
     "owner": "TZA"
   },
   "AFR-0095": {
-    "owner": "TZA"
+    "owner": "MAR"
   },
   "AFR-0096": {
-    "owner": "TZA"
+    "owner": "MAR"
   },
   "AFR-0097": {
     "owner": "MAR"
@@ -300,10 +297,10 @@
     "owner": "MAR"
   },
   "AFR-0099": {
-    "owner": "MAR"
+    "owner": "AGO"
   },
   "AFR-0100": {
-    "owner": "MAR"
+    "owner": "AGO"
   },
   "AFR-0101": {
     "owner": "AGO"
@@ -315,10 +312,10 @@
     "owner": "AGO"
   },
   "AFR-0104": {
-    "owner": "AGO"
+    "owner": "MOZ"
   },
   "AFR-0105": {
-    "owner": "AGO"
+    "owner": "MOZ"
   },
   "AFR-0106": {
     "owner": "MOZ"
@@ -330,10 +327,10 @@
     "owner": "MOZ"
   },
   "AFR-0109": {
-    "owner": "MOZ"
+    "owner": "COD"
   },
   "AFR-0110": {
-    "owner": "MOZ"
+    "owner": "COD"
   },
   "AFR-0111": {
     "owner": "COD"
@@ -348,10 +345,14 @@
     "owner": "COD"
   },
   "AFR-0115": {
-    "owner": "COD"
+    "controller": "GBR",
+    "note": "Italian Somaliland under British Military Administration",
+    "owner": "SOM"
   },
   "AFR-0116": {
-    "owner": "COD"
+    "controller": "GBR",
+    "note": "Italian Somaliland under British Military Administration",
+    "owner": "SOM"
   },
   "AFR-0117": {
     "controller": "GBR",
@@ -364,14 +365,10 @@
     "owner": "SOM"
   },
   "AFR-0119": {
-    "controller": "GBR",
-    "note": "Italian Somaliland under British Military Administration",
-    "owner": "SOM"
+    "owner": "KEN"
   },
   "AFR-0120": {
-    "controller": "GBR",
-    "note": "Italian Somaliland under British Military Administration",
-    "owner": "SOM"
+    "owner": "KEN"
   },
   "AFR-0121": {
     "owner": "KEN"
@@ -380,10 +377,10 @@
     "owner": "KEN"
   },
   "AFR-0123": {
-    "owner": "KEN"
+    "owner": "TUN"
   },
   "AFR-0124": {
-    "owner": "KEN"
+    "owner": "TUN"
   },
   "AFR-0125": {
     "owner": "TUN"
@@ -392,19 +389,19 @@
     "owner": "TUN"
   },
   "AFR-0127": {
-    "owner": "TUN"
+    "owner": "GHA"
   },
   "AFR-0128": {
-    "owner": "TUN"
+    "owner": "GHA"
   },
   "AFR-0129": {
     "owner": "GHA"
   },
   "AFR-0130": {
-    "owner": "GHA"
+    "owner": "CMR"
   },
   "AFR-0131": {
-    "owner": "GHA"
+    "owner": "CMR"
   },
   "AFR-0132": {
     "owner": "CMR"
@@ -413,10 +410,10 @@
     "owner": "CMR"
   },
   "AFR-0134": {
-    "owner": "CMR"
+    "owner": "CIV"
   },
   "AFR-0135": {
-    "owner": "CMR"
+    "owner": "CIV"
   },
   "AFR-0136": {
     "owner": "CIV"
@@ -425,10 +422,10 @@
     "owner": "CIV"
   },
   "AFR-0138": {
-    "owner": "CIV"
+    "owner": "MLI"
   },
   "AFR-0139": {
-    "owner": "CIV"
+    "owner": "MLI"
   },
   "AFR-0140": {
     "owner": "MLI"
@@ -437,19 +434,19 @@
     "owner": "MLI"
   },
   "AFR-0142": {
-    "owner": "MLI"
+    "owner": "NER"
   },
   "AFR-0143": {
-    "owner": "MLI"
+    "owner": "NER"
   },
   "AFR-0144": {
     "owner": "NER"
   },
   "AFR-0145": {
-    "owner": "NER"
+    "owner": "TCD"
   },
   "AFR-0146": {
-    "owner": "NER"
+    "owner": "TCD"
   },
   "AFR-0147": {
     "owner": "TCD"
@@ -458,10 +455,10 @@
     "owner": "TCD"
   },
   "AFR-0149": {
-    "owner": "TCD"
+    "owner": "ZMB"
   },
   "AFR-0150": {
-    "owner": "TCD"
+    "owner": "ZMB"
   },
   "AFR-0151": {
     "owner": "ZMB"
@@ -470,175 +467,127 @@
     "owner": "ZMB"
   },
   "AFR-0153": {
-    "owner": "ZMB"
+    "owner": "ZWE"
   },
   "AFR-0154": {
-    "owner": "ZMB"
+    "owner": "ZWE"
   },
   "AFR-0155": {
     "owner": "ZWE"
   },
   "AFR-0156": {
-    "owner": "ZWE"
+    "owner": "SEN"
   },
   "AFR-0157": {
-    "owner": "ZWE"
+    "owner": "SEN"
   },
   "AFR-0158": {
     "owner": "SEN"
   },
   "AFR-0159": {
-    "owner": "SEN"
+    "owner": "NAM"
   },
   "AFR-0160": {
-    "owner": "SEN"
+    "owner": "NAM"
   },
   "AFR-0161": {
     "owner": "NAM"
   },
-  "AFR-0162": {
-    "owner": "NAM"
-  },
   "AFR-0163": {
-    "owner": "NAM"
-  },
-  "AFR-0164": {
-    "owner": "CPV"
+    "owner": "SYC"
   },
   "AFR-0165": {
-    "owner": "CPV"
-  },
-  "AFR-0166": {
-    "owner": "CPV"
-  },
-  "AFR-0167": {
-    "owner": "CPV"
-  },
-  "AFR-0168": {
-    "owner": "CPV"
-  },
-  "AFR-0169": {
-    "owner": "CPV"
-  },
-  "AFR-0170": {
-    "owner": "CPV"
-  },
-  "AFR-0171": {
-    "owner": "CPV"
-  },
-  "AFR-0172": {
-    "owner": "CPV"
-  },
-  "AFR-0173": {
-    "owner": "SYC"
-  },
-  "AFR-0174": {
-    "owner": "SYC"
-  },
-  "AFR-0175": {
-    "owner": "SYC"
-  },
-  "AFR-0176": {
-    "owner": "SYC"
-  },
-  "AFR-0177": {
     "owner": "DJI"
   },
-  "AFR-0178": {
+  "AFR-0166": {
     "controller": "GBR",
     "note": "Eritrea under British Military Administration",
     "owner": "ERI"
   },
-  "AFR-0179": {
+  "AFR-0167": {
     "controller": "GBR",
     "note": "Eritrea under British Military Administration",
     "owner": "ERI"
   },
-  "AFR-0180": {
+  "AFR-0168": {
     "owner": "GAB"
   },
-  "AFR-0181": {
+  "AFR-0169": {
     "owner": "GAB"
   },
-  "AFR-0182": {
+  "AFR-0170": {
     "owner": "GNQ"
   },
-  "AFR-0183": {
+  "AFR-0171": {
     "owner": "GNQ"
   },
-  "AFR-0184": {
+  "AFR-0172": {
     "owner": "GNQ"
   },
-  "AFR-0185": {
+  "AFR-0173": {
     "owner": "LBR"
   },
-  "AFR-0186": {
+  "AFR-0174": {
     "owner": "LBR"
   },
-  "AFR-0187": {
+  "AFR-0175": {
     "owner": "LSO"
   },
-  "AFR-0188": {
+  "AFR-0176": {
     "owner": "MRT"
   },
-  "AFR-0189": {
+  "AFR-0177": {
     "owner": "MRT"
   },
-  "AFR-0190": {
+  "AFR-0178": {
     "owner": "MUS"
   },
-  "AFR-0191": {
+  "AFR-0179": {
     "owner": "MUS"
   },
-  "AFR-0192": {
+  "AFR-0180": {
     "owner": "MUS"
   },
-  "AFR-0193": {
+  "AFR-0181": {
     "owner": "SLE"
   },
-  "AFR-0194": {
-    "owner": "STP"
-  },
-  "AFR-0195": {
-    "owner": "STP"
-  },
-  "AFR-0196": {
+  "AFR-0183": {
     "owner": "SWZ"
   },
-  "AFR-0197": {
+  "AFR-0184": {
     "owner": "TGO"
   },
-  "AFR-0198": {
+  "AFR-0185": {
     "owner": "BEN"
   },
-  "AFR-0199": {
+  "AFR-0186": {
     "owner": "BEN"
   },
-  "AFR-0200": {
+  "AFR-0187": {
     "owner": "BWA"
   },
-  "AFR-0201": {
+  "AFR-0188": {
     "owner": "BWA"
   },
-  "AFR-0202": {
+  "AFR-0189": {
     "owner": "CAF"
   },
-  "AFR-0203": {
+  "AFR-0190": {
     "owner": "CAF"
   },
-  "AFR-0204": {
+  "AFR-0191": {
     "owner": "COG"
   },
-  "AFR-0205": {
+  "AFR-0192": {
     "owner": "COG"
   },
-  "AFR-0206": {
+  "AFR-0193": {
     "owner": "BDI"
   },
-  "AFR-0207": {
+  "AFR-0194": {
     "owner": "BDI"
   },
-  "AFR-0208": {
+  "AFR-0195": {
     "owner": "BDI"
   },
   "ANT-0001": {
@@ -984,9 +933,6 @@
   "ASI-0102": {
     "owner": "IDN"
   },
-  "ASI-0103": {
-    "owner": "IDN"
-  },
   "ASI-0104": {
     "owner": "IDN"
   },
@@ -1040,9 +986,6 @@
   },
   "ASI-0121": {
     "owner": "IDN"
-  },
-  "ASI-0122": {
-    "owner": "IND"
   },
   "ASI-0123": {
     "owner": "IND"
@@ -1150,7 +1093,7 @@
     "owner": "IND"
   },
   "ASI-0158": {
-    "owner": "IRQ"
+    "owner": "IND"
   },
   "ASI-0159": {
     "owner": "IRQ"
@@ -1180,7 +1123,7 @@
     "owner": "IRQ"
   },
   "ASI-0168": {
-    "owner": "IRN"
+    "owner": "IRQ"
   },
   "ASI-0169": {
     "owner": "IRN"
@@ -1210,7 +1153,7 @@
     "owner": "IRN"
   },
   "ASI-0178": {
-    "owner": "JOR"
+    "owner": "IRN"
   },
   "ASI-0179": {
     "owner": "JOR"
@@ -1246,7 +1189,7 @@
     "owner": "JOR"
   },
   "ASI-0190": {
-    "owner": "JPN"
+    "owner": "JOR"
   },
   "ASI-0191": {
     "owner": "JPN"
@@ -1273,9 +1216,6 @@
     "owner": "JPN"
   },
   "ASI-0199": {
-    "owner": "JPN"
-  },
-  "ASI-0200": {
     "owner": "JPN"
   },
   "ASI-0201": {
@@ -1592,146 +1532,59 @@
   "ASI-0287": {
     "owner": "OMN"
   },
-  "ASI-0288": {
-    "owner": "PHL"
-  },
-  "ASI-0289": {
-    "owner": "PHL"
-  },
-  "ASI-0290": {
-    "owner": "PHL"
-  },
-  "ASI-0291": {
-    "owner": "PHL"
-  },
-  "ASI-0292": {
-    "owner": "PHL"
-  },
-  "ASI-0293": {
-    "owner": "PHL"
-  },
-  "ASI-0294": {
-    "owner": "PHL"
-  },
-  "ASI-0295": {
-    "owner": "PHL"
-  },
-  "ASI-0296": {
-    "owner": "PHL"
-  },
-  "ASI-0297": {
-    "owner": "PHL"
-  },
-  "ASI-0298": {
-    "owner": "PHL"
-  },
-  "ASI-0299": {
-    "owner": "PHL"
-  },
-  "ASI-0300": {
-    "owner": "PHL"
-  },
-  "ASI-0301": {
-    "owner": "PHL"
-  },
-  "ASI-0302": {
-    "owner": "PHL"
-  },
-  "ASI-0303": {
-    "owner": "PHL"
-  },
-  "ASI-0304": {
-    "owner": "PHL"
-  },
-  "ASI-0305": {
-    "owner": "IND"
-  },
-  "ASI-0306": {
-    "owner": "IND"
-  },
-  "ASI-0307": {
-    "owner": "IND"
-  },
-  "ASI-0308": {
-    "owner": "IND"
-  },
-  "ASI-0309": {
-    "owner": "IND"
-  },
-  "ASI-0310": {
-    "owner": "IND"
-  },
-  "ASI-0311": {
-    "owner": "IND"
-  },
-  "ASI-0312": {
-    "owner": "IND"
-  },
-  "ASI-0313": {
-    "owner": "QAT"
-  },
-  "ASI-0314": {
-    "owner": "SAU"
-  },
-  "ASI-0315": {
-    "owner": "SAU"
-  },
-  "ASI-0316": {
-    "owner": "SAU"
-  },
   "ASI-0317": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0318": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0319": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0320": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0321": {
-    "owner": "SAU"
+    "owner": "IND"
   },
   "ASI-0322": {
-    "owner": "SGP"
+    "owner": "IND"
   },
   "ASI-0323": {
-    "owner": "SYR"
+    "owner": "IND"
   },
   "ASI-0324": {
-    "owner": "SYR"
+    "owner": "IND"
   },
   "ASI-0325": {
-    "owner": "SYR"
+    "owner": "QAT"
   },
   "ASI-0326": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0327": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0328": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0329": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0330": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0331": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0332": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0333": {
-    "owner": "SYR"
+    "owner": "SAU"
   },
   "ASI-0334": {
-    "owner": "SYR"
+    "owner": "SGP"
   },
   "ASI-0335": {
     "owner": "SYR"
@@ -1746,160 +1599,160 @@
     "owner": "SYR"
   },
   "ASI-0339": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0340": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0341": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0342": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0343": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0344": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0345": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0346": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0347": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0348": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0349": {
-    "owner": "THA"
+    "owner": "SYR"
   },
   "ASI-0350": {
-    "owner": "SUN"
+    "owner": "SYR"
   },
   "ASI-0351": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0352": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0353": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0354": {
-    "owner": "TLS"
+    "owner": "THA"
   },
   "ASI-0355": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0356": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0357": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0358": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0359": {
-    "owner": "SUN"
+    "owner": "THA"
   },
   "ASI-0360": {
-    "owner": "TUR"
+    "owner": "THA"
   },
   "ASI-0361": {
-    "owner": "TUR"
+    "owner": "THA"
   },
   "ASI-0362": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0363": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0364": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0365": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0366": {
-    "owner": "TUR"
+    "owner": "TLS"
   },
   "ASI-0367": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0368": {
-    "owner": "TUR"
+    "owner": "SUN"
   },
   "ASI-0369": {
-    "owner": "CHN"
+    "owner": "SUN"
   },
   "ASI-0370": {
-    "owner": "CHN"
+    "owner": "SUN"
   },
   "ASI-0371": {
-    "owner": "CHN"
+    "owner": "SUN"
   },
   "ASI-0372": {
-    "owner": "CHN"
+    "owner": "TUR"
   },
   "ASI-0373": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0374": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0375": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0376": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0377": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0378": {
-    "owner": "SUN"
+    "owner": "TUR"
   },
   "ASI-0379": {
-    "owner": "VNM"
+    "owner": "TUR"
   },
   "ASI-0380": {
-    "owner": "VNM"
+    "owner": "TUR"
   },
   "ASI-0381": {
-    "owner": "VNM"
+    "owner": "CHN"
   },
   "ASI-0382": {
-    "owner": "VNM"
+    "owner": "CHN"
   },
   "ASI-0383": {
-    "owner": "VNM"
+    "owner": "CHN"
   },
   "ASI-0384": {
-    "owner": "VNM"
+    "owner": "CHN"
   },
   "ASI-0385": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0386": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0387": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0388": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0389": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0390": {
-    "owner": "VNM"
+    "owner": "SUN"
   },
   "ASI-0391": {
     "owner": "VNM"
@@ -1971,96 +1824,72 @@
     "owner": "VNM"
   },
   "ASI-0414": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0415": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0416": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0417": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0418": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0419": {
-    "owner": "YEM"
+    "owner": "VNM"
   },
   "ASI-0420": {
-    "owner": "JPN"
+    "owner": "VNM"
   },
   "ASI-0421": {
-    "owner": "JPN"
+    "owner": "VNM"
   },
   "ASI-0422": {
-    "owner": "JPN"
+    "owner": "VNM"
   },
   "ASI-0423": {
-    "owner": "JPN"
+    "owner": "VNM"
   },
   "ASI-0424": {
-    "owner": "JPN"
+    "owner": "VNM"
   },
   "ASI-0425": {
-    "owner": "JPN"
+    "owner": "VNM"
   },
   "ASI-0426": {
-    "owner": "PHL"
+    "owner": "YEM"
   },
   "ASI-0427": {
-    "owner": "PHL"
+    "owner": "YEM"
   },
   "ASI-0428": {
-    "owner": "PHL"
+    "owner": "YEM"
   },
   "ASI-0429": {
-    "owner": "PHL"
+    "owner": "YEM"
   },
   "ASI-0430": {
-    "owner": "PHL"
+    "owner": "YEM"
   },
   "ASI-0431": {
+    "owner": "YEM"
+  },
+  "ASI-0312": {
     "owner": "PHL"
   },
-  "ASI-0432": {
+  "ASI-0307": {
     "owner": "PHL"
   },
-  "ASI-0433": {
+  "ASI-0302": {
     "owner": "PHL"
   },
-  "ASI-0434": {
+  "ASI-0298": {
     "owner": "PHL"
   },
-  "ASI-0435": {
-    "owner": "PHL"
-  },
-  "ASI-0436": {
-    "owner": "PHL"
-  },
-  "ASI-0437": {
-    "owner": "PHL"
-  },
-  "ASI-0438": {
-    "owner": "PHL"
-  },
-  "ASI-0439": {
-    "owner": "PHL"
-  },
-  "ASI-0440": {
-    "owner": "PHL"
-  },
-  "ASI-0441": {
-    "owner": "PHL"
-  },
-  "ASI-0442": {
-    "owner": "PHL"
-  },
-  "ASI-0443": {
-    "owner": "PHL"
-  },
-  "ASI-0444": {
+  "ASI-0300": {
     "owner": "PHL"
   },
   "EUR-0001": {
@@ -2151,7 +1980,7 @@
     "owner": "SUN"
   },
   "EUR-0030": {
-    "owner": "SUN"
+    "owner": "CHE"
   },
   "EUR-0031": {
     "owner": "CHE"
@@ -2175,7 +2004,7 @@
     "owner": "CHE"
   },
   "EUR-0038": {
-    "owner": "CHE"
+    "owner": "CYP"
   },
   "EUR-0039": {
     "owner": "CYP"
@@ -2190,7 +2019,7 @@
     "owner": "CYP"
   },
   "EUR-0043": {
-    "owner": "CYP"
+    "owner": "CSK"
   },
   "EUR-0044": {
     "owner": "CSK"
@@ -2205,14 +2034,15 @@
     "owner": "CSK"
   },
   "EUR-0048": {
-    "owner": "CSK"
-  },
-  "EUR-0049": {
     "controller": "SUN",
     "owner": "DEU"
   },
-  "EUR-0050": {
+  "EUR-0049": {
     "controller": "USA",
+    "owner": "DEU"
+  },
+  "EUR-0050": {
+    "controller": "FRA",
     "owner": "DEU"
   },
   "EUR-0051": {
@@ -2220,7 +2050,7 @@
     "owner": "DEU"
   },
   "EUR-0052": {
-    "controller": "FRA",
+    "controller": "GBR",
     "owner": "DEU"
   },
   "EUR-0053": {
@@ -2232,7 +2062,7 @@
     "owner": "DEU"
   },
   "EUR-0055": {
-    "controller": "GBR",
+    "controller": "SUN",
     "owner": "DEU"
   },
   "EUR-0056": {
@@ -2240,19 +2070,19 @@
     "owner": "DEU"
   },
   "EUR-0057": {
-    "controller": "SUN",
+    "controller": "USA",
     "owner": "DEU"
   },
   "EUR-0058": {
-    "controller": "USA",
-    "owner": "DEU"
-  },
-  "EUR-0059": {
     "controller": "GBR",
     "owner": "DEU"
   },
-  "EUR-0060": {
+  "EUR-0059": {
     "controller": "USA",
+    "owner": "DEU"
+  },
+  "EUR-0060": {
+    "controller": "SUN",
     "owner": "DEU"
   },
   "EUR-0061": {
@@ -2260,8 +2090,7 @@
     "owner": "DEU"
   },
   "EUR-0062": {
-    "controller": "SUN",
-    "owner": "DEU"
+    "owner": "DNK"
   },
   "EUR-0063": {
     "owner": "DNK"
@@ -2276,7 +2105,7 @@
     "owner": "DNK"
   },
   "EUR-0067": {
-    "owner": "DNK"
+    "owner": "SUN"
   },
   "EUR-0068": {
     "owner": "SUN"
@@ -2285,7 +2114,7 @@
     "owner": "SUN"
   },
   "EUR-0070": {
-    "owner": "SUN"
+    "owner": "ESP"
   },
   "EUR-0071": {
     "owner": "ESP"
@@ -2342,7 +2171,7 @@
     "owner": "ESP"
   },
   "EUR-0089": {
-    "owner": "ESP"
+    "owner": "FIN"
   },
   "EUR-0090": {
     "owner": "FIN"
@@ -2360,10 +2189,10 @@
     "owner": "FIN"
   },
   "EUR-0095": {
-    "owner": "FIN"
+    "owner": "DNK"
   },
   "EUR-0096": {
-    "owner": "DNK"
+    "owner": "FRA"
   },
   "EUR-0097": {
     "owner": "FRA"
@@ -2402,7 +2231,7 @@
     "owner": "FRA"
   },
   "EUR-0109": {
-    "owner": "FRA"
+    "owner": "GBR"
   },
   "EUR-0110": {
     "owner": "GBR"
@@ -2449,14 +2278,11 @@
   "EUR-0124": {
     "owner": "GBR"
   },
-  "EUR-0125": {
-    "owner": "GBR"
-  },
   "EUR-0126": {
-    "owner": "GBR"
+    "owner": "GIB"
   },
   "EUR-0127": {
-    "owner": "GIB"
+    "owner": "GRC"
   },
   "EUR-0128": {
     "owner": "GRC"
@@ -2498,7 +2324,7 @@
     "owner": "GRC"
   },
   "EUR-0141": {
-    "owner": "GRC"
+    "owner": "YUG"
   },
   "EUR-0142": {
     "owner": "YUG"
@@ -2510,7 +2336,7 @@
     "owner": "YUG"
   },
   "EUR-0145": {
-    "owner": "YUG"
+    "owner": "HUN"
   },
   "EUR-0146": {
     "owner": "HUN"
@@ -2531,7 +2357,7 @@
     "owner": "HUN"
   },
   "EUR-0152": {
-    "owner": "HUN"
+    "owner": "IRL"
   },
   "EUR-0153": {
     "owner": "IRL"
@@ -2555,13 +2381,13 @@
     "owner": "IRL"
   },
   "EUR-0160": {
-    "owner": "IRL"
-  },
-  "EUR-0161": {
     "owner": "GBR"
   },
-  "EUR-0162": {
+  "EUR-0161": {
     "owner": "ISL"
+  },
+  "EUR-0162": {
+    "owner": "ITA"
   },
   "EUR-0163": {
     "owner": "ITA"
@@ -2621,25 +2447,25 @@
     "owner": "ITA"
   },
   "EUR-0182": {
-    "owner": "ITA"
+    "owner": "LIE"
   },
   "EUR-0183": {
-    "owner": "GBR"
+    "owner": "SUN"
   },
   "EUR-0184": {
-    "owner": "LIE"
+    "owner": "SUN"
   },
   "EUR-0185": {
     "owner": "SUN"
   },
   "EUR-0186": {
-    "owner": "SUN"
+    "owner": "LUX"
   },
   "EUR-0187": {
     "owner": "SUN"
   },
   "EUR-0188": {
-    "owner": "LUX"
+    "owner": "SUN"
   },
   "EUR-0189": {
     "owner": "SUN"
@@ -2651,25 +2477,25 @@
     "owner": "SUN"
   },
   "EUR-0192": {
-    "owner": "SUN"
+    "owner": "MCO"
   },
   "EUR-0193": {
     "owner": "SUN"
   },
   "EUR-0194": {
-    "owner": "MCO"
+    "owner": "YUG"
   },
   "EUR-0195": {
-    "owner": "SUN"
+    "owner": "YUG"
   },
   "EUR-0196": {
-    "owner": "YUG"
+    "owner": "MLT"
   },
   "EUR-0197": {
-    "owner": "YUG"
+    "owner": "NLD"
   },
   "EUR-0198": {
-    "owner": "MLT"
+    "owner": "NLD"
   },
   "EUR-0199": {
     "owner": "NLD"
@@ -2681,10 +2507,10 @@
     "owner": "NLD"
   },
   "EUR-0202": {
-    "owner": "NLD"
+    "owner": "NOR"
   },
   "EUR-0203": {
-    "owner": "NLD"
+    "owner": "NOR"
   },
   "EUR-0204": {
     "owner": "NOR"
@@ -2699,10 +2525,10 @@
     "owner": "NOR"
   },
   "EUR-0208": {
-    "owner": "NOR"
+    "owner": "POL"
   },
   "EUR-0209": {
-    "owner": "NOR"
+    "owner": "POL"
   },
   "EUR-0210": {
     "owner": "POL"
@@ -2726,10 +2552,10 @@
     "owner": "POL"
   },
   "EUR-0217": {
-    "owner": "POL"
+    "owner": "PRT"
   },
   "EUR-0218": {
-    "owner": "POL"
+    "owner": "PRT"
   },
   "EUR-0219": {
     "owner": "PRT"
@@ -2750,10 +2576,10 @@
     "owner": "PRT"
   },
   "EUR-0225": {
-    "owner": "PRT"
+    "owner": "ROU"
   },
   "EUR-0226": {
-    "owner": "PRT"
+    "owner": "ROU"
   },
   "EUR-0227": {
     "owner": "ROU"
@@ -2768,10 +2594,10 @@
     "owner": "ROU"
   },
   "EUR-0231": {
-    "owner": "ROU"
+    "owner": "YUG"
   },
   "EUR-0232": {
-    "owner": "ROU"
+    "owner": "YUG"
   },
   "EUR-0233": {
     "owner": "YUG"
@@ -2789,10 +2615,10 @@
     "owner": "YUG"
   },
   "EUR-0238": {
-    "owner": "YUG"
+    "owner": "SUN"
   },
   "EUR-0239": {
-    "owner": "YUG"
+    "owner": "SUN"
   },
   "EUR-0240": {
     "owner": "SUN"
@@ -2968,12 +2794,6 @@
   "EUR-0297": {
     "owner": "SUN"
   },
-  "EUR-0298": {
-    "owner": "SUN"
-  },
-  "EUR-0299": {
-    "owner": "SUN"
-  },
   "EUR-0300": {
     "owner": "SUN"
   },
@@ -3041,10 +2861,10 @@
     "owner": "SUN"
   },
   "EUR-0322": {
-    "owner": "SUN"
+    "owner": "SWE"
   },
   "EUR-0323": {
-    "owner": "SUN"
+    "owner": "SWE"
   },
   "EUR-0324": {
     "owner": "SWE"
@@ -3062,13 +2882,13 @@
     "owner": "SWE"
   },
   "EUR-0329": {
-    "owner": "SWE"
+    "owner": "YUG"
   },
   "EUR-0330": {
-    "owner": "SWE"
+    "owner": "CSK"
   },
   "EUR-0331": {
-    "owner": "YUG"
+    "owner": "CSK"
   },
   "EUR-0332": {
     "owner": "CSK"
@@ -3089,13 +2909,13 @@
     "owner": "CSK"
   },
   "EUR-0338": {
-    "owner": "CSK"
+    "owner": "SMR"
   },
   "EUR-0339": {
-    "owner": "CSK"
+    "owner": "SUN"
   },
   "EUR-0340": {
-    "owner": "SMR"
+    "owner": "SUN"
   },
   "EUR-0341": {
     "owner": "SUN"
@@ -3164,50 +2984,37 @@
     "owner": "SUN"
   },
   "EUR-0363": {
-    "owner": "SUN"
-  },
-  "EUR-0364": {
-    "owner": "SUN"
-  },
-  "EUR-0365": {
-    "owner": "SUN"
-  },
-  "EUR-0366": {
     "owner": "VAT"
   },
-  "EUR-0367": {
+  "EUR-0364": {
     "owner": "YUG"
   },
-  "EUR-0368": {
+  "EUR-0365": {
+    "owner": "CYP"
+  },
+  "EUR-0366": {
+    "owner": "CYP"
+  },
+  "EUR-0367": {
     "owner": "CYP"
   },
   "EUR-0369": {
-    "owner": "CYP"
-  },
-  "EUR-0370": {
-    "owner": "CYP"
-  },
-  "EUR-0372": {
-    "controller": "SUN",
-    "owner": "DEU"
-  },
-  "EUR-0373": {
     "controller": "USA",
     "owner": "DEU"
   },
-  "EUR-0374": {
+  "EUR-0370": {
     "controller": "GBR",
     "owner": "DEU"
   },
-  "EUR-0375": {
+  "EUR-0371": {
     "controller": "FRA",
     "owner": "DEU"
   },
-  "EUR-0376": {
+  "EUR-0372": {
     "controller": "USA",
     "owner": "DEU"
   },
-  "EUR-0377": {
+  "EUR-0373": {
     "controller": "FRA",
     "owner": "DEU"
   },
@@ -3385,9 +3192,6 @@
   "OCE-0045": {
     "owner": "PNG"
   },
-  "OCE-0046": {
-    "owner": "PNG"
-  },
   "OCE-0047": {
     "owner": "PNG"
   },
@@ -3409,55 +3213,25 @@
   "OCE-0053": {
     "owner": "PNG"
   },
-  "OCE-0054": {
-    "owner": "PNG"
-  },
   "OCE-0055": {
     "owner": "SLB"
   },
   "OCE-0056": {
-    "owner": "SLB"
-  },
-  "OCE-0057": {
-    "owner": "SLB"
-  },
-  "OCE-0058": {
-    "owner": "SLB"
-  },
-  "OCE-0059": {
-    "owner": "SLB"
-  },
-  "OCE-0060": {
-    "owner": "SLB"
-  },
-  "OCE-0061": {
-    "owner": "SLB"
-  },
-  "OCE-0062": {
-    "owner": "SLB"
-  },
-  "OCE-0063": {
-    "owner": "SLB"
-  },
-  "OCE-0064": {
-    "owner": "SLB"
-  },
-  "OCE-0065": {
     "owner": "VUT"
   },
-  "OCE-0066": {
+  "OCE-0057": {
     "owner": "WSM"
   },
-  "OCE-0067": {
+  "OCE-0058": {
     "owner": "PLW"
   },
-  "OCE-0068": {
+  "OCE-0059": {
     "owner": "FJI"
   },
-  "OCE-0069": {
+  "OCE-0060": {
     "owner": "FSM"
   },
-  "OCE-0070": {
+  "OCE-0061": {
     "owner": "FSM"
   },
   "SAM-0001": {
@@ -3619,9 +3393,6 @@
   "SAM-0053": {
     "owner": "VEN"
   },
-  "SAM-0054": {
-    "owner": "VEN"
-  },
   "SAM-0055": {
     "owner": "VEN"
   },
@@ -3632,7 +3403,7 @@
     "owner": "VEN"
   },
   "SAM-0058": {
-    "owner": "VEN"
+    "owner": "CHL"
   },
   "SAM-0059": {
     "owner": "CHL"
@@ -3650,7 +3421,7 @@
     "owner": "CHL"
   },
   "SAM-0064": {
-    "owner": "CHL"
+    "owner": "BOL"
   },
   "SAM-0065": {
     "owner": "BOL"
@@ -3662,7 +3433,7 @@
     "owner": "BOL"
   },
   "SAM-0068": {
-    "owner": "BOL"
+    "owner": "ECU"
   },
   "SAM-0069": {
     "owner": "ECU"
@@ -3674,24 +3445,21 @@
     "owner": "ECU"
   },
   "SAM-0072": {
-    "owner": "ECU"
+    "owner": "GUY"
   },
   "SAM-0073": {
     "owner": "GUY"
   },
   "SAM-0074": {
-    "owner": "GUY"
+    "owner": "SUR"
   },
   "SAM-0075": {
     "owner": "SUR"
   },
   "SAM-0076": {
-    "owner": "SUR"
-  },
-  "SAM-0077": {
     "owner": "PRY"
   },
-  "SAM-0078": {
+  "SAM-0077": {
     "owner": "URY"
   },
   "SEA-0001": {
@@ -3979,58 +3747,10 @@
   "SEA-0095": {
     "owner": null
   },
-  "SEA-0096": {
+  "SEA-0181": {
     "owner": null
   },
-  "SEA-0097": {
-    "owner": null
-  },
-  "SEA-0098": {
-    "owner": null
-  },
-  "SEA-0099": {
-    "owner": null
-  },
-  "SEA-0100": {
-    "owner": null
-  },
-  "SEA-0101": {
-    "owner": null
-  },
-  "SEA-0102": {
-    "owner": null
-  },
-  "SEA-0103": {
-    "owner": null
-  },
-  "SEA-0104": {
-    "owner": null
-  },
-  "SEA-0105": {
-    "owner": null
-  },
-  "SEA-0106": {
-    "owner": null
-  },
-  "SEA-0107": {
-    "owner": null
-  },
-  "SEA-0108": {
-    "owner": null
-  },
-  "SEA-0109": {
-    "owner": null
-  },
-  "SEA-0110": {
-    "owner": null
-  },
-  "SEA-0111": {
-    "owner": null
-  },
-  "SEA-0112": {
-    "owner": null
-  },
-  "SEA-0113": {
+  "SEA-0182": {
     "owner": null
   },
   "NAM-0001": {
@@ -4039,23 +3759,17 @@
   "NAM-0002": {
     "owner": "FRA"
   },
-  "NAM-0003": {
-    "owner": "NLD"
-  },
-  "NAM-0004": {
-    "owner": "NLD"
-  },
   "NAM-0005": {
-    "owner": "NLD"
-  },
-  "NAM-0006": {
     "owner": "USA"
   },
-  "NAM-0007": {
+  "NAM-0006": {
     "owner": "FRA"
   },
-  "NAM-0008": {
+  "NAM-0007": {
     "owner": "NFD"
+  },
+  "NAM-0008": {
+    "owner": "CAN"
   },
   "NAM-0009": {
     "owner": "CAN"
@@ -4088,7 +3802,7 @@
     "owner": "CAN"
   },
   "NAM-0019": {
-    "owner": "CAN"
+    "owner": "CUB"
   },
   "NAM-0020": {
     "owner": "CUB"
@@ -4109,7 +3823,7 @@
     "owner": "CUB"
   },
   "NAM-0026": {
-    "owner": "CUB"
+    "owner": "HTI"
   },
   "NAM-0027": {
     "owner": "HTI"
@@ -4124,7 +3838,7 @@
     "owner": "HTI"
   },
   "NAM-0031": {
-    "owner": "HTI"
+    "owner": "DOM"
   },
   "NAM-0032": {
     "owner": "DOM"
@@ -4180,26 +3894,23 @@
   "NAM-0049": {
     "owner": "DOM"
   },
-  "NAM-0050": {
-    "owner": "DOM"
-  },
   "NAM-0051": {
-    "owner": "ATG"
-  },
-  "NAM-0052": {
-    "owner": "AIA"
-  },
-  "NAM-0053": {
-    "owner": "ABW"
-  },
-  "NAM-0054": {
     "owner": "BRB"
   },
-  "NAM-0055": {
+  "NAM-0052": {
     "owner": "BMU"
   },
-  "NAM-0056": {
+  "NAM-0053": {
     "owner": "BHS"
+  },
+  "NAM-0054": {
+    "owner": "BLZ"
+  },
+  "NAM-0055": {
+    "owner": "BLZ"
+  },
+  "NAM-0056": {
+    "owner": "BLZ"
   },
   "NAM-0057": {
     "owner": "BLZ"
@@ -4211,13 +3922,13 @@
     "owner": "BLZ"
   },
   "NAM-0060": {
-    "owner": "BLZ"
+    "owner": "CRI"
   },
   "NAM-0061": {
-    "owner": "BLZ"
+    "owner": "CRI"
   },
   "NAM-0062": {
-    "owner": "BLZ"
+    "owner": "CRI"
   },
   "NAM-0063": {
     "owner": "CRI"
@@ -4231,26 +3942,23 @@
   "NAM-0066": {
     "owner": "CRI"
   },
-  "NAM-0067": {
-    "owner": "CRI"
-  },
   "NAM-0068": {
-    "owner": "CRI"
+    "owner": "GRL"
   },
   "NAM-0069": {
-    "owner": "CRI"
+    "owner": "GTM"
   },
   "NAM-0070": {
-    "owner": "CUW"
+    "owner": "GTM"
   },
   "NAM-0071": {
-    "owner": "DMA"
+    "owner": "GTM"
   },
   "NAM-0072": {
-    "owner": "GRD"
+    "owner": "GTM"
   },
   "NAM-0073": {
-    "owner": "GRL"
+    "owner": "GTM"
   },
   "NAM-0074": {
     "owner": "GTM"
@@ -4262,19 +3970,19 @@
     "owner": "GTM"
   },
   "NAM-0077": {
-    "owner": "GTM"
+    "owner": "HND"
   },
   "NAM-0078": {
-    "owner": "GTM"
+    "owner": "HND"
   },
   "NAM-0079": {
-    "owner": "GTM"
+    "owner": "HND"
   },
   "NAM-0080": {
-    "owner": "GTM"
+    "owner": "HND"
   },
   "NAM-0081": {
-    "owner": "GTM"
+    "owner": "HND"
   },
   "NAM-0082": {
     "owner": "HND"
@@ -4283,37 +3991,37 @@
     "owner": "HND"
   },
   "NAM-0084": {
-    "owner": "HND"
-  },
-  "NAM-0085": {
-    "owner": "HND"
-  },
-  "NAM-0086": {
-    "owner": "HND"
-  },
-  "NAM-0087": {
-    "owner": "HND"
-  },
-  "NAM-0088": {
-    "owner": "HND"
-  },
-  "NAM-0089": {
     "owner": "JAM"
   },
-  "NAM-0090": {
-    "owner": "KNA"
-  },
-  "NAM-0091": {
-    "owner": "KNA"
-  },
-  "NAM-0092": {
+  "NAM-0085": {
     "owner": "CYM"
   },
+  "NAM-0086": {
+    "owner": "MEX"
+  },
+  "NAM-0087": {
+    "owner": "MEX"
+  },
+  "NAM-0088": {
+    "owner": "MEX"
+  },
+  "NAM-0089": {
+    "owner": "MEX"
+  },
+  "NAM-0090": {
+    "owner": "MEX"
+  },
+  "NAM-0091": {
+    "owner": "MEX"
+  },
+  "NAM-0092": {
+    "owner": "MEX"
+  },
   "NAM-0093": {
-    "owner": "LCA"
+    "owner": "MEX"
   },
   "NAM-0094": {
-    "owner": "MSR"
+    "owner": "MEX"
   },
   "NAM-0095": {
     "owner": "MEX"
@@ -4385,115 +4093,112 @@
     "owner": "MEX"
   },
   "NAM-0118": {
-    "owner": "MEX"
+    "owner": "NIC"
   },
   "NAM-0119": {
-    "owner": "MEX"
+    "owner": "NIC"
   },
   "NAM-0120": {
-    "owner": "MEX"
+    "owner": "NIC"
   },
   "NAM-0121": {
-    "owner": "MEX"
+    "owner": "NIC"
   },
   "NAM-0122": {
-    "owner": "MEX"
+    "owner": "NIC"
   },
   "NAM-0123": {
-    "owner": "MEX"
+    "owner": "NIC"
   },
   "NAM-0124": {
-    "owner": "MEX"
+    "owner": "NIC"
   },
   "NAM-0125": {
-    "owner": "MEX"
+    "owner": "PAN"
   },
   "NAM-0126": {
-    "owner": "MEX"
+    "owner": "PAN"
   },
   "NAM-0127": {
-    "owner": "NIC"
+    "owner": "PAN"
   },
   "NAM-0128": {
-    "owner": "NIC"
+    "owner": "PAN"
   },
   "NAM-0129": {
-    "owner": "NIC"
+    "owner": "PAN"
   },
   "NAM-0130": {
-    "owner": "NIC"
+    "owner": "PAN"
   },
   "NAM-0131": {
-    "owner": "NIC"
-  },
-  "NAM-0132": {
-    "owner": "NIC"
-  },
-  "NAM-0133": {
-    "owner": "NIC"
-  },
-  "NAM-0134": {
-    "owner": "PAN"
-  },
-  "NAM-0135": {
-    "owner": "PAN"
-  },
-  "NAM-0136": {
-    "owner": "PAN"
-  },
-  "NAM-0137": {
-    "owner": "PAN"
-  },
-  "NAM-0138": {
-    "owner": "PAN"
-  },
-  "NAM-0139": {
-    "owner": "PAN"
-  },
-  "NAM-0140": {
     "owner": "SPM"
   },
-  "NAM-0141": {
+  "NAM-0132": {
     "owner": "PRI"
   },
-  "NAM-0142": {
+  "NAM-0133": {
     "owner": "SLV"
   },
-  "NAM-0143": {
+  "NAM-0134": {
     "owner": "SLV"
   },
-  "NAM-0144": {
+  "NAM-0135": {
     "owner": "SLV"
   },
-  "NAM-0145": {
+  "NAM-0136": {
     "owner": "SLV"
   },
-  "NAM-0146": {
+  "NAM-0137": {
     "owner": "SLV"
   },
-  "NAM-0147": {
+  "NAM-0138": {
     "owner": "SLV"
   },
-  "NAM-0148": {
-    "owner": "SXM"
-  },
-  "NAM-0149": {
+  "NAM-0139": {
     "owner": "TCA"
   },
+  "NAM-0141": {
+    "owner": "VIR"
+  },
+  "NAM-0142": {
+    "owner": "USA"
+  },
+  "NAM-0143": {
+    "owner": "USA"
+  },
+  "NAM-0144": {
+    "owner": "USA"
+  },
+  "NAM-0145": {
+    "owner": "USA"
+  },
+  "NAM-0146": {
+    "owner": "USA"
+  },
+  "NAM-0147": {
+    "owner": "USA"
+  },
+  "NAM-0148": {
+    "owner": "USA"
+  },
+  "NAM-0149": {
+    "owner": "USA"
+  },
   "NAM-0150": {
-    "owner": "TTO"
+    "owner": "USA"
   },
   "NAM-0151": {
-    "owner": "TTO"
+    "owner": "USA"
   },
   "NAM-0152": {
-    "owner": "VCT"
+    "owner": "USA"
   },
   "NAM-0153": {
-    "owner": "VGB"
+    "owner": "USA"
   },
   "NAM-0154": {
-    "owner": "VIR"
+    "owner": "USA"
   },
   "NAM-0155": {
     "owner": "USA"
@@ -4684,9 +4389,6 @@
   "NAM-0217": {
     "owner": "USA"
   },
-  "NAM-0218": {
-    "owner": "USA"
-  },
   "NAM-0219": {
     "owner": "USA"
   },
@@ -4786,52 +4488,137 @@
   "NAM-0251": {
     "owner": "USA"
   },
-  "NAM-0252": {
+  "EUR-0125": {
+    "owner": "GBR"
+  },
+  "EUR-0298": {
+    "owner": "SUN"
+  },
+  "EUR-0299": {
+    "owner": "SUN"
+  },
+  "ASI-0103": {
+    "owner": "IDN"
+  },
+  "ASI-0122": {
+    "owner": "IDN"
+  },
+  "ASI-0200": {
+    "owner": "JPN"
+  },
+  "ASI-0288": {
+    "owner": "PHL"
+  },
+  "ASI-0289": {
+    "owner": "PHL"
+  },
+  "ASI-0290": {
+    "owner": "PHL"
+  },
+  "ASI-0291": {
+    "owner": "PHL"
+  },
+  "ASI-0292": {
+    "owner": "PHL"
+  },
+  "ASI-0293": {
+    "owner": "PHL"
+  },
+  "ASI-0294": {
+    "owner": "PHL"
+  },
+  "ASI-0295": {
+    "owner": "PHL"
+  },
+  "ASI-0296": {
+    "owner": "PHL"
+  },
+  "ASI-0297": {
+    "owner": "PHL"
+  },
+  "ASI-0299": {
+    "owner": "PHL"
+  },
+  "ASI-0301": {
+    "owner": "PHL"
+  },
+  "ASI-0303": {
+    "owner": "PHL"
+  },
+  "ASI-0304": {
+    "owner": "PHL"
+  },
+  "ASI-0305": {
+    "owner": "PHL"
+  },
+  "ASI-0306": {
+    "owner": "PHL"
+  },
+  "ASI-0308": {
+    "owner": "PHL"
+  },
+  "ASI-0309": {
+    "owner": "PHL"
+  },
+  "ASI-0310": {
+    "owner": "PHL"
+  },
+  "ASI-0311": {
+    "owner": "PHL"
+  },
+  "ASI-0313": {
+    "owner": "PHL"
+  },
+  "ASI-0314": {
+    "owner": "PHL"
+  },
+  "ASI-0315": {
+    "owner": "PHL"
+  },
+  "ASI-0316": {
+    "owner": "PHL"
+  },
+  "NAM-0003": {
+    "owner": "CUW"
+  },
+  "NAM-0004": {
+    "owner": "SXM"
+  },
+  "NAM-0050": {
+    "owner": "ATG"
+  },
+  "NAM-0067": {
+    "owner": "DMA"
+  },
+  "NAM-0140": {
+    "owner": "TTO"
+  },
+  "NAM-0218": {
     "owner": "USA"
   },
-  "NAM-0253": {
-    "owner": "USA"
+  "SAM-0054": {
+    "owner": "VEN"
   },
-  "NAM-0254": {
-    "owner": "USA"
+  "AFR-0091": {
+    "owner": "TZA"
   },
-  "NAM-0255": {
-    "owner": "USA"
+  "AFR-0162": {
+    "owner": "CPV"
   },
-  "NAM-0256": {
-    "owner": "USA"
+  "AFR-0164": {
+    "owner": "SYC"
   },
-  "NAM-0257": {
-    "owner": "USA"
+  "AFR-0182": {
+    "owner": "STP"
   },
-  "NAM-0258": {
-    "owner": "USA"
+  "OCE-0046": {
+    "owner": "PNG"
   },
-  "NAM-0259": {
-    "owner": "USA"
+  "OCE-0054": {
+    "owner": "SLB"
   },
-  "NAM-0260": {
-    "owner": "USA"
-  },
-  "NAM-0261": {
-    "owner": "USA"
-  },
-  "NAM-0262": {
-    "owner": "USA"
-  },
-  "NAM-0263": {
-    "owner": "USA"
-  },
-  "NAM-0264": {
-    "owner": "USA"
-  },
-  "NAM-0265": {
-    "owner": "USA"
-  },
-  "NAM-0266": {
-    "owner": "USA"
-  },
-  "NAM-0267": {
-    "owner": "USA"
+  "EUR-0368": {
+    "controller": "SUN",
+    "owner": "DEU"
   }
 }

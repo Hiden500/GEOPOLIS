@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { primitiveSchema, MAX_PRIMITIVES_PER_BATCH } from "../primitives/primitiveSchemas";
+import { MAX_DATED_EVENTS } from "./datedEvents";
 
 /**
  * Схемы ОТВЕТА модели — транспортная форма верхнего уровня и схема генерации
@@ -43,6 +44,34 @@ export const LLMResponseEnvelopeSchema = z.object({
    * сообщает причину, а не молча отбрасывает хвост.
    */
   primitives: z.array(z.unknown(), "Invalid primitives field").optional(),
+  /**
+   * Датированные события — факты из той же прозы, вынесенные структурой
+   * (`llm/datedEvents.ts`). Здесь снова `unknown[]`: элемент разбирается по
+   * отдельности, чтобы одна кривая дата не роняла ответ вместе с примитивами.
+   * Необязательное: месяц без датируемого события законен, и требовать
+   * непустой массив значило бы заказывать модели выдумывать событие ради поля.
+   */
+  events: z.array(z.unknown(), "Invalid events field").optional(),
+});
+
+/**
+ * Форма ОДНОГО датированного события в схеме генерации.
+ *
+ * Объявлена здесь, а не в `datedEvents.ts`: там разбор ЧУЖОГО ответа (принимает
+ * что угодно и объясняет, что не так), здесь — направление генерации заранее.
+ * Поля обязательны все три, потому что событие без даты или без заголовка не
+ * событие, а обрывок прозы; `countries` необязателен — это заявление модели,
+ * без которого запись остаётся полноценной.
+ *
+ * Урок чужой схемы (`.agent/reference/open-historia-review.md` §2.6): поле, не
+ * объявленное здесь, строгий провайдер модели эмитировать не даст, даже если
+ * прикладной код его читает.
+ */
+const datedEventSchema = z.object({
+  date: z.string(),
+  title: z.string(),
+  description: z.string(),
+  countries: z.array(z.string()),
 });
 
 /**
@@ -65,4 +94,5 @@ export const ProviderResponseSchema = z.object({
   title: z.string(),
   descriptions: z.string(),
   primitives: z.array(primitiveSchema).max(MAX_PRIMITIVES_PER_BATCH),
+  events: z.array(datedEventSchema).max(MAX_DATED_EVENTS),
 });

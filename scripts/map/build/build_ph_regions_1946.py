@@ -1,10 +1,14 @@
 """
-build_ph_variants.py — два варианта нарезки Филиппин, geojson для сравнения глазами.
+build_ph_regions_1946.py — ИТОГОВАЯ нарезка Филиппин на 29 регионов.
 
-Зачем. Сопоставление «современная провинция → 1946» (`out/ph_provinces_1946.json`)
-допускает две разные политики, и выбор между ними — продуктовое решение
-пользователя, а не следствие дат. Скрипт строит оба варианта из одного
-источника, чтобы разницу можно было увидеть, а не воображать.
+Зачем. Выбор сделан: Филиппины режутся по `region_sub` из первичного источника
+и затем укрупняются до исторических областей. Это финальный состав, а не
+предложение. Прежнее имя файла (`build_ph_variants.py`) вводило в заблуждение —
+казалось, что решение ещё принимается.
+
+Варианты A и B — леса, по которым решение принималось: полный откат к 1946 и
+компромисс с сохранением юга. Они строятся только по флагу `--variants` и нужны
+лишь чтобы объяснить, ПОЧЕМУ итог именно такой.
 
   A. ПОЛНЫЙ ОТКАТ К 1946 — сливается всё, что создано после снимка.
      Максимальная историчность на дату, минимум регионов.
@@ -27,12 +31,15 @@ build_ph_variants.py — два варианта нарезки Филиппин
   - вариант B обязан быть строго между 81 и вариантом A по числу регионов.
 
 Запуск:
-    python scripts/map/build/build_ph_variants.py
+    python scripts/map/build/build_ph_regions_1946.py
+    python scripts/map/build/build_ph_regions_1946.py --variants
 
 Выход:
-    out/ph_variant_a_1946.geojson         — полный откат
-    out/ph_variant_b_recommended.geojson  — рекомендуемый
+    out/ph_regions_1946.geojson           — ИТОГ, 29 регионов
+    out/ph_variant_a_1946.geojson         — леса решения, только с --variants
+    out/ph_variant_b_recommended.geojson  — леса решения, только с --variants
 """
+import argparse
 import json
 import sys
 from collections import defaultdict
@@ -52,7 +59,7 @@ GEOD = Geod(ellps="WGS84")
 REF = "ph_provinces_1946.json"
 OUT_A = "ph_variant_a_1946.geojson"
 OUT_B = "ph_variant_b_recommended.geojson"
-OUT_C = "ph_variant_c_final.geojson"
+OUT_FINAL = "ph_regions_1946.geojson"
 AREA_TOL_KM2 = 1.0
 
 # Вариант C — ВЫБОР ПОЛЬЗОВАТЕЛЯ (2026-08-02): вариант A плюс укрупнение
@@ -164,6 +171,12 @@ def build(groups, label, note_for):
 
 
 def main():
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--variants", action="store_true",
+                    help="дополнительно построить леса решения — варианты A и B")
+    args = ap.parse_args()
+
     ref_path = Path(out(REF))
     if not ref_path.is_file():
         raise SystemExit(f"нет {ref_path}: сначала запусти build_ph_1946_provinces.py")
@@ -280,14 +293,16 @@ def main():
         raise SystemExit(1)
 
     for name, feats, label, desc in (
-        (OUT_A, feats_a, "A_1946_full", "полный откат к провинциям 1946 года"),
-        (OUT_B, feats_b, "B_recommended", "слиты только административные разделы; юг современный"),
-        (OUT_C, feats_c, "C_final", "ВЫБОР ПОЛЬЗОВАТЕЛЯ: вариант A, укрупнённый до исторических областей"),
-    ):
+        (OUT_FINAL, feats_c, "final",
+         "ИТОГ: 81 провинция источника укрупнена до 29 исторических областей"),
+    ) + (() if not args.variants else (
+        (OUT_A, feats_a, "A_1946_full", "леса решения: полный откат к провинциям 1946"),
+        (OUT_B, feats_b, "B_recommended", "леса решения: слиты только административные разделы"),
+    )):
         doc = {
             "type": "FeatureCollection",
             "_meta": {
-                "generated_by": "scripts/map/build/build_ph_variants.py",
+                "generated_by": "scripts/map/build/build_ph_regions_1946.py",
                 "variant": label,
                 "description": desc,
                 "status": "ВАРИАНТ ДЛЯ СРАВНЕНИЯ. Живая карта не изменена.",
@@ -343,7 +358,8 @@ def main():
         if reason:
             print(f"  {'':20}    причина сохранить: {reason}")
     print(f"\n  групп только в A: {only_a}")
-    print(f"\nзаписано: out/{OUT_A}, out/{OUT_B}")
+    written = f"out/{OUT_FINAL}" + (f", out/{OUT_A}, out/{OUT_B}" if args.variants else "")
+    print(f"\nзаписано: {written}")
 
 
 if __name__ == "__main__":

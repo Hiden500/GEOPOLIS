@@ -215,9 +215,15 @@ function handleTool(evt) {
     process.exit(2);
   };
 
+  // Вызов из субагента несёт `agent_id` (хуки срабатывают и внутри субагентов).
+  // Это и есть исполнитель, которому роль выдала задание: блокировать его
+  // правки значит запретить саму раздачу. Рук нет у оркестратора — они есть у
+  // того, кого он послал, и работает тот в своём worktree.
+  const isSubagent = Boolean(evt.agent_id ?? evt.agentId);
+
   const fileTools = new Set(["Edit", "Write", "NotebookEdit", "MultiEdit", "apply_patch"]);
   const target = input.file_path ?? input.path ?? input.notebook_path ?? "";
-  if (fileTools.has(tool) && target) {
+  if (fileTools.has(tool) && target && !isSubagent) {
     const t = norm(target);
     const mainRoot = mainRootOf(cwd);
     const insideRepo = mainRoot && t.startsWith(mainRoot + "/");

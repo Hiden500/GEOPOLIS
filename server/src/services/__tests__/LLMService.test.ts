@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { LLMService } from "../LLMService";
-import { createTestCountry, createTestGameState } from "../../test-utils/fixtures";
+import { createTestCountry, createTestGameState, responseEvent } from "../../test-utils/fixtures";
 import { type GameState } from "@shared/types/GameState";
 import { emptyResponseReceipt } from "@shared/types/ResponseReceipt";
 import { MAX_RESEARCH_SHARE } from "@shared/defines/research";
@@ -431,8 +431,8 @@ describe("LLMService", () => {
 
     it("Память страны: показывает последние заголовки eventHistory по стране игрока, самые свежие первыми (2026-07-05, вопрос 7)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Event One", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USA"], factuality: "confirmed" } },
-        { id: "e2", date: "1946-02-01", title: "Event Two", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USA"], factuality: "confirmed" } },
+        { kind: "response" as const, id: "e1", date: "1946-01-01", title: "Event One", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USA"], factuality: "confirmed" } },
+        { kind: "response" as const, id: "e2", date: "1946-02-01", title: "Event Two", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USA"], factuality: "confirmed" } },
       ];
       const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Player Country"), prompt.indexOf("## Major Powers"));
@@ -451,10 +451,10 @@ describe("LLMService", () => {
 
     it("Память страны: у Major Powers окно ограничено MAJOR_RECENT_TITLES_COUNT (3)", () => {
       game.eventHistory = [
-        { id: "e1", date: "1946-01-01", title: "Oldest", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
-        { id: "e2", date: "1946-02-01", title: "Middle1", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
-        { id: "e3", date: "1946-03-01", title: "Middle2", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
-        { id: "e4", date: "1946-04-01", title: "Newest", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
+        { kind: "response" as const, id: "e1", date: "1946-01-01", title: "Oldest", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
+        { kind: "response" as const, id: "e2", date: "1946-02-01", title: "Middle1", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
+        { kind: "response" as const, id: "e3", date: "1946-03-01", title: "Middle2", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
+        { kind: "response" as const, id: "e4", date: "1946-04-01", title: "Newest", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["USSR"], factuality: "confirmed" } },
       ];
       const prompt = service.generatePrompt().prompt;
       const section = prompt.slice(prompt.indexOf("## Major Powers"), prompt.indexOf("## Spotlight Countries"));
@@ -470,9 +470,9 @@ describe("LLMService", () => {
           createTestCountry({ id: "AAA", name: { en: "Alpha" } }),
         ],
         eventHistory: [
-          { id: "e1", date: "1946-01-01", title: "Old", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
-          { id: "e2", date: "1946-02-01", title: "Mid", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
-          { id: "e3", date: "1946-03-01", title: "New", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
+          { kind: "response" as const, id: "e1", date: "1946-01-01", title: "Old", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
+          { kind: "response" as const, id: "e2", date: "1946-02-01", title: "Mid", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
+          { kind: "response" as const, id: "e3", date: "1946-03-01", title: "New", description: "", receipt: { ...emptyResponseReceipt("1946-01-01"), countries: ["AAA"], factuality: "confirmed" } },
         ],
       });
       const svc = new LLMService(g);
@@ -574,6 +574,7 @@ describe("LLMService", () => {
         // eventHistory не пустовал ни в одном из 3 лет.
         if (month % 3 === 0) {
           g.eventHistory.push({
+            kind: "response",
             id: `evt-${month}`,
             date: g.currentDate,
             title: `Event at month ${month}`,
@@ -814,7 +815,7 @@ describe("LLMService", () => {
       expect(event.id).toBe("llm-turn-1");
       expect(event.date).toBe(game.currentDate);
       expect(event.description).toBe("СССР гарантирует независимость США.");
-      expect([...event.receipt.countries].sort()).toEqual(["USA", "USSR"]);
+      expect([...responseEvent(event).receipt.countries].sort()).toEqual(["USA", "USSR"]);
     });
 
     it("валидный ответ: очищает playerIntent (одноразовое, не история)", () => {
@@ -914,7 +915,7 @@ describe("LLMService", () => {
         expect(ussr().diplomacy.guarantees).toContain("USA");
         // Событие честно помечено частично подтверждённым: движок принял не всё,
         // о чём его просили.
-        expect(game.eventHistory[0]!.receipt.factuality).toBe("partial");
+        expect(responseEvent(game.eventHistory[0]).receipt.factuality).toBe("partial");
       });
 
       it("промт канала `actions` не предлагает вовсе, а глаголы алфавита описывает", () => {

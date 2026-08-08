@@ -1,3 +1,4 @@
+import { type Event, type ResponseEvent } from "@shared/types/Event";
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type GameState } from "@shared/types/GameState";
@@ -217,4 +218,19 @@ export function createTestGameState(overrides: Partial<GameState> = {}): GameSta
     playerStanding: { power: 0, rank: 0, total: 0 },
     ...overrides,
   };
+}
+
+/**
+ * Сужение записи истории до записи ОТВЕТА — для тестов, читающих квитанцию.
+ *
+ * Нужен потому, что `eventHistory` с 2026-08-08 хранит два вида записей, и у
+ * датированной квитанции нет. Бросает, а не возвращает `undefined`: тест,
+ * которому вместо ответа досталось датированное событие, обязан упасть с
+ * понятной причиной, а не сравнить `undefined` с `undefined`.
+ */
+export function responseEvent(event: Event | undefined): ResponseEvent {
+  if (event === undefined || event.kind !== "response") {
+    throw new Error(`ожидалась запись ответа, получено: ${event?.kind ?? "ничего"}`);
+  }
+  return event;
 }

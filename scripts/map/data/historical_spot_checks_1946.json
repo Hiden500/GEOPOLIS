@@ -15,33 +15,59 @@
   "checks": [
     {
       "id": "baltic-titular-nation-not-russian",
-      "regions": [68, 69, 70, 185, 186, 187, 189, 190, 191],
+      "regions": [
+        67,
+        68,
+        69,
+        183,
+        184,
+        185,
+        187,
+        188,
+        189
+      ],
       "assert": "dominantGroupNotIn",
-      "groups": ["russians"],
+      "groups": [
+        "russians"
+      ],
       "why": "К 1946 титульные нации Прибалтики оставались большинством: массовые депортации 1948-49 и приток переселенцев ещё не изменили состав.",
       "source": "довоенные национальные переписи Литвы 1923, Латвии и Эстонии 1934-35; советская перепись 1959 как верхняя опора интерполяции"
     },
     {
       "id": "south-sakhalin-japanese-majority-before-repatriation",
-      "regions": [300],
+      "regions": [
+        298,
+        299
+      ],
       "assert": "groupShareAtLeast",
-      "groups": ["japanese"],
+      "groups": [
+        "japanese"
+      ],
       "minShare": 0.3,
       "why": "Южный Сахалин занят СССР в августе 1945; японское население (около 300 тысяч) подлежало репатриации, но на 1 января 1946 ещё оставалось на месте и составляло большинство.",
       "source": "японская административная статистика Карафуто 1941-45; советские данные о репатриации 1946-49"
     },
     {
       "id": "punjab-muslim-plurality",
-      "regions": [510, 686],
+      "regions": [
+        508,
+        695
+      ],
       "assert": "groupShareAtLeast",
-      "groups": ["punjabi_muslims"],
+      "groups": [
+        "punjabi_muslims"
+      ],
       "minShare": 0.3,
       "why": "В Панджабе до раздела 1947 года мусульмане составляли относительное большинство; сикхи и хинду — значимые меньшинства. Раздел ещё не произошёл.",
       "source": "перепись Британской Индии 1941"
     },
     {
       "id": "east-bengal-muslim-majority",
-      "regions": [467, 468, 469],
+      "regions": [
+        464,
+        465,
+        466
+      ],
       "assert": "dominantGroupIs",
       "group": "bengali_muslims",
       "why": "Восточная Бенгалия (будущий Восточный Пакистан) имела мусульманское большинство при значительном хинду-меньшинстве.",
@@ -49,24 +75,37 @@
     },
     {
       "id": "mandate-palestine-both-communities-present",
-      "regions": [425, 426],
+      "regions": [
+        422,
+        423
+      ],
       "assert": "groupPresent",
-      "groups": ["yishuv_jews"],
+      "groups": [
+        "yishuv_jews"
+      ],
       "why": "В Подмандатной Палестине 1946 года присутствовали обе общины; еврейское население составляло около трети мандата и не могло отсутствовать в разметке вовсе.",
       "source": "Anglo-American Committee of Inquiry 1946; статистика мандатной администрации"
     },
     {
       "id": "gaza-arab-majority",
-      "regions": [426],
+      "regions": [
+        423
+      ],
       "assert": "groupShareAtMost",
-      "groups": ["yishuv_jews"],
+      "groups": [
+        "yishuv_jews"
+      ],
       "maxShare": 0.1,
       "why": "Округ Газа оставался почти целиком арабским: еврейских поселений там практически не было.",
       "source": "статистика мандатной администрации по подрайонам"
     },
     {
       "id": "belarus-titular-majority",
-      "regions": [24, 25, 26],
+      "regions": [
+        24,
+        25,
+        26
+      ],
       "assert": "dominantGroupIs",
       "group": "belarusians",
       "why": "Белорусская ССР сохраняла титульное большинство; Холокост и война изменили доли меньшинств, но не доминанта.",
@@ -74,7 +113,9 @@
     },
     {
       "id": "latvia-titular-dominant-despite-russian-minority",
-      "regions": [190],
+      "regions": [
+        188
+      ],
       "assert": "dominantGroupIs",
       "group": "latvians",
       "why": "Рига 1946 года: латыши оставались большинством, русское меньшинство значительно, но ещё не сравнялось с титульной нацией — это произошло позже.",
