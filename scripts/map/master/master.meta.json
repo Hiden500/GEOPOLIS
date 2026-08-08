@@ -1,8 +1,8 @@
 {
   "_comment": "Мастер-карта: единственный стартовый источник геометрии. Геометрия согласована один раз (weld_map_gaps.py + rebuild_shared_edges.py); пайплайн читает этот файл вместо повторного согласования источников. Менять только осознанно, вместе с записью в docs/DECISIONS.md.",
-  "frozen_at": "2026-07-30T10:26:50Z",
-  "built_from_commit": "a9530ea2254cd8ce30202dbd78652259bc5f5b4f",
-  "built_from_branch": "claude/1946-map-coastline-fixes",
+  "frozen_at": "2026-08-08T10:41:54Z",
+  "built_from_commit": "f0076ad1be54cbd108a46d12be0c766f3ce2126a",
+  "built_from_branch": "claude/world-assembly",
   "source": "scripts/map/out/world_1946.geojson",
   "produced_by": [
     "build/weld_map_gaps.py",
@@ -10,6 +10,32 @@
     "build/merge_world_1946.py",
     "build/translate_world.py"
   ],
+  "checks": {
+    "features": 1646,
+    "by_prefix": {
+      "AFR": 208,
+      "ANT": 7,
+      "ASI": 444,
+      "EUR": 377,
+      "LAK": 13,
+      "NAM": 267,
+      "OCE": 70,
+      "SAM": 78,
+      "SEA": 182
+    },
+    "by_region_type": {
+      "lake": 13,
+      "land": 1451,
+      "sea": 182
+    },
+    "land_area_km2": 146325932.7,
+    "water_area_km2": 363739365.7,
+    "invalid_geometries": 0,
+    "union_holes": 0,
+    "union_hole_area_km2": 0.0,
+    "coverage_is_valid": true,
+    "coverage_invalid_edge_length_deg": 0.0
+  },
   "_surgical_edits": [
     {
       "date": "2026-08-07",
@@ -30,32 +56,17 @@
         "ASI-0033 Nenjiang 81324.9/2 -> 62714.9/1, ASI-0034 Heilongjiang +9638.7, ASI-0031 Songjiang +4238.7, ASI-0030 Jilin +4234.5, ASI-0035 Xing'an +498.1; ASI-0029 Liaobei и ASI-0047 Harbin без изменений: перенарезка внутри группы семи регионов, внешний контур группы не двигался (утечка 0 м²)"
       ],
       "delta": "land_area_km2 и water_area_km2 без изменения — обе правки перекладывают площадь между регионами суши; число фич и region_id не менялись"
+    },
+    {
+      "date": "2026-08-08",
+      "script": "build/apply_sea_zones.py + build/rebuild_shared_edges.py --world",
+      "why": "нарезка океанов 2026-08-06 (85 зон) внедрена в водный слой; пересобрать мастер с нуля нечем — 8 из 11 входов пайплайна отсутствуют",
+      "changed": [
+        "16 океанских секторов SEA-0096…SEA-0111 заменены 85 зонами; море 113 -> 182 фичи, всего 1577 -> 1646. Арктические секторы сохранены (файлов зон для Арктики нет) и получили id SEA-0181/0182; SEA-0001…SEA-0095 не сдвинулись",
+        "вода перераспределена, а не подменена: зоны обрезаны по союзу заменяемых секторов, границы занодированы, polygonize дал мозаику с общими рёбрами. area(U - зоны) = 0, area(зоны - U) = 0, взаимных наложений 0",
+        "глобальная пересборка общих рёбер: coverage_is_valid False (96.59°) -> True (0.000000°), ячеек без владельца 0, частей MultiPolygon 5290 -> 5290"
+      ],
+      "delta": "land_area_km2 146325935.0 -> 146325932.7, water_area_km2 363739363.4 -> 363739365.7; сумма мира 510065298.4 в обоих случаях. 2.3 км² перетекло между сушей и водой — вершины, вставленные в берег на стыках новых швов; новых источников берега не вводилось"
     }
-  ],
-  "checks": {
-    "features": 1577,
-    "by_prefix": {
-      "AFR": 208,
-      "ANT": 7,
-      "ASI": 444,
-      "EUR": 377,
-      "LAK": 13,
-      "NAM": 267,
-      "OCE": 70,
-      "SAM": 78,
-      "SEA": 113
-    },
-    "by_region_type": {
-      "lake": 13,
-      "land": 1451,
-      "sea": 113
-    },
-    "land_area_km2": 146325935.0,
-    "water_area_km2": 363739363.4,
-    "invalid_geometries": 0,
-    "union_holes": 0,
-    "union_hole_area_km2": 0.0,
-    "coverage_is_valid": true,
-    "coverage_invalid_edge_length_deg": 0.0
-  }
+  ]
 }

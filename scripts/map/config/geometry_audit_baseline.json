@@ -10,8 +10,6 @@
       "Pacific dateline wrap@-179.89,-16.87",
       "Pacific dateline wrap@-180.00,66.81"
     ],
-    "COVERAGE_INVALID": [],
-    "FALSE_COAST": [],
     "INFLATED": [
       "OCE-0015",
       "OCE-0069",
@@ -22,7 +20,6 @@
       "BLM-5113",
       "MAF-5145"
     ],
-    "ORPHAN_FOREIGN": [],
     "ORPHAN_UNSOURCED": [
       "EUR-0263",
       "NAM-0009",
@@ -199,9 +196,11 @@
       "SAM-0062",
       "SAM-0063",
       "SAM-0069",
-      "SEA-0098"
+      "SEA-0159"
     ],
-    "SEA_HOLE": [],
+    "SEA_HOLE": [
+      "French Polynesia@-170.63,-9.72"
+    ],
     "SPIKE": [
       "AFR-0007",
       "AFR-0016",
@@ -266,12 +265,15 @@
       "SEA-0083",
       "SEA-0087",
       "SEA-0093",
-      "SEA-0096",
-      "SEA-0101",
-      "SEA-0110",
-      "SEA-0111"
+      "SEA-0102",
+      "SEA-0159",
+      "SEA-0162",
+      "SEA-0166"
     ],
+    "WATER_SHATTERED": [],
+    "FALSE_COAST": [],
     "UNION_HOLE": [],
-    "WATER_SHATTERED": []
+    "ORPHAN_FOREIGN": [],
+    "COVERAGE_INVALID": []
   }
 }
