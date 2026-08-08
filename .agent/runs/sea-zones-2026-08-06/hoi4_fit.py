@@ -11,7 +11,10 @@ from pathlib import Path
 import numpy as np
 
 VAN = Path("D:/SteamLibrary/steamapps/common/Hearts of Iron IV")
-REPO = Path("D:/Pax Historia LOCAL/.claude/worktrees/sea-shelf-zones")
+# Корень выводится от самого файла (.agent/runs/<прогон>/x.py -> три уровня
+# вверх), а не зашивается: дерево прогона удаляется после влития ветки, и
+# зашитый путь пережил бы скрипт. Идиома та же, что в scripts/map/build/paths.py.
+REPO = Path(__file__).resolve().parents[3]
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, str(REPO / "scripts/map/build"))
 
