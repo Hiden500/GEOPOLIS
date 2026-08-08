@@ -466,7 +466,13 @@ def validate_orchestrator_roles() -> None:
         wired = json.dumps(hooks.get(event, []), ensure_ascii=False)
         check("role-guard.mjs" in wired, f"Role guard is wired into {event}")
 
-    for path in (".agent/roles/README.md", ".agent/orchestration/README.md"):
+    for path in (
+        ".agent/roles/README.md",
+        ".agent/orchestration/README.md",
+        # На этот прогон ссылается якорь роли `lead`: пропавший скрипт делает
+        # инструкцию невыполнимой, а роль — слепой к пересечениям веток.
+        "scripts/worktree-report.mjs",
+    ):
         check((ROOT / path).is_file(), f"Role infrastructure doc exists: {path}")
 
     # Статусы реестра — контракт между документом и регулярками хука.
@@ -491,9 +497,13 @@ def validate_orchestrator_roles() -> None:
         p for p in (ROOT / ".agent/roles").glob("*.md") if p.name != "README.md"
     )
     check(bool(charters), "At least one role charter exists")
+    roles_readme = read(".agent/roles/README.md")
     for path in charters:
         text = path.read_text(encoding="utf-8")
         name = path.stem
+        # Роль, которой нет в таблице README, не находит ни пользователь, ни
+        # соседняя сессия: `!роль` покажет её, но чем она отличается — нет.
+        check(f"`{name}`" in roles_readme, f"Role {name} is listed in roles README")
         for section in required_sections:
             check(section in text, f"Role {name} defines {section[3:]}")
         if "## Якорь" not in text:
