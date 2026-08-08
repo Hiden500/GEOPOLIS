@@ -3,9 +3,9 @@ import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { MapView } from "../map/MapView";
-import { MAP_MODE_ORDER, computeMapModeColors, type MapMode } from "../hud/mapModeColors";
-import { usePrimitiveOutcomeText } from "../components/primitiveOutcomeText";
-import { usePrimitiveRejectionText } from "../components/primitiveRejectionText";
+import { MAP_MODE_ORDER, computeMapModeColors, type MapMode } from "./mapModeColors";
+import { usePrimitiveOutcomeText } from "./primitiveOutcomeText";
+import { usePrimitiveRejectionText } from "./primitiveRejectionText";
 import {
   applyPrimitives,
   chooseSuccessor,
