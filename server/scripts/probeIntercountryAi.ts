@@ -24,7 +24,13 @@ import {
   allianceThreshold,
   allianceBreakThreshold,
 } from "../src/simulation/diplomacy/affinity";
-import { RIVAL_RELATION_THRESHOLD } from "@shared/defines/diplomacy";
+import {
+  RIVAL_RELATION_THRESHOLD,
+  INFLUENCE_SCALE_MAX,
+  DEPENDENCY_PUPPET_STRENGTH,
+  DEPENDENCY_GUARANTEE_STRENGTH,
+  DEPENDENCY_SPHERE_STRENGTH,
+} from "@shared/defines/diplomacy";
 import { THREAT_LEVEL } from "@shared/defines/ai";
 import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
@@ -122,6 +128,149 @@ function report(game: GameState, month: number): void {
 }
 
 /**
+ * РАСПРЕДЕЛЕНИЕ КОНКУРЕНЦИИ ЗА КЛИЕНТОВ — вход будущего члена тяготения
+ * (вариант A плана `.agent/plans/intercountry-ai.md`).
+ *
+ * Меряется ДО правки формулы, потому что константу веса брать неоткуда, кроме
+ * как из живого распределения: назначенное «на глаз» число либо мертво (порог
+ * выше края данных), либо сваливает мир в блоки на первом тике. Тот же приём,
+ * которым выбирались `INFLUENCE_ECONOMIC_FULL_RATIO` и
+ * `RIVAL_RELATION_THRESHOLD`.
+ *
+ * Присутствие державы в третьей стране — та же величина, что уже считает
+ * `dependencyStrength` в тике (максимум по видам связи), а спор за клиента —
+ * `min` присутствий: слабейшее присутствие ограничивает спор, потому что спорят
+ * там, где ОБЕ стороны реально есть.
+ */
+function presenceMap(
+  country: Country,
+  neighbours: Map<string, Set<string>>,
+  borderPresence: number
+): Map<string, number> {
+  const d = country.diplomacy;
+  const out = new Map<string, number>();
+  const put = (id: string, value: number): void => {
+    out.set(id, Math.max(out.get(id) ?? 0, value));
+  };
+  for (const [id, value] of Object.entries(d.influence)) {
+    if (value > 0) put(id, Math.min(1, value / INFLUENCE_SCALE_MAX));
+  }
+  for (const id of d.puppets) put(id, DEPENDENCY_PUPPET_STRENGTH);
+  for (const id of d.guarantees) put(id, DEPENDENCY_GUARANTEE_STRENGTH);
+  for (const id of d.sphereOfInfluence) put(id, DEPENDENCY_SPHERE_STRENGTH);
+  if (borderPresence > 0) {
+    for (const id of neighbours.get(country.id) ?? []) put(id, borderPresence);
+  }
+  return out;
+}
+
+/**
+ * Соседи по суше — реплика `borderingPairs` из тика, развёрнутая в список на
+ * страну. Реплика названа реплкой: тик её наружу не отдаёт, а замеру нужен тот
+ * же граф. Правило то же, что там — по ЛЕГАЛЬНОМУ владению регионом.
+ */
+function landNeighbours(game: GameState): Map<string, Set<string>> {
+  const ownerOf = new Map(game.regions.map(r => [r.id, r.ownerCountryId]));
+  const out = new Map<string, Set<string>>();
+  const link = (a: string, b: string): void => {
+    const set = out.get(a) ?? new Set<string>();
+    set.add(b);
+    out.set(a, set);
+  };
+  for (const region of game.regions) {
+    const owner = region.ownerCountryId;
+    if (!owner) continue;
+    for (const neighbourId of region.neighboringRegionIds) {
+      const other = ownerOf.get(neighbourId);
+      if (!other || other === owner) continue;
+      link(owner, other);
+      link(other, owner);
+    }
+  }
+  return out;
+}
+
+function contestCensus(game: GameState, label: string, borderPresence = 0): void {
+  const byId = new Map(game.countries.map(c => [c.id, c] as [string, Country]));
+  const candidates = new Set(collectPairStandings(game, byId).keys());
+
+  const neighbours = landNeighbours(game);
+  const presence = new Map<string, Map<string, number>>();
+  for (const country of game.countries) {
+    const map = presenceMap(country, neighbours, borderPresence);
+    if (map.size) presence.set(country.id, map);
+  }
+
+  const sources = [...presence.keys()].sort();
+  const contests: Array<[string, number]> = [];
+  for (let i = 0; i < sources.length; i++) {
+    for (let j = i + 1; j < sources.length; j++) {
+      const aId = sources[i]!;
+      const bId = sources[j]!;
+      const aMap = presence.get(aId)!;
+      const bMap = presence.get(bId)!;
+      let sum = 0;
+      for (const [targetId, aValue] of aMap) {
+        if (targetId === aId || targetId === bId) continue;
+        const bValue = bMap.get(targetId);
+        if (bValue === undefined) continue;
+        sum += Math.min(aValue, bValue);
+      }
+      if (sum > 0) contests.push([pairKey(aId, bId), sum]);
+    }
+  }
+
+  contests.sort((x, y) => y[1] - x[1]);
+  const values = contests.map(([, value]) => value).sort((a, b) => a - b);
+  const fresh = contests.filter(([key]) => !candidates.has(key)).length;
+  console.log(
+    `\n[${label}${borderPresence > 0 ? `, соседство=${borderPresence}` : ", только связи"}] ` +
+      `источников присутствия ${sources.length} | ` +
+      `пар, спорящих хотя бы за одного клиента: ${contests.length} | ` +
+      `из них НЕ кандидаты сегодня: ${fresh}`
+  );
+  if (values.length) {
+    console.log(
+      `  сила спора: медиана ${fmt(quantile(values, 0.5))} | 75-й проц ${fmt(quantile(values, 0.75))} | ` +
+        `90-й проц ${fmt(quantile(values, 0.9))} | 99-й проц ${fmt(quantile(values, 0.99))} | ` +
+        `макс ${fmt(quantile(values, 1))}`
+    );
+    console.log("  верх списка:");
+    for (const [key, value] of contests.slice(0, 12)) {
+      console.log(`    ${key.padEnd(9)} ${fmt(value).padStart(6)}${candidates.has(key) ? "" : "   (не кандидат)"}`);
+    }
+  }
+}
+
+/**
+ * Живо ли ПРИСУТСТВИЕ как таковое — авторский слой `influence.json` против
+ * безусловного затухания `INFLUENCE_DECAY_RATE`.
+ *
+ * Замеряется здесь, потому что от этого зависит, можно ли вообще строить
+ * межстрановые правила на присутствии: вход, который сходит к нулю за партию,
+ * даёт механику, работающую первые годы и мёртвую дальше.
+ */
+function influenceCensus(game: GameState, month: number): void {
+  let links = 0;
+  let sum = 0;
+  let aboveSphere = 0;
+  for (const country of game.countries) {
+    for (const value of Object.values(country.diplomacy.influence)) {
+      if (value <= 0) continue;
+      links++;
+      sum += value;
+      if (value > 50) aboveSphere++;
+    }
+  }
+  const spheres = game.countries.reduce((n, c) => n + c.diplomacy.sphereOfInfluence.length, 0);
+  const puppets = game.countries.reduce((n, c) => n + c.diplomacy.puppets.length, 0);
+  console.log(
+    `           влияние: связей ${String(links).padStart(4)} | сумма ${String(Math.round(sum)).padStart(6)} | ` +
+      `выше порога сферы ${String(aboveSphere).padStart(3)} | сфер ${String(spheres).padStart(3)} | вассалов ${puppets}`
+  );
+}
+
+/**
  * Перепись кандидатов Правила B (`AiBehaviorTick.applyThreatResponse`) — единственного
  * места, где ИИ-страны сближаются ДРУГ С ДРУГОМ (контр-блок `COALITION_STEP`).
  *
@@ -200,6 +349,8 @@ function main(): void {
   );
 
   reachability(game, "старт");
+  contestCensus(game, "старт");
+  contestCensus(game, "старт", 0.5);
   observe(game);
 
   const warsSeen = new Set<string>();
@@ -209,11 +360,14 @@ function main(): void {
     for (const key of warPairs(game)) warsSeen.add(key);
     if (CHECKPOINTS.has(month)) {
       report(game, month);
+      influenceCensus(game, month);
       ruleBCensus(game, month);
     }
   }
 
   reachability(game, `месяц ${HORIZON}`);
+  contestCensus(game, `месяц ${HORIZON}`);
+  contestCensus(game, `месяц ${HORIZON}`, 0.5);
 
   const total = game.countries.length;
   const neverEither = game.countries.filter(
