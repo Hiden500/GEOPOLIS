@@ -169,12 +169,29 @@ function toEvents(
     return found === undefined ? String(regionId) : getText(found.names, locale);
   };
 
+  // Подтверждённость датированного события разрешается по записи ответа, с
+  // которой оно пришло: своей квитанции у него нет и быть не может — квитанция
+  // описывает ответ целиком, а не отдельный факт его прозы.
+  const receiptOf = (event: GameState["eventHistory"][number]) => {
+    if (event.kind === "response") return event.receipt;
+    const source = game.eventHistory.find(
+      (candidate) => candidate.kind === "response" && candidate.id === event.responseEventId,
+    );
+    return source?.kind === "response" ? source.receipt : undefined;
+  };
+
   return game.eventHistory
     .slice(-limit)
     .reverse()
     .map((event) => {
-      const receipt = event.receipt;
-      const applied = receipt?.primitives.applied ?? [];
+      const receipt = receiptOf(event);
+      // Ярлыки применённого — только у записи ответа: применённые примитивы
+      // относятся к ответу целиком, и приписать их одному датированному факту
+      // значило бы назвать его причиной чужих последствий.
+      const applied = event.kind === "response" ? receipt?.primitives.applied ?? [] : [];
+      const countryTags =
+        event.kind === "response" ? receipt?.countries ?? [] : event.claimedCountries;
+      const regionTags = event.kind === "response" ? receipt?.regions ?? [] : [];
       return {
         id: event.id,
         date: event.date,
@@ -183,12 +200,12 @@ function toEvents(
         factuality: receipt?.factuality,
         order: applied.length > 0 ? applied.map((item) => renderLine(item.headline)).join("; ") : undefined,
         tags: [
-          ...(receipt?.countries ?? []).map((id) => ({
+          ...countryTags.map((id) => ({
             id,
             label: shortName(id),
             kind: "country" as const,
           })),
-          ...(receipt?.regions ?? []).map((id) => ({
+          ...regionTags.map((id) => ({
             id: String(id),
             label: regionName(id),
             kind: "region" as const,

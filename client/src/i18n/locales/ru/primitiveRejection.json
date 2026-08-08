@@ -59,5 +59,6 @@
   "extractionAtMaximum": "Добыча ({{resource}}) в регионе {{region}} уже на уровне {{level}} из {{max}} — строить нечего",
   "noExtractionToDismantle": "В регионе {{region}} нет добычи ({{resource}}), которую можно свернуть",
   "extractionUnaffordable": "{{source}} не потянет стройку: она стоит {{cost}}, а в казне {{treasury}}",
+  "datedEventInvalid": "Датированное событие #{{position}} отброшено: запись не прошла разбор",
   "legacyActionsChannel": "Режиссёр обратился к каналу «actions» ({{count}}), которого больше не существует — записи отброшены"
 }

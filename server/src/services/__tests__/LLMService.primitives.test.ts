@@ -11,7 +11,7 @@ import {
 } from "@shared/defines/discontent";
 import { applyPrimitiveTurn } from "../../primitives/turnBatch";
 import { chronicleTick } from "../../simulation/chronicle/ChronicleTick";
-import { createTestRegion } from "../../test-utils/fixtures";
+import { createTestRegion, responseEvent } from "../../test-utils/fixtures";
 import {
   createDiscontentTestGame,
   TEST_GROUP_TITULAR,
@@ -670,8 +670,8 @@ describe("граница агентности против правила «ст
     expect(game.eventHistory).toHaveLength(1);
 
     const event = game.eventHistory[0]!;
-    expect(event.receipt.primitives.rejected?.map(r => r.verb)).toEqual(["enact_reform"]);
-    expect(event.receipt.primitives.applied?.map(o => o.verb)).toEqual(["incite_unrest"]);
+    expect(responseEvent(event).receipt.primitives.rejected?.map(r => r.verb)).toEqual(["enact_reform"]);
+    expect(responseEvent(event).receipt.primitives.applied?.map(o => o.verb)).toEqual(["incite_unrest"]);
   });
 
   it("но отказ ДВИЖКА по структурному по-прежнему откатывает весь ответ", () => {
@@ -730,14 +730,18 @@ describe("граница агентности против правила «ст
       primitiveNoopBatchKeys: [],
       pendingWorldFacts: [],
       llmResponse: "",
-      eventHistory: game.eventHistory.map(e => ({
-        ...e,
-        receipt: {
-          ...e.receipt,
-          factuality: "confirmed" as const,
-          primitives: { ...e.receipt.primitives, rejected: [] },
-        },
-      })),
+      eventHistory: game.eventHistory.map(e =>
+        e.kind === "response"
+          ? {
+              ...e,
+              receipt: {
+                ...e.receipt,
+                factuality: "confirmed" as const,
+                primitives: { ...e.receipt.primitives, rejected: [] },
+              },
+            }
+          : e
+      ),
     });
 
     expect(comparable(withForbidden)).toEqual(comparable(withoutIt));
@@ -790,8 +794,8 @@ describe("правдивость летописи: в долгую память 
     // лежит факт.
     expect(result.narrativeCanonized).toBe(true);
     expect(result.receipt.factuality).toBe("partial");
-    expect(game.eventHistory[0]!.receipt.factuality).toBe("partial");
-    expect(game.eventHistory[0]!.receipt.primitives.rejected).toHaveLength(1);
+    expect(responseEvent(game.eventHistory[0]).receipt.factuality).toBe("partial");
+    expect(responseEvent(game.eventHistory[0]).receipt.primitives.rejected).toHaveLength(1);
 
     // В ЛЕНТЕ событие остаётся целиком, вместе со своим заголовком: игрок
     // читает заявление режиссёра, а не пустоту.

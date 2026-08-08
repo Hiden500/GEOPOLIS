@@ -1587,6 +1587,16 @@ button.small.danger:hover {
   padding: 0.75rem;
 }
 
+/*
+ * Датированное событие: компактная карточка с линией-акцентом слева (схема
+ * утверждена пользователем 2026-08-08). Отличие видимое, но не кричащее —
+ * это та же история, только на один уровень мельче месячной сводки.
+ */
+.timeline-card--dated {
+  border-left: 2px solid var(--color-brass);
+  padding-left: 12px;
+}
+
 .timeline-date {
   font-family: var(--font-mono);
   font-size: 0.7rem;
