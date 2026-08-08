@@ -154,7 +154,7 @@
 | Строка «Реализовать НОВО» | Где |
 |---|---|
 | Путь игрок → примитив (текст → перевод → показ распознанного → подтверждение) | `server/src/llm/primitiveTranslation.ts`, `server/src/routes/primitives.ts`, `client/src/components/PrimitiveOrdersPanel.tsx` |
-| Отклик: локализованная хроника + история места + объект на карте | `shared/src/types/politics/PrimitiveOutcome.ts`, `server/src/primitives/outcomes.ts`, `Region.placeHistory`, `client/src/hud/ContextPanel/ContextPanel.tsx`; объект карты — существующий слой `mapFeatures` |
+| Отклик: локализованная хроника + история места + объект на карте | `shared/src/types/politics/PrimitiveOutcome.ts`, `server/src/primitives/outcomes.ts`, `Region.placeHistory`, `client/src/hud/ContextPanel/ContextPanel.tsx`; объект карты — существующий слой `mapFeatures` |  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
 | Подключение примитивов к LLM-контракту | `server/src/llm/{primitiveContract,primitiveAgency,crisisDigest}.ts`, `actionSchemas.ts` (УДАЛЁН 2026-08-02, конверт ответа — `responseSchemas.ts`), `LLMService.ts` |
 | Idempotency-ключ на ход (§7.2) | `server/src/primitives/turnBatch.ts`, `GameState.primitiveBatchKeys`, `SAVE_VERSION` 4→5 |
 | Кризисный кап ≤5 (§7) | `MAX_PROMPT_CRISES`, `LLMService.getRegionalCrisesInfo` (выводится из латча) |
@@ -182,7 +182,7 @@
       создаётся только если ответ ничего не предлагал (чистый нарратив) либо хоть что-то
       применилось, и несёт машиночитаемый результат (`Event.primitiveOutcomes` /
       `rejectedPrimitives`). Проверка — `milestone0Loop.test.ts` (полный отказ, устаревший
-      ответ, чистый нарратив), `LLMPanel.test.tsx`.
+      ответ, чистый нарратив), `LLMPanel.test.tsx`.  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
       **Статус после решения пользователя 2026-07-27 — закрыто ЧАСТИЧНО, и часть названа.**
       Закрыто: событие несёт выведенную из фактов степень подтверждённости
       (`Event.factuality`), в летопись идёт только подтверждённое (у частично применённого —
@@ -192,12 +192,12 @@
       только после commit» считать выполненной по КАНОНИЗАЦИИ и по ДОЛГОЙ ПАМЯТИ, но не по
       содержанию прозы. Проверка — `ChronicleTick.test.ts`, `eventFactuality.test.ts`,
       `milestone0Loop.test.ts` («частично применённый ответ помечен», «летопись доносит
-      применённое, а не заявленное»), `EventTimelinePanel.test.tsx`
+      применённое, а не заявленное»), `EventTimelinePanel.test.tsx`  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
 - [x] Игрок отвечает примитивом; три ответа (`repress`/`grant_autonomy`/`enact_reform`) ведут в
       **различимо разное** состояние. — расхождение состояний доказано
       (`branchDivergence.test.ts`); интерфейс ответа — `PrimitiveOrdersPanel`
-      (`PrimitiveOrdersPanel.test.tsx`), различимость веток НА ЭКРАНЕ —
-      `ContextPanel.test.tsx` («три ветки дают три разных текста»: отчуждение против
+      (`PrimitiveOrdersPanel.test.tsx`), различимость веток НА ЭКРАНЕ —  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
+      `ContextPanel.test.tsx` («три ветки дают три разных текста»: отчуждение против  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
       уступки против сдвинутой координаты курса)
 - [x] Петля замыкается: новое состояние → новое давление; отклик виден (хроника + история места +
       объект карты). — сквозной тест на данных 1946 `server/src/__tests__/milestone0Loop.test.ts`:

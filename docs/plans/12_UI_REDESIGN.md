@@ -74,10 +74,10 @@
   прозрачные.
 - ❌ Выведение copy-paste LLM-цикла на первый план как основного экрана.
 - ❌ Хардкод локали в форматировании чисел (`toLocaleString("ru-RU")`,
-  `InspectorPanel.tsx`/`BudgetPanel.tsx`) — формат через активную локаль
+  `InspectorPanel.tsx`/`BudgetPanel.tsx`) — формат через активную локаль  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
   i18n (чинит находку аудита №2).
 - ❌ Схлопывание нескольких однотипных окон в одну позицию
-  (`useWindows.ts` `getSettingsKey` по категории — чинит находку №3).
+  (`useWindows.ts` `getSettingsKey` по категории — чинит находку №3).  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
 - ❌ Сырой `err.message` игроку (находка №13) — понятные сообщения.
 - ❌ Мёртвый create-vite шаблон (`client/src/index.css`, `public/icons.svg` —
   находка №14) — удалить, подтвердив что ничего не ломается.
@@ -148,7 +148,7 @@ Nano Banana в стиле эпохи) без переписывания комп
 - **Статус (2026-07-13): реализовано.** `client/src/primitives/{Button,IconButton,
   Stat,Chip,Panel,Meter,Tag,Legend}/` — каждый CSS Modules + `.tsx`, на токенах
   `client/src/styles/tokens-1946.css` (Срез 0). Витрина —
-  `client/src/dev/PrimitivesShowcase.tsx`, открывается `?showcase=primitives`
+  `client/src/dev/PrimitivesShowcase.tsx`, открывается `?showcase=primitives`  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
   (main.tsx), вне игрового потока. Точечные тесты поведения (не снапшоты):
   `Button` (клик/disabled/type), `IconButton` (aria-pressed), `Meter`
   (aria-value*/кламп 0-100%), `Stat` (регрессия на правило «не возвращать» §2 —
@@ -271,7 +271,7 @@ Nano Banana в стиле эпохи) без переписывания комп
     PoliticsBook); нет overflow на 1280/1440/1680 с открытой Industry-книгой
     (самый длинный контент из трёх); typecheck+lint зелёные (20
     предсуществующих lint-ошибок — не в файлах этого среза, вне скоупа:
-    `PlayerIntentPanel.tsx` техдолг Среза 1-2, `map/**` — домен карты, см.
+    `PlayerIntentPanel.tsx` техдолг Среза 1-2, `map/**` — домен карты, см.  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
     §0); vitest client 92 ✅.
 
 #### Пост-релизный QA-фикс (2026-07-13, после мержа Срезов 0-3 в `main`)
@@ -285,7 +285,7 @@ Nano Banana в стиле эпохи) без переписывания комп
 - **Шапка: казна сырым числом** (`3 234 525 490` вместо сокращения) —
   расхождение с самим эталоном (`geopolis-1946-hud.html:235` показывает
   казну коротко). Добавлен `formatCompactCurrency` (K/M/B/T,
-  locale-aware) в `utils/resourceDisplay.ts`, применён и к казне, и к ВВП
+  locale-aware) в `utils/resourceDisplay.ts`, применён и к казне, и к ВВП  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
   (мелкие экономики раньше показывали «0.01Т» — нечитаемо).
 - **Economy-панель (`BudgetPanel`) не показывала казну** вообще (только
   доход/расход/баланс), хотя клик по стату «Казна» в шапке ведёт именно
@@ -345,7 +345,7 @@ Nano Banana в стиле эпохи) без переписывания комп
 ## 6. Привязка к существующему коду (карта миграции)
 
 - `client/src/components/TopStatBar.tsx` → новая шапка (Срез 2).
-- `client/src/components/ResourceTicker.tsx` (`RESOURCE_LABELS`/`RESOURCE_CODES`)
+- `client/src/components/ResourceTicker.tsx` (`RESOURCE_LABELS`/`RESOURCE_CODES`)  <!-- файлы удалены 2026-08-07 вместе со старым слоем -->
   → переиспользовать локализованные подписи в статах ресурсов.
 - `client/src/hooks/useWindows.ts` → сузить до сравнения + фикс `getSettingsKey`.
 - `client/src/App.css` (~1600 строк, глобальный) → мигрировать на токены +
