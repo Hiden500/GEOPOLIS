@@ -181,11 +181,13 @@ educationSpending/infrastructureSpending/welfareSpending = income × доля` �
   Меняется только истощением (тиком), не командами.
 - **`Region.extraction[resource]`** — уровень добывающих мощностей
   `0..MAX_EXTRACTION_LEVEL` (`shared/src/defines/resources.ts`). Меняется
-  только командой `buildExtraction`/`damageExtraction`
+  только командой `buildExtraction`
   (`server/src/commands/resources.ts`) — стройка списывает
   `EXTRACTION_BUILD_COST` из казны, кламп до `MAX_EXTRACTION_LEVEL`;
-  разрушение (`damageExtraction`) безусловное, для будущей интеграции с
-  войной/событиями (пока не подключено ни к чему автоматически).
+  снос (`delta<0`) бесплатен и не требует контроля над регионом. Разрушения
+  мощностей войной СЕГОДНЯ НЕТ: мёртвый экспорт `damageExtraction` снят
+  2026-08-09 (`docs/IDEAS.md`), механику заводят вместе с War Phase, когда
+  появятся числа для калибровки.
 - **Output** — не хранится, считает **только** `ResourceTick`
   (`server/src/simulation/resources/ResourceTick.ts`):
   `actualProduction = richness × (level/MAX_EXTRACTION_LEVEL) ×

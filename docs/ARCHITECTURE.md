@@ -155,13 +155,14 @@ state для трёх «внешних инициаторов»: LLM-дейст�
   (точные обёртки формул `AiBehaviorTick` Правил A/B/C).
 * `commands/modifiers.ts` — `applyModifier`/`removeModifier`/
   `removeExpiredModifiers` (см. «Модификаторы» ниже).
-* `commands/resources.ts` — `buildExtraction`/`damageExtraction`
+* `commands/resources.ts` — `buildExtraction`
   (docs/plans/04_RESOURCES.md, 2026-07-11): уровень добывающих мощностей
   региона (`Region.extraction`), не сама добыча (та — производная,
-  `ResourceTick.ts`). `buildExtraction` проверяет `effectiveController`
+  `ResourceTick.ts`). Проверяет `effectiveController`
   и наличие deposit, списывает `EXTRACTION_BUILD_COST` при `delta>0`;
-  `damageExtraction` — безусловное снижение, для будущей интеграции с
-  войной/событиями (не подключена автоматически ни к чему в этом заходе).
+  при `delta<0` сносит мощности бесплатно и без проверки контроля. Парного
+  `damageExtraction` больше нет — мёртвый экспорт снят 2026-08-09, разрушение
+  мощностей войной заведут вместе с War Phase (`docs/IDEAS.md`).
 * Не реализовано (нет обоснования критерием приёмки, см. план): `setPuppet`
   (нет сервисного метода), `createFeature`/`removeFeature` (план 06), запись
   команд в `eventHistory`/журнал хода.
