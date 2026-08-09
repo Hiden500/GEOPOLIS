@@ -1,13 +1,31 @@
 import { type Region } from "@shared/types/map/Region";
 import { type Country } from "@shared/types/Country";
+import { type MapMode } from "./model";
 
-export type MapMode = "pol" | "eco" | "res" | "pop" | "sta" | "dip" | "mil" | "inf";
-
-export const MAP_MODE_ORDER: MapMode[] = ["pol", "eco", "res", "pop", "sta", "dip", "mil", "inf"];
+/**
+ * Подпись ЛЕГЕНДЫ. Союз, а не `string`: экран переводит подписи исчерпывающим
+ * `Record`, поэтому новая градация без строки в словаре — ошибка компиляции, а
+ * не пустое место в углу карты.
+ */
+export type LegendLabel =
+  | "high"
+  | "medium"
+  | "low"
+  | "calm"
+  | "tense"
+  | "unrest"
+  | "dense"
+  | "sparse"
+  | "rich"
+  | "poor"
+  | "own"
+  | "ally"
+  | "neutral"
+  | "hostile";
 
 export interface LegendItem {
   swatch: string;
-  labelKey: string;
+  labelKey: LegendLabel;
 }
 
 // Палитра — значения токенов темы 1946 (client/src/styles/tokens-1946.css),
@@ -20,7 +38,6 @@ const CRIT = "#cf4436";
 const ACCENT = "#e6a338";
 const ACCENT_DIM = "#8a6a2a";
 const HAIRLINE_2 = "#3a4b3d";
-const STEEL_3 = "#263329";
 const PAPER_DIM = "#9ba08c";
 
 /**
@@ -51,32 +68,35 @@ export function computeMapModeColors(
   countries: Country[],
   playerCountryId: string,
 ): Record<number, string> | null {
-  if (mode === "pol") return null;
+  if (mode === "powers") return null;
 
   const countryById = new Map(countries.map(c => [c.id, c]));
   const colors: Record<number, string> = {};
 
   for (const r of regions) {
     switch (mode) {
-      case "eco":
+      case "industry":
         colors[r.id] = tierDev(r.development);
         break;
-      case "inf":
+      case "infrastructure":
         colors[r.id] = tierDev(r.infrastructure);
         break;
-      case "sta":
+      case "unrest":
+        // Красится ОБРАТНОЙ величиной: поля «недовольство» в данных нет, есть
+        // `stability`, поэтому низкая устойчивость даёт красный. Это не мнимая
+        // инверсия — «починив» её, режим начнёт врать.
         colors[r.id] = r.stability < 0.4 ? CRIT : r.stability < 0.6 ? WARN : OK;
         break;
-      case "pop":
+      case "population":
         colors[r.id] =
           r.population >= POPULATION_DENSE ? OK : r.population >= POPULATION_MEDIUM ? OK_MID : OK_DIM;
         break;
-      case "res": {
+      case "resources": {
         const total = Object.values(r.deposits).reduce((s: number, v) => s + (v ?? 0), 0);
         colors[r.id] = total >= DEPOSITS_RICH ? ACCENT : total >= DEPOSITS_MEDIUM ? ACCENT_DIM : HAIRLINE_2;
         break;
       }
-      case "dip": {
+      case "blocs": {
         if (r.ownerCountryId === playerCountryId) {
           colors[r.id] = ACCENT;
           break;
@@ -86,57 +106,54 @@ export function computeMapModeColors(
         colors[r.id] = relation > 20 ? OK : relation < -20 ? CRIT : PAPER_DIM;
         break;
       }
-      case "mil":
-        // Упрощённая эвристика (нет прямого аналога фронт/тыл/гарнизон в
-        // данных, см. решение пользователя 2026-07-13): оккупирован → фронт,
-        // иначе тыл. Уточнится, когда появится реальная линия фронта.
-        colors[r.id] = r.occupiedBy ? CRIT : STEEL_3;
-        break;
     }
   }
   return colors;
 }
 
+/**
+ * ЛЕГЕНДА живёт рядом с раскраской нарочно: цвет и его объяснение меняются
+ * одной правкой. Прежняя вторая легенда сидела в `Screen.tsx`, описывала
+ * непрерывный градиент, которого раскраска не даёт, и ключевана была чужим
+ * словарём — то есть не показывалась вовсе.
+ *
+ * Возврат `[]` — «цвет здесь не означает величину», и экран легенду не рисует.
+ */
 export function legendForMode(mode: MapMode): LegendItem[] {
   switch (mode) {
-    case "pol":
+    case "powers":
       return [];
-    case "eco":
-    case "inf":
+    case "industry":
+    case "infrastructure":
       return [
         { swatch: OK, labelKey: "high" },
         { swatch: OK_MID, labelKey: "medium" },
         { swatch: OK_DIM, labelKey: "low" },
       ];
-    case "sta":
+    case "unrest":
       return [
         { swatch: OK, labelKey: "calm" },
         { swatch: WARN, labelKey: "tense" },
         { swatch: CRIT, labelKey: "unrest" },
       ];
-    case "pop":
+    case "population":
       return [
         { swatch: OK, labelKey: "dense" },
         { swatch: OK_MID, labelKey: "medium" },
         { swatch: OK_DIM, labelKey: "sparse" },
       ];
-    case "res":
+    case "resources":
       return [
         { swatch: ACCENT, labelKey: "rich" },
         { swatch: ACCENT_DIM, labelKey: "medium" },
         { swatch: HAIRLINE_2, labelKey: "poor" },
       ];
-    case "dip":
+    case "blocs":
       return [
         { swatch: ACCENT, labelKey: "own" },
         { swatch: OK, labelKey: "ally" },
         { swatch: PAPER_DIM, labelKey: "neutral" },
         { swatch: CRIT, labelKey: "hostile" },
-      ];
-    case "mil":
-      return [
-        { swatch: CRIT, labelKey: "front" },
-        { swatch: STEEL_3, labelKey: "rear" },
       ];
   }
 }

@@ -19,13 +19,29 @@
     "since": "Date: {{date}}"
   },
   "mapModes": {
-    "pol": "Powers",
-    "eco": "Industry",
-    "res": "Resources",
-    "pop": "Population",
-    "sta": "Unrest",
-    "dip": "Blocs",
-    "mil": "Armies",
-    "inf": "Infrastructure"
+    "powers": "Powers",
+    "industry": "Industry",
+    "resources": "Resources",
+    "population": "Population",
+    "unrest": "Unrest",
+    "blocs": "Blocs",
+    "infrastructure": "Infrastructure"
+  },
+  "legend": {
+    "title": "Legend",
+    "high": "high",
+    "medium": "medium",
+    "low": "low",
+    "calm": "calm",
+    "tense": "tense",
+    "unrest": "unrest",
+    "dense": "dense",
+    "sparse": "sparse",
+    "rich": "rich",
+    "poor": "poor",
+    "own": "ours",
+    "ally": "ally",
+    "neutral": "neutral",
+    "hostile": "hostile"
   }
 }

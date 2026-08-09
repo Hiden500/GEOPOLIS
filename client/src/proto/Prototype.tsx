@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Screen, type ScreenOrder } from "../game/Screen";
-import type { ScreenEvent, ScreenModel } from "../game/model";
+import type { MapMode, ScreenEvent, ScreenModel } from "../game/model";
 import { HexMap } from "./HexMap";
 import {
   BUDGET,
@@ -35,7 +35,7 @@ export function Prototype() {
   const [monthIndex, setMonthIndex] = useState(2);
   const [events, setEvents] = useState<ScreenEvent[]>(INITIAL_EVENTS);
   const [turnCount, setTurnCount] = useState(0);
-  const [mapMode, setMapMode] = useState<string>("powers");
+  const [mapMode, setMapMode] = useState<MapMode>("powers");
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
 
   const model = useMemo<ScreenModel>(

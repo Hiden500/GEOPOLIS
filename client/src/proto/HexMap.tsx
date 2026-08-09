@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { cx } from "../ui";
+import type { MapMode } from "../game/model";
 import {
   COUNTRIES,
   GRID_COLUMNS,
@@ -11,8 +12,8 @@ import {
 import styles from "./HexMap.module.css";
 
 interface HexMapProps {
-  /** Экран отдаёт режим строкой: раскраску знает карта, не рама. */
-  mode: string;
+  /** Экран отдаёт идентификатор режима: раскраску знает карта, не рама. */
+  mode: MapMode;
   selectedRegionId: string | null;
   selectedCountryId: string | null;
   onSelectRegion: (regionId: string) => void;
@@ -64,7 +65,7 @@ export function HexMap({
   const fillFor = (owner: CountryId | null, region: (typeof cells)[number]["region"]) => {
     if (owner === null || region === undefined) return undefined;
     switch (mode) {
-      case "discontent":
+      case "unrest":
         return ramp(region.discontent, [46, 62, 58], [214, 84, 62]);
       case "industry":
         return ramp(region.industry / 64, [40, 48, 58], [92, 176, 214]);
