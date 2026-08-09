@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
+import { type Translator } from "../i18n/Translator";
 import { MapView } from "../map/MapView";
 import { computeMapModeColors } from "./mapModeColors";
 import { usePrimitiveOutcomeText } from "./primitiveOutcomeText";
@@ -132,12 +133,25 @@ export function GameShell({
     [tResearch],
   );
 
+  /*
+   * Переводчик для АДАПТЕРА. Адаптер — чистая функция и хук вызвать не может,
+   * поэтому переводчик впрыскивается сюда полем входа; здесь единственное место
+   * сборки, и оно же единственное, где `adapter`-словарь встречается с i18n.
+   * Тип `Translator<"adapter">` не даст подставить переводчик другого namespace.
+   */
+  const { t: tAdapter } = useTranslation("adapter");
+  const translateAdapter = useCallback<Translator<"adapter">>(
+    (key, params) => tAdapter(key, params),
+    [tAdapter],
+  );
+
   const model = useMemo(
     () =>
       buildScreenModel({
         game,
         locale,
         renderLine,
+        t: translateAdapter,
         mapModes,
         isIrreversible,
         monthsNominative,
@@ -146,7 +160,18 @@ export function GameShell({
         domainName,
         campaign,
       }),
-    [game, locale, renderLine, mapModes, isIrreversible, monthsNominative, monthsGenitive, domainName, campaign],
+    [
+      game,
+      locale,
+      renderLine,
+      translateAdapter,
+      mapModes,
+      isIrreversible,
+      monthsNominative,
+      monthsGenitive,
+      domainName,
+      campaign,
+    ],
   );
 
   const regionModeColors = useMemo(

@@ -27,6 +27,7 @@ import { EquipmentType } from "@shared/types/military/EquipmentType";
 import { emptyPrimitiveTurnBudget } from "@shared/types/politics/PrimitiveTurnBudget";
 import { ResourceType } from "@shared/types/resources/ResourcesType";
 import i18n from "../../i18n";
+import { type Translator } from "../../i18n/Translator";
 import { buildScreenModel } from "../adapter";
 import { computeMapModeColors, legendForMode } from "../mapModeColors";
 import { MAP_MODE_ORDER, type MapMode, type ScreenModel } from "../model";
@@ -209,11 +210,20 @@ function gameState(): GameState {
 
 const t = i18n.getFixedT(null, "screen");
 
+/**
+ * Переводчик АДАПТЕРА — тот же впрыск, что в `GameShell`: адаптер хук вызвать не
+ * может и получает переводчик полем входа. Namespace объявлен типом, поэтому
+ * подставить сюда переводчик рамы (`screen`) компилятор не даст.
+ */
+const tAdapterFixed = i18n.getFixedT(null, "adapter");
+const tAdapter: Translator<"adapter"> = (key, params) => tAdapterFixed(key, params);
+
 function buildModel(game: GameState): ScreenModel {
   return buildScreenModel({
     game,
     locale: "ru",
     renderLine: () => "",
+    t: tAdapter,
     // Тот же способ, что в `GameShell`: список режимов и подписи приходят из
     // словаря по одному и тому же порядку.
     mapModes: MAP_MODE_ORDER.map((mode) => ({ id: mode, name: t(`mapModes.${mode}`) })),

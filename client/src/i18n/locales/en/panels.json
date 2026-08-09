@@ -1,0 +1,117 @@
+{
+  "economy": {
+    "keyStats": "Key indicators",
+    "budget": "Budget shares",
+    "saving": "Saving…",
+    "save": "Save shares",
+    "revert": "Revert",
+    "failed": "Not saved",
+    "resources": "Raw materials"
+  },
+  "defence": {
+    "slots": "Slots, fleet and counts",
+    "mobilization": "Mobilization",
+    "mobilizationNote": "Mobilization buys strength at the cost of the civilian economy and stability. Currently on a peacetime footing.",
+    "peace": "Peacetime",
+    "partial": "Partial",
+    "full": "Full",
+    "nuclear": "Nuclear",
+    "warheads": "Warheads"
+  },
+  "science": {
+    "domains": "Domains and research focus",
+    "tier": "· tier {{tier}}",
+    "focus": "Research focus: {{percent}}%",
+    "next": "Next tier: {{unlocks}}",
+    "projects": "Projects"
+  },
+  "politics": {
+    "axes": "Axes of power",
+    "course": "Course",
+    "courseNote": "The dot is your course, the diamond is your rival. Group discontent and the closeness of alliances are computed as the distance between positions, so what matters is not the number itself but how far apart you are.",
+    "unrest": "Centres of discontent"
+  },
+  "diplomacy": {
+    "relations": "Relations",
+    "dossier": "Dossier"
+  },
+  "goals": {
+    "title": "State goals",
+    "estimate": "Assessment: {{kind}}",
+    "redLines": "Red lines",
+    "advisor": "Advisor",
+    "assessment": "Assessment.",
+    "guess": "Conjecture.",
+    "advisorNote": "This is an assessment and a conjecture, not a fact. The decision is yours."
+  },
+  "region": {
+    "industry": "Industry",
+    "extraction": "Extraction",
+    "owner": "Power",
+    "population": "Population",
+    "largestGroup": "Largest group",
+    "discontent": "Discontent"
+  },
+  "country": {
+    "own": "Your state",
+    "intel": "Intelligence estimate",
+    "intelNote": "Data about a foreign state is an estimate, not a fact. Its accuracy depends on proximity and presence.",
+    "compare": "Compare"
+  },
+  "compare": {
+    "rank": "GDP rank",
+    "tier": "Tier",
+    "gdp": "GDP",
+    "population": "Population",
+    "army": "Army",
+    "ideology": "Course",
+    "bloc": "Bloc"
+  },
+  "ledger": {
+    "tabs": {
+      "powers": "Powers",
+      "regions": "Regions",
+      "blocs": "Blocs",
+      "chronicle": "Chronicle"
+    },
+    "powers": {
+      "country": "Power",
+      "gdp": "GDP",
+      "population": "Population",
+      "army": "Army",
+      "relation": "Relations"
+    },
+    "regions": {
+      "region": "Region",
+      "owner": "Power",
+      "population": "Population",
+      "discontent": "Discontent",
+      "industry": "Industry"
+    },
+    "blocs": {
+      "bloc": "Bloc",
+      "dimension": "Dimension",
+      "leader": "Leader",
+      "members": "Members",
+      "sovietSphere": "Soviet sphere",
+      "sovietDimension": "military · economic",
+      "sovietLeader": "USSR",
+      "brettonWoods": "Bretton Woods",
+      "brettonDimension": "economic",
+      "brettonLeader": "USA",
+      "securityCouncil": "Security Council",
+      "securityCouncilDimension": "diplomatic"
+    },
+    "chronicle": {
+      "date": "Date",
+      "event": "Event",
+      "source": "Source",
+      "factuality": "Factuality",
+      "world": "world",
+      "order": "your order",
+      "partial": "partial",
+      "unconfirmed": "unconfirmed",
+      "confirmed": "confirmed"
+    }
+  }
+}

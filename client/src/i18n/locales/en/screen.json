@@ -44,5 +44,132 @@
     "ally": "allied",
     "neutral": "neutral",
     "hostile": "hostile"
+  },
+  "tomes": {
+    "economy": "Economy",
+    "politics": "Politics",
+    "defence": "Defence",
+    "science": "Science",
+    "diplomacy": "Diplomacy",
+    "goals": "Goals"
+  },
+  "regionTabs": {
+    "obzor": "Overview",
+    "lyudi": "People",
+    "hozyaystvo": "Economy",
+    "istoriya": "History"
+  },
+  "fold": "Collapse",
+  "playerFlag": "Flag of the USSR",
+  "playerPanel": "{{country}} — state panel",
+  "rankHint": "World rank by overall power — open the register of powers",
+  "ledger": {
+    "hint": "Register — tables of the world",
+    "title": "Register",
+    "meta": "window · drag by the header"
+  },
+  "director": {
+    "busy": "the director is thinking",
+    "ready": "the director is ready"
+  },
+  "save": {
+    "hint": "Save the campaign",
+    "label": "Save"
+  },
+  "search": {
+    "hint": "Search powers and regions",
+    "label": "Search",
+    "title": "Search",
+    "placeholder": "Power or region…",
+    "empty": "Nothing found.",
+    "kindCountry": "power",
+    "kindRegion": "region"
+  },
+  "turn": {
+    "thinking": "The director is thinking…",
+    "advance": "Continue · {{n}}"
+  },
+  "lenta": {
+    "resize": "Feed width",
+    "title": "This turn",
+    "collapseHint": "Tuck the feed to the right edge",
+    "collapse": "Collapse the feed",
+    "expandHint": "Expand the feed · events: {{n}}",
+    "expand": "Expand the feed",
+    "tabAll": "All · {{n}}",
+    "tabWorld": "World",
+    "tabMine": "My orders"
+  },
+  "polosa": {
+    "pin": "Pin",
+    "pinHint": "Pin: do not reset when clicking the map",
+    "unpin": "Unpin"
+  },
+  "orders": {
+    "title": "Orders",
+    "meta": "{{month}} · {{n}} of {{max}}",
+    "collapseHint": "Collapse the order sheet",
+    "collapse": "Collapse orders",
+    "placeholder": "Enter an order…",
+    "add": "Add"
+  },
+  "confirm": {
+    "title": "Irreversible decision",
+    "text": "One of the orders for {{month}} is irreversible: “{{order}}”. It cannot be undone.",
+    "back": "Go back",
+    "send": "Send"
+  },
+  "menu": {
+    "label": "Menu",
+    "title": "Menu",
+    "meta": "layout switches",
+    "diagnosticsNote": "Diagnostics: the AI director's prompt and response by hand.",
+    "llmCycle": "Manual AI director cycle",
+    "scienceNote": "Science as its own tome or inside defence — we are trying both.",
+    "scienceSeparate": "Separate",
+    "scienceTogether": "Together with defence",
+    "slantNote": "Header fillet smoothness: {{value}} px",
+    "slantLabel": "Fillet smoothness",
+    "skinNote": "Styling is the material of the panels, not their colour.",
+    "skins": {
+      "flat": "Panel",
+      "bare": "No frames",
+      "print": "Print",
+      "glow": "Glow",
+      "gauge": "Gauge"
+    },
+    "paletteNote": "Palette — the decision is deferred until the map is wired in.",
+    "palettes": {
+      "graphite": "Graphite",
+      "steel": "Steel",
+      "ink": "Ink",
+      "khaki": "Khaki"
+    }
+  },
+  "llm": {
+    "title": "Manual AI director cycle",
+    "meta": "diagnostics",
+    "autoTitle": "Automatically",
+    "autoRun": "Generate and apply automatically",
+    "promptTitle": "1. Prompt (manual route)",
+    "promptCopied": "Prompt copied ✓",
+    "promptGet": "Get and copy the prompt",
+    "promptLabel": "Prompt for the AI",
+    "responseTitle": "2. AI response",
+    "responseLabel": "AI response (JSON)",
+    "responsePlaceholder": "Paste the JSON response: { \"descriptions\": \"...\", \"primitives\": [...] }",
+    "responseApply": "Apply the response",
+    "errorPrompt": "Failed to get the prompt",
+    "errorApply": "Failed to apply the response",
+    "errorAuto": "The automatic cycle failed",
+    "resultFallback": "Result",
+    "partial": "Partially confirmed: the engine rejected part of what was proposed — the text above may describe that part too. What actually landed in the world is below.",
+    "unconfirmed": "Not confirmed by facts: the director proposed nothing to the engine, and this text did not change the world.",
+    "impossibleTitle": "The director proposed the impossible",
+    "impossibleText": "Not a single proposal of the director was applied, so no event was recorded: the world did not change, and there is nothing to tell about it. The reasons below will go to the model in the next prompt.",
+    "countApplied": "Orders applied: {{n}}",
+    "countRejected": ", rejected: {{n}}",
+    "appliedTitle": "What actually happened",
+    "rejectedTitle": "Rejected by the engine"
   }
 }
