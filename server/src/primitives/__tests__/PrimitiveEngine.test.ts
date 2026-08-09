@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { type z } from "zod";
-import { applyPrimitiveBatch, restore } from "../PrimitiveEngine";
+import { applyPrimitiveBatch, pushRejectionFact, restore } from "../PrimitiveEngine";
 import * as politicsCommands from "../../commands/politics";
 import { PRIMITIVE_PALETTE, pathMatchesPaletteEntry } from "../palette";
 import { WarService } from "../../services/WarService";
@@ -26,6 +26,7 @@ import {
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
   MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
+  MAX_REJECTION_FACT_LENGTH,
   MAX_PRIMITIVE_ID_LENGTH,
   IMPACT_FIELD_TURN_CEILING,
   REPRESS_SUPPRESSION_MIN,
@@ -1411,6 +1412,33 @@ describe("диагностика отказов ограничена сверх�
     const facts = rejectionFacts(state);
     expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS_PER_SOURCE);
     expect(facts.every(f => f.text.startsWith("Attempt rejected"))).toBe(true);
+  });
+
+  it("длина ОДНОЙ записи ограничена, и обрезка помечена", () => {
+    // Вторая половина границы секции. Кап ЧИСЛА записей её не давал: причина
+    // отказа собирается и из НЕИЗВЕСТНЫХ полей — `.strict()` называет
+    // нераспознанный ключ, а имена ключей в теле запроса не ограничены ничем.
+    const state = game();
+    pushRejectionFact(state, "primitive_rejected", {
+      countryId: "USA",
+      text: `Attempt rejected (repress): ${"y".repeat(MAX_REJECTION_FACT_LENGTH * 3)}`,
+    });
+
+    const fact = rejectionFacts(state)[0]!;
+    expect(fact.text).toHaveLength(MAX_REJECTION_FACT_LENGTH);
+    // Метка обязательна: молча обрезанная причина читается моделью как полная,
+    // и она чинит названную часть примитива, не узнав про неназванную.
+    expect(fact.text.endsWith("… (truncated)")).toBe(true);
+  });
+
+  it("причина ПОД капом не трогается: граница выше диагностики, а не поперёк неё", () => {
+    const state = game();
+    const intact = `Attempt rejected (repress): ${"y".repeat(MAX_REJECTION_FACT_LENGTH - 40)}`;
+    expect(intact.length).toBeLessThanOrEqual(MAX_REJECTION_FACT_LENGTH);
+
+    pushRejectionFact(state, "primitive_rejected", { countryId: "USA", text: intact });
+
+    expect(rejectionFacts(state)[0]!.text).toBe(intact);
   });
 
   it("идентификатор сверх границы длины схему не проходит", () => {

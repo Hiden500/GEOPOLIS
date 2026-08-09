@@ -59,6 +59,7 @@ import {
   IMPACT_FIELD_TURN_CEILING,
   IMPACT_FIELD_TURN_CEILING_TOLERANCE,
   MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
+  MAX_REJECTION_FACT_LENGTH,
 } from "@shared/defines/discontent";
 import {
   emptyPrimitiveTurnBudget,
@@ -3464,6 +3465,13 @@ function turnBudgetFor(game: GameState): PrimitiveTurnBudget {
  * приказа игрока (`routes/primitives.ts`) и тесты, а единственный канал, чья
  * диагностика защищается, обязан назвать себя явно. Новый канал, забывший
  * параметр, попадает в НЕзарезервированную корзину — безопасная сторона ошибки.
+ *
+ * **Длину записи держит `MAX_REJECTION_FACT_LENGTH`** (2026-08-09). Кап числа
+ * записей сам по себе секцию не ограничивал: причина отказа собирается в том
+ * числе из НЕИЗВЕСТНЫХ полей — `.strict()` называет нераспознанный ключ, а имена
+ * ключей в теле запроса ничем не ограничены. Обе границы живут здесь, потому что
+ * это единственная дверь в `pendingWorldFacts` для обоих каналов: граница,
+ * поставленная у одного производителя причин, снимается следующим.
  */
 export function pushRejectionFact(
   game: GameState,
@@ -3488,7 +3496,28 @@ export function pushRejectionFact(
     return;
   }
 
-  game.pendingWorldFacts.push({ ...fact, kind, source });
+  game.pendingWorldFacts.push({ ...fact, text: cappedFactText(fact.text), kind, source });
+}
+
+/**
+ * Метка обрезки. Английская, как и весь текст факта: он пишется ДЛЯ МОДЕЛИ, а
+ * игроку та же причина приходит записью `PrimitiveRejectionRecord` и своим
+ * словарём.
+ */
+const FACT_TRUNCATION_MARK = "… (truncated)";
+
+/**
+ * Обрезает диагностическую запись до `MAX_REJECTION_FACT_LENGTH`, ПОМЕЧАЯ
+ * обрезку.
+ *
+ * Метка обязательна и не косметическая: причина, усечённая молча, читается
+ * моделью как полная — она починит названную часть примитива и не узнает про
+ * неназванную. Это ровно тот исход, против которого диагностика и заведена
+ * (docs/PRIMITIVES.md §3 — «чтобы не долбилась в невозможное»).
+ */
+function cappedFactText(text: string): string {
+  if (text.length <= MAX_REJECTION_FACT_LENGTH) return text;
+  return text.slice(0, MAX_REJECTION_FACT_LENGTH - FACT_TRUNCATION_MARK.length) + FACT_TRUNCATION_MARK;
 }
 
 /**
