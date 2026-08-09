@@ -195,4 +195,55 @@ describe("commands/economy", () => {
       expect(result.success).toBe(false);
     });
   });
+
+  // Базовые фикстуры выше идут с importSpending = 0, и на нулевом импорте
+  // «доля × полный доход» и «доля × располагаемый доход» дают одно число —
+  // такие проверки формулы не различают. Здесь импорт ненулевой: суммы, которые
+  // команда приводит следом за долей, обязаны считаться от той же базы, что и в
+  // `EconomyTick` — иначе между командой ИИ и ходом состояние снова разъедется.
+  describe("база сумм при ненулевом импорте — располагаемый доход, как в EconomyTick", () => {
+    const IMPORTS = 30_000_000_000;
+
+    function gameWithImports() {
+      const game = gameWithUsa({
+        economy: { ...createTestCountry().economy, importSpending: IMPORTS },
+      });
+      const country = game.countries[0]!;
+      const e = country.economy;
+      const gross = e.taxRevenue + e.exportIncome + e.stateEnterpriseIncome + e.otherIncome;
+      return { game, country, gross, disposable: gross - IMPORTS };
+    }
+
+    it("setMilitaryShare считает сумму от дохода за вычетом импорта", () => {
+      const { game, country, gross, disposable } = gameWithImports();
+
+      commands.setMilitaryShare(game, "USA", 0.25);
+
+      expect(country.economy.militarySpending).toBeCloseTo(disposable * 0.25, 3);
+      expect(country.economy.militarySpending).not.toBeCloseTo(gross * 0.25, 3);
+    });
+
+    it("сдвиг military↔welfare считает обе суммы от дохода за вычетом импорта", () => {
+      const { game, country, disposable } = gameWithImports();
+      const before = country.economy.spendingShares!.military;
+
+      commands.shiftMilitaryToWelfare(game, "USA", 0.02);
+
+      expect(country.economy.militarySpending).toBeCloseTo(disposable * (before - 0.02), 3);
+      expect(country.economy.welfareSpending)
+        .toBeCloseTo(disposable * country.economy.spendingShares!.welfare, 3);
+    });
+
+    it("аустерити и его обратный ход приводят сумму от дохода за вычетом импорта", () => {
+      const { game, country, disposable } = gameWithImports();
+
+      commands.applyDeficitAusterityCut(game, "USA", 0.5, ["militarySpending"]);
+      expect(country.economy.militarySpending)
+        .toBeCloseTo(disposable * country.economy.spendingShares!.military, 3);
+
+      commands.applyAusterityRecoveryRaise(game, "USA", 1.05, ["militarySpending"]);
+      expect(country.economy.militarySpending)
+        .toBeCloseTo(disposable * country.economy.spendingShares!.military, 3);
+    });
+  });
 });

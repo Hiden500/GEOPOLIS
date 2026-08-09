@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CountryService } from "../CountryService";
 import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
+import { economyTick } from "../../simulation/economy/EconomyTick";
 import { type Country } from "@shared/types/Country";
 
 describe("CountryService", () => {
@@ -11,7 +12,10 @@ describe("CountryService", () => {
   });
 
   describe("updateBudget", () => {
-    it("сохраняет доли в spendingShares и выводит *Spending = income × доля немедленно", () => {
+    // Импорт во всех фикстурах ниже НЕНУЛЕВОЙ намеренно: на нулевом импорте
+    // «доли от полного дохода» и «доли от располагаемого» дают одно и то же
+    // число, и тест перестаёт различать формулы.
+    it("сохраняет доли в spendingShares и выводит *Spending = располагаемый доход × доля немедленно", () => {
       const country = createTestCountry({
         economy: {
           ...createTestCountry().economy,
@@ -19,6 +23,7 @@ describe("CountryService", () => {
           exportIncome: 0,
           stateEnterpriseIncome: 0,
           otherIncome: 0,
+          importSpending: 20,
           debtInterest: 0,
           otherExpenses: 0,
         },
@@ -35,16 +40,17 @@ describe("CountryService", () => {
       expect(economy.spendingShares).toEqual({
         military: 0.1, research: 0.2, education: 0.05, infrastructure: 0.05, welfare: 0.1,
       });
-      // income = 100 → 10 + 20 + 5 + 5 + 10 = 50
-      expect(economy.militarySpending).toBe(10);
-      expect(economy.researchSpending).toBe(20);
-      expect(economy.educationSpending).toBe(5);
-      expect(economy.infrastructureSpending).toBe(5);
-      expect(economy.welfareSpending).toBe(10);
-      expect(economy.budgetBalance).toBe(50);
+      // доход 100, импорт 20 → база росписи 80: 8 + 16 + 4 + 4 + 8 = 40
+      expect(economy.militarySpending).toBe(8);
+      expect(economy.researchSpending).toBe(16);
+      expect(economy.educationSpending).toBe(4);
+      expect(economy.infrastructureSpending).toBe(4);
+      expect(economy.welfareSpending).toBe(8);
+      // баланс = доход 100 − (пять статей 40 + импорт 20)
+      expect(economy.budgetBalance).toBe(40);
     });
 
-    it("учитывает все источники дохода и фиксированные расходы (debtInterest/otherExpenses)", () => {
+    it("учитывает все источники дохода и все обязательные расходы (debtInterest/otherExpenses/importSpending)", () => {
       const country = createTestCountry({
         economy: {
           ...createTestCountry().economy,
@@ -52,6 +58,7 @@ describe("CountryService", () => {
           exportIncome: 20,
           stateEnterpriseIncome: 20,
           otherIncome: 10,
+          importSpending: 12,
           debtInterest: 5,
           otherExpenses: 5,
         },
@@ -61,8 +68,57 @@ describe("CountryService", () => {
         military: 0, research: 0, education: 0, infrastructure: 0, welfare: 0,
       });
 
-      // income 100 - expenses (0 + debtInterest 5 + otherExpenses 5) = 90
-      expect(economy.budgetBalance).toBe(90);
+      // income 100 - expenses (0 + debtInterest 5 + otherExpenses 5 + импорт 12) = 78
+      expect(economy.budgetBalance).toBe(78);
+    });
+
+    it("импорт больше дохода не делает роспись отрицательной", () => {
+      const country = createTestCountry({
+        economy: {
+          ...createTestCountry().economy,
+          taxRevenue: 100,
+          exportIncome: 0,
+          stateEnterpriseIncome: 0,
+          otherIncome: 0,
+          importSpending: 250,
+          debtInterest: 0,
+          otherExpenses: 0,
+        },
+      });
+
+      const economy = service.updateBudget(country, {
+        military: 0.2, research: 0.1, education: 0.1, infrastructure: 0.05, welfare: 0.05,
+      });
+
+      expect(economy.militarySpending).toBe(0);
+      expect(economy.welfareSpending).toBe(0);
+      // Дефицит остаётся дефицитом: страна купила больше, чем заработала.
+      expect(economy.budgetBalance).toBe(-150);
+    });
+
+    it("показывает игроку тот же budgetBalance, который при неизменном состоянии посчитает следующий ход", () => {
+      // Свойство, ради которого правка и делалась: сохранение росписи и
+      // economyTick обязаны сойтись в ОДНОМ числе, а не каждый быть правдоподобным
+      // по отдельности. debt/debtInterest обнулены, чтобы сравнение не размывалось
+      // пересчётом процентов внутри тика — он к базе росписи отношения не имеет.
+      const country = createTestCountry({
+        economy: {
+          ...createTestCountry().economy,
+          importSpending: 30_000_000_000,
+          debt: 0,
+          debtInterest: 0,
+        },
+      });
+
+      const shares = {
+        military: 0.2, research: 0.1, education: 0.1, infrastructure: 0.05, welfare: 0.05,
+      };
+      const shownToPlayer = service.updateBudget(country, shares).budgetBalance;
+
+      // Состояние между сохранением и ходом не менялось.
+      economyTick(country, []);
+
+      expect(country.economy.budgetBalance).toBe(shownToPlayer);
     });
 
     it("мутирует переданный объект страны (возвращает ту же ссылку economy)", () => {

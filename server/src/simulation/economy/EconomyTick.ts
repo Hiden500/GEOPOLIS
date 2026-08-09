@@ -2,6 +2,7 @@ import { type Country } from "@shared/types/Country";
 import { type EconomyState } from "@shared/types/EconomyState";
 import { type Region } from "@shared/types/map/Region";
 import { RegionEconomyService } from "../../services/RegionEconomyService";
+import { grossIncome, disposableIncome } from "./budgetBase";
 import {
   BASE_GROWTH_INTERCEPT,
   BASE_GROWTH_DEVELOPMENT_COEFFICIENT,
@@ -48,7 +49,8 @@ import {
  * игрока (2026-08-01, `CreateGame.ts`): *Spending пересчитываются из
  * РАСПОЛАГАЕМОГО дохода × доля каждый тик — тот же паттерн, что
  * taxRate → taxRevenue выше. Располагаемый = доход минус импорт (2026-08-04,
- * см. ниже): роспись распределяет то, что осталось после обязательных закупок.
+ * `budgetBase.ts` — там же общая для всех путей записи формула): роспись
+ * распределяет то, что осталось после обязательных закупок.
  * Игрок задаёт свои доли через PUT /budget (docs/DECISIONS.md 2026-07-04
  * "Бюджет: доли/проценты"), доли ИИ двигает AiBehaviorTick.
  */
@@ -66,36 +68,26 @@ function updateBudget(country: Country): { income: number; expenses: number } {
     ? economy.debt * debtMonthlyInterestRate(country)
     : 0;
 
-  const income =
-    economy.taxRevenue +
-    economy.exportIncome +
-    economy.stateEnterpriseIncome +
-    economy.otherIncome;
+  const income = grossIncome(country);
 
-  // Импорт — обязательный платёж, а не строка росписи: сырьё закупается до
-  // того, как государство распределяет дискреционные статьи, и доли
-  // расписывают ТО, ЧТО ОСТАЛОСЬ (решение пользователя 2026-08-03: учитывать
-  // импорт, стартовые доли не нормировать). Пока доли считались от полного
-  // дохода, пять статей (84,9%) вместе с импортом, процентами и прочими
-  // расходами превышали 100% дохода: на 12-м месяце 85 стран из 157 обязаны
-  // были потратить больше, чем зарабатывают, и 107 набирали долг на ровном
-  // месте, не приняв ни одного решения.
-  //
-  // Кламп не косметика: страна, чей импорт превысил доход, иначе получила бы
-  // ОТРИЦАТЕЛЬНЫЕ расходы — то есть доход из ниоткуда.
+  // База росписи — доход за вычетом импорта (`budgetBase.ts`, там же причины и
+  // замер). Пока доли считались от полного дохода, пять статей (84,9%) вместе
+  // с импортом, процентами и прочими расходами превышали 100% дохода: на 12-м
+  // месяце 85 стран из 157 обязаны были потратить больше, чем зарабатывают, и
+  // 107 набирали долг на ровном месте, не приняв ни одного решения.
   //
   // Импорт здесь прошломесячный: `economyTick` идёт до `tradeTick`
   // (`SimulationEngine.ts`), и порядок тиков — архитектурное решение
   // (`docs/AI_RULES.md`). На первом ходу импорта ещё нет, и роспись
   // расписывает весь доход — так и задумано.
-  const disposableIncome = Math.max(0, income - economy.importSpending);
+  const budgetBase = disposableIncome(country);
 
   if (economy.spendingShares) {
-    economy.militarySpending = disposableIncome * economy.spendingShares.military;
-    economy.researchSpending = disposableIncome * economy.spendingShares.research;
-    economy.educationSpending = disposableIncome * economy.spendingShares.education;
-    economy.infrastructureSpending = disposableIncome * economy.spendingShares.infrastructure;
-    economy.welfareSpending = disposableIncome * economy.spendingShares.welfare;
+    economy.militarySpending = budgetBase * economy.spendingShares.military;
+    economy.researchSpending = budgetBase * economy.spendingShares.research;
+    economy.educationSpending = budgetBase * economy.spendingShares.education;
+    economy.infrastructureSpending = budgetBase * economy.spendingShares.infrastructure;
+    economy.welfareSpending = budgetBase * economy.spendingShares.welfare;
   }
 
   const expenses =

@@ -1,6 +1,7 @@
 import { type GameState } from "@shared/types/GameState";
 import { type Country } from "@shared/types/Country";
 import { calculateBaseInfluence } from "../diplomacy/DiplomacyTick";
+import { grossIncome } from "../economy/budgetBase";
 import * as diplomacyCommands from "../../commands/diplomacy";
 import * as economyCommands from "../../commands/economy";
 import { type SpendKey } from "../../commands/economy";
@@ -47,11 +48,6 @@ const DISCRETIONARY: SpendKey[] = [
   "welfareSpending",
 ];
 
-function totalIncome(c: Country): number {
-  const e = c.economy;
-  return e.taxRevenue + e.exportIncome + e.stateEnterpriseIncome + e.otherIncome;
-}
-
 /**
  * Правило A — аустерити В ОБЕ СТОРОНЫ (обратный ход добавлен 2026-08-02).
  *
@@ -95,7 +91,7 @@ function applyDeficitAusterity(game: GameState, c: Country): void {
   }
 
   if (debtBurden > AUSTERITY_RECOVERY_DEBT_CEILING) return;
-  const income = totalIncome(c);
+  const income = grossIncome(c);
   if (income <= 0 || e.budgetBalance < AUSTERITY_RECOVERY_SURPLUS_MARGIN * income) return;
 
   economyCommands.applyAusterityRecoveryRaise(game, c.id, AUSTERITY_RESTORE, DISCRETIONARY);
