@@ -195,7 +195,7 @@ function borderingPairs(game: GameState): Set<string> {
  * страны бьют общего врага в РАЗНЫХ войнах, — а именно так выглядит
  * складывающаяся коалиция до того, как она оформлена.
  */
-function foesOf(game: GameState): Map<string, Set<string>> {
+export function foesOf(game: GameState): Map<string, Set<string>> {
   const foes = new Map<string, Set<string>>();
   const link = (victim: string, enemy: string): void => {
     const set = foes.get(victim) ?? new Set<string>();
@@ -254,10 +254,46 @@ function sharedRivalCount(a: Country, b: Country): number {
   return a.diplomacy.rivals.filter(id => other.has(id)).length;
 }
 
+/**
+ * Бьют ли эти двое одного и того же третьего — шире со-воюющих в ОДНОЙ войне
+ * (см. `foesOf`).
+ */
+export function sharesOpponentWith(
+  aId: string,
+  bId: string,
+  foes: Map<string, Set<string>>
+): boolean {
+  const aFoes = foes.get(aId);
+  const bFoes = foes.get(bId);
+  if (!aFoes || !bFoes) return false;
+  return [...aFoes].some(id => bFoes.has(id));
+}
+
+/**
+ * Давление общего врага на пару, 0..1 — вход `allianceThreshold` и
+ * `structuralAffinity`.
+ *
+ * Экспортируется потому, что порог согласия на союз читает не только тик:
+ * предпосылка `spawn_incident(border_dispute)` судит союзничество той же меркой
+ * (`alliedWith`, `server/src/primitives/PrimitiveEngine.ts`). Второе определение
+ * формулы там означало бы ровно ту молчаливую расходимость, ради устранения
+ * которой мерка и стала общей.
+ */
+export function commonEnemyPressure(
+  a: Country,
+  b: Country,
+  foes: Map<string, Set<string>>
+): number {
+  return clamp01(
+    (sharesOpponentWith(a.id, b.id, foes) ? COMMON_ENEMY_WAR_PRESSURE : 0) +
+      COMMON_ENEMY_RIVAL_PRESSURE * sharedRivalCount(a, b)
+  );
+}
+
 /** Положение пары без единого канала связи — для записей, оставшихся вне кандидатов. */
 function contactlessStanding(a: Country, b: Country): PairStanding {
   return {
-    ideologyDistance: distanceBetween(a, b),
+    ideologyDistance: ideologyDistanceBetween(a, b),
     contact: 0,
     dependency: 0,
     commonEnemyPressure: 0,
@@ -265,7 +301,8 @@ function contactlessStanding(a: Country, b: Country): PairStanding {
   };
 }
 
-function distanceBetween(a: Country, b: Country): number {
+/** Идеологическая дистанция пары стран 0..1 — вход обоих порогов союза. */
+export function ideologyDistanceBetween(a: Country, b: Country): number {
   return ideologyDistance(
     resolveIdeologyCoordinates(a.politics),
     resolveIdeologyCoordinates(b.politics)
@@ -324,16 +361,10 @@ export function collectPairStandings(
     if (!a || !b) continue;
 
     const atWarWithEachOther = foes.get(aId)?.has(bId) ?? false;
-    const aFoes = foes.get(aId);
-    const bFoes = foes.get(bId);
-    const sharesOpponent =
-      aFoes !== undefined && bFoes !== undefined && [...aFoes].some(id => bFoes.has(id));
+    const sharesOpponent = sharesOpponentWith(aId, bId, foes);
 
     const dependency = dependencyStrength(a, b);
-    const commonEnemyPressure = clamp01(
-      (sharesOpponent ? COMMON_ENEMY_WAR_PRESSURE : 0) +
-        COMMON_ENEMY_RIVAL_PRESSURE * sharedRivalCount(a, b)
-    );
+    const pressure = commonEnemyPressure(a, b, foes);
     const contact = Math.max(
       borders.has(key) ? 1 : 0,
       dependency,
@@ -343,10 +374,10 @@ export function collectPairStandings(
     );
 
     standings.set(key, {
-      ideologyDistance: distanceBetween(a, b),
+      ideologyDistance: ideologyDistanceBetween(a, b),
       contact,
       dependency,
-      commonEnemyPressure,
+      commonEnemyPressure: pressure,
       atWarWithEachOther,
     });
   }
