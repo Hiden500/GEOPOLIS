@@ -567,7 +567,8 @@ export function Screen({
   /*
    * ЛЕГЕНДА приходит оттуда же, откуда цвет (`mapModeColors.ts`), — иначе
    * расшифровка и раскраска расходятся молча. Пустой список означает «цвет
-   * здесь не величина» (режим держав), и легенда не рисуется.
+   * здесь не величина» (режим держав): градаций не будет, но КОРОБКА легенды
+   * рисуется всё равно — иначе панель прыгает при переключении режима.
    */
   const legend = legendForMode(mapMode);
   /*
@@ -617,109 +618,114 @@ export function Screen({
     <div ref={shellRef} className={styles.shell} style={shellStyle}>
       {mapSlot}
 
-      {/* ── ШАПКА ────────────────────────────────────────────── */}
-      <div ref={shapkaRef}>
-        <ShapedBar
-          className={styles.shapka}
-          tabOffset={0}
-          tabRound
-          bandTint
-          bandSlant={slant}
-          left={
-            <div className={styles.flagCell}>
-              <Tooltip label={t("playerPanel", { country: model.countries[model.playerId].short })}>
-                <button type="button" className={styles.flagButton} onClick={() => selectCountry(model.playerId)}>
-                  <span className={styles.flag}>
-                    <FlagSU />
-                  </span>
-                </button>
-              </Tooltip>
-            </div>
-          }
-          tab={
-            <Tooltip label={t("rankHint")}>
-              <button
-                type="button"
-                className={styles.rankBox}
-                onClick={() => {
-                  setLedgerTab("powers");
-                  setLedgerOpen(true);
-                }}
-              >
-                <span
-                  className={cx(
-                    styles.rankDisc,
-                    model.playerRank <= 3 && styles.rankGold,
-                    model.playerRank > 3 && model.playerRank <= 10 && styles.rankSilver,
-                  )}
-                >
-                  {model.playerRank}
+      {/*
+        ── ШАПКА ──────────────────────────────────────────────
+        Ссылка стоит на САМОЙ панели, а не на обёртке вокруг неё. Обёртка была
+        и сплющивалась в ноль: панель приклеена к краю (`absolute`), то есть
+        вышла из потока, и высота обёртки перестала бы что-либо значить — а по
+        ней считается общая высота рамы.
+      */}
+      <ShapedBar
+        ref={shapkaRef}
+        className={styles.shapka}
+        tabOffset={0}
+        tabRound
+        bandTint
+        bandSlant={slant}
+        left={
+          <div className={styles.flagCell}>
+            <Tooltip label={t("playerPanel", { country: model.countries[model.playerId].short })}>
+              <button type="button" className={styles.flagButton} onClick={() => selectCountry(model.playerId)}>
+                <span className={styles.flag}>
+                  <FlagSU />
                 </span>
               </button>
             </Tooltip>
-          }
-          top={
-            <div className={styles.pribory}>
-              {priborGroups.map((group, groupIndex) => (
-                <div key={groupIndex} className={styles.priboryGroup}>
-                  {groupIndex > 0 && <span className={styles.priborySplit} />}
-                  {group.map((stat) => {
-                    const meta = stat.key === undefined ? undefined : PRIBOR_META[stat.key];
-                    // Локальная константа, иначе сужение типа не доживает
-                    // до тела замыкания и `tome` остаётся возможно-undefined.
-                    const tome = meta?.tome;
-                    return (
-                      <Stat
-                        key={stat.key ?? stat.label}
-                        label={stat.label}
-                        value={stat.value}
-                        delta={stat.delta}
-                        threshold={stat.threshold}
-                        icon={meta?.icon}
-                        labelMode="hidden"
-                        onClick={tome === undefined ? undefined : () => setYashik({ kind: "tome", id: tome })}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          }
-          bottom={
-            <div className={styles.koreshki}>
-              {tomes.map((id) => (
-                <Tooltip key={id} label={tomeNames[id]}>
-                  <Button
-                    size="md"
-                    iconOnly
-                    aria-label={tomeNames[id]}
-                    variant={yashik.kind === "tome" && yashik.id === id ? "order" : "quiet"}
-                    onClick={() =>
-                      setYashik((prev) =>
-                        prev.kind === "tome" && prev.id === id ? { kind: "none" } : { kind: "tome", id },
-                      )
-                    }
-                  >
-                    {TOME_ICONS[id]}
-                  </Button>
-                </Tooltip>
-              ))}
-              <span className={styles.koreshkiSplit} />
-              <Tooltip label={t("ledger.hint")}>
+          </div>
+        }
+        tab={
+          <Tooltip label={t("rankHint")}>
+            <button
+              type="button"
+              className={styles.rankBox}
+              onClick={() => {
+                setLedgerTab("powers");
+                setLedgerOpen(true);
+              }}
+            >
+              <span
+                className={cx(
+                  styles.rankDisc,
+                  model.playerRank <= 3 && styles.rankGold,
+                  model.playerRank > 3 && model.playerRank <= 10 && styles.rankSilver,
+                )}
+              >
+                {model.playerRank}
+              </span>
+            </button>
+          </Tooltip>
+        }
+        top={
+          <div className={styles.pribory}>
+            {priborGroups.map((group, groupIndex) => (
+              <div key={groupIndex} className={styles.priboryGroup}>
+                {groupIndex > 0 && <span className={styles.priborySplit} />}
+                {group.map((stat) => {
+                  const meta = stat.key === undefined ? undefined : PRIBOR_META[stat.key];
+                  // Локальная константа, иначе сужение типа не доживает
+                  // до тела замыкания и `tome` остаётся возможно-undefined.
+                  const tome = meta?.tome;
+                  return (
+                    <Stat
+                      key={stat.key ?? stat.label}
+                      label={stat.label}
+                      value={stat.value}
+                      delta={stat.delta}
+                      threshold={stat.threshold}
+                      icon={meta?.icon}
+                      labelMode="hidden"
+                      onClick={tome === undefined ? undefined : () => setYashik({ kind: "tome", id: tome })}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        }
+        bottom={
+          <div className={styles.koreshki}>
+            {tomes.map((id) => (
+              <Tooltip key={id} label={tomeNames[id]}>
                 <Button
                   size="md"
                   iconOnly
-                  aria-label={t("ledger.title")}
-                  variant={ledgerOpen ? "order" : "quiet"}
-                  onClick={() => setLedgerOpen((open) => !open)}
+                  aria-label={tomeNames[id]}
+                  variant={yashik.kind === "tome" && yashik.id === id ? "order" : "quiet"}
+                  onClick={() =>
+                    setYashik((prev) =>
+                      prev.kind === "tome" && prev.id === id ? { kind: "none" } : { kind: "tome", id },
+                    )
+                  }
                 >
-                  <IconLedger />
+                  {TOME_ICONS[id]}
                 </Button>
               </Tooltip>
-            </div>
-          }
-        />
-      </div>
+            ))}
+            <span className={styles.koreshkiSplit} />
+            <Tooltip label={t("ledger.hint")}>
+              <Button
+                size="md"
+                iconOnly
+                aria-label={t("ledger.title")}
+                variant={ledgerOpen ? "order" : "quiet"}
+                onClick={() => setLedgerOpen((open) => !open)}
+              >
+                <IconLedger />
+              </Button>
+            </Tooltip>
+          </div>
+        }
+      />
 
       {/* ── ХОД ──────────────────────────────────────────────── */}
       <div ref={hodRef} className={styles.hod}>
@@ -903,22 +909,33 @@ export function Screen({
             <p className={styles.rezhimyTitle} id={modeTitleId}>
               {activeModeName}
             </p>
-            {legend.length > 0 && (
-              /*
-               * Имя режима — ЖЕ и название легенды (`aria-labelledby`), а не
-               * второе слово «Легенда»: две подписи об одном заставляли бы
-               * скринридер читать лишнее, а видимого имени у панели всё равно
-               * не было.
-               */
-              <ul className={styles.legenda} aria-labelledby={modeTitleId}>
-                {legend.map((item) => (
-                  <li key={item.labelKey} className={styles.legendaItem}>
-                    <span className={styles.legendaSwatch} style={{ background: item.swatch }} />
-                    {legendLabels[item.labelKey]}
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/*
+              * Коробка ЛЕГЕНДЫ здесь ВСЕГДА, даже когда градаций нет. Раньше
+              * она рендерилась по условию `legend.length > 0`, и `min-height`,
+              * добавленный против дыхания панели, применять было не к чему: у
+              * «Держав» — режима по умолчанию — легенды нет вовсе, элемента в
+              * разметке тоже, и первое же переключение режима поднимало верхний
+              * край панели на высоту легенды с зазором (замер: 35px). Пустая
+              * коробка держит место, и высота панели одна во всех режимах.
+              *
+              * Имя режима — ЖЕ и название легенды (`aria-labelledby`), а не
+              * второе слово «Легенда»: две подписи об одном заставляли бы
+              * скринридер читать лишнее, а видимого имени у панели всё равно
+              * не было. Пустая коробка не называется ничем и скрыта от
+              * скринридера: списка из нуля пунктов игрок услышать не должен.
+              */}
+            <ul
+              className={styles.legenda}
+              aria-labelledby={legend.length > 0 ? modeTitleId : undefined}
+              aria-hidden={legend.length === 0 || undefined}
+            >
+              {legend.map((item) => (
+                <li key={item.labelKey} className={styles.legendaItem}>
+                  <span className={styles.legendaSwatch} style={{ background: item.swatch }} />
+                  {legendLabels[item.labelKey]}
+                </li>
+              ))}
+            </ul>
             {/*
               * `role="group"` с именем и `aria-pressed` на кнопках: смысл,
               * который несёт вид нажатой кнопки, обязан дублироваться
