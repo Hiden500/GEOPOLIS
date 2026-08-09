@@ -81,23 +81,3 @@ export function buildExtraction(
   region.extraction[resource] = Math.max(0, currentLevel + delta);
   return { success: true };
 }
-
-/**
- * Безусловно снижает уровень добывающих мощностей — для будущей интеграции
- * с войной/событиями (docs/plans/04_RESOURCES.md не требует автоматического
- * триггера в этом заходе; команда существует и тестируется напрямую, не
- * подключена к WarTick.ts). Без списания казны, без проверки контроля.
- */
-export function damageExtraction(
-  game: GameState,
-  regionId: number,
-  resource: ResourceType,
-  amount: number
-): CommandResult {
-  const region = findRegion(game, regionId);
-  if (!region) return { success: false, error: `Unknown region: ${regionId}` };
-
-  const currentLevel = region.extraction[resource] ?? 0;
-  region.extraction[resource] = Math.max(0, currentLevel - amount);
-  return { success: true };
-}

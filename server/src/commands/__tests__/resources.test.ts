@@ -111,29 +111,4 @@ describe("commands/resources", () => {
       expect(commands.buildExtraction(game, "USA", 999, "oil", 1).success).toBe(false);
     });
   });
-
-  describe("damageExtraction", () => {
-    it("безусловно снижает уровень, без списания казны и проверки контроля", () => {
-      const { game, region } = gameWithRegion({ ownerCountryId: "OTHER" });
-      const treasuryBefore = game.countries[0]!.economy.treasury;
-
-      const result = commands.damageExtraction(game, 1, "oil", 2);
-
-      expect(result).toEqual({ success: true });
-      expect(region.extraction.oil).toBe(3);
-      expect(game.countries[0]!.economy.treasury).toBe(treasuryBefore);
-    });
-
-    it("не опускает уровень ниже 0", () => {
-      const { game, region } = gameWithRegion({ extraction: { oil: 1 } });
-
-      commands.damageExtraction(game, 1, "oil", 10);
-      expect(region.extraction.oil).toBe(0);
-    });
-
-    it("отклоняет неизвестный регион", () => {
-      const { game } = gameWithRegion();
-      expect(commands.damageExtraction(game, 999, "oil", 1).success).toBe(false);
-    });
-  });
 });
