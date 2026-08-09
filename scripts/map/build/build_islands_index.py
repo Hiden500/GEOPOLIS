@@ -40,7 +40,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from paths import REPO_ROOT, out
+from paths import REPO_ROOT, out, world_geojson
 
 try:
     from shapely.geometry import shape
@@ -70,16 +70,16 @@ def load_json(path):
 
 
 def load_world():
-    """Геометрия мира: приоритет у выхода пайплайна, запасной путь — копия клиента.
+    """Геометрия мира: мастер первым, копия клиента — последним (см. paths.py).
 
-    `out/` целиком в .gitignore, поэтому в свежем дереве его может не быть, а
-    `client/public/world_1946.geojson` под git и приезжает с веткой.
+    Раньше первым читался `out/world_1946.geojson`, которого в дереве нет и
+    взяться неоткуда, а фактически работала запасная ветка на
+    `client/public/world_1946.geojson`. Совпадение копии клиента с мастером —
+    свойство последнего прогона `import_to_game.py`, а не устройство: стоит
+    прогнать импорт на другой геометрии, и индекс молча считался бы по чужой
+    карте. Запасной путь на копию клиента сохранён для дерева, где мастера нет.
     """
-    primary = Path(out("world_1946.geojson"))
-    fallback = REPO_ROOT / "client" / "public" / "world_1946.geojson"
-    path = primary if primary.is_file() else fallback
-    if not path.is_file():
-        raise SystemExit(f"не найдена геометрия мира: ни {primary}, ни {fallback}")
+    path = world_geojson()
     return path, load_json(path)["features"]
 
 
