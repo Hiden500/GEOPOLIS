@@ -269,6 +269,30 @@ describe("РЕЖИМЫ карты", () => {
     }
   });
 
+  /*
+   * Состояние кнопки обязано быть доступно не только глазам: вид нажатой кнопки
+   * скринридеру не виден, а «какой режим включён» — это ровно то, что панель
+   * сообщает (`docs/UI_DESIGN.md` §9). Крючок `aria-pressed` держит ещё и
+   * акцентную подсветку глифа в CSS — то есть свойство и вид не разойдутся.
+   */
+  it("включённый режим назван нажатым, остальные — нет", () => {
+    renderScreen("unrest");
+
+    for (const mode of MAP_MODE_ORDER) {
+      const button = screen.getByRole("button", { name: t(`mapModes.${mode}`) });
+      expect(button.getAttribute("aria-pressed"), `режим ${mode}`).toBe(
+        mode === "unrest" ? "true" : "false",
+      );
+    }
+  });
+
+  it("сетка режимов названа группой", () => {
+    renderScreen("powers");
+
+    const group = screen.getByRole("group", { name: t("mapModesGroup") });
+    expect(within(group).getAllByRole("button")).toHaveLength(MAP_MODE_ORDER.length);
+  });
+
   it("кнопок ровно столько, сколько режимов в словаре", () => {
     renderScreen("powers");
 
@@ -301,7 +325,9 @@ describe("ЛЕГЕНДА карты", () => {
     renderScreen("powers");
 
     expect(legendForMode("powers")).toHaveLength(0);
-    expect(screen.queryByRole("list", { name: t("legend.title") })).toBeNull();
+    expect(screen.queryByRole("list", { name: t("mapModes.powers") })).toBeNull();
+    // Имя режима видно и без легенды: панель обязана называть то, что показывает.
+    expect(screen.getByText(t("mapModes.powers"))).not.toBeNull();
   });
 
   it.each(MAP_MODE_ORDER.filter((mode) => legendForMode(mode).length > 0))(
@@ -309,7 +335,12 @@ describe("ЛЕГЕНДА карты", () => {
     (mode) => {
       renderScreen(mode);
 
-      const legenda = screen.getByRole("list", { name: t("legend.title") });
+      /*
+       * Легенда ищется по ИМЕНИ АКТИВНОГО РЕЖИМА: её доступное имя — тот самый
+       * видимый заголовок панели (`aria-labelledby`), поэтому проверка заодно
+       * доказывает, что панель называет показанное.
+       */
+      const legenda = screen.getByRole("list", { name: t(`mapModes.${mode}`) });
       const items = within(legenda).getAllByRole("listitem");
       const expected = legendForMode(mode);
 

@@ -80,7 +80,7 @@ export function HexMap({
         return ramp(region.industry / 64, [40, 48, 58], [92, 176, 214]);
       case "population":
         return ramp(parseFloat(region.population) / 9, [44, 50, 44], [148, 190, 120]);
-      case "blocs":
+      case "relations":
         return owner === "SUN" || owner === "FIN" ? "#8b4a52" : "#4a5c8b";
       default:
         return COUNTRIES[owner].colors[0];

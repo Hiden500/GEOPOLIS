@@ -6,10 +6,18 @@ import { type MapMode } from "./model";
  * Подпись ЛЕГЕНДЫ. Союз, а не `string`: экран переводит подписи исчерпывающим
  * `Record`, поэтому новая градация без строки в словаре — ошибка компиляции, а
  * не пустое место в углу карты.
+ *
+ * `medium` и `moderate` — одна и та же середина шкалы, но РАЗНОГО согласования:
+ * ряд внутри одной легенды обязан быть однородным по части речи, а ряды разных
+ * режимов однородными быть не обязаны. «Развитая · средняя · слабая»
+ * (прилагательные ж. р.) и «многолюдно · средне · малолюдно» (наречия) одной
+ * строкой словаря не покрываются: русское прилагательное согласуется, наречие —
+ * нет. Один ключ на оба ряда давал «богато · средняя · бедно».
  */
 export type LegendLabel =
   | "high"
   | "medium"
+  | "moderate"
   | "low"
   | "calm"
   | "tense"
@@ -96,7 +104,11 @@ export function computeMapModeColors(
         colors[r.id] = total >= DEPOSITS_RICH ? ACCENT : total >= DEPOSITS_MEDIUM ? ACCENT_DIM : HAIRLINE_2;
         break;
       }
-      case "blocs": {
+      case "relations": {
+        // ПАРНОЕ отношение владельца региона к игроку, не членство в блоке:
+        // двух чужих блоков между собой этот режим не показывает и показать не
+        // может — поэтому он и называется «Отношения» (docs/IDEAS.md о настоящих
+        // блоках).
         if (r.ownerCountryId === playerCountryId) {
           colors[r.id] = ACCENT;
           break;
@@ -139,16 +151,16 @@ export function legendForMode(mode: MapMode): LegendItem[] {
     case "population":
       return [
         { swatch: OK, labelKey: "dense" },
-        { swatch: OK_MID, labelKey: "medium" },
+        { swatch: OK_MID, labelKey: "moderate" },
         { swatch: OK_DIM, labelKey: "sparse" },
       ];
     case "resources":
       return [
         { swatch: ACCENT, labelKey: "rich" },
-        { swatch: ACCENT_DIM, labelKey: "medium" },
+        { swatch: ACCENT_DIM, labelKey: "moderate" },
         { swatch: HAIRLINE_2, labelKey: "poor" },
       ];
-    case "blocs":
+    case "relations":
       return [
         { swatch: ACCENT, labelKey: "own" },
         { swatch: OK, labelKey: "ally" },

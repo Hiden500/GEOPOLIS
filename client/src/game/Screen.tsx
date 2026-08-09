@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -179,7 +179,7 @@ const MODE_ICONS: Record<MapMode, React.ReactNode> = {
   resources: <IconResources />,
   population: <IconPeople />,
   unrest: <IconUnrest />,
-  blocs: <IconBlocs />,
+  relations: <IconBlocs />,
   infrastructure: <IconInfrastructure />,
 };
 
@@ -208,6 +208,8 @@ export function Screen({
   onSelectRegion,
 }: ScreenProps) {
   const { t } = useTranslation("screen");
+  /** Имя активного режима служит и заголовком, и названием ЛЕГЕНДЫ — нужен id. */
+  const modeTitleId = useId();
   const { monthIndex, year, events } = model;
   const [orders, setOrders] = useState<Order[]>([]);
   const [draft, setDraft] = useState("");
@@ -543,6 +545,14 @@ export function Screen({
    */
   const legend = legendForMode(mapMode);
   /*
+   * Имя активного режима — ВИДИМЫЙ заголовок панели, а не только подсказка
+   * кнопки: кнопки `iconOnly`, а «Промышленность» и «Инфраструктура» красятся
+   * одной зелёной тройкой и дают одинаковые подписи в легенде. Без заголовка
+   * игрок переключает режим и не получает ни одного подтверждения, что
+   * что-то изменилось. Имя берётся из модели — там оно уже локализовано.
+   */
+  const activeModeName = model.mapModes.find((mode) => mode.id === mapMode)?.name ?? "";
+  /*
    * Подписи градаций — исчерпывающим `Record`, а не шаблонным ключом: так
    * пропущенную подпись видит компилятор, а отсутствие строки в словаре —
    * `localeKeys.test.ts` (он читает только литеральные вызовы `t`).
@@ -551,6 +561,7 @@ export function Screen({
     () => ({
       high: t("legend.high"),
       medium: t("legend.medium"),
+      moderate: t("legend.moderate"),
       low: t("legend.low"),
       calm: t("legend.calm"),
       tense: t("legend.tense"),
@@ -862,9 +873,18 @@ export function Screen({
         )}
 
         <Panel density="instrument" className={styles.rezhimy}>
-          <div className={styles.rezhimyRow}>
+          <div className={styles.rezhimyStack}>
+            <p className={styles.rezhimyTitle} id={modeTitleId}>
+              {activeModeName}
+            </p>
             {legend.length > 0 && (
-              <ul className={styles.legenda} aria-label={t("legend.title")}>
+              /*
+               * Имя режима — ЖЕ и название легенды (`aria-labelledby`), а не
+               * второе слово «Легенда»: две подписи об одном заставляли бы
+               * скринридер читать лишнее, а видимого имени у панели всё равно
+               * не было.
+               */
+              <ul className={styles.legenda} aria-labelledby={modeTitleId}>
                 {legend.map((item) => (
                   <li key={item.labelKey} className={styles.legendaItem}>
                     <span className={styles.legendaSwatch} style={{ background: item.swatch }} />
@@ -873,13 +893,20 @@ export function Screen({
                 ))}
               </ul>
             )}
-            <div className={styles.rezhimyGrid}>
+            {/*
+              * `role="group"` с именем и `aria-pressed` на кнопках: смысл,
+              * который несёт вид нажатой кнопки, обязан дублироваться
+              * доступным именем (`docs/UI_DESIGN.md` §9). Без этого скринридер
+              * слышит семь равноправных кнопок и не знает, какая включена.
+              */}
+            <div className={styles.rezhimyGrid} role="group" aria-label={t("mapModesGroup")}>
               {model.mapModes.map((mode) => (
                 <Tooltip key={mode.id} label={mode.name}>
                   <Button
                     size="sm"
                     iconOnly
                     aria-label={mode.name}
+                    aria-pressed={mode.id === mapMode}
                     variant={mode.id === mapMode ? "order" : "quiet"}
                     onClick={() => onMapMode(mode.id)}
                   >

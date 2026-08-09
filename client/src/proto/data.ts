@@ -287,7 +287,7 @@ const MAP_MODE_NAMES: Record<MapMode, string> = {
   resources: "Ресурсы",
   population: "Население",
   unrest: "Недовольство",
-  blocs: "Блоки",
+  relations: "Отношения",
   infrastructure: "Инфраструктура",
 };
 
