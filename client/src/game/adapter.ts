@@ -22,6 +22,7 @@ import { getDomainTier } from "@shared/utils/technology";
 import {
   type ScreenCountry,
   type ScreenEvent,
+  type ScreenMapMode,
   type ScreenModel,
   type ScreenRegion,
   type ScreenCampaign,
@@ -343,7 +344,7 @@ export interface ScreenModelInput {
   game: GameState;
   locale: Locale;
   renderLine: RenderLine;
-  mapModes: Array<{ id: string; name: string }>;
+  mapModes: ScreenMapMode[];
   /** Ответ движка: интерфейс не решает, что необратимо. */
   isIrreversible: (text: string) => boolean;
   monthsNominative: string[];

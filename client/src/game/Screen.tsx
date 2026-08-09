@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Button,
   EventItem,
-  IconArmies,
   IconBalance,
   IconBlocs,
   IconChevronDown,
@@ -16,6 +16,7 @@ import {
   IconEconomy,
   IconFlagMode,
   IconGoals,
+  IconInfrastructure,
   IconLedger,
   IconLegitimacy,
   IconLock,
@@ -28,7 +29,6 @@ import {
   IconScience,
   IconSearch,
   IconStability,
-  IconTerrain,
   IconUnrest,
   OrderCard,
   Panel,
@@ -37,12 +37,14 @@ import {
   Tooltip,
   cx,
 } from "../ui";
+import { legendForMode, type LegendLabel } from "./mapModeColors";
 import { CountryDetail, LedgerBody, RegionDetail, TomeBody } from "./panels";
 import {
   REGION_TABS,
   ScreenActionsProvider,
   ScreenModelProvider,
   type LedgerTabId,
+  type MapMode,
   type ScreenActions,
   type ScreenLlmResult,
   type RegionTab,
@@ -82,9 +84,13 @@ export interface ScreenProps {
    * список и ждёт; пока ждёт, показывает, что режиссёр думает.
    */
   onAdvance: (orders: ScreenOrder[]) => Promise<void> | void;
-  /** Выбор режима карты живёт снаружи: раскраску считает не интерфейс. */
-  mapMode: string;
-  onMapMode: (mode: string) => void;
+  /**
+   * Выбор режима карты живёт снаружи: раскраску считает не интерфейс. Тип —
+   * `MapMode`, а не `string`: приведение на границе прятало ровно тот дефект,
+   * из-за которого кнопки режимов оставались без иконок (см. `model.ts`).
+   */
+  mapMode: MapMode;
+  onMapMode: (mode: MapMode) => void;
   selectedRegionId: string | null;
   onSelectRegion: (regionId: string | null) => void;
 }
@@ -163,22 +169,18 @@ const TOME_NAMES: Record<TomeId, string> = {
   goals: "Цели",
 };
 
-const MODE_ICONS: Record<string, React.ReactNode> = {
+/**
+ * Рисунок кнопки РЕЖИМА. `Record<MapMode, …>` исчерпывающий нарочно: пропущенный
+ * режим — ошибка компиляции, а не кнопка без иконки на карте у игрока.
+ */
+const MODE_ICONS: Record<MapMode, React.ReactNode> = {
   powers: <IconFlagMode />,
-  blocs: <IconBlocs />,
-  population: <IconPeople />,
-  discontent: <IconUnrest />,
   industry: <IconEconomy />,
   resources: <IconResources />,
-  armies: <IconArmies />,
-  terrain: <IconTerrain />,
-};
-
-/** ЛЕГЕНДА есть только у режимов, где цвет означает величину. */
-const LEGENDS: Record<string, { from: string; to: string; ramp: string }> = {
-  discontent: { from: "спокойно", to: "на грани", ramp: "linear-gradient(90deg, rgb(46,62,58), rgb(214,84,62))" },
-  industry: { from: "слабая", to: "сильная", ramp: "linear-gradient(90deg, rgb(40,48,58), rgb(92,176,214))" },
-  population: { from: "мало", to: "много", ramp: "linear-gradient(90deg, rgb(44,50,44), rgb(148,190,120))" },
+  population: <IconPeople />,
+  unrest: <IconUnrest />,
+  relations: <IconBlocs />,
+  infrastructure: <IconInfrastructure />,
 };
 
 function FlagSU() {
@@ -205,6 +207,9 @@ export function Screen({
   selectedRegionId,
   onSelectRegion,
 }: ScreenProps) {
+  const { t } = useTranslation("screen");
+  /** Имя активного режима служит и заголовком, и названием ЛЕГЕНДЫ — нужен id. */
+  const modeTitleId = useId();
   const { monthIndex, year, events } = model;
   const [orders, setOrders] = useState<Order[]>([]);
   const [draft, setDraft] = useState("");
@@ -532,7 +537,46 @@ export function Screen({
 
   const shownRegionId = pinned ? pinnedRegionId : selectedRegionId;
   const selectedRegion = shownRegionId === null ? null : (model.regions[shownRegionId] ?? null);
-  const legend = LEGENDS[mapMode];
+
+  /*
+   * ЛЕГЕНДА приходит оттуда же, откуда цвет (`mapModeColors.ts`), — иначе
+   * расшифровка и раскраска расходятся молча. Пустой список означает «цвет
+   * здесь не величина» (режим держав), и легенда не рисуется.
+   */
+  const legend = legendForMode(mapMode);
+  /*
+   * Имя активного режима — ВИДИМЫЙ заголовок панели, а не только подсказка
+   * кнопки: кнопки `iconOnly`, а «Промышленность» и «Инфраструктура» красятся
+   * одной зелёной тройкой и дают одинаковые подписи в легенде. Без заголовка
+   * игрок переключает режим и не получает ни одного подтверждения, что
+   * что-то изменилось. Имя берётся из модели — там оно уже локализовано.
+   */
+  const activeModeName = model.mapModes.find((mode) => mode.id === mapMode)?.name ?? "";
+  /*
+   * Подписи градаций — исчерпывающим `Record`, а не шаблонным ключом: так
+   * пропущенную подпись видит компилятор, а отсутствие строки в словаре —
+   * `localeKeys.test.ts` (он читает только литеральные вызовы `t`).
+   */
+  const legendLabels = useMemo<Record<LegendLabel, string>>(
+    () => ({
+      high: t("legend.high"),
+      medium: t("legend.medium"),
+      moderate: t("legend.moderate"),
+      low: t("legend.low"),
+      calm: t("legend.calm"),
+      tense: t("legend.tense"),
+      unrest: t("legend.unrest"),
+      dense: t("legend.dense"),
+      sparse: t("legend.sparse"),
+      rich: t("legend.rich"),
+      poor: t("legend.poor"),
+      own: t("legend.own"),
+      ally: t("legend.ally"),
+      neutral: t("legend.neutral"),
+      hostile: t("legend.hostile"),
+    }),
+    [t],
+  );
 
   const shellStyle: React.CSSProperties = {
     ["--feed-col" as string]: feedWidth === null ? "var(--feed-width)" : `${feedWidth}px`,
@@ -829,23 +873,40 @@ export function Screen({
         )}
 
         <Panel density="instrument" className={styles.rezhimy}>
-          <div className={styles.rezhimyRow}>
-            {legend !== undefined && (
-              <div className={styles.legenda}>
-                <div className={styles.legendaRamp} style={{ background: legend.ramp }} />
-                <div className={styles.legendaEnds}>
-                  <span>{legend.from}</span>
-                  <span>{legend.to}</span>
-                </div>
-              </div>
+          <div className={styles.rezhimyStack}>
+            <p className={styles.rezhimyTitle} id={modeTitleId}>
+              {activeModeName}
+            </p>
+            {legend.length > 0 && (
+              /*
+               * Имя режима — ЖЕ и название легенды (`aria-labelledby`), а не
+               * второе слово «Легенда»: две подписи об одном заставляли бы
+               * скринридер читать лишнее, а видимого имени у панели всё равно
+               * не было.
+               */
+              <ul className={styles.legenda} aria-labelledby={modeTitleId}>
+                {legend.map((item) => (
+                  <li key={item.labelKey} className={styles.legendaItem}>
+                    <span className={styles.legendaSwatch} style={{ background: item.swatch }} />
+                    {legendLabels[item.labelKey]}
+                  </li>
+                ))}
+              </ul>
             )}
-            <div className={styles.rezhimyGrid}>
+            {/*
+              * `role="group"` с именем и `aria-pressed` на кнопках: смысл,
+              * который несёт вид нажатой кнопки, обязан дублироваться
+              * доступным именем (`docs/UI_DESIGN.md` §9). Без этого скринридер
+              * слышит семь равноправных кнопок и не знает, какая включена.
+              */}
+            <div className={styles.rezhimyGrid} role="group" aria-label={t("mapModesGroup")}>
               {model.mapModes.map((mode) => (
                 <Tooltip key={mode.id} label={mode.name}>
                   <Button
                     size="sm"
                     iconOnly
                     aria-label={mode.name}
+                    aria-pressed={mode.id === mapMode}
                     variant={mode.id === mapMode ? "order" : "quiet"}
                     onClick={() => onMapMode(mode.id)}
                   >

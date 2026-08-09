@@ -18,14 +18,31 @@
     "dissolved": "The state ceased to exist, and no successor remained to continue as.",
     "since": "Date: {{date}}"
   },
+  "mapModesGroup": "Map mode",
   "mapModes": {
-    "pol": "Powers",
-    "eco": "Industry",
-    "res": "Resources",
-    "pop": "Population",
-    "sta": "Unrest",
-    "dip": "Blocs",
-    "mil": "Armies",
-    "inf": "Infrastructure"
+    "powers": "Powers",
+    "industry": "Industry",
+    "resources": "Resources",
+    "population": "Population",
+    "unrest": "Unrest",
+    "relations": "Relations",
+    "infrastructure": "Infrastructure"
+  },
+  "legend": {
+    "high": "developed",
+    "medium": "moderate",
+    "moderate": "moderate",
+    "low": "weak",
+    "calm": "calm",
+    "tense": "tension",
+    "unrest": "unrest",
+    "dense": "populous",
+    "sparse": "sparse",
+    "rich": "rich",
+    "poor": "poor",
+    "own": "ours",
+    "ally": "allied",
+    "neutral": "neutral",
+    "hostile": "hostile"
   }
 }

@@ -281,21 +281,12 @@ export function IconResources(props: IconProps) {
   );
 }
 
-/** Армии — клинок. */
-export function IconArmies(props: IconProps) {
+/** Инфраструктура — колея со шпалами. */
+export function IconInfrastructure(props: IconProps) {
   return (
     <Icon {...props}>
-      <path d="M8 1.8l1.8 6.4-1.8 2-1.8-2z" />
-      <path d="M5.2 10.4h5.6M8 10.4v3.8" />
-    </Icon>
-  );
-}
-
-/** Рельеф — хребты. */
-export function IconTerrain(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M1.5 12.5l4-6.5 3 4.5 2-3 4 5z" />
+      <path d="M6 2.2v11.6M10 2.2v11.6" />
+      <path d="M4.4 4.8h7.2M4.4 8h7.2M4.4 11.2h7.2" />
     </Icon>
   );
 }

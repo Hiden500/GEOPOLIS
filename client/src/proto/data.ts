@@ -7,6 +7,8 @@
  * куда ведёт, — до того как под него подключается настоящее состояние.
  */
 
+import { MAP_MODE_ORDER, type MapMode } from "../game/model";
+
 export type CountryId = "SUN" | "USA" | "GBR" | "FRA" | "TUR" | "FIN";
 
 export interface Country {
@@ -272,18 +274,27 @@ export const REGIONS: Record<string, Region> = Object.fromEntries(
   ),
 );
 
-export const MAP_MODES = [
-  { id: "powers", name: "Державы" },
-  { id: "blocs", name: "Блоки" },
-  { id: "population", name: "Население" },
-  { id: "discontent", name: "Недовольство" },
-  { id: "industry", name: "Промышленность" },
-  { id: "resources", name: "Ресурсы" },
-  { id: "armies", name: "Армии" },
-  { id: "terrain", name: "Рельеф" },
-] as const;
+/*
+ * РЕЖИМЫ карты песочница берёт из ТОГО ЖЕ словаря, что игра
+ * (`game/model.ts`), а не держит свой список: пока списки были разными,
+ * иконки и легенда в игре искались по ключам, которых там не было, и не
+ * находились никогда. Имена здесь свои и русские — песочница живёт без
+ * словаря локализации, и это единственная разница.
+ */
+const MAP_MODE_NAMES: Record<MapMode, string> = {
+  powers: "Державы",
+  industry: "Промышленность",
+  resources: "Ресурсы",
+  population: "Население",
+  unrest: "Недовольство",
+  relations: "Отношения",
+  infrastructure: "Инфраструктура",
+};
 
-export type MapModeId = (typeof MAP_MODES)[number]["id"];
+export const MAP_MODES: Array<{ id: MapMode; name: string }> = MAP_MODE_ORDER.map((id) => ({
+  id,
+  name: MAP_MODE_NAMES[id],
+}));
 
 export const TOMES = [
   { id: "economy", name: "Экономика" },

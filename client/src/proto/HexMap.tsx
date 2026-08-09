@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { cx } from "../ui";
+import type { MapMode } from "../game/model";
 import {
   COUNTRIES,
   GRID_COLUMNS,
@@ -11,8 +12,8 @@ import {
 import styles from "./HexMap.module.css";
 
 interface HexMapProps {
-  /** Экран отдаёт режим строкой: раскраску знает карта, не рама. */
-  mode: string;
+  /** Экран отдаёт идентификатор режима: раскраску знает карта, не рама. */
+  mode: MapMode;
   selectedRegionId: string | null;
   selectedCountryId: string | null;
   onSelectRegion: (regionId: string) => void;
@@ -61,16 +62,25 @@ export function HexMap({
     });
   }, []);
 
+  /*
+   * Цвета здесь ДЕКОРАТИВНЫЕ: гексовая сетка — превью формы интерфейса, а не
+   * карты, и часть режимов сознательно уходит в `default` (цвет владельца).
+   * Истина о цвете живёт в `game/mapModeColors.ts`; совпадения с ней от макета
+   * не требуется, и ЛЕГЕНДА в песочнице описывает игровую раскраску, а не эти
+   * градиенты. Второй раскраски «как настоящая» здесь не заводить: два
+   * источника цвета — ровно тот дефект, из-за которого иконки и легенда режимов
+   * не работали в игре (docs/UI_DESIGN.md §11).
+   */
   const fillFor = (owner: CountryId | null, region: (typeof cells)[number]["region"]) => {
     if (owner === null || region === undefined) return undefined;
     switch (mode) {
-      case "discontent":
+      case "unrest":
         return ramp(region.discontent, [46, 62, 58], [214, 84, 62]);
       case "industry":
         return ramp(region.industry / 64, [40, 48, 58], [92, 176, 214]);
       case "population":
         return ramp(parseFloat(region.population) / 9, [44, 50, 44], [148, 190, 120]);
-      case "blocs":
+      case "relations":
         return owner === "SUN" || owner === "FIN" ? "#8b4a52" : "#4a5c8b";
       default:
         return COUNTRIES[owner].colors[0];

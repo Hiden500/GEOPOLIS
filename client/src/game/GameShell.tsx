@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { type GameState } from "@shared/types/GameState";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { MapView } from "../map/MapView";
-import { MAP_MODE_ORDER, computeMapModeColors, type MapMode } from "./mapModeColors";
+import { computeMapModeColors } from "./mapModeColors";
 import { usePrimitiveOutcomeText } from "./primitiveOutcomeText";
 import { usePrimitiveRejectionText } from "./primitiveRejectionText";
 import {
@@ -22,7 +22,7 @@ import {
 } from "../api/gameApi";
 import { Screen, type ScreenOrder } from "./Screen";
 import { buildScreenModel } from "./adapter";
-import type { ScreenActions, ScreenCampaign, ScreenLlmResult } from "./model";
+import { MAP_MODE_ORDER, type MapMode, type ScreenActions, type ScreenCampaign, type ScreenLlmResult } from "./model";
 import styles from "./GameShell.module.css";
 
 /**
@@ -45,7 +45,7 @@ export function GameShell({
   const renderLine = usePrimitiveOutcomeText();
   const renderRejection = usePrimitiveRejectionText();
 
-  const [mapMode, setMapMode] = useState<MapMode>("pol");
+  const [mapMode, setMapMode] = useState<MapMode>("powers");
   const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -276,7 +276,7 @@ export function GameShell({
         model={model}
         actions={actions}
         mapMode={mapMode}
-        onMapMode={(mode) => setMapMode(mode as MapMode)}
+        onMapMode={setMapMode}
         selectedRegionId={selectedRegionId}
         onSelectRegion={setSelectedRegionId}
         onAdvance={advance}
