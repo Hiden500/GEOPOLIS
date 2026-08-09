@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode, type Ref } from "react";
 import styles from "./ShapedBar.module.css";
 
 /**
@@ -46,6 +46,12 @@ export interface ShapedBarProps {
    */
   bandSlant?: number;
   className?: string;
+  /**
+   * Ссылка на КОРЕНЬ панели. Нужна тому, кто выравнивает панель по соседней:
+   * мерить надо сам корень. Обёртка вокруг панели для этого не годится —
+   * позиционированная панель уходит из потока, и обёртка сплющивается в ноль.
+   */
+  ref?: Ref<HTMLDivElement>;
 }
 
 interface Box {
@@ -70,6 +76,7 @@ export function ShapedBar({
   bandTint = false,
   bandSlant = 28,
   className,
+  ref,
 }: ShapedBarProps) {
   const gridRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -219,8 +226,22 @@ export function ShapedBar({
     ? [`M ${L} ${h}`, sUp(L, h, h1), `L ${w2 + slant} ${h1}`].join(" ")
     : "";
 
+  /*
+   * Корень панели НЕ носит инлайнового стиля. Здесь стоял
+   * `style={{ position: "relative", width: "max-content" }}` — и это прятало
+   * ШАПКУ от игрока (`docs/UI_DESIGN.md` §11): инлайновый стиль сильнее любого
+   * правила таблицы, поэтому `.shapka { position: absolute; top: 0 }` из
+   * `game/Screen.module.css` не мог выиграть НИКОГДА. Панель оставалась
+   * `relative` в обычном потоке после контейнера карты, тот занимает всю
+   * оболочку — и рама уезжала под нижний край окна (замер: y = innerHeight).
+   *
+   * Оба свойства переехали в `:where(.root)` — нулевая специфичность, то есть
+   * ЗНАЧЕНИЕ ПО УМОЛЧАНИЮ: любой класс вызывающего его перебивает, и при этом
+   * порядок подключения таблиц не важен (при равной специфичности решал бы он,
+   * а у CSS-модулей он не гарантирован).
+   */
   return (
-    <div className={className} style={{ position: "relative", width: "max-content" }}>
+    <div ref={ref} className={className === undefined ? styles.root : `${styles.root} ${className}`}>
       {ready && (
         <svg
           className={styles.shape}
