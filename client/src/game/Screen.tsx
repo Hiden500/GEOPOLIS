@@ -176,8 +176,9 @@ const MODE_ICONS: Record<MapMode, React.ReactNode> = {
 };
 
 function FlagSU() {
+  const { t } = useTranslation("screen");
   return (
-    <svg viewBox="0 0 90 60" width="90" height="60" role="img" aria-label="Флаг СССР">
+    <svg viewBox="0 0 90 60" width="90" height="60" role="img" aria-label={t("playerFlag")}>
       <rect width="90" height="60" fill="#c1272d" />
       <g fill="#f0c14b">
         <path d="M18 13l1.7 4.9h5.1l-4.1 3 1.6 4.9-4.3-3-4.3 3 1.6-4.9-4.1-3h5.1z" />
@@ -333,9 +334,42 @@ export function Screen({
     return groups.filter((group) => group.length > 0);
   }, [model.stats]);
 
+  /*
+   * Состав КОРЕШКОВ — из одного списка (`TOME_IDS`), а не из двух рукописных:
+   * второй список тех же томов расходился бы с первым при добавлении тома.
+   * Вариант «наука внутри обороны» убирает ровно один корешок.
+   */
   const tomes: TomeId[] = scienceSeparate
-    ? ["economy", "politics", "defence", "science", "diplomacy", "goals"]
-    : ["economy", "politics", "defence", "diplomacy", "goals"];
+    ? [...TOME_IDS]
+    : TOME_IDS.filter((id) => id !== "science");
+
+  /*
+   * Имена ТОМОВ и вкладок региона — исчерпывающим `Record` с ЛИТЕРАЛЬНЫМИ
+   * ключами, а не `t(\`tomes.${id}\`)`: собранный в рантайме ключ не видит ни
+   * компилятор (пропущенный том), ни `localeKeys.test.ts` (он читает только
+   * литеральные вызовы `t`). Тот же приём, что у подписей легенды ниже.
+   */
+  const tomeNames = useMemo<Record<TomeId, string>>(
+    () => ({
+      economy: t("tomes.economy"),
+      politics: t("tomes.politics"),
+      defence: t("tomes.defence"),
+      science: t("tomes.science"),
+      diplomacy: t("tomes.diplomacy"),
+      goals: t("tomes.goals"),
+    }),
+    [t],
+  );
+
+  const regionTabNames = useMemo<Record<RegionTab, string>>(
+    () => ({
+      obzor: t("regionTabs.obzor"),
+      lyudi: t("regionTabs.lyudi"),
+      hozyaystvo: t("regionTabs.hozyaystvo"),
+      istoriya: t("regionTabs.istoriya"),
+    }),
+    [t],
+  );
 
   /* ── Esc снимает верхний слой по одному ─────────────────────── */
   useEffect(() => {
@@ -437,7 +471,7 @@ export function Screen({
    */
   const foldOnHeader = (fold: () => void) => ({
     className: styles.foldHeader,
-    title: "Свернуть",
+    title: t("fold"),
     onClick: (event: ReactMouseEvent<HTMLElement>) => {
       if ((event.target as HTMLElement).closest("button") !== null) return;
       fold();
@@ -520,12 +554,12 @@ export function Screen({
     if (q === "") return [];
     const countries = Object.values(model.countries)
       .filter((country) => country.short.toLowerCase().includes(q))
-      .map((country) => ({ id: country.id, label: country.short, kind: "держава" }));
+      .map((country) => ({ id: country.id, label: country.short, kind: t("search.kindCountry") }));
     const regions = Object.values(model.regions)
       .filter((region) => region.name.toLowerCase().includes(q))
-      .map((region) => ({ id: region.id, label: region.name, kind: "регион" }));
+      .map((region) => ({ id: region.id, label: region.name, kind: t("search.kindRegion") }));
     return [...countries, ...regions].slice(0, 12);
-  }, [query, model.countries, model.regions]);
+  }, [query, model.countries, model.regions, t]);
 
   const shownRegionId = pinned ? pinnedRegionId : selectedRegionId;
   const selectedRegion = shownRegionId === null ? null : (model.regions[shownRegionId] ?? null);
@@ -593,7 +627,7 @@ export function Screen({
           bandSlant={slant}
           left={
             <div className={styles.flagCell}>
-              <Tooltip label={`${model.countries[model.playerId].short} — панель державы`}>
+              <Tooltip label={t("playerPanel", { country: model.countries[model.playerId].short })}>
                 <button type="button" className={styles.flagButton} onClick={() => selectCountry(model.playerId)}>
                   <span className={styles.flag}>
                     <FlagSU />
@@ -603,7 +637,7 @@ export function Screen({
             </div>
           }
           tab={
-            <Tooltip label={`Место в мире по совокупной мощи — открыть реестр держав`}>
+            <Tooltip label={t("rankHint")}>
               <button
                 type="button"
                 className={styles.rankBox}
@@ -654,11 +688,11 @@ export function Screen({
           bottom={
             <div className={styles.koreshki}>
               {tomes.map((id) => (
-                <Tooltip key={id} label={TOME_NAMES[id]}>
+                <Tooltip key={id} label={tomeNames[id]}>
                   <Button
                     size="md"
                     iconOnly
-                    aria-label={TOME_NAMES[id]}
+                    aria-label={tomeNames[id]}
                     variant={yashik.kind === "tome" && yashik.id === id ? "order" : "quiet"}
                     onClick={() =>
                       setYashik((prev) =>
@@ -671,11 +705,11 @@ export function Screen({
                 </Tooltip>
               ))}
               <span className={styles.koreshkiSplit} />
-              <Tooltip label="Реестр — таблицы мира">
+              <Tooltip label={t("ledger.hint")}>
                 <Button
                   size="md"
                   iconOnly
-                  aria-label="Реестр"
+                  aria-label={t("ledger.title")}
                   variant={ledgerOpen ? "order" : "quiet"}
                   onClick={() => setLedgerOpen((open) => !open)}
                 >
@@ -693,21 +727,21 @@ export function Screen({
           <span className={styles.date}>{monthLabel}</span>
           <span
             className={cx(styles.rezhisser, thinking && styles.rezhisserBusy)}
-            title={thinking ? "режиссёр думает" : "режиссёр готов"}
+            title={thinking ? t("director.busy") : t("director.ready")}
           />
           <div className={styles.instruments}>
-            <Tooltip label="Сохранить партию">
-              <Button size="sm" variant="quiet" iconOnly aria-label="Сохранить">
+            <Tooltip label={t("save.hint")}>
+              <Button size="sm" variant="quiet" iconOnly aria-label={t("save.label")}>
                 <IconSave />
               </Button>
             </Tooltip>
-            <Tooltip label="Поиск по державам и регионам">
-              <Button size="sm" variant="quiet" iconOnly aria-label="Поиск" onClick={() => setSearchOpen(true)}>
+            <Tooltip label={t("search.hint")}>
+              <Button size="sm" variant="quiet" iconOnly aria-label={t("search.label")} onClick={() => setSearchOpen(true)}>
                 <IconSearch />
               </Button>
             </Tooltip>
-            <Tooltip label="Меню">
-              <Button size="sm" variant="quiet" iconOnly aria-label="Меню" onClick={() => setMenuOpen(true)}>
+            <Tooltip label={t("menu.label")}>
+              <Button size="sm" variant="quiet" iconOnly aria-label={t("menu.label")} onClick={() => setMenuOpen(true)}>
                 <IconMenu />
               </Button>
             </Tooltip>
@@ -715,7 +749,7 @@ export function Screen({
         </div>
 
         <Button variant="primary" size="lg" className={styles.knopka} disabled={thinking} onClick={onTurn}>
-          {thinking ? "Режиссёр думает…" : `Продолжить · ${orders.length}`}
+          {thinking ? t("turn.thinking") : t("turn.advance", { n: orders.length })}
         </Button>
       </div>
 
@@ -727,7 +761,7 @@ export function Screen({
         >
           {yashik.kind === "tome" && (
             <Panel
-              title={TOME_NAMES[yashik.id]}
+              title={tomeNames[yashik.id]}
               onClose={() => setYashik({ kind: "none" })}
               density="control"
               scroll
@@ -770,8 +804,8 @@ export function Screen({
           style={ledgerPos === null ? undefined : { left: ledgerPos.x, top: ledgerPos.y }}
         >
           <Panel
-            title="Реестр"
-            meta="окно · тащить за шапку"
+            title={t("ledger.title")}
+            meta={t("ledger.meta")}
             onClose={() => setLedgerOpen(false)}
             density="control"
             className={styles.ledgerPanel}
@@ -803,21 +837,21 @@ export function Screen({
             <button
               type="button"
               className={styles.resizerLeft}
-              aria-label="Ширина ленты"
+              aria-label={t("lenta.resize")}
               onPointerDown={onDragStart}
               onPointerMove={onDragMove}
               onPointerUp={onDragEnd}
             />
             <Panel
-              title="Этот ход"
+              title={t("lenta.title")}
               meta={monthLabel.toLowerCase()}
               density="flush"
               scroll
               className={styles.lentaPanel}
               headerProps={foldOnHeader(() => setLentaOpen(false))}
               actions={
-                <Tooltip label="Убрать ленту к правому краю">
-                  <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть ленту" onClick={() => setLentaOpen(false)}>
+                <Tooltip label={t("lenta.collapseHint")}>
+                  <Button size="sm" variant="quiet" iconOnly aria-label={t("lenta.collapse")} onClick={() => setLentaOpen(false)}>
                     <IconChevronRight />
                   </Button>
                 </Tooltip>
@@ -825,9 +859,9 @@ export function Screen({
             >
               <div className={styles.lentaTabs}>
                 {([
-                  ["all", `Всё · ${events.length}`],
-                  ["world", "Мир"],
-                  ["mine", "Мои приказы"],
+                  ["all", t("lenta.tabAll", { n: events.length })],
+                  ["world", t("lenta.tabWorld")],
+                  ["mine", t("lenta.tabMine")],
                 ] as const).map(([id, name]) => (
                   <Button key={id} size="sm" variant={lentaTab === id ? "order" : "quiet"} onClick={() => setLentaTab(id)}>
                     {name}
@@ -856,8 +890,8 @@ export function Screen({
             </Panel>
           </div>
         ) : (
-          <Tooltip label={`Развернуть ленту · событий: ${events.length}`}>
-            <button type="button" className={styles.lentaTab} aria-label="Развернуть ленту" onClick={() => setLentaOpen(true)}>
+          <Tooltip label={t("lenta.expandHint", { n: events.length })}>
+            <button type="button" className={styles.lentaTab} aria-label={t("lenta.expand")} onClick={() => setLentaOpen(true)}>
               <IconChevronLeft />
               <span className={styles.lentaTabCount}>{events.length}</span>
             </button>
@@ -931,12 +965,12 @@ export function Screen({
               setPinned(false);
             }}
             actions={
-              <Tooltip label={pinned ? "Открепить" : "Закрепить: не сбрасывать при клике по карте"}>
+              <Tooltip label={pinned ? t("polosa.unpin") : t("polosa.pinHint")}>
                 <Button
                   size="sm"
                   variant={pinned ? "order" : "quiet"}
                   iconOnly
-                  aria-label={pinned ? "Открепить" : "Закрепить"}
+                  aria-label={pinned ? t("polosa.unpin") : t("polosa.pin")}
                   onClick={() => {
                     setPinnedRegionId(selectedRegion.id);
                     setPinned((prev) => !prev);
@@ -948,14 +982,14 @@ export function Screen({
             }
           >
             <div className={styles.polosaTabs}>
-              {REGION_TABS.map(([id, name]) => (
+              {REGION_TAB_IDS.map((id) => (
                 <Button
                   key={id}
                   size="sm"
                   variant={polosaTab === id ? "order" : "quiet"}
                   onClick={() => setPolosaTab(id)}
                 >
-                  {name}
+                  {regionTabNames[id]}
                 </Button>
               ))}
             </div>
@@ -971,13 +1005,21 @@ export function Screen({
         <div ref={bottomRef} className={styles.bottomInner}>
         {listOpen ? (
           <Panel
-            title="Приказы"
-            meta={orders.length === 0 ? monthLabel.toLowerCase() : `${monthLabel.toLowerCase()} · ${orders.length} из 10`}
+            title={t("orders.title")}
+            meta={
+              orders.length === 0
+                ? monthLabel.toLowerCase()
+                : t("orders.meta", {
+                    month: monthLabel.toLowerCase(),
+                    n: orders.length,
+                    max: model.ordersPerTurn,
+                  })
+            }
             density="control"
             headerProps={foldOnHeader(() => setListOpen(false))}
             actions={
-              <Tooltip label="Свернуть лист приказов">
-                <Button size="sm" variant="quiet" iconOnly aria-label="Свернуть приказы" onClick={() => setListOpen(false)}>
+              <Tooltip label={t("orders.collapseHint")}>
+                <Button size="sm" variant="quiet" iconOnly aria-label={t("orders.collapse")} onClick={() => setListOpen(false)}>
                   <IconChevronDown />
                 </Button>
               </Tooltip>
@@ -1013,7 +1055,7 @@ export function Screen({
             <div className={styles.vvod}>
               <input
                 className={styles.field}
-                placeholder="Введите приказ…"
+                placeholder={t("orders.placeholder")}
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => {
@@ -1021,14 +1063,14 @@ export function Screen({
                 }}
               />
               <Button variant="order" size="sm" onClick={addOrder} disabled={draft.trim() === ""}>
-                Добавить
+                {t("orders.add")}
               </Button>
             </div>
           </Panel>
         ) : (
           <button type="button" className={styles.listTab} onClick={() => setListOpen(true)}>
             <IconChevronUp />
-            Приказы
+            {t("orders.title")}
             <span className={styles.listTabCount}>{orders.length}</span>
           </button>
         )}
@@ -1070,16 +1112,16 @@ export function Screen({
       {/* ── ПОДТВЕРЖДЕНИЕ ───────────────────────────────────── */}
       {confirming !== null && (
         <div className={styles.scrim}>
-          <Panel title="Необратимое решение" density="prose" className={styles.modal}>
+          <Panel title={t("confirm.title")} density="prose" className={styles.modal}>
             <p className={styles.modalText}>
-              Среди приказов на {monthLabel.toLowerCase()} есть необратимое: «{confirming}». Отменить это будет нельзя.
+              {t("confirm.text", { month: monthLabel.toLowerCase(), order: confirming })}
             </p>
             <div className={styles.modalActions}>
               <Button variant="default" onClick={() => setConfirming(null)}>
-                Вернуться
+                {t("confirm.back")}
               </Button>
               <Button variant="danger" onClick={advance}>
-                Отправить
+                {t("confirm.send")}
               </Button>
             </div>
           </Panel>
@@ -1090,11 +1132,11 @@ export function Screen({
       {searchOpen && (
         <div className={styles.searchWrap} onClick={() => setSearchOpen(false)}>
           <div className={styles.searchPanel} onClick={(event) => event.stopPropagation()}>
-            <Panel title="Поиск" onClose={() => setSearchOpen(false)} density="control">
+            <Panel title={t("search.title")} onClose={() => setSearchOpen(false)} density="control">
               <input
                 className={styles.field}
                 autoFocus
-                placeholder="Держава или регион…"
+                placeholder={t("search.placeholder")}
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 style={{ width: "100%" }}
@@ -1114,7 +1156,9 @@ export function Screen({
                     <span className={styles.searchKind}>{result.kind}</span>
                   </button>
                 ))}
-                {query.trim() !== "" && searchResults.length === 0 && <p className={styles.empty}>Ничего не найдено.</p>}
+                {query.trim() !== "" && searchResults.length === 0 && (
+                  <p className={styles.empty}>{t("search.empty")}</p>
+                )}
               </div>
             </Panel>
           </div>
@@ -1125,12 +1169,17 @@ export function Screen({
       {menuOpen && (
         <div className={styles.searchWrap} onClick={() => setMenuOpen(false)}>
           <div className={styles.searchPanel} onClick={(event) => event.stopPropagation()}>
-            <Panel title="Меню" meta="тумблеры макета" onClose={() => setMenuOpen(false)} density="control">
+            <Panel
+              title={t("menu.title")}
+              meta={t("menu.meta")}
+              onClose={() => setMenuOpen(false)}
+              density="control"
+            >
               {(actions.getLlmPrompt !== undefined ||
                 actions.submitLlmResponse !== undefined ||
                 actions.runLlmCycle !== undefined) && (
                 <div style={{ marginBottom: "var(--space-4)" }}>
-                  <p className={styles.empty}>Диагностика: промт и ответ ИИ-режиссёра вручную.</p>
+                  <p className={styles.empty}>{t("menu.diagnosticsNote")}</p>
                   <Button
                     size="sm"
                     variant="quiet"
@@ -1139,41 +1188,41 @@ export function Screen({
                       setLlmOpen(true);
                     }}
                   >
-                    Ручной цикл ИИ-режиссёра
+                    {t("menu.llmCycle")}
                   </Button>
                 </div>
               )}
 
-              <p className={styles.empty}>Наука отдельным томом или внутри обороны — смотрим оба варианта.</p>
+              <p className={styles.empty}>{t("menu.scienceNote")}</p>
               <div style={{ display: "flex", gap: "var(--space-1)", marginBottom: "var(--space-4)" }}>
                 <Button size="sm" variant={scienceSeparate ? "order" : "quiet"} onClick={() => setScienceSeparate(true)}>
-                  Отдельно
+                  {t("menu.scienceSeparate")}
                 </Button>
                 <Button size="sm" variant={!scienceSeparate ? "order" : "quiet"} onClick={() => setScienceSeparate(false)}>
-                  Вместе с обороной
+                  {t("menu.scienceTogether")}
                 </Button>
               </div>
 
-              <p className={styles.empty}>Плавность сопряжения ШАПКИ: {slant} px</p>
+              <p className={styles.empty}>{t("menu.slantNote", { value: slant })}</p>
               <input
                 type="range"
                 min={8}
                 max={96}
                 step={2}
                 value={slant}
-                aria-label="Плавность сопряжения"
+                aria-label={t("menu.slantLabel")}
                 onChange={(event) => setSlant(Number(event.target.value))}
                 style={{ width: "100%", accentColor: "var(--accent)", marginBottom: "var(--space-4)" }}
               />
 
-              <p className={styles.empty}>Оформление — материал панелей, а не цвет.</p>
+              <p className={styles.empty}>{t("menu.skinNote")}</p>
               <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap", marginBottom: "var(--space-4)" }}>
                 {[
-                  ["flat", "Панель"],
-                  ["bare", "Без рам"],
-                  ["print", "Печать"],
-                  ["glow", "Свет"],
-                  ["gauge", "Прибор"],
+                  ["flat", t("menu.skins.flat")],
+                  ["bare", t("menu.skins.bare")],
+                  ["print", t("menu.skins.print")],
+                  ["glow", t("menu.skins.glow")],
+                  ["gauge", t("menu.skins.gauge")],
                 ].map(([id, name]) => (
                   <Button
                     key={id}
@@ -1190,13 +1239,13 @@ export function Screen({
                 ))}
               </div>
 
-              <p className={styles.empty}>Палитра — решение отложено до подключения карты.</p>
+              <p className={styles.empty}>{t("menu.paletteNote")}</p>
               <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
                 {[
-                  ["graphite", "Графит"],
-                  ["steel", "Сталь"],
-                  ["ink", "Тушь"],
-                  ["khaki", "Хаки"],
+                  ["graphite", t("menu.palettes.graphite")],
+                  ["steel", t("menu.palettes.steel")],
+                  ["ink", t("menu.palettes.ink")],
+                  ["khaki", t("menu.palettes.khaki")],
                 ].map(([id, name]) => (
                   <Button
                     key={id}
@@ -1238,6 +1287,7 @@ export function Screen({
  * рисуется (правило органов управления, `model.ts`).
  */
 function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose: () => void }) {
+  const { t } = useTranslation("screen");
   const [prompt, setPrompt] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [responseText, setResponseText] = useState("");
@@ -1263,7 +1313,7 @@ function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose:
       })
       .catch((err: unknown) => {
         console.error(err);
-        setError("Ошибка получения промта");
+        setError(t("llm.errorPrompt"));
       })
       .finally(() => setBusy(false));
   };
@@ -1281,7 +1331,7 @@ function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose:
       })
       .catch((err: unknown) => {
         console.error(err);
-        setError("Ошибка применения ответа");
+        setError(t("llm.errorApply"));
       })
       .finally(() => setBusy(false));
   };
@@ -1296,32 +1346,32 @@ function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose:
       .then(setResult)
       .catch((err: unknown) => {
         console.error(err);
-        setError("Ошибка автоматического цикла");
+        setError(t("llm.errorAuto"));
       })
       .finally(() => setBusy(false));
   };
 
   return (
-    <Panel title="Ручной цикл ИИ-режиссёра" meta="диагностика" onClose={onClose} density="control">
+    <Panel title={t("llm.title")} meta={t("llm.meta")} onClose={onClose} density="control">
       {actions.runLlmCycle !== undefined && (
         <section className={styles.llmSection}>
-          <h3 className={styles.llmSectionTitle}>Автоматически</h3>
+          <h3 className={styles.llmSectionTitle}>{t("llm.autoTitle")}</h3>
           <Button variant="order" size="sm" onClick={handleAuto} disabled={busy}>
-            Сгенерировать и применить автоматически
+            {t("llm.autoRun")}
           </Button>
         </section>
       )}
 
       {actions.getLlmPrompt !== undefined && (
         <section className={styles.llmSection}>
-          <h3 className={styles.llmSectionTitle}>1. Промт (ручной способ)</h3>
+          <h3 className={styles.llmSectionTitle}>{t("llm.promptTitle")}</h3>
           <Button variant="quiet" size="sm" onClick={handleGetPrompt} disabled={busy}>
-            {copied ? "Промт скопирован ✓" : "Получить и скопировать промт"}
+            {copied ? t("llm.promptCopied") : t("llm.promptGet")}
           </Button>
           {prompt !== null && (
             <textarea
               className={styles.llmField}
-              aria-label="Промт для ИИ"
+              aria-label={t("llm.promptLabel")}
               readOnly
               value={prompt}
               rows={6}
@@ -1333,17 +1383,17 @@ function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose:
 
       {actions.submitLlmResponse !== undefined && (
         <section className={styles.llmSection}>
-          <h3 className={styles.llmSectionTitle}>2. Ответ ИИ</h3>
+          <h3 className={styles.llmSectionTitle}>{t("llm.responseTitle")}</h3>
           <textarea
             className={styles.llmField}
-            aria-label="Ответ ИИ (JSON)"
-            placeholder='Вставьте JSON-ответ: { "descriptions": "...", "primitives": [...] }'
+            aria-label={t("llm.responseLabel")}
+            placeholder={t("llm.responsePlaceholder")}
             value={responseText}
             onChange={(event) => setResponseText(event.target.value)}
             rows={6}
           />
           <Button variant="order" size="sm" onClick={handleApply} disabled={busy || responseText.trim() === ""}>
-            Применить ответ
+            {t("llm.responseApply")}
           </Button>
         </section>
       )}
@@ -1356,38 +1406,36 @@ function LlmCycleWindow({ actions, onClose }: { actions: ScreenActions; onClose:
 }
 
 function LlmCycleOutcome({ result }: { result: ScreenLlmResult }) {
+  const { t } = useTranslation("screen");
   return (
     <section className={cx(styles.llmSection, styles.llmResult)}>
       {result.narrativeCanonized ? (
         <>
-          <h3 className={styles.llmSectionTitle}>{result.title ?? "Результат"}</h3>
+          <h3 className={styles.llmSectionTitle}>{result.title ?? t("llm.resultFallback")}</h3>
           {result.factuality !== undefined && (
             <p className={styles.llmFactuality} role="note">
-              {result.factuality === "partial"
-                ? "Подтверждено частично: часть предложенного движок отклонил — текст выше мог описать и её. Что легло в мир на самом деле — ниже."
-                : "Фактами не подтверждено: движку режиссёр ничего не предлагал, мир этот текст не менял."}
+              {result.factuality === "partial" ? t("llm.partial") : t("llm.unconfirmed")}
             </p>
           )}
           {result.descriptions !== undefined && <p className={styles.modalText}>{result.descriptions}</p>}
         </>
       ) : (
         <>
-          <h3 className={styles.llmSectionTitle}>Режиссёр предложил невозможное</h3>
+          <h3 className={styles.llmSectionTitle}>{t("llm.impossibleTitle")}</h3>
           <p role="status" className={styles.modalText}>
-            Ни одно предложение режиссёра не применилось, поэтому событие не записано: мир не изменился, и
-            рассказывать о нём нечего. Причины ниже уйдут модели в следующий промт.
+            {t("llm.impossibleText")}
           </p>
         </>
       )}
 
       <p className={styles.empty}>
-        Применено приказов: {result.applied.length}
-        {result.rejected.length > 0 && `, отклонено: ${result.rejected.length}`}
+        {t("llm.countApplied", { n: result.applied.length })}
+        {result.rejected.length > 0 && t("llm.countRejected", { n: result.rejected.length })}
       </p>
 
       {result.applied.length > 0 && (
-        <section aria-label="Что произошло на самом деле">
-          <h4 className={styles.llmSectionTitle}>Что произошло на самом деле</h4>
+        <section aria-label={t("llm.appliedTitle")}>
+          <h4 className={styles.llmSectionTitle}>{t("llm.appliedTitle")}</h4>
           <ul className={styles.llmList}>
             {result.applied.map((record, index) => (
               <li key={index}>
@@ -1406,8 +1454,8 @@ function LlmCycleOutcome({ result }: { result: ScreenLlmResult }) {
       )}
 
       {result.rejected.length > 0 && (
-        <section aria-label="Отклонено движком">
-          <h4 className={styles.llmSectionTitle}>Отклонено движком</h4>
+        <section aria-label={t("llm.rejectedTitle")}>
+          <h4 className={styles.llmSectionTitle}>{t("llm.rejectedTitle")}</h4>
           <ul className={styles.llmList}>
             {result.rejected.map((line, index) => (
               <li key={index}>{line}</li>
