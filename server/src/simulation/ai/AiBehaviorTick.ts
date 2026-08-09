@@ -21,6 +21,9 @@ import {
   STABILITY_RECOVERED,
   WELFARE_SHIFT_RATE,
   WELFARE_CAP_SHARE,
+  traitScale,
+  AI_TRAIT_DEBT_TOLERANCE,
+  AI_TRAIT_UNREST_TOLERANCE,
 } from "@shared/defines/ai";
 import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 
@@ -38,6 +41,10 @@ import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
  *
  * Применяется только к ИИ-странам (id !== playerCountryId). Баланс-константы
  * — shared/src/defines/ai.ts.
+ *
+ * С 2026-08-09 пороги Правил A/B/C не общие на весь мир: их сдвигает характер
+ * страны (`Country.aiTraits`) — см. `austerityDebtThreshold` и
+ * `unrestThresholds` ниже. Величины реакций по-прежнему общие.
  */
 
 const DISCRETIONARY: SpendKey[] = [
@@ -49,10 +56,55 @@ const DISCRETIONARY: SpendKey[] = [
 ];
 
 /**
+ * ХАРАКТЕР СТРАНЫ — ЕДИНСТВЕННЫЕ ДВА МЕСТА, ГДЕ ОН ЧИТАЕТСЯ (2026-08-09).
+ *
+ * До этой даты `Country.aiTraits` сеялись каждой стране, продвигали `rngState`,
+ * копировались при расколе — и не читались ничем: единственным читателем было
+ * Правило D, удалённое 2026-07-31. Поля ниже возвращают им потребителя, не
+ * заводя ни новой механики, ни нового поля состояния: характер сдвигает ПОРОГИ
+ * уже существующих правил, и ничего больше.
+ *
+ * Оба порога — сравнения «пора ли реагировать», а не величины реакции. Это
+ * выбор, а не случайность: величины реакции в обоих правилах упираются в
+ * стартовые доли, а те в 1946 приходят тремя разными наборами по
+ * `economyProfile` — множитель на величину был бы жив у одного профиля и мёртв
+ * у другого (разбор с числами — у AI_TRAIT_UNREST_TOLERANCE).
+ */
+
+/**
+ * Порог долг/ВВП, с которого ЭТА страна начинает аустерити (Правило A) и
+ * перестаёт считать себя платёжеспособной для военного ramp'а (Правило B).
+ *
+ * Один порог на оба правила — не экономия строк, а сохранение инварианта,
+ * записанного в Правиле B 2026-08-08: «долг начал вредить» — одно событие, и
+ * реагировать на него два правила обязаны согласованно. Разъехавшись, они
+ * вернули бы ровно тот дефект, ради которого порог там и был взят у Правила A:
+ * ramp спорит с аустерити и выигрывает, доля упирается в потолок навсегда.
+ */
+function austerityDebtThreshold(c: Country): number {
+  return DEBT_GDP_PENALTY_THRESHOLD * traitScale(c.aiTraits.riskTolerance, AI_TRAIT_DEBT_TOLERANCE);
+}
+
+/**
+ * Пороги Правила C для ЭТОЙ страны: `low` — при какой нестабильности она
+ * снимает деньги с армии, `recovered` — при какой возвращает. Агрессивная
+ * страна терпит больше беспорядка, прежде чем тронуть военный бюджет.
+ *
+ * Зазор гистерезиса берётся у общих констант и остаётся ОДИНАКОВЫМ для всех:
+ * индивидуален вход в кризис, а не ширина зоны, в которой не двигают ничего.
+ */
+function unrestThresholds(c: Country): { low: number; recovered: number } {
+  const low = STABILITY_LOW / traitScale(c.aiTraits.aggressiveness, AI_TRAIT_UNREST_TOLERANCE);
+  return { low, recovered: low + (STABILITY_RECOVERED - STABILITY_LOW) };
+}
+
+/**
  * Правило A — аустерити В ОБЕ СТОРОНЫ (обратный ход добавлен 2026-08-02).
  *
  * Урезание: при дефиците И высокой долговой нагрузке (долг/ВВП выше
- * DEBT_GDP_PENALTY_THRESHOLD) ИИ-страна режет дискреционные расходы на
+ * собственного порога страны — `austerityDebtThreshold`, база
+ * DEBT_GDP_PENALTY_THRESHOLD, сдвиг по `riskTolerance` с 2026-08-09) ИИ-страна
+ * режет дискреционные расходы на
  * 5%/тик, но не ниже снимка пола (50% старта). Долг вместо казны как триггер
  * (docs/plans/08_WAR_WAVE1.md, Шаг 4): с конвертацией дефицита в долг казна
  * больше не уходит в минус (пол 0), поэтому прежний триггер `treasury < 0`
@@ -84,7 +136,7 @@ function applyDeficitAusterity(game: GameState, c: Country): void {
   const debtBurden = e.gdp > 0 ? e.debt / e.gdp : 0;
 
   if (e.budgetBalance < 0) {
-    if (debtBurden > DEBT_GDP_PENALTY_THRESHOLD) {
+    if (debtBurden > austerityDebtThreshold(c)) {
       economyCommands.applyDeficitAusterityCut(game, c.id, AUSTERITY_CUT, DISCRETIONARY);
     }
     return;
@@ -99,9 +151,10 @@ function applyDeficitAusterity(game: GameState, c: Country): void {
 
 /**
  * Правило C — бюджет следует за кризисом В ОБЕ СТОРОНЫ. При низкой stability
- * (< `STABILITY_LOW`) расходы идут military → welfare; когда кризис позади
- * (≥ `STABILITY_RECOVERED`) — доля возвращается обратно. Между порогами
- * гистерезисная зона, в ней не двигают ничего.
+ * (ниже СОБСТВЕННОГО порога страны — `unrestThresholds`, база `STABILITY_LOW`,
+ * сдвиг по `aggressiveness` с 2026-08-09) расходы идут military → welfare;
+ * когда кризис позади (≥ порога возврата той же страны) — доля возвращается
+ * обратно. Между порогами гистерезисная зона, в ней не двигают ничего.
  *
  * ПОЧЕМУ ВОЗВРАТ ПОЯВИЛСЯ (2026-08-01). Правило было односторонним храповиком:
  * замер на 120 месяцах живого 1946 показал, что за первые пять месяцев кризиса
@@ -135,9 +188,10 @@ function applyStabilityBudgetShift(game: GameState, c: Country): void {
     { kind: "country", id: c.id },
     game.modifiers
   );
+  const unrest = unrestThresholds(c);
 
   // Кризис: все три ограничителя — доли дохода, поэтому сам доход не нужен.
-  if (stability < STABILITY_LOW) {
+  if (stability < unrest.low) {
     const shift = Math.min(
       WELFARE_SHIFT_RATE,
       WELFARE_CAP_SHARE - shares.welfare,
@@ -149,7 +203,7 @@ function applyStabilityBudgetShift(game: GameState, c: Country): void {
 
   // Гистерезисная зона между порогами — бюджет замер там, где его застал выход
   // из кризиса.
-  if (stability < STABILITY_RECOVERED) return;
+  if (stability < unrest.recovered) return;
 
   // Кризис позади. Пол аустерити — половина стартовой доли, значит старт = пол × 2.
   const back = Math.min(
@@ -198,10 +252,12 @@ function applyThreatResponse(game: GameState, player: Country, aiCountries: Coun
       // никогда, и спорить было некому. Замер: 6 стран садились в долг свыше
       // 60% ВВП НАВСЕГДА, держа военные расходы на потолке 40% дохода. Порог
       // взят у Правила A, а не назначен свой: «долг начал вредить» — одно
-      // событие, и реагировать на него два правила обязаны согласованно.
+      // событие, и реагировать на него два правила обязаны согласованно. С
+      // 2026-08-09 порог индивидуален (`riskTolerance`), и согласованность
+      // сохранена буквально: оба правила зовут `austerityDebtThreshold(c)`.
       const debtBurden = c.economy.gdp > 0 ? c.economy.debt / c.economy.gdp : 0;
       const share = c.economy.spendingShares?.military ?? 0;
-      if (debtBurden <= DEBT_GDP_PENALTY_THRESHOLD) {
+      if (debtBurden <= austerityDebtThreshold(c)) {
         rampingUp.add(c.id);
         if (share < MILITARY_CAP_SHARE) {
           economyCommands.setMilitaryShare(game, c.id, Math.min(share * MILITARY_RAMP, MILITARY_CAP_SHARE));

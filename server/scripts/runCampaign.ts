@@ -24,6 +24,15 @@
  * Запуск:
  *   npx tsx scripts/runCampaign.ts [--years 15] [--player USA] [--out ../.tmp/campaign]
  *   npx tsx scripts/runCampaign.ts --war ROU:YUG     // начать войну на первом тике
+ *   npx tsx scripts/runCampaign.ts --seed 12345      // воспроизводимый прогон
+ *
+ * ПРО `--seed` (добавлен 2026-08-09). Без него `createGame()` берёт сид от
+ * `Date.now()`, то есть два прогона подряд дают РАЗНЫЕ партии, и сравнить «до»
+ * с «после» правки было нечем: расхождение колонок могло быть и следствием
+ * правки, и следствием другого сида. С явным сидом прогон воспроизводим, и это
+ * единственный способ доказать утверждение «тот же seed — тот же результат».
+ * Сид уходит в том числе в посев `Country.aiTraits`, поэтому и распределение
+ * характеров у одного сида одно и то же.
  */
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -116,6 +125,13 @@ const COUNTRY_COLUMNS = [
   "legitimacy", "corruption", "stability", "governmentSupport",
   "activePersonnel", "manpower",
   "regionsControlled", "rivals", "allies", "atWar",
+  // Доли бюджета и характер (2026-08-09). Доли — то, что двигают Правила A/B/C,
+  // и без них траектория «кто как отреагировал» в файле не видна вообще:
+  // абсолютные суммы растут вместе с доходом и разницу поведения маскируют.
+  // Характер лежит рядом, потому что вопрос «разошлись ли страны и по какой
+  // причине» задаётся ПОСЛЕ прогона (см. шапку), а `aiTraits` иначе пришлось бы
+  // добывать вторым запуском с тем же сидом.
+  "militaryShare", "welfareShare", "aggressiveness", "riskTolerance",
 ] as const;
 
 function countryRows(game: GameState, month: number): (string | number)[][] {
@@ -141,6 +157,9 @@ function countryRows(game: GameState, month: number): (string | number)[][] {
     controlled.get(c.id) ?? 0,
     c.diplomacy.rivals?.length ?? 0, c.diplomacy.allies?.length ?? 0,
     atWar.has(c.id) ? 1 : 0,
+    round(c.economy.spendingShares?.military ?? Number.NaN, 6),
+    round(c.economy.spendingShares?.welfare ?? Number.NaN, 6),
+    round(c.aiTraits.aggressiveness, 6), round(c.aiTraits.riskTolerance, 6),
   ]);
 }
 
@@ -156,6 +175,11 @@ function main(): void {
   const player = arg("player", "USA");
   const outDir = path.resolve(arg("out", path.join("..", ".tmp", "campaign")));
   const war = arg("war", "");
+  const seedArg = arg("seed", "");
+  const seed = seedArg === "" ? undefined : Number.parseInt(seedArg, 10);
+  if (seed !== undefined && !Number.isFinite(seed)) {
+    throw new Error(`--seed ждёт целое число, получено "${seedArg}"`);
+  }
 
   fs.mkdirSync(outDir, { recursive: true });
   const worldPath = path.join(outDir, "world.csv");
@@ -168,7 +192,12 @@ function main(): void {
   worldOut.write(BOM + csvLine([...WORLD_COLUMNS]));
   countriesOut.write(BOM + csvLine([...COUNTRY_COLUMNS]));
 
-  const game = createGame("1946", player);
+  const game = createGame("1946", player, undefined, seed);
+  console.log(
+    seed === undefined
+      ? "сид: Date.now() — прогон НЕ воспроизводим, для сравнения «до/после» задай --seed"
+      : `сид: ${seed}`
+  );
 
   if (war) {
     const [attacker, defender] = war.split(":");
