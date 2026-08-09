@@ -79,10 +79,16 @@ interface MapViewProps {
   regions: Region[];
   countries: Country[];
   mapFeatures: MapFeature[];
+  /**
+   * Клик по региону. Подробности региона показывает ПОЛОСА нового слоя
+   * (`docs/UI_DESIGN.md` §6), поэтому карта только СООБЩАЕТ о выборе и своего
+   * окна не рисует. Здесь жил `maplibregl.Popup` со свёрстанной `.setHTML`
+   * карточкой — обломок старого интерфейса: он дублировал ПОЛОСУ и выглядел
+   * чужим. Уцелел потому, что `client/src/map/**` был вне области ветки,
+   * снявшей старый слой.
+   */
   onRegionClick?: (regionId: number) => void;
   selectedRegionId?: number | null;
-  onPopupStateChange?: (isOpen: boolean) => void;
-  closePopupTrigger?: number;
   /**
    * Оверлей цвета заливки по режиму карты (docs/plans/12_UI_REDESIGN.md,
    * Срез 2 — MapControls). null/отсутствует → политический цвет по
@@ -100,14 +106,11 @@ export function MapView({
   mapFeatures,
   onRegionClick,
   selectedRegionId,
-  onPopupStateChange,
-  closePopupTrigger,
   regionModeColors,
   onMapReady
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const popupRef = useRef<maplibregl.Popup | null>(null);
   const [mapData, setMapData] = useState<GameMapData | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(2);
@@ -218,16 +221,6 @@ export function MapView({
     };
   }, []);
 
-  // Закрытие попапа по триггеру извне
-  useEffect(() => {
-    if (popupRef.current) {
-      popupRef.current.remove();
-      popupRef.current = null;
-      if (onPopupStateChange) onPopupStateChange(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [closePopupTrigger]);
-
   function setupInteractions(m: maplibregl.Map) {
     m.on('mousemove', 'regions-fill', (e) => {
       if (!m || !e.features?.length) return;
@@ -262,31 +255,7 @@ export function MapView({
       const props = feature.properties as Record<string, unknown> | null;
       if (!props || props.type === 'ocean') return;
 
-      const ownerColor = (props.ownerColor as string) || '#808080';
-      const ownerName = (props.ownerName as string) || 'Neutral';
-      const name = (props.name as string) || 'Unknown';
-
-      if (popupRef.current) popupRef.current.remove();
-
-      const popup = new maplibregl.Popup({ closeButton: true, closeOnClick: false, maxWidth: '280px' })
-        .setLngLat(e.lngLat)
-        .setHTML(`
-          <div class="region-popup">
-            <h3 style="border-left:4px solid ${ownerColor};padding-left:8px;font-size:1rem;margin-bottom:0.5rem;color:#f1f5f9">
-              ${name}
-            </h3>
-            <div style="font-size:0.8rem;color:${ownerColor};">${ownerName}</div>
-          </div>`)
-        .addTo(m);
-
-      popup.on('close', () => {
-        popupRef.current = null;
-        if (onPopupStateChange) onPopupStateChange(false);
-      });
-
-      popupRef.current = popup;
-      if (onPopupStateChange) onPopupStateChange(true);
-
+      // Карта только сообщает о выборе: показывает регион ПОЛОСА.
       if (onRegionClick) {
         const rawId = feature.id != null ? feature.id : props.id;
         const id = typeof rawId === 'number' ? rawId : parseInt(String(rawId), 10);
