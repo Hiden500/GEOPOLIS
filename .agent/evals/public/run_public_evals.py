@@ -303,6 +303,39 @@ def validate_rot() -> None:
         (f"{len(missing)} шт., первые: " + "; ".join(sorted(missing)[:5])) if missing else "",
     )
 
+    # Адрес `файл.ts:123`, указывающий за конец файла. Заведено 2026-08-09 по
+    # четырём случаям одного дня: карта разделов `docs/TODO.md` разошлась на
+    # девять строк в момент отправки (влилась чужая ветка); вердикт домена
+    # называл `GeminiProvider.ts:235`, где конвертация на 200 — оба числа были
+    # верны в СВОИХ деревьях; `diagnose_seas_iho.py:216-219` описывал ловушку,
+    # и ловушка всё равно сработала.
+    #
+    # Проверяется только выход ЗА КОНЕЦ файла, а не «та ли там строка»: второе
+    # без исполнения не установить, а первое — грубая, но честная граница.
+    # Ссылка на строку живёт дольше правки соседнего файла, поэтому устойчивый
+    # адрес — заголовок раздела или имя символа, а номер строки — расходник.
+    line_ref = re.compile(r"`([\w./-]+\.(?:ts|tsx|py|mjs|json|md)):(\d+)")
+    overshoot: list[str] = []
+    for doc in sorted((ROOT / "docs").rglob("*.md")):
+        rel = str(doc.relative_to(ROOT)).replace("\\", "/")
+        if rel.startswith(("docs/decisions/", "docs/provenance/", "docs/agent/")):
+            continue
+        for ref, num in set(line_ref.findall(doc.read_text(encoding="utf-8", errors="replace"))):
+            target = ROOT / ref
+            if not target.is_file():
+                matches = [f for f in _repo_code_files() if f.endswith("/" + ref)]
+                if len(matches) != 1:
+                    continue  # неоднозначный или несуществующий путь ловит проверка выше
+                target = ROOT / matches[0]
+            total = target.read_text(encoding="utf-8", errors="replace").count("\n") + 1
+            if int(num) > total:
+                overshoot.append(f"{doc.relative_to(ROOT)} -> {ref}:{num} (в файле {total})")
+    check(
+        not overshoot,
+        "docs line references stay inside their file",
+        (f"{len(overshoot)} шт., первые: " + "; ".join(sorted(overshoot)[:5])) if overshoot else "",
+    )
+
     stale_marker = re.compile(r"актуально на (\d{4})-(\d{2})-(\d{2})")
     today = _dt.date.today()
     stale: list[str] = []
