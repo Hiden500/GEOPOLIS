@@ -6,6 +6,7 @@ import { ResearchService } from "../services/ResearchService";
 import { MilitaryService } from "../services/MilitaryService";
 import { CountryService } from "../services/CountryService";
 import { type CommandResult } from "./types";
+import { disposableIncome } from "../simulation/economy/budgetBase";
 
 const researchService = new ResearchService();
 const militaryService = new MilitaryService();
@@ -94,7 +95,7 @@ export function applyDeficitAusterityCut(
     // Сумма приводится сразу же: следующий тик всё равно её пересчитает, но
     // между командой и тиком состояние обязано быть согласованным — иначе
     // читатель внутри того же хода увидит долю и сумму, говорящие разное.
-    economy[key] = totalIncomeOf(country) * economy.spendingShares[share];
+    economy[key] = disposableIncome(country) * economy.spendingShares[share];
   }
   return { success: true };
 }
@@ -130,12 +131,12 @@ export function applyAusterityRecoveryRaise(
     );
     // Сумма приводится сразу — как у урезания выше: между командой и следующим
     // тиком доля и сумма обязаны говорить одно и то же.
-    economy[key] = totalIncomeOf(country) * economy.spendingShares[share];
+    economy[key] = disposableIncome(country) * economy.spendingShares[share];
   }
   return { success: true };
 }
 
-/** Соответствие абсолютной статьи расходов и её доли в доходе. */
+/** Соответствие абсолютной статьи расходов и её доли в располагаемом доходе. */
 const SHARE_KEY = {
   militarySpending: "military",
   researchSpending: "research",
@@ -144,16 +145,10 @@ const SHARE_KEY = {
   welfareSpending: "welfare",
 } as const satisfies Record<SpendKey, keyof NonNullable<Country["economy"]["spendingShares"]>>;
 
-/** Доход, от которого считаются доли, — тот же набор слагаемых, что в EconomyTick. */
-function totalIncomeOf(country: Country): number {
-  const e = country.economy;
-  return e.taxRevenue + e.exportIncome + e.stateEnterpriseIncome + e.otherIncome;
-}
-
 /**
  * Точная обёртка формулы AiBehaviorTick Правило B (военный ramp угрожаемого
- * соперника): задаёт ДОЛЮ дохода и сразу приводит сумму. Кап и скорость ramp'а
- * по-прежнему считает вызывающий.
+ * соперника): задаёт ДОЛЮ располагаемого дохода и сразу приводит сумму. Кап и
+ * скорость ramp'а по-прежнему считает вызывающий.
  */
 export function setMilitaryShare(game: GameState, countryId: string, share: number): CommandResult {
   const country = findCountry(game, countryId);
@@ -162,7 +157,7 @@ export function setMilitaryShare(game: GameState, countryId: string, share: numb
   if (!economy.spendingShares) return { success: true };
 
   economy.spendingShares.military = Math.max(0, share);
-  economy.militarySpending = totalIncomeOf(country) * economy.spendingShares.military;
+  economy.militarySpending = disposableIncome(country) * economy.spendingShares.military;
   return { success: true };
 }
 
@@ -187,9 +182,11 @@ export function shiftWelfareToMilitary(game: GameState, countryId: string, shift
 }
 
 /**
- * Общий механизм обоих сдвигов: переносит `shift` доли дохода между статьями и
- * тут же приводит суммы. Сдвигается ДОЛЯ, а не сумма — иначе следующий
- * `economyTick`, пересчитывающий суммы из долей, стёр бы перенос.
+ * Общий механизм обоих сдвигов: переносит `shift` доли между статьями и тут же
+ * приводит суммы. Сдвигается ДОЛЯ, а не сумма — иначе следующий `economyTick`,
+ * пересчитывающий суммы из долей, стёр бы перенос. База сумм — располагаемый
+ * доход, ровно та же, что у тика (`simulation/economy/budgetBase.ts`): команда,
+ * считающая от другой базы, оставляет долю и сумму говорящими разное.
  */
 function moveShare(
   game: GameState,
@@ -206,9 +203,9 @@ function moveShare(
   economy.spendingShares[from] -= shift;
   economy.spendingShares[to] += shift;
 
-  const income = totalIncomeOf(country);
-  economy.militarySpending = income * economy.spendingShares.military;
-  economy.welfareSpending = income * economy.spendingShares.welfare;
+  const budgetBase = disposableIncome(country);
+  economy.militarySpending = budgetBase * economy.spendingShares.military;
+  economy.welfareSpending = budgetBase * economy.spendingShares.welfare;
   return { success: true };
 }
 

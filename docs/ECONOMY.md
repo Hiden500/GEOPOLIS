@@ -81,12 +81,13 @@ region.infrastructure = clamp(region.infrastructure × factor, MIN, MAX)
 `country.economy.gdp` перезаписывается агрегацией (Σ `region.gdp`), не
 накапливается отдельно.
 
-### Петля бюджета (`EconomyTick.ts:9-88`)
+### Петля бюджета (`EconomyTick.ts`, база — `simulation/economy/budgetBase.ts`)
 
 ```
 if (taxRate !== undefined) taxRevenue = gdp × taxRate      // см. "Решено" ниже
 debtInterest = debt > 0 ? debt × monthlyRate : 0           // см. "Госдолг" ниже
-income   = taxRevenue + exportIncome + stateEnterpriseIncome + otherIncome
+income     = taxRevenue + exportIncome + stateEnterpriseIncome + otherIncome
+budgetBase = max(0, income - importSpending)                // база росписи, см. ниже
 expenses = militarySpending + researchSpending + educationSpending
          + infrastructureSpending + welfareSpending + debtInterest + otherExpenses + importSpending
 budgetBalance = income - expenses
@@ -117,10 +118,28 @@ unemployment += 0.03 × (unemploymentTarget - unemployment) // клип [0, 60]
 перешла ни одна страна из 157. Обоснование и калибровка —
 `shared/src/defines/economy.ts`, замер — `server/scripts/probeScales.ts`.
 
+**База росписи — одна на все пути записи `*Spending`, и это требование, а не
+совпадение.** Пять дискреционных статей считаются от РАСПОЛАГАЕМОГО дохода
+`budgetBase = max(0, income − importSpending)` (решение пользователя 2026-08-03,
+`docs/decisions/2026-08.md` §«2026-08-04 — Импорт вошёл в роспись»): импорт —
+обязательная закупка, а не строка росписи, и доли расписывают то, что осталось.
+Кламп по нулю обязателен: страна, чей импорт превысил доход, иначе получила бы
+отрицательные расходы, то есть доход из ниоткуда. Формула живёт в ОДНОМ месте —
+`server/src/simulation/economy/budgetBase.ts` (`grossIncome`,
+`disposableIncome`), и её вызывают все три пути, пишущие суммы: `EconomyTick.
+updateBudget` (каждый тик), `CountryService.updateBudget` (`PUT /budget` игрока)
+и команды бюджета ИИ в `server/src/commands/economy.ts` (`applyDeficitAusterity
+Cut`, `applyAusterityRecoveryRaise`, `setMilitaryShare`, сдвиги military↔
+welfare). `importSpending` входит в `expenses` во всех трёх — поэтому
+`budgetBalance`, показанный игроку сразу после сохранения росписи, равен тому,
+который при неизменном состоянии посчитает следующий ход. До 2026-08-09 базы
+расходились: тик считал от располагаемого дохода, два других пути — от полного,
+и показанный баланс отличался от ходового на `(1 − Σдолей) × importSpending`.
+
 Если у страны задан `EconomyState.spendingShares?: { military, research,
 education, infrastructure, welfare }` (`PUT /budget`), каждый тик до расчёта
 `expenses` пересчитываются абсолютные `militarySpending/researchSpending/
-educationSpending/infrastructureSpending/welfareSpending = income × доля` —
+educationSpending/infrastructureSpending/welfareSpending = budgetBase × доля` —
 тот же паттерн, что `taxRate → taxRevenue` выше. Потолки на каждую статью
 независимые (`shared/src/defines/budgetSpendingShareCaps.ts`,
 `BUDGET_SPENDING_SHARE_CAPS`), сумма долей может превышать 1 — разрешено

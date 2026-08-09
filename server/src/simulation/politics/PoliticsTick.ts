@@ -4,6 +4,7 @@ import { type GameState } from "@shared/types/GameState";
 import { corruptionBase, legitimacyBase, stabilityBase } from "@shared/utils/politics";
 import { regionDiscontent, resolveIdeologyCoordinates } from "@shared/utils/discontent";
 import { COUNTRY_POLITICS_SCALE_MAX } from "@shared/defines/discontent";
+import { grossIncome } from "../economy/budgetBase";
 import {
   CORRUPTION_TREASURY_DRAIN,
   CORRUPTION_LOW_STABILITY_THRESHOLD,
@@ -48,10 +49,7 @@ function clamp(value: number, min: number, max: number): number {
 function corruptionEquilibrium(country: Country): number {
     const p = country.politics;
     const { educationSpending } = country.economy;
-    const income = country.economy.taxRevenue
-        + country.economy.exportIncome
-        + country.economy.stateEnterpriseIncome
-        + country.economy.otherIncome;
+    const income = grossIncome(country);
 
     // Базис — по МЕХАНИЗМУ удержания власти, а не по ярлыку идеологии
     // (переведено 2026-07-30: по ярлыку 78 стран из 157 падали в дефолт).
@@ -111,10 +109,7 @@ export function stabilityEquilibrium(country: Country, countryRegions: readonly 
 
     // Бюджет: доля ДОХОДА, симметрично в обе стороны. Страна без дохода
     // (сценарные микровладения) бюджетной поправки не получает — делить не на что.
-    const income = country.economy.taxRevenue
-        + country.economy.exportIncome
-        + country.economy.stateEnterpriseIncome
-        + country.economy.otherIncome;
+    const income = grossIncome(country);
     if (income > 0) {
         eq += STABILITY_BUDGET_WEIGHT * response(
             budgetBalance / income,
@@ -196,10 +191,7 @@ export function governmentSupportEquilibrium(
         STABILITY_UNEMPLOYMENT_SATURATION
     );
 
-    const income = country.economy.taxRevenue
-        + country.economy.exportIncome
-        + country.economy.stateEnterpriseIncome
-        + country.economy.otherIncome;
+    const income = grossIncome(country);
     if (income > 0) {
         // Бюджет: доля дохода, симметрично — профицит хвалят, дефицит винят.
         eq += GOV_SUPPORT_BUDGET_WEIGHT * response(

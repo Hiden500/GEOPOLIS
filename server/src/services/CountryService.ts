@@ -1,6 +1,7 @@
 import { type Country } from "@shared/types/Country";
 import { type Region } from "@shared/types/map/Region";
 import { type UpdateBudgetInput } from "../validation/schemas";
+import { grossIncome, disposableIncome } from "../simulation/economy/budgetBase";
 
 /**
  * Сервис для операций со странами.
@@ -8,12 +9,18 @@ import { type UpdateBudgetInput } from "../validation/schemas";
  */
 export class CountryService {
   /**
-   * Обновляет распределение бюджета страны как доли income (не абсолюты —
-   * см. docs/ECONOMY.md "Модель единиц") и сразу выводит абсолютные
-   * *Spending из текущего income, чтобы UI не ждал следующего хода.
-   * EconomyTick пересчитывает те же поля из этих же долей каждый тик,
-   * когда income меняется (тот же паттерн, что taxRate → taxRevenue) —
-   * per-category потолки уже проверены zod-схемой (BUDGET_SPENDING_SHARE_CAPS),
+   * Обновляет распределение бюджета страны как доли РАСПОЛАГАЕМОГО дохода (не
+   * абсолюты — см. docs/ECONOMY.md "Модель единиц") и сразу выводит абсолютные
+   * *Spending, чтобы UI не ждал следующего хода.
+   *
+   * База и набор расходов — те же, что у `EconomyTick.updateBudget`
+   * (`simulation/economy/budgetBase.ts`), и это требование, а не совпадение:
+   * игрок, сохранивший роспись, обязан увидеть тот же `budgetBalance`, который
+   * при неизменном состоянии посчитает следующий ход. Пока база здесь была
+   * полным доходом, а `importSpending` не входил в расходы, показанный баланс
+   * расходился с ходом на `(1 − Σдолей) × importSpending`.
+   *
+   * Per-category потолки уже проверены zod-схемой (BUDGET_SPENDING_SHARE_CAPS),
    * здесь их не дублируем.
    */
   updateBudget(country: Country, budgetUpdate: UpdateBudgetInput): Country["economy"] {
@@ -21,15 +28,17 @@ export class CountryService {
 
     economy.spendingShares = { ...budgetUpdate };
 
-    const income = economy.taxRevenue + economy.exportIncome + economy.stateEnterpriseIncome + economy.otherIncome;
-    economy.militarySpending = income * budgetUpdate.military;
-    economy.researchSpending = income * budgetUpdate.research;
-    economy.educationSpending = income * budgetUpdate.education;
-    economy.infrastructureSpending = income * budgetUpdate.infrastructure;
-    economy.welfareSpending = income * budgetUpdate.welfare;
+    const income = grossIncome(country);
+    const budgetBase = disposableIncome(country);
+    economy.militarySpending = budgetBase * budgetUpdate.military;
+    economy.researchSpending = budgetBase * budgetUpdate.research;
+    economy.educationSpending = budgetBase * budgetUpdate.education;
+    economy.infrastructureSpending = budgetBase * budgetUpdate.infrastructure;
+    economy.welfareSpending = budgetBase * budgetUpdate.welfare;
 
     const expenses = economy.militarySpending + economy.researchSpending + economy.educationSpending +
-      economy.infrastructureSpending + economy.welfareSpending + economy.debtInterest + economy.otherExpenses;
+      economy.infrastructureSpending + economy.welfareSpending + economy.debtInterest +
+      economy.otherExpenses + economy.importSpending;
 
     economy.budgetBalance = income - expenses;
 
