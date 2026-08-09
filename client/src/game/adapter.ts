@@ -19,6 +19,7 @@ import { type Region } from "@shared/types/map/Region";
 import { getText, type Locale } from "@shared/types/i18n/LocalizedText";
 import { type PrimitiveOutcomeLine } from "@shared/types/politics/PrimitiveOutcome";
 import { getDomainTier } from "@shared/utils/technology";
+import { type Translator } from "../i18n/Translator";
 import {
   type ScreenCountry,
   type ScreenEvent,
@@ -75,17 +76,38 @@ function ranksByGdp(countries: Country[]): Map<string, number> {
   return new Map(sorted.map((country, index) => [country.id, index + 1]));
 }
 
-const TIER_LABEL: Record<string, string> = {
-  major: "Великая держава",
-  regional: "Региональная держава",
-  minor: "Малая держава",
-};
+/**
+ * Переводчик подписей адаптера. Словаря адаптер не знает — он знает только, что
+ * ему дали функцию и из какого namespace она берёт строки (`Translator`);
+ * импорт здесь чисто типовой и при сборке стирается.
+ */
+type T = Translator<"adapter">;
+
+/**
+ * Тир державы. Ключи ЛИТЕРАЛАМИ, а не `t("tier." + tier)`: собранный в рантайме
+ * ключ `localeKeys.test.ts` не проверяет, и опечатка в нём дошла бы до игрока
+ * сырым идентификатором. Исчерпывающего типа у `Country.tier` нет (это
+ * `string`), поэтому неизвестный тир показывается как есть.
+ */
+function tierLabel(tier: string, t: T): string {
+  switch (tier) {
+    case "major":
+      return t("tier.major");
+    case "regional":
+      return t("tier.regional");
+    case "minor":
+      return t("tier.minor");
+    default:
+      return tier;
+  }
+}
 
 function toCountry(
   country: Country,
   game: GameState,
   locale: Locale,
   rank: number,
+  t: T,
 ): ScreenCountry {
   const player = game.countries.find((c) => c.id === game.playerCountryId);
   const relation =
@@ -95,19 +117,19 @@ function toCountry(
 
   const bloc =
     player === undefined || country.id === game.playerCountryId
-      ? "—"
+      ? t("bloc.none")
       : player.diplomacy.allies.includes(country.id)
-        ? "союзник"
+        ? t("bloc.ally")
         : player.diplomacy.rivals.includes(country.id)
-          ? "соперник"
-          : "—";
+          ? t("bloc.rival")
+          : t("bloc.none");
 
   return {
     id: country.id,
     name: getText(country.name, locale),
     short: getText(country.shortName, locale),
     rank,
-    tier: TIER_LABEL[country.tier] ?? country.tier,
+    tier: tierLabel(country.tier, t),
     gdp: compact(country.economy.gdp),
     population: compact(country.population),
     army: compact(country.military.activePersonnel),
@@ -233,32 +255,32 @@ function toEvents(
     });
 }
 
-function economyStats(country: Country): ScreenStat[] {
+function economyStats(country: Country, t: T): ScreenStat[] {
   const economy = country.economy;
   const debtRatio = economy.gdp === 0 ? 0 : economy.debt / economy.gdp;
   return [
-    { label: "ВВП", value: compact(economy.gdp) },
+    { label: t("stat.gdp"), value: compact(economy.gdp) },
     {
-      label: "Баланс",
+      label: t("stat.balance"),
       value: signed(economy.budgetBalance),
       delta: { text: signed(economy.tradeBalance), tone: tone(economy.tradeBalance, true) },
     },
     {
-      label: "Долг к ВВП",
+      label: t("stat.debtToGdp"),
       value: debtRatio.toFixed(2),
       threshold: debtRatio >= 1 ? "over" : debtRatio >= 0.8 ? "near" : undefined,
     },
-    { label: "Инфляция", value: `${economy.inflation.toFixed(1)}%` },
+    { label: t("stat.inflation"), value: `${economy.inflation.toFixed(1)}%` },
   ];
 }
 
-function politicsStats(country: Country): ScreenStat[] {
+function politicsStats(country: Country, t: T): ScreenStat[] {
   const politics = country.politics;
   return [
-    { label: "Стабильность", value: score(politics.stability) },
-    { label: "Легитимность", value: score(politics.legitimacy) },
-    { label: "Коррупция", value: score(politics.corruption) },
-    { label: "Поддержка", value: score(politics.governmentSupport) },
+    { label: t("stat.stability"), value: score(politics.stability) },
+    { label: t("stat.legitimacy"), value: score(politics.legitimacy) },
+    { label: t("stat.corruption"), value: score(politics.corruption) },
+    { label: t("stat.support"), value: score(politics.governmentSupport) },
   ];
 }
 
@@ -274,14 +296,14 @@ function politicsStats(country: Country): ScreenStat[] {
  */
 type SpendingShareKey = keyof NonNullable<Country["economy"]["spendingShares"]>;
 
-function budgetShares(country: Country): Array<{ key: string; name: string; share: number }> {
+function budgetShares(country: Country, t: T): Array<{ key: string; name: string; share: number }> {
   const economy = country.economy;
   const names: Array<[SpendingShareKey, string]> = [
-    ["military", "Оборона"],
-    ["research", "Наука"],
-    ["education", "Образование"],
-    ["infrastructure", "Инфраструктура"],
-    ["welfare", "Социальное"],
+    ["military", t("budget.military")],
+    ["research", t("budget.research")],
+    ["education", t("budget.education")],
+    ["infrastructure", t("budget.infrastructure")],
+    ["welfare", t("budget.welfare")],
   ];
 
   /*
@@ -318,17 +340,22 @@ function budgetShares(country: Country): Array<{ key: string; name: string; shar
   return names.map(([key, name]) => ({ key, name, share: spending[key] / disposableIncome }));
 }
 
-function goalText(goal: Country["goals"][number]): string {
+function goalText(goal: Country["goals"][number], t: T): string {
   if (goal.title !== undefined && goal.title !== "") return goal.title;
   switch (goal.kind) {
     case "reach_gdp":
-      return `Достичь ВВП ${compact(goal.target)}`;
+      return t("goal.reachGdp", { target: compact(goal.target) });
     case "reach_power_rank":
-      return `Подняться до ${goal.targetRank}-го места в мире`;
+      return t("goal.reachPowerRank", { rank: goal.targetRank });
     case "control_regions":
-      return `Контролировать регионов: ${goal.targetCount}`;
+      // Параметр называется `regions`, а не `count`: имя `count` включает
+      // плюрализацию i18next и увело бы поиск на суффиксные ключи.
+      return t("goal.controlRegions", { regions: goal.targetCount });
     case "reach_tech_tier":
-      return `Довести домен «${goal.domain}» до тира ${goal.targetTier}`;
+      // `goal.domain` — идентификатор домена, как и раньше: человеческое имя
+      // домена знает `domainName`, но здесь его не было и добавление его —
+      // изменение того, что видит игрок, а не перенос строки.
+      return t("goal.reachTechTier", { domain: goal.domain, tier: goal.targetTier });
   }
 }
 
@@ -344,6 +371,18 @@ export interface ScreenModelInput {
   game: GameState;
   locale: Locale;
   renderLine: RenderLine;
+  /**
+   * Переводчик подписей адаптера. Приходит полем входа, ровно как `renderLine` и
+   * `domainName` ниже — оба тоже впрыснутые переводчики. Тридцать подписей
+   * отдельными полями были бы не контрактом, а свалкой, а импортировать i18n
+   * адаптер не может: он чистая функция.
+   *
+   * Namespace заявлен ТИПОМ, а не именем поля: по нему `localeKeys.test.ts`
+   * находит словарь, в котором обязаны существовать ключи, которые адаптер
+   * просит, — и по нему же компилятор не даёт подставить переводчик чужого
+   * словаря (`../i18n/Translator.ts`).
+   */
+  t: Translator<"adapter">;
   mapModes: ScreenMapMode[];
   /** Ответ движка: интерфейс не решает, что необратимо. */
   isIrreversible: (text: string) => boolean;
@@ -353,8 +392,9 @@ export interface ScreenModelInput {
   /** Человеческое имя домена технологий по его идентификатору. */
   domainName: (id: string) => string;
   /**
-   * Развилка кампании приходит уже переведённой: её текст собирается из
-   * словаря интерфейса, а адаптер словаря не знает и знать не должен.
+   * Развилка кампании приходит уже собранной: её текст лежит в namespace `screen`
+   * и складывается из нескольких ключей с подстановками (`GameShell.tsx`), а
+   * адаптер знает только свой собственный словарь.
    */
   campaign: ScreenCampaign | null;
 }
@@ -363,6 +403,7 @@ export function buildScreenModel({
   game,
   locale,
   renderLine,
+  t,
   mapModes,
   isIrreversible,
   monthsNominative,
@@ -378,7 +419,7 @@ export function buildScreenModel({
   // отдельным числом, у неё своя подпись.
   const countries: Record<string, ScreenCountry> = {};
   for (const country of game.countries) {
-    countries[country.id] = toCountry(country, game, locale, ranks.get(country.id) ?? 0);
+    countries[country.id] = toCountry(country, game, locale, ranks.get(country.id) ?? 0, t);
   }
 
   const regions: Record<string, ScreenRegion> = {};
@@ -395,19 +436,19 @@ export function buildScreenModel({
     player === undefined
       ? []
       : [
-          { key: "gdp", label: "ВВП", value: compact(player.economy.gdp) },
+          { key: "gdp", label: t("stat.gdp"), value: compact(player.economy.gdp) },
           {
             key: "treasury",
-            label: "Казна",
+            label: t("stat.treasury"),
             value: signed(player.economy.treasury),
             delta: {
               text: signed(player.economy.budgetBalance),
               tone: tone(player.economy.budgetBalance, true),
             },
           },
-          { key: "rank", label: "Место в мире", value: `№${game.playerStanding.rank}` },
-          { key: "stab", label: "Стабильность", value: score(player.politics.stability) },
-          { key: "legit", label: "Легитимность", value: score(player.politics.legitimacy) },
+          { key: "rank", label: t("stat.rank"), value: `№${game.playerStanding.rank}` },
+          { key: "stab", label: t("stat.stability"), value: score(player.politics.stability) },
+          { key: "legit", label: t("stat.legitimacy"), value: score(player.politics.legitimacy) },
         ];
 
   // Сильнейшая чужая держава — тот, с кем игрока и сравнивают по умолчанию.
@@ -471,18 +512,18 @@ export function buildScreenModel({
 
     // Проектов как сущности в состоянии нет.
     projects: [],
-    budget: player === undefined ? [] : budgetShares(player),
+    budget: player === undefined ? [] : budgetShares(player, t),
     goals:
       player === undefined
         ? []
         : player.goals.map((goal) => ({
-            text: goalText(goal),
+            text: goalText(goal, t),
             progress: goal.completed ? 1 : 0,
-            kind: goal.completed ? "выполнена" : "в работе",
+            kind: goal.completed ? t("goal.done") : t("goal.inProgress"),
           })),
     redLines: [],
-    economyStats: player === undefined ? [] : economyStats(player),
-    politicsStats: player === undefined ? [] : politicsStats(player),
+    economyStats: player === undefined ? [] : economyStats(player, t),
+    politicsStats: player === undefined ? [] : politicsStats(player, t),
     ideology:
       coords === undefined || player === undefined
         ? null
@@ -500,11 +541,16 @@ export function buildScreenModel({
                     y: rivalCoords.political,
                     label: getText(rival.shortName, locale),
                   },
-            xFrom: "лево",
-            xTo: "право",
-            yFrom: "авторитаризм",
-            yTo: "демократия",
-            zones: ["соц-демократия", "либеральная демократия", "консерватизм", "коммунизм"],
+            xFrom: t("ideology.xFrom"),
+            xTo: t("ideology.xTo"),
+            yFrom: t("ideology.yFrom"),
+            yTo: t("ideology.yTo"),
+            zones: [
+              t("ideology.socialDemocracy"),
+              t("ideology.liberalDemocracy"),
+              t("ideology.conservatism"),
+              t("ideology.communism"),
+            ],
           },
     // Советник — текст от LLM; отдельного поля под оценку в состоянии нет.
     advisor: null,

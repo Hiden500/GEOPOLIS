@@ -1,7 +1,8 @@
 import { Fragment, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Coords, ResourceBar, Stat, Tag, TechScale, cx } from "../ui";
 import {
-  LEDGER_TABS,
+  LEDGER_TAB_IDS,
   useActions,
   useModel,
   type LedgerTabId,
@@ -45,6 +46,7 @@ function FlagChip({ country }: { country: ScreenCountry }) {
 /* ── Тома ──────────────────────────────────────────────────────── */
 
 function EconomyTome() {
+  const { t } = useTranslation("panels");
   const model = useModel();
   const { saveBudget } = useActions();
   /*
@@ -76,7 +78,7 @@ function EconomyTome() {
   return (
     <>
       {model.economyStats.length > 0 && (
-        <Section title="Ключевые показатели">
+        <Section title={t("economy.keyStats")}>
           <div className={styles.statTable}>
             {model.economyStats.map((stat) => (
               <Stat key={stat.label} layout="table" size="lg" {...stat} />
@@ -85,7 +87,7 @@ function EconomyTome() {
         </Section>
       )}
 
-      <Section title="Доли бюджета">
+      <Section title={t("economy.budget")}>
         <div className={styles.rows}>
           {model.budget.map((item, index) => (
             <div key={item.name}>
@@ -113,20 +115,20 @@ function EconomyTome() {
         {saveBudget !== undefined && (
           <div className={styles.budgetActions}>
             <Button size="sm" variant="order" disabled={!dirty || saving} onClick={commit}>
-              {saving ? "Сохраняю…" : "Сохранить доли"}
+              {saving ? t("economy.saving") : t("economy.save")}
             </Button>
             {dirty && !saving && (
               <Button size="sm" variant="quiet" onClick={() => setDraft(null)}>
-                Вернуть
+                {t("economy.revert")}
               </Button>
             )}
-            {failed && <span className={styles.budgetFailed}>Не сохранилось</span>}
+            {failed && <span className={styles.budgetFailed}>{t("economy.failed")}</span>}
           </div>
         )}
       </Section>
 
       {model.resources.length > 0 && (
-        <Section title="Сырьё">
+        <Section title={t("economy.resources")}>
           <ResourceBar items={model.resources} layout="list" />
         </Section>
       )}
@@ -135,31 +137,29 @@ function EconomyTome() {
 }
 
 function DefenceTome({ withScience = false }: { withScience?: boolean }) {
+  const { t } = useTranslation("panels");
   const model = useModel();
   return (
     <>
-      <Section title="Слоты, парк и количество">
+      <Section title={t("defence.slots")}>
         {model.techSlots.map((slot) => (
           <TechScale key={slot.name} {...slot} />
         ))}
       </Section>
 
-      <Section title="Мобилизация">
-        <p className={styles.prose}>
-          Мобилизация даёт силу ценой гражданской экономики и стабильности. Сейчас — мирное
-          положение.
-        </p>
+      <Section title={t("defence.mobilization")}>
+        <p className={styles.prose}>{t("defence.mobilizationNote")}</p>
         <div style={{ display: "flex", gap: "var(--space-2)", marginTop: "var(--space-3)" }}>
-          <Button variant="order" size="sm">Мирное</Button>
-          <Button variant="quiet" size="sm">Частичная</Button>
-          <Button variant="quiet" size="sm">Полная</Button>
+          <Button variant="order" size="sm">{t("defence.peace")}</Button>
+          <Button variant="quiet" size="sm">{t("defence.partial")}</Button>
+          <Button variant="quiet" size="sm">{t("defence.full")}</Button>
         </div>
       </Section>
 
       {model.nuclear !== null && (
-        <Section title="Ядерное">
+        <Section title={t("defence.nuclear")}>
           <div className={styles.row}>
-            <span className={styles.rowName}>Заряды</span>
+            <span className={styles.rowName}>{t("defence.warheads")}</span>
             <span className={styles.rowValue}>{model.nuclear.warheads}</span>
           </div>
           {model.nuclear.note !== "" && (
@@ -181,28 +181,30 @@ function DefenceTome({ withScience = false }: { withScience?: boolean }) {
 }
 
 function ScienceTome() {
+  const { t } = useTranslation("panels");
   const model = useModel();
   return (
     <>
-      <Section title="Домены и фокус исследований">
+      <Section title={t("science.domains")}>
         <div className={styles.rows}>
           {model.domains.map((domain) => (
             <div key={domain.name}>
               <div className={styles.row}>
                 <span className={styles.rowName}>
-                  {domain.name} <span className={styles.rowNote}>· тир {domain.tier}</span>
+                  {domain.name}{" "}
+                  <span className={styles.rowNote}>{t("science.tier", { tier: domain.tier })}</span>
                 </span>
                 <span className={styles.rowValue}>{Math.round(domain.progress * 100)}%</span>
               </div>
               <Meter value={domain.progress} />
               {domain.focus !== undefined && (
                 <p className={styles.rowNote} style={{ marginTop: 2 }}>
-                  Фокус исследований: {Math.round(domain.focus * 100)}%
+                  {t("science.focus", { percent: Math.round(domain.focus * 100) })}
                 </p>
               )}
               {domain.unlocks !== "" && (
                 <p className={styles.rowNote} style={{ marginTop: 2 }}>
-                  Следующий тир: {domain.unlocks}
+                  {t("science.next", { unlocks: domain.unlocks })}
                 </p>
               )}
             </div>
@@ -210,7 +212,7 @@ function ScienceTome() {
         </div>
       </Section>
 
-      <Section title="Проекты">
+      <Section title={t("science.projects")}>
         <div className={styles.rows}>
           {model.projects.map((project) => (
             <div key={project.name}>
@@ -229,11 +231,12 @@ function ScienceTome() {
 }
 
 function PoliticsTome() {
+  const { t } = useTranslation("panels");
   const model = useModel();
   return (
     <>
       {model.politicsStats.length > 0 && (
-        <Section title="Оси власти">
+        <Section title={t("politics.axes")}>
           <div className={styles.statTable}>
             {model.politicsStats.map((stat) => (
               <Stat key={stat.label} layout="table" size="lg" {...stat} />
@@ -243,7 +246,7 @@ function PoliticsTome() {
       )}
 
       {model.ideology !== null && (
-      <Section title="Курс">
+      <Section title={t("politics.course")}>
         <Coords
           point={model.ideology.point}
           rival={model.ideology.rival}
@@ -254,13 +257,12 @@ function PoliticsTome() {
           zones={model.ideology.zones}
         />
         <p className={styles.rowNote} style={{ marginTop: "var(--space-3)" }}>
-          Точка — ваш курс, ромб — соперник. Недовольство групп и близость союзов считаются
-          как расстояние между позициями, поэтому важно не само число, а насколько вы далеко.
+          {t("politics.courseNote")}
         </p>
       </Section>
       )}
 
-      <Section title="Очаги недовольства">
+      <Section title={t("politics.unrest")}>
         <div className={styles.rows}>
           {Object.values(model.regions)
             .filter((region) => region.discontent > 0.3)
@@ -281,9 +283,10 @@ function PoliticsTome() {
 }
 
 function DiplomacyTome({ onSelectCountry }: { onSelectCountry: (id: string) => void }) {
+  const { t } = useTranslation("panels");
   const model = useModel();
   return (
-    <Section title="Отношения">
+    <Section title={t("diplomacy.relations")}>
       <div className={styles.rows}>
         {Object.values(model.countries)
           .filter((country) => country.id !== model.playerId)
@@ -301,7 +304,7 @@ function DiplomacyTome({ onSelectCountry }: { onSelectCountry: (id: string) => v
                   {country.relation > 0 ? `+${country.relation}` : country.relation}
                 </span>
                 <Button size="sm" variant="quiet" onClick={() => onSelectCountry(country.id)}>
-                  Досье
+                  {t("diplomacy.dossier")}
                 </Button>
               </span>
             </div>
@@ -312,10 +315,11 @@ function DiplomacyTome({ onSelectCountry }: { onSelectCountry: (id: string) => v
 }
 
 function GoalsTome() {
+  const { t } = useTranslation("panels");
   const model = useModel();
   return (
     <>
-      <Section title="Цели державы">
+      <Section title={t("goals.title")}>
         <div className={styles.rows}>
           {model.goals.map((goal) => (
             <div key={goal.text}>
@@ -324,14 +328,14 @@ function GoalsTome() {
                 <span className={styles.rowValue}>{Math.round(goal.progress * 100)}%</span>
               </div>
               <Meter value={goal.progress} />
-              <p className={styles.rowNote}>Оценка: {goal.kind}</p>
+              <p className={styles.rowNote}>{t("goals.estimate", { kind: goal.kind })}</p>
             </div>
           ))}
         </div>
       </Section>
 
       {model.redLines.length > 0 && (
-      <Section title="Красные линии">
+      <Section title={t("goals.redLines")}>
         <div className={styles.rows}>
           {model.redLines.map((line) => (
             <div key={line} className={styles.rowName}>
@@ -343,15 +347,15 @@ function GoalsTome() {
       )}
 
       {model.advisor !== null && (
-        <Section title="Советник">
+        <Section title={t("goals.advisor")}>
           <p className={styles.prose}>
-            <strong>Оценка.</strong> {model.advisor.assessment}
+            <strong>{t("goals.assessment")}</strong> {model.advisor.assessment}
           </p>
           <p className={styles.prose} style={{ marginTop: "var(--space-2)" }}>
-            <strong>Предположение.</strong> {model.advisor.guess}
+            <strong>{t("goals.guess")}</strong> {model.advisor.guess}
           </p>
           <p className={styles.rowNote} style={{ marginTop: "var(--space-2)" }}>
-            Это оценка и предположение, а не факт. Решение за вами.
+            {t("goals.advisorNote")}
           </p>
         </Section>
       )}
@@ -396,6 +400,7 @@ export function RegionDetail({
   tab: RegionTab;
   onSelectCountry: (countryId: string) => void;
 }) {
+  const { t } = useTranslation("panels");
   const model = useModel();
   if (tab === "lyudi") {
     return (
@@ -416,10 +421,10 @@ export function RegionDetail({
     return (
       <>
         <div className={styles.row}>
-          <span className={styles.rowName}>Промышленность</span>
+          <span className={styles.rowName}>{t("region.industry")}</span>
           <span className={styles.rowValue}>{region.industry}</span>
         </div>
-        <Section title="Добыча">
+        <Section title={t("region.extraction")}>
           <div className={styles.rows}>
             {region.resources.map((resource) => (
               <div key={resource} className={styles.rowName}>
@@ -449,7 +454,7 @@ export function RegionDetail({
     <>
       <div className={styles.rows}>
         <div className={styles.row}>
-          <span className={styles.rowName}>Держава</span>
+          <span className={styles.rowName}>{t("region.owner")}</span>
           <Tag
             label={model.countries[region.owner].short}
             kind="country"
@@ -457,17 +462,17 @@ export function RegionDetail({
           />
         </div>
         <div className={styles.row}>
-          <span className={styles.rowName}>Население</span>
+          <span className={styles.rowName}>{t("region.population")}</span>
           <span className={styles.rowValue}>{region.population}</span>
         </div>
         <div className={styles.row}>
-          <span className={styles.rowName}>Крупнейшая группа</span>
+          <span className={styles.rowName}>{t("region.largestGroup")}</span>
           <span className={styles.rowValue}>
             {region.groups[0].name} {Math.round(region.groups[0].share * 100)}%
           </span>
         </div>
         <div className={styles.row}>
-          <span className={styles.rowName}>Недовольство</span>
+          <span className={styles.rowName}>{t("region.discontent")}</span>
           <span className={styles.rowValue}>{region.discontent.toFixed(2)}</span>
         </div>
       </div>
@@ -478,15 +483,23 @@ export function RegionDetail({
   );
 }
 
-const COMPARE_ROWS: Array<[string, (c: ScreenCountry) => string]> = [
-  ["Место по ВВП", (c) => `№${c.rank}`],
-  ["Тир", (c) => c.tier],
-  ["ВВП", (c) => c.gdp],
-  ["Население", (c) => c.population],
-  ["Армия", (c) => c.army],
-  ["Курс", (c) => c.ideology],
-  ["Блок", (c) => c.bloc],
-];
+/**
+ * Строки сравнения держав: ИДЕНТИФИКАТОР строки и чтение величины. Подпись
+ * приходит из словаря (`compareLabels` ниже) — исчерпывающим `Record` по этим
+ * же идентификаторам, поэтому пропущенную подпись видит компилятор, а
+ * отсутствие строки в словаре — `localeKeys.test.ts`.
+ */
+const COMPARE_ROWS = [
+  { key: "rank", read: (c: ScreenCountry) => `№${c.rank}` },
+  { key: "tier", read: (c: ScreenCountry) => c.tier },
+  { key: "gdp", read: (c: ScreenCountry) => c.gdp },
+  { key: "population", read: (c: ScreenCountry) => c.population },
+  { key: "army", read: (c: ScreenCountry) => c.army },
+  { key: "ideology", read: (c: ScreenCountry) => c.ideology },
+  { key: "bloc", read: (c: ScreenCountry) => c.bloc },
+] as const;
+
+type CompareRowKey = (typeof COMPARE_ROWS)[number]["key"];
 
 export function CountryDetail({
   country,
@@ -499,24 +512,35 @@ export function CountryDetail({
   onCompare: (countryId: string) => void;
   onClearCompare: () => void;
 }) {
+  const { t } = useTranslation("panels");
   const model = useModel();
   const isPlayer = country.id === model.playerId;
 
+  const compareLabels: Record<CompareRowKey, string> = {
+    rank: t("compare.rank"),
+    tier: t("compare.tier"),
+    gdp: t("compare.gdp"),
+    population: t("compare.population"),
+    army: t("compare.army"),
+    ideology: t("compare.ideology"),
+    bloc: t("compare.bloc"),
+  };
+
   return (
     <>
-      <Section title={isPlayer ? "Ваша держава" : "Оценка разведки"}>
+      <Section title={isPlayer ? t("country.own") : t("country.intel")}>
         {!isPlayer && (
           <p className={styles.rowNote} style={{ marginBottom: "var(--space-3)" }}>
-            Данные о чужой державе — оценка, а не факт. Точность зависит от близости и присутствия.
+            {t("country.intelNote")}
           </p>
         )}
         <div className={styles.compare}>
           <span />
           <span className={styles.compareHead}>{country.short}</span>
           <span className={styles.compareHead}>{rival === null ? "" : rival.short}</span>
-          {COMPARE_ROWS.map(([label, read]) => (
-            <Fragment key={label}>
-              <span className={styles.rowName}>{label}</span>
+          {COMPARE_ROWS.map(({ key, read }) => (
+            <Fragment key={key}>
+              <span className={styles.rowName}>{compareLabels[key]}</span>
               <span className={styles.compareValue}>{read(country)}</span>
               <span className={cx(styles.compareValue, styles.rowNote)}>
                 {rival === null ? "" : read(rival)}
@@ -526,7 +550,7 @@ export function CountryDetail({
         </div>
       </Section>
 
-      <Section title="Сравнить">
+      <Section title={t("country.compare")}>
         <div style={{ display: "flex", gap: "var(--space-1)", flexWrap: "wrap" }}>
           {Object.values(model.countries)
             .filter((other) => other.id !== country.id)
@@ -561,6 +585,7 @@ export function LedgerBody({
   onSelectRegion: (regionId: string) => void;
   events: ScreenEvent[];
 }) {
+  const { t } = useTranslation("panels");
   const [sort, setSort] = useState<{ key: string; desc: boolean }>({ key: "rank", desc: false });
 
   const toggleSort = (key: string) =>
@@ -569,17 +594,25 @@ export function LedgerBody({
   const model = useModel();
   const mark = (key: string) => (sort.key === key ? <span className={styles.sortMark}> ▾</span> : null);
 
+  /** Подписи вкладок РЕЕСТРА — литеральными ключами, см. `compareLabels` выше. */
+  const tabNames: Record<LedgerTabId, string> = {
+    powers: t("ledger.tabs.powers"),
+    regions: t("ledger.tabs.regions"),
+    blocs: t("ledger.tabs.blocs"),
+    chronicle: t("ledger.tabs.chronicle"),
+  };
+
   return (
     <>
       <div className={styles.tabs}>
-        {LEDGER_TABS.map((item) => (
+        {LEDGER_TAB_IDS.map((id) => (
           <Button
-            key={item.id}
+            key={id}
             size="sm"
-            variant={item.id === tab ? "order" : "quiet"}
-            onClick={() => onTab(item.id)}
+            variant={id === tab ? "order" : "quiet"}
+            onClick={() => onTab(id)}
           >
-            {item.name}
+            {tabNames[id]}
           </Button>
         ))}
       </div>
@@ -590,11 +623,26 @@ export function LedgerBody({
             <thead>
               <tr>
                 <th onClick={() => toggleSort("rank")}>#{mark("rank")}</th>
-                <th onClick={() => toggleSort("name")}>Держава{mark("name")}</th>
-                <th onClick={() => toggleSort("gdp")}>ВВП{mark("gdp")}</th>
-                <th onClick={() => toggleSort("population")}>Население{mark("population")}</th>
-                <th onClick={() => toggleSort("army")}>Армия{mark("army")}</th>
-                <th onClick={() => toggleSort("relation")}>Отношения{mark("relation")}</th>
+                <th onClick={() => toggleSort("name")}>
+                  {t("ledger.powers.country")}
+                  {mark("name")}
+                </th>
+                <th onClick={() => toggleSort("gdp")}>
+                  {t("ledger.powers.gdp")}
+                  {mark("gdp")}
+                </th>
+                <th onClick={() => toggleSort("population")}>
+                  {t("ledger.powers.population")}
+                  {mark("population")}
+                </th>
+                <th onClick={() => toggleSort("army")}>
+                  {t("ledger.powers.army")}
+                  {mark("army")}
+                </th>
+                <th onClick={() => toggleSort("relation")}>
+                  {t("ledger.powers.relation")}
+                  {mark("relation")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -631,11 +679,26 @@ export function LedgerBody({
           <table className={styles.table}>
             <thead>
               <tr>
-                <th onClick={() => toggleSort("name")}>Регион{mark("name")}</th>
-                <th onClick={() => toggleSort("owner")}>Держава{mark("owner")}</th>
-                <th onClick={() => toggleSort("population")}>Население{mark("population")}</th>
-                <th onClick={() => toggleSort("discontent")}>Недовольство{mark("discontent")}</th>
-                <th onClick={() => toggleSort("industry")}>Промышленность{mark("industry")}</th>
+                <th onClick={() => toggleSort("name")}>
+                  {t("ledger.regions.region")}
+                  {mark("name")}
+                </th>
+                <th onClick={() => toggleSort("owner")}>
+                  {t("ledger.regions.owner")}
+                  {mark("owner")}
+                </th>
+                <th onClick={() => toggleSort("population")}>
+                  {t("ledger.regions.population")}
+                  {mark("population")}
+                </th>
+                <th onClick={() => toggleSort("discontent")}>
+                  {t("ledger.regions.discontent")}
+                  {mark("discontent")}
+                </th>
+                <th onClick={() => toggleSort("industry")}>
+                  {t("ledger.regions.industry")}
+                  {mark("industry")}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -664,28 +727,28 @@ export function LedgerBody({
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Блок</th>
-                <th>Измерение</th>
-                <th>Лидер</th>
-                <th>Участники</th>
+                <th>{t("ledger.blocs.bloc")}</th>
+                <th>{t("ledger.blocs.dimension")}</th>
+                <th>{t("ledger.blocs.leader")}</th>
+                <th>{t("ledger.blocs.members")}</th>
               </tr>
             </thead>
             <tbody>
               <tr onClick={() => onSelectCountry("SUN")}>
-                <td>Сфера СССР</td>
-                <td>военное · экономическое</td>
-                <td>СССР</td>
+                <td>{t("ledger.blocs.sovietSphere")}</td>
+                <td>{t("ledger.blocs.sovietDimension")}</td>
+                <td>{t("ledger.blocs.sovietLeader")}</td>
                 <td className={styles.numeric}>1</td>
               </tr>
               <tr onClick={() => onSelectCountry("USA")}>
-                <td>Бреттон-Вудс</td>
-                <td>экономическое</td>
-                <td>США</td>
+                <td>{t("ledger.blocs.brettonWoods")}</td>
+                <td>{t("ledger.blocs.brettonDimension")}</td>
+                <td>{t("ledger.blocs.brettonLeader")}</td>
                 <td className={styles.numeric}>3</td>
               </tr>
               <tr onClick={() => onSelectCountry("USA")}>
-                <td>Совет Безопасности</td>
-                <td>дипломатическое</td>
+                <td>{t("ledger.blocs.securityCouncil")}</td>
+                <td>{t("ledger.blocs.securityCouncilDimension")}</td>
                 <td>—</td>
                 <td className={styles.numeric}>5</td>
               </tr>
@@ -697,10 +760,10 @@ export function LedgerBody({
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Дата</th>
-                <th>Событие</th>
-                <th>Источник</th>
-                <th>Достоверность</th>
+                <th>{t("ledger.chronicle.date")}</th>
+                <th>{t("ledger.chronicle.event")}</th>
+                <th>{t("ledger.chronicle.source")}</th>
+                <th>{t("ledger.chronicle.factuality")}</th>
               </tr>
             </thead>
             <tbody>
@@ -708,13 +771,17 @@ export function LedgerBody({
                 <tr key={event.id}>
                   <td>{event.date}</td>
                   <td>{event.title}</td>
-                  <td>{event.order === undefined ? "мир" : "ваш приказ"}</td>
+                  <td>
+                    {event.order === undefined
+                      ? t("ledger.chronicle.world")
+                      : t("ledger.chronicle.order")}
+                  </td>
                   <td>
                     {event.factuality === "partial"
-                      ? "частично"
+                      ? t("ledger.chronicle.partial")
                       : event.factuality === "unconfirmed"
-                        ? "не подтверждено"
-                        : "подтверждено"}
+                        ? t("ledger.chronicle.unconfirmed")
+                        : t("ledger.chronicle.confirmed")}
                   </td>
                 </tr>
               ))}

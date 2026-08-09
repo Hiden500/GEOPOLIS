@@ -1,0 +1,49 @@
+{
+  "tier": {
+    "major": "Great power",
+    "regional": "Regional power",
+    "minor": "Minor power"
+  },
+  "bloc": {
+    "ally": "ally",
+    "rival": "rival",
+    "none": "—"
+  },
+  "stat": {
+    "gdp": "GDP",
+    "treasury": "Treasury",
+    "rank": "World rank",
+    "balance": "Balance",
+    "debtToGdp": "Debt to GDP",
+    "inflation": "Inflation",
+    "stability": "Stability",
+    "legitimacy": "Legitimacy",
+    "corruption": "Corruption",
+    "support": "Support"
+  },
+  "budget": {
+    "military": "Defence",
+    "research": "Research",
+    "education": "Education",
+    "infrastructure": "Infrastructure",
+    "welfare": "Welfare"
+  },
+  "goal": {
+    "reachGdp": "Reach a GDP of {{target}}",
+    "reachPowerRank": "Rise to rank {{rank}} in the world",
+    "controlRegions": "Control this many regions: {{regions}}",
+    "reachTechTier": "Bring the “{{domain}}” domain to tier {{tier}}",
+    "done": "completed",
+    "inProgress": "in progress"
+  },
+  "ideology": {
+    "xFrom": "left",
+    "xTo": "right",
+    "yFrom": "authoritarianism",
+    "yTo": "democracy",
+    "socialDemocracy": "social democracy",
+    "liberalDemocracy": "liberal democracy",
+    "conservatism": "conservatism",
+    "communism": "communism"
+  }
+}

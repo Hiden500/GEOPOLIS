@@ -1,0 +1,49 @@
+{
+  "tier": {
+    "major": "Великая держава",
+    "regional": "Региональная держава",
+    "minor": "Малая держава"
+  },
+  "bloc": {
+    "ally": "союзник",
+    "rival": "соперник",
+    "none": "—"
+  },
+  "stat": {
+    "gdp": "ВВП",
+    "treasury": "Казна",
+    "rank": "Место в мире",
+    "balance": "Баланс",
+    "debtToGdp": "Долг к ВВП",
+    "inflation": "Инфляция",
+    "stability": "Стабильность",
+    "legitimacy": "Легитимность",
+    "corruption": "Коррупция",
+    "support": "Поддержка"
+  },
+  "budget": {
+    "military": "Оборона",
+    "research": "Наука",
+    "education": "Образование",
+    "infrastructure": "Инфраструктура",
+    "welfare": "Социальное"
+  },
+  "goal": {
+    "reachGdp": "Достичь ВВП {{target}}",
+    "reachPowerRank": "Подняться до {{rank}}-го места в мире",
+    "controlRegions": "Контролировать регионов: {{regions}}",
+    "reachTechTier": "Довести домен «{{domain}}» до тира {{tier}}",
+    "done": "выполнена",
+    "inProgress": "в работе"
+  },
+  "ideology": {
+    "xFrom": "лево",
+    "xTo": "право",
+    "yFrom": "авторитаризм",
+    "yTo": "демократия",
+    "socialDemocracy": "соц-демократия",
+    "liberalDemocracy": "либеральная демократия",
+    "conservatism": "консерватизм",
+    "communism": "коммунизм"
+  }
+}
