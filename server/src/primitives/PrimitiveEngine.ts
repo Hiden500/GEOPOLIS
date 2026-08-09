@@ -17,10 +17,15 @@ import {
   type IdeologyCoordinates,
 } from "@shared/types/politics/Ideology";
 import {
-  ALLY_RELATION_THRESHOLD,
   VASSALAGE_MIN_HELD_SHARE,
   VASSALAGE_MIN_INFLUENCE,
 } from "@shared/defines/diplomacy";
+import { allianceThreshold } from "../simulation/diplomacy/affinity";
+import {
+  commonEnemyPressure,
+  foesOf,
+  ideologyDistanceBetween,
+} from "../simulation/diplomacy/DiplomacyTick";
 import { aggregateCountryFromRegions } from "@shared/utils/aggregateCountryData";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { effectiveController } from "@shared/utils/regionControl";
@@ -361,6 +366,22 @@ function sanctionKindOf(primitive: PrimitiveOf<"sanction">): SanctionType {
  * союз (`diplomacy.allies`) и «отношения не хуже союзнических» — два входа,
  * потому что заполняться они могут независимо.
  *
+ * ПОРОГ ПОПАРНЫЙ, а не плоские 70 (правка 2026-08-09). Союзнический уровень
+ * отношений свой у каждой пары с 2026-07-28 (`allianceThreshold`,
+ * `server/src/simulation/diplomacy/affinity.ts`): он растёт с идеологической
+ * дистанцией и падает от общего врага. До правки предпосылка судила
+ * союзничество плоской меркой — строже дипломатической для родственных режимов
+ * и мягче для антиподов, — то есть движок называл союзником не того, кого
+ * назвал бы союзником сам же дипломатический тик. Мерка теперь одна и берётся
+ * из одного места; вопрос калибровки самой формулы это НЕ трогает.
+ *
+ * Берётся порог СОГЛАСИЯ на союз, а не порог распада: вопрос предпосылки —
+ * «достаточно ли контролёр расположен к соседу, чтобы с ним не спорить», и это
+ * тот же уровень, на котором пара вообще соглашается союзничать. Сравнение
+ * остаётся ОДНОСТОРОННИМ (значение отношений — контролёра), хотя сам порог —
+ * свойство пары: тик требует прохождения в обе стороны для ЗАКЛЮЧЕНИЯ союза, а
+ * здесь речь о том, поднимет ли спор одна конкретная сторона.
+ *
  * Фактическое состояние данных 1946 (прямой подсчёт, 2026-07-26): из 157 стран
  * НИ ОДНА не имеет ни непустого `diplomacy.allies`, ни непустого `relations`;
  * заполнены только `puppets` и `sphereOfInfluence` (по 14 стран), а их
@@ -369,10 +390,18 @@ function sanctionKindOf(primitive: PrimitiveOf<"sanction">): SanctionType {
  * 1946 проходит. Код при этом верен; недостаёт стартовой дипломатии в данных —
  * зафиксировано в `docs/TODO.md`. Живёт ветка сегодня только на фикстуре.
  */
-function alliedWith(controller: Country | undefined, otherId: string): boolean {
-  if (!controller) return false;
-  if (controller.diplomacy.allies.includes(otherId)) return true;
-  return (controller.diplomacy.relations[otherId] ?? 0) >= ALLY_RELATION_THRESHOLD;
+function alliedWith(
+  controller: Country | undefined,
+  other: Country | undefined,
+  foes: Map<string, Set<string>>
+): boolean {
+  if (!controller || !other) return false;
+  if (controller.diplomacy.allies.includes(other.id)) return true;
+  const threshold = allianceThreshold(
+    ideologyDistanceBetween(controller, other),
+    commonEnemyPressure(controller, other, foes)
+  );
+  return (controller.diplomacy.relations[other.id] ?? 0) >= threshold;
 }
 
 /**
@@ -388,6 +417,10 @@ function alliedWith(controller: Country | undefined, otherId: string): boolean {
  *
  * Выбор детерминирован (сортировка по id): результат попадает в факт применения
  * и в текст резюме, поэтому обязан быть воспроизводим.
+ *
+ * `foesOf` считается ОДИН раз на вызов, а не на каждого кандидата: это проход по
+ * активным войнам, а не по миру, и цена его того же порядка, что у соседнего
+ * `sharesLandBorder` — один проход на один примитив за месяц.
  */
 function disputedNeighbourCountry(game: GameState, region: Region): string | undefined {
   const controllerId = effectiveController(region);
@@ -401,7 +434,10 @@ function disputedNeighbourCountry(game: GameState, region: Region): string | und
     if (other !== controllerId) foreign.add(other);
   }
 
-  return [...foreign].sort().find(id => !alliedWith(controller, id));
+  const foes = foesOf(game);
+  return [...foreign]
+    .sort()
+    .find(id => !alliedWith(controller, game.countries.find(c => c.id === id), foes));
 }
 
 function clampAxis(value: number): number {

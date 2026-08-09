@@ -16,9 +16,16 @@ import {
   type PrimitiveVerb,
 } from "../types";
 import { primitiveSchema, parsePrimitives, PRIMITIVE_SCHEMAS } from "../primitiveSchemas";
-import { regionDiscontent } from "@shared/utils/discontent";
+import {
+  ideologyDistance,
+  regionDiscontent,
+  resolveIdeologyCoordinates,
+} from "@shared/utils/discontent";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
+import { type IdeologyCoordinates } from "@shared/types/politics/Ideology";
+import { ALLY_RELATION_THRESHOLD } from "@shared/defines/diplomacy";
+import { allianceThreshold } from "../../simulation/diplomacy/affinity";
 import {
   ENACT_REFORM_COORDINATE_STEP_MIN,
   ENACT_REFORM_COORDINATE_STEP_MAX,
@@ -722,6 +729,57 @@ describe("spawn_incident", () => {
 
       expect(result.applied).toEqual([]);
       expect(promptTextOf(result.rejected[0]!)).toMatch(/by an ally/);
+    });
+
+    /**
+     * Мерка союзничества у предпосылки — ТА ЖЕ, что у дипломатии: попарный
+     * `allianceThreshold`, а не плоские `ALLY_RELATION_THRESHOLD`, стоявшие
+     * здесь до 2026-08-09.
+     *
+     * Проверяется СВОЙСТВО, а не число: одно и то же значение отношений судится
+     * по-разному в зависимости от идеологической дистанции пары. Значение взято
+     * ровно на старой плоской мерке, поэтому возврат к ней ломает вторую
+     * половину теста — распознать пару она не способна по построению.
+     *
+     * Координаты антипода выведены из координат самой фикстуры зеркалом, а не
+     * назначены числом: тест обязан следовать за фикстурой, а не за её снимком.
+     */
+    it("союзнический порог попарный: одни и те же отношения отсекают спор с родственным режимом и пропускают с антиподом", () => {
+      const kindred = resolveIdeologyCoordinates(
+        game().countries.find(c => c.id === "SUN")!.politics
+      );
+      const antipode: IdeologyCoordinates = {
+        economic: -kindred.economic,
+        political: -kindred.political,
+      };
+      const relation = ALLY_RELATION_THRESHOLD;
+
+      // Фикстура обязана СТРАДДЛИТЬ порог, иначе обе половины теста меряют одно
+      // и то же. Общего врага у пары нет — отсюда второй аргумент.
+      const barFor = (c: IdeologyCoordinates): number =>
+        allianceThreshold(ideologyDistance(kindred, c), 0);
+      expect(barFor(kindred)).toBeLessThanOrEqual(relation);
+      expect(barFor(antipode)).toBeGreaterThan(relation);
+
+      const dispute = (coordinates: IdeologyCoordinates) => {
+        const state = withForeignNeighbour(game());
+        state.countries.find(c => c.id === "USA")!.politics.ideologyCoordinates = coordinates;
+        state.countries.find(c => c.id === "SUN")!.diplomacy.relations["USA"] = relation;
+        return applyPrimitiveBatch(state, [{
+          verb: "spawn_incident", sourceCountryId: "SUN",
+          target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "border_dispute" },
+        }]);
+      };
+
+      // Родственный режим при таких отношениях уже союзник — спорить не о чем.
+      const withKindred = dispute(kindred);
+      expect(withKindred.applied).toEqual([]);
+      expect(promptTextOf(withKindred.rejected[0]!)).toMatch(/by an ally/);
+
+      // Антипод при ТЕХ ЖЕ отношениях союзником ещё не считается — спор осмыслен.
+      const withAntipode = dispute(antipode);
+      expect(withAntipode.rejected).toEqual([]);
+      expect(asIncident(withAntipode.applied[0]!).disputedWithCountryId).toBe("USA");
     });
 
     /**
