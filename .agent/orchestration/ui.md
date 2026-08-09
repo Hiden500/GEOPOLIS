@@ -779,7 +779,7 @@ evidence на повторяемость собрана и передаётся 
 мерялась.
 
 ### Т-3 Игровой слой говорит через словарь
-Статус: выдано
+Статус: принято
 Исполнитель: субагент, дерево `.claude/worktrees/ui-localize-screen`, ветка
 `claude/ui-localize-screen` — **от `claude/ui-mode-vocabulary` (`e4179ca`), не
 от `main`**
