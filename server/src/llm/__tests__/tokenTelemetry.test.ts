@@ -71,6 +71,34 @@ describe("разбор usageMetadata провайдера", () => {
     ).toBeUndefined();
   });
 
+  it("читает кэшированную часть входа отдельной статьёй", () => {
+    // Единственное место, где видно, сработал ли префиксный кэш провайдера
+    // (docs/LLM_RULES.md, «Префиксный кэш»). Без этого поля вопрос «окупается
+    // ли порядок секций промта» не имеет измеримого ответа вовсе.
+    const usage = parseGeminiUsage({
+      usageMetadata: {
+        promptTokenCount: 8000,
+        cachedContentTokenCount: 5000,
+        candidatesTokenCount: 400,
+        totalTokenCount: 8400,
+      },
+    });
+    expect(usage?.cachedTokens).toBe(5000);
+    // Кэш — ПОДМНОЖЕСТВО входа, а не добавка: вход остаётся полным размером
+    // промта. Иначе доля кэша считалась бы от неправильного знаменателя.
+    expect(usage?.promptTokens).toBe(8000);
+  });
+
+  it("промах кэша — отсутствие поля, а не ноль", () => {
+    // Провайдер не присылает cachedContentTokenCount, когда совпадения не
+    // было. Ноль на этом месте склеил бы «кэш не сработал» с «провайдер
+    // промолчал», а замер порядка секций отличает именно эти два случая.
+    const usage = parseGeminiUsage({
+      usageMetadata: { promptTokenCount: 8000, totalTokenCount: 8400 },
+    });
+    expect(usage?.cachedTokens).toBeUndefined();
+  });
+
   it("отсутствие мыслей — не ноль, а отсутствие поля", () => {
     const usage = parseGeminiUsage({
       usageMetadata: { promptTokenCount: 100, totalTokenCount: 150 },

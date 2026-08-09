@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { GeminiProvider } from "../GeminiProvider";
+import { GeminiProvider, DEFAULT_MODEL } from "../GeminiProvider";
 import { PRIMITIVE_VERBS } from "../../../primitives/types";
 import { LLMProviderError } from "../../../errors/AppError";
 
@@ -42,7 +42,9 @@ describe("GeminiProvider", () => {
     expect(result).toBe('{"title":"x","descriptions":"y","actions":[]}');
 
     const [url, options] = vi.mocked(fetch).mock.calls[0]!;
-    expect(url).toContain("gemini-3.1-flash-lite");
+    // Имя берётся из самой константы: тест охраняет «дефолт доезжает до URL»,
+    // а не конкретную модель — иначе смена модели ломает его без причины.
+    expect(url).toContain(DEFAULT_MODEL);
     expect(url).toContain("key=test-key");
     const body = JSON.parse((options as RequestInit).body as string);
     expect(body.contents[0].parts[0].text).toBe("Simulate the world");
@@ -200,6 +202,60 @@ describe("GeminiProvider", () => {
       const serialized = JSON.stringify(schema);
       expect(serialized).not.toContain('"const"');
       expect(serialized).not.toContain('"additionalProperties"');
+    });
+
+    it("в схеме нет НИ ОДНОГО ключа вне диалекта Gemini", async () => {
+      // Проверка-обобщение, заведённая после 2026-08-09: путь на Gemini был
+      // сломан целиком — каждый вызов возвращал 400 "Unknown name
+      // \"exclusiveMinimum\"", потому что Zod 4 выражает `.positive()` строгой
+      // границей. Точечные проверки этого не ловили: они называют ключи,
+      // которые уже подводили, и молчат про следующий.
+      //
+      // Список — поля `Schema` из документации API плюс те, что живой вызов
+      // принял на нашей схеме (`minimum`/`maximum`/`minLength`/`maxLength`/
+      // `maxItems`: тот же 400 перечислил ВСЕ неизвестные поля и ни одного из
+      // них не назвал). Появился новый ключ — сначала подтверди его живым
+      // вызовом, потом добавляй сюда.
+      const ALLOWED = new Set([
+        "type", "format", "description", "title", "default", "nullable", "enum",
+        "items", "minItems", "maxItems", "properties", "required", "propertyOrdering",
+        "minimum", "maximum", "minLength", "maxLength", "pattern", "anyOf",
+      ]);
+
+      const found = new Set<string>();
+      const walk = (node: unknown): void => {
+        if (Array.isArray(node)) return void node.forEach(walk);
+        if (node === null || typeof node !== "object") return;
+        for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+          // Внутри `properties` ключи — ИМЕНА ПОЛЕЙ нашего ответа, а не ключи
+          // диалекта; проверять их по списку было бы бессмысленно.
+          if (key === "properties") {
+            Object.values(value as Record<string, unknown>).forEach(walk);
+            continue;
+          }
+          found.add(key);
+          walk(value);
+        }
+      };
+      walk(await captureResponseSchema());
+
+      expect([...found].filter(key => !ALLOWED.has(key)).sort()).toEqual([]);
+    });
+
+    it("строгая граница целого переведена во включающую, а не потеряна", async () => {
+      // `regionId: z.number().int().positive()` — «> 0». Диалект понимает
+      // только `minimum`, и «>= 1» это ровно то же множество: перевод обязан
+      // сохранять границу, а не просто снимать неудобный ключ.
+      const schema = await captureResponseSchema();
+      const withRegion = schema.properties.primitives.items.anyOf
+        .map((branch: any) => branch.properties.target?.properties?.regionId)
+        .filter((node: any) => node !== undefined);
+
+      expect(withRegion.length).toBeGreaterThan(0);
+      for (const node of withRegion) {
+        expect(node.exclusiveMinimum).toBeUndefined();
+        expect(node.minimum).toBe(1);
+      }
     });
 
     it("сдвиги фокуса пришли в схему КАЧЕСТВЕННЫМИ параметрами, без доли бюджета", async () => {
