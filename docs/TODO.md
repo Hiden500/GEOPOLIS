@@ -1185,11 +1185,13 @@ whitelist) перечислены в §4 разбора и **по их коду 
   Мощности некуда расти, то есть рычаг «нарастить добычу» у режиссёра и у
   игрока заперт с первого хода. Разбирать в `fill_region_economy_1946.py`.
 
-- **Шесть читателей `out/world_1946.geojson` не переведены на мастер** —
-  `audit_map_geometry`, `audit_region_fragments`, `build_islands_index`,
-  `build_islands_preview`, `merge_world_1946`, `translate_world`. Файл в
-  `.gitignore`, с ветками не путешествует и пересобирается не полностью,
-  поэтому каждый такой читатель — источник расхождения. После перевода
+- **Четыре читателя `out/world_1946.geojson` не переведены на мастер** —
+  `audit_map_geometry`, `audit_region_fragments`, `merge_world_1946`,
+  `translate_world`. Файл в `.gitignore`, с ветками не путешествует и
+  пересобирается не полностью, поэтому каждый такой читатель — источник
+  расхождения. Переводить через общий резолвер `paths.world_geojson()`
+  (мастер -> `out/` -> копия клиента), которым уже пользуются
+  `build_islands_index`/`build_islands_preview` (2026-08-09). После перевода
   `_frozen_out/world_1946.geojson` в хранилище не нужен.
 
 - **Восемь источников карты отсутствуют** — geoBoundaries BRA/CHN/USA,

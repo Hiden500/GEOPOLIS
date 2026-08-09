@@ -36,7 +36,7 @@ import json
 import sys
 from pathlib import Path
 
-from paths import REPO_ROOT, game_map, out
+from paths import REPO_ROOT, game_map, out, world_geojson
 
 try:
     from shapely.geometry import shape, mapping
@@ -78,6 +78,20 @@ def true_area_km2(geom):
     return sum(abs(GEOD.geometry_area_perimeter(p)[0]) for p in parts_of(geom)) / 1e6
 
 
+def stage_regions(op, step):
+    """Сколько регионов даёт стадия `step` по записи решений.
+
+    Запись описывает многошаговые операции блоком `stages`; сверяться надо с
+    той стадией, которую скрипт реально выполняет, а не с итогом всей цепочки.
+    Стадии нет — падаем на этом, а не подставляем итог молча: неизвестное
+    ожидание безопаснее объявить, чем угадать.
+    """
+    for s in op.get("stages", []):
+        if s.get("step") == step:
+            return s["regions"]
+    raise SystemExit(f"{op['id']}: в записи нет стадии {step} — сверять не с чем")
+
+
 def split_sakhalin(geom):
     """Тело Сахалина с прибрежными островками — отдельно, курильская цепь — отдельно."""
     parts = sorted(parts_of(geom), key=lambda p: -p.area)
@@ -108,6 +122,15 @@ def philippines_from_source(op):
     регион занимает 0,2% площади страны и получил бы 0,2% жителей. Оставляем
     `null` и держим сумму отдельно — пусть отсутствие будет видно, а не
     замаскировано правдоподобным числом.
+
+    ЭТО ПЕРВЫЙ ШАГ ЗАПИСИ, А НЕ ИТОГ. `region_edits_islands.json` описывает
+    Филиппины двумя стадиями: нарезка по `region_sub` (81 регион) и укрупнение
+    до исторических областей 1946 года (29, строится
+    `build/build_ph_regions_1946.py`). Здесь реализована только первая, поэтому
+    и сверяться она обязана с `stages[step == 1].regions`. Раньше сверка шла с
+    `expect_target_regions`, то есть с ИТОГОМ второй стадии: пока в записи
+    стояло 81, совпадение было случайным, а как только итог уточнили до 29,
+    предпросмотр стал падать «групп 81, ожидалось 29» на верном результате.
     """
     src = load_json(Path(game_map()))
     feats = src["features"] if isinstance(src, dict) else src
@@ -126,9 +149,10 @@ def philippines_from_source(op):
                                     "region_cod": p.get("region_cod"), "names": []})
         g["geoms"].append(shape(f["geometry"]))
         g["names"].append(p.get("name"))
-    if len(groups) != op["expect_target_regions"]:
-        raise SystemExit(f"{op['id']}: групп {len(groups)}, ожидалось "
-                         f"{op['expect_target_regions']}")
+    expected = stage_regions(op, 1)
+    if len(groups) != expected:
+        raise SystemExit(f"{op['id']}: групп по `{op['source_key']}` {len(groups)}, "
+                         f"ожидалось {expected} (первая стадия записи)")
 
     out_rows = []
     for key, g in groups.items():
@@ -163,8 +187,11 @@ def main():
     pop_before = sum(f["properties"]["population"] for f in index["features"])
 
     # мир нужен целиком только ради соседа Португальского Тимора: он материковым
-    # не является, но в островной набор своей страны попадает отдельным регионом
-    world = load_json(Path(out("world_1946.geojson")))["features"]
+    # не является, но в островной набор своей страны попадает отдельным регионом.
+    # Берём живую геометрию через общий резолвер (paths.world_geojson): жёсткая
+    # ссылка на `out/world_1946.geojson` роняла скрипт FileNotFoundError в любом
+    # дереве — этого файла нет под git и пересобрать его нечем.
+    world = load_json(world_geojson())["features"]
     world_geom = {f["properties"]["region_id"]: f["geometry"] for f in world}
 
     consumed = set()
@@ -328,6 +355,16 @@ def main():
         print("ОШИБКИ — предпросмотр не сохранён:", file=sys.stderr)
         for p in problems:
             print(f"  {p}", file=sys.stderr)
+        if sum(1 for p in problems if "нет геометрии" in p) > 1:
+            print(
+                "\n  ДИАГНОЗ. Участники ищутся по `region_id`, а запись снята с нумерации\n"
+                "  ДО ремапа: 6a997ad применил её к мастеру (суша 1444 -> 1396), после чего\n"
+                "  все блоки id перенумерованы. `apply_region_edits_islands.py` именно\n"
+                "  поэтому разыскивает участников по паре (имя, площадь), а не по id.\n"
+                "  Этот предпросмотр показывает запись ДО применения; после него он\n"
+                "  бессмыслен по построению, а не сломан. Решение о судьбе скрипта\n"
+                "  (переписать под поиск по имени+площади или удалить вместе с\n"
+                "  отработавшей записью) принимает пользователь.", file=sys.stderr)
         raise SystemExit(1)
 
     gj = {

@@ -73,6 +73,45 @@ OUT_DIR = Path(os.environ.get(
 ))
 
 
+# Живая геометрия мира — в порядке убывания авторитетности.
+MASTER_GEOJSON = REPO_ROOT / "scripts" / "map" / "master" / "world_1946.master.geojson"
+CLIENT_GEOJSON = REPO_ROOT / "client" / "public" / "world_1946.geojson"
+
+
+def world_geojson() -> Path:
+    """Живая геометрия мира: мастер -> выход пайплайна -> копия клиента.
+
+    ЗАЧЕМ ОБЩАЯ ТОЧКА. Мастер — единственный стартовый источник геометрии с
+    2026-07-30 (`make_1946.py`), но `out/world_1946.geojson` под git не лежит и
+    в свежем дереве отсутствует, а пересобрать его нельзя: 8 из 15 входов
+    пайплайна не в репозитории. Скрипт, который жёстко читает `out/`, в чужом
+    дереве просто падает `FileNotFoundError` — так и было у
+    `build_islands_preview.py`. Скрипт, который читает `client/public` первым,
+    работает по счастливой случайности: копия клиента совпадает с мастером
+    ровно до следующего прогона `import_to_game.py`.
+
+    Порядок здесь и означает «живая»: мастер авторитетен, `out/` — свежий
+    промежуточный результат, копия клиента — последний запасной путь для
+    дерева, где нет ни того, ни другого.
+
+    ВНИМАНИЕ: `import_to_game.py` держит СВОЙ, более узкий резолвер (мастер ->
+    `out/`) и этой функцией пользоваться не должен: `client/public/
+    world_1946.geojson` — его собственный ВЫХОД, и чтение своего выхода как
+    входа замкнуло бы его на себя.
+
+    Поля свойств у трёх файлов различаются (`region_type`/`name`/`area_km2` у
+    мастера против `type`/`name` у копии клиента) — общий у всех только
+    `region_id`. Читатель, которому нужно больше, обязан разбирать оба вида.
+    """
+    for candidate in (MASTER_GEOJSON, OUT_DIR / "world_1946.geojson", CLIENT_GEOJSON):
+        if candidate.is_file():
+            return candidate
+    raise SystemExit(
+        "не найдена геометрия мира: ни "
+        + ", ни ".join(str(p) for p in (MASTER_GEOJSON, OUT_DIR / "world_1946.geojson", CLIENT_GEOJSON))
+    )
+
+
 def out(name: str) -> str:
     """Путь к выходному артефакту в OUT_DIR (создаёт каталог при нужде)."""
     OUT_DIR.mkdir(parents=True, exist_ok=True)
