@@ -7,6 +7,10 @@ import { tradeTick } from "../trade/TradeTick";
 import { buildExtraction } from "../../commands/resources";
 import { stabilityEquilibrium } from "../politics/PoliticsTick";
 import { createTestCountry, createTestRegion } from "../../test-utils/fixtures";
+import { rejectionFactText } from "../../primitives/PrimitiveEngine";
+import { type PrimitiveRejection } from "../../primitives/rejections";
+import { MAX_REJECTION_FACT_LENGTH } from "@shared/defines/discontent";
+import { getText, LLM_LOCALE, type LocalizedText } from "@shared/types/i18n/LocalizedText";
 import { TIER_PROGRESS_THRESHOLD } from "@shared/utils/technology";
 import { effectiveController } from "@shared/utils/regionControl";
 import { DOMESTIC_RESERVE_PER_CAPITA } from "@shared/defines/trade";
@@ -301,5 +305,74 @@ describe("живой сценарий 1946: входы не вырождаютс
 
     expect(target.economy.exportIncome).toBe(0);
     active.forEach((r, i) => expect(target.stockpile[r] ?? 0).toBeGreaterThanOrEqual(stockBefore[i]!));
+  });
+
+  /**
+   * Кап длины диагностической записи обязан стоять ВЫШЕ живых данных.
+   *
+   * На фикстуре этого не видно в принципе: причина отказа склеивается из имён
+   * МИРА, а короткое имя фикстуры («Test Country») влезет под любой кап. Режет
+   * же кап по самому длинному имени сценария — а оно 65 символов («U.S. Naval
+   * Administration of the Former Japanese Mandated Islands»), и в
+   * `noVassalageLeverage` таких имени два. Кап под данными означал бы, что
+   * модель систематически получает обрезанную причину на паре с длинными
+   * именами и не узнаёт, чего именно не хватило.
+   *
+   * ЧТО ЭТОТ ТЕСТ НЕ ПОКРЫВАЕТ, названо прямо: перебираются шаблоны, отобранные
+   * замером 2026-08-09 как самые длинные (`rejections.ts`), а не все ~60. Новый
+   * шаблон длиннее этих сюда не попадёт сам.
+   */
+  it("кап длины причины отказа выше самых длинных имён сценария", () => {
+    const game = createGame("1946", "USA");
+    const longest = (xs: string[]): string => xs.reduce((a, b) => (b.length > a.length ? b : a), "");
+
+    const country = longest(game.countries.map(c => getText(c.name, LLM_LOCALE)));
+    const region = longest(game.regions.map(r => getText(r.names, LLM_LOCALE)));
+    const group = longest(game.ethnicGroups.map(g => getText(g.names, LLM_LOCALE)));
+
+    // Вход живой, а не пустой: имя, которое нечем раздуть, ничего не доказывает.
+    expect(country.length).toBeGreaterThan(20);
+
+    const lt = (s: string): LocalizedText => ({ ru: s, en: s });
+    const candidates: PrimitiveRejection[] = [
+      {
+        code: "noVassalageLeverage",
+        source: lt(country),
+        target: lt(country),
+        heldShare: 0.12,
+        heldThreshold: 0.6,
+        influence: 3,
+        influenceThreshold: 40,
+      },
+      { code: "mergeNotVassal", source: lt(country), target: lt(country) },
+      { code: "mergePlayerCountry", target: lt(country) },
+      { code: "proxyNoPatronage", source: lt(country), target: lt(country) },
+      { code: "agencyPlayerDecision", verb: "enact_reform", player: lt(country) },
+      {
+        code: "targetTurnCapReached",
+        verb: "repress",
+        cap: 1,
+        targets: [
+          { region: lt(region), group: lt(group) },
+          { region: lt(region), group: lt(group) },
+        ],
+      },
+      {
+        code: "impactCeilingReached",
+        field: "suppression",
+        region: lt(region),
+        group: lt(group),
+        ceiling: 0.45,
+        wouldTotal: 0.238,
+      },
+    ];
+
+    for (const rejection of candidates) {
+      const text = rejectionFactText({ verb: "production_shift", rejection });
+      expect(
+        text.length,
+        `${rejection.code}: ${text.length} знаков при капе ${MAX_REJECTION_FACT_LENGTH}`
+      ).toBeLessThanOrEqual(MAX_REJECTION_FACT_LENGTH);
+    }
   });
 });

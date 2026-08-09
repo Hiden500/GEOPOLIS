@@ -295,34 +295,4 @@ export class DiplomacyService {
     // Улучшаем отношения
     this.changeRelation(countries, sanctionerId, targetId, 15);
   }
-
-  /**
-   * Рассчитывает дипломатическое напряжение.
-   */
-  calculateDiplomaticTension(country: Country, countries: Country[]): number {
-    let tension = 0;
-
-    // Напряжение от соперников
-    for (const rivalId of country.diplomacy.rivals) {
-      const rival = countries.find(c => c.id === rivalId);
-      if (rival) {
-        const relation = country.diplomacy.relations[rivalId] || 0;
-        tension += Math.abs(relation) * 0.3;
-      }
-    }
-
-    // Напряжение от санкций
-    for (const [targetId, sanctions] of Object.entries(country.diplomacy.sanctions)) {
-      tension += sanctions.length * 10;
-    }
-
-    // Напряжение от плохих отношений
-    for (const [targetId, relation] of Object.entries(country.diplomacy.relations)) {
-      if (relation < -50) {
-        tension += Math.abs(relation) * 0.1;
-      }
-    }
-
-    return Math.min(100, tension);
-  }
 }

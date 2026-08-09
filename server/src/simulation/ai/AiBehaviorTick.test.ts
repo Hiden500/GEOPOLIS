@@ -9,6 +9,13 @@ import {
   WELFARE_SHIFT_RATE,
   AUSTERITY_RESTORE,
   AUSTERITY_RECOVERY_SURPLUS_MARGIN,
+  STABILITY_LOW,
+  STABILITY_RECOVERED,
+  AI_TRAIT_MIN,
+  AI_TRAIT_MAX,
+  AI_TRAIT_DEBT_TOLERANCE,
+  AI_TRAIT_UNREST_TOLERANCE,
+  traitScale,
 } from "@shared/defines/ai";
 import { DEBT_GDP_PENALTY_THRESHOLD } from "@shared/defines/economy";
 import { type Country } from "@shared/types/Country";
@@ -562,5 +569,220 @@ describe("aiBehaviorTick — войну не объявляет никто, кр
     for (let month = 0; month < 12; month++) aiBehaviorTick(game);
 
     expect(game.wars).toHaveLength(0);
+  });
+});
+
+describe("aiBehaviorTick — характер страны (aiTraits) сдвигает пороги правил", () => {
+  /**
+   * ЧТО ЗДЕСЬ ПРОВЕРЯЕТСЯ. С 2026-08-09 `Country.aiTraits` перестали быть
+   * осиротевшим полем: `riskTolerance` двигает порог долга Правила A (и, тем же
+   * значением, порог платёжеспособности Правила B), `aggressiveness` — порог
+   * кризиса Правила C.
+   *
+   * Тесты построены одинаково и намеренно: две страны с ОДИНАКОВОЙ экономикой и
+   * политикой, разница только в характере, состояние выставлено СТРОГО МЕЖДУ их
+   * порогами. Тогда наблюдаемое расхождение поведения может объясняться только
+   * характером — и ничем другим.
+   *
+   * Пороговые значения не выписаны числами, а посчитаны из тех же констант, что
+   * читает код: тест обязан проверять свойство «характер решает», а не снимок
+   * «0,48 против 0,72». Смена силы множителя не должна ломать эти тесты — она
+   * должна ломать замер на живых данных (`scripts/probeAiTraits.ts`).
+   *
+   * НЕГАТИВНЫЙ КОНТРОЛЬ: заменить `traitScale(...)` на константу 1 в
+   * `austerityDebtThreshold` и `unrestThresholds` — пороги у обеих стран
+   * совпадут, и каждый тест этого блока упадёт (прогон показан в отчёте задачи).
+   */
+
+  const CAUTIOUS = AI_TRAIT_MIN; // 0.6 — минимальные и терпимость к долгу, и агрессивность
+  const BOLD = AI_TRAIT_MAX; // 1.4
+
+  function debtThresholdOf(riskTolerance: number): number {
+    return DEBT_GDP_PENALTY_THRESHOLD * traitScale(riskTolerance, AI_TRAIT_DEBT_TOLERANCE);
+  }
+
+  function unrestThresholdOf(aggressiveness: number): number {
+    return STABILITY_LOW / traitScale(aggressiveness, AI_TRAIT_UNREST_TOLERANCE);
+  }
+
+  describe("Правило A — порог долга индивидуален (riskTolerance)", () => {
+    /** Страна с долгом ровно `burden × ВВП` и дефицитом — вход Правила A. */
+    function indebtedAI(id: string, riskTolerance: number, burden: number): Country {
+      const base = createTestCountry();
+      return country(id, {
+        economy: { ...base.economy, budgetBalance: -1, debt: base.economy.gdp * burden },
+        aiTraits: { aggressiveness: 1, riskTolerance },
+      });
+    }
+
+    it("при одной и той же долговой нагрузке осторожная страна режет расходы, а рисковая ещё нет", () => {
+      // Нагрузка строго между порогами двух характеров — иначе тест доказывал бы
+      // не индивидуальность порога, а то, что правило вообще работает.
+      const burden = (debtThresholdOf(CAUTIOUS) + DEBT_GDP_PENALTY_THRESHOLD) / 2;
+      expect(burden).toBeGreaterThan(debtThresholdOf(CAUTIOUS));
+      expect(burden).toBeLessThan(debtThresholdOf(BOLD));
+
+      const cautious = indebtedAI("CAUTIOUS", CAUTIOUS, burden);
+      const bold = indebtedAI("BOLD", BOLD, burden);
+      const shareBefore = createTestCountry().economy.spendingShares!.military;
+      const game = createTestGameState({
+        playerCountryId: "PLAYER",
+        countries: [country("PLAYER"), cautious, bold],
+      });
+
+      aiBehaviorTick(game);
+
+      expect(cautious.economy.spendingShares!.military).toBeLessThan(shareBefore);
+      expect(bold.economy.spendingShares!.military).toBeCloseTo(shareBefore, 9);
+    });
+
+    it("нейтральный характер даёт РОВНО общий порог — старые фикстуры {1,1} ведут себя как прежде", () => {
+      expect(debtThresholdOf(1)).toBe(DEBT_GDP_PENALTY_THRESHOLD);
+    });
+  });
+
+  describe("Правило B — платёжеспособность судится ТЕМ ЖЕ порогом, что аустерити", () => {
+    /**
+     * Инвариант 2026-08-08: «долг начал вредить» — одно событие, и Правила A и B
+     * обязаны реагировать на него согласованно. Индивидуальный порог этот
+     * инвариант сохранил, а не отменил: тест ловит попытку оставить Правилу B
+     * плоский `DEBT_GDP_PENALTY_THRESHOLD`, когда Правило A уже индивидуально.
+     *
+     * Долг рисковой страны лежит ВЫШЕ общего порога, но НИЖЕ её собственного:
+     * при плоском пороге в Правиле B она бы не вооружалась, при согласованном —
+     * вооружается.
+     */
+    it("рисковая угрожаемая страна наращивает армию при долге выше ОБЩЕГО порога, но ниже своего", () => {
+      const burden = (DEBT_GDP_PENALTY_THRESHOLD + debtThresholdOf(BOLD)) / 2;
+      expect(burden).toBeGreaterThan(DEBT_GDP_PENALTY_THRESHOLD);
+      expect(burden).toBeLessThan(debtThresholdOf(BOLD));
+
+      // Доминирование задано ПОРЯДКОМ перевеса и стартовым каналом влияния —
+      // теми же величинами, что в фикстуре Правила B выше: с насыщением по
+      // порядку перевеса кратность «в разы» порог угрозы не берёт.
+      const base = createTestCountry();
+      const RIVAL_GDP = 500_000_000;
+      const player = country("PLAYER", {
+        military: { ...base.military, manpower: 3_000_000 },
+        economy: { ...base.economy, gdp: 1_500_000_000_000 },
+        diplomacy: { ...base.diplomacy, influence: { RIVAL: 5 } },
+      });
+      const rival = country("RIVAL", {
+        military: { ...base.military, manpower: 1_000 },
+        economy: {
+          ...base.economy,
+          gdp: RIVAL_GDP,
+          budgetBalance: 1,
+          debt: RIVAL_GDP * burden,
+        },
+        diplomacy: { ...base.diplomacy, relations: { PLAYER: -20 } },
+        aiTraits: { aggressiveness: 1, riskTolerance: BOLD },
+      });
+      const game = createTestGameState({ playerCountryId: "PLAYER", countries: [player, rival] });
+      expect(calculateBaseInfluence(player, rival)).toBeGreaterThan(THREAT_LEVEL);
+
+      const shareBefore = rival.economy.spendingShares!.military;
+      aiBehaviorTick(game);
+
+      expect(rival.economy.spendingShares!.military).toBeGreaterThan(shareBefore);
+    });
+  });
+
+  describe("Правило C — порог кризиса индивидуален (aggressiveness)", () => {
+    /** Клон фикстуры Правила C с заданным характером. */
+    function unstableAI(id: string, aggressiveness: number, stability: number): Country {
+      const c = country(id, { aiTraits: { aggressiveness, riskTolerance: 1 } });
+      c.politics.stability = stability;
+      c.economy.taxRevenue = 1000;
+      c.economy.exportIncome = 500;
+      c.economy.stateEnterpriseIncome = 200;
+      c.economy.otherIncome = 100;
+      c.economy.militarySpending = 500;
+      c.economy.welfareSpending = 100;
+      c.economy.spendingFloor = {
+        militarySpending: 250 / 1800,
+        researchSpending: 50 / 1800,
+        educationSpending: 50 / 1800,
+        infrastructureSpending: 50 / 1800,
+        welfareSpending: 50 / 1800,
+      };
+      c.economy.spendingShares = {
+        military: 500 / 1800,
+        research: 100 / 1800,
+        education: 100 / 1800,
+        infrastructure: 100 / 1800,
+        welfare: 100 / 1800,
+      };
+      return c;
+    }
+
+    it("при одной и той же stability осторожная страна уже в кризисе, агрессивная ещё нет", () => {
+      const stability = STABILITY_LOW; // строго между 40/1.1 и 40/0.9
+      expect(stability).toBeGreaterThan(unrestThresholdOf(BOLD));
+      expect(stability).toBeLessThan(unrestThresholdOf(CAUTIOUS));
+
+      const cautious = unstableAI("CAUTIOUS", CAUTIOUS, stability);
+      const bold = unstableAI("BOLD", BOLD, stability);
+      const milBefore = cautious.economy.spendingShares!.military;
+      const game = createTestGameState({
+        playerCountryId: "PLAYER",
+        countries: [country("PLAYER"), cautious, bold],
+      });
+
+      aiBehaviorTick(game);
+
+      expect(cautious.economy.spendingShares!.military).toBeLessThan(milBefore);
+      expect(bold.economy.spendingShares!.military).toBeCloseTo(milBefore, 9);
+    });
+
+    it("зона гистерезиса одинаковой ширины у любого характера — индивидуален вход, не ширина", () => {
+      // Свойство проверяется поведением: страна с характером X не двигает бюджет
+      // ни в одну сторону ровно в полосе [её порог; её порог + общий зазор].
+      const gap = STABILITY_RECOVERED - STABILITY_LOW;
+      for (const trait of [CAUTIOUS, 1, BOLD]) {
+        const low = unrestThresholdOf(trait);
+        // Середина полосы — заведомо внутри зоны при любом характере.
+        const c = unstableAI("AI", trait, low + gap / 2);
+        // Бюджет уже сдвинут в welfare: будь у страны активен возврат, он бы
+        // сработал — значит неподвижность доказывает зону, а не отсутствие места.
+        c.economy.spendingShares!.military = 300 / 1800;
+        c.economy.spendingShares!.welfare = 300 / 1800;
+        const game = createTestGameState({
+          playerCountryId: "PLAYER",
+          countries: [country("PLAYER"), c],
+        });
+
+        aiBehaviorTick(game);
+
+        expect(c.economy.spendingShares!.military).toBeCloseTo(300 / 1800, 9);
+        expect(c.economy.spendingShares!.welfare).toBeCloseTo(300 / 1800, 9);
+      }
+    });
+
+    it("при одной и той же stability агрессивная страна ВОЗВРАЩАЕТ деньги армии, а осторожная ещё уводит", () => {
+      // Самое сильное утверждение блока: одно и то же состояние мира двигает
+      // бюджеты двух стран в ПРОТИВОПОЛОЖНЫЕ стороны — только из-за характера.
+      const gap = STABILITY_RECOVERED - STABILITY_LOW;
+      const stability = unrestThresholdOf(BOLD) + gap + 0.5; // выше возврата у BOLD…
+      expect(stability).toBeLessThan(unrestThresholdOf(CAUTIOUS)); // …и ещё в кризисе у CAUTIOUS
+
+      const shifted = (id: string, aggressiveness: number): Country => {
+        const c = unstableAI(id, aggressiveness, stability);
+        c.economy.spendingShares!.military = 300 / 1800; // ниже старта 500/1800
+        c.economy.spendingShares!.welfare = 300 / 1800; // выше старта 100/1800
+        return c;
+      };
+      const cautious = shifted("CAUTIOUS", CAUTIOUS);
+      const bold = shifted("BOLD", BOLD);
+      const game = createTestGameState({
+        playerCountryId: "PLAYER",
+        countries: [country("PLAYER"), cautious, bold],
+      });
+
+      aiBehaviorTick(game);
+
+      expect(bold.economy.spendingShares!.military).toBeGreaterThan(300 / 1800);
+      expect(cautious.economy.spendingShares!.military).toBeLessThan(300 / 1800);
+    });
   });
 });

@@ -213,31 +213,4 @@ describe("DiplomacyService", () => {
     });
   });
 
-  describe("calculateDiplomaticTension", () => {
-    it("returns 0 when there is no friction", () => {
-      const service = new DiplomacyService();
-      const a = createTestCountry({ id: "A" });
-
-      expect(service.calculateDiplomaticTension(a, [a])).toBe(0);
-    });
-
-    it("accounts for rivals, sanctions and bad relations, capped at 100", () => {
-      const service = new DiplomacyService();
-      const b = createTestCountry({ id: "B" });
-      const a = createTestCountry({
-        id: "A",
-        diplomacy: {
-          ...createTestCountry().diplomacy,
-          rivals: ["B"],
-          relations: { B: -90 },
-          sanctions: { B: ["economic_sanctions", "trade_embargo"] },
-        },
-      });
-
-      const tension = service.calculateDiplomaticTension(a, [a, b]);
-
-      expect(tension).toBeGreaterThan(0);
-      expect(tension).toBeLessThanOrEqual(100);
-    });
-  });
 });

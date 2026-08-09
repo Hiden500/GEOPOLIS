@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { type z } from "zod";
-import { applyPrimitiveBatch, restore } from "../PrimitiveEngine";
+import { applyPrimitiveBatch, pushRejectionFact, restore } from "../PrimitiveEngine";
 import * as politicsCommands from "../../commands/politics";
 import { PRIMITIVE_PALETTE, pathMatchesPaletteEntry } from "../palette";
 import { WarService } from "../../services/WarService";
@@ -16,9 +16,16 @@ import {
   type PrimitiveVerb,
 } from "../types";
 import { primitiveSchema, parsePrimitives, PRIMITIVE_SCHEMAS } from "../primitiveSchemas";
-import { regionDiscontent } from "@shared/utils/discontent";
+import {
+  ideologyDistance,
+  regionDiscontent,
+  resolveIdeologyCoordinates,
+} from "@shared/utils/discontent";
 import { getText, LLM_LOCALE } from "@shared/types/i18n/LocalizedText";
 import { type ImpactMemoryField } from "@shared/types/politics/Demographics";
+import { type IdeologyCoordinates } from "@shared/types/politics/Ideology";
+import { ALLY_RELATION_THRESHOLD } from "@shared/defines/diplomacy";
+import { allianceThreshold } from "../../simulation/diplomacy/affinity";
 import {
   ENACT_REFORM_COORDINATE_STEP_MIN,
   ENACT_REFORM_COORDINATE_STEP_MAX,
@@ -26,6 +33,7 @@ import {
   ENACT_REFORM_MIN_GOVERNMENT_SUPPORT,
   MAX_STRUCTURAL_PRIMITIVES_PER_TURN,
   MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
+  MAX_REJECTION_FACT_LENGTH,
   MAX_PRIMITIVE_ID_LENGTH,
   IMPACT_FIELD_TURN_CEILING,
   REPRESS_SUPPRESSION_MIN,
@@ -725,6 +733,57 @@ describe("spawn_incident", () => {
     });
 
     /**
+     * Мерка союзничества у предпосылки — ТА ЖЕ, что у дипломатии: попарный
+     * `allianceThreshold`, а не плоские `ALLY_RELATION_THRESHOLD`, стоявшие
+     * здесь до 2026-08-09.
+     *
+     * Проверяется СВОЙСТВО, а не число: одно и то же значение отношений судится
+     * по-разному в зависимости от идеологической дистанции пары. Значение взято
+     * ровно на старой плоской мерке, поэтому возврат к ней ломает вторую
+     * половину теста — распознать пару она не способна по построению.
+     *
+     * Координаты антипода выведены из координат самой фикстуры зеркалом, а не
+     * назначены числом: тест обязан следовать за фикстурой, а не за её снимком.
+     */
+    it("союзнический порог попарный: одни и те же отношения отсекают спор с родственным режимом и пропускают с антиподом", () => {
+      const kindred = resolveIdeologyCoordinates(
+        game().countries.find(c => c.id === "SUN")!.politics
+      );
+      const antipode: IdeologyCoordinates = {
+        economic: -kindred.economic,
+        political: -kindred.political,
+      };
+      const relation = ALLY_RELATION_THRESHOLD;
+
+      // Фикстура обязана СТРАДДЛИТЬ порог, иначе обе половины теста меряют одно
+      // и то же. Общего врага у пары нет — отсюда второй аргумент.
+      const barFor = (c: IdeologyCoordinates): number =>
+        allianceThreshold(ideologyDistance(kindred, c), 0);
+      expect(barFor(kindred)).toBeLessThanOrEqual(relation);
+      expect(barFor(antipode)).toBeGreaterThan(relation);
+
+      const dispute = (coordinates: IdeologyCoordinates) => {
+        const state = withForeignNeighbour(game());
+        state.countries.find(c => c.id === "USA")!.politics.ideologyCoordinates = coordinates;
+        state.countries.find(c => c.id === "SUN")!.diplomacy.relations["USA"] = relation;
+        return applyPrimitiveBatch(state, [{
+          verb: "spawn_incident", sourceCountryId: "SUN",
+          target: { regionId: TEST_REGION_NATIONAL }, params: { incidentKind: "border_dispute" },
+        }]);
+      };
+
+      // Родственный режим при таких отношениях уже союзник — спорить не о чем.
+      const withKindred = dispute(kindred);
+      expect(withKindred.applied).toEqual([]);
+      expect(promptTextOf(withKindred.rejected[0]!)).toMatch(/by an ally/);
+
+      // Антипод при ТЕХ ЖЕ отношениях союзником ещё не считается — спор осмыслен.
+      const withAntipode = dispute(antipode);
+      expect(withAntipode.rejected).toEqual([]);
+      expect(asIncident(withAntipode.applied[0]!).disputedWithCountryId).toBe("USA");
+    });
+
+    /**
      * Порог восстания обязан быть ДОСТИЖИМ в реальном сценарии, иначе вид
      * `uprising` просто мёртв, — и не должен быть доступен ПОВСЕМЕСТНО, иначе
      * он выдаётся «за так».
@@ -1411,6 +1470,33 @@ describe("диагностика отказов ограничена сверх�
     const facts = rejectionFacts(state);
     expect(facts).toHaveLength(MAX_PENDING_REJECTION_FACTS_PER_SOURCE);
     expect(facts.every(f => f.text.startsWith("Attempt rejected"))).toBe(true);
+  });
+
+  it("длина ОДНОЙ записи ограничена, и обрезка помечена", () => {
+    // Вторая половина границы секции. Кап ЧИСЛА записей её не давал: причина
+    // отказа собирается и из НЕИЗВЕСТНЫХ полей — `.strict()` называет
+    // нераспознанный ключ, а имена ключей в теле запроса не ограничены ничем.
+    const state = game();
+    pushRejectionFact(state, "primitive_rejected", {
+      countryId: "USA",
+      text: `Attempt rejected (repress): ${"y".repeat(MAX_REJECTION_FACT_LENGTH * 3)}`,
+    });
+
+    const fact = rejectionFacts(state)[0]!;
+    expect(fact.text).toHaveLength(MAX_REJECTION_FACT_LENGTH);
+    // Метка обязательна: молча обрезанная причина читается моделью как полная,
+    // и она чинит названную часть примитива, не узнав про неназванную.
+    expect(fact.text.endsWith("… (truncated)")).toBe(true);
+  });
+
+  it("причина ПОД капом не трогается: граница выше диагностики, а не поперёк неё", () => {
+    const state = game();
+    const intact = `Attempt rejected (repress): ${"y".repeat(MAX_REJECTION_FACT_LENGTH - 40)}`;
+    expect(intact.length).toBeLessThanOrEqual(MAX_REJECTION_FACT_LENGTH);
+
+    pushRejectionFact(state, "primitive_rejected", { countryId: "USA", text: intact });
+
+    expect(rejectionFacts(state)[0]!.text).toBe(intact);
   });
 
   it("идентификатор сверх границы длины схему не проходит", () => {

@@ -145,6 +145,33 @@ describe("контракт примитива: форма по глаголу, �
     expect(invalid[0]!.reason).toMatch(/countryId/);
   });
 
+  it("причина называет ПОЛЕ, а пустой путь не выдумывается", () => {
+    // Путь поля — то единственное, чем модель чинит примитив: «target.regionId:
+    // expected number» чинится, «примитив три не прошёл схему» — нет. Источник
+    // пути — `issue.path`, структурный факт разбора, а не разбор текста
+    // сообщения.
+    const typed = parsePrimitives([
+      { verb: "repress", sourceCountryId: "SUN", target: { regionId: "758" } },
+    ]);
+    expect(typed.invalid[0]!.reason.startsWith("target.regionId: ")).toBe(true);
+
+    // А у нарушения `.strict()` пути НЕТ: Zod относит ошибку к объекту целиком.
+    // Прежняя безусловная склейка давала висящее двоеточие
+    // («primitive #1: : Unrecognized key»), то есть утверждала, что поле
+    // названо, там, где оно не названо. Имя ключа при этом уже стоит в самом
+    // сообщении, и терять нечего.
+    const strict = parsePrimitives([
+      {
+        verb: "repress",
+        sourceCountryId: "SUN",
+        target: { regionId: TEST_REGION_NATIONAL },
+        share: 0.8,
+      },
+    ]);
+    expect(strict.invalid[0]!.reason).toMatch(/share/);
+    expect(strict.invalid[0]!.reason.startsWith(": ")).toBe(false);
+  });
+
   it("примитив, провалившийся на СХЕМЕ, несёт глагол — правило класса стало применимо", () => {
     // До Милстоуна 1 `parsePrimitives` возвращал только индекс и причину,
     // поэтому отличить провалившийся `enact_reform` от провалившегося

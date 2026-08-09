@@ -396,6 +396,23 @@ export interface InvalidPrimitive {
   reason: string;
 }
 
+/**
+ * Причина по ОДНОЙ ошибке Zod: путь поля плюс сообщение.
+ *
+ * Путь берётся из `issue.path` — структурного факта разбора, а не из текста
+ * сообщения; он и есть то, что чинит модель («target.regionId: expected number»
+ * чинится, «примитив три не прошёл схему» — нет).
+ *
+ * Пустой путь НЕ печатается (уточнено 2026-08-09). У нарушения `.strict()` Zod
+ * относит ошибку к объекту целиком, `path` пуст, и прежняя безусловная склейка
+ * давала висящее двоеточие: `primitive #6: : Unrecognized key: "share"`. Само
+ * имя ключа в таком сообщении уже есть — приписывать ему пустой путь значит
+ * утверждать, что поле названо, там, где Zod его не назвал.
+ */
+function issueText(issue: { path: PropertyKey[]; message: string }): string {
+  return issue.path.length > 0 ? `${issue.path.join(".")}: ${issue.message}` : issue.message;
+}
+
 /** Глагол сырой записи, если он читается и входит в алфавит. */
 function rawVerbOf(entry: unknown): PrimitiveVerb | undefined {
   if (typeof entry !== "object" || entry === null) return undefined;
@@ -435,7 +452,7 @@ export function parsePrimitives(raw: unknown): {
     invalid.push({
       index,
       ...(verb === undefined ? {} : { verb }),
-      reason: parsed.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; "),
+      reason: parsed.error.issues.map(issueText).join("; "),
     });
   });
 
