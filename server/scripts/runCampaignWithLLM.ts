@@ -210,6 +210,20 @@ async function main(): Promise<void> {
         rawResponse: rejected > 0 ? game.llmResponse ?? null : null,
         usage: turnUsage ?? null,
         receipt,
+        // Датированные события ЭТОГО хода. В квитанции их нет и быть не должно
+        // — она про применённое к миру, а событие ничего не применяет, — но без
+        // них журнал не отвечает на главный вопрос замера: сколько фактов из
+        // прозы модель вынесла структурой и какими датами. Берутся из состояния
+        // после применения, а не из ответа: в журнал должно попасть то, что
+        // ПРИНЯТО движком, а не то, что модель прислала.
+        datedEvents: game.eventHistory
+          .filter(e => e.kind === "dated" && e.responseEventId === `llm-turn-${game.llmTurn}`)
+          .map(e => ({
+            date: e.date,
+            title: e.title,
+            description: e.description,
+            countries: e.kind === "dated" ? e.claimedCountries : [],
+          })),
       }) + "\n");
     } catch (e) {
       // Сбой одного хода не должен ронять партию: движок продолжает считать

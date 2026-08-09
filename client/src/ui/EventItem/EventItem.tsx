@@ -23,6 +23,12 @@ export interface EventItemProps {
   body?: ReactNode;
   factuality?: Factuality;
   /**
+   * Датированное событие — один факт из прозы месяца. Рисуется мельче
+   * месячной записи: акцентная линия слева и отступ. Два уровня обязаны
+   * различаться взглядом, без чтения (`docs/UI_DESIGN.md`, «Лента кампании»).
+   */
+  dated?: boolean;
+  /**
    * Заполняется ТОЛЬКО когда движок знает связь как факт: событие несёт
    * применённый примитив, источником которого был приказ игрока. Косвенные
    * связи («мир ответил на твой шаг») сюда не попадают — их может утверждать
@@ -44,6 +50,7 @@ export function EventItem({
   title,
   body,
   factuality = "confirmed",
+  dated = false,
   order,
   tags,
   onTagClick,
@@ -52,7 +59,7 @@ export function EventItem({
   const [revealed, setRevealed] = useState(false);
 
   return (
-    <article className={styles.item}>
+    <article className={cx(styles.item, dated && styles.itemDated)}>
       <div className={styles.gutter}>
         {order !== undefined && (
           <button

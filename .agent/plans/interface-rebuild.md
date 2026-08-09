@@ -1,6 +1,8 @@
 # Пересборка визуального слоя с нуля
-Status: active
-Owner: Claude (worktree `.claude/worktrees/interface-rebuild`, ветка `claude/interface-rebuild`)
+Status: done (влито в main мержем `f88c2d6`, 2026-08-07; дерево убрано)
+Owner: Claude (дерево `.claude/worktrees/interface-rebuild` удалено после вливания)
+Продолжение: `.agent/plans/ui-port-panels.md` — перенос возможностей, оставшихся
+в старом слое, и его удаление.
 Starting commit: 6d3a4ea
 
 ## Objective and observable outcome

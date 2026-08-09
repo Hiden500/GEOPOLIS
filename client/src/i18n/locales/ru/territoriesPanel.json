@@ -1,6 +1,0 @@
-{
-  "title": "Территории игрока",
-  "noTerritories": "Нет территорий",
-  "population": "{{value}} чел.",
-  "resourcePerMonth": "{{resource}}: {{amount}}/мес"
-}

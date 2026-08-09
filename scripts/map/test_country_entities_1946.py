@@ -16,6 +16,30 @@ WORLD_GEOJSON = REPO_ROOT / "client" / "public" / "world_1946.geojson"
 from economy_1946.anchors import COUNTRY_POPULATION_1946
 
 
+def region_id_lookup(test):
+    """(name, iso_a2) -> region_id по ЖИВОМУ world_1946.geojson.
+
+    Литеральный `region_id` в проверке протухает при любом изменении числа
+    регионов где угодно раньше по порядку сборки, и молча: 2026-07-19-c/-i/-j
+    (Азия трижды за сессию), 2026-08-08 (островная запись сломала три литерала
+    Карибов разом). Поиск по паре имя+страна переживает сдвиг сам, а
+    ИСЧЕЗНОВЕНИЕ региона показывает вслух — это разные вещи, и вторую надо
+    видеть.
+    """
+    world = load_json(WORLD_GEOJSON)
+    by_key = {
+        (ft["properties"]["name"], ft["properties"]["iso_a2"]): ft["properties"]["region_id"]
+        for ft in world["features"]
+    }
+
+    def rid(name, iso2):
+        key = (name, iso2)
+        test.assertIn(key, by_key, f"регион {key} не найден в world_1946.geojson")
+        return by_key[key]
+
+    return rid
+
+
 class CountryEntities1946Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -76,10 +100,20 @@ class CountryEntities1946Test(unittest.TestCase):
             entry["regionId"]: entry["to"]
             for entry in config["continents"]["north_america_caribbean"]["regionOwnerOverrides"]
         }
-        self.assertEqual(region_overrides["NAM-0001"], "MTQ")
-        self.assertEqual(region_overrides["NAM-0002"], "GLP")
-        for region_id in ("NAM-0003", "NAM-0004", "NAM-0005"):
-            self.assertEqual(region_overrides[region_id], "QND")
+        # 2026-08-08: литеральные NAM-0001…NAM-0005 переписаны на поиск по
+        # (name, iso_a2) — ровно тот приём, что уже применён ниже для Африки и
+        # Азии. Островная запись (`out/region_edits_islands.json`) слила шесть
+        # нидерландских островов в два региона, и три литерала из пяти
+        # протухли разом. Скилл `map-geometry-qa` предписывает переписывать
+        # такую проверку при первом же попадании, а не патчить строку.
+        rid = region_id_lookup(self)
+        self.assertEqual(region_overrides[rid("Martinique", "FR")], "MTQ")
+        self.assertEqual(region_overrides[rid("Guadeloupe", "FR")], "GLP")
+        # Подветренные (Кюрасао + Бонайре + Аруба) и наветренные (Синт-Мартен +
+        # Синт-Эстатиус + Саба) Нидерландские Антилы — по одному региону.
+        for name, iso2 in (("Leeward Antilles", "CW"),
+                           ("Windward Netherlands Antilles", "SX")):
+            self.assertEqual(region_overrides[rid(name, iso2)], "QND")
 
     def test_all_curated_codes_exist_in_catalog(self):
         for code in self.preserve:
@@ -163,24 +197,19 @@ class CountryEntities1946Test(unittest.TestCase):
         # Азии выше ("region_id сдвигаются при КАЖДОМ изменении числа
         # регионов..."). Матчим по (name, iso_a2) из живого world_1946.geojson
         # вместо литералов.
-        world = load_json(WORLD_GEOJSON)
-        region_id_by_key = {
-            (ft["properties"]["name"], ft["properties"]["iso_a2"]): ft["properties"]["region_id"]
-            for ft in world["features"]
-        }
+        rid = region_id_lookup(self)
 
-        def rid(name, iso2):
-            key = (name, iso2)
-            self.assertIn(key, region_id_by_key, f"регион {key} не найден в world_1946.geojson")
-            return region_id_by_key[key]
-
+        # 2026-08-08, островная запись: Zanzibar South and Central + Kusini-Pemba
+        # слиты в один регион «Zanzibar» (MRG-QZN-01), Mayotte — в «Comoros»
+        # (MRG-MDG-02). Занзибару запись на QZN нужна по-прежнему, иначе он
+        # достаётся TZA — Танзании, которой в 1946 не существовало. У Майотты
+        # записи больше нет: слитый регион принадлежит KM/COM, то есть самим
+        # Коморам, а не Мадагаскару.
         self.assertEqual(
             region_overrides,
             {
                 rid("Réunion", "FR"): "FRA",
-                rid("Mayotte", "FR"): "MDG",
-                rid("Zanzibar South and Central", "TZ"): "QZN",
-                rid("Kusini-Pemba", "TZ"): "QZN",
+                rid("Zanzibar", "TZ"): "QZN",
             },
         )
         self.assertIn("QZN", COUNTRY_POPULATION_1946)
@@ -222,16 +251,7 @@ class CountryEntities1946Test(unittest.TestCase):
         # что жёстко прописанные id тут были заведомо временными. Матчим по
         # (name, iso_a2) из живого world_1946.geojson вместо литералов —
         # тест переживёт следующий сдвиг без ручной правки.
-        world = load_json(WORLD_GEOJSON)
-        region_id_by_key = {
-            (ft["properties"]["name"], ft["properties"]["iso_a2"]): ft["properties"]["region_id"]
-            for ft in world["features"]
-        }
-
-        def rid(name, iso2):
-            key = (name, iso2)
-            self.assertIn(key, region_id_by_key, f"регион {key} не найден в world_1946.geojson")
-            return region_id_by_key[key]
+        rid = region_id_lookup(self)
 
         expected = {
             ("Xizang", "CN"): "QTB",
@@ -293,7 +313,9 @@ class CountryEntities1946Test(unittest.TestCase):
             entry["regionId"]: entry["to"]
             for entry in config["continents"]["oceania"]["regionOwnerOverrides"]
         }
-        self.assertEqual(region_overrides, {"OCE-0011": "NFK"})
+        rid = region_id_lookup(self)
+        self.assertEqual(region_overrides,
+                         {rid("Norfolk Island", "NF"): "NFK"})
         self.assertTrue({"NFK", "QPS"}.issubset(CUSTOM_COUNTRIES))
 
     def test_dual_suzerain_condominiums_are_puppets_of_both(self):

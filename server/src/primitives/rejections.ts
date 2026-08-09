@@ -220,7 +220,17 @@ export type PrimitiveRejection =
    * чего движок даже не читал. Схема провайдера канала не предлагает, но
    * локальные модели импровизируют по памяти о старом контракте.
    */
-  | { code: "legacyActionsChannel"; count: number };
+  | { code: "legacyActionsChannel"; count: number }
+
+  /**
+   * Датированное событие ответа не прошло разбор (`llm/datedEvents.ts`).
+   *
+   * Отброшен ОДИН элемент, а не ответ: у месяца бывает три верно датированных
+   * события и одно с датой из прошлого года. Причина адресная — позиция в
+   * массиве и что именно не так, — потому что отказ без указания поля модель
+   * починить не может (тот же дефект уже стоит открытым у `schemaInvalid`).
+   */
+  | { code: "datedEventInvalid"; position: number; detail: string };
 
 export type PrimitiveRejectionCode = PrimitiveRejection["code"];
 
@@ -525,6 +535,8 @@ export function rejectionPromptText(rejection: PrimitiveRejection): string {
       return rejection.detail;
     case "duplicateResponse":
       return "This response was already applied this month and was not applied again";
+    case "datedEventInvalid":
+      return `dated event #${rejection.position}: ${rejection.detail}`;
     case "legacyActionsChannel":
       return (
         `${rejection.count} entr${rejection.count === 1 ? "y" : "ies"} in "actions" were ignored: ` +
@@ -758,6 +770,11 @@ export function rejectionRecord(
     case "malformedBatch":
     case "duplicateResponse":
       return of();
+    case "datedEventInvalid":
+      // `detail` сюда НЕ едет: он английский и написан для модели. Игроку
+      // достаточно факта «одно датированное событие отброшено» — тот же
+      // порядок, что у schemaInvalid.
+      return of({ position: rejection.position });
     case "legacyActionsChannel":
       return of({ count: rejection.count });
   }

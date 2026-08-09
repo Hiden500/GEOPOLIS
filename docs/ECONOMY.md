@@ -126,9 +126,10 @@ educationSpending/infrastructureSpending/welfareSpending = income × доля` �
 `BUDGET_SPENDING_SHARE_CAPS`), сумма долей может превышать 1 — разрешено
 осознанно. С 2026-08-01 `spendingShares` сеются ВСЕМ странам в `CreateGame`
 (`docs/DECISIONS.md`): у ИИ доли двигает `AiBehaviorTick`, у игрока —
-`PUT /budget`. В интерфейсе — 4 пресета
-(`client/src/components/budgetPresets.ts`); смена бюджета **не** продвигает
-игровой ход.
+`PUT /budget`. В интерфейсе — ползунки долей в ТОМЕ «Экономика»
+(`client/src/game/panels.tsx`) с явной кнопкой сохранения; смена бюджета
+**не** продвигает игровой ход. Четыре готовых пресета жили в старом слое и
+удалены вместе с ним 2026-08-07.
 
 ### Госдолг (реализовано 2026-07-11, `docs/plans/08_WAR_WAVE1.md` Шаг 4)
 

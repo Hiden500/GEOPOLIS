@@ -14,6 +14,7 @@ function event(
   primitiveOutcomes?: PrimitiveOutcomeRecord[]
 ): Event {
   return {
+    kind: "response",
     id,
     date,
     title,

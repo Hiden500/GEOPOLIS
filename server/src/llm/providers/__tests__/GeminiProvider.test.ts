@@ -51,6 +51,7 @@ describe("GeminiProvider", () => {
       "title",
       "descriptions",
       "primitives",
+      "events",
     ]);
     expect(body.generationConfig.thinkingConfig).toEqual({ thinkingLevel: "high" });
   });
@@ -131,7 +132,12 @@ describe("GeminiProvider", () => {
 
     it("propertyOrdering расставлен на корне и на каждой ветке примитивов", async () => {
       const schema = await captureResponseSchema();
-      expect(schema.propertyOrdering).toEqual(["title", "descriptions", "primitives"]);
+      expect(schema.propertyOrdering).toEqual([
+        "title",
+        "descriptions",
+        "primitives",
+        "events",
+      ]);
 
       const branches = schema.properties.primitives.items.anyOf;
       for (const branch of branches) {
@@ -147,7 +153,7 @@ describe("GeminiProvider", () => {
       const schema = await captureResponseSchema();
       expect(schema.properties.actions).toBeUndefined();
       expect(Object.keys(schema.properties).sort()).toEqual(
-        ["descriptions", "primitives", "title"]
+        ["descriptions", "events", "primitives", "title"]
       );
     });
 

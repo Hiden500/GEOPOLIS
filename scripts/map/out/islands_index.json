@@ -6,9 +6,9 @@
   "merge_unit": "пара (остров, владелец) — Гаити и Доминикана не склеиваются",
   "cluster_rule": "связная компонента единиц слияния по расстоянию центроидов <= 2.0° внутри одного владельца",
   "sources": {
-   "geometry": "scripts\\map\\out\\world_1946.geojson",
+   "geometry": "client\\public\\world_1946.geojson",
    "scenario": "server\\data\\scenarios\\1946",
-   "seas": "scripts\\map\\out\\seas_iho_coastline.geojson"
+   "seas": null
   },
   "counts": {
    "scenario_regions": 1444,
@@ -23,9 +23,9 @@
    "regions_saved_merging_to_cluster": 178
   },
   "warnings": {
-   "sea_layer_missing": false,
+   "sea_layer_missing": true,
    "solo_island_regions_without_sea_neighbor": [],
-   "inland_regions_of_split_islands": 17,
+   "inland_regions_of_split_islands": 0,
    "island_regions_without_geometry": []
   }
  },
@@ -1096,7 +1096,7 @@
    "group_count": 3,
    "region_count": 4,
    "area_km2": 36163.7,
-   "population": 5288051,
+   "population": 5422005,
    "groups": [
     {
      "group_id": "ISL-027/TWN",
@@ -1105,7 +1105,7 @@
      "name": "Southern Taiwan",
      "region_count": 2,
      "area_km2": 35929.6,
-     "population": 4950395,
+     "population": 5075796,
      "centroid": [
       120.9641,
       23.7479
@@ -1122,7 +1122,7 @@
      "name": "Kinmen",
      "region_count": 1,
      "area_km2": 154.1,
-     "population": 200779,
+     "population": 205865,
      "centroid": [
       118.3764,
       24.458
@@ -1138,7 +1138,7 @@
      "name": "Penghu",
      "region_count": 1,
      "area_km2": 80.0,
-     "population": 136877,
+     "population": 140344,
      "centroid": [
       119.5878,
       23.5887
@@ -2489,7 +2489,7 @@
    "group_count": 1,
    "region_count": 1,
    "area_km2": 33864.9,
-   "population": 3294051,
+   "population": 3377494,
    "groups": [
     {
      "group_id": "ISL-028/TWN",
@@ -2498,7 +2498,7 @@
      "name": "Hainan",
      "region_count": 1,
      "area_km2": 33864.9,
-     "population": 3294051,
+     "population": 3377494,
      "centroid": [
       109.7398,
       19.1973
@@ -4753,7 +4753,7 @@
   {
    "cluster_id": "GBR-24",
    "owner": "GBR",
-   "suggested_name": "British Indian Ocean Territory",
+   "suggested_name": "Chagos Islands",
    "group_count": 1,
    "region_count": 1,
    "area_km2": 27.0,
@@ -4763,7 +4763,7 @@
      "group_id": "ISL-183/GBR",
      "island_id": "ISL-183",
      "owner": "GBR",
-     "name": "British Indian Ocean Territory",
+     "name": "Chagos Islands",
      "region_count": 1,
      "area_km2": 27.0,
      "population": 28717,
@@ -4807,7 +4807,7 @@
   {
    "cluster_id": "USA-08",
    "owner": "USA",
-   "suggested_name": "United States Minor Outlying Islands",
+   "suggested_name": "US Pacific Islands",
    "group_count": 1,
    "region_count": 1,
    "area_km2": 14.3,
@@ -4817,7 +4817,7 @@
      "group_id": "ISL-187/USA",
      "island_id": "ISL-187",
      "owner": "USA",
-     "name": "United States Minor Outlying Islands",
+     "name": "US Pacific Islands",
      "region_count": 1,
      "area_km2": 14.3,
      "population": 5,
@@ -4888,7 +4888,7 @@
   {
    "cluster_id": "AUS-05",
    "owner": "AUS",
-   "suggested_name": "Cocos (Keeling) Islands",
+   "suggested_name": "Cocos Islands",
    "group_count": 1,
    "region_count": 1,
    "area_km2": 7.5,
@@ -4898,7 +4898,7 @@
      "group_id": "ISL-190/AUS",
      "island_id": "ISL-190",
      "owner": "AUS",
-     "name": "Cocos (Keeling) Islands",
+     "name": "Cocos Islands",
      "region_count": 1,
      "area_km2": 7.5,
      "population": 269,
@@ -5027,7 +5027,7 @@
    "group_count": 1,
    "region_count": 1,
    "area_km2": 0.8,
-   "population": 9230,
+   "population": 9464,
    "groups": [
     {
      "group_id": "ISL-196/TWN",
@@ -5036,7 +5036,7 @@
      "name": "Paracel Islands",
      "region_count": 1,
      "area_km2": 0.8,
-     "population": 9230,
+     "population": 9464,
      "centroid": [
       111.2012,
       15.7823

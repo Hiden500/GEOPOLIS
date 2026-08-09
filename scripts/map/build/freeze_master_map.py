@@ -184,6 +184,33 @@ def main():
     with open(MASTER_PATH, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
 
+    # Провенанс хирургических правок пережил бы пересборку мастера, но не
+    # перезапись meta: блок `_surgical_edits` описывает правки, ВНЕСЁННЫЕ В
+    # САМ мастер (Далянь/Рио 2026-08-07, курация Китая 2026-08-08), и в
+    # геометрии они остаются. Первая же заморозка после них молча стирала
+    # запись о них (найдено 2026-08-08) — переносим.
+    prior_edits = None
+    if META_PATH.exists():
+        try:
+            with open(META_PATH, encoding="utf-8") as f:
+                prior_edits = json.load(f).get("_surgical_edits")
+        except (OSError, json.JSONDecodeError):
+            prior_edits = None
+
+    # Версии генераторов на момент заморозки. Без этой записи мастер молча
+    # отстаёт от скриптов, которые его порождают: пересобрать его нельзя, и
+    # расхождение не всплывает даже при полном прогоне. Так восемь дней
+    # пролежали старые моря (`build_seas_from_iho.py` ушёл вперёд на семь
+    # коммитов) — сторожит `build/verify_master_freshness.py`.
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from verify_master_freshness import generator_paths, last_commit
+        generators = {p: last_commit(p) for p in generator_paths()}
+        generators = {k: v for k, v in generators.items() if v}
+    except Exception as exc:  # pragma: no cover - git недоступен
+        print(f"  версии генераторов не записаны: {type(exc).__name__}: {exc}")
+        generators = None
+
     meta = {
         "_comment": "Мастер-карта: единственный стартовый источник геометрии. "
                     "Геометрия согласована один раз (weld_map_gaps.py + "
@@ -202,6 +229,10 @@ def main():
         ],
         "checks": checks,
     }
+    if generators:
+        meta["generators"] = generators
+    if prior_edits:
+        meta["_surgical_edits"] = prior_edits
     with open(META_PATH, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False, indent=2)
 

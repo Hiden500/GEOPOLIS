@@ -239,3 +239,20 @@
   vertical-align: -2px;
   margin-right: var(--space-2);
 }
+
+/*
+ * Действия под долями бюджета. Правка бюджета — не мгновенное действие: она
+ * уходит на сервер отдельным запросом и не двигает ход, поэтому у неё своя
+ * кнопка, а не автосохранение на каждое движение ползунка.
+ */
+.budgetActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.budgetFailed {
+  font-size: var(--text-sm);
+  color: var(--over);
+}
