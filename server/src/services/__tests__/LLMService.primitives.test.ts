@@ -6,6 +6,7 @@ import { regionDiscontent } from "@shared/utils/discontent";
 import {
   MAX_PROMPT_CRISES,
   MAX_PENDING_REJECTION_FACTS_PER_SOURCE,
+  MAX_REJECTION_FACT_LENGTH,
   MAX_PROMPT_REGIONS_PER_COUNTRY,
   REGION_CRISIS_DISCONTENT_THRESHOLD,
 } from "@shared/defines/discontent";
@@ -379,6 +380,46 @@ describe("применение примитивов из ответа модел
     // Абсолютная граница, а не только число строк: строку тоже нельзя раздуть
     // содержимым запроса (идентификаторы ограничены схемой).
     expect(section.length).toBeLessThan(3000);
+  });
+
+  it("секцию не раздувает ИМЯ нераспознанного ключа — держит кап длины записи", () => {
+    // Дыра, названная независимым ревью 2026-07-27 и закрытая 2026-08-09.
+    // `MAX_PRIMITIVE_ID_LENGTH` держит длину ЗНАЧЕНИЙ трёх известных полей, но
+    // `.strict()` кладёт в причину ИМЯ нераспознанного ключа целиком, а имена
+    // ключей в теле запроса не ограничены ничем. Оценка ревью: одиннадцать
+    // примитивов с ключом в 5 000 знаков дают секцию ~67 000 знаков против
+    // бюджета docs/CONCEPT.md §7 «PROMPT < ~20k токенов».
+    const game = createDiscontentTestGame();
+    const hugeKey = "x".repeat(5000);
+
+    new LLMService(game).processResponse(
+      response(
+        Array.from({ length: MAX_PENDING_REJECTION_FACTS_PER_SOURCE }, () => ({
+          verb: "repress",
+          sourceCountryId: "SUN",
+          target: { regionId: TEST_REGION_NATIONAL },
+          [hugeKey]: 1,
+        }))
+      )
+    );
+
+    const facts = rejectionFacts(game);
+    expect(facts.length).toBeGreaterThan(0);
+    const longest = Math.max(...facts.map(f => f.text.length));
+    expect(longest, `самая длинная запись при капе ${MAX_REJECTION_FACT_LENGTH}`).toBeLessThanOrEqual(
+      MAX_REJECTION_FACT_LENGTH
+    );
+    // Обрезка помечена — иначе модель прочтёт усечённую причину как полную.
+    expect(facts.some(f => f.text.endsWith("… (truncated)"))).toBe(true);
+
+    const prompt = new LLMService(game).generatePrompt().prompt;
+    const section = prompt.split("## Rejected Attempts Last Cycle")[1]!.split("\n## ")[0]!;
+
+    // Граница выведена из капов, а не снята снимком: число записей × длина
+    // записи плюс запас на разметку строк и заголовок секции.
+    expect(section.length).toBeLessThan(
+      (MAX_PENDING_REJECTION_FACTS_PER_SOURCE + 1) * (MAX_REJECTION_FACT_LENGTH + 3) + 200
+    );
   });
 
   /**
