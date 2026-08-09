@@ -14,10 +14,19 @@ import { initReactI18next } from "react-i18next";
  * `researchPanel` пережил свою панель намеренно: имена доменов науки взяты
  * оттуда (`GameShell.tsx`), и заводить им второй список значило бы получить
  * два словаря на одни и те же домены.
+ *
+ * Игровой экран занимает три namespace по своим потребителям: `screen` — рама
+ * (`game/Screen.tsx`), `panels` — тела ТОМОВ, РЕЕСТРА и инспекторов
+ * (`game/panels.tsx`), `adapter` — подписи величин, которые адаптер модели
+ * достаёт из `GameState` (`game/adapter.ts`). Адаптер — не компонент и хук
+ * вызвать не может: он получает переводчик параметром, и namespace заявлен в
+ * типе `Translator<"adapter">` (см. `Translator.ts`).
  */
 import ruCommon from "./locales/ru/common.json";
+import ruAdapter from "./locales/ru/adapter.json";
 import ruApp from "./locales/ru/app.json";
 import ruErrorBoundary from "./locales/ru/errorBoundary.json";
+import ruPanels from "./locales/ru/panels.json";
 import ruPrimitiveOutcome from "./locales/ru/primitiveOutcome.json";
 import ruPrimitiveRejection from "./locales/ru/primitiveRejection.json";
 import ruResearchPanel from "./locales/ru/researchPanel.json";
@@ -26,8 +35,10 @@ import ruScreen from "./locales/ru/screen.json";
 import ruUi from "./locales/ru/ui.json";
 
 import enCommon from "./locales/en/common.json";
+import enAdapter from "./locales/en/adapter.json";
 import enApp from "./locales/en/app.json";
 import enErrorBoundary from "./locales/en/errorBoundary.json";
+import enPanels from "./locales/en/panels.json";
 import enPrimitiveOutcome from "./locales/en/primitiveOutcome.json";
 import enPrimitiveRejection from "./locales/en/primitiveRejection.json";
 import enResearchPanel from "./locales/en/researchPanel.json";
@@ -46,8 +57,10 @@ void i18n.use(initReactI18next).init({
   resources: {
     ru: {
       common: ruCommon,
+      adapter: ruAdapter,
       app: ruApp,
       errorBoundary: ruErrorBoundary,
+      panels: ruPanels,
       primitiveOutcome: ruPrimitiveOutcome,
       primitiveRejection: ruPrimitiveRejection,
       researchPanel: ruResearchPanel,
@@ -57,8 +70,10 @@ void i18n.use(initReactI18next).init({
     },
     en: {
       common: enCommon,
+      adapter: enAdapter,
       app: enApp,
       errorBoundary: enErrorBoundary,
+      panels: enPanels,
       primitiveOutcome: enPrimitiveOutcome,
       primitiveRejection: enPrimitiveRejection,
       researchPanel: enResearchPanel,

@@ -127,34 +127,32 @@ export interface ScreenGoal {
   kind: string;
 }
 
+/*
+ * ПОРЯДОК И СОСТАВ вкладок и ТОМОВ — контракт экрана, поэтому идентификаторы
+ * живут здесь. Подписи — НЕТ: имя приходит из словаря интерфейса по
+ * идентификатору, и оно ровно одно на всю игру. Пока имя стояло рядом с
+ * идентификатором, `Screen.tsx` держал ВТОРОЙ список тех же имён
+ * (`TOME_NAMES`), и два источника вправе были написать их по-разному — тот же
+ * класс дефекта, что у режимов карты ниже (`docs/UI_DESIGN.md` §11).
+ */
 export type RegionTab = "obzor" | "lyudi" | "hozyaystvo" | "istoriya";
 
-export const REGION_TABS: Array<[RegionTab, string]> = [
-  ["obzor", "Обзор"],
-  ["lyudi", "Люди"],
-  ["hozyaystvo", "Хозяйство"],
-  ["istoriya", "История"],
-];
+export const REGION_TAB_IDS: RegionTab[] = ["obzor", "lyudi", "hozyaystvo", "istoriya"];
 
-export const TOMES = [
-  { id: "economy", name: "Экономика" },
-  { id: "politics", name: "Политика" },
-  { id: "defence", name: "Оборона" },
-  { id: "science", name: "Наука" },
-  { id: "diplomacy", name: "Дипломатия" },
-  { id: "goals", name: "Цели" },
+export const TOME_IDS = [
+  "economy",
+  "politics",
+  "defence",
+  "science",
+  "diplomacy",
+  "goals",
 ] as const;
 
-export type TomeId = (typeof TOMES)[number]["id"];
+export type TomeId = (typeof TOME_IDS)[number];
 
-export const LEDGER_TABS = [
-  { id: "powers", name: "Державы" },
-  { id: "regions", name: "Регионы" },
-  { id: "blocs", name: "Блоки" },
-  { id: "chronicle", name: "Летопись" },
-] as const;
+export const LEDGER_TAB_IDS = ["powers", "regions", "blocs", "chronicle"] as const;
 
-export type LedgerTabId = (typeof LEDGER_TABS)[number]["id"];
+export type LedgerTabId = (typeof LEDGER_TAB_IDS)[number];
 
 /**
  * КОНЕЦ ИЛИ РАЗВИЛКА КАМПАНИИ (docs/CONCEPT.md §6, §7.1). Не панель, а
@@ -309,7 +307,9 @@ export const ScreenModelProvider = ScreenModelContext.Provider;
  */
 export function useModel(): ScreenModel {
   const model = useContext(ScreenModelContext);
-  if (model === null) throw new Error("useModel вызван вне ScreenModelProvider");
+  // Сообщение об ошибке ПРОГРАММИСТА, не игрока: до словаря оно не доходит и
+  // остаётся английским, как и остальные технические строки проекта.
+  if (model === null) throw new Error("useModel called outside ScreenModelProvider");
   return model;
 }
 

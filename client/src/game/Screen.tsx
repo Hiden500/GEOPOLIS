@@ -40,7 +40,8 @@ import {
 import { legendForMode, type LegendLabel } from "./mapModeColors";
 import { CountryDetail, LedgerBody, RegionDetail, TomeBody } from "./panels";
 import {
-  REGION_TABS,
+  REGION_TAB_IDS,
+  TOME_IDS,
   ScreenActionsProvider,
   ScreenModelProvider,
   type LedgerTabId,
@@ -158,15 +159,6 @@ const TOME_ICONS: Record<TomeId, React.ReactNode> = {
   science: <IconScience />,
   diplomacy: <IconDiplomacy />,
   goals: <IconGoals />,
-};
-
-const TOME_NAMES: Record<TomeId, string> = {
-  economy: "Экономика",
-  politics: "Политика",
-  defence: "Оборона",
-  science: "Наука",
-  diplomacy: "Дипломатия",
-  goals: "Цели",
 };
 
 /**
