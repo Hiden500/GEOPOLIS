@@ -1,5 +1,7 @@
 """Targeted checks for curated 1946 country/dependent-territory ownership."""
+import sys
 import unittest
+from pathlib import Path
 
 from generate_country_registry import (
     CONFIG_DIR,
@@ -12,7 +14,16 @@ from generate_country_registry import (
     load_json,
 )
 
-WORLD_GEOJSON = REPO_ROOT / "client" / "public" / "world_1946.geojson"
+sys.path.insert(0, str(Path(__file__).resolve().parent / "build"))
+from paths import world_geojson  # noqa: E402
+from import_to_game import region_name  # noqa: E402
+
+# Разыскивать регионы надо по МАСТЕРУ, а не по копии клиента (2026-08-09).
+# Копия клиента — ВЫХОД `import_to_game.py`, и этот тест идёт в пайплайне
+# РАНЬШЕ него: он читал прошлую сборку, а не ту, которую проверяет. Заодно
+# `iso_a2` по контракту полей живёт только в мастере — в клиенте его больше
+# нет (`scripts/map/AGENTS.md`, «Контракт полей geojson»).
+WORLD_GEOJSON = world_geojson()
 from economy_1946.anchors import COUNTRY_POPULATION_1946
 
 
@@ -27,14 +38,23 @@ def region_id_lookup(test):
     видеть.
     """
     world = load_json(WORLD_GEOJSON)
+    # Имя берётся ЧЕРЕЗ `region_name` — ту же функцию, которой пользуется
+    # импортёр. Ожидания в тестах ниже записаны игровыми именами («Burgas», не
+    # «Burgas (5)»), а мастер хранит сырое; без этой нормализации переход на
+    # мастер сломал бы разыскивание по именам, а не по данным.
+    #
+    # `iso_a2` есть только у суши (контракт полей), поэтому `.get` — не
+    # снисходительность к пропуску, а описание воды: у морей и озёр кода страны
+    # нет и не будет.
     by_key = {
-        (ft["properties"]["name"], ft["properties"]["iso_a2"]): ft["properties"]["region_id"]
+        (region_name(ft["properties"]["region_id"], ft["properties"].get("name", ""), "en"),
+         ft["properties"].get("iso_a2")): ft["properties"]["region_id"]
         for ft in world["features"]
     }
 
     def rid(name, iso2):
         key = (name, iso2)
-        test.assertIn(key, by_key, f"регион {key} не найден в world_1946.geojson")
+        test.assertIn(key, by_key, f"регион {key} не найден в {WORLD_GEOJSON.name}")
         return by_key[key]
 
     return rid

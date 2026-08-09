@@ -23,10 +23,19 @@ ownership_1946.json[region_id].controller (MAP уже знает про 4 зон
 note) — см. resolve_owner().
 
 Выход (docs/plans/05_DATA_LAYOUT.md, Срез 1 — расслоение вместо единого regions.json):
-  client/public/world_1946.geojson              — геометрия с числовым id + region_id,
-                                                    type нормализован (land->region, sea/lake->ocean)
+  client/public/world_1946.geojson              — геометрия, числовой id фичи и
+                                                    ровно три свойства: region_id,
+                                                    type (land->region, sea/lake->ocean),
+                                                    name. Контракт полей и причина
+                                                    каждого — scripts/map/AGENTS.md,
+                                                    держит verify_geojson_field_contract.py
   server/data/scenarios/1946/regions.core.json   — география: id, geoJsonId, area,
                                                     neighboringRegionIds, sourceAdm1Codes
+  server/data/scenarios/1946/waters.json         — водные узлы: id, geoJsonId,
+                                                    waterType (sea/lake). Владения,
+                                                    населения и экономики у воды нет
+                                                    (решение пользователя 2026-08-09):
+                                                    вода — это id и рёбра, не сущность
   server/data/scenarios/1946/names.en.json       — geoJsonId -> имя (английское)
   server/data/scenarios/1946/names.ru.json       — geoJsonId -> имя (русское)
   server/data/scenarios/1946/regions.state.json  — владение/экономика: id, ownerCountryId,
@@ -42,6 +51,7 @@ development, gdp, deposits, extraction) заполняются нулевыми 
 """
 import json
 import re
+from collections import Counter
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -69,6 +79,7 @@ CLIENT_GEOJSON_OUT = REPO_ROOT / "client" / "public" / "world_1946.geojson"
 SCENARIO_DIR = REPO_ROOT / "server" / "data" / "scenarios" / "1946"
 REGIONS_CORE_OUT = SCENARIO_DIR / "regions.core.json"
 REGIONS_STATE_OUT = SCENARIO_DIR / "regions.state.json"
+WATERS_OUT = SCENARIO_DIR / "waters.json"
 NAMES_EN_OUT = SCENARIO_DIR / "names.en.json"
 NAMES_RU_OUT = SCENARIO_DIR / "names.ru.json"
 
@@ -231,6 +242,17 @@ def main():
     }
 
     # --- 1. Геометрия для клиента ---
+    # Контракт полей (решение 2026-08-09, таблица — scripts/map/AGENTS.md): в
+    # браузер едет геометрия, ключ соединения и то, что надо нарисовать ДО
+    # ответа сервера. Отсюда ровно три свойства.
+    #
+    # Числовой id живёт на УРОВНЕ ФИЧИ — это канонический geojson-id, его и
+    # читает MapLibre в setFeatureState (hover, выделение, цвет режима карты).
+    # Дубликата в properties больше нет: его не читал никто.
+    #
+    # Уехали по критерию: `iso_a2` (в client/src ни одного читателя, а воде он
+    # дописывался пустой строкой — 195 фич с полем без значения), `continent`
+    # (читателя нет, выводится из префикса region_id).
     out_features = []
     for ft in features:
         props = ft["properties"]
@@ -242,12 +264,9 @@ def main():
             "type": "Feature",
             "id": numeric_id,
             "properties": {
-                "id": numeric_id,
                 "region_id": region_id,
                 "type": TYPE_MAP.get(region_type, "region"),
                 "name": region_name(region_id, props.get("name", ""), "en"),
-                "iso_a2": props.get("iso_a2", ""),
-                "continent": props.get("continent"),
             },
             "geometry": ft["geometry"],
         })
@@ -309,6 +328,26 @@ def main():
             "extraction": {},
         })
 
+    # --- 3. Водные узлы для сервера ---
+    # Вода Region'ом не становится и полей владения, населения и экономики не
+    # получает (решение пользователя 2026-08-09: вода — это id и рёбра, не
+    # сущность). Но игровой id у неё есть — он присвоен выше, вместе со всеми
+    # фичами, — и различие моря от озера симуляции понадобится для будущего
+    # ребра LAK<->SEA. В клиенте это различие не выражается: там и море, и
+    # озеро — `ocean`, потому что рисуются они одинаково.
+    #
+    # Файл — вход будущего экспорта морской смежности; сегодня его не читает
+    # никто, и это записано здесь, а не подразумевается.
+    waters = [
+        {
+            "id": region_id_to_numeric[ft["properties"]["region_id"]],
+            "geoJsonId": ft["properties"]["region_id"],
+            "waterType": ft["properties"]["region_type"],
+        }
+        for ft in features
+        if ft["properties"].get("region_type", "land") != "land"
+    ]
+
     # Инвариант решения 2026-08-02: скобок в игровых именах нет. Проверяем ВСЕ
     # три выхода — клиентскую геометрию и оба словаря имён.
     with_paren = sorted(
@@ -334,8 +373,13 @@ def main():
     with open(NAMES_RU_OUT, "w", encoding="utf-8") as f:
         json.dump(names_ru_out, f, ensure_ascii=False, indent=2)
         f.write("\n")
+    with open(WATERS_OUT, "w", encoding="utf-8") as f:
+        json.dump(waters, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
     print(f"Геометрия: {len(out_features)} фич -> {CLIENT_GEOJSON_OUT}")
+    by_water_type = Counter(w["waterType"] for w in waters)
+    print(f"Водные узлы: {len(waters)} -> {WATERS_OUT} ({dict(by_water_type)})")
     print(f"Регионы: {len(regions_core)} -> {REGIONS_CORE_OUT} / {REGIONS_STATE_OUT} / {NAMES_EN_OUT} / {NAMES_RU_OUT}")
     if skipped_no_owner:
         print(f"ВНИМАНИЕ: {len(skipped_no_owner)} land-регионов без владельца пропущены: {skipped_no_owner[:10]}")
