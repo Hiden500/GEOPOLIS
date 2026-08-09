@@ -5,7 +5,19 @@ import { parseGeminiUsage, type TokenUsage } from "../tokenTelemetry";
 import { ProviderResponseSchema } from "../responseSchemas";
 
 /** Модель по умолчанию. Экспортируется, чтобы журнал расхода назывался тем же
- * именем, каким сделан вызов: расход несопоставим между моделями. */
+ * именем, каким сделан вызов: расход несопоставим между моделями.
+ *
+ * ЭТО НЕ ТА МОДЕЛЬ, КОТОРОЙ ИГРАЕТСЯ ПАРТИЯ. Боевой путь — локальный шлюз
+ * (`LLM_PROVIDER` по умолчанию `local`, `LOCAL_LLM_MODEL`); сюда попадают
+ * только явным `LLM_PROVIDER=gemini`. База «gemini-3.6-flash-high» — имя
+ * модели НА ШЛЮЗЕ, а не id прямого API: `v1beta/models` такого не отдаёт и
+ * прямой вызов возвращает 404 (проверено 2026-08-09), «high» там — уровень
+ * размышления, который мы шлём отдельным полем.
+ *
+ * Прямые `gemini-3.5-flash` и `gemini-3.6-flash` нашу схему ответа НЕ
+ * принимают: union веток примитивов валится с 400 уже на трёх ветках из
+ * четырнадцати (замер 2026-08-09, docs/LLM_RULES.md). Менять умолчание на них
+ * нельзя, пока схема не переделана. */
 export const DEFAULT_MODEL = "gemini-3.1-flash-lite";
 
 /**
@@ -163,6 +175,29 @@ function enrichForGemini(node: unknown): unknown {
   if ("const" in obj) {
     obj.enum = [obj.const];
     delete obj.const;
+  }
+
+  // `exclusiveMinimum`/`exclusiveMaximum` диалект тоже не знает: живой вызов
+  // 2026-08-09 вернул 400 "Unknown name \"exclusiveMinimum\"" и назвал шесть
+  // мест — все от `regionId: z.number().int().positive()`, который Zod 4
+  // выражает строгой границей, а не `minimum`. Включающие `minimum`/`maximum`
+  // тем же ответом НЕ забракованы, то есть в диалекте они есть.
+  //
+  // Для ЦЕЛОГО строгая граница переводится в включающую точно: «> 0» это
+  // «>= 1». Для дробного точного эквивалента нет, и граница снимается — как
+  // уже снимается `additionalProperties`: схема здесь только направляет
+  // генерацию, а настоящую проверку ответа делает Zod (responseSchemas.ts).
+  for (const [strict, inclusive, shift] of [
+    ["exclusiveMinimum", "minimum", 1],
+    ["exclusiveMaximum", "maximum", -1],
+  ] as const) {
+    if (strict in obj) {
+      const bound = obj[strict];
+      if (typeof bound === "number" && obj.type === "integer" && !(inclusive in obj)) {
+        obj[inclusive] = bound + shift;
+      }
+      delete obj[strict];
+    }
   }
 
   if (Array.isArray(obj.oneOf)) {
