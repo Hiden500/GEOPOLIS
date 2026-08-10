@@ -3,12 +3,17 @@ import type { Region } from '@shared/types/map/Region';
 import type { Country } from '@shared/types/Country';
 import { getText, type Locale } from '@shared/types/i18n/LocalizedText';
 
+/**
+ * Цвет воды — ПОДАЧА, а не данные: он одинаков у всех акваторий и в файле
+ * карты ему делать нечего (решение 2026-08-09, контракт полей geojson —
+ * `scripts/map/AGENTS.md`). До этого загрузчик читал `props.color`, которого в
+ * `world_1946.geojson` не было ни разу, и всегда падал в этот же fallback.
+ */
+const OCEAN_COLOR = '#1a3a5c';
+
 export interface MapRegionProperties {
   id: string;
   name: string;
-  countryName: string;
-  iso_a2: string;
-  adm0_a3: string;
   ownerCountryId: string | null;
   ownerColor: string;
   ownerName: string;
@@ -70,7 +75,6 @@ export async function loadGameMapData(
       const props = feature.properties || {};
       const name = (props.name || 'Unknown') as string;
       const type = (props.type || 'region') as string;
-      const oceanColor = (props.color || '#1a3a5c') as string;
       const featureId = (props.region_id || '') as string;
 
       let ownerCountryId: string | null = null;
@@ -97,24 +101,26 @@ export async function loadGameMapData(
       }
 
       if (type === 'ocean') {
-        ownerColor = oceanColor;
+        ownerColor = OCEAN_COLOR;
         ownerName = name;
       }
 
       return {
         type: 'Feature' as const,
+        // Числовой id фичи переносится КАК ЕСТЬ: по нему MapView адресует
+        // setFeatureState (hover, выделение, цвет режима карты), и он же —
+        // id региона в regions.core.json. Загрузчик его терял, поэтому ни
+        // одно feature-state состояние не доезжало ни до одной фичи.
+        id: feature.id,
         properties: {
           id: featureId || name,
           name: regionName,
-          countryName: (props.country || '') as string,
-          iso_a2: (props.iso_a2 || '') as string,
-          adm0_a3: '',
           ownerCountryId,
           ownerColor,
           ownerName,
           population: regionPopulation,
           type,
-          color: oceanColor,
+          color: OCEAN_COLOR,
           regionId
         },
         geometry: feature.geometry as Polygon | MultiPolygon

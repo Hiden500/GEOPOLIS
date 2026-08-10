@@ -389,8 +389,11 @@ class CapitalGeographyHelpersTest(unittest.TestCase):
         self.assertIn("14", message)  # подсказывает конкретное новое значение
 
     def _make_region_feature(self, region_id: int) -> dict:
+        # Числовой id — на уровне фичи, как в world_1946.geojson (контракт
+        # полей geojson, 2026-08-09): `properties.id` был его дубликатом.
         return {
-            "properties": {"id": region_id, "type": "region"},
+            "id": region_id,
+            "properties": {"type": "region"},
             "geometry": SQUARE_LOW,
         }
 
@@ -398,7 +401,7 @@ class CapitalGeographyHelpersTest(unittest.TestCase):
         features = [
             self._make_region_feature(i) for i in range(MIN_EXPECTED_REGIONS + 5)
         ] + [
-            {"properties": {"id": 99999, "type": "ocean"}, "geometry": SQUARE_HIGH},
+            {"id": 99999, "properties": {"type": "ocean"}, "geometry": SQUARE_HIGH},
         ]
 
         geometries = build_region_geometries(features)

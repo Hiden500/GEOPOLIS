@@ -1,0 +1,977 @@
+[
+  {
+    "id": 1397,
+    "geoJsonId": "SEA-0001",
+    "waterType": "sea"
+  },
+  {
+    "id": 1398,
+    "geoJsonId": "SEA-0002",
+    "waterType": "sea"
+  },
+  {
+    "id": 1399,
+    "geoJsonId": "SEA-0003",
+    "waterType": "sea"
+  },
+  {
+    "id": 1400,
+    "geoJsonId": "SEA-0004",
+    "waterType": "sea"
+  },
+  {
+    "id": 1401,
+    "geoJsonId": "SEA-0005",
+    "waterType": "sea"
+  },
+  {
+    "id": 1402,
+    "geoJsonId": "SEA-0006",
+    "waterType": "sea"
+  },
+  {
+    "id": 1403,
+    "geoJsonId": "SEA-0007",
+    "waterType": "sea"
+  },
+  {
+    "id": 1404,
+    "geoJsonId": "SEA-0008",
+    "waterType": "sea"
+  },
+  {
+    "id": 1405,
+    "geoJsonId": "SEA-0009",
+    "waterType": "sea"
+  },
+  {
+    "id": 1406,
+    "geoJsonId": "SEA-0010",
+    "waterType": "sea"
+  },
+  {
+    "id": 1407,
+    "geoJsonId": "SEA-0011",
+    "waterType": "sea"
+  },
+  {
+    "id": 1408,
+    "geoJsonId": "SEA-0012",
+    "waterType": "sea"
+  },
+  {
+    "id": 1409,
+    "geoJsonId": "SEA-0013",
+    "waterType": "sea"
+  },
+  {
+    "id": 1410,
+    "geoJsonId": "SEA-0014",
+    "waterType": "sea"
+  },
+  {
+    "id": 1411,
+    "geoJsonId": "SEA-0015",
+    "waterType": "sea"
+  },
+  {
+    "id": 1412,
+    "geoJsonId": "SEA-0016",
+    "waterType": "sea"
+  },
+  {
+    "id": 1413,
+    "geoJsonId": "SEA-0017",
+    "waterType": "sea"
+  },
+  {
+    "id": 1414,
+    "geoJsonId": "SEA-0018",
+    "waterType": "sea"
+  },
+  {
+    "id": 1415,
+    "geoJsonId": "SEA-0019",
+    "waterType": "sea"
+  },
+  {
+    "id": 1416,
+    "geoJsonId": "SEA-0020",
+    "waterType": "sea"
+  },
+  {
+    "id": 1417,
+    "geoJsonId": "SEA-0021",
+    "waterType": "sea"
+  },
+  {
+    "id": 1418,
+    "geoJsonId": "SEA-0022",
+    "waterType": "sea"
+  },
+  {
+    "id": 1419,
+    "geoJsonId": "SEA-0023",
+    "waterType": "sea"
+  },
+  {
+    "id": 1420,
+    "geoJsonId": "SEA-0024",
+    "waterType": "sea"
+  },
+  {
+    "id": 1421,
+    "geoJsonId": "SEA-0025",
+    "waterType": "sea"
+  },
+  {
+    "id": 1422,
+    "geoJsonId": "SEA-0026",
+    "waterType": "sea"
+  },
+  {
+    "id": 1423,
+    "geoJsonId": "SEA-0027",
+    "waterType": "sea"
+  },
+  {
+    "id": 1424,
+    "geoJsonId": "SEA-0028",
+    "waterType": "sea"
+  },
+  {
+    "id": 1425,
+    "geoJsonId": "SEA-0029",
+    "waterType": "sea"
+  },
+  {
+    "id": 1426,
+    "geoJsonId": "SEA-0030",
+    "waterType": "sea"
+  },
+  {
+    "id": 1427,
+    "geoJsonId": "SEA-0031",
+    "waterType": "sea"
+  },
+  {
+    "id": 1428,
+    "geoJsonId": "SEA-0032",
+    "waterType": "sea"
+  },
+  {
+    "id": 1429,
+    "geoJsonId": "SEA-0033",
+    "waterType": "sea"
+  },
+  {
+    "id": 1430,
+    "geoJsonId": "SEA-0034",
+    "waterType": "sea"
+  },
+  {
+    "id": 1431,
+    "geoJsonId": "SEA-0035",
+    "waterType": "sea"
+  },
+  {
+    "id": 1432,
+    "geoJsonId": "SEA-0036",
+    "waterType": "sea"
+  },
+  {
+    "id": 1433,
+    "geoJsonId": "SEA-0037",
+    "waterType": "sea"
+  },
+  {
+    "id": 1434,
+    "geoJsonId": "SEA-0038",
+    "waterType": "sea"
+  },
+  {
+    "id": 1435,
+    "geoJsonId": "SEA-0039",
+    "waterType": "sea"
+  },
+  {
+    "id": 1436,
+    "geoJsonId": "SEA-0040",
+    "waterType": "sea"
+  },
+  {
+    "id": 1437,
+    "geoJsonId": "SEA-0041",
+    "waterType": "sea"
+  },
+  {
+    "id": 1438,
+    "geoJsonId": "SEA-0042",
+    "waterType": "sea"
+  },
+  {
+    "id": 1439,
+    "geoJsonId": "SEA-0043",
+    "waterType": "sea"
+  },
+  {
+    "id": 1440,
+    "geoJsonId": "SEA-0044",
+    "waterType": "sea"
+  },
+  {
+    "id": 1441,
+    "geoJsonId": "SEA-0045",
+    "waterType": "sea"
+  },
+  {
+    "id": 1442,
+    "geoJsonId": "SEA-0046",
+    "waterType": "sea"
+  },
+  {
+    "id": 1443,
+    "geoJsonId": "SEA-0047",
+    "waterType": "sea"
+  },
+  {
+    "id": 1444,
+    "geoJsonId": "SEA-0048",
+    "waterType": "sea"
+  },
+  {
+    "id": 1445,
+    "geoJsonId": "SEA-0049",
+    "waterType": "sea"
+  },
+  {
+    "id": 1446,
+    "geoJsonId": "SEA-0050",
+    "waterType": "sea"
+  },
+  {
+    "id": 1447,
+    "geoJsonId": "SEA-0051",
+    "waterType": "sea"
+  },
+  {
+    "id": 1448,
+    "geoJsonId": "SEA-0052",
+    "waterType": "sea"
+  },
+  {
+    "id": 1449,
+    "geoJsonId": "SEA-0053",
+    "waterType": "sea"
+  },
+  {
+    "id": 1450,
+    "geoJsonId": "SEA-0054",
+    "waterType": "sea"
+  },
+  {
+    "id": 1451,
+    "geoJsonId": "SEA-0055",
+    "waterType": "sea"
+  },
+  {
+    "id": 1452,
+    "geoJsonId": "SEA-0056",
+    "waterType": "sea"
+  },
+  {
+    "id": 1453,
+    "geoJsonId": "SEA-0057",
+    "waterType": "sea"
+  },
+  {
+    "id": 1454,
+    "geoJsonId": "SEA-0058",
+    "waterType": "sea"
+  },
+  {
+    "id": 1455,
+    "geoJsonId": "SEA-0059",
+    "waterType": "sea"
+  },
+  {
+    "id": 1456,
+    "geoJsonId": "SEA-0060",
+    "waterType": "sea"
+  },
+  {
+    "id": 1457,
+    "geoJsonId": "SEA-0061",
+    "waterType": "sea"
+  },
+  {
+    "id": 1458,
+    "geoJsonId": "SEA-0062",
+    "waterType": "sea"
+  },
+  {
+    "id": 1459,
+    "geoJsonId": "SEA-0063",
+    "waterType": "sea"
+  },
+  {
+    "id": 1460,
+    "geoJsonId": "SEA-0064",
+    "waterType": "sea"
+  },
+  {
+    "id": 1461,
+    "geoJsonId": "SEA-0065",
+    "waterType": "sea"
+  },
+  {
+    "id": 1462,
+    "geoJsonId": "SEA-0066",
+    "waterType": "sea"
+  },
+  {
+    "id": 1463,
+    "geoJsonId": "SEA-0067",
+    "waterType": "sea"
+  },
+  {
+    "id": 1464,
+    "geoJsonId": "SEA-0068",
+    "waterType": "sea"
+  },
+  {
+    "id": 1465,
+    "geoJsonId": "SEA-0069",
+    "waterType": "sea"
+  },
+  {
+    "id": 1466,
+    "geoJsonId": "SEA-0070",
+    "waterType": "sea"
+  },
+  {
+    "id": 1467,
+    "geoJsonId": "SEA-0071",
+    "waterType": "sea"
+  },
+  {
+    "id": 1468,
+    "geoJsonId": "SEA-0072",
+    "waterType": "sea"
+  },
+  {
+    "id": 1469,
+    "geoJsonId": "SEA-0073",
+    "waterType": "sea"
+  },
+  {
+    "id": 1470,
+    "geoJsonId": "SEA-0074",
+    "waterType": "sea"
+  },
+  {
+    "id": 1471,
+    "geoJsonId": "SEA-0075",
+    "waterType": "sea"
+  },
+  {
+    "id": 1472,
+    "geoJsonId": "SEA-0076",
+    "waterType": "sea"
+  },
+  {
+    "id": 1473,
+    "geoJsonId": "SEA-0077",
+    "waterType": "sea"
+  },
+  {
+    "id": 1474,
+    "geoJsonId": "SEA-0078",
+    "waterType": "sea"
+  },
+  {
+    "id": 1475,
+    "geoJsonId": "SEA-0079",
+    "waterType": "sea"
+  },
+  {
+    "id": 1476,
+    "geoJsonId": "SEA-0080",
+    "waterType": "sea"
+  },
+  {
+    "id": 1477,
+    "geoJsonId": "SEA-0081",
+    "waterType": "sea"
+  },
+  {
+    "id": 1478,
+    "geoJsonId": "SEA-0082",
+    "waterType": "sea"
+  },
+  {
+    "id": 1479,
+    "geoJsonId": "SEA-0083",
+    "waterType": "sea"
+  },
+  {
+    "id": 1480,
+    "geoJsonId": "SEA-0084",
+    "waterType": "sea"
+  },
+  {
+    "id": 1481,
+    "geoJsonId": "SEA-0085",
+    "waterType": "sea"
+  },
+  {
+    "id": 1482,
+    "geoJsonId": "SEA-0086",
+    "waterType": "sea"
+  },
+  {
+    "id": 1483,
+    "geoJsonId": "SEA-0087",
+    "waterType": "sea"
+  },
+  {
+    "id": 1484,
+    "geoJsonId": "SEA-0088",
+    "waterType": "sea"
+  },
+  {
+    "id": 1485,
+    "geoJsonId": "SEA-0089",
+    "waterType": "sea"
+  },
+  {
+    "id": 1486,
+    "geoJsonId": "SEA-0090",
+    "waterType": "sea"
+  },
+  {
+    "id": 1487,
+    "geoJsonId": "SEA-0091",
+    "waterType": "sea"
+  },
+  {
+    "id": 1488,
+    "geoJsonId": "SEA-0092",
+    "waterType": "sea"
+  },
+  {
+    "id": 1489,
+    "geoJsonId": "SEA-0093",
+    "waterType": "sea"
+  },
+  {
+    "id": 1490,
+    "geoJsonId": "SEA-0094",
+    "waterType": "sea"
+  },
+  {
+    "id": 1491,
+    "geoJsonId": "SEA-0095",
+    "waterType": "sea"
+  },
+  {
+    "id": 1492,
+    "geoJsonId": "SEA-0096",
+    "waterType": "sea"
+  },
+  {
+    "id": 1493,
+    "geoJsonId": "SEA-0097",
+    "waterType": "sea"
+  },
+  {
+    "id": 1494,
+    "geoJsonId": "SEA-0098",
+    "waterType": "sea"
+  },
+  {
+    "id": 1495,
+    "geoJsonId": "SEA-0099",
+    "waterType": "sea"
+  },
+  {
+    "id": 1496,
+    "geoJsonId": "SEA-0100",
+    "waterType": "sea"
+  },
+  {
+    "id": 1497,
+    "geoJsonId": "SEA-0101",
+    "waterType": "sea"
+  },
+  {
+    "id": 1498,
+    "geoJsonId": "SEA-0102",
+    "waterType": "sea"
+  },
+  {
+    "id": 1499,
+    "geoJsonId": "SEA-0103",
+    "waterType": "sea"
+  },
+  {
+    "id": 1500,
+    "geoJsonId": "SEA-0104",
+    "waterType": "sea"
+  },
+  {
+    "id": 1501,
+    "geoJsonId": "SEA-0105",
+    "waterType": "sea"
+  },
+  {
+    "id": 1502,
+    "geoJsonId": "SEA-0106",
+    "waterType": "sea"
+  },
+  {
+    "id": 1503,
+    "geoJsonId": "SEA-0107",
+    "waterType": "sea"
+  },
+  {
+    "id": 1504,
+    "geoJsonId": "SEA-0108",
+    "waterType": "sea"
+  },
+  {
+    "id": 1505,
+    "geoJsonId": "SEA-0109",
+    "waterType": "sea"
+  },
+  {
+    "id": 1506,
+    "geoJsonId": "SEA-0110",
+    "waterType": "sea"
+  },
+  {
+    "id": 1507,
+    "geoJsonId": "SEA-0111",
+    "waterType": "sea"
+  },
+  {
+    "id": 1508,
+    "geoJsonId": "SEA-0112",
+    "waterType": "sea"
+  },
+  {
+    "id": 1509,
+    "geoJsonId": "SEA-0113",
+    "waterType": "sea"
+  },
+  {
+    "id": 1510,
+    "geoJsonId": "SEA-0114",
+    "waterType": "sea"
+  },
+  {
+    "id": 1511,
+    "geoJsonId": "SEA-0115",
+    "waterType": "sea"
+  },
+  {
+    "id": 1512,
+    "geoJsonId": "SEA-0116",
+    "waterType": "sea"
+  },
+  {
+    "id": 1513,
+    "geoJsonId": "SEA-0117",
+    "waterType": "sea"
+  },
+  {
+    "id": 1514,
+    "geoJsonId": "SEA-0118",
+    "waterType": "sea"
+  },
+  {
+    "id": 1515,
+    "geoJsonId": "SEA-0119",
+    "waterType": "sea"
+  },
+  {
+    "id": 1516,
+    "geoJsonId": "SEA-0120",
+    "waterType": "sea"
+  },
+  {
+    "id": 1517,
+    "geoJsonId": "SEA-0121",
+    "waterType": "sea"
+  },
+  {
+    "id": 1518,
+    "geoJsonId": "SEA-0122",
+    "waterType": "sea"
+  },
+  {
+    "id": 1519,
+    "geoJsonId": "SEA-0123",
+    "waterType": "sea"
+  },
+  {
+    "id": 1520,
+    "geoJsonId": "SEA-0124",
+    "waterType": "sea"
+  },
+  {
+    "id": 1521,
+    "geoJsonId": "SEA-0125",
+    "waterType": "sea"
+  },
+  {
+    "id": 1522,
+    "geoJsonId": "SEA-0126",
+    "waterType": "sea"
+  },
+  {
+    "id": 1523,
+    "geoJsonId": "SEA-0127",
+    "waterType": "sea"
+  },
+  {
+    "id": 1524,
+    "geoJsonId": "SEA-0128",
+    "waterType": "sea"
+  },
+  {
+    "id": 1525,
+    "geoJsonId": "SEA-0129",
+    "waterType": "sea"
+  },
+  {
+    "id": 1526,
+    "geoJsonId": "SEA-0130",
+    "waterType": "sea"
+  },
+  {
+    "id": 1527,
+    "geoJsonId": "SEA-0131",
+    "waterType": "sea"
+  },
+  {
+    "id": 1528,
+    "geoJsonId": "SEA-0132",
+    "waterType": "sea"
+  },
+  {
+    "id": 1529,
+    "geoJsonId": "SEA-0133",
+    "waterType": "sea"
+  },
+  {
+    "id": 1530,
+    "geoJsonId": "SEA-0134",
+    "waterType": "sea"
+  },
+  {
+    "id": 1531,
+    "geoJsonId": "SEA-0135",
+    "waterType": "sea"
+  },
+  {
+    "id": 1532,
+    "geoJsonId": "SEA-0136",
+    "waterType": "sea"
+  },
+  {
+    "id": 1533,
+    "geoJsonId": "SEA-0137",
+    "waterType": "sea"
+  },
+  {
+    "id": 1534,
+    "geoJsonId": "SEA-0138",
+    "waterType": "sea"
+  },
+  {
+    "id": 1535,
+    "geoJsonId": "SEA-0139",
+    "waterType": "sea"
+  },
+  {
+    "id": 1536,
+    "geoJsonId": "SEA-0140",
+    "waterType": "sea"
+  },
+  {
+    "id": 1537,
+    "geoJsonId": "SEA-0141",
+    "waterType": "sea"
+  },
+  {
+    "id": 1538,
+    "geoJsonId": "SEA-0142",
+    "waterType": "sea"
+  },
+  {
+    "id": 1539,
+    "geoJsonId": "SEA-0143",
+    "waterType": "sea"
+  },
+  {
+    "id": 1540,
+    "geoJsonId": "SEA-0144",
+    "waterType": "sea"
+  },
+  {
+    "id": 1541,
+    "geoJsonId": "SEA-0145",
+    "waterType": "sea"
+  },
+  {
+    "id": 1542,
+    "geoJsonId": "SEA-0146",
+    "waterType": "sea"
+  },
+  {
+    "id": 1543,
+    "geoJsonId": "SEA-0147",
+    "waterType": "sea"
+  },
+  {
+    "id": 1544,
+    "geoJsonId": "SEA-0148",
+    "waterType": "sea"
+  },
+  {
+    "id": 1545,
+    "geoJsonId": "SEA-0149",
+    "waterType": "sea"
+  },
+  {
+    "id": 1546,
+    "geoJsonId": "SEA-0150",
+    "waterType": "sea"
+  },
+  {
+    "id": 1547,
+    "geoJsonId": "SEA-0151",
+    "waterType": "sea"
+  },
+  {
+    "id": 1548,
+    "geoJsonId": "SEA-0152",
+    "waterType": "sea"
+  },
+  {
+    "id": 1549,
+    "geoJsonId": "SEA-0153",
+    "waterType": "sea"
+  },
+  {
+    "id": 1550,
+    "geoJsonId": "SEA-0154",
+    "waterType": "sea"
+  },
+  {
+    "id": 1551,
+    "geoJsonId": "SEA-0155",
+    "waterType": "sea"
+  },
+  {
+    "id": 1552,
+    "geoJsonId": "SEA-0156",
+    "waterType": "sea"
+  },
+  {
+    "id": 1553,
+    "geoJsonId": "SEA-0157",
+    "waterType": "sea"
+  },
+  {
+    "id": 1554,
+    "geoJsonId": "SEA-0158",
+    "waterType": "sea"
+  },
+  {
+    "id": 1555,
+    "geoJsonId": "SEA-0159",
+    "waterType": "sea"
+  },
+  {
+    "id": 1556,
+    "geoJsonId": "SEA-0160",
+    "waterType": "sea"
+  },
+  {
+    "id": 1557,
+    "geoJsonId": "SEA-0161",
+    "waterType": "sea"
+  },
+  {
+    "id": 1558,
+    "geoJsonId": "SEA-0162",
+    "waterType": "sea"
+  },
+  {
+    "id": 1559,
+    "geoJsonId": "SEA-0163",
+    "waterType": "sea"
+  },
+  {
+    "id": 1560,
+    "geoJsonId": "SEA-0164",
+    "waterType": "sea"
+  },
+  {
+    "id": 1561,
+    "geoJsonId": "SEA-0165",
+    "waterType": "sea"
+  },
+  {
+    "id": 1562,
+    "geoJsonId": "SEA-0166",
+    "waterType": "sea"
+  },
+  {
+    "id": 1563,
+    "geoJsonId": "SEA-0167",
+    "waterType": "sea"
+  },
+  {
+    "id": 1564,
+    "geoJsonId": "SEA-0168",
+    "waterType": "sea"
+  },
+  {
+    "id": 1565,
+    "geoJsonId": "SEA-0169",
+    "waterType": "sea"
+  },
+  {
+    "id": 1566,
+    "geoJsonId": "SEA-0170",
+    "waterType": "sea"
+  },
+  {
+    "id": 1567,
+    "geoJsonId": "SEA-0171",
+    "waterType": "sea"
+  },
+  {
+    "id": 1568,
+    "geoJsonId": "SEA-0172",
+    "waterType": "sea"
+  },
+  {
+    "id": 1569,
+    "geoJsonId": "SEA-0173",
+    "waterType": "sea"
+  },
+  {
+    "id": 1570,
+    "geoJsonId": "SEA-0174",
+    "waterType": "sea"
+  },
+  {
+    "id": 1571,
+    "geoJsonId": "SEA-0175",
+    "waterType": "sea"
+  },
+  {
+    "id": 1572,
+    "geoJsonId": "SEA-0176",
+    "waterType": "sea"
+  },
+  {
+    "id": 1573,
+    "geoJsonId": "SEA-0177",
+    "waterType": "sea"
+  },
+  {
+    "id": 1574,
+    "geoJsonId": "SEA-0178",
+    "waterType": "sea"
+  },
+  {
+    "id": 1575,
+    "geoJsonId": "SEA-0179",
+    "waterType": "sea"
+  },
+  {
+    "id": 1576,
+    "geoJsonId": "SEA-0180",
+    "waterType": "sea"
+  },
+  {
+    "id": 1577,
+    "geoJsonId": "SEA-0181",
+    "waterType": "sea"
+  },
+  {
+    "id": 1578,
+    "geoJsonId": "SEA-0182",
+    "waterType": "sea"
+  },
+  {
+    "id": 1579,
+    "geoJsonId": "LAK-0001",
+    "waterType": "lake"
+  },
+  {
+    "id": 1580,
+    "geoJsonId": "LAK-0002",
+    "waterType": "lake"
+  },
+  {
+    "id": 1581,
+    "geoJsonId": "LAK-0003",
+    "waterType": "lake"
+  },
+  {
+    "id": 1582,
+    "geoJsonId": "LAK-0004",
+    "waterType": "lake"
+  },
+  {
+    "id": 1583,
+    "geoJsonId": "LAK-0005",
+    "waterType": "lake"
+  },
+  {
+    "id": 1584,
+    "geoJsonId": "LAK-0006",
+    "waterType": "lake"
+  },
+  {
+    "id": 1585,
+    "geoJsonId": "LAK-0007",
+    "waterType": "lake"
+  },
+  {
+    "id": 1586,
+    "geoJsonId": "LAK-0008",
+    "waterType": "lake"
+  },
+  {
+    "id": 1587,
+    "geoJsonId": "LAK-0009",
+    "waterType": "lake"
+  },
+  {
+    "id": 1588,
+    "geoJsonId": "LAK-0010",
+    "waterType": "lake"
+  },
+  {
+    "id": 1589,
+    "geoJsonId": "LAK-0011",
+    "waterType": "lake"
+  },
+  {
+    "id": 1590,
+    "geoJsonId": "LAK-0012",
+    "waterType": "lake"
+  },
+  {
+    "id": 1591,
+    "geoJsonId": "LAK-0013",
+    "waterType": "lake"
+  }
+]

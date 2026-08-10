@@ -80,6 +80,10 @@ savegames/
 !/server/data/scenarios/1946/names.en.json
 !/server/data/scenarios/1946/names.ru.json
 !/server/data/scenarios/1946/countries.json
+# Водные узлы (2026-08-09, контракт полей geojson — scripts/map/AGENTS.md):
+# 182 моря и 13 озёр с игровым id и waterType. Пишет import_to_game.py; без
+# явного отрицания правило выше уронило бы файл из git молча.
+!/server/data/scenarios/1946/waters.json
 # Слои фундамента недовольства (2026-07-26, docs/CONCEPT.md §4.1/§4.2) —
 # генерируются scripts/map/generate_demographics_1946.py. Без явного
 # отрицания правило выше тихо роняло бы их из git (тот же класс бага, что

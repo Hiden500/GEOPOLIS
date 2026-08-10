@@ -206,7 +206,10 @@ def build_region_geometries(features: list[dict]) -> dict[int, dict]:
         geom = feat.get("geometry")
         if geom is None:
             continue
-        out[props["id"]] = {"geometry": geom, "bbox": _bbox(geom)}
+        # Числовой id берётся с УРОВНЯ ФИЧИ, а не из properties (контракт
+        # полей geojson, 2026-08-09 — scripts/map/AGENTS.md). Значение то же:
+        # `properties.id` был его дубликатом и убран.
+        out[feat["id"]] = {"geometry": geom, "bbox": _bbox(geom)}
     if len(out) < MIN_EXPECTED_REGIONS:
         raise ValueError(
             f"world_1946.geojson: после фильтра properties.type == 'region' "
