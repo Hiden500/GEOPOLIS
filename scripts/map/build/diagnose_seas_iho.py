@@ -19,13 +19,20 @@ BENT_DIVIDE — тот самый инвариант. Линии раздела 
 Любой её изгиб вокруг острова (Сан-Томе, Гибралтар, Кергелен) — отклонение от
 источника и попадает в этот класс.
 
+Пятый класс, `--staircase`, живёт отдельно и считается по МАСТЕРУ, а не по
+`out/seas_iho_coastline.geojson`: он отвечает на вопрос «а линия раздела вообще
+линия?» для водного слоя, который уже лежит в карте. Подробности — в
+докстроке `staircase_report`.
+
 Запуск:
 
-    python scripts/map/build/diagnose_seas_iho.py            # проблемные окна
-    python scripts/map/build/diagnose_seas_iho.py --global   # + мир целиком
+    python scripts/map/build/diagnose_seas_iho.py             # проблемные окна
+    python scripts/map/build/diagnose_seas_iho.py --global    # + мир целиком
+    python scripts/map/build/diagnose_seas_iho.py --staircase # лестницы в мастере
 """
-from paths import game_map, out, source
+from paths import game_map, out, source, world_geojson
 import json
+import math
 import sys
 from shapely.geometry import shape, box as shp_box
 from shapely.strtree import STRtree
@@ -82,6 +89,19 @@ SCATTERED_DIST_DEG = 0.001
 # Извилистость выше этой — линия раздела перестала быть прямой. 1.0 — идеал;
 # 1.02 допускает ступеньку адаптивного дробления (~22 м) на линии в единицы км.
 CROOKED_MAX = 1.02
+
+# --- STAIRCASE: чем меряется лестница (2026-08-14) ---------------------------
+#
+# Поворот считается «прямым углом», если он попал в этот коридор. ±20° — не
+# косметика: ступеньки, нарезанные в проекции и перепроецированные в градусы,
+# приходят не строго по 90°, а с наклоном в единицы градусов.
+STAIR_ANGLE_LO = 70.0
+STAIR_ANGLE_HI = 110.0
+
+# Доля вершин с таким поворотом. Пороги — читательские ярлыки, а не гейт:
+# скрипт диагностический и кода возврата по ним не даёт.
+STAIR_BAD = 0.40    # лестница видна на рендере без увеличения
+STAIR_WARN = 0.20   # частично лестничная
 
 
 def load(path, prop="name"):
@@ -238,6 +258,93 @@ def crookedness(parts, min_len_deg=0.02):
     return worst
 
 
+def turn_angles(geom):
+    """Углы поворота на вершинах, в градусах. 0° — вершина лежит на прямой.
+
+    Считается по КАЖДОМУ кольцу каждой части, включая дырки: лестница попадает
+    и в них. Замыкающая вершина кольца пропускается — у неё нет двух соседей
+    внутри записанной последовательности, и досчитывать её «через замыкание»
+    значит добавлять к каждому кольцу один угол, которого в файле нет.
+    """
+    gi = geom.__geo_interface__
+    polys = [gi["coordinates"]] if gi["type"] == "Polygon" else gi["coordinates"]
+    angles = []
+    for poly in polys:
+        for ring in poly:
+            pts = list(ring)
+            for i in range(1, len(pts) - 1):
+                a, b, c = pts[i - 1], pts[i], pts[i + 1]
+                v1 = (b[0] - a[0], b[1] - a[1])
+                v2 = (c[0] - b[0], c[1] - b[1])
+                l1 = math.hypot(*v1)
+                l2 = math.hypot(*v2)
+                if l1 == 0.0 or l2 == 0.0:
+                    continue
+                cs = (v1[0] * v2[0] + v1[1] * v2[1]) / (l1 * l2)
+                angles.append(math.degrees(math.acos(max(-1.0, min(1.0, cs)))))
+    return angles
+
+
+def right_angle_share(geom):
+    """Доля вершин с поворотом ~90°: (доля, всего вершин).
+
+    ПОЧЕМУ НЕ «ДОЛЯ ОТРЕЗКОВ ПО ОСЯМ». Первое, что приходит в голову, —
+    посчитать отрезки с `dx == 0` или `dy == 0`. Эта метрика НЕВЕРНА и объявляет
+    лестничную зону чистой: ступеньки нарезаны в проекции и перепроецированы в
+    градусы, поэтому наклонены. Замер на SEA-0099 (2026-08-14): пары шагов
+    `dx=0.047090 / dy=0.017054` повторяются ровно 40 раз, и ни одна координата
+    не равна нулю. Об эту же ловушку споткнулась `crookedness` выше — её
+    докстрока фиксирует «показывала 1.000 там, где на рендере видна лестница».
+
+    Поворот от осей не зависит вовсе: прямая даёт ~0° на каждой вершине, живой
+    берег — россыпь малых поворотов, лестница — чередование ~90°. Метрика
+    согласуется с тем, что видно на рендере, — этим она и выбрана.
+    """
+    angles = turn_angles(geom)
+    if not angles:
+        return 0.0, 0
+    hits = sum(1 for a in angles if STAIR_ANGLE_LO <= a <= STAIR_ANGLE_HI)
+    return hits / len(angles), len(angles)
+
+
+def staircase_report(top=20):
+    """Лестницы в водном слое МАСТЕРА: доля поворотов ~90° по каждой зоне.
+
+    Читает `paths.world_geojson()` (мастер), а не `out/seas_iho_coastline.
+    geojson`: вопрос здесь не «что построил билдер», а «что лежит в карте».
+    Водный слой мастера собран из двух поколений нарезки — 97 ранних зон IHO и
+    85 океанских зон, внедрённых `apply_sea_zones.py`, — и класс отвечает,
+    какое из них несёт лестницу.
+
+    Порогов возврата нет намеренно: 20% набирает и настоящий изрезанный берег
+    (Ботнический залив, Финский залив, Ла-Манш), а берег — не дефект. Число
+    называет подозреваемого, приговор выносит рендер.
+    """
+    path = world_geojson()
+    seas = [f for f in json.load(open(path, encoding="utf-8"))["features"]
+            if f["properties"].get("region_type") == "sea"]
+    rows = []
+    for f in seas:
+        p = f["properties"]
+        s, n = right_angle_share(shape(f["geometry"]))
+        rows.append((s, p.get("region_id"), p.get("name"), n, p.get("naval_terrain")))
+    rows.sort(reverse=True)
+
+    bad = [r for r in rows if r[0] >= STAIR_BAD]
+    warn = [r for r in rows if STAIR_WARN <= r[0] < STAIR_BAD]
+    print(f"\n=== STAIRCASE (доля вершин с поворотом ~90°) — {path.name} ===")
+    print(f"  морских зон: {len(rows)}")
+    print(f"  >={STAIR_BAD:.0%} лестница        : {len(bad)}")
+    print(f"  {STAIR_WARN:.0%}-{STAIR_BAD:.0%} частично      : {len(warn)}")
+    print(f"  <{STAIR_WARN:.0%} чисто            : {len(rows) - len(bad) - len(warn)}")
+    print(f"\n  худшие {top}:")
+    for s, rid, name, n, terrain in rows[:top]:
+        mark = "!!" if s >= STAIR_BAD else "? " if s >= STAIR_WARN else "  "
+        print(f"   {mark} {s * 100:5.1f}%  {rid}  {str(name)[:30]:30s} "
+              f"вершин {n:6d}  naval_terrain={terrain}")
+    return rows
+
+
 def report(label, win_box, land, lakes, seas_out, seas_src):
     land_u = unary_union([g for _, g in land]) if land else None
     lake_u = unary_union([g for _, g in lakes]) if lakes else None
@@ -281,6 +388,12 @@ def report(label, win_box, land, lakes, seas_out, seas_src):
 
 
 def main():
+    # Отдельный режим: он один не требует ни `out/seas_iho_coastline.geojson`,
+    # ни IHO-источника — и потому работает в дереве, где внешних входов нет.
+    if "--staircase" in sys.argv:
+        staircase_report()
+        return
+
     land = load(game_map())
     lakes = load(out("lakes_1946.geojson"))
     seas_out = load(SEAS)
