@@ -1,8 +1,8 @@
 {
   "_comment": "Мастер-карта: единственный стартовый источник геометрии. Геометрия согласована один раз (weld_map_gaps.py + rebuild_shared_edges.py); пайплайн читает этот файл вместо повторного согласования источников. Менять только осознанно, вместе с записью в docs/DECISIONS.md.",
-  "frozen_at": "2026-08-08T15:19:04Z",
-  "built_from_commit": "22b50bc84ecbf42f0f69e8614a922e4e97536618",
-  "built_from_branch": "claude/world-assembly",
+  "frozen_at": "2026-08-14T15:42:04Z",
+  "built_from_commit": "31daf616b3549ad709d2e9f1d49e26993c939ef2",
+  "built_from_branch": "claude/sea-seam-staircase",
   "source": "scripts/map/out/world_1946.geojson",
   "produced_by": [
     "build/weld_map_gaps.py",
@@ -71,13 +71,14 @@
     "scripts/map/build/translate_world.py": "0101b282330b00954e75967f532e282e3846d2d7",
     "scripts/map/build/build_seas_from_iho.py": "48234f0aab4fc97c881800fbf41b4d904093e760",
     "scripts/map/build/refresh_lakes_from_ne10m.py": "ba6db55cf3d43919af495a77a14e42aa92cfa5ef",
-    "scripts/map/build/apply_sea_zones.py": "8cd3014b1df5e1e9176e4e83d831683ce2b33f3e",
+    "scripts/map/build/apply_sea_zones.py": "31daf616b3549ad709d2e9f1d49e26993c939ef2",
     "scripts/map/build/apply_iho_sea_layer.py": "9a92f11b4bbcdcb50b90d22e7b79ef0fca2a3aa2",
     "scripts/map/build/apply_ph_regions.py": "8cd3014b1df5e1e9176e4e83d831683ce2b33f3e",
     "scripts/map/build/apply_region_edits_islands.py": "6a997ad9cd1372979048f1766f63ec9c2e66bbbf",
     "scripts/map/build/fix_dalian_rio_master.py": "c8f6a8423ef61b87402a5f6c3d1f9eac2eeee501",
     "scripts/map/build/restore_china_curation_master.py": "c8f6a8423ef61b87402a5f6c3d1f9eac2eeee501",
-    "scripts/map/build/geo_partition.py": "8cd3014b1df5e1e9176e4e83d831683ce2b33f3e"
+    "scripts/map/build/straighten_sea_zone_seams.py": "31daf616b3549ad709d2e9f1d49e26993c939ef2",
+    "scripts/map/build/geo_partition.py": "31daf616b3549ad709d2e9f1d49e26993c939ef2"
   },
   "_surgical_edits": [
     {
@@ -133,6 +134,16 @@
         "участники разысканы по паре (имя, площадь), а не по region_id: запись снята с нумерации до Филиппин. 76 ссылок, разрешено 76, неоднозначных 0, сдвинутых 6 (японские ASI-0420…0425 -> +12)"
       ],
       "delta": "площадь суши 146325932.680 -> 146325932.680 км² — БЕЗ ИЗМЕНЕНИЯ: ни один полигон не разрезан, слияния складывают целые фичи, разделы делят мультиполигон по целым частям. Фич 1639 -> 1591, суша 1444 -> 1396. Перенумерованы все блоки"
+    },
+    {
+      "date": "2026-08-14",
+      "script": "build/straighten_sea_zone_seams.py",
+      "why": "швы 85 океанских зон пришли из прототипа ступеньками (нарезка в проекции по сетке); линия раздела двух акваторий обязана быть линией. Мастер пересобрать нечем, apply_sea_zones.py второй раз не запускается — заменяемых секторов в мастере уже нет",
+      "changed": [
+        "выпрямлены внутренние швы блока зон, допуск 0.05° (~5.6 км); геометрия изменилась у 84 зон из 85",
+        "внешняя граница блока (берег, стык с 97 ранними морями, дырки-острова) не изменилась ни на вершину — постусловие geo_partition.straighten_seams"
+      ],
+      "delta": "сумма площадей зон 273,271,678.5 -> 273,271,678.5 км² (+0.000); число фич и region_id не менялись; area_km2 пересчитан у изменившихся зон"
     }
   ]
 }

@@ -17,12 +17,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from pyproj import Geod
 from shapely import prepared
-from shapely.geometry import MultiPolygon
-from shapely.ops import polygonize, unary_union
+from shapely.geometry import MultiPolygon, Point
+from shapely.ops import linemerge, polygonize, unary_union
 from shapely.strtree import STRtree
 
 GEOD = Geod(ellps="WGS84")
 TOUCH_EPS = 1e-7
+
+# Допуск выпрямления шва (градусы) — см. `straighten_seams`. 0.05° ≈ 5,5 км.
+SEAM_TOL_DEG = 0.05
+
+# Насколько глубоко допуск понижается для цепочки, которая при полном допуске
+# вылезает из области. Пять ступеней = до 0,003°; не прошло и там — цепочка
+# остаётся как есть, и это печатается.
+SEAM_TOL_STEPS = 5
 
 
 def parts(geom):
@@ -181,3 +189,151 @@ def tile_by_cells(clipped, U, log=print):
         by_owner.setdefault(z, []).append(cells[i])
     return [clean(unary_union(by_owner[j])) if j in by_owner else clipped[j]
             for j in range(len(clipped))]
+
+
+def ring_vertices(geom):
+    """Множество вершин всех колец — точные координаты, без округления."""
+    gi = geom.__geo_interface__
+    if gi["type"] == "Polygon":
+        polys = [gi["coordinates"]]
+    elif gi["type"] == "MultiPolygon":
+        polys = gi["coordinates"]
+    else:
+        return set()
+    return {tuple(pt) for poly in polys for ring in poly for pt in ring}
+
+
+def straighten_seams(geoms, U=None, tol=SEAM_TOL_DEG, log=print):
+    """Выпрямляет ВНУТРЕННИЕ швы разбиения, не трогая его внешнюю границу.
+
+    ЗАЧЕМ. Линия раздела двух акваторий обязана быть линией. Зоны, пришедшие из
+    внешнего прототипа (`sources/sea_zones_2026-08-06`, внедрены
+    `apply_sea_zones.py`), нарезаны в проекции по сетке, и их общие швы идут
+    ступеньками: замер 2026-08-14 по мастеру — 16 зон с долей поворотов ~90°
+    выше 20%, худшие 58,6%. Все 16 несут `naval_terrain`, то есть пришли ровно
+    этой партией; среди 97 ранних зон IHO лестничных ноль. Внутри
+    `build_seas_from_iho.py` та же болезнь уже вылечена разрезом по линии
+    делимитации (диагональ в две точки вместо квадрантного дробления, вершин
+    −57%), но последняя партия через это решение не проходила.
+
+    ЧТО ИМЕННО МЕНЯЕТСЯ. Только швы «фича↔фича» ВНУТРИ области. Внешняя граница
+    `U` — берег, стык с соседними морями, дырки-острова — не меняется ни на
+    вершину, и это не обещание, а постусловие: функция сверяет вершины
+    результата, лежащие на границе `U`, с теми, что были у ВХОДА, и падает на
+    первой новой. Без этой сверки правка ломает `coverage_is_valid` (общие
+    рёбра с соседями перестают совпадать) и мастер не запишется.
+
+    КАК. Швы вырезаются из объединения границ (`difference` с границей `U`),
+    сливаются в максимальные цепочки, каждая упрощается по Дугласу–Пойкеру, и
+    из «граница U + выпрямленные швы» полигонизуется новая мозаика; ячейка
+    достаётся той исходной фиче, с которой у неё наибольшее пересечение.
+    Полигонизация здесь не украшение: она делает общие рёбра общими ПО
+    ПОСТРОЕНИЮ — тот же довод, что в `tile_by_cells`.
+
+    ДОПУСК 0,05° (≈5,5 км) ВЗЯТ ЗАМЕРОМ, а не на глаз. Сагитта вершины
+    (расстояние до отрезка между соседями) по всем 8965 вершинам швов
+    2026-08-14: медиана 0,0066°, p90 0,027°, p99 0,431°, максимум 1,849°. Между
+    ступенькой и настоящим изломом линии раздела лежит провал в порядок
+    величины — 0,05° стоит в нём. Меньший допуск лестницу не снимает (0,03°
+    оставляет 12 зон выше 20%), больший начинает съедать сами изломы (0,1°
+    оставляет 2 зоны выше 20%, потому что от линии остаются одни углы).
+
+    Цепочка, которая при полном допуске вылезает за `U` (упрощение спрямляет
+    её поперёк острова), получает допуск вдвое меньше, и так до
+    `SEAM_TOL_STEPS` раз; не помогло — остаётся как есть. Такие цепочки
+    считаются и печатаются: молча оставленная лестница выглядела бы как
+    вылеченная.
+
+    Возвращает новый список геометрий в том же порядке.
+    """
+    live = [g for g in geoms if not g.is_empty]
+    if not live:
+        return list(geoms)
+    if U is None:
+        U = clean(unary_union(live))
+    Ub = U.boundary
+    seam = unary_union([g.boundary for g in live]).difference(Ub)
+    if seam.is_empty:
+        log("  внутренних швов нет — выпрямлять нечего")
+        return list(geoms)
+
+    merged = linemerge(seam)
+    chains = list(merged.geoms) if merged.geom_type == "MultiLineString" else [merged]
+    prep_u = prepared.prep(U)
+
+    simple, kept, lowered = [], 0, 0
+    before_v = after_v = 0
+    for c in chains:
+        before_v += len(c.coords)
+        # Точки, где цепочка касается границы области, ДО упрощения. Новых
+        # появиться не должно: каждое новое касание — вершина, вставленная в
+        # чужую границу.
+        touch = c.intersection(Ub)
+        chosen, t = c, tol
+        for step in range(SEAM_TOL_STEPS + 1):
+            s = c.simplify(t, preserve_topology=False)
+            new_touch = s.intersection(Ub)
+            if (prep_u.contains(s) and new_touch.length == 0.0
+                    and new_touch.difference(touch.buffer(TOUCH_EPS)).is_empty):
+                chosen = s
+                lowered += 1 if step else 0
+                break
+            t /= 2.0
+        else:
+            kept += 1
+        after_v += len(chosen.coords)
+        simple.append(chosen)
+
+    log(f"  швов: {len(chains)} цепочек, вершин {before_v} -> {after_v}"
+        f" (допуск понижен у {lowered}, оставлено как есть {kept})")
+
+    cells = list(polygonize(unary_union([Ub] + simple)))
+    pts = [c.representative_point() for c in cells]
+    inside = [i for i, p in enumerate(pts) if prep_u.contains(p)]
+    log(f"  ячеек {len(cells)}, внутри области {len(inside)}")
+
+    tree = STRtree(live)
+    by_owner, orphan = {}, 0
+    for i in inside:
+        cell = cells[i]
+        best, best_area = None, 0.0
+        for k in (int(k) for k in tree.query(cell)):
+            inter = cell.intersection(live[k])
+            if inter.is_empty:
+                continue
+            if inter.area > best_area:
+                best, best_area = k, inter.area
+        if best is None:
+            orphan += 1
+            continue
+        by_owner.setdefault(best, []).append(cell)
+    if orphan:
+        log(f"  ячеек без хозяина (отброшено): {orphan}")
+
+    rebuilt = [clean(unary_union(by_owner[k])) if k in by_owner else live[k]
+               for k in range(len(live))]
+
+    # --- постусловие: внешняя граница области не сдвинулась ---
+    # Вершина результата, лежащая на границе `U`, обязана быть вершиной, которая
+    # там УЖЕ БЫЛА. Новая означает, что упрощённый шов рассёк чужое ребро — а
+    # это и есть тот дефект, из-за которого `coverage_is_valid` становится
+    # False, и заметен он был бы только на следующей заморозке мастера.
+    #
+    # Эталон — вершины ВХОДА, а не одной лишь `U`: сравнение только с `U`
+    # объявляло бы дефектом вершину, которую вход нёс изначально (её `U` не
+    # обязана иметь, если два соседа стыкуются в ней встык). Вопрос здесь
+    # ровно один: вставило ли ЧТО-ТО НОВОЕ само выпрямление.
+    known = ring_vertices(U)
+    for g in live:
+        known |= ring_vertices(g)
+    for k, g in enumerate(rebuilt):
+        for v in ring_vertices(g) - known:
+            if Ub.distance(Point(v)) < 1e-12:
+                raise AssertionError(
+                    f"выпрямление вставило вершину {v} в границу области "
+                    f"(фича №{k}) — общие рёбра с соседями перестали совпадать")
+
+    out_geoms, it = [], iter(rebuilt)
+    for g in geoms:
+        out_geoms.append(g if g.is_empty else next(it))
+    return out_geoms

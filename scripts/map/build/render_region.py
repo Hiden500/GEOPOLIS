@@ -21,6 +21,7 @@ render_region.py — рендер одного региона с соседям�
     python scripts/map/build/render_region.py ASI-0044
     python scripts/map/build/render_region.py Qingdao --out /tmp/q.png --pad 0.8
     python scripts/map/build/render_region.py SAM-0013 --neighbours   # подписать соседей
+    python scripts/map/build/render_region.py SEA-0097 --bbox 5 -55 9 -45   # кадр «до/после»
 
 Аргумент — `region_id` (`ASI-0044`) либо английское имя (`Qingdao`).
 По умолчанию файл пишется в `out/render_<region_id>.png`.
@@ -116,6 +117,12 @@ def main():
     ap.add_argument("--pad", type=float, default=0.45, help="поля вокруг региона в градусах")
     ap.add_argument("--neighbours", action="store_true", help="подписать соседнюю сушу")
     ap.add_argument("--dpi", type=int, default=140)
+    # Кадр «до/после» обязан быть ОДНИМ И ТЕМ ЖЕ. Рамка по bounds региона этого
+    # не даёт: правка геометрии двигает bounds, и два снимка оказываются в
+    # разном масштабе — сравнивать их глазом уже нельзя. Явный bbox фиксирует
+    # кадр независимо от того, что стало с полигоном.
+    ap.add_argument("--bbox", type=float, nargs=4, metavar=("LON0", "LAT0", "LON1", "LAT1"),
+                    default=None, help="явная рамка вместо bounds региона + --pad")
     args = ap.parse_args()
 
     world_path, feats = load_world()
@@ -125,7 +132,11 @@ def main():
     tgt = shape(by_id[rid]["geometry"])
 
     minx, miny, maxx, maxy = tgt.bounds
-    view = shp_box(minx - args.pad, miny - args.pad, maxx + args.pad, maxy + args.pad)
+    if args.bbox:
+        minx, miny, maxx, maxy = args.bbox
+        view = shp_box(minx, miny, maxx, maxy)
+    else:
+        view = shp_box(minx - args.pad, miny - args.pad, maxx + args.pad, maxy + args.pad)
 
     geoms = [shape(f["geometry"]) for f in feats]
     tree = STRtree(geoms)
@@ -161,9 +172,15 @@ def main():
             ax.text(c.x, c.y, names.get(nid, nid), color="#9fb0c8", fontsize=9,
                     ha="center", va="center", zorder=5)
 
-    c = max(parts_of(tgt), key=lambda p: p.area).representative_point()
-    ax.text(c.x, c.y, names.get(rid, rid), color="#fff1e6", fontsize=13,
-            fontweight="bold", ha="center", va="center", zorder=6)
+    # Подпись ставится по ВИДИМОЙ части региона. По всему полигону нельзя:
+    # с явным `--bbox` его центр обычно вне кадра, а `bbox_inches="tight"`
+    # растягивает сохраняемую область до текста — картинка выходит почти
+    # пустой, с картой в углу (замер 2026-08-14 на кадре шва SEA-0097).
+    tgt_in_view = tgt.intersection(view)
+    if not tgt_in_view.is_empty:
+        c = max(parts_of(tgt_in_view), key=lambda p: p.area).representative_point()
+        ax.text(c.x, c.y, names.get(rid, rid), color="#fff1e6", fontsize=13,
+                fontweight="bold", ha="center", va="center", zorder=6)
 
     ax.set_xlim(view.bounds[0], view.bounds[2])
     ax.set_ylim(view.bounds[1], view.bounds[3])

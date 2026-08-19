@@ -26,7 +26,10 @@ apply_sea_zones.py — заменяет океанские секторы мас
   2. взаимные наложения зон снимаются попарно -> разбиение, а не покрытие;
   3. границы нодируются и `polygonize` даёт мозаику, чьи рёбра общие ПО
      ПОСТРОЕНИЮ; ячейка без хозяина уходит соседу с самой длинной общей
-     границей (gap-first), изолированная — ближайшей зоне.
+     границей (gap-first), изолированная — ближайшей зоне;
+  4. внутренние швы зона↔зона выпрямляются (`geo_partition.straighten_seams`):
+     прототип нарезан в проекции по сетке, и без этого шага шов приходит
+     лестницей. Внешняя граница `U` при этом не меняется ни на вершину.
 
 Шаг 3 — не украшение: без него у двух соседних зон вдоль общего шва разное
 число вершин, `coverage_is_valid` ложится и `freeze_master_map.py` отказывается
@@ -67,7 +70,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from paths import REPO_ROOT, out, source  # noqa: E402
 from geo_partition import (  # noqa: E402
-    area_km2, clean, overlap_report, parts, strip_overlaps, tile_by_cells,
+    area_km2, clean, overlap_report, parts, straighten_seams, strip_overlaps,
+    tile_by_cells,
 )
 
 from shapely.geometry import mapping, shape  # noqa: E402
@@ -135,10 +139,20 @@ def load_zones():
 
 
 def repartition(zones, U):
-    """Разбиение U между зонами: обрезка -> снятие наложений -> мозаика."""
+    """Разбиение U между зонами: обрезка -> наложения -> мозаика -> швы.
+
+    Последний шаг — не косметика. Зоны прототипа нарезаны в проекции по сетке,
+    и их общие швы приходят ступеньками: замер 2026-08-14 по мастеру, куда эта
+    партия уже попала, — 16 зон с долей поворотов ~90° выше 20%, худшие 58,6%,
+    и все 16 из этой партии. Внутри `build_seas_from_iho.py` та же болезнь
+    вылечена разрезом по линии делимитации, но зоны шли мимо него. Берег и
+    стык с соседними морями `straighten_seams` не трогает по постусловию.
+    """
     clipped = [clean(z["geom"].intersection(U)) for z in zones]
     print(f"  снято взаимных наложений зон: {strip_overlaps(clipped):,.3f} км²")
-    return tile_by_cells(clipped, U)
+    tiled = tile_by_cells(clipped, U)
+    print("  выпрямляю швы зона↔зона…")
+    return straighten_seams(tiled, U=U)
 
 
 def main() -> int:

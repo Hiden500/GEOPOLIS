@@ -71,6 +71,7 @@ OFF_CHAIN = [
     "build/apply_region_edits_islands.py",
     "build/fix_dalian_rio_master.py",
     "build/restore_china_curation_master.py",
+    "build/straighten_sea_zone_seams.py",
     "build/geo_partition.py",
 ]
 
