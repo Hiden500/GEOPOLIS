@@ -2582,3 +2582,53 @@ Validation: `python .agent/evals/public/run_public_evals.py` — 241 passed,
 0 failed.
 
 Decision: keep.
+
+## 2026-08-14 — `frontmatter-yaml-loadable`
+
+Дата / change id: 2026-08-14 / `frontmatter-yaml-loadable`
+
+Problem evidence: субагент `ui-reviewer` отсутствовал в списке доступных
+agent types сессии, тогда как `director-prompt-engineer` и `report-auditor`
+в нём были. Причина — `description:` во frontmatter содержал незакавыченное
+`": "` (`… for Geopolis: hierarchy …`); настоящий YAML-парсер даёт на таком
+блоке `ScannerError: mapping values are not allowed here`, и загрузчик молча
+выбрасывает агента целиком. Тот же дефект найден в двух скиллах и дал ДРУГОЙ
+симптом: у `project-health` и `session-handoff` описание подменялось
+заголовком H1 — сессии предъявлялось «Периодический аудит здоровья проекта»
+вместо описания с условиями срабатывания («Не для аудита конкретного
+изменения»), то есть решение о вызове скилла принималось без критериев вызова.
+Public eval этого не видел: его `parse_frontmatter` режет строку по первому
+двоеточию и потому успешно «читает» невалидный блок — проверка «Claude UI
+reviewer has no write tools» годами была зелёной у агента, которого загрузчик
+не создавал. Проверка утверждала свойство файла, а не свойство загрузки.
+
+Layer changed: `.claude/agents/ui-reviewer.md`,
+`.agents/skills/{project-health,session-handoff}/SKILL.md` и их зеркала в
+`.claude/skills/` (двоеточие заменено на тире, семантика описаний не
+менялась); `.agent/evals/public/run_public_evals.py` — добавлены
+`frontmatter_errors()` и проверка `Frontmatter is loadable YAML` по всем
+`.claude/agents/*.md`, `.agents/skills/*/SKILL.md`, `.claude/skills/*/SKILL.md`.
+
+Expected benefit: агент и скиллы доходят до модели такими, какими написаны;
+новый файл с невалидным frontmatter падает на public eval, а не исчезает
+молча.
+
+Risks and containment: проверка написана без зависимости от PyYAML (eval
+объявлен dependency-free) и воспроизводит узкое правило YAML — plain scalar
+не может содержать `": "` и начинаться с индикатора; блочные скаляры
+(`|`, `>`) и элементы списка пропускаются. Ложное срабатывание на будущем
+валидном многострочном значении возможно, но громкое: eval падает с указанием
+файла и ключа, а не портит поведение.
+
+Validation: негативный контроль — новая проверка на состоянии `HEAD` даёт
+5 FAIL (`ui-reviewer` + два скилла + два зеркала) при 259 passed; после
+правки `python .agent/evals/public/run_public_evals.py` — 264 passed,
+0 failed. Механизм подтверждён прямым разбором: `yaml.safe_load` на
+frontmatter из `HEAD` бросает `ScannerError` на всех трёх файлах и проходит
+на исправленных.
+
+Fresh-session status: что `ui-reviewer` реально появился в списке agent
+types, проверяется только свежей сессией — в текущей список зафиксирован на
+старте. Доказано пока то, что причина устранена в источнике.
+
+Decision: keep.

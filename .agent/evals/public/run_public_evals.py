@@ -48,6 +48,49 @@ def parse_frontmatter(text: str) -> dict[str, str]:
     return result
 
 
+_FRONTMATTER_KEY = re.compile(r"^[A-Za-z_][A-Za-z0-9_-]*:(?: |$)")
+_BLOCK_SCALARS = {"|", ">", "|-", ">-", "|+", ">+"}
+# Индикаторы, с которых plain scalar в YAML начинаться не может.
+_YAML_INDICATORS = "[]{}>|*&!%@`#,?"
+
+
+def frontmatter_errors(text: str) -> list[str]:
+    """Строки frontmatter, на которых настоящий YAML-парсер сломается.
+
+    `parse_frontmatter` выше режет по первому двоеточию и потому «читает» даже
+    невалидный блок. Claude Code разбирает эти же файлы полноценным YAML: у
+    unquoted значения с `": "` внутри блок не парсится, и агент просто исчезает
+    из списка, а у скилла описание молча подменяется заголовком H1 — без
+    единой ошибки в логе. Проверяем именно то, что видит загрузчик.
+    """
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return ["нет открывающего ---"]
+    try:
+        end = lines.index("---", 1)
+    except ValueError:
+        return ["нет закрывающего ---"]
+    errors: list[str] = []
+    for line in lines[1:end]:
+        if not line.strip() or line[:1].isspace() or line.lstrip().startswith("- "):
+            continue  # продолжение блочного значения или элемент списка
+        if not _FRONTMATTER_KEY.match(line):
+            errors.append(f"не строка `key: value`: {line[:60]}")
+            continue
+        key, value = line.split(":", 1)
+        key, value = key.strip(), value.strip()
+        if not value or value in _BLOCK_SCALARS:
+            continue
+        quoted = len(value) > 1 and value[0] == value[-1] and value[0] in "\"'"
+        if quoted:
+            continue
+        if ": " in value or value.endswith(":"):
+            errors.append(f"незакавыченное двоеточие в `{key}`: {value[:60]}")
+        elif value[0] in _YAML_INDICATORS:
+            errors.append(f"незакавыченный YAML-индикатор в `{key}`: {value[:60]}")
+    return errors
+
+
 def validate_toml() -> None:
     config = tomllib.loads(read(".codex/config.toml"))
     check("model_verbosity" in config, "Codex model_verbosity is top-level")
@@ -455,6 +498,20 @@ def validate_instructions_and_skills() -> None:
                 == mirror_path.read_text(encoding="utf-8"),
                 f"Claude mirror matches canonical skill: {mirror_path.parent.name}",
             )
+
+    agent_paths = sorted((ROOT / ".claude/agents").glob("*.md"))
+    check(bool(agent_paths), "At least one custom Claude agent exists")
+    for path in (
+        *agent_paths,
+        *skill_paths,
+        *sorted((ROOT / ".claude/skills").glob("*/SKILL.md")),
+    ):
+        errors = frontmatter_errors(path.read_text(encoding="utf-8"))
+        check(
+            not errors,
+            f"Frontmatter is loadable YAML: {path.relative_to(ROOT).as_posix()}",
+            "; ".join(errors),
+        )
 
     claude_reviewer = ROOT / ".claude/agents/ui-reviewer.md"
     check(claude_reviewer.is_file(), "Claude read-only UI reviewer exists")
