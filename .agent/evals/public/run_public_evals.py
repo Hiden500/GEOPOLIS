@@ -99,7 +99,11 @@ def validate_agent_configs() -> None:
     `.agent/audits/agent-system-audit-2026-07-23.md`), а проверялась она
     только здесь — тест охранял гигиену файла, который не читал ни один
     агент. Храповик ниже держит удаление: конфигурация снятого исполнителя
-    не должна вернуться молча, мимо решения.
+    не должна вернуться молча, мимо решения. Считаются ФАЙЛЫ, а не сам
+    каталог: в основном checkout от снятых деревьев Codex остался пустой
+    `.codex/worktrees/`, git пустых каталогов не видит и слиянием удалить не
+    может — проверка на `.exists()` краснела бы на локальном мусоре чужого
+    checkout, а не на вернувшемся конфиге.
     """
     for path in (".mcp.json", ".gemini/settings.json", ".claude/settings.json"):
         check(isinstance(load_json(ROOT / path), dict), f"JSON config parses: {path}")
@@ -109,9 +113,12 @@ def validate_agent_configs() -> None:
         "scripts/hooks/guard.mjs" in read(".claude/settings.json"),
         "Guard hook registered in .claude/settings.json",
     )
+    retired = ROOT / ".codex"
+    stale = sorted(item.name for item in retired.rglob("*") if item.is_file()) if retired.exists() else []
     check(
-        not (ROOT / ".codex").exists(),
+        not stale,
         "Retired executor config stays removed: .codex/",
+        f"вернулись файлы: {', '.join(stale)}",
     )
 
 
