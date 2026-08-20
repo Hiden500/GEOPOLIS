@@ -691,3 +691,79 @@ server: npm test
 
 Untracked `server/scripts/generateIcon.ts` и `toexIcons.json` в основном
 checkout — чужой проект (EU4-мод), решение пользователя, не трогать.
+
+### Результат Q-7 — 2026-08-20, влито три ветки из четырёх
+
+Дерево `.claude/worktrees/integrate-closeout`, ветка `claude/integrate-closeout`
+от `claude/lead-closeout`. Влитие вёл `lead` по прямому указанию пользователя;
+это выход за устав роли, отмечен здесь явно, чтобы не стал прецедентом.
+
+**Влито чисто, ноль конфликтов** — предсказание о непересечении подтвердилось:
+
+| ветка | мерж | файлы |
+|---|---|---|
+| `claude/geometry-check` | `4aa21d2` | `geometry.md` |
+| `claude/logic-orchestrator` | `a76e290` | `logic.md`, конфликта нет вопреки отставанию 40 |
+| `claude/lead-conflict-rule` | `ca1cc2d` | `EVOLUTION.md` |
+
+**`claude/sea-adjacency-export` — НЕ ПРИНЯТА, мерж `4dc4c0c` откачен
+`8acc019`.** Ветка автора цела (`bf55d63`), работа не потеряна.
+
+#### Доказательство, а не впечатление
+
+```text
+baseline (lead-closeout, до влития):  95 files, 1461 passed, 1 skipped, exit 0
+после мержа sea-adjacency-export:     33 files FAILED, 1 test failed, 989 passed
+после revert 8acc019:                 95 files, 1461 passed, 1 skipped, exit 0
+```
+
+Команда: `cd server && npm test`, код возврата снят через `PIPESTATUS`, а не
+на глаз: `| tail` возвращает свой код и маскирует падение нулём — на первом
+прогоне я на это и попался, `EXIT=0` при 33 упавших файлах.
+
+#### Что именно сломано
+
+Ветка переименовала поле в данных и не тронула ни одного потребителя.
+
+`server/data/scenarios/1946/regions.core.json`, ключи региона после ветки:
+`adjacentWaterIds`, `area`, `geoJsonId`, `id`, `landNeighboringRegionIds`,
+`sourceAdm1Codes`. Поля `neighboringRegionIds` больше нет.
+
+Читают старое имя — шесть мест рабочего кода:
+
+```text
+server/src/scenarios/scenario1946Schemas.ts:40   z.array(z.number().int()) — zod ТРЕБУЕТ поле
+server/src/scenarios/Scenario1946.ts:134         c.neighboringRegionIds
+server/src/primitives/PrimitiveEngine.ts:431     обход соседей
+server/src/primitives/PrimitiveEngine.ts:521     смежность стран
+server/src/primitives/PrimitiveEngine.ts:1999    обход соседей
+server/src/services/CountryService.ts:92         соседи страны
+server/src/services/RegionService.ts:23          соседи региона
+```
+
+`grep -rn "landNeighboringRegionIds\|adjacentWaterIds" server/src shared/src
+client/src` → **пусто**. Новых имён не знает никто.
+
+Отсюда цепочка: zod не находит обязательное поле → `ScenarioDataError` в
+`readJsonFile` → `buildScenario1946` падает на импорте → 33 тестовых файла
+не поднимаются вовсе. Один упавший тест при 33 упавших файлах — не «почти
+зелено», а признак падения на импорте.
+
+#### Почему это прошло мимо автора
+
+Валидаторы карты на объединённой базе **зелёные**, я их прогнал сам:
+`validate_sea_adjacency_1946.py` (1389 регионов, 195 морских зон, exit 0),
+`test_validate_sea_adjacency_1946.py` (18 тестов OK),
+`validate_region_economy_1946.py` (exit 0, один [warn] по DNK),
+`test_validate_region_economy_1946.py` (33 теста OK). Public eval — 264/0.
+`npx tsc --noEmit` в `server` — exit 0: типы не ловят несовпадение, потому
+что поле приходит из JSON через zod, а не из типа.
+
+Данные корректны. Не сделана вторая половина стыка К-6 — потребители. Автор
+проверил свою половину и был прав в ней; красным горит только серверный набор,
+который в его домене не запускался.
+
+**Возврат домену.** Ветка не переделывается интегратором: переименование
+поля и подключение `adjacentWaterIds` к потребителям — это домен `logic`
+(`PrimitiveEngine`, `CountryService`, `RegionService`, схемы), а не `geometry`.
+Задание — за `lead`, оно записано в его реестре.
