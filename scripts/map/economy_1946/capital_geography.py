@@ -141,7 +141,10 @@ def point_in_geometry(point: tuple[float, float], geometry: dict) -> bool:
     world_1946.geojson) считаются не содержащими точку."""
     x, y = point
     gtype = geometry.get("type")
-    coords = geometry.get("coordinates")
+    # `or []` — тот же приём, что в _bbox ниже: у геометрии без coordinates
+    # точки внутри нет по определению. Без него MultiPolygon без координат
+    # падал TypeError посреди проверки столиц.
+    coords = geometry.get("coordinates") or []
     if gtype == "Polygon":
         return _point_in_polygon_coords(x, y, coords)
     if gtype == "MultiPolygon":

@@ -505,7 +505,11 @@ def historical_spot_check_violations(demographics: dict, checks: dict | None = N
     отдельной проверки, и падать здесь второй раз значит удваивать один сигнал.
     """
     if checks is None:
-        checks = load_json(SPOT_CHECKS_PATH) if SPOT_CHECKS_PATH.exists() else {"checks": []}
+        # Аннотация обязательна: load_json возвращает Any, а Any не сужает
+        # объявленный Optional-тип параметра — обращение checks.get() ниже
+        # иначе читается как обращение к None.
+        loaded: dict = load_json(SPOT_CHECKS_PATH) if SPOT_CHECKS_PATH.exists() else {"checks": []}
+        checks = loaded
 
     by_region = {entry.get("regionId"): entry for entry in demographics.get("regions", [])}
     violations: list[str] = []
@@ -709,10 +713,14 @@ def diplomacy_thresholds(ts_text: str) -> tuple:
         "ALLY_BREAK_THRESHOLD", "ALLY_BREAK_IDEOLOGY_SPAN",
         "RIVAL_RECONCILE_THRESHOLD",
     )
-    values = {n: _ts_const_number(ts_text, n) for n in names}
-    missing = sorted(n for n, v in values.items() if v is None)
+    raw = {n: _ts_const_number(ts_text, n) for n in names}
+    missing = sorted(n for n, v in raw.items() if v is None)
     if missing:
         return (None, missing)
+    # Пересборка, а не переиспользование raw: выход выше гарантирует, что ни
+    # одного None не осталось, но вывести это из "список пропавших имён пуст"
+    # нельзя — арифметика ниже иначе считается арифметикой над None.
+    values = {n: v for n, v in raw.items() if v is not None}
     span = values["ALLY_BREAK_IDEOLOGY_SPAN"]
     base = values["ALLY_BREAK_THRESHOLD"]
     return ({

@@ -346,6 +346,12 @@ class CapitalGeographyHelpersTest(unittest.TestCase):
         self.assertTrue(point_in_geometry((25, 25), multi))
         self.assertFalse(point_in_geometry((15, 15), multi))
 
+    def test_point_in_geometry_survives_geometry_without_coordinates(self):
+        # Фича без ключа coordinates — битые данные, а не «точка внутри»:
+        # раньше обход колец падал TypeError на None посреди проверки столиц.
+        self.assertFalse(point_in_geometry((5, 5), {"type": "Polygon"}))
+        self.assertFalse(point_in_geometry((5, 5), {"type": "MultiPolygon"}))
+
     def test_parse_ts_capital_overrides_extracts_code_lon_lat(self):
         ts_source = """
         const CAPITAL_OVERRIDES: Record<string, { name: string; coordinates?: [number, number] }> = {
