@@ -766,7 +766,11 @@ def main():
 
     golan_geom = shape(golan_ft["geometry"]) if golan_ft is not None else None
     hazafon_clipped_geom = None
-    if golan_geom is not None:
+    # Условие про golan_ft здесь не лишнее: golan_geom существует РОВНО тогда,
+    # когда найден golan_ft (строка выше), но ниже используется и сам golan_ft —
+    # проверка типов эту связь двух имён не выводит, а без неё блок читается
+    # как обращение к возможному None.
+    if golan_ft is not None and golan_geom is not None:
         # geoBoundaries ISR-полигон Golan слегка заходит на границы
         # Иордании И Ливана (Natural Earth) — обрезаем по СЫРЫМ исходным
         # юнитам обеих стран, уже в by_country (SY/JO/LB все теперь

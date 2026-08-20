@@ -93,11 +93,24 @@ def load_historical_provinces():
     sf = shapefile.Reader(SHP)
     out = {}
     for i in range(len(sf)):
-        rec = sf.record(i).as_dict()
+        raw_rec = sf.record(i)
+        if raw_rec is None:
+            # pyshp отдаёт None для записи, помеченной в .dbf флагом удаления
+            # (Reader.record: "Returns None if record's deletion flag is
+            # marked"). Такой провинции в источнике уже нет — пропускаем, как
+            # и запись без имени ниже.
+            continue
+        rec = raw_rec.as_dict()
         name = rec["p_47_49_na"] if i in MANCHURIA_IDX else rec["p_45_46_na"]
         if not name:
             continue
-        geom = shp_shape(sf.shape(i).__geo_interface__)
+        raw_shape = sf.shape(i)
+        if raw_shape is None:
+            # None из shape() бывает только при bbox-фильтре, а мы bbox не
+            # задаём — сюда попасть нельзя. Если всё же попали, у именованной
+            # провинции нет геометрии: тихо потерять её с карты хуже, чем упасть.
+            raise ValueError(f"{SHP}: запись {i} ('{name}') без геометрии")
+        geom = shp_shape(raw_shape.__geo_interface__)
         if not geom.is_valid:
             geom = geom.buffer(0)
         out[name] = geom

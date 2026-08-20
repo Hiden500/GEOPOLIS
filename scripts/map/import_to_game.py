@@ -159,7 +159,13 @@ def name_overrides() -> dict[str, dict[str, str]]:
     global _NAME_OVERRIDES
     if _NAME_OVERRIDES is None:
         path = CONFIG_DIR / "region_name_overrides.json"
-        _NAME_OVERRIDES = load_json(path).get("overrides", {}) if path.is_file() else {}
+        # Форма содержимого объявлена явно: load_json возвращает Any, а Any не
+        # сужает объявленный Optional-тип кэша — без аннотации функция считается
+        # способной вернуть None вопреки своей сигнатуре.
+        loaded: dict[str, dict[str, str]] = (
+            load_json(path).get("overrides", {}) if path.is_file() else {}
+        )
+        _NAME_OVERRIDES = loaded
     return _NAME_OVERRIDES
 
 
