@@ -35,11 +35,11 @@ def make_valid_fixture():
     regions = [
         {
             "id": 1, "geoJsonId": "AAA-0001", "ownerCountryId": "AAA",
-            "landNeighboringRegionIds": [2], "deposits": {"food": 5}, "extraction": {"food": 10},
+            "neighboringRegionIds": [2], "deposits": {"food": 5}, "extraction": {"food": 10},
         },
         {
             "id": 2, "geoJsonId": "BBB-0001", "ownerCountryId": "BBB",
-            "landNeighboringRegionIds": [1], "deposits": {}, "extraction": {},
+            "neighboringRegionIds": [1], "deposits": {}, "extraction": {},
         },
     ]
     countries = [
@@ -60,7 +60,7 @@ class ValidateStructuralInvariantsTest(unittest.TestCase):
     def test_catches_asymmetric_neighbor(self):
         regions, countries, names_en, names_ru = make_valid_fixture()
         # region 1 -> сосед 2, но 2 больше не ссылается обратно на 1.
-        regions[1]["landNeighboringRegionIds"] = []
+        regions[1]["neighboringRegionIds"] = []
 
         violations = validate_structural_invariants(regions, countries, CATALOG, names_en, names_ru)
 
@@ -68,7 +68,7 @@ class ValidateStructuralInvariantsTest(unittest.TestCase):
 
     def test_catches_neighbor_pointing_at_nonexistent_region(self):
         regions, countries, names_en, names_ru = make_valid_fixture()
-        regions[0]["landNeighboringRegionIds"] = [999]
+        regions[0]["neighboringRegionIds"] = [999]
 
         violations = validate_structural_invariants(regions, countries, CATALOG, names_en, names_ru)
 

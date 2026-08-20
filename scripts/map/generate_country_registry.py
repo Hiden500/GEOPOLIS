@@ -521,7 +521,7 @@ def build_country_adjacency(regions: list[dict], merge_map: dict) -> dict[str, s
     adjacency: dict[str, set[str]] = {}
     for r in regions:
         owner = merge_map.get(r["ownerCountryId"], r["ownerCountryId"])
-        for neighbor_id in r.get("landNeighboringRegionIds") or []:
+        for neighbor_id in r.get("neighboringRegionIds") or []:
             neighbor = by_id.get(neighbor_id)
             if not neighbor:
                 continue
