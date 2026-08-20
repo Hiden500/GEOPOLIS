@@ -443,13 +443,29 @@ def normalized_size(path: Path) -> int:
 def validate_instructions_and_skills() -> None:
     root_agents = ROOT / "AGENTS.md"
     check(normalized_size(root_agents) <= 16_384, "Root AGENTS.md stays under 16 KiB")
-    for path in (
-        "client/AGENTS.md",
-        "server/AGENTS.md",
-        "shared/AGENTS.md",
-        "scripts/map/AGENTS.md",
-    ):
-        check((ROOT / path).is_file(), f"Scoped instruction exists: {path}")
+    for module in ("client", "server", "shared", "scripts/map"):
+        scoped = f"{module}/AGENTS.md"
+        check((ROOT / scoped).is_file(), f"Scoped instruction exists: {scoped}")
+
+        # Claude Code грузит вложенные CLAUDE.md по требованию, но НЕ AGENTS.md.
+        # Без этого моста правила модуля зависели от памяти модели: замер по
+        # 8 сессиям дал одно чтение на восемь сессий. Мост молча исчезает при
+        # рефакторинге каталога — видно только здесь.
+        bridge = ROOT / module / "CLAUDE.md"
+        check(bridge.is_file(), f"Claude bridge exists: {module}/CLAUDE.md")
+        if bridge.is_file():
+            check(
+                "@AGENTS.md" in bridge.read_text(encoding="utf-8"),
+                f"Claude bridge imports scoped rules: {module}/CLAUDE.md",
+            )
+
+        # Потолок: обязательное-до-правки не должно снова разрастись в архив.
+        # scripts/map/AGENTS.md весил 31 945 байт и не читался вовсе; разборы
+        # инцидентов вынесены в скилл map-pipeline-reference.
+        check(
+            normalized_size(ROOT / scoped) <= 18_432,
+            f"Scoped instruction stays under 18 KiB: {scoped}",
+        )
 
     active = read("AGENTS.md") + "\n" + read(".gemini/GEMINI.md")
     for forbidden in (
@@ -605,6 +621,39 @@ def validate_orchestrator_roles() -> None:
         check(len(anchor) <= 900, f"Role {name} anchor stays compact ({len(anchor)} chars)")
 
 
+def validate_session_guard() -> None:
+    """Якорь сессии держится хуком, а хук молча деградирует.
+
+    `session-guard.mjs` fail-open: при внутренней ошибке он не падает, а просто
+    перестаёт возвращать якорь. Сессия после сжатия выглядит рабочей, но правило
+    «после сжатия — session-handoff» снова живёт только текстом, который сжатие
+    и съело. Такой отказ невидим в работе и виден только здесь.
+    """
+    hook = ROOT / "scripts/hooks/session-guard.mjs"
+    check(hook.is_file(), "Session guard hook exists")
+    check(
+        (ROOT / "scripts/hooks/test-session-guard.mjs").is_file(),
+        "Session guard hook has a live test",
+    )
+
+    settings = load_json(ROOT / ".claude/settings.json")
+    hooks = settings.get("hooks", {}) if isinstance(settings, dict) else {}
+    for event in ("PreCompact", "SessionStart"):
+        wired = json.dumps(hooks.get(event, []), ensure_ascii=False)
+        check("session-guard.mjs" in wired, f"Session guard is wired into {event}")
+
+    source = hook.read_text(encoding="utf-8") if hook.is_file() else ""
+    # Якорь обязан нести контракт проверок сам: после сжатия он неизвестен.
+    for command in ("run_public_evals.py", "npx tsc --noEmit", "session-handoff"):
+        check(command in source, f"Session anchor carries: {command}")
+    # Негативный контроль хука: на обычном старте якорь не вставляется, иначе он
+    # становится фоном, который перестают читать.
+    check(
+        '"compact"' in source and '"resume"' in source,
+        "Session anchor is limited to compact/resume starts",
+    )
+
+
 def validate_experiment_layer() -> None:
     # CHARTER.proposed.md удалён аудитом 2026-08-01: провисел в статусе
     # PROPOSED без движения с 2026-07-23, а всё нормативное содержимое
@@ -729,6 +778,7 @@ def main() -> int:
         validate_audit_freshness,
         validate_instructions_and_skills,
         validate_orchestrator_roles,
+        validate_session_guard,
         validate_experiment_layer,
         validate_markdown_links,
         validate_documented_workflow,
