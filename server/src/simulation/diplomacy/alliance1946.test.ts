@@ -92,7 +92,7 @@ describe("сценарий 1946: право на союз", () => {
     const linked = new Set<string>();
     const ownerOf = new Map(game.regions.map(r => [r.id, r.ownerCountryId]));
     for (const region of game.regions) {
-      for (const neighbourId of region.neighboringRegionIds) {
+      for (const neighbourId of region.landNeighboringRegionIds) {
         const neighbourOwner = ownerOf.get(neighbourId);
         if (!neighbourOwner || neighbourOwner === region.ownerCountryId) continue;
         linked.add(key(region.ownerCountryId, neighbourOwner));

@@ -42,8 +42,8 @@ function worldOf(countries: Country[], neighbours: [string, string][] = []): Gam
   for (const [a, b] of neighbours) {
     const ra = regionOf.get(a)!;
     const rb = regionOf.get(b)!;
-    ra.neighboringRegionIds = [...ra.neighboringRegionIds, rb.id];
-    rb.neighboringRegionIds = [...rb.neighboringRegionIds, ra.id];
+    ra.landNeighboringRegionIds = [...ra.landNeighboringRegionIds, rb.id];
+    rb.landNeighboringRegionIds = [...rb.landNeighboringRegionIds, ra.id];
   }
   return createTestGameState({ countries, regions, playerCountryId: countries[0]!.id });
 }

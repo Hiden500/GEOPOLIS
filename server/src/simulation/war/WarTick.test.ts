@@ -23,8 +23,8 @@ describe("warTick", () => {
     const game = createTestGameState({
       countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [] }),
       ],
       wars: [makeWar()],
     });
@@ -43,8 +43,8 @@ describe("warTick", () => {
     const game = createTestGameState({
       countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })], // activePersonnel равны (фикстура)
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
       ],
       wars: [makeWar()],
     });
@@ -66,8 +66,8 @@ describe("warTick", () => {
         createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 500_000 } }),
       ],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
       ],
       wars: [makeWar()],
     });
@@ -89,8 +89,8 @@ describe("warTick", () => {
         createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 5_000_000 } }),
       ],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
       ],
       wars: [makeWar()],
     });
@@ -118,8 +118,8 @@ describe("warTick", () => {
         createTestCountry({ id: "USSR" }), // домены пустые — мультипликатор 1
       ],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
       ],
       wars: [makeWar()],
     });
@@ -154,8 +154,8 @@ describe("warTick", () => {
         createTestCountry({ id: "USSR" }), // экипировка по нулям (фикстура)
       ],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
       ],
       wars: [makeWar()],
     });
@@ -177,8 +177,8 @@ describe("warTick", () => {
         createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 500_000 } }),
       ],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
       ],
       wars: [makeWar({ active: false })],
     });
@@ -199,9 +199,9 @@ describe("warTick", () => {
     const game = createTestGameState({
       countries: [usa, ussr],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1, 3] }),
-        createTestRegion({ id: 3, ownerCountryId: "USSR", neighboringRegionIds: [2] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1, 3] }),
+        createTestRegion({ id: 3, ownerCountryId: "USSR", landNeighboringRegionIds: [2] }),
       ],
       wars: [makeWar()],
     });
@@ -226,8 +226,8 @@ describe("warTick", () => {
     const game = createTestGameState({
       countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
       regions: [
-        createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-        createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+        createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+        createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
       ],
       wars: [makeWar()],
     });
@@ -243,8 +243,8 @@ describe("warTick", () => {
       const game = createTestGameState({
         countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
         regions: [
-          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+          createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
         ],
         wars: [makeWar()],
       });
@@ -268,8 +268,8 @@ describe("warTick", () => {
       const game = createTestGameState({
         countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
         regions: [
-          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [] }),
-          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [] }),
+          createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [] }),
         ],
         wars: [makeWar()],
       });
@@ -288,8 +288,8 @@ describe("warTick", () => {
           createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 500_000 } }),
         ],
         regions: [
-          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+          createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
         ],
         wars: [makeWar()],
       });
@@ -308,8 +308,8 @@ describe("warTick", () => {
           createTestCountry({ id: "USSR", military: { ...createTestCountry().military, activePersonnel: 5_000 } }),
         ],
         regions: [
-          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+          createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
         ],
         wars: [makeWar()],
       });
@@ -337,8 +337,8 @@ describe("warTick", () => {
       const game = createTestGameState({
         countries: [createTestCountry({ id: "USA" }), createTestCountry({ id: "USSR" })],
         regions: [
-          createTestRegion({ id: 1, ownerCountryId: "USA", neighboringRegionIds: [2] }),
-          createTestRegion({ id: 2, ownerCountryId: "USSR", neighboringRegionIds: [1] }),
+          createTestRegion({ id: 1, ownerCountryId: "USA", landNeighboringRegionIds: [2] }),
+          createTestRegion({ id: 2, ownerCountryId: "USSR", landNeighboringRegionIds: [1] }),
         ],
         wars: [makeWar({ active: false })],
       });

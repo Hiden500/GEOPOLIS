@@ -20,7 +20,7 @@ export class RegionService {
     const region = this.findRegionById(regions, regionId);
     if (!region) return [];
 
-    return region.neighboringRegionIds
+    return region.landNeighboringRegionIds
       .map(id => this.findRegionById(regions, id))
       .filter((r): r is Region => r !== null);
   }

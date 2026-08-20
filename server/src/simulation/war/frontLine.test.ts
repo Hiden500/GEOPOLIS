@@ -138,12 +138,12 @@ describe("исход решает ЛОКАЛЬНАЯ обстановка уча
       ],
       regions: [
         // Оборона: 1 — окружён тремя, 2 — граничит с одним.
-        createTestRegion({ id: 1, ownerCountryId: "DEF", neighboringRegionIds: [10, 11, 12] }),
-        createTestRegion({ id: 2, ownerCountryId: "DEF", neighboringRegionIds: [13] }),
-        createTestRegion({ id: 10, ownerCountryId: "ATK", neighboringRegionIds: [1] }),
-        createTestRegion({ id: 11, ownerCountryId: "ATK", neighboringRegionIds: [1] }),
-        createTestRegion({ id: 12, ownerCountryId: "ATK", neighboringRegionIds: [1] }),
-        createTestRegion({ id: 13, ownerCountryId: "ATK", neighboringRegionIds: [2] }),
+        createTestRegion({ id: 1, ownerCountryId: "DEF", landNeighboringRegionIds: [10, 11, 12] }),
+        createTestRegion({ id: 2, ownerCountryId: "DEF", landNeighboringRegionIds: [13] }),
+        createTestRegion({ id: 10, ownerCountryId: "ATK", landNeighboringRegionIds: [1] }),
+        createTestRegion({ id: 11, ownerCountryId: "ATK", landNeighboringRegionIds: [1] }),
+        createTestRegion({ id: 12, ownerCountryId: "ATK", landNeighboringRegionIds: [1] }),
+        createTestRegion({ id: 13, ownerCountryId: "ATK", landNeighboringRegionIds: [2] }),
       ],
       wars: [{
         id: "w1", attackers: ["ATK"], defenders: ["DEF"], supporters: [],

@@ -405,7 +405,7 @@ export function largestMainlandCluster(ownedRegions: Region[]): Region[] {
       const region = byId.get(id);
       if (!region) continue;
       component.push(region);
-      for (const neighborId of region.neighboringRegionIds) {
+      for (const neighborId of region.landNeighboringRegionIds) {
         if (ownedIds.has(neighborId) && !visited.has(neighborId)) {
           visited.add(neighborId);
           queue.push(neighborId);

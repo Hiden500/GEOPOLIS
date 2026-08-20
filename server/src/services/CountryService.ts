@@ -89,7 +89,7 @@ export class CountryService {
     const neighborIds = new Set<string>();
 
     for (const region of countryRegions) {
-      for (const neighborRegionId of region.neighboringRegionIds) {
+      for (const neighborRegionId of region.landNeighboringRegionIds) {
         const neighborRegion = regions.find(r => r.id === neighborRegionId);
         if (neighborRegion && neighborRegion.ownerCountryId !== country.id) {
           neighborIds.add(neighborRegion.ownerCountryId);

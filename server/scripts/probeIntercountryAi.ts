@@ -182,7 +182,7 @@ function landNeighbours(game: GameState): Map<string, Set<string>> {
   for (const region of game.regions) {
     const owner = region.ownerCountryId;
     if (!owner) continue;
-    for (const neighbourId of region.neighboringRegionIds) {
+    for (const neighbourId of region.landNeighboringRegionIds) {
       const other = ownerOf.get(neighbourId);
       if (!other || other === owner) continue;
       link(owner, other);

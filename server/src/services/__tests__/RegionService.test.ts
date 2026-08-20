@@ -22,8 +22,8 @@ describe("RegionService", () => {
   });
 
   describe("getNeighborRegions", () => {
-    it("возвращает соседние регионы по neighboringRegionIds", () => {
-      const r1 = createTestRegion({ id: 1, neighboringRegionIds: [2, 3] });
+    it("возвращает соседние регионы по landNeighboringRegionIds", () => {
+      const r1 = createTestRegion({ id: 1, landNeighboringRegionIds: [2, 3] });
       const r2 = createTestRegion({ id: 2 });
       const r3 = createTestRegion({ id: 3 });
       const result = service.getNeighborRegions([r1, r2, r3], 1);
@@ -31,7 +31,7 @@ describe("RegionService", () => {
     });
 
     it("отбрасывает висячие id (несуществующие соседи)", () => {
-      const r1 = createTestRegion({ id: 1, neighboringRegionIds: [2, 99] });
+      const r1 = createTestRegion({ id: 1, landNeighboringRegionIds: [2, 99] });
       const r2 = createTestRegion({ id: 2 });
       const result = service.getNeighborRegions([r1, r2], 1);
       expect(result.map(r => r.id)).toEqual([2]);
@@ -42,7 +42,7 @@ describe("RegionService", () => {
     });
 
     it("возвращает пустой массив, если соседей нет", () => {
-      const r1 = createTestRegion({ id: 1, neighboringRegionIds: [] });
+      const r1 = createTestRegion({ id: 1, landNeighboringRegionIds: [] });
       expect(service.getNeighborRegions([r1], 1)).toEqual([]);
     });
   });
@@ -84,13 +84,13 @@ describe("RegionService", () => {
 
   describe("bordersCountry", () => {
     it("true, если хотя бы один сосед принадлежит целевой стране", () => {
-      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", neighboringRegionIds: [2] });
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", landNeighboringRegionIds: [2] });
       const r2 = createTestRegion({ id: 2, ownerCountryId: "B" });
       expect(service.bordersCountry([r1, r2], 1, "B")).toBe(true);
     });
 
     it("false, если ни один сосед не принадлежит целевой стране", () => {
-      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", neighboringRegionIds: [2] });
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", landNeighboringRegionIds: [2] });
       const r2 = createTestRegion({ id: 2, ownerCountryId: "A" });
       expect(service.bordersCountry([r1, r2], 1, "B")).toBe(false);
     });
@@ -103,8 +103,8 @@ describe("RegionService", () => {
   describe("getBorderRegions", () => {
     it("возвращает регионы страны, граничащие с целевой страной", () => {
       // A: регион 1 граничит с B (через 3), регион 2 не граничит с B
-      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", neighboringRegionIds: [3] });
-      const r2 = createTestRegion({ id: 2, ownerCountryId: "A", neighboringRegionIds: [4] });
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", landNeighboringRegionIds: [3] });
+      const r2 = createTestRegion({ id: 2, ownerCountryId: "A", landNeighboringRegionIds: [4] });
       const r3 = createTestRegion({ id: 3, ownerCountryId: "B" });
       const r4 = createTestRegion({ id: 4, ownerCountryId: "A" });
       const result = service.getBorderRegions([r1, r2, r3, r4], "A", "B");
@@ -112,7 +112,7 @@ describe("RegionService", () => {
     });
 
     it("возвращает пустой массив, если граница отсутствует", () => {
-      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", neighboringRegionIds: [] });
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", landNeighboringRegionIds: [] });
       expect(service.getBorderRegions([r1], "A", "B")).toEqual([]);
     });
   });

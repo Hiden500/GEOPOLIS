@@ -33,8 +33,8 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
     countries?: unknown;
   }): void {
     const defaultCore = [
-      { id: 1, geoJsonId: "EUR-0001", area: 451.5, neighboringRegionIds: [2], sourceAdm1Codes: ["EUR-0001"] },
-      { id: 2, geoJsonId: "EUR-0002", area: 100, neighboringRegionIds: [1] },
+      { id: 1, geoJsonId: "EUR-0001", area: 451.5, landNeighboringRegionIds: [2], adjacentWaterIds: [], sourceAdm1Codes: ["EUR-0001"] },
+      { id: 2, geoJsonId: "EUR-0002", area: 100, landNeighboringRegionIds: [1], adjacentWaterIds: [1436] },
     ];
     const defaultState = [
       {
@@ -74,7 +74,14 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
     expect(andorra.population).toBe(5500);
     expect(andorra.deposits).toEqual({ food: 6 });
     expect(andorra.extraction).toEqual({ food: 10 });
-    expect(andorra.neighboringRegionIds).toEqual([2]);
+    expect(andorra.landNeighboringRegionIds).toEqual([2]);
+    // Морская смежность (К-6) доезжает из core до Region, а не теряется по
+    // дороге. Проверяются ОБА случая: внутриконтинентальный регион с пустым
+    // списком и приморский с непустым — иначе тест прошёл бы и на сборщике,
+    // который подставляет всем пустой массив.
+    expect(andorra.adjacentWaterIds).toEqual([]);
+    const second = scenario.regions.find(r => r.id === 2)!;
+    expect(second.adjacentWaterIds).toEqual([1436]);
   });
 
   it("падает с внятной ошибкой на битом JSON (regions.core.json)", () => {
@@ -98,7 +105,7 @@ describe("buildScenario1946 (план 05, Срезы 1-2)", () => {
   it("падает с внятной ошибкой, если у региона из core нет записи в state", () => {
     const dir = makeTmpDir();
     writeFixture(dir, {
-      core: [{ id: 1, geoJsonId: "EUR-0001", area: 451.5, neighboringRegionIds: [] }],
+      core: [{ id: 1, geoJsonId: "EUR-0001", area: 451.5, landNeighboringRegionIds: [], adjacentWaterIds: [] }],
       state: [], // регион 1 не описан
     });
 

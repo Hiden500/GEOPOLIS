@@ -143,7 +143,8 @@ function region(
     gdp: 1_000_000_000,
     deposits: { oil: values.deposits },
     extraction: {},
-    neighboringRegionIds: [],
+    landNeighboringRegionIds: [],
+    adjacentWaterIds: [],
     /*
      * Демо-состав РАЗМЕЧЕН: без него `RegionDetail` падает на
      * `region.groups[0].name`, и ПОЛОСУ не отрисовать вовсе. Регион без записи

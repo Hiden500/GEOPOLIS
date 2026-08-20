@@ -248,7 +248,7 @@ describe("бюджет хода общий для всех вызовов (docs/
           ownerCountryId: "SUN",
           population: 1_000_000,
           gdp: 400_000_000,
-          neighboringRegionIds: [],
+          landNeighboringRegionIds: [],
           demographics: [{ groupId: TEST_GROUP_TITULAR, share: 1 }],
         })
       );

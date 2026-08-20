@@ -74,7 +74,7 @@ function nationalRegion(id: number, neighbours: number[]): Region {
     ownerCountryId: "SUN",
     population: REGION_POPULATION,
     gdp: REGION_GDP,
-    neighboringRegionIds: neighbours,
+    landNeighboringRegionIds: neighbours,
     demographics: [
       { groupId: TEST_GROUP_TITULAR, share: 0.88 },
       { groupId: TEST_GROUP_LOYAL, share: 0.12 },
@@ -93,7 +93,7 @@ export function createDiscontentTestGame(overrides: Partial<GameState> = {}): Ga
       ownerCountryId: "SUN",
       population: REGION_POPULATION,
       gdp: REGION_GDP,
-      neighboringRegionIds: [],
+      landNeighboringRegionIds: [],
       demographics: [{ groupId: TEST_GROUP_LOYAL, share: 1 }],
     }),
   ];

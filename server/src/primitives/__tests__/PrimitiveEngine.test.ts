@@ -1252,7 +1252,7 @@ describe("кольцо соседей: побочный эффект не обх
       ownerCountryId: "SUN",
       population: 1_000_000,
       gdp: 400_000_000,
-      neighboringRegionIds: neighbours,
+      landNeighboringRegionIds: neighbours,
       demographics: [
         { groupId: TEST_GROUP_TITULAR, share: RING_SHARE },
         { groupId: TEST_GROUP_LOYAL, share: 1 - RING_SHARE },
@@ -1318,13 +1318,13 @@ describe("кольцо соседей: побочный эффект не обх
     const hasGroup = (id: number) =>
       state.regions.find(r => r.id === id)?.demographics?.some(d => d.groupId === GROUP);
     const hub = state.regions.find(
-      r => r.ownerCountryId === "SUN" && r.neighboringRegionIds.filter(hasGroup).length >= 5
+      r => r.ownerCountryId === "SUN" && r.landNeighboringRegionIds.filter(hasGroup).length >= 5
     );
     // Если разметка датасета поедет, тест обязан сказать об этом, а не тихо
     // проверять пустой батч: такого хаба в сценарии 1946 обязано существовать.
     expect(hub).toBeDefined();
     const HUB_ID = hub!.id;
-    const ring = hub!.neighboringRegionIds.filter(hasGroup);
+    const ring = hub!.landNeighboringRegionIds.filter(hasGroup);
     expect(ring.length).toBeGreaterThanOrEqual(5);
 
     const result = applyPrimitiveBatch(
