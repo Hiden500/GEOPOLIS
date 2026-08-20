@@ -36,8 +36,6 @@ Thumbs.db
 
 # Claude Code worktrees (ephemeral, local-only — created by EnterWorktree)
 .claude/worktrees/
-# Codex agent worktrees (ephemeral, local-only)
-.codex/worktrees/
 
 # Кэш
 .cache/

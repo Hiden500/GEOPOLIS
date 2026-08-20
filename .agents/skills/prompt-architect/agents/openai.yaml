@@ -1,3 +1,0 @@
-display_name: Prompt Architect
-short_description: Превращает описание задачи в точный автономный промт (режимы БЫСТРЫЙ/ПРОВЕРЯЕМЫЙ)
-default_prompt: Прочитай .agents/skills/prompt-architect/SKILL.md и преобразуй моё описание задачи в готовый промт по его правилам. Описание задачи следует ниже.
