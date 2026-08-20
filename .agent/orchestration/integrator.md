@@ -440,7 +440,7 @@ fast-forward не создаёт коммита мержа, которым `.age
    этого конфликта интегратору не нужно.
 
 ## Q-6 `claude/geometry-orchestrator` — реестр домена карты
-Статус: выдано
+Статус: ЗАКРЫТО — влито в `main` 2026-08-10, реестр домена карты живёт в `main`
 Ветка: `claude/geometry-orchestrator` (+381 / −0, один файл), дерево
 `.claude/worktrees/geometry-orchestrator`, чисто
 Сдал: роль `geometry`, 2026-08-09
@@ -587,3 +587,183 @@ claude/integration-check4` — уникального в ней не было, �
 Поэтому реестр ведётся в дереве `.claude/worktrees/integrator-queue` и попадает
 в `main` мержем. Сами мержи хук не трогает — он проверяет файловые инструменты
 и разрушительные команды.
+
+## Q-7 Закрытие всех сессий — очередь влития и зачистки
+
+Статус: выдано
+Выдал: роль `lead`, 2026-08-20, по решению пользователя о полном закрытии
+Исполнитель: сессия с ролью `integrator`, своё дерево от свежего `main`
+
+**Зачем.** Пользователь закрывает все параллельные сессии. Пять веток несут
+невлитую работу; свежие реестры доменов `geometry` и `logic` существуют ТОЛЬКО
+в них. Пока они не в `main`, зачистка деревьев стирает состояние двух доменов.
+Порядок «влитие → чистка статусов → зачистка» здесь не стиль, а условие
+сохранности.
+
+**Измеренный факт, снятый `lead` на `main` = `99cd0f6`:** пять веток не
+пересекаются по файлам ни одной парой (`git diff --stat main...<ветка>` по
+каждой). Порядок влития свободен, журнальных конфликтов между ними нет.
+Проверь это сам перед стартом — с тех пор мог появиться новый коммит.
+
+### Что вливать — четыре ветки
+
+Сначала три лёгкие (чистый append в свой реестр, риск нулевой), тяжёлая
+последней: застрянет на проверках — остальное уже в `main`, и деревья можно
+сносить.
+
+1. `claude/geometry-check` — `+1`, только `.agent/orchestration/geometry.md`
+   (T-6 принят задним числом, T-12 выдан).
+2. `claude/logic-orchestrator` — `+1`, только `.agent/orchestration/logic.md`.
+   **Отстала на 40 — сначала обнови базу, потом вливай.**
+3. `claude/lead-closeout` — `+3`, несёт в себе `claude/lead-war-door` (заведена
+   от неё): `.agent/orchestration/lead.md`, `docs/plans/11_MVP_ROADMAP.md`,
+   `.agent/orchestration/integrator.md`. **`claude/lead-war-door` отдельно НЕ
+   вливать** — войдёт этой веткой.
+4. `claude/sea-adjacency-export` — `+1`, но это единственная ветка с кодом и
+   регенерированными данными: `scripts/map/**` (+2 новых валидатора со своими
+   тестами), `server/data/scenarios/1946/regions.core.json` (+6109/−1611),
+   `waters.json`, `docs/DECISIONS.md`, `docs/TODO.md`. Полный цикл
+   `integrate-branch`, не быстрый мерж.
+
+Пятая, `claude/lead-conflict-rule` (`+1`, только `.agent/EVOLUTION.md`) —
+вливается в любой момент, ни с чем не пересекается.
+
+**Проверки на объединённой базе** (cwd — корень дерева интеграции):
+
+```text
+root:   python .agent/evals/public/run_public_evals.py     # обязателен: docs/ и .agent/
+root:   python scripts/map/validate_sea_adjacency_1946.py  # только для п.4
+root:   python scripts/map/test_validate_sea_adjacency_1946.py
+root:   python scripts/map/validate_region_economy_1946.py
+root:   python scripts/map/test_validate_region_economy_1946.py
+server: npx tsc --noEmit -p tsconfig.json                  # данные сценария читает сервер
+server: npm test
+```
+
+Числа автора ветки свидетельством не считаются — они сняты до влития соседей.
+
+### Что НЕ вливать
+
+- `claude/integration-check11` — семь merge-коммитов `check: …`, но
+  `git diff main..claude/integration-check11` даёт **один файл, −54 строки**:
+  реестр интегратора в ней СТАРЕЕ, чем в `main`. Влитие откатило бы журнал
+  назад. Это твоя же проверочная цепочка шестого захода, отработала.
+- `claude/prompt-prefix-cache` — списана решением пользователя 2026-08-20:
+  отставание 162, дерева нет, тишина с 2026-08-10.
+
+### Второй заход — чистка мёртвых статусов, ПОСЛЕ влития
+
+`lead` не тронул `geometry.md` и `logic.md` намеренно: оба заняты невлитыми
+ветками доменов. После влития в них остаются записи `Статус: выдано` без
+исполнителя:
+
+- `logic.md` — T-12 `atomic-save`, T-13 `api-dto-boundary`,
+  T-14 `listsaves-resilient`, T-15 `test-timeout`, T-10 `gemini-schema-fix`:
+  веток не существует, «безразвилочный пакет» никто не взял. Переоформить в
+  «в очереди, исполнителя нет» — иначе следующая сессия решит, что работа идёт;
+- `logic.md` — T-11 и T-9 переоформить как задание с нуля от свежего `main`
+  (ветка `prompt-prefix-cache` списана);
+- `logic.md` — T-4 и `geometry.md` — T-6: влиты, статус снять, если домены не
+  сняли его своими ветками.
+
+### Критерии приёмки Q-7
+
+- [ ] `git rev-list --count main..<ветка>` = 0 для всех четырёх плюс
+      `claude/lead-conflict-rule`.
+- [ ] Public eval зелёный на объединённой базе, вывод сохранён полностью, а не
+      итоговой строкой.
+- [ ] Валидаторы карты зелёные на объединённой базе; предсуществующие failures
+      названы отдельно от регрессий.
+- [ ] В `.agent/orchestration/*.md` не осталось `Статус: выдано` без живой
+      ветки и живого исполнителя.
+- [ ] `node scripts/worktree-report.mjs` показывает «В работе: 0».
+
+### Вне scope Q-7
+
+Зачистка деревьев — команда пользователя, не интегратора: `worktree-prune.ps1`
+сперва с `-WhatIf`. Замер 2026-08-20: обёртка пропустила **0 деревьев из 9**
+при 13 открытых заданиях — её охрана намерения сейчас холостая, потому что
+реестры ссылаются на имена веток, которых уже нет. Невлитое держит второй
+рубеж: `worktree-drop.ps1:81` отказывает на невлитой ветке, `:71` — на
+незакоммиченном. **Без `-Force` зачистка безопасна и до влития**; смертелен
+только `-Force`. Это ещё одно основание закрыть мёртвые статусы вторым
+заходом, а не откладывать.
+
+Untracked `server/scripts/generateIcon.ts` и `toexIcons.json` в основном
+checkout — чужой проект (EU4-мод), решение пользователя, не трогать.
+
+### Результат Q-7 — 2026-08-20, влито три ветки из четырёх
+
+Дерево `.claude/worktrees/integrate-closeout`, ветка `claude/integrate-closeout`
+от `claude/lead-closeout`. Влитие вёл `lead` по прямому указанию пользователя;
+это выход за устав роли, отмечен здесь явно, чтобы не стал прецедентом.
+
+**Влито чисто, ноль конфликтов** — предсказание о непересечении подтвердилось:
+
+| ветка | мерж | файлы |
+|---|---|---|
+| `claude/geometry-check` | `4aa21d2` | `geometry.md` |
+| `claude/logic-orchestrator` | `a76e290` | `logic.md`, конфликта нет вопреки отставанию 40 |
+| `claude/lead-conflict-rule` | `ca1cc2d` | `EVOLUTION.md` |
+
+**`claude/sea-adjacency-export` — НЕ ПРИНЯТА, мерж `4dc4c0c` откачен
+`8acc019`.** Ветка автора цела (`bf55d63`), работа не потеряна.
+
+#### Доказательство, а не впечатление
+
+```text
+baseline (lead-closeout, до влития):  95 files, 1461 passed, 1 skipped, exit 0
+после мержа sea-adjacency-export:     33 files FAILED, 1 test failed, 989 passed
+после revert 8acc019:                 95 files, 1461 passed, 1 skipped, exit 0
+```
+
+Команда: `cd server && npm test`, код возврата снят через `PIPESTATUS`, а не
+на глаз: `| tail` возвращает свой код и маскирует падение нулём — на первом
+прогоне я на это и попался, `EXIT=0` при 33 упавших файлах.
+
+#### Что именно сломано
+
+Ветка переименовала поле в данных и не тронула ни одного потребителя.
+
+`server/data/scenarios/1946/regions.core.json`, ключи региона после ветки:
+`adjacentWaterIds`, `area`, `geoJsonId`, `id`, `landNeighboringRegionIds`,
+`sourceAdm1Codes`. Поля `neighboringRegionIds` больше нет.
+
+Читают старое имя — шесть мест рабочего кода:
+
+```text
+server/src/scenarios/scenario1946Schemas.ts:40   z.array(z.number().int()) — zod ТРЕБУЕТ поле
+server/src/scenarios/Scenario1946.ts:134         c.neighboringRegionIds
+server/src/primitives/PrimitiveEngine.ts:431     обход соседей
+server/src/primitives/PrimitiveEngine.ts:521     смежность стран
+server/src/primitives/PrimitiveEngine.ts:1999    обход соседей
+server/src/services/CountryService.ts:92         соседи страны
+server/src/services/RegionService.ts:23          соседи региона
+```
+
+`grep -rn "landNeighboringRegionIds\|adjacentWaterIds" server/src shared/src
+client/src` → **пусто**. Новых имён не знает никто.
+
+Отсюда цепочка: zod не находит обязательное поле → `ScenarioDataError` в
+`readJsonFile` → `buildScenario1946` падает на импорте → 33 тестовых файла
+не поднимаются вовсе. Один упавший тест при 33 упавших файлах — не «почти
+зелено», а признак падения на импорте.
+
+#### Почему это прошло мимо автора
+
+Валидаторы карты на объединённой базе **зелёные**, я их прогнал сам:
+`validate_sea_adjacency_1946.py` (1389 регионов, 195 морских зон, exit 0),
+`test_validate_sea_adjacency_1946.py` (18 тестов OK),
+`validate_region_economy_1946.py` (exit 0, один [warn] по DNK),
+`test_validate_region_economy_1946.py` (33 теста OK). Public eval — 264/0.
+`npx tsc --noEmit` в `server` — exit 0: типы не ловят несовпадение, потому
+что поле приходит из JSON через zod, а не из типа.
+
+Данные корректны. Не сделана вторая половина стыка К-6 — потребители. Автор
+проверил свою половину и был прав в ней; красным горит только серверный набор,
+который в его домене не запускался.
+
+**Возврат домену.** Ветка не переделывается интегратором: переименование
+поля и подключение `adjacentWaterIds` к потребителям — это домен `logic`
+(`PrimitiveEngine`, `CountryService`, `RegionService`, схемы), а не `geometry`.
+Задание — за `lead`, оно записано в его реестре.
