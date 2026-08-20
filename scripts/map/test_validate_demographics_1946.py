@@ -471,7 +471,7 @@ class PlausibilityHeuristicsTest(unittest.TestCase):
     """
 
     def core(self, neighbours):
-        return [{"id": rid, "neighboringRegionIds": nb} for rid, nb in neighbours.items()]
+        return [{"id": rid, "landNeighboringRegionIds": nb} for rid, nb in neighbours.items()]
 
     def test_all_round_shares_warns(self):
         data = {"regions": [{"regionId": 1, "groups": [

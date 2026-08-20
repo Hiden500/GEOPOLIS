@@ -599,7 +599,7 @@ def plausibility_warnings(demographics: dict, region_core: list) -> list[str]:
     """
     warnings: list[str] = []
     regions = demographics.get("regions", [])
-    neighbours = {r["id"]: (r.get("neighboringRegionIds") or []) for r in region_core}
+    neighbours = {r["id"]: (r.get("landNeighboringRegionIds") or []) for r in region_core}
     by_region = {r.get("regionId"): r for r in regions}
 
     for entry in regions:

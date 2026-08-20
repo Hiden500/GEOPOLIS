@@ -317,7 +317,7 @@ WATCHED = {
         "счётчики мира лежат прямо в `_meta.counts`; именно он и устарел на 92c1aa9",
         check_islands_index),
     "neighbor_graph.json": (
-        "`import_to_game.py` строит по нему neighboringRegionIds сценария",
+        "`import_to_game.py` строит по нему landNeighboringRegionIds сценария",
         check_neighbor_graph),
     "ownership_1946.json": (
         "владелец региона в сценарии берётся отсюда; регион без записи молча выпадает",

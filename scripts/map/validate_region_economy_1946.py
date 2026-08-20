@@ -47,12 +47,12 @@ def validate_structural_invariants(
 
     # 9. Симметрия графа соседей: A -> B подразумевает B -> A.
     for r in regions:
-        for n_id in r.get("neighboringRegionIds", []):
+        for n_id in r.get("landNeighboringRegionIds", []):
             neighbor = by_id.get(n_id)
             if neighbor is None:
                 violations.append(f"region {r['id']}: сосед {n_id} не существует.")
                 continue
-            if r["id"] not in neighbor.get("neighboringRegionIds", []):
+            if r["id"] not in neighbor.get("landNeighboringRegionIds", []):
                 violations.append(
                     f"несимметричный сосед: region {r['id']} -> {n_id}, "
                     f"но {n_id} не ссылается обратно на {r['id']}."
