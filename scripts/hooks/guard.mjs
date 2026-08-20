@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * guard.mjs — общий PreToolUse-хук Claude Code и Codex (Geopolis).
+ * guard.mjs — PreToolUse-хук Claude Code (Geopolis).
  *
  * Блокирует (exit 2 + причина в stderr):
- *   1. Правки файлов в ОСНОВНОМ checkout (вне .claude/worktrees/ и ~/.codex/
- *      worktrees/) — enforcement worktree-протокола из AGENTS.md;
+ *   1. Правки файлов в ОСНОВНОМ checkout (вне .claude/worktrees/) —
+ *      enforcement worktree-протокола из AGENTS.md;
  *   2. Ручные правки генерируемых данных (server/data/scenarios/**,
  *      scripts/map/out/**) — данные меняются пайплайном (scripts/map/AGENTS.md);
  *   3. Разрушительные команды в Bash/PowerShell: git push --force,
  *      git reset --hard, git clean -f, rm -rf.
  *
- * Протокол (одинаков у Claude Code и Codex hooks): JSON события на stdin,
- * exit 0 = разрешить, exit 2 = заблокировать (stderr виден агенту).
+ * Протокол: JSON события на stdin, exit 0 = разрешить, exit 2 =
+ * заблокировать (stderr виден агенту).
  * Fail-open: внутренняя ошибка хука НЕ блокирует работу (exit 0), чтобы
  * сломанный guard не парализовал агентов.
  */
@@ -35,16 +35,14 @@ try {
   if (!raw.trim()) process.exit(0);
   const evt = JSON.parse(raw);
 
-  // Поля обоих инструментов (Codex клонирует формат Claude).
+  // Имена полей события у разных агентных клиентов расходятся — читаем оба
+  // варианта. Сузить разбор значит молча перестать блокировать: ниже fail-open.
   const tool = String(evt.tool_name ?? evt.tool ?? "");
   const input = evt.tool_input ?? evt.input ?? {};
   const cwd = String(evt.cwd ?? process.cwd());
 
   const norm = (p) => path.resolve(String(p)).replace(/\\/g, "/").toLowerCase();
-  const isWorktreePath = (p) =>
-    p.includes("/.claude/worktrees/") ||
-    p.includes("/.codex/worktrees/") ||
-    p.includes("/.codex/visualizations/");
+  const isWorktreePath = (p) => p.includes("/.claude/worktrees/");
 
   // Корень основного checkout: родитель общего .git (у linked worktree
   // git-common-dir указывает в основной репозиторий).

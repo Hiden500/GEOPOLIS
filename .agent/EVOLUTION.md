@@ -2729,3 +2729,65 @@ Antigravity читают `AGENTS.md`, где его нет, и одностро�
 Validation: `python .agent/evals/public/run_public_evals.py` — прогнан ниже.
 
 Decision: keep.
+
+## 2026-08-20 — `drop-codex-config`
+
+Problem evidence: Codex снят с проекта — в координационном разделе `AGENTS.md`
+перечислены Claude, Gemini, Antigravity, — а его конфигурация осталась:
+`.codex/config.toml`, `.codex/hooks.json`, `.codex/agents/ui-reviewer.toml` и
+адаптер `.agents/skills/prompt-architect/agents/openai.yaml`. Поиск читателей
+(`rg -i codex` по всему репозиторию, включая `.github/`) дал ровно одного —
+сам public eval: 11 проверок гигиены `.codex/` плюс 3 условные проверки
+адаптера. Конструкция замкнута сама на себя: тест охранял файлы, которых не
+загружал ни один агент. Больше того, repo-local загрузку `.codex/config.toml`
+не подтвердили и при живом Codex (`.agent/audits/agent-system-audit-2026-07-23.md`;
+запись `worktree-guard-hook` выше — «Fresh-session status: pending»), то есть
+охранялась гигиена файла, чей потребитель не был установлен никогда.
+
+Layer changed: удалены `.codex/` (3 файла) и
+`.agents/skills/prompt-architect/agents/openai.yaml`. В
+`.agent/evals/public/run_public_evals.py`: `validate_toml` →
+`validate_agent_configs` (TOML в репозитории не осталось, `import tomllib`
+снят), Codex-проверки убраны; клауза `.codex/agents/ui-designer.toml` вынута из
+проверки «Mixed reviewer/writer agent definitions are removed» — после удаления
+каталога она стала вакуумно-истинной — и заменена храповиком «Retired executor
+config stays removed: .codex/». В `scripts/hooks/guard.mjs` из `isWorktreePath`
+убраны `~/.codex/worktrees/` и `.codex/visualizations/`. Из `.gitignore` —
+правило `.codex/worktrees/`; из `verify-change` (канон + зеркало) — `.codex/` в
+списке scope; из описания `prompt-architect` (канон + зеркало) — Codex в
+перечне адресатов промта.
+
+Expected benefit: конфигурация не переживает исполнителя. Мёртвая конфигурация
+дороже отсутствующей: следующая сессия читает `.codex/hooks.json` как живую
+проводку хука, а 11 зелёных проверок выдают за покрытие охрану файла, который
+никто не открывает. Храповик переводит удаление из «прибрались» в проверяемое
+состояние.
+
+Risks and containment: ослабления контроля нет — из guard убраны только
+разрешения, ВЫДАННЫЕ снятому исполнителю (пути-исключения), хук стал строже,
+что показано прогоном старой и новой версии на одном событии. Терпимость
+разбора события (`evt.tool`, `evt.input`, `shell`, `apply_patch`) сохранена
+намеренно: сузить её значит молча перестать блокировать у клиента с другими
+именами полей, а хук fail-open — такой отказ невидим. Возврат Codex снимает
+храповик одной строкой, вместе с решением.
+
+Validation: `python .agent/evals/public/run_public_evals.py` — до правок 264
+passed / 0 failed (exit 0), после 251 / 0 (exit 0). Дельта −13 сошлась
+поимённо: 11 Codex-проверок + 3 проверки адаптера − 1 новый храповик.
+Негативный контроль храповика: с воссозданным `.codex/config.toml` — 250
+passed / 1 failed, `FAIL: Retired executor config stays removed: .codex/`,
+exit 1. Guard: `node --check` + 6 событий; правка в основном checkout
+блокируется до и после, правка в своём дереве разрешена до и после, а путь
+`.codex/worktrees/**` в старой версии проходил (exit 0) и в новой блокируется
+(exit 2) — то есть закрыта дыра, а не сломано правило.
+
+Follow-up (не сделано намеренно): условный блок `agents/openai.yaml` в
+`validate_instructions_and_skills` оставлен. На базе `main` адаптер ещё есть у
+`strategy-game-ui`, его снимает невлитая ветка `claude/jovial-wu-721b92`;
+удалить проверку сейчас — снять живое покрытие. Блок станет мёртвым, когда обе
+ветки будут в `main`.
+
+Fresh-session status: n/a — у удаляемого не было потребителя ни в одной сессии;
+проверять в свежей нечего.
+
+Decision: keep.

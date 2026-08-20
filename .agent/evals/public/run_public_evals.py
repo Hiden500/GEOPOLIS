@@ -7,7 +7,6 @@ import json
 import re
 import subprocess
 import sys
-import tomllib
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -91,47 +90,29 @@ def frontmatter_errors(text: str) -> list[str]:
     return errors
 
 
-def validate_toml() -> None:
-    config = tomllib.loads(read(".codex/config.toml"))
-    check("model_verbosity" in config, "Codex model_verbosity is top-level")
-    shell = config.get("shell_environment_policy", {})
-    check(
-        "model_verbosity" not in shell,
-        "Codex model_verbosity is not nested in shell policy",
-    )
-    check(shell.get("inherit") == "core", "Codex shell environment is narrow")
-    serialized = json.dumps(config, ensure_ascii=False).lower()
-    check(
-        "danger-full-access" not in serialized and '"never"' not in serialized,
-        "Codex config has no broad sandbox/approval bypass",
-    )
-    repowise_args = config.get("mcp_servers", {}).get("repowise", {}).get("args", [])
-    check(
-        all("pax historia" not in str(value).lower() for value in repowise_args),
-        "Codex Repowise config is checkout-portable",
-    )
+def validate_agent_configs() -> None:
+    """Конфигурация исполнителей парсится и проводит общий guard-хук.
 
-    agents = list((ROOT / ".codex/agents").glob("*.toml"))
-    check(bool(agents), "At least one custom Codex agent exists")
-    for path in agents:
-        data = tomllib.loads(path.read_text(encoding="utf-8"))
-        check(bool(data.get("name")), f"{path.name} has a name")
-        check(bool(data.get("description")), f"{path.name} has a description")
-        check(
-            data.get("sandbox_mode") == "read-only",
-            f"{path.name} is read-only",
-            f"sandbox_mode={data.get('sandbox_mode')!r}",
-        )
-
-    for path in (".mcp.json", ".gemini/settings.json", ".codex/hooks.json", ".claude/settings.json"):
+    Codex снят с проекта 2026-08-20, и вместе с ним удалён `.codex/`. Его
+    конфигурацию не загружал никто: repo-local загрузку `.codex/config.toml`
+    так и не подтвердили в свежей сессии (`.agent/EVOLUTION.md`,
+    `.agent/audits/agent-system-audit-2026-07-23.md`), а проверялась она
+    только здесь — тест охранял гигиену файла, который не читал ни один
+    агент. Храповик ниже держит удаление: конфигурация снятого исполнителя
+    не должна вернуться молча, мимо решения.
+    """
+    for path in (".mcp.json", ".gemini/settings.json", ".claude/settings.json"):
         check(isinstance(load_json(ROOT / path), dict), f"JSON config parses: {path}")
 
     check((ROOT / "scripts/hooks/guard.mjs").is_file(), "Shared guard hook exists")
-    for cfg in (".claude/settings.json", ".codex/hooks.json"):
-        check(
-            "scripts/hooks/guard.mjs" in read(cfg),
-            f"Guard hook registered in {cfg}",
-        )
+    check(
+        "scripts/hooks/guard.mjs" in read(".claude/settings.json"),
+        "Guard hook registered in .claude/settings.json",
+    )
+    check(
+        not (ROOT / ".codex").exists(),
+        "Retired executor config stays removed: .codex/",
+    )
 
 
 def validate_living_docs() -> None:
@@ -523,8 +504,7 @@ def validate_instructions_and_skills() -> None:
         "Claude UI reviewer has no write tools",
     )
     check(
-        not (ROOT / ".claude/agents/ui-designer.md").exists()
-        and not (ROOT / ".codex/agents/ui-designer.toml").exists(),
+        not (ROOT / ".claude/agents/ui-designer.md").exists(),
         "Mixed reviewer/writer agent definitions are removed",
     )
 
@@ -722,7 +702,7 @@ def validate_documented_workflow() -> None:
 
 def main() -> int:
     validators = (
-        validate_toml,
+        validate_agent_configs,
         validate_living_docs,
         validate_no_conflict_markers,
         validate_rot,
