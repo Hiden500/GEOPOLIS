@@ -1,4 +1,4 @@
-# Sources and Codex adaptation
+# Sources and adaptation
 
 ## Source revisions
 
@@ -26,17 +26,28 @@ Full upstream MIT notices are preserved in [LICENSES.md](../LICENSES.md).
   genre-swap/AI-slop challenge, interaction-state coverage, evidence-calibrated
   visual QA, target viewport/input checks, and design-plan review.
 
-## Codex replacements
+## Upstream mechanisms
 
-| Upstream mechanism | Codex-compatible replacement |
+The first adaptation (2026-07-16) targeted Codex, so upstream mechanisms that
+Codex lacked were replaced by substitutes. Codex is no longer used on this
+project and Claude Code is the only runner, so those substitutes are retired:
+the mechanisms below are native again and are used under the repository rules.
+
+| Upstream mechanism | Status here |
 |---|---|
-| Claude slash commands such as `/team-ui` or `/ux-review` | one auto/explicit Codex skill with mode routing and `$strategy-game-ui` invocation |
-| `Task`, named Claude agents, and fixed agent hierarchy | main-agent workflow; optional Codex collaboration only when user/repository instructions authorize independent delegation |
-| `AskUserQuestion` at every section | repository evidence and autonomous reversible decisions; user input only for material product semantics |
-| `TodoWrite`, session-state files, and `~/.gstack` artifacts | current Codex plan/commentary and user-requested repository artifacts only |
+| slash commands such as `/team-ui` or `/ux-review` | native, but still one skill: modes are routed inside `SKILL.md` and invoked as `/strategy-game-ui`, not split into a command per mode |
+| `Task`, named agents, and a fixed agent hierarchy | delegation is native and permitted for independent read-only slices, such as the `ui-reviewer` subagent; the fixed hierarchy stays rejected, and a subagent report is evidence to reconcile, not a verdict |
+| `TodoWrite` and session-state files | native session tooling tracks progress; `~/.gstack` and other home-directory artifacts stay out, and durable notes go into repository files the user asked for |
+
+The remaining upstream mechanisms were never refused because of the runner, and
+they stay refused:
+
+| Upstream mechanism | Why it is still refused |
+|---|---|
+| `AskUserQuestion` at every section | repository evidence and autonomous reversible decisions come first; user input is for material product semantics |
 | hooks, Bash preambles, Bun generation, telemetry, global installs | no runtime hooks, telemetry, package installation, or home-directory writes |
-| fixed `design/gdd/**` and `.claude/**` paths | discover canonical docs and code through repository instructions and `rg` |
-| external CLI-to-Codex second opinion | no nested provider CLI; use native collaboration only when permitted |
+| fixed `design/gdd/**` and `.claude/**` paths | canonical docs and code are discovered through repository instructions and `rg` |
+| external CLI second opinion | no nested provider CLI; independent review happens through repository agents |
 | automatic plan/code writes | read-only by default; mutation requires the user's requested mode |
 
 ## Deliberate deviations
