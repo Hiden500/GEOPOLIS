@@ -53,7 +53,7 @@ function gameWithCrises(count: number): GameState {
       population: REGION_POPULATION,
       // Чем меньше ВВП, тем выше вклад экономической обездоленности.
       gdp: 400_000_000 - i * 20_000_000,
-      neighboringRegionIds: [],
+      landNeighboringRegionIds: [],
       demographics: [
         { groupId: TEST_GROUP_TITULAR, share: 0.88 },
         { groupId: TEST_GROUP_LOYAL, share: 0.12 },
@@ -894,7 +894,7 @@ describe("регионы как адресуемые цели в промте", 
       ownerCountryId: "MWI",
       population: REGION_POPULATION,
       gdp: 100_000_000,
-      neighboringRegionIds: [],
+      landNeighboringRegionIds: [],
       demographics: [
         { groupId: TEST_GROUP_TITULAR, share: 0.9 },
         { groupId: TEST_GROUP_LOYAL, share: 0.1 },
@@ -1002,7 +1002,7 @@ describe("регионы как адресуемые цели в промте", 
         ownerCountryId: "SUN",
         population: REGION_POPULATION,
         gdp: 400_000_000 - i * 10_000_000,
-        neighboringRegionIds: [],
+        landNeighboringRegionIds: [],
         demographics: [{ groupId: TEST_GROUP_TITULAR, share: 1 }],
       })
     );

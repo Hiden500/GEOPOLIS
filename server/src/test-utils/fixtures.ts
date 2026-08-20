@@ -165,7 +165,12 @@ export function createTestRegion(overrides: Partial<Region> = {}): Region {
       oil: MAX_EXTRACTION_LEVEL,
       coal: MAX_EXTRACTION_LEVEL,
     },
-    neighboringRegionIds: [],
+    landNeighboringRegionIds: [],
+    // Регион фикстуры по умолчанию внутриконтинентальный: тестов, которым нужна
+    // вода, сегодня нет, а пустой массив — то же, что генератор пишет реальному
+    // региону без выхода к воде. Тест, которому вода понадобится, задаёт её
+    // через overrides явно.
+    adjacentWaterIds: [],
     ...overrides,
   };
 }

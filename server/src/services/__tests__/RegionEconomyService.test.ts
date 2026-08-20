@@ -30,7 +30,8 @@ describe('RegionEconomyService', () => {
         coal: 200000,
       } as Partial<Record<ResourceType, number>>,
       extraction: {} as Partial<Record<ResourceType, number>>,
-      neighboringRegionIds: [2],
+      landNeighboringRegionIds: [2],
+      adjacentWaterIds: [],
     };
 
     country = {

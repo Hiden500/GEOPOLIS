@@ -131,7 +131,8 @@ function buildRegions(baseDir: string): Region[] {
       gdp: s.gdp,
       deposits: s.deposits,
       extraction: s.extraction,
-      neighboringRegionIds: c.neighboringRegionIds,
+      landNeighboringRegionIds: c.landNeighboringRegionIds,
+      adjacentWaterIds: c.adjacentWaterIds,
     };
     if (s.occupiedBy !== undefined) region.occupiedBy = s.occupiedBy;
     if (c.sourceAdm1Codes !== undefined) region.sourceAdm1Codes = c.sourceAdm1Codes;

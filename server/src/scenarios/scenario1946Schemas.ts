@@ -37,7 +37,13 @@ export const regionCoreSchema = z.object({
   id: z.number().int().positive(),
   geoJsonId: z.string().min(1),
   area: z.number().nonnegative(),
-  neighboringRegionIds: z.array(z.number().int()),
+  landNeighboringRegionIds: z.array(z.number().int()),
+  // Водные узлы, которых регион касается берегом (К-6). Обязательное, а не
+  // optional: генератор (scripts/map/import_to_game.py) пишет его каждому
+  // региону, пустым массивом у внутриконтинентальных. Optional здесь означало
+  // бы «данные могли не дойти» — а это не так, и молчаливое undefined увело бы
+  // потребителя в тихий баг вместо явной ошибки загрузки.
+  adjacentWaterIds: z.array(z.number().int()),
   sourceAdm1Codes: z.array(z.string()).optional(),
 });
 export type RegionCoreEntry = z.infer<typeof regionCoreSchema>;

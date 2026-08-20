@@ -60,7 +60,7 @@ function ensureBattalion(
  * вызывается один раз за месяц из SimulationEngine.ts после по-страновой
  * петли (нужны свежие military-числа) и до aiBehaviorTick.
  *
- * Явный пробел Phase 1: контакт ищется только через `neighboringRegionIds`
+ * Явный пробел Phase 1: контакт ищется только через `landNeighboringRegionIds`
  * (сухопутное соседство) — войны против заморских/островных целей без общей
  * границы не находят точки контакта вообще (см. план, "морские десанты").
  */
@@ -100,7 +100,7 @@ export function warTick(game: GameState): void {
       if (!isAttackerRegion && !isDefenderRegion) continue;
 
       const oppositeSet = isAttackerRegion ? defenderSet : attackerSet;
-      const enemyNeighbors = region.neighboringRegionIds
+      const enemyNeighbors = region.landNeighboringRegionIds
         .map(nid => regionById.get(nid))
         .filter((n): n is Region => !!n && oppositeSet.has(effectiveController(n)));
 

@@ -177,7 +177,7 @@ function borderingPairs(game: GameState): Set<string> {
   for (const region of game.regions) {
     const owner = region.ownerCountryId;
     if (!owner) continue;
-    for (const neighbourId of region.neighboringRegionIds) {
+    for (const neighbourId of region.landNeighboringRegionIds) {
       const neighbourOwner = ownerOf.get(neighbourId);
       if (!neighbourOwner || neighbourOwner === owner) continue;
       pairs.add(pairKey(owner, neighbourOwner));

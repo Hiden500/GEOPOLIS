@@ -428,7 +428,7 @@ function disputedNeighbourCountry(game: GameState, region: Region): string | und
   const controller = game.countries.find(c => c.id === controllerId);
 
   const foreign = new Set<string>();
-  for (const neighbourId of region.neighboringRegionIds) {
+  for (const neighbourId of region.landNeighboringRegionIds) {
     const neighbour = findRegion(game, neighbourId);
     if (!neighbour) continue;
     const other = effectiveController(neighbour);
@@ -518,7 +518,7 @@ function sharesLandBorder(game: GameState, countryA: string, countryB: string): 
   const ownerOf = new Map(game.regions.map(r => [r.id, r.ownerCountryId]));
   for (const region of game.regions) {
     if (region.ownerCountryId !== countryA) continue;
-    if (region.neighboringRegionIds.some(id => ownerOf.get(id) === countryB)) return true;
+    if (region.landNeighboringRegionIds.some(id => ownerOf.get(id) === countryB)) return true;
   }
   return false;
 }
@@ -1996,7 +1996,7 @@ function apply(game: GameState, primitive: Primitive): ApplyOutcome {
       // поэтому их просто не трогаем, а не глотаем отказ.
       const spillover: CommandResult<politicsCommands.AppliedImpact>[] = [];
       const neighbourEffects: GroupImpactEffect[] = [];
-      for (const neighbourId of region.neighboringRegionIds) {
+      for (const neighbourId of region.landNeighboringRegionIds) {
         const neighbour = findRegion(game, neighbourId);
         if (!neighbour) continue;
         for (let i = 0; i < perGroup.length; i++) {

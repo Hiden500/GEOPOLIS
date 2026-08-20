@@ -207,12 +207,12 @@ describe("CountryService", () => {
   });
 
   describe("getNeighborCountries", () => {
-    it("находит соседей через neighboringRegionIds, исключая саму страну", () => {
+    it("находит соседей через landNeighboringRegionIds, исключая саму страну", () => {
       // A владеет регионом 1 (сосед 2 -> B и 3 -> C); регион 4 -> A не сосед сам себе
-      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", neighboringRegionIds: [2, 3, 4] });
-      const r2 = createTestRegion({ id: 2, ownerCountryId: "B", neighboringRegionIds: [1] });
-      const r3 = createTestRegion({ id: 3, ownerCountryId: "C", neighboringRegionIds: [1] });
-      const r4 = createTestRegion({ id: 4, ownerCountryId: "A", neighboringRegionIds: [1] });
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", landNeighboringRegionIds: [2, 3, 4] });
+      const r2 = createTestRegion({ id: 2, ownerCountryId: "B", landNeighboringRegionIds: [1] });
+      const r3 = createTestRegion({ id: 3, ownerCountryId: "C", landNeighboringRegionIds: [1] });
+      const r4 = createTestRegion({ id: 4, ownerCountryId: "A", landNeighboringRegionIds: [1] });
       const a = createTestCountry({ id: "A" });
       const b = createTestCountry({ id: "B" });
       const c = createTestCountry({ id: "C" });
@@ -222,9 +222,9 @@ describe("CountryService", () => {
     });
 
     it("не дублирует страну, граничащую несколькими регионами", () => {
-      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", neighboringRegionIds: [2, 3] });
-      const r2 = createTestRegion({ id: 2, ownerCountryId: "B", neighboringRegionIds: [1] });
-      const r3 = createTestRegion({ id: 3, ownerCountryId: "B", neighboringRegionIds: [1] });
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", landNeighboringRegionIds: [2, 3] });
+      const r2 = createTestRegion({ id: 2, ownerCountryId: "B", landNeighboringRegionIds: [1] });
+      const r3 = createTestRegion({ id: 3, ownerCountryId: "B", landNeighboringRegionIds: [1] });
       const a = createTestCountry({ id: "A" });
       const b = createTestCountry({ id: "B" });
 
@@ -238,8 +238,8 @@ describe("CountryService", () => {
       expect(service.getNeighborCountries(a, [a, b], [])).toEqual([]);
     });
 
-    it("игнорирует висячие neighboringRegionIds (несуществующие регионы)", () => {
-      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", neighboringRegionIds: [99] });
+    it("игнорирует висячие landNeighboringRegionIds (несуществующие регионы)", () => {
+      const r1 = createTestRegion({ id: 1, ownerCountryId: "A", landNeighboringRegionIds: [99] });
       const a = createTestCountry({ id: "A" });
       expect(service.getNeighborCountries(a, [a], [r1])).toEqual([]);
     });

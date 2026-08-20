@@ -130,14 +130,14 @@ def centroid_of(geom_obj, geom_raw):
 
 
 def land_components(core):
-    """Связные компоненты графа суши по neighboringRegionIds сценария.
+    """Связные компоненты графа суши по landNeighboringRegionIds сценария.
 
     Морские зоны соседями там не считаются (`import_to_game.py` отбрасывает
     неземных соседей намеренно), поэтому компонента — это ровно массив суши.
     """
     adj = defaultdict(set)
     for r in core:
-        for n in r["neighboringRegionIds"]:
+        for n in r["landNeighboringRegionIds"]:
             adj[r["id"]].add(n)
             adj[n].add(r["id"])
     seen, comps = set(), []

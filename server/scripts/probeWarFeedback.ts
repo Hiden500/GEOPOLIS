@@ -58,7 +58,7 @@ function frontRegionCount(game: GameState, side: Set<string>, other: Set<string>
   let count = 0;
   for (const region of game.regions) {
     if (!side.has(effectiveController(region))) continue;
-    const contact = region.neighboringRegionIds
+    const contact = region.landNeighboringRegionIds
       .map(id => regionById.get(id))
       .some(n => !!n && other.has(effectiveController(n)));
     if (contact) count += 1;

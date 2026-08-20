@@ -114,7 +114,8 @@ describe('MapFeatureService', () => {
         gdp: 3000000000000,
         deposits: {},
         extraction: {},
-        neighboringRegionIds: [2],
+        landNeighboringRegionIds: [2],
+        adjacentWaterIds: [],
       },
       {
         id: 2,
@@ -130,7 +131,8 @@ describe('MapFeatureService', () => {
         gdp: 2000000000000,
         deposits: {},
         extraction: {},
-        neighboringRegionIds: [1],
+        landNeighboringRegionIds: [1],
+        adjacentWaterIds: [],
       },
     ];
 
