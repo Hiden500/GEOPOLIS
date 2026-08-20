@@ -30,9 +30,11 @@ note) — см. resolve_owner().
                                                     каждого — scripts/map/AGENTS.md,
                                                     держит verify_geojson_field_contract.py
   server/data/scenarios/1946/regions.core.json   — география: id, geoJsonId, area,
-                                                    neighboringRegionIds, sourceAdm1Codes
+                                                    landNeighboringRegionIds,
+                                                    adjacentWaterIds, sourceAdm1Codes
   server/data/scenarios/1946/waters.json         — водные узлы: id, geoJsonId,
-                                                    waterType (sea/lake). Владения,
+                                                    waterType (sea/lake), neighboringIds
+                                                    (рёбра вода<->вода). Владения,
                                                     населения и экономики у воды нет
                                                     (решение пользователя 2026-08-09):
                                                     вода — это id и рёбра, не сущность
@@ -48,6 +50,15 @@ note) — см. resolve_owner().
 Экономические поля (population, urbanization, stability, infrastructure,
 development, gdp, deposits, extraction) заполняются нулевыми плейсхолдерами —
 это намеренно, не баг: их назначение out of scope для этого импортера.
+
+Морская смежность — контракт стыка К-6 (.agent/orchestration/lead.md): суша
+получает adjacentWaterIds (id водных узлов, которых КАСАЕТСЯ берегом), вода —
+neighboringIds (вода<->вода), а старое neighboringRegionIds переименовано в
+landNeighboringRegionIds. Переименование — механизм, а не косметика:
+потребитель обязан явно решить «суша / вода / обе» и не может молча остаться на
+прежнем поведении. Достижимость по воде НЕ хранится: это запрос к графу, а
+транзитивное замыкание раздуло бы сценарий и завело полный обход мира.
+Инварианты формы держит validate_sea_adjacency_1946.py.
 """
 import json
 import re
@@ -232,13 +243,17 @@ def main():
 
     # Множество land-регионов из САМОГО world-файла (не из names_ru.json) —
     # только они становятся Region, поэтому только на них может ссылаться
-    # neighboringRegionIds. Раньше фильтр соседей смотрел region_type в
+    # landNeighboringRegionIds. Раньше фильтр соседей смотрел region_type в
     # names_ru.json; любой водоём, отсутствующий там (напр. заново добавленный
     # Кинерет LAK-0012, 2026-07-19-f), проходил фильтр как "land" по дефолту и
     # утекал висячей ссылкой в граф соседей. Источник истины о типе — world.
     land_region_ids = {
         ft["properties"]["region_id"] for ft in features
         if ft["properties"].get("region_type", "land") == "land"
+    }
+    water_region_ids = {
+        ft["properties"]["region_id"] for ft in features
+        if ft["properties"].get("region_type", "land") != "land"
     }
 
     # --- 1. Геометрия для клиента ---
@@ -283,6 +298,7 @@ def main():
     names_en_out: dict[str, str] = {}
     names_ru_out: dict[str, str] = {}
     skipped_no_owner = []
+    land_water_exported = 0
     for ft in features:
         props = ft["properties"]
         region_id = props["region_id"]
@@ -301,6 +317,18 @@ def main():
             # сосед должен сам быть land-регионом (только такие становятся Region)
             if n in region_id_to_numeric and n in land_region_ids
         ]
+        # Морская смежность (контракт К-6, .agent/orchestration/lead.md): id
+        # ВОДНЫХ УЗЛОВ, которых регион касается берегом. Это не «морские
+        # соседи-регионы»: сосед региона по воде — не регион, и назвать его так
+        # значило бы соврать в имени. Обратное ребро (вода -> суша) не пишется:
+        # у водного узла из К-6 ровно одно новое поле, neighboringIds, и оно
+        # про вода<->вода. Ребро суша<->вода хранится с одной стороны.
+        adjacent_water_ids = sorted(
+            region_id_to_numeric[n]
+            for n in neighbors.get(region_id, [])
+            if n in region_id_to_numeric and n in water_region_ids
+        )
+        land_water_exported += len(adjacent_water_ids)
         numeric_id = region_id_to_numeric[region_id]
 
         names_en_out[region_id] = region_name(
@@ -312,7 +340,8 @@ def main():
             "id": numeric_id,
             "geoJsonId": region_id,
             "area": props.get("area_km2", 0),
-            "neighboringRegionIds": neighbor_ids,
+            "landNeighboringRegionIds": neighbor_ids,
+            "adjacentWaterIds": adjacent_water_ids,
             "sourceAdm1Codes": [region_id],
         })
         regions_state.append({
@@ -336,13 +365,21 @@ def main():
     # ребра LAK<->SEA. В клиенте это различие не выражается: там и море, и
     # озеро — `ocean`, потому что рисуются они одинаково.
     #
-    # Файл — вход будущего экспорта морской смежности; сегодня его не читает
-    # никто, и это записано здесь, а не подразумевается.
+    # neighboringIds — рёбра вода<->вода (К-6, пункт 3), симметрично
+    # landNeighboringRegionIds у суши. Ребро lake<->sea формой РАЗРЕШЕНО: без
+    # него Волго-Дон (Каспий-озеро <-> Азов-море) невыразим. На сегодняшних
+    # данных таких рёбер ноль — это состояние мира, а не инвариант, и проверкой
+    # оно не закрепляется (см. validate_sea_adjacency_1946.py).
     waters = [
         {
             "id": region_id_to_numeric[ft["properties"]["region_id"]],
             "geoJsonId": ft["properties"]["region_id"],
             "waterType": ft["properties"]["region_type"],
+            "neighboringIds": sorted(
+                region_id_to_numeric[n]
+                for n in neighbors.get(ft["properties"]["region_id"], [])
+                if n in region_id_to_numeric and n in water_region_ids
+            ),
         }
         for ft in features
         if ft["properties"].get("region_type", "land") != "land"
@@ -380,6 +417,30 @@ def main():
     print(f"Геометрия: {len(out_features)} фич -> {CLIENT_GEOJSON_OUT}")
     by_water_type = Counter(w["waterType"] for w in waters)
     print(f"Водные узлы: {len(waters)} -> {WATERS_OUT} ({dict(by_water_type)})")
+
+    # Морская смежность: числа печатаются прогоном, а не принимаются на веру.
+    # Расхождение с графом объясняется поимённо: ребро суша<->вода, чья суша
+    # выпала из сценария без владельца (skipped_no_owner), в сценарий доехать
+    # не может — оно теряется ДО этого места, вместе с самим регионом.
+    graph_land_water = [
+        (a, b) for a, ns in neighbors.items() for b in ns
+        if a in land_region_ids and b in water_region_ids
+    ]
+    exported_gid = {r["geoJsonId"] for r in regions_core}
+    dropped_land_water = sorted(
+        (a, b) for a, b in graph_land_water if a not in exported_gid
+    )
+    water_water_edges = sum(len(w["neighboringIds"]) for w in waters) // 2
+    print(
+        f"Морская смежность: adjacentWaterIds {land_water_exported} связей "
+        f"суша<->вода (в neighbor_graph.json {len(graph_land_water)}); "
+        f"neighboringIds {water_water_edges} рёбер вода<->вода"
+    )
+    if dropped_land_water:
+        print(
+            f"  из них не доехало {len(dropped_land_water)} — суша без владельца: "
+            + ", ".join(f"{a}<->{b}" for a, b in dropped_land_water)
+        )
     print(f"Регионы: {len(regions_core)} -> {REGIONS_CORE_OUT} / {REGIONS_STATE_OUT} / {NAMES_EN_OUT} / {NAMES_RU_OUT}")
     if skipped_no_owner:
         print(f"ВНИМАНИЕ: {len(skipped_no_owner)} land-регионов без владельца пропущены: {skipped_no_owner[:10]}")
