@@ -23,6 +23,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const HOOK = path.join(HERE, "role-guard.mjs");
 const REPO = path.resolve(HERE, "..", "..");
 const SESSION = "test-role-guard-session";
+const HISTORY = path.join(os.homedir(), ".claude", "geopolis-roles", "_history.jsonl");
 const STATE = path.join(
   os.homedir(),
   ".claude",
@@ -71,6 +72,34 @@ const context = (res) => {
   }
 };
 
+/**
+ * Журнал назначений — единственный след работы роли, переживающий сессию:
+ * состояние `<session>.json` удаляется командой `!роль -`, а история нужна,
+ * чтобы задним числом ответить, какие роли реально работали.
+ */
+const historyHas = (session, action, role = null) => {
+  let lines;
+  try {
+    lines = fs
+      .readFileSync(HISTORY, "utf8")
+      .split(/\r?\n/)
+      .filter(Boolean);
+  } catch {
+    return false;
+  }
+  return lines.some((line) => {
+    try {
+      const rec = JSON.parse(line);
+      return (
+        rec.session === session &&
+        rec.action === action &&
+        (role === null || rec.role === role)
+      );
+    } catch {
+      return false;
+    }
+  });
+};
 const CODE_FILE = path.join(REPO, "client", "src", "App.tsx");
 const LEDGER_FILE = path.join(REPO, ".agent", "orchestration", "geometry.md");
 
@@ -87,6 +116,10 @@ try {
   const assigned = prompt("!роль geometry");
   check(assigned.code === 0, "команда принята");
   check(fs.existsSync(STATE), "состояние сессии записано");
+  check(
+    historyHas(SESSION, "assign", "geometry"),
+    "назначение записано в журнал"
+  );
   check(
     context(assigned).includes("РОЛЬ НАЗНАЧЕНА: geometry"),
     "устав отдан модели"
@@ -140,6 +173,11 @@ try {
   console.log("Снятие роли:");
   const off = prompt("!роль -");
   check(!fs.existsSync(STATE), "состояние удалено");
+  check(
+    historyHas(SESSION, "release"),
+    "снятие записано в журнал"
+  );
+  check(fs.existsSync(HISTORY), "журнал переживает снятие роли");
   check(context(off).includes("Роль снята"), "модель уведомлена");
   check(edit(CODE_FILE).code === 0, "правки снова разрешены");
 
