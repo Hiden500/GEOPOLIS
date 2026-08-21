@@ -240,7 +240,10 @@ function handleTool(evt) {
 
   if (tool === "Bash" || tool === "PowerShell" || tool === "shell") {
     const command = String(input.command ?? input.cmd ?? "");
-    if (role !== "integrator" && /\bgit\s+(merge|rebase|cherry-pick)\b/.test(command)) {
+    const integrates =
+      /\bgit\s+(merge|rebase|cherry-pick)\b/.test(command) ||
+      /\bgh\s+pr\s+merge\b/.test(command);
+    if (role !== "integrator" && integrates) {
       deny(
         "интеграцию веток ведёт роль integrator. Доменный оркестратор сдаёт " +
           "готовую ветку в очередь .agent/orchestration/integrator.md."
