@@ -2907,3 +2907,42 @@ Fresh-session status: n/a — изменение проверяется прог
 поведением сессии.
 
 Decision: keep.
+
+## 2026-08-21 — `typescript-at-repo-root`
+
+Problem evidence: языковой сервер TypeScript у Claude Code не поднимался вовсе —
+`LSP` на любом `.ts` отвечал `Could not find a valid TypeScript installation.
+Please ensure that the "typescript" dependency is installed in the workspace`.
+Пакет стоял в `client/package.json` (~6.0.2) и `server/package.json` (^6.0.3), но
+сервер стартует от КОРНЯ репозитория, а в корневом `package.json` его не было и в
+корневом `node_modules` не лежало. Следствие: ни переходов к определению, ни
+поиска ссылок, ни типов под курсором — во всех сессиях, всё время.
+
+Layer changed: корневой `package.json` — `typescript` в `devDependencies`,
+`package-lock.json` обновлён `npm install --package-lock-only` (ровно один пакет).
+
+Expected benefit: символьная навигация по 352 `.ts`-файлам вместо текстового
+поиска. Деревья задач лежат внутри основного checkout, поэтому резолвинг находит
+корневой пакет и из них тоже — проверено.
+
+Risks and containment: в корне нет ни одного `.ts`-файла, и зависимость выглядит
+лишней — эта запись существует, чтобы её не убрали как мусор. Версия `^6.0.3`
+совпадает с серверной; свои `node_modules` у `client` и `server` отдельные,
+поэтому их версии не затрагиваются. CI не менялся: `tsc --noEmit` там гоняется
+по `client` и `server`, как и раньше.
+
+Validation: один и тот же запрос до и после. До — ошибка инициализации выше.
+После — `LSP documentSymbol` на `server/src/llm/tokenTelemetry.ts` вернул полное
+дерево символов (интерфейсы `TokenUsage`, `UsagePercentiles`, функции
+`parseGeminiUsage`, `parseOpenAIUsage` с вложенными константами), а на файле
+ВНУТРИ рабочего дерева — символы `stripCodeFence.ts`.
+`python .agent/evals/public/run_public_evals.py` — 250 passed, 0 failed.
+
+Побочный эффект, замеченный и откаченный: `npm install` из рабочего дерева
+переписывает поле `name` в `package-lock.json` на имя каталога дерева, потому
+что в корневом `package.json` поля `name` нет. Возвращено вручную; если churn
+повторится — лечится добавлением `name`/`private` в корневой манифест.
+
+Fresh-session status: n/a — проверяется вызовом LSP, а не поведением сессии.
+
+Decision: keep.
