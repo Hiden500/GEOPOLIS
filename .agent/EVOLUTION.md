@@ -2730,6 +2730,45 @@ Validation: `python .agent/evals/public/run_public_evals.py` — прогнан 
 
 Decision: keep.
 
+## 2026-08-20 — `strategy-game-ui-claude-runner`
+
+Problem evidence: скилл написан 2026-07-16 как Codex-адаптация и продолжал
+обращаться к снятому исполнителю. `description` начинался с «Use when Codex
+needs to…»; раздел `## Codex compatibility` запрещал слэш-команды, `Task`,
+`AskUserQuestion` и `TodoWrite` и требовал «Do not require subagents» — прямо
+против `AGENTS.md`, где делегирование независимых read-only срезов поощряется;
+README предлагал Codex-синтаксис вызова `$strategy-game-ui`. Отдельный
+измеримый убыток: зеркала `.claude/skills/strategy-game-ui/SKILL.md` не
+существовало ни в одной ветке, а `.agents/skills/` Claude Code не читает —
+единственному оставшемуся исполнителю скилл был не виден вовсе.
+
+Layer changed: `.agents/skills/strategy-game-ui/**` и новое зеркало
+`.claude/skills/strategy-game-ui/SKILL.md`. Шесть обязательных секций контракта
+сохранены; `## Codex compatibility` → `## Tooling and delegation` со ссылкой на
+`ui-reviewer`; таблица `## Codex replacements` в `sources-and-adaptation.md`
+переписана вместо переименования: три механизма (слэш-команды, `Task`/именованные
+агенты, `TodoWrite`) отмечены как вернувшиеся к нативным, пять отказов, не
+зависевших от исполнителя, оставлены отказами. Удалён `agents/openai.yaml`.
+Атрибуция авторов и MIT-тексты в `LICENSES.md` не тронуты.
+
+Expected benefit: скилл виден и вызывается как `/strategy-game-ui`, а его
+инструкции больше не запрещают механизмы, которыми исполнитель обязан
+пользоваться по `AGENTS.md`.
+
+Risks and containment: ссылки в `SKILL.md` теперь пишутся от корня репозитория —
+иначе они резолвятся только из каталога канона и ломаются в зеркале. Правило
+записано в README скилла и держится проверкой ссылок public eval; расхождение
+зеркала с каноном держится parity-проверкой.
+
+Validation: `python .agent/evals/public/run_public_evals.py` — 263 passed,
+0 failed (exit 0). Негативный контроль: дописанная в зеркало строка валит
+`Claude mirror matches canonical skill: strategy-game-ui` (262 passed, 1 failed);
+относительная ссылка `references/…` в зеркале валит `Local Markdown links
+resolve` — наблюдено на первом прогоне (262 passed, 1 failed). Скилл появился в
+списке доступных Claude Code в этой же сессии сразу после создания зеркала.
+
+Fresh-session status: pending — вызов `/strategy-game-ui` и прогон скилла на
+живой UI-задаче проверяются отдельной сессией.
 ## 2026-08-20 — `drop-codex-config`
 
 Problem evidence: Codex снят с проекта — в координационном разделе `AGENTS.md`

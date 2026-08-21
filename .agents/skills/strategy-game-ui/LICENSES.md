@@ -1,6 +1,6 @@
 # Upstream licenses and attribution
 
-This Codex adaptation was informed by selected workflows from the following
+This adaptation was informed by selected workflows from the following
 MIT-licensed projects. Exact revisions and adapted concepts are documented in
 [sources-and-adaptation.md](references/sources-and-adaptation.md).
 
