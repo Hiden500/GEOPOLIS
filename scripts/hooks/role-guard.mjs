@@ -29,6 +29,32 @@ import { execSync } from "node:child_process";
 
 const STATE_DIR = path.join(os.homedir(), ".claude", "geopolis-roles");
 
+/**
+ * Журнал назначений. Состояние роли живёт в `<session>.json` и удаляется
+ * командой `!роль -`, поэтому по нему нельзя ответить, какие роли реально
+ * работали: аудит 2026-08-21 на пустом каталоге заключил, что роли не
+ * использовались, тогда как транскрипты дали 558 назначений. Имя с ведущим
+ * подчёркиванием не сталкивается с файлами сессий: те всегда `*.json`.
+ */
+const HISTORY_PATH = path.join(STATE_DIR, "_history.jsonl");
+
+/** Дописать строку в журнал. Отказ записи хук не роняет: он fail-open. */
+function logRole(sessionId, action, role, cwd) {
+  try {
+    fs.mkdirSync(STATE_DIR, { recursive: true });
+    const record = {
+      ts: new Date().toISOString(),
+      session: String(sessionId),
+      action,
+      role,
+      cwd: String(cwd || ""),
+    };
+    fs.appendFileSync(HISTORY_PATH, JSON.stringify(record) + os.EOL, "utf8");
+  } catch {
+    /* журнал — наблюдение, а не защита: молчим */
+  }
+}
+
 const norm = (p) => path.resolve(String(p)).replace(/\\/g, "/").toLowerCase();
 
 /** Корень основного checkout: родитель общего .git (как в guard.mjs). */
@@ -151,6 +177,8 @@ function handlePrompt(evt) {
     }
 
     if (arg === "-" || arg === "off" || arg === "снять") {
+      const previous = readState(sessionId);
+      logRole(sessionId, "release", previous ? previous.role : null, cwd);
       try {
         fs.unlinkSync(statePath(sessionId));
       } catch {
@@ -176,6 +204,7 @@ function handlePrompt(evt) {
       JSON.stringify({ role: arg, cwd }, null, 2),
       "utf8"
     );
+    logRole(sessionId, "assign", arg, cwd);
     const charter = readText(path.join(rolesDir, `${arg}.md`));
     emitContext(
       `РОЛЬ НАЗНАЧЕНА: ${arg}. Дальше ты работаешь по этому уставу; ` +
@@ -240,7 +269,10 @@ function handleTool(evt) {
 
   if (tool === "Bash" || tool === "PowerShell" || tool === "shell") {
     const command = String(input.command ?? input.cmd ?? "");
-    if (role !== "integrator" && /\bgit\s+(merge|rebase|cherry-pick)\b/.test(command)) {
+    const integrates =
+      /\bgit\s+(merge|rebase|cherry-pick)\b/.test(command) ||
+      /\bgh\s+pr\s+merge\b/.test(command);
+    if (role !== "integrator" && integrates) {
       deny(
         "интеграцию веток ведёт роль integrator. Доменный оркестратор сдаёт " +
           "готовую ветку в очередь .agent/orchestration/integrator.md."

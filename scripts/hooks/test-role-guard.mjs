@@ -23,6 +23,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const HOOK = path.join(HERE, "role-guard.mjs");
 const REPO = path.resolve(HERE, "..", "..");
 const SESSION = "test-role-guard-session";
+const HISTORY = path.join(os.homedir(), ".claude", "geopolis-roles", "_history.jsonl");
 const STATE = path.join(
   os.homedir(),
   ".claude",
@@ -71,6 +72,34 @@ const context = (res) => {
   }
 };
 
+/**
+ * Журнал назначений — единственный след работы роли, переживающий сессию:
+ * состояние `<session>.json` удаляется командой `!роль -`, а история нужна,
+ * чтобы задним числом ответить, какие роли реально работали.
+ */
+const historyHas = (session, action, role = null) => {
+  let lines;
+  try {
+    lines = fs
+      .readFileSync(HISTORY, "utf8")
+      .split(/\r?\n/)
+      .filter(Boolean);
+  } catch {
+    return false;
+  }
+  return lines.some((line) => {
+    try {
+      const rec = JSON.parse(line);
+      return (
+        rec.session === session &&
+        rec.action === action &&
+        (role === null || rec.role === role)
+      );
+    } catch {
+      return false;
+    }
+  });
+};
 const CODE_FILE = path.join(REPO, "client", "src", "App.tsx");
 const LEDGER_FILE = path.join(REPO, ".agent", "orchestration", "geometry.md");
 
@@ -80,12 +109,17 @@ try {
   console.log("Негативный контроль — без роли хук не вмешивается:");
   check(edit(CODE_FILE).code === 0, "правка кода разрешена");
   check(bash("git merge main").code === 0, "git merge разрешён");
+  check(bash("gh pr merge 1 --merge").code === 0, "gh pr merge разрешён");
   check(prompt("обычный вопрос").stdout.trim() === "", "инъекции в контекст нет");
 
   console.log("Назначение роли:");
   const assigned = prompt("!роль geometry");
   check(assigned.code === 0, "команда принята");
   check(fs.existsSync(STATE), "состояние сессии записано");
+  check(
+    historyHas(SESSION, "assign", "geometry"),
+    "назначение записано в журнал"
+  );
   check(
     context(assigned).includes("РОЛЬ НАЗНАЧЕНА: geometry"),
     "устав отдан модели"
@@ -103,6 +137,10 @@ try {
     "причина названа ролью, а не общим запретом"
   );
   check(bash("git merge claude/foo").code === 2, "git merge заблокирован доменной роли");
+  check(
+    bash("gh pr merge 12 --squash").code === 2,
+    "gh pr merge заблокирован доменной роли"
+  );
 
   console.log("Роль активна — что остаётся разрешённым:");
   check(edit(LEDGER_FILE).code === 0, "реестр .agent/orchestration пишется");
@@ -129,11 +167,17 @@ try {
   fs.mkdirSync(path.dirname(STATE), { recursive: true });
   fs.writeFileSync(STATE, JSON.stringify({ role: "integrator", cwd: REPO }), "utf8");
   check(bash("git merge claude/foo").code === 0, "интегратору merge разрешён");
+  check(bash("gh pr merge 12 --squash").code === 0, "интегратору gh pr merge разрешён");
   check(edit(CODE_FILE).code === 2, "правка кода всё равно заблокирована");
 
   console.log("Снятие роли:");
   const off = prompt("!роль -");
   check(!fs.existsSync(STATE), "состояние удалено");
+  check(
+    historyHas(SESSION, "release"),
+    "снятие записано в журнал"
+  );
+  check(fs.existsSync(HISTORY), "журнал переживает снятие роли");
   check(context(off).includes("Роль снята"), "модель уведомлена");
   check(edit(CODE_FILE).code === 0, "правки снова разрешены");
 

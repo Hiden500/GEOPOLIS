@@ -196,21 +196,44 @@ export class LocalOpenAIProvider implements LLMProvider {
 
     const headers = localHeaders();
 
+    // ПОВТОР ПРИ 429. Шлюз с лимитом (cli-proxy-api, LiteLLM, облачный
+    // тариф) отвечает 429 и уводит модель в cooldown на секунды. Без повтора
+    // ход засчитывается ошибкой и партия теряет его целиком: прогон
+    // 2026-08-21 через cli-proxy дал 22 потерянных хода из 24, причём
+    // причина — лимит шлюза, а не отказ модели. Тот же класс уже сидел в
+    // архивных прогонах (429 в 1 из 24 записей
+    // .agent/runs/dated-events-2026-08-08/after-1/llm.jsonl) и там его
+    // приняли за отказ. Пауза берётся из Retry-After, если сервер её назвал.
+    const maxRetries = positiveIntFromEnv("LOCAL_LLM_RATE_LIMIT_RETRIES", 3);
+    const baseDelayMs = positiveIntFromEnv("LOCAL_LLM_RATE_LIMIT_BASE_MS", 2000);
+
     let response: Response;
-    try {
-      response = await fetch(`${baseUrl}/chat/completions`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(body),
-        signal: AbortSignal.timeout(timeoutMs),
-      });
-    } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
-      throw new LLMProviderError(
-        `Не удалось связаться с локальным LLM (${baseUrl}): ${reason}. ` +
-          "Проверьте, что рантайм запущен и модель загружена, либо переключитесь " +
-          "на облачный провайдер через LLM_PROVIDER=gemini."
-      );
+    let attempt = 0;
+    for (;;) {
+      try {
+        response = await fetch(`${baseUrl}/chat/completions`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(timeoutMs),
+        });
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        throw new LLMProviderError(
+          `Не удалось связаться с локальным LLM (${baseUrl}): ${reason}. ` +
+            "Проверьте, что рантайм запущен и модель загружена, либо переключитесь " +
+            "на облачный провайдер через LLM_PROVIDER=gemini."
+        );
+      }
+
+      if (response.status !== 429 || attempt >= maxRetries) break;
+
+      const retryAfter = Number(response.headers?.get?.("retry-after") ?? NaN);
+      const waitMs = Number.isFinite(retryAfter)
+        ? Math.min(retryAfter * 1000, 60_000)
+        : Math.min(baseDelayMs * 2 ** attempt, 60_000);
+      await new Promise(resolve => setTimeout(resolve, waitMs));
+      attempt += 1;
     }
 
     if (!response.ok) {

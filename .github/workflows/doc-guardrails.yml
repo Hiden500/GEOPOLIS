@@ -22,6 +22,12 @@ jobs:
       - name: Validate repository agent configuration and docs
         run: python3 .agent/evals/public/run_public_evals.py
 
+      # Единственный механизм удержания роли — хук; его 26 проверок не
+      # запускались нигде: ci.yml фильтрует пути кода, а eval выше проверяет
+      # лишь существование файла хука, но не его поведение.
+      - name: Test role-guard hook behaviour
+        run: node scripts/hooks/test-role-guard.mjs
+
       - name: Reject committed .repowise/ index
         run: |
           if git ls-files | grep -q '^\.repowise/'; then
