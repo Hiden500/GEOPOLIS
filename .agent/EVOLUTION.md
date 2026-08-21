@@ -2946,3 +2946,47 @@ Validation: один и тот же запрос до и после. До — о
 Fresh-session status: n/a — проверяется вызовом LSP, а не поведением сессии.
 
 Decision: keep.
+
+## 2026-08-21 — `pyright-config-at-root`
+
+Problem evidence: Pyright у Claude Code работал вслепую — в репозитории не было
+`pyrightconfig.json`, и он не знал про пути локальных модулей пайплайна карты.
+Замер на текущем `main`: **222 ошибки**, из них 10 — `reportMissingImports` на
+`geometry_cleanup` и соседей, то есть ЛОЖНЫЕ: так импортируют 48 из 112
+`.py`-файлов в `scripts/`. Остальные 212 — реальные замечания, но выданные с
+severity `error` в проекте, который типизацию Python держит на уровне `basic`.
+Ложная ошибка в редакторе дороже пропущенной: её перестают читать вместе с
+настоящими.
+
+Layer changed: `pyrightconfig.json` в корне.
+
+Файл написан сессией `agent-layer-delivery` (лежал у неё незакоммиченным вместе
+с `references/pyright-tuning.md`); взят с одним изменением — `include` расширен
+с `["scripts"]` до `["scripts", ".agent/evals"]`. Причина: `run_public_evals.py`
+гоняется в CI и правится агентами постоянно, а при исходной области не
+проверялся вовсе. Остальные 10 `.py` вне `scripts/` живут в `.agent/runs/` —
+это замороженные артефакты прогонов, проверять их незачем.
+
+Expected benefit: 0 ошибок вместо 222, реальные замечания видны как warning и не
+тонут в ложных.
+
+Risks and containment: конфиг ПОНИЖАЕТ до warning `reportAttributeAccessIssue`,
+`reportArgumentType`, `reportCallIssue`, `reportIndexIssue` — 208 замечаний
+меняют не смысл, а вес. Это не «починили 222», и путать эти числа нельзя: реально
+исчезли 10 (ложные импорты) и 5 `reportPossiblyUnboundVariable` (вышли из области
+вместе с `.agent/runs/`), остальные 207 остались на месте как warning.
+
+Validation: `npx pyright@latest` целиком по репозиторию.
+
+- без конфига — **222 errors**, exit 1 (107 attributeAccess, 62 argumentType,
+  38 callIssue, 10 missingImports, 5 possiblyUnbound);
+- с конфигом — **0 errors, 208 warnings**, exit 0;
+- негативный контроль: убрал `extraPaths` — вернулись **ровно 10
+  reportMissingImports**, то есть строка, ради которой конфиг заводится, работает;
+- расширение `include` на `.agent/evals` счёт не изменило: 0 errors до и после.
+
+`python .agent/evals/public/run_public_evals.py` — прогнан, см. коммит.
+
+Fresh-session status: n/a — проверяется прогоном pyright, не поведением сессии.
+
+Decision: keep.

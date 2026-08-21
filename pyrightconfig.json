@@ -1,0 +1,27 @@
+{
+  "include": [
+    "scripts",
+    ".agent/evals"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "scripts/map/out",
+    "scripts/map/data",
+    "scripts/map/master",
+    "scripts/map/sources"
+  ],
+  "extraPaths": [
+    "scripts/map",
+    "scripts/map/build"
+  ],
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": "error",
+  "reportUndefinedVariable": "error",
+  "reportMissingModuleSource": "none",
+  "reportAttributeAccessIssue": "warning",
+  "reportArgumentType": "warning",
+  "reportCallIssue": "warning",
+  "reportIndexIssue": "warning"
+}
