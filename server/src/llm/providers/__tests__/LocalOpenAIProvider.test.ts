@@ -227,6 +227,46 @@ describe("LocalOpenAIProvider", () => {
     );
   });
 
+  const tooManyRequests = () =>
+    ({
+      ok: false,
+      status: 429,
+      text: async () => '{\"error\":{\"code\":\"model_cooldown\"}}',
+      headers: { get: () => null },
+    }) as unknown as Response;
+
+  it("повторяет запрос при 429 и доводит ход до успеха", async () => {
+    // Шлюз с лимитом отвечает 429 и уводит модель в cooldown. Без повтора
+    // ход засчитывался ошибкой и партия теряла его целиком: прогон
+    // 2026-08-21 через cli-proxy дал 22 потерянных хода из 24. В архивных
+    // прогонах тот же класс уже встречался — 429 в 1 из 24 записей
+    // .agent/runs/dated-events-2026-08-08/after-1/llm.jsonl.
+    process.env.LOCAL_LLM_RATE_LIMIT_BASE_MS = "1";
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(tooManyRequests())
+      .mockResolvedValueOnce(tooManyRequests())
+      .mockResolvedValueOnce(okResponse('{\"title\":\"x\"}'));
+
+    const text = await new LocalOpenAIProvider().generateResponse("prompt");
+
+    expect(text).toContain("title");
+    expect(fetch).toHaveBeenCalledTimes(3);
+    delete process.env.LOCAL_LLM_RATE_LIMIT_BASE_MS;
+  });
+
+  it("сдаётся после исчерпания попыток и называет 429 в ошибке", async () => {
+    // Бесконечный повтор превратил бы недоступность шлюза в зависший ход.
+    process.env.LOCAL_LLM_RATE_LIMIT_BASE_MS = "1";
+    process.env.LOCAL_LLM_RATE_LIMIT_RETRIES = "2";
+    vi.mocked(fetch).mockResolvedValue(tooManyRequests());
+
+    await expect(new LocalOpenAIProvider().generateResponse("prompt")).rejects.toThrow(
+      /429/
+    );
+    expect(fetch).toHaveBeenCalledTimes(3);
+    delete process.env.LOCAL_LLM_RATE_LIMIT_BASE_MS;
+    delete process.env.LOCAL_LLM_RATE_LIMIT_RETRIES;
+  });
   it("подсказывает переключение на облако, когда рантайм недоступен", async () => {
     vi.mocked(fetch).mockRejectedValue(new Error("ECONNREFUSED"));
     const provider = new LocalOpenAIProvider();
