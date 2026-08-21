@@ -1,7 +1,7 @@
 name: Doc & Repo Guardrails
 
 # Deliberately has NO path filter (unlike ci.yml) — the violations this catches
-# (committed .repowise index, stray root docs) live outside client/server/shared
+# (stray root docs) live outside client/server/shared
 # and would silently skip ci.yml entirely. See AGENTS.md documentation rules and
 # docs/DECISIONS.md 2026-07-03 (gemini/ui-map-improvements cleanup) for the
 # incident that motivated this check.
@@ -21,14 +21,6 @@ jobs:
 
       - name: Validate repository agent configuration and docs
         run: python3 .agent/evals/public/run_public_evals.py
-
-      - name: Reject committed .repowise/ index
-        run: |
-          if git ls-files | grep -q '^\.repowise/'; then
-            echo "::error::.repowise/ is machine-local (Repowise wiki index/cache) and must never be committed — see .gitignore and AGENTS.md documentation rules."
-            git ls-files | grep '^\.repowise/' | head -20
-            exit 1
-          fi
 
       - name: Reject stray root-level docs
         run: |

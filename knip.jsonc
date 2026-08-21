@@ -1,0 +1,39 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+
+  // Workspaces заданы вручную: npm workspaces в репозитории НЕ объявлены,
+  // а shared/ вообще без package.json — knip сам их не найдёт. Без этого
+  // блока knip даёт 357 «неиспользуемых» файлов, включая точку входа
+  // client/src/main.tsx.
+  "workspaces": {
+    // shared/ живёт здесь, потому что своего package.json у него нет и
+    // ближайший workspace для его файлов — корень.
+    ".": {
+      "entry": ["scripts/**/*.{mjs,js,ts}"],
+      "project": ["scripts/**/*.{mjs,js,ts}", "shared/src/**/*.ts"],
+
+      /*
+       * vitest импортируется в shared/src/utils/*.test.ts, но в devDependencies
+       * корня его нет и быть не должно: тесты shared/ исполняет СЕРВЕРНЫЙ
+       * прогон — server/vitest.config.ts включает "../shared/src/**\/*.test.ts"
+       * (см. комментарий там: до Милстоуна 1 эти тесты не запускались нигде и
+       * nationalPower.test.ts лежал мёртвым). Значит vitest для них —
+       * серверная зависимость, объявленная в server/package.json.
+       *
+       * knip этого выразить не умеет: файл он привязывает к workspace по пути,
+       * и вынести shared/ в workspace "server" через project-глоб не выходит —
+       * проверено, unlisted остаётся. Отдавать shared/ собственный package.json
+       * ради линтера — значит завести второй экземпляр vitest и второй источник
+       * правды о его версии ради проблемы, которой нет в коде.
+       */
+      "ignoreDependencies": ["vitest"]
+    },
+    "client": {
+      "project": ["**/*.{ts,tsx,js,jsx}"]
+    },
+    "server": {
+      "entry": ["scripts/**/*.ts"],
+      "project": ["**/*.ts"]
+    }
+  }
+}
