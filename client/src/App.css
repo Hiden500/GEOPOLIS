@@ -231,7 +231,11 @@ button, select, input {
   background: transparent;
   border: none;
   border-bottom: 1px solid var(--color-hairline);
-  color: var(--color-brass-dim);
+  /* brass-dim давал контраст 3.85 при пороге WCAG 4.5 для 12px —
+     замер 2026-08-21, .agent/runs/ui-metrics-2026-08-21. На фонах темы
+     он не проходит нигде: 3.85 на ink, 3.33 на steel, 2.89 на
+     steel-light. brass из той же палитры даёт 7.03 / 6.08 / 5.27. */
+  color: var(--color-brass);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 1px;
