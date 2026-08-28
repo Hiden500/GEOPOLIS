@@ -73,14 +73,30 @@
   }
 
   // 2. Обрезанный текст.
-  const clipped = visible
+  //
+  // КАЛИБРОВКА 2. Обрезка бывает намеренной: `text-overflow: ellipsis` плюс
+  // `title` с полным текстом — это спроектированный фолбэк, а не дефект.
+  // Проверено 2026-08-21 на списке стран: все семь срабатываний оказались
+  // такими. Дефектом считаем обрезку БЕЗ многоточия или БЕЗ подсказки —
+  // тогда часть текста пропадает молча.
+  const hasFallback = (el) => {
+    const st = getComputedStyle(el);
+    const ellipsis = st.textOverflow === "ellipsis";
+    const hint = el.getAttribute("title") || el.getAttribute("aria-label") ||
+      el.closest("[title]") || el.closest("[aria-label]");
+    return ellipsis && Boolean(hint);
+  };
+  const clippedAll = visible
     .filter((el) => {
       const st = getComputedStyle(el);
       if (st.overflow === "visible" && st.overflowX === "visible") return false;
       return el.scrollWidth > el.clientWidth + 2 && el.textContent.trim().length > 0;
     })
-    .filter((el) => !isVisuallyHidden(el))
+    .filter((el) => !isVisuallyHidden(el));
+  const clipped = clippedAll
+    .filter((el) => !hasFallback(el))
     .map((el) => ({ client: el.clientWidth, scroll: el.scrollWidth, text: el.textContent.trim().slice(0, 40) }));
+  const clippedByDesign = clippedAll.length - clipped.length;
 
   // 3. Наложения элементов с собственным текстом.
   const leaves = visible.filter(
@@ -112,6 +128,7 @@
     lowContrastCount: lowContrast.length,
     lowContrast: lowContrast.slice(0, 10),
     clippedCount: clipped.length,
+    clippedByDesign,
     clipped: clipped.slice(0, 10),
     overlapsCount: overlaps.length,
     overlaps: overlaps.slice(0, 10),
