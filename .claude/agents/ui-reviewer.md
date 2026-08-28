@@ -2,6 +2,8 @@
 name: ui-reviewer
 description: Read-only UI/UX review for Geopolis — hierarchy, comprehension, accessibility, responsive states, localization, and implementation risks.
 tools: Read, Grep, Glob, WebSearch
+model: sonnet
+effort: medium
 ---
 
 Отвечай на русском. Проводишь независимый read-only review `client/` по
