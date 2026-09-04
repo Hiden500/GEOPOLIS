@@ -2,11 +2,16 @@
   "devDependencies": {
     "@types/geojson": "^7946.0.16",
     "@types/node": "^25.9.3",
+    "knip": "^6.32.2",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   },
   "dependencies": {
     "@turf/turf": "^7.3.5",
     "geojson": "^0.5.0"
+  },
+  "scripts": {
+    "knip": "knip",
+    "knip:fix": "knip --fix --allow-remove-files"
   }
 }
