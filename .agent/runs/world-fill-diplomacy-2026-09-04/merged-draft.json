@@ -1,0 +1,1936 @@
+{
+ "source": "gemini-3.8-flash-high via cli-proxy-api, two runs 2026-09-04, temperature 0.3",
+ "note": "ЧЕРНОВИК. confidence=both — пара воспроизвелась в обоих прогонах; run1/run2 — только в одном.",
+ "rivalries": [
+  {
+   "a": "AFG",
+   "b": "GBR",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Afghan repudiation of the Durand Line agreement of 1893 and demands for Pashtun self-determination ahead of British withdrawal"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "AFG",
+   "b": "IND",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Afghan repudiation of the Durand Line border and territorial claims over Pashtun regions of British India"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ALB",
+   "b": "GBR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "British refusal of diplomatic recognition to Hoxha's communist regime and naval tension over Albanian coastal waters"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ALB",
+   "b": "GRC",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Technical state of war existing since 1940, Greek claims to Northern Epirus, and Albanian assistance to Greek communist guerrillas",
+    "run2": "Active state of war, Greek claims to Northern Epirus, and Albanian logistical support for communist forces in the Greek Civil War"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ALB",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "US non-recognition and withdrawal of its diplomatic mission from Tirana over human rights and treaty non-compliance"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ARG",
+   "b": "BRA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Strategic rivalry for regional military and diplomatic hegemony in the Southern Cone and South Atlantic",
+    "run2": "Strategic rivalry for regional military, economic, and geopolitical leadership in South America and the River Plate basin"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ARG",
+   "b": "GBR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Sovereignty dispute over the Falkland Islands (Islas Malvinas), South Georgia, and Antarctic territorial sectors"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ARG",
+   "b": "URY",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Uruguayan endorsement of the 1945 Rodríguez Larreta doctrine proposing multilateral intervention against authoritarian rule in Argentina",
+    "run2": "Uruguayan harboring of anti-Peronist Argentine political exiles and promotion of the Larreta Doctrine advocating multilateral intervention"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ARG",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Severe diplomatic confrontation over wartime Argentine neutrality and US Ambassador Spruille Braden's campaign against Juan Perón",
+    "run2": "Severe diplomatic hostility over Argentine wartime neutrality and pro-Axis sympathies, highlighted by Ambassador Braden and the 1946 Blue Book"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "BGR",
+   "b": "GRC",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Greek territorial claims, demands for wartime reparations following the 1941-1944 Bulgarian occupation of Western Thrace, and border skirmishes",
+    "run2": "Border hostility over Western Thrace, Greek demands for strategic border rectifications, and the legacy of the wartime Bulgarian occupation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "BGR",
+   "b": "TUR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Soviet-backed Bulgarian troop mobilizations and border fortifications threatening Turkish Eastern Thrace",
+    "run2": "Border militarization in Thrace driven by Bulgaria's Soviet alignment and Soviet pressure against Turkey"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "BOL",
+   "b": "CHL",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Bolivian revanchist demands for sovereign access to the Pacific Ocean lost during the War of the Pacific"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "BOL",
+   "b": "PRY",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Unresolved post-war animosity and unsettled border demarcation disputes remaining from the Chaco War (1932-1935)",
+    "run2": "Lingering mutual suspicion, frontier militarization, and unresolved tensions in the Chaco following the 1932-1935 Chaco War"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CHL",
+   "b": "GBR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Overlapping territorial claims in Antarctica between the British Falkland Islands Dependencies and the 1940 Chilean Antarctic decree"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "CHL",
+   "b": "PER",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Historic post-War of the Pacific antagonism and competition for naval influence in the southeastern Pacific"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "CHN",
+   "b": "GBR",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Chinese Communist ideological hostility toward British imperialism and unresolved status of the British Crown Colony of Hong Kong"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "CHN",
+   "b": "QTB",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Chinese Communist Party ideological claim of sovereign dominion over de facto independent Tibet"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "CHN",
+   "b": "TWN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Chinese Civil War renewed between the Chinese Communist Party and the Nationalist Kuomintang government after the failed Chongqing negotiations of late 1945",
+    "run2": "Chinese Civil War resumed following the breakdown of post-WWII power-sharing negotiations between the Kuomintang and the CCP"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CHN",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "US military airlifts, sealifts, and logistical backing of Nationalist troops deployed against Communist forces in northern China",
+    "run2": "US military logistics, air transport, and equipment provision aiding Nationalist forces fighting the Chinese Communist Party"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CRI",
+   "b": "NIC",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Political hostility and cross-border tensions between Costa Rica's reformist government and the Anastasio Somoza dictatorship in Nicaragua"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "CSK",
+   "b": "HUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Post-war Czechoslovak Beneš decrees stripping ethnic Hungarians of citizenship, forced deportations, and border tensions in southern Slovakia",
+    "run2": "Postwar persecution, disenfranchisement, and forced population transfers of ethnic Hungarians under the Czechoslovak Beneš decrees"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CSK",
+   "b": "POL",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Armed border standoff and competing claims over Zaolzie (Cieszyn Silesia) and the Kłodzko region following the June 1945 military deployments",
+    "run2": "Armed standoffs and bitter territorial disputes over Zaolzie (Teschen Silesia), Orava, Spiš, and Kłodzko"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "DOM",
+   "b": "HTI",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Enduring geopolitical hostility and border militarization following the 1937 Parsley Massacre perpetrated by the Trujillo regime",
+    "run2": "Severe cross-border animosity and border militarization persisting after the 1937 Parsley Massacre under Trujillo's regime"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ECU",
+   "b": "PER",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Ecuadorian contestation of the border demarcation established under the Rio Protocol of 1942 following the 1941 Ecuadorian-Peruvian War",
+    "run2": "Ecuadorian contestation of the border demarcation in the Cenepa and Cordillera del Cóndor sectors following the 1942 Rio Protocol"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "EGY",
+   "b": "GBR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Egyptian nationalist unrest and official demands for total British military evacuation and revision of the 1936 Anglo-Egyptian Treaty"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ESP",
+   "b": "FRA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "French diplomatic hostility, impending border closure, and anti-Franco sanctions following the Potsdam Declaration of 1945",
+    "run2": "French diplomatic hostility toward Franco's authoritarian regime, culminating in the complete closure of the Pyrenean border in early 1946"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ESP",
+   "b": "GBR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "British diplomatic condemnation and isolation of Francisco Franco's regime pursuant to the Potsdam Declaration of 1945",
+    "run2": "Sovereignty dispute over Gibraltar and British support for the diplomatic containment of the Francoist dictatorship"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ESP",
+   "b": "MEX",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Mexican non-recognition of the Francoist dictatorship and Mexico's official diplomatic hosting of the Spanish Republican government-in-exile",
+    "run2": "Mexican absolute refusal to recognize the Franco regime, maintaining official diplomatic recognition of the Spanish Republican government-in-exile"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ESP",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Ideological enmity stemming from the Spanish Civil War and the dispatch of the Spanish Blue Division to invade the Soviet Union in 1941",
+    "run2": "Ideological enmity stemming from the Spanish Civil War and the deployment of the Spanish Blue Division on the Soviet front"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ESP",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "United States diplomatic ostracism and veto against Spanish admission to the United Nations under the August 1945 Potsdam agreement",
+    "run2": "US diplomatic pressure, Potsdam Conference condemnation, and formal exclusion of Franco's Spain from the United Nations system"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ETH",
+   "b": "GBR",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Ethiopian diplomatic struggle to end British military occupation over the Ogaden and the Reserved Area retained under the Anglo-Ethiopian Agreement of 1944"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "ETH",
+   "b": "ITA",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Ethiopian demands for sovereignty over Eritrea and Italian war reparations following the Second Italo-Ethiopian War and occupation of 1935-1941"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "FRA",
+   "b": "LBN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Lebanese nationalist demands for immediate evacuation of French troops and full termination of mandatory prerogatives",
+    "run2": "Lebanese popular and diplomatic agitation against lingering French military garrisons demanding unconditional troop evacuation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "FRA",
+   "b": "QDV",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Guerrilla warfare and armed clashes in southern Indochina following Ho Chi Minh's declaration of independence in September 1945 and French reoccupation",
+    "run2": "Outbreak of the First Indochina War as France deployed the French Far East Expeditionary Corps to crush the Democratic Republic of Vietnam"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "FRA",
+   "b": "SYR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Armed clashes and Syrian independence agitation following the French bombardment of Damascus in May 1945",
+    "run2": "Syrian nationalist confrontation and armed clashes demanding immediate and unconditional withdrawal of all French military forces"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "FRA",
+   "b": "THA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "French insistence on the unconditional retrocession of Cambodian and Lao provinces annexed by Thailand in the Franco-Thai War of 1940-1941",
+    "run2": "Dispute over Cambodian and Lao territories annexed by Thailand in 1941 under Japanese auspices, with France refusing ties until retrocession"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "GTM",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Guatemalan constitutional declaration of 1945 asserting sovereign ownership over the territory of British Honduras",
+    "run2": "Guatemalan constitutional claims asserting sovereignty over British Honduras (Belize) in its new 1945 constitution"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "QAZ",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "British opposition to the Soviet-backed separatist Azerbaijan People's Government threatening Iranian oil fields and regional stability"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "QDV",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "British military operations under Operation Masterdom engaging Viet Minh forces in southern Vietnam to re-establish French rule"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "QMH",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "British diplomatic resistance to the Soviet-sponsored Kurdish Republic of Mahabad threatening the territorial integrity of Iran"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "QRI",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Intense armed combat in Java and Sumatra between British/Indian occupation forces and Indonesian republicans following the Battle of Surabaya in late 1945",
+    "run2": "British armed clashes with Indonesian republican forces, culminating in the heavy combat of the Battle of Surabaya"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Emerging Cold War competition across the Mediterranean, British support for monarchists in Greece, and Soviet pressure on Turkey and Iran",
+    "run2": "Emerging Cold War confrontation over Soviet military presence in northern Iran, pressure on the Turkish Straits, and dominance in Eastern Europe"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "THA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "State of war terminated under punitive British terms in the Anglo-Thai Formal Agreement signed on January 1, 1946, requiring massive rice deliveries",
+    "run2": "Formal state of war declared in 1942, resolved through coercive British terms and rice reparations in the Formal Agreement of January 1, 1946"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "YUG",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Armed confrontation over Tito's territorial claims to Trieste, the Julian March, and southern Carinthia along the Morgan Line"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GRC",
+   "b": "SUN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Soviet diplomatic campaigns at the UN Security Council against British troops in Greece and covert Soviet support for Greek communist neighbors"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GRC",
+   "b": "YUG",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Yugoslav military and logistic sponsorship of the communist Democratic Army of Greece and claims on Greek Aegean Macedonia",
+    "run2": "Yugoslav arms, supply bases, and logistical sanctuary provided to communist partisans in the Greek Civil War, plus Macedonian claims"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "HUN",
+   "b": "ROU",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Territorial dispute and ethnic friction regarding the sovereignty of Northern Transylvania, returned to Romanian administration in March 1945",
+    "run2": "Contested sovereignty, border revisions, and ethnic minority status in Northern Transylvania following its restoration to Romania"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "IDN",
+   "b": "QRI",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Indonesian National Revolution; colonial Dutch East Indies administration attempting to suppress the revolutionary Republic of Indonesia"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "IRN",
+   "b": "QAZ",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Separatist rebellion of the Soviet-installed Azerbaijan People's Government proclaimed in Tabriz in December 1945 against Iranian sovereignty",
+    "run2": "Separatist rebellion of the Soviet-established Azerbaijan People's Government against Iranian central authority"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "IRN",
+   "b": "QMH",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Separatist rebellion of the Soviet-backed Republic of Mahabad proclaimed in January 1946 on sovereign Iranian territory",
+    "run2": "Proclamation of the independent Kurdish Republic of Mahabad within sovereign Iranian territory backed by Soviet occupation forces"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "IRN",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Iran Crisis of 1946 caused by the Soviet Union's refusal to withdraw Red Army troops pursuant to the Tripartite Treaty of 1942",
+    "run2": "Iran Crisis of 1946 caused by Soviet refusal to withdraw the Red Army by the March 2 deadline under the 1942 Tripartite Treaty"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "IRQ",
+   "b": "SAU",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Hashemite-Saudi dynastic rivalry for ideological and political leadership of the Arab world and Hashemite Greater Syria projects"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ITA",
+   "b": "YUG",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Violent standoff over the Morgan Line and competing sovereignty claims over Trieste, Istria, and Venezia Giulia",
+    "run2": "Bitter territorial standoff over Trieste, Istria, and Venezia Giulia, resulting in the Morgan Line division and foibe massacres"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "JOR",
+   "b": "SAU",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Dynastic friction between the Hashemite Emirate of Transjordan and the House of Saud over regional hegemony and borders"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "NLD",
+   "b": "QRI",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Indonesian National Revolution against Dutch restoration of colonial rule following the August 1945 proclamation of independence",
+    "run2": "Indonesian War of Independence; Dutch rejection of the August 1945 proclamation of independence and military efforts to regain the colony"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "QAZ",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "US diplomatic pressure at the UN Security Council against the Soviet-controlled puppet administration in Iranian Azerbaijan"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QDV",
+   "b": "VNM",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Armed insurgency by the Viet Minh against the French colonial administration of Indochina"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QGA",
+   "b": "QGS",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Occupation friction over Soviet dismantling of industrial plants for reparations, economic disunity, and forced KPD-SPD political merger"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QGB",
+   "b": "QGS",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "British-Soviet clash over the economic extraction of Ruhr coal, German reparations deliveries, and central administrative authorities"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QGF",
+   "b": "QGS",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "French obstruction of centralized German administrative bodies opposing Soviet policies in the Allied Control Council"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QKA",
+   "b": "QKS",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Cold War division and military standoff across the 38th parallel between the American and Soviet occupation administrations in Korea",
+    "run2": "Cold War partition along the 38th parallel and political deadlock over trusteeship between US and Soviet occupation forces in Korea"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "QMH",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "US diplomatic opposition to the Soviet-backed Kurdish separatist state of Mahabad challenging Iranian sovereign integrity"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QMS",
+   "b": "TWN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Nationalist Chinese protests against Soviet military occupation and industrial looting of Manchuria prior to scheduled withdrawal",
+    "run2": "Soviet occupation forces blocking Nationalist Chinese troops from Manchurian ports while stripping industrial facilities as war booty"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "QOA",
+   "b": "QOS",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Inter-zonal rivalry in Austria over Soviet seizure of Austrian industrial enterprises under the pretext of German external assets"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QOB",
+   "b": "QOS",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "British-Soviet friction in Austria regarding food allocation, reparations demands, and Austrian government autonomy"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QTB",
+   "b": "TWN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Tibetan maintenance of de facto independence and rejection of the Republic of China's constitutional claims of territorial sovereignty"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "SUN",
+   "b": "TUR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Soviet demands for military bases in the Turkish Straits and territorial cessions of Kars and Ardahan initiated in June 1945",
+    "run2": "Soviet territorial demands for Kars and Ardahan, demands for military bases in the Turkish Straits, and cancellation of the 1925 treaty"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "SUN",
+   "b": "TWN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Soviet covert assistance to the CCP and obstruction of Nationalist sovereignty in Manchuria in breach of the August 1945 treaty"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "SUN",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Emerging Cold War conflict over the atomic monopoly, the division of Germany, and Soviet non-compliance with the Yalta Declaration on Liberated Europe",
+    "run2": "Global geopolitical rivalry over the nuclear monopoly, democratic governance in Eastern Europe, and the Soviet military crisis in Iran"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "SYR",
+   "b": "TUR",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Syrian non-recognition and diplomatic contestation of the 1939 French transfer of the Sanjak of Alexandretta (Hatay) to Turkey"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "USA",
+   "b": "YUG",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Confrontation over Yugoslav incursions in Trieste and the shooting down and harassment of US military transport aircraft"
+   },
+   "confidence": "run2"
+  }
+ ],
+ "alliances": [
+  {
+   "a": "AFG",
+   "b": "IRN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Saadabad Pact of 1937 providing for non-aggression, consultation, and mutual security"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "AFG",
+   "b": "TUR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Saadabad Pact of 1937 and the 1921 Afghan-Turkish Treaty of Friendship and Mutual Assistance"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ALB",
+   "b": "YUG",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Treaty-level military coordination, Yugoslav economic integration, and military advisers deployed in Albania following liberation in 1945",
+    "run2": "Close military-political alliance, joint military coordination, and preparatory steps toward customs union and federation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "AUS",
+   "b": "GBR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Imperial defense obligations, allegiance to the Crown, and military cooperation under the Statute of Westminster 1931",
+    "run2": "British Commonwealth of Nations alliance, Statute of Westminster 1931, and joint military command in WWII"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "AUS",
+   "b": "NZL",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Australia-New Zealand Agreement (Canberra Pact) of January 1944 providing for joint defense and mutual security in the South Pacific",
+    "run2": "Canberra Pact (ANZAC Agreement) of January 1944 establishing a common defense and foreign policy framework in the South Pacific"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "BEL",
+   "b": "FRA",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Franco-Belgian military cooperation accords and wartime alliance against Nazi Germany"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "BEL",
+   "b": "GBR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Anglo-Belgian military agreement and joint post-war defense cooperation established during World War II",
+    "run2": "WWII Western European alliance, mutual defense cooperation, and post-liberation military integration"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "BEL",
+   "b": "LUX",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Belgium-Luxembourg Economic Union of 1921 and joint signature of the Benelux customs convention of 1944"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "BEL",
+   "b": "NLD",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Benelux customs convention signed in London in September 1944 creating post-war economic and security alignment"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "BGR",
+   "b": "YUG",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Close communist alignment, regional mutual security cooperation, and initial negotiations for a South Slav Federation"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "BRA",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Joint Brazil-United States Defense Commission of 1942 and wartime military alliance exemplified by the Brazilian Expeditionary Force in Europe",
+    "run2": "Act of Chapultepec of March 1945, Joint Brazil-US Defense Commission, and joint combat deployment in the Italian campaign"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CAN",
+   "b": "GBR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Commonwealth mutual defense partnership and constitutional ties under the Statute of Westminster 1931",
+    "run2": "British Commonwealth of Nations alliance, Statute of Westminster 1931, and unified strategic defense in WWII"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CAN",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Ogdensburg Agreement of 1940 establishing the Permanent Joint Board on Defence for mutual continental defense",
+    "run2": "Permanent Joint Board on Defense established under the Ogdensburg Agreement of 1940"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CHL",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 providing for hemispheric reciprocal assistance and collective defense"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "CHN",
+   "b": "SUN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Ideological alliance and Soviet logistical, military, and advisory backing for the Chinese Communist Party in Manchuria"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "COL",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "CRI",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "CSK",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Czechoslovak-Soviet Treaty of Friendship, Mutual Assistance and Post-War Cooperation signed in December 1943",
+    "run2": "Treaty of Friendship, Mutual Assistance and Post-War Cooperation signed December 12, 1943"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "CSK",
+   "b": "YUG",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Bilateral diplomatic and mutual assistance cooperation rooted in the Little Entente and post-war Slavic solidarity"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "CUB",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Treaty of Relations of 1934 and bilateral military defense agreements granting US naval rights at Guantanamo Bay",
+    "run2": "Act of Chapultepec of March 1945 and bilateral military base and naval defense cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "DNK",
+   "b": "GBR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Post-liberation military cooperation, British training missions, and shared North Sea security arrangements"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "DNK",
+   "b": "NOR",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Nordic bilateral defense and diplomatic cooperation consolidated following joint liberation from German occupation in 1945"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "DOM",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "ECU",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 and wartime/postwar US military operating rights in the Galápagos and Salinas"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "EGY",
+   "b": "GBR",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Anglo-Egyptian Treaty of 1936 establishing a formal bilateral military alliance and British garrisoning rights for the defense of the Suez Canal"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "EGY",
+   "b": "IRQ",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in Cairo in March 1945 establishing collective security and diplomatic coordination",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "EGY",
+   "b": "LBN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in Cairo in March 1945 establishing regional mutual defense and cooperation",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "EGY",
+   "b": "SAU",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in Cairo in March 1945 establishing mutual defense and diplomatic alignment",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "EGY",
+   "b": "SYR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in Cairo in March 1945 establishing mutual defense and cooperation",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "EGY",
+   "b": "YEM",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in Cairo in March 1945 establishing mutual defense and diplomatic alignment",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "ESP",
+   "b": "PRT",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Iberian Pact (Treaty of Friendship and Non-Aggression of 1939, extended by the Additional Protocol of 1940)"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "FRA",
+   "b": "GBR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Allied partnership in the European Advisory Commission, Combined Chiefs of Staff, and joint administration of occupation zones in Germany and Austria",
+    "run2": "Western Allied coalition, Entente cordiale partnership, and shared coordination in the occupation of Germany and Austria"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "FRA",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Franco-Soviet Treaty of Mutual Assistance signed in Moscow in December 1944 for joint action against German resurgence",
+    "run2": "Franco-Soviet Treaty of Mutual Assistance and Alliance signed December 10, 1944"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "FRA",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Allied wartime partnership and joint policy coordination in the occupation of Germany and Austria",
+    "run2": "Western Allied coalition, post-liberation rearmament aid, and occupation cooperation in Western Europe"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "FRA",
+   "b": "VNM",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Metropolitan sovereign authority protecting and administering the colonial French Indochinese Union"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "GRC",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "British military intervention, military advisory mission, and armed support for the Greek Royalist government"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "IRN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Tripartite Treaty of Alliance of 1942 guaranteeing Iranian independence and British military-political support"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "IRQ",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Anglo-Iraqi Treaty of 1930 establishing a military alliance and British airbase rights at Habbaniya and Shaibah",
+    "run2": "Anglo-Iraqi Treaty of 1930 establishing a mutual defense alliance and British military airbase rights at Habbaniya and Shaibah"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "NLD",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "WWII Western Allied coalition, liberation cooperation, and British military support for Dutch administration in Southeast Asia"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "NOR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "WWII alliance, joint naval operations, and postwar bilateral military defense agreements"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "NZL",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Commonwealth mutual defense obligations and shared foreign policy coordination under the Statute of Westminster 1931",
+    "run2": "British Commonwealth of Nations alliance, Statute of Westminster 1931, and joint military defense"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "PRT",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Anglo-Portuguese Alliance confirmed by the 1386 Treaty of Windsor and the 1943 Azores military facilities agreement"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "GBR",
+   "b": "TUR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Anglo-Franco-Turkish Treaty of Mutual Assistance signed October 19, 1939"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "GBR",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Wartime Grand Alliance, the Atlantic Charter of 1941, Combined Chiefs of Staff, and the Hyde Park Agreement of 1944",
+    "run2": "WWII Grand Alliance, Combined Chiefs of Staff, nuclear collaboration, and the post-war Special Relationship"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GBR",
+   "b": "ZAF",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Commonwealth collective defense commitments and imperial cooperation governed by the Statute of Westminster 1931",
+    "run2": "British Commonwealth of Nations alliance, Statute of Westminster 1931, and wartime joint military command"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "GTM",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "HND",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "HTI",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "IDN",
+   "b": "NLD",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Constitutional and military subordination of the colonial administration to the government of the Kingdom of the Netherlands"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "IRN",
+   "b": "IRQ",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Saadabad Pact of 1937 providing for regional non-aggression, boundary inviolability, and mutual consultation"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "IRN",
+   "b": "TUR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Saadabad Pact of 1937 providing for regional non-aggression, boundary inviolability, and mutual consultation"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "IRN",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "US military advisory missions (GENMISH and ARMISH) and diplomatic defense of Iranian territorial integrity"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "IRQ",
+   "b": "LBN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in March 1945 establishing collective regional defense and political solidarity",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "IRQ",
+   "b": "SAU",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Treaty of Arab Brotherhood and Alliance of 1936 and the Pact of the League of Arab States signed in March 1945"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "IRQ",
+   "b": "SYR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in March 1945 establishing mutual diplomatic and military solidarity",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "IRQ",
+   "b": "TUR",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Saadabad Pact of 1937 providing for regional non-aggression, boundary inviolability, and mutual consultation"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "IRQ",
+   "b": "YEM",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Treaty of Arab Brotherhood and Alliance of 1936 and the Pact of the League of Arab States of March 1945",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "LBN",
+   "b": "SAU",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in March 1945 establishing regional security and mutual defense",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "LBN",
+   "b": "SYR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Common customs and security union established upon independence and the Pact of the League of Arab States of March 1945",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, and joint diplomatic front against French military presence"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "LBN",
+   "b": "YEM",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in March 1945 establishing collective security and diplomatic coordination",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "LUX",
+   "b": "NLD",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Benelux customs convention of September 1944 establishing economic integration and mutual security coordination"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "MEX",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Joint Mexican-United States Defense Commission created in 1942 for mutual continental security and Pacific defense",
+    "run2": "Joint Mexican-United States Defense Commission of 1942 and the Act of Chapultepec of March 1945"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "MNG",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Soviet-Mongolian Protocol of Mutual Assistance of 1936 and joint military operations against Japan in August 1945",
+    "run2": "Soviet-Mongolian Protocol of Mutual Assistance of 1936, providing mutual military defense against external aggression"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "NIC",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "PAN",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "General Treaty of Friendship and Cooperation of 1936 providing for joint defense and security of the Panama Canal"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "PER",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 and bilateral US naval and aviation training missions"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "POL",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Polish-Soviet Treaty of Friendship, Mutual Assistance and Post-War Cooperation signed in Moscow in April 1945",
+    "run2": "Treaty of Friendship, Mutual Assistance and Post-War Cooperation signed April 21, 1945"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "POL",
+   "b": "YUG",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Post-war mutual diplomatic alignment, bilateral trade treaties, and Slavic mutual assistance cooperation against German revival"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "PRY",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QAZ",
+   "b": "QMH",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Treaty of friendship and mutual defense between the Soviet-backed Azerbaijan and Mahabad breakaway republics"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QAZ",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Soviet Red Army military protection, arms supplies, and political patronage establishing the Azerbaijan People's Government in December 1945",
+    "run2": "Soviet Red Army military protection, arms transfers, and direct sponsorship of the Azerbaijan People's Government"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "QGA",
+   "b": "QGB",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Administrative, economic, and political cooperation between US and British occupation authorities in Germany preparing the Bizone"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QGA",
+   "b": "QGF",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Western Allied coordination and consensus within the Allied Control Council in Germany"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QGB",
+   "b": "QGF",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Western Allied coordination and consensus within the Allied Control Council in Germany"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QKA",
+   "b": "USA",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Direct administrative authority, military protection, and governing mandate exercised by the United States Army Military Government in Korea"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "QKS",
+   "b": "SUN",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Direct Soviet military administration and political patronage establishing the North Korean provisional state structures"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "QMH",
+   "b": "SUN",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Soviet Red Army armaments, logistics, and military cover facilitating the proclamation of the Republic of Mahabad in January 1946",
+    "run2": "Soviet military logistics, weapons supplies, and political patronage establishing the Kurdish Republic of Mahabad"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "QMS",
+   "b": "SUN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Direct Soviet Red Army command and military administration over occupied Manchuria"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QOA",
+   "b": "QOB",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Anglo-American administrative collaboration and security coordination in the Allied Commission for Austria"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QOA",
+   "b": "QOF",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Franco-American administrative collaboration and security coordination in the Allied Commission for Austria"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "QOB",
+   "b": "QOF",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Anglo-French administrative collaboration and security coordination in the Allied Commission for Austria"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "SAU",
+   "b": "SYR",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in March 1945 establishing collective defense and diplomatic alignment",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "SAU",
+   "b": "YEM",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Treaty of Taif of 1934 and the Pact of the League of Arab States of March 1945"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "SLV",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "SUN",
+   "b": "TWN",
+   "runs": [
+    "run1"
+   ],
+   "why": {
+    "run1": "Sino-Soviet Treaty of Friendship and Alliance signed in August 1945 recognizing Nationalist sovereignty in exchange for rights in Port Arthur and Dalian"
+   },
+   "confidence": "run1"
+  },
+  {
+   "a": "SUN",
+   "b": "YUG",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Soviet-Yugoslav Treaty of Friendship and Mutual Assistance signed in Moscow in April 1945",
+    "run2": "Treaty of Friendship, Mutual Assistance and Post-War Cooperation signed April 11, 1945"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "SYR",
+   "b": "YEM",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Pact of the League of Arab States signed in March 1945 establishing regional collective security",
+    "run2": "Pact of the League of Arab States signed March 22, 1945, providing for joint defense and political cooperation"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "TUR",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "US diplomatic support and Mediterranean naval deployment (USS Missouri) resisting Soviet territorial claims"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "TWN",
+   "b": "USA",
+   "runs": [
+    "run1",
+    "run2"
+   ],
+   "why": {
+    "run1": "Sino-American wartime alliance, US military advisory deployment, and naval/air transport agreements aiding the Nationalist government",
+    "run2": "Sino-American wartime alliance, US military advisory missions, and financial-military assistance under Lend-Lease"
+   },
+   "confidence": "both"
+  },
+  {
+   "a": "URY",
+   "b": "USA",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 and wartime/postwar naval patrol cooperation in the South Atlantic"
+   },
+   "confidence": "run2"
+  },
+  {
+   "a": "USA",
+   "b": "VEN",
+   "runs": [
+    "run2"
+   ],
+   "why": {
+    "run2": "Act of Chapultepec of March 1945 establishing an inter-American mutual defense and reciprocal assistance framework"
+   },
+   "confidence": "run2"
+  }
+ ]
+}
