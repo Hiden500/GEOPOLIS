@@ -51,6 +51,32 @@
           }
         ]
       }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto|manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/session-guard.mjs",
+            "timeout": 10,
+            "statusMessage": "срез перед сжатием контекста"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/session-guard.mjs",
+            "timeout": 10,
+            "statusMessage": "якорь сессии после сжатия"
+          }
+        ]
+      }
     ]
   }
 }
