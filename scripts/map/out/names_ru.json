@@ -48,46 +48,6 @@
   "name_ru": "Брит. территория в Индийском океане (Чагос)"
  },
  {
-  "region_id": "AFR-0008",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "RW",
-  "name_en": "Eastern",
-  "name_ru": "Восточный"
- },
- {
-  "region_id": "AFR-0009",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "RW",
-  "name_en": "Southern",
-  "name_ru": "Южный"
- },
- {
-  "region_id": "AFR-0010",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "RW",
-  "name_en": "Western",
-  "name_ru": "Западный"
- },
- {
-  "region_id": "AFR-0011",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "RW",
-  "name_en": "Northern",
-  "name_ru": "Северный"
- },
- {
-  "region_id": "AFR-0012",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "RW",
-  "name_en": "Kigali City",
-  "name_ru": "Кигали Сити"
- },
- {
   "region_id": "AFR-0013",
   "continent": "Africa",
   "region_type": "land",
@@ -222,110 +182,6 @@
   "iso_a2": "DZ",
   "name_en": "Alger",
   "name_ru": "Алжир"
- },
- {
-  "region_id": "AFR-0030",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Est",
-  "name_ru": "Стандартное восточное время"
- },
- {
-  "region_id": "AFR-0031",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Cascades",
-  "name_ru": "Каскады"
- },
- {
-  "region_id": "AFR-0032",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Sud-Ouest",
-  "name_ru": "Юг-Запад"
- },
- {
-  "region_id": "AFR-0033",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Sahel",
-  "name_ru": "Сахель"
- },
- {
-  "region_id": "AFR-0034",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Nord",
-  "name_ru": "Норд"
- },
- {
-  "region_id": "AFR-0035",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Boucle du Mouhoun",
-  "name_ru": "Букль дю Мухун"
- },
- {
-  "region_id": "AFR-0036",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Hauts-Bassins",
-  "name_ru": "Верхний Бассен"
- },
- {
-  "region_id": "AFR-0037",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Centre-Est",
-  "name_ru": "Центр-Восток"
- },
- {
-  "region_id": "AFR-0038",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Centre-Sud",
-  "name_ru": "Центр-Юг"
- },
- {
-  "region_id": "AFR-0039",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Centre-Ouest",
-  "name_ru": "Центр-Запад"
- },
- {
-  "region_id": "AFR-0040",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Plateau-Central",
-  "name_ru": "Плато-Центральное"
- },
- {
-  "region_id": "AFR-0041",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Centre",
-  "name_ru": "Центр"
- },
- {
-  "region_id": "AFR-0042",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BF",
-  "name_en": "Centre-Nord",
-  "name_ru": "Центр-Норд"
  },
  {
   "region_id": "AFR-0043",
@@ -1526,30 +1382,6 @@
   "iso_a2": "CG",
   "name_en": "Cuvette",
   "name_ru": "Кювета"
- },
- {
-  "region_id": "AFR-0193",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BI",
-  "name_en": "Bujumbura Rural",
-  "name_ru": "Бужумбура Сельский"
- },
- {
-  "region_id": "AFR-0194",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BI",
-  "name_en": "Makamba",
-  "name_ru": "Макамба"
- },
- {
-  "region_id": "AFR-0195",
-  "continent": "Africa",
-  "region_type": "land",
-  "iso_a2": "BI",
-  "name_en": "Ruyigi",
-  "name_ru": "Руйиги"
  },
  {
   "region_id": "ANT-0001",
@@ -12030,5 +11862,29 @@
   "iso_a2": null,
   "name_en": "Arctic — Euro-Atlantic Sector",
   "name_ru": "Арктика — Евро-Атлантический сектор"
+ },
+ {
+  "region_id": "AFR-0008",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "RW",
+  "name_en": "Rwanda",
+  "name_ru": "Руанда"
+ },
+ {
+  "region_id": "AFR-0193",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "BI",
+  "name_en": "Burundi",
+  "name_ru": "Бурунди"
+ },
+ {
+  "region_id": "AFR-0030",
+  "continent": "Africa",
+  "region_type": "land",
+  "iso_a2": "BF",
+  "name_en": "Haute-Volta",
+  "name_ru": "Верхняя Вольта"
  }
 ]

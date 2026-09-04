@@ -8,7 +8,12 @@
  *   2. Ручные правки генерируемых данных (server/data/scenarios/**,
  *      scripts/map/out/**) — данные меняются пайплайном (scripts/map/AGENTS.md);
  *   3. Разрушительные команды в Bash/PowerShell: git push --force,
- *      git reset --hard, git clean -f, rm -rf.
+ *      git reset --hard, git clean -f, rm -rf;
+ *   4. Правку мастера геометрии (scripts/map/master/*.geojson) без
+ *      вызванного в этой же сессии Skill(map-geometry-qa) — маркер пишет
+ *      skill-marker.mjs (PostToolUse на Skill). Единственный ОДНОЗНАЧНЫЙ
+ *      геометрический путь: наивный матч по всему scripts/map/build/**
+ *      ловил бы и несвязанные правки (реестр стран, экономика) ложно.
  *
  * Протокол: JSON события на stdin, exit 0 = разрешить, exit 2 =
  * заблокировать (stderr виден агенту).
@@ -17,6 +22,7 @@
  */
 
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { execSync } from "node:child_process";
 
@@ -24,6 +30,24 @@ const deny = (reason) => {
   process.stderr.write(`[guard] ЗАБЛОКИРОВАНО: ${reason}\n`);
   process.exit(2);
 };
+
+// Тот же STATE_DIR, что пишет skill-marker.mjs (вне репозитория, как в
+// role-guard.mjs — запись внутрь основного checkout заблокировал бы этот
+// же хук).
+const SKILL_STATE_DIR = path.join(os.homedir(), ".claude", "geopolis-skills");
+
+function skillInvoked(sessionId, skillName) {
+  try {
+    const p = path.join(
+      SKILL_STATE_DIR,
+      `${String(sessionId).replace(/[^\w.-]/g, "_")}.json`
+    );
+    const state = JSON.parse(fs.readFileSync(p, "utf8"));
+    return Boolean(state.skills && state.skills[skillName]);
+  } catch {
+    return false;
+  }
+}
 
 try {
   let raw = "";
@@ -40,6 +64,7 @@ try {
   const tool = String(evt.tool_name ?? evt.tool ?? "");
   const input = evt.tool_input ?? evt.input ?? {};
   const cwd = String(evt.cwd ?? process.cwd());
+  const sessionId = evt.session_id ?? evt.sessionId ?? "default";
 
   const norm = (p) => path.resolve(String(p)).replace(/\\/g, "/").toLowerCase();
   const isWorktreePath = (p) => p.includes("/.claude/worktrees/");
@@ -70,6 +95,11 @@ try {
     if (/\/server\/data\/scenarios\//.test(t) || /\/scripts\/map\/out\//.test(t)) {
       deny(
         `ручная правка генерируемых данных (${target}). Меняй скрипты/конфиги пайплайна и регенерируй — см. scripts/map/AGENTS.md.`
+      );
+    }
+    if (/\/scripts\/map\/master\/.*\.geojson$/.test(t) && !skillInvoked(sessionId, "map-geometry-qa")) {
+      deny(
+        `правка мастера геометрии (${target}) без Skill(map-geometry-qa) в этой сессии. Вызови скилл — он держит чек-лист «gap-first, не буфер», рендер шва, защиту намеренных водных дыр — и только потом редактируй.`
       );
     }
   }

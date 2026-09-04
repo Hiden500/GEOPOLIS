@@ -20,21 +20,6 @@
   "AFR-0007": {
     "owner": "GMB"
   },
-  "AFR-0008": {
-    "owner": "RWA"
-  },
-  "AFR-0009": {
-    "owner": "RWA"
-  },
-  "AFR-0010": {
-    "owner": "RWA"
-  },
-  "AFR-0011": {
-    "owner": "RWA"
-  },
-  "AFR-0012": {
-    "owner": "RWA"
-  },
   "AFR-0013": {
     "owner": "EGY"
   },
@@ -91,45 +76,6 @@
   },
   "AFR-0029": {
     "owner": "DZA"
-  },
-  "AFR-0030": {
-    "owner": "BFA"
-  },
-  "AFR-0031": {
-    "owner": "BFA"
-  },
-  "AFR-0032": {
-    "owner": "BFA"
-  },
-  "AFR-0033": {
-    "owner": "BFA"
-  },
-  "AFR-0034": {
-    "owner": "BFA"
-  },
-  "AFR-0035": {
-    "owner": "BFA"
-  },
-  "AFR-0036": {
-    "owner": "BFA"
-  },
-  "AFR-0037": {
-    "owner": "BFA"
-  },
-  "AFR-0038": {
-    "owner": "BFA"
-  },
-  "AFR-0039": {
-    "owner": "BFA"
-  },
-  "AFR-0040": {
-    "owner": "BFA"
-  },
-  "AFR-0041": {
-    "owner": "BFA"
-  },
-  "AFR-0042": {
-    "owner": "BFA"
   },
   "AFR-0043": {
     "owner": "GIN"
@@ -580,15 +526,6 @@
   },
   "AFR-0192": {
     "owner": "COG"
-  },
-  "AFR-0193": {
-    "owner": "BDI"
-  },
-  "AFR-0194": {
-    "owner": "BDI"
-  },
-  "AFR-0195": {
-    "owner": "BDI"
   },
   "ANT-0001": {
     "claimant": [],
@@ -4620,5 +4557,14 @@
   "EUR-0368": {
     "controller": "SUN",
     "owner": "DEU"
+  },
+  "AFR-0008": {
+    "owner": "RWA"
+  },
+  "AFR-0193": {
+    "owner": "BDI"
+  },
+  "AFR-0030": {
+    "owner": "BFA"
   }
 }

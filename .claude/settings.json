@@ -27,6 +27,19 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/skill-marker.mjs",
+            "timeout": 10,
+            "statusMessage": "skill-marker: отметка вызова"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [

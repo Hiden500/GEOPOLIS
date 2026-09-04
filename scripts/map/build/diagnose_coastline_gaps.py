@@ -67,6 +67,7 @@ representative_point не покрытой ни сушей ни водой — �
   python scripts/map/build/diagnose_coastline_gaps.py --render -90 41 -78 47 --out gap.png
 """
 import argparse
+import json
 import math
 import sys
 from shapely.geometry import shape, box as shp_box
@@ -74,7 +75,7 @@ from shapely.ops import unary_union, polygonize
 
 sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
 from geometry_cleanup import area_km2  # noqa: E402
-from paths import out  # noqa: E402
+from paths import world_geojson  # noqa: E402
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -102,16 +103,6 @@ def _mrr_aspect(geom):
         return 1.0
     return max(sides) / min(nonzero)
 
-CONTINENT_FILES = {
-    "EUR": out("europe_1946.geojson"),
-    "ASI": out("asia_1946.geojson"),
-    "NAM": out("namerica_1946.geojson"),
-    "SAM": out("southamerica_1946.geojson"),
-    "AFR": out("africa_1946.geojson"),
-    "OCE": out("oceania_1946.geojson"),
-    "ANT": out("antarctica_1946.geojson"),
-}
-
 # Те же 7 тайлов, что fix_sea_coastline_gaps.py — согласованное разбиение
 # мира для both построения, и проверки результата.
 TILES = [
@@ -125,30 +116,45 @@ TILES = [
 ]
 
 
-def load(path):
-    import json
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)["features"]
+_WORLD_CACHE = None
+
+
+def _load_world():
+    """Суша/вода мира одним списком каждая — вместо прежних 7 континентальных
+    файлов + seas/lakes по отдельности: тех же файлов, что были G1/G7
+    (8 из 15 входов пайплайна отсутствуют, `out/*_1946.geojson` в свежем
+    дереве нет). Источник — `world_geojson()` (мастер -> out -> копия
+    клиента), тот же резолвер, что уже применён в T-1
+    (`audit_map_geometry.py`, `build_islands_index.py`). Кэшируется — `scan()`
+    вызывает `load_all_geoms` по разу на каждый из 7 тайлов."""
+    global _WORLD_CACHE
+    if _WORLD_CACHE is None:
+        with open(world_geojson(), encoding="utf-8") as f:
+            features = json.load(f)["features"]
+        land = [ft for ft in features if ft["properties"].get("region_type") == "land"]
+        water = [ft for ft in features
+                 if ft["properties"].get("region_type") in ("sea", "lake")]
+        _WORLD_CACHE = (land, water)
+    return _WORLD_CACHE
 
 
 def load_all_geoms(box):
-    """Суша (все континенты) + море + озеро, обрезанные по box."""
+    """Суша + море/озеро мира, обрезанные по box."""
+    land_feats, water_feats = _load_world()
     land_geoms = []
-    for path in CONTINENT_FILES.values():
-        for ft in load(path):
-            g = shape(ft["geometry"])
-            if g.intersects(box):
-                clipped = g.intersection(box)
-                if not clipped.is_empty:
-                    land_geoms.append(clipped)
+    for ft in land_feats:
+        g = shape(ft["geometry"])
+        if g.intersects(box):
+            clipped = g.intersection(box)
+            if not clipped.is_empty:
+                land_geoms.append(clipped)
     water_geoms = []
-    for path in (out("seas_1946.geojson"), out("lakes_1946.geojson")):
-        for ft in load(path):
-            g = shape(ft["geometry"])
-            if g.intersects(box):
-                clipped = g.intersection(box)
-                if not clipped.is_empty:
-                    water_geoms.append(clipped)
+    for ft in water_feats:
+        g = shape(ft["geometry"])
+        if g.intersects(box):
+            clipped = g.intersection(box)
+            if not clipped.is_empty:
+                water_geoms.append(clipped)
     return land_geoms, water_geoms
 
 
