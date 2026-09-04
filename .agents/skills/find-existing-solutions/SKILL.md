@@ -46,8 +46,7 @@ task; ask only if it cannot be derived.
 ## Workflow and tools
 
 1. **Search the code and data by MULTIPLE keys, never one.**
-   - Code: `rg` for synonyms, related terms, and likely file names; Repowise
-     (`search_codebase`, `get_answer`) when available.
+   - Code: `rg` for synonyms, related terms, and likely file names.
    - Datasets: never filter by a single tag. For geo data specifically:
      query by the country tag AND `iso_a2 == "-1"` (non-country: disputed /
      de-facto territories — Kashmir, Spratly, Northern Cyprus, Dhekelia live
