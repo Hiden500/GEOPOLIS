@@ -45,7 +45,7 @@
       "ru": "Ангола"
     },
     "color": "#45af87",
-    "capitalRegionId": 1235,
+    "capitalRegionId": 1219,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -767,7 +767,7 @@
       "ru": "Острова Кука"
     },
     "color": "#404084",
-    "capitalRegionId": 1337,
+    "capitalRegionId": 1319,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1055,7 +1055,7 @@
       "ru": "Египет"
     },
     "color": "#1F1F5C",
-    "capitalRegionId": 1146,
+    "capitalRegionId": 1142,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -1408,7 +1408,7 @@
       "ru": "Золотой Берег"
     },
     "color": "#ce8291",
-    "capitalRegionId": 1260,
+    "capitalRegionId": 1244,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2038,7 +2038,7 @@
       "ru": "Кения"
     },
     "color": "#c58ac6",
-    "capitalRegionId": 1255,
+    "capitalRegionId": 1239,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2458,7 +2458,7 @@
       "ru": "Мадагаскар"
     },
     "color": "#51b7b4",
-    "capitalRegionId": 1223,
+    "capitalRegionId": 1207,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2598,7 +2598,7 @@
       "ru": "Мозамбик"
     },
     "color": "#4ba05c",
-    "capitalRegionId": 1239,
+    "capitalRegionId": 1223,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2808,7 +2808,7 @@
       "ru": "Остров Норфолк"
     },
     "color": "#65b579",
-    "capitalRegionId": 1339,
+    "capitalRegionId": 1321,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -2843,7 +2843,7 @@
       "ru": "Нигерия"
     },
     "color": "#c581a1",
-    "capitalRegionId": 1208,
+    "capitalRegionId": 1192,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3577,7 +3577,7 @@
       "ru": "Французская Экваториальн"
     },
     "color": "#725cb6",
-    "capitalRegionId": 1324,
+    "capitalRegionId": 1308,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -3647,7 +3647,7 @@
       "ru": "Французская Западная Афр"
     },
     "color": "#6a8ec1",
-    "capitalRegionId": 1290,
+    "capitalRegionId": 1274,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4288,7 +4288,7 @@
       "ru": "Военно-морская администр"
     },
     "color": "#646dc5",
-    "capitalRegionId": 1336,
+    "capitalRegionId": 1318,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4358,7 +4358,7 @@
       "ru": "Руанда-Урунди"
     },
     "color": "#cdca78",
-    "capitalRegionId": 1326,
+    "capitalRegionId": 1310,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4603,7 +4603,7 @@
       "ru": "Занзибарский протекторат"
     },
     "color": "#ce97b1",
-    "capitalRegionId": 1224,
+    "capitalRegionId": 1208,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -4813,7 +4813,7 @@
       "ru": "Сьерра-Леоне"
     },
     "color": "#ca868b",
-    "capitalRegionId": 1314,
+    "capitalRegionId": 1298,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5681,7 +5681,7 @@
       "ru": "Северная Родезия"
     },
     "color": "#c7a189",
-    "capitalRegionId": 1284,
+    "capitalRegionId": 1268,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
@@ -5716,7 +5716,7 @@
       "ru": "Южная Родезия"
     },
     "color": "#cbcb85",
-    "capitalRegionId": 1287,
+    "capitalRegionId": 1271,
     "economyType": "mixed",
     "economyProfile": {
       "taxRate": 0.15,
