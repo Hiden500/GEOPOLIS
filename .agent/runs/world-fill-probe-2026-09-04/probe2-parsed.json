@@ -1,0 +1,166 @@
+{
+ "rivalries": [
+  {
+   "a": "CHN",
+   "b": "TWN",
+   "why": "Chinese Civil War"
+  },
+  {
+   "a": "FRA",
+   "b": "QDV",
+   "why": "First Indochina War"
+  },
+  {
+   "a": "GBR",
+   "b": "SUN",
+   "why": "Emerging Cold War and Middle East tensions"
+  },
+  {
+   "a": "GRC",
+   "b": "ALB",
+   "why": "Border dispute and support for communist insurgents"
+  },
+  {
+   "a": "GRC",
+   "b": "BGR",
+   "why": "Aegean territorial disputes and communist backing"
+  },
+  {
+   "a": "GRC",
+   "b": "YUG",
+   "why": "Yugoslav support for Greek communist rebels"
+  },
+  {
+   "a": "IRN",
+   "b": "QAZ",
+   "why": "Soviet-backed separatist government in Iranian Azerbaijan"
+  },
+  {
+   "a": "IRN",
+   "b": "QMH",
+   "why": "Separatist Kurdish rebellion in Mahabad"
+  },
+  {
+   "a": "IRN",
+   "b": "SUN",
+   "why": "Iran crisis over Soviet occupation troops"
+  },
+  {
+   "a": "IRQ",
+   "b": "SAU",
+   "why": "Hashemite-Saudi dynastic rivalry"
+  },
+  {
+   "a": "JOR",
+   "b": "SAU",
+   "why": "Hashemite-Saudi dynastic rivalry"
+  },
+  {
+   "a": "NLD",
+   "b": "QRI",
+   "why": "Indonesian National Revolution"
+  },
+  {
+   "a": "SUN",
+   "b": "TUR",
+   "why": "Soviet territorial claims and Straits crisis"
+  },
+  {
+   "a": "SUN",
+   "b": "USA",
+   "why": "Emerging Cold War superpower confrontation"
+  }
+ ],
+ "alliances": [
+  {
+   "a": "ALB",
+   "b": "YUG",
+   "why": "Bilateral alliance and communist military alignment"
+  },
+  {
+   "a": "AUS",
+   "b": "GBR",
+   "why": "British Commonwealth defense and imperial ties"
+  },
+  {
+   "a": "CAN",
+   "b": "GBR",
+   "why": "British Commonwealth defense and historical alliance"
+  },
+  {
+   "a": "CAN",
+   "b": "USA",
+   "why": "Permanent Joint Board on Defense cooperation"
+  },
+  {
+   "a": "CSK",
+   "b": "SUN",
+   "why": "1943 Treaty of Friendship and Mutual Assistance"
+  },
+  {
+   "a": "EGY",
+   "b": "SAU",
+   "why": "Founding members of the Arab League"
+  },
+  {
+   "a": "EGY",
+   "b": "SYR",
+   "why": "Founding members of the Arab League"
+  },
+  {
+   "a": "FRA",
+   "b": "GBR",
+   "why": "Western European postwar security alignment"
+  },
+  {
+   "a": "GBR",
+   "b": "NZL",
+   "why": "British Commonwealth defense and imperial ties"
+  },
+  {
+   "a": "GBR",
+   "b": "USA",
+   "why": "Special relationship and Western democratic alliance"
+  },
+  {
+   "a": "GBR",
+   "b": "ZAF",
+   "why": "British Commonwealth defense partnership"
+  },
+  {
+   "a": "IRQ",
+   "b": "JOR",
+   "why": "Hashemite dynastic alliance and Arab League"
+  },
+  {
+   "a": "MNG",
+   "b": "SUN",
+   "why": "Treaty of Friendship and Mutual Assistance"
+  },
+  {
+   "a": "POL",
+   "b": "SUN",
+   "why": "1945 Polish-Soviet Treaty of Mutual Assistance"
+  },
+  {
+   "a": "QAZ",
+   "b": "SUN",
+   "why": "Soviet sponsorship of Azerbaijani separatist state"
+  },
+  {
+   "a": "QMH",
+   "b": "SUN",
+   "why": "Soviet political and military backing"
+  },
+  {
+   "a": "SUN",
+   "b": "YUG",
+   "why": "1945 Treaty of Friendship and Mutual Assistance"
+  },
+  {
+   "a": "TWN",
+   "b": "USA",
+   "why": "American military and financial assistance"
+  }
+ ]
+}

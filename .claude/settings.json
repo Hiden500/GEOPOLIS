@@ -27,6 +27,19 @@
         ]
       }
     ],
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/skill-marker.mjs",
+            "timeout": 10,
+            "statusMessage": "skill-marker: отметка вызова"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
@@ -35,6 +48,32 @@
             "command": "node scripts/hooks/role-guard.mjs",
             "timeout": 10,
             "statusMessage": "роль: якорь и реестр"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto|manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/session-guard.mjs",
+            "timeout": 10,
+            "statusMessage": "срез перед сжатием контекста"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/hooks/session-guard.mjs",
+            "timeout": 10,
+            "statusMessage": "якорь сессии после сжатия"
           }
         ]
       }

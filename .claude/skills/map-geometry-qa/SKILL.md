@@ -159,6 +159,32 @@ cell-mosaic logic.
   Decisive test, not a judgment call: does the disconnected part touch
   EXACTLY ONE other feature (reassign to it) — a part touching zero or
   several needs a human look, don't auto-resolve those.
+- **The raw-source "same country" check above can itself be fooled by an
+  oversized raw ADM1 polygon — measure distance-to-own-body FIRST, treat the
+  raw name as secondary evidence, not proof.** T-2 fragment review
+  (2026-08-30): 12 AFR-0055 (Malawi "Northern") slivers, each touching
+  AFR-0093 (Tanzania "Ruvuma") at distance 0 and 40-71 km from AFR-0055's own
+  main body, were first waved through as legitimate because their dominant
+  raw `game_map.json` unit was named "Nkhata Bay"/"Rumphi" — real Malawian
+  districts. Wrong: those raw district polygons extend far past the visible
+  coastline (same mechanism already caught for Likoma minutes earlier in the
+  same session — a 198.8 km² raw "Likoma" polygon around a 21.9 km² visible
+  island, there correctly owned; here the same oversized-polygon pattern
+  hid a genuine misattachment), so the intersection-based "owner" lookup
+  named the geographically-plausible-sounding country without the piece
+  being anywhere near that country's own territory. The fix that actually
+  settles it, cheap and independent of source data quality:
+  `piece.distance(own_main_body)` vs `piece.distance(candidate_neighbour)` in
+  km. A piece 40+ km from its own region's body but touching (0 km, no
+  overlap) a specific neighbour is decisive regardless of what any raw
+  source label says; only compute/trust the raw-source name check when the
+  distance test is ambiguous (multiple touching neighbours, or genuinely
+  near its own body). Confirm visually with a tight render at the exact
+  touch point (a country-wide bbox makes a sub-km-wide sliver sub-pixel —
+  `render_region.py --neighbours` only outlines neighbours, doesn't fill
+  them, so thin pieces disappear entirely at that zoom; fill BOTH source and
+  destination region solid with distinct colours and zoom to the specific
+  coordinate before concluding anything from a picture).
 - **Never dismiss residual diagnostic overlaps as "background noise" without
   checking their actual area.** 2026-07-19-k wrote off 18 remaining
   intersections as "the same background noise as always, including Lake

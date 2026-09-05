@@ -17,6 +17,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -129,8 +130,14 @@ class ClosedExceptionLists(unittest.TestCase):
                         joined(*errors))
 
     def test_named_empty_name_passes(self):
-        rid = next(iter(vgfc.KNOWN_EMPTY_NAMES))
-        self.assertEqual(check_master([land(region_id=rid, name="", iso_a2="CO")]), [])
+        # Не читает production-словарь (docstring файла: "ни один тест не
+        # знает... какие region_id живые") — список сегодня пуст (2026-08-30,
+        # SAM-0040/SAM-0055 закрыты), а свойство «названное исключение
+        # проходит» обязано проверяться независимо от того, есть ли сейчас
+        # хоть одна живая запись.
+        with patch.dict(vgfc.KNOWN_EMPTY_NAMES, {"SAM-9999": "тестовая запись"}):
+            self.assertEqual(
+                check_master([land(region_id="SAM-9999", name="", iso_a2="CO")]), [])
 
     def test_new_empty_name_fails(self):
         errors = check_master([land(name="  ")])

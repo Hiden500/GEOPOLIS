@@ -71,7 +71,7 @@ CAPITAL_REGION_OVERRIDES: dict[str, int] = {
     "JPN": 571,   # Канто (Токио)
     "TWN": 417,   # Нанкин (2026-07-26: было 382 "Guangdong")
     "AFG": 446,   # Баглан (Кабул)
-    "EGY": 1146,  # Каир (2026-07-29: было 1157)
+    "EGY": 1142,  # Каир (2026-07-29: было 1157)
     "NFD": 812,   # Newfoundland, содержит St. John's (2026-07-29: было 804)
     "QWL": 855,   # Antigua, содержит St. John's — резиденцию Governor
                   # (2026-07-29: было 847)
@@ -80,13 +80,16 @@ CAPITAL_REGION_OVERRIDES: dict[str, int] = {
     "QND": 808,   # Curaçao, содержит Willemstad (2026-07-29: было 867)
     "MTQ": 806,   # Martinique, содержит Fort-de-France (2026-07-29: было 797)
     "GLP": 807,   # Guadeloupe, содержит Basse-Terre (2026-07-29: было 798)
-    "QFW": 1290,  # Louga, содержит Dakar — столицу AOF (2026-07-29: было 1302)
-    "QFE": 1324,  # Pool, содержит Brazzaville — столицу AEF (2026-07-29: было 1347)
-    "QRU": 1326,  # Bujumbura Rural, содержит Usumbura — административный
-                  # центр (2026-07-29: было 1349)
-    "QZN": 1224,  # AFR-0092 "Zanzibar South and Central", содержит Zanzibar
+    "QFW": 1274,  # Louga, содержит Dakar — столицу AOF (2026-07-29: было 1302)
+    "QFE": 1308,  # Pool, содержит Brazzaville — столицу AEF (2026-07-29: было 1347)
+    "QRU": 1310,  # Burundi, содержит Usumbura — административный центр
+                  # (2026-07-29: было 1349; 2026-09-04: якорный регион
+                  # «Bujumbura Rural» слит с Makamba/Ruyigi в один регион
+                  # «Burundi» AFR-0193, решение пользователя — 8 регионов
+                  # QRU на ~50 000 км² избыточны; сама столица не менялась)
+    "QZN": 1208,  # AFR-0092 "Zanzibar South and Central", содержит Zanzibar
                   # Town/Stone Town (2026-07-29: было 1235)
-    "AGO": 1235,  # Cuando Cubango source polygon, содержащий Luanda —
+    "AGO": 1219,  # Cuando Cubango source polygon, содержащий Luanda —
                   # (2026-07-29: было 1247)
                   # 2026-07-26: НЕ подтверждено координатами (см.
                   # capital-region-invariant.md, "что осталось UNKNOWN");
@@ -97,15 +100,15 @@ CAPITAL_REGION_OVERRIDES: dict[str, int] = {
                   # регионов, не позиционный дрейф; оставлено как есть,
                   # чинить требует решения по геометрии/группировке Анголы,
                   # вне границ этой задачи.
-    "MOZ": 1239,  # Gaza source polygon, содержит Lourenço Marques (2026-07-29: было 1251)
-    "MDG": 1223,  # Bongolava source polygon, содержащий Tananarive (2026-07-29: было 1234)
-    "GHA": 1260,  # Eastern source polygon, содержащий Accra (2026-07-29: было 1272)
-    "KEN": 1255,  # Rift Valley source polygon, содержащий Nairobi (2026-07-29: было 1267)
-    "NGA": 1208,  # Benue source polygon, содержащий Lagos (2026-07-29: было 1219)
-    "SLE": 1314,  # AFR-0193 "Northern" — единственный Sierra Leone polygon,
+    "MOZ": 1223,  # Gaza source polygon, содержит Lourenço Marques (2026-07-29: было 1251)
+    "MDG": 1207,  # Bongolava source polygon, содержащий Tananarive (2026-07-29: было 1234)
+    "GHA": 1244,  # Eastern source polygon, содержащий Accra (2026-07-29: было 1272)
+    "KEN": 1239,  # Rift Valley source polygon, содержащий Nairobi (2026-07-29: было 1267)
+    "NGA": 1192,  # Benue source polygon, содержащий Lagos (2026-07-29: было 1219)
+    "SLE": 1298,  # AFR-0193 "Northern" — единственный Sierra Leone polygon,
                   # содержит Freetown (2026-07-29: было 1336)
-    "ZMB": 1284,  # Southern source polygon, содержащий Lusaka (2026-07-29: было 1296)
-    "ZWE": 1287,  # Mashonaland West source polygon, содержащий Salisbury (2026-07-29: было 1299)
+    "ZMB": 1268,  # Southern source polygon, содержащий Lusaka (2026-07-29: было 1296)
+    "ZWE": 1271,  # Mashonaland West source polygon, содержащий Salisbury (2026-07-29: было 1299)
     "QTB": 415,   # Xizang polygon, содержит Lhasa
     "QSI": 499,   # Sikkim, содержит Gangtok
     "QJK": 512,   # Jammu and Kashmir, содержит Srinagar
@@ -129,9 +132,9 @@ CAPITAL_REGION_OVERRIDES: dict[str, int] = {
                   # текущее-имя, см. capital-region-invariant.md)
     "MAC": 649,   # Macau
     "QAD": 804,   # Lahij source polygon, содержащий Aden
-    "QPS": 1336,  # Northern Mariana Islands, Saipan administration anchor (2026-07-29: было 1359)
-    "COK": 1337,  # Cook Islands, Rarotonga (2026-07-29: было 1360)
-    "NFK": 1339,  # Norfolk Island, Kingston (2026-07-29: было 1362)
+    "QPS": 1318,  # Northern Mariana Islands, Saipan administration anchor (2026-07-29: было 1359)
+    "COK": 1319,  # Cook Islands, Rarotonga (2026-07-29: было 1360)
+    "NFK": 1321,  # Norfolk Island, Kingston (2026-07-29: было 1362)
     "CHN": 394,   # Шэньси — Яньань (столица КПК/пограничного района Шэньси-
                   # Ганьсу-Нинся в гражданскую войну 1946) физически в
                   # Шэньси; (2026-07-26: раньше записи не было вообще,
@@ -193,7 +196,10 @@ CAPITAL_REGION_ANCHOR_NAMES: dict[str, str] = {
     "GLP": "Guadeloupe",
     "QFW": "Louga",
     "QFE": "Pool",
-    "QRU": "Bujumbura Rural",
+    # 2026-09-04: якорный регион «Bujumbura Rural» поглощён слиянием (Руанда
+    # и Бурунди укрупнены с 8 регионов до 2, решение пользователя), якорь
+    # переставлен на регион-преемник «Burundi» — сама столица не менялась.
+    "QRU": "Burundi",
     "QZN": "Zanzibar",
     "AGO": "Cuando Cubango",
     "MOZ": "Gaza",

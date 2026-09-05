@@ -24,8 +24,8 @@
       364
     ],
     "adjacentWaterIds": [
-      1436,
-      1438
+      1418,
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0002"
@@ -186,7 +186,7 @@
     "area": 452.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1455
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0012"
@@ -202,7 +202,7 @@
       144
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0013"
@@ -239,7 +239,7 @@
       199
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0015"
@@ -286,7 +286,7 @@
       22
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "EUR-0018"
@@ -336,7 +336,7 @@
       230
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "EUR-0021"
@@ -631,7 +631,7 @@
       366
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0038"
@@ -646,7 +646,7 @@
       366
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0039"
@@ -663,7 +663,7 @@
       365
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0040"
@@ -680,7 +680,7 @@
       367
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0041"
@@ -695,7 +695,7 @@
       41
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0042"
@@ -871,9 +871,9 @@
       374
     ],
     "adjacentWaterIds": [
-      1453,
-      1478,
-      1486
+      1435,
+      1460,
+      1468
     ],
     "sourceAdm1Codes": [
       "EUR-0052"
@@ -896,7 +896,7 @@
       201
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0053"
@@ -952,7 +952,7 @@
       215
     ],
     "adjacentWaterIds": [
-      1453
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0056"
@@ -966,7 +966,7 @@
       53
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0057"
@@ -981,7 +981,7 @@
       53
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0058"
@@ -1044,9 +1044,9 @@
       63
     ],
     "adjacentWaterIds": [
-      1453,
-      1478,
-      1486
+      1435,
+      1460,
+      1468
     ],
     "sourceAdm1Codes": [
       "EUR-0062"
@@ -1061,8 +1061,8 @@
       64
     ],
     "adjacentWaterIds": [
-      1478,
-      1486
+      1460,
+      1468
     ],
     "sourceAdm1Codes": [
       "EUR-0063"
@@ -1076,9 +1076,9 @@
       63
     ],
     "adjacentWaterIds": [
-      1478,
-      1486,
-      1488
+      1460,
+      1468,
+      1470
     ],
     "sourceAdm1Codes": [
       "EUR-0064"
@@ -1092,8 +1092,8 @@
       66
     ],
     "adjacentWaterIds": [
-      1453,
-      1486
+      1435,
+      1468
     ],
     "sourceAdm1Codes": [
       "EUR-0065"
@@ -1107,8 +1107,8 @@
       65
     ],
     "adjacentWaterIds": [
-      1453,
-      1486
+      1435,
+      1468
     ],
     "sourceAdm1Codes": [
       "EUR-0066"
@@ -1120,8 +1120,8 @@
     "area": 2973.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1452,
-      1453
+      1434,
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0067"
@@ -1133,8 +1133,8 @@
     "area": 1068.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1452,
-      1453
+      1434,
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0068"
@@ -1151,9 +1151,9 @@
       294
     ],
     "adjacentWaterIds": [
-      1452,
-      1453,
-      1454
+      1434,
+      1435,
+      1436
     ],
     "sourceAdm1Codes": [
       "EUR-0069"
@@ -1164,11 +1164,11 @@
     "geoJsonId": "EUR-0070",
     "area": 38.2,
     "landNeighboringRegionIds": [
-      1229
+      1213
     ],
     "adjacentWaterIds": [
-      1416,
-      1417
+      1398,
+      1399
     ],
     "sourceAdm1Codes": [
       "EUR-0070"
@@ -1179,10 +1179,10 @@
     "geoJsonId": "EUR-0071",
     "area": 18.6,
     "landNeighboringRegionIds": [
-      1229
+      1213
     ],
     "adjacentWaterIds": [
-      1417
+      1399
     ],
     "sourceAdm1Codes": [
       "EUR-0071"
@@ -1215,7 +1215,7 @@
       100
     ],
     "adjacentWaterIds": [
-      1470
+      1452
     ],
     "sourceAdm1Codes": [
       "EUR-0073"
@@ -1251,8 +1251,8 @@
       101
     ],
     "adjacentWaterIds": [
-      1469,
-      1472
+      1451,
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0075"
@@ -1287,10 +1287,10 @@
       220
     ],
     "adjacentWaterIds": [
-      1416,
-      1417,
-      1472,
-      1566
+      1398,
+      1399,
+      1454,
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0077"
@@ -1306,8 +1306,8 @@
       218
     ],
     "adjacentWaterIds": [
-      1470,
-      1566
+      1452,
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0078"
@@ -1346,8 +1346,8 @@
       87
     ],
     "adjacentWaterIds": [
-      1469,
-      1472
+      1451,
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0080"
@@ -1363,7 +1363,7 @@
       87
     ],
     "adjacentWaterIds": [
-      1472
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0081"
@@ -1379,7 +1379,7 @@
       83
     ],
     "adjacentWaterIds": [
-      1470
+      1452
     ],
     "sourceAdm1Codes": [
       "EUR-0082"
@@ -1395,7 +1395,7 @@
       82
     ],
     "adjacentWaterIds": [
-      1470
+      1452
     ],
     "sourceAdm1Codes": [
       "EUR-0083"
@@ -1407,7 +1407,7 @@
     "area": 7428.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1556
+      1538
     ],
     "sourceAdm1Codes": [
       "EUR-0084"
@@ -1419,8 +1419,8 @@
     "area": 5107.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1469,
-      1472
+      1451,
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0085"
@@ -1484,7 +1484,7 @@
       322
     ],
     "adjacentWaterIds": [
-      1455
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0089"
@@ -1502,7 +1502,7 @@
       243
     ],
     "adjacentWaterIds": [
-      1455
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0090"
@@ -1518,7 +1518,7 @@
       94
     ],
     "adjacentWaterIds": [
-      1455
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0091"
@@ -1566,9 +1566,9 @@
       282
     ],
     "adjacentWaterIds": [
-      1453,
-      1454,
-      1455
+      1435,
+      1436,
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0094"
@@ -1580,7 +1580,7 @@
     "area": 1321.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1573
+      1555
     ],
     "sourceAdm1Codes": [
       "EUR-0095"
@@ -1598,8 +1598,8 @@
       108
     ],
     "adjacentWaterIds": [
-      1475,
-      1478
+      1457,
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0096"
@@ -1639,7 +1639,7 @@
       192
     ],
     "adjacentWaterIds": [
-      1472
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0098"
@@ -1679,7 +1679,7 @@
       107
     ],
     "adjacentWaterIds": [
-      1470
+      1452
     ],
     "sourceAdm1Codes": [
       "EUR-0100"
@@ -1698,7 +1698,7 @@
       100
     ],
     "adjacentWaterIds": [
-      1472
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0101"
@@ -1733,7 +1733,7 @@
       107
     ],
     "adjacentWaterIds": [
-      1470
+      1452
     ],
     "sourceAdm1Codes": [
       "EUR-0103"
@@ -1748,9 +1748,9 @@
       105
     ],
     "adjacentWaterIds": [
-      1470,
-      1471,
-      1475
+      1452,
+      1453,
+      1457
     ],
     "sourceAdm1Codes": [
       "EUR-0104"
@@ -1768,7 +1768,7 @@
       108
     ],
     "adjacentWaterIds": [
-      1475
+      1457
     ],
     "sourceAdm1Codes": [
       "EUR-0105"
@@ -1780,9 +1780,9 @@
     "area": 8661.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1437,
-      1472,
-      1490
+      1419,
+      1454,
+      1472
     ],
     "sourceAdm1Codes": [
       "EUR-0106"
@@ -1829,8 +1829,8 @@
       152
     ],
     "adjacentWaterIds": [
-      1429,
-      1430
+      1411,
+      1412
     ],
     "sourceAdm1Codes": [
       "EUR-0109"
@@ -1847,8 +1847,8 @@
       121
     ],
     "adjacentWaterIds": [
-      1429,
-      1471
+      1410,
+      1411
     ],
     "sourceAdm1Codes": [
       "EUR-0110"
@@ -1868,7 +1868,7 @@
       118
     ],
     "adjacentWaterIds": [
-      1429
+      1411
     ],
     "sourceAdm1Codes": [
       "EUR-0111"
@@ -1900,9 +1900,9 @@
       120
     ],
     "adjacentWaterIds": [
-      1428,
-      1471,
-      1475
+      1410,
+      1453,
+      1457
     ],
     "sourceAdm1Codes": [
       "EUR-0113"
@@ -1920,7 +1920,7 @@
       123
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0114"
@@ -1936,7 +1936,7 @@
       117
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0115"
@@ -1952,8 +1952,8 @@
       122
     ],
     "adjacentWaterIds": [
-      1429,
-      1430
+      1411,
+      1412
     ],
     "sourceAdm1Codes": [
       "EUR-0116"
@@ -1969,7 +1969,7 @@
       118
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0117"
@@ -1987,7 +1987,7 @@
       120
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0118"
@@ -2003,7 +2003,7 @@
       124
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0119"
@@ -2021,8 +2021,8 @@
       124
     ],
     "adjacentWaterIds": [
-      1475,
-      1478
+      1457,
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0120"
@@ -2036,8 +2036,9 @@
       110
     ],
     "adjacentWaterIds": [
-      1429,
-      1471
+      1410,
+      1411,
+      1453
     ],
     "sourceAdm1Codes": [
       "EUR-0121"
@@ -2053,10 +2054,10 @@
       123
     ],
     "adjacentWaterIds": [
-      1430,
-      1478,
-      1558,
-      1573
+      1412,
+      1460,
+      1540,
+      1555
     ],
     "sourceAdm1Codes": [
       "EUR-0122"
@@ -2071,7 +2072,7 @@
       122
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0123"
@@ -2096,7 +2097,7 @@
     "area": 187.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1475
+      1457
     ],
     "sourceAdm1Codes": [
       "EUR-0125"
@@ -2110,8 +2111,8 @@
       77
     ],
     "adjacentWaterIds": [
-      1416,
-      1417
+      1398,
+      1399
     ],
     "sourceAdm1Codes": [
       "EUR-0126"
@@ -2145,7 +2146,7 @@
       136
     ],
     "adjacentWaterIds": [
-      1436
+      1418
     ],
     "sourceAdm1Codes": [
       "EUR-0128"
@@ -2164,7 +2165,7 @@
       195
     ],
     "adjacentWaterIds": [
-      1441
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0129"
@@ -2181,7 +2182,7 @@
       129
     ],
     "adjacentWaterIds": [
-      1441
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0130"
@@ -2195,7 +2196,7 @@
       129
     ],
     "adjacentWaterIds": [
-      1441
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0131"
@@ -2213,7 +2214,7 @@
       136
     ],
     "adjacentWaterIds": [
-      1441
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0132"
@@ -2230,8 +2231,8 @@
       136
     ],
     "adjacentWaterIds": [
-      1436,
-      1441
+      1418,
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0133"
@@ -2246,9 +2247,9 @@
       135
     ],
     "adjacentWaterIds": [
-      1436,
-      1440,
-      1441
+      1418,
+      1422,
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0134"
@@ -2263,9 +2264,9 @@
       136
     ],
     "adjacentWaterIds": [
-      1436,
-      1440,
-      1441
+      1418,
+      1422,
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0135"
@@ -2283,7 +2284,7 @@
       140
     ],
     "adjacentWaterIds": [
-      1436
+      1418
     ],
     "sourceAdm1Codes": [
       "EUR-0136"
@@ -2295,8 +2296,8 @@
     "area": 8313.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1440,
-      1441
+      1422,
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0137"
@@ -2308,8 +2309,8 @@
     "area": 4942.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1440,
-      1441
+      1422,
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0138"
@@ -2323,7 +2324,7 @@
       749
     ],
     "adjacentWaterIds": [
-      1441
+      1423
     ],
     "sourceAdm1Codes": [
       "EUR-0139"
@@ -2337,8 +2338,8 @@
       136
     ],
     "adjacentWaterIds": [
-      1436,
-      1438
+      1418,
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0140"
@@ -2407,7 +2408,7 @@
       329
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0144"
@@ -2546,9 +2547,9 @@
       159
     ],
     "adjacentWaterIds": [
-      1429,
-      1430,
-      1558
+      1411,
+      1412,
+      1540
     ],
     "sourceAdm1Codes": [
       "EUR-0152"
@@ -2562,7 +2563,7 @@
       154
     ],
     "adjacentWaterIds": [
-      1429
+      1411
     ],
     "sourceAdm1Codes": [
       "EUR-0153"
@@ -2579,7 +2580,7 @@
       159
     ],
     "adjacentWaterIds": [
-      1429
+      1411
     ],
     "sourceAdm1Codes": [
       "EUR-0154"
@@ -2596,8 +2597,8 @@
       159
     ],
     "adjacentWaterIds": [
-      1429,
-      1471
+      1411,
+      1453
     ],
     "sourceAdm1Codes": [
       "EUR-0155"
@@ -2612,8 +2613,8 @@
       157
     ],
     "adjacentWaterIds": [
-      1471,
-      1558
+      1453,
+      1540
     ],
     "sourceAdm1Codes": [
       "EUR-0156"
@@ -2630,7 +2631,7 @@
       159
     ],
     "adjacentWaterIds": [
-      1558
+      1540
     ],
     "sourceAdm1Codes": [
       "EUR-0157"
@@ -2646,7 +2647,7 @@
       159
     ],
     "adjacentWaterIds": [
-      1558
+      1540
     ],
     "sourceAdm1Codes": [
       "EUR-0158"
@@ -2674,7 +2675,7 @@
     "area": 574.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1429
+      1411
     ],
     "sourceAdm1Codes": [
       "EUR-0160"
@@ -2686,10 +2687,10 @@
     "area": 102567.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1477,
-      1489,
-      1565,
-      1567
+      1459,
+      1471,
+      1547,
+      1549
     ],
     "sourceAdm1Codes": [
       "EUR-0161"
@@ -2772,9 +2773,9 @@
       178
     ],
     "adjacentWaterIds": [
-      1437,
-      1472,
-      1490
+      1419,
+      1454,
+      1472
     ],
     "sourceAdm1Codes": [
       "EUR-0166"
@@ -2794,7 +2795,7 @@
       338
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0167"
@@ -2813,7 +2814,7 @@
       338
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0168"
@@ -2832,7 +2833,7 @@
       170
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0169"
@@ -2848,7 +2849,7 @@
       329
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0170"
@@ -2864,7 +2865,7 @@
       177
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0171"
@@ -2881,7 +2882,7 @@
       177
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0172"
@@ -2897,8 +2898,8 @@
       176
     ],
     "adjacentWaterIds": [
-      1436,
-      1438
+      1418,
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0173"
@@ -2914,8 +2915,8 @@
       176
     ],
     "adjacentWaterIds": [
-      1436,
-      1437
+      1418,
+      1419
     ],
     "sourceAdm1Codes": [
       "EUR-0174"
@@ -2929,8 +2930,8 @@
       174
     ],
     "adjacentWaterIds": [
-      1436,
-      1437
+      1418,
+      1419
     ],
     "sourceAdm1Codes": [
       "EUR-0175"
@@ -2947,7 +2948,7 @@
       177
     ],
     "adjacentWaterIds": [
-      1437
+      1419
     ],
     "sourceAdm1Codes": [
       "EUR-0176"
@@ -2967,7 +2968,7 @@
       363
     ],
     "adjacentWaterIds": [
-      1437
+      1419
     ],
     "sourceAdm1Codes": [
       "EUR-0177"
@@ -2985,7 +2986,7 @@
       181
     ],
     "adjacentWaterIds": [
-      1437
+      1419
     ],
     "sourceAdm1Codes": [
       "EUR-0178"
@@ -2997,10 +2998,10 @@
     "area": 25848.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1436,
-      1437,
-      1440,
-      1472
+      1418,
+      1419,
+      1422,
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0179"
@@ -3012,8 +3013,8 @@
     "area": 24104.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1437,
-      1472
+      1419,
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0180"
@@ -3092,7 +3093,7 @@
       272
     ],
     "adjacentWaterIds": [
-      1453
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0185"
@@ -3140,7 +3141,7 @@
       191
     ],
     "adjacentWaterIds": [
-      1452
+      1434
     ],
     "sourceAdm1Codes": [
       "EUR-0188"
@@ -3189,8 +3190,8 @@
       190
     ],
     "adjacentWaterIds": [
-      1452,
-      1453
+      1434,
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0191"
@@ -3204,7 +3205,7 @@
       98
     ],
     "adjacentWaterIds": [
-      1472
+      1454
     ],
     "sourceAdm1Codes": [
       "EUR-0192"
@@ -3239,7 +3240,7 @@
       364
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0194"
@@ -3268,7 +3269,7 @@
     "area": 314.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0196"
@@ -3285,7 +3286,7 @@
       199
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0197"
@@ -3303,7 +3304,7 @@
       201
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0198"
@@ -3335,7 +3336,7 @@
       201
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0200"
@@ -3353,7 +3354,7 @@
       200
     ],
     "adjacentWaterIds": [
-      1478
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0201"
@@ -3365,10 +3366,10 @@
     "area": 62061.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1476,
-      1477,
-      1489,
-      1578
+      1458,
+      1459,
+      1471,
+      1560
     ],
     "sourceAdm1Codes": [
       "EUR-0202"
@@ -3380,7 +3381,7 @@
     "area": 53.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1493
+      1475
     ],
     "sourceAdm1Codes": [
       "EUR-0203"
@@ -3396,7 +3397,7 @@
       327
     ],
     "adjacentWaterIds": [
-      1488
+      1470
     ],
     "sourceAdm1Codes": [
       "EUR-0204"
@@ -3411,9 +3412,9 @@
       206
     ],
     "adjacentWaterIds": [
-      1478,
-      1488,
-      1489
+      1460,
+      1470,
+      1471
     ],
     "sourceAdm1Codes": [
       "EUR-0205"
@@ -3433,7 +3434,7 @@
       328
     ],
     "adjacentWaterIds": [
-      1489
+      1471
     ],
     "sourceAdm1Codes": [
       "EUR-0206"
@@ -3452,9 +3453,9 @@
       328
     ],
     "adjacentWaterIds": [
-      1476,
-      1477,
-      1489
+      1458,
+      1459,
+      1471
     ],
     "sourceAdm1Codes": [
       "EUR-0207"
@@ -3592,7 +3593,7 @@
       272
     ],
     "adjacentWaterIds": [
-      1453
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0215"
@@ -3629,7 +3630,7 @@
       221
     ],
     "adjacentWaterIds": [
-      1566
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0217"
@@ -3646,7 +3647,7 @@
       222
     ],
     "adjacentWaterIds": [
-      1566
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0218"
@@ -3665,7 +3666,7 @@
       222
     ],
     "adjacentWaterIds": [
-      1566
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0219"
@@ -3680,7 +3681,7 @@
       217
     ],
     "adjacentWaterIds": [
-      1566
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0220"
@@ -3695,7 +3696,7 @@
       219
     ],
     "adjacentWaterIds": [
-      1566
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0221"
@@ -3710,7 +3711,7 @@
       219
     ],
     "adjacentWaterIds": [
-      1566
+      1548
     ],
     "sourceAdm1Codes": [
       "EUR-0222"
@@ -3722,7 +3723,7 @@
     "area": 800.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1556
+      1538
     ],
     "sourceAdm1Codes": [
       "EUR-0223"
@@ -3734,7 +3735,7 @@
     "area": 2598.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1557
+      1539
     ],
     "sourceAdm1Codes": [
       "EUR-0224"
@@ -3785,7 +3786,7 @@
       347
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "EUR-0227"
@@ -3988,7 +3989,7 @@
       308
     ],
     "adjacentWaterIds": [
-      1584
+      1566
     ],
     "sourceAdm1Codes": [
       "EUR-0239"
@@ -4007,7 +4008,7 @@
       258
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "EUR-0240"
@@ -4040,7 +4041,7 @@
       295
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "EUR-0242"
@@ -4061,8 +4062,8 @@
       286
     ],
     "adjacentWaterIds": [
-      1456,
-      1585
+      1438,
+      1567
     ],
     "sourceAdm1Codes": [
       "EUR-0243"
@@ -4231,9 +4232,9 @@
       317
     ],
     "adjacentWaterIds": [
-      1457,
-      1485,
-      1578
+      1439,
+      1467,
+      1560
     ],
     "sourceAdm1Codes": [
       "EUR-0253"
@@ -4267,8 +4268,8 @@
       313
     ],
     "adjacentWaterIds": [
-      1480,
-      1481
+      1462,
+      1463
     ],
     "sourceAdm1Codes": [
       "EUR-0255"
@@ -4289,9 +4290,9 @@
       318
     ],
     "adjacentWaterIds": [
-      1484,
-      1485,
-      1578
+      1466,
+      1467,
+      1560
     ],
     "sourceAdm1Codes": [
       "EUR-0256"
@@ -4308,7 +4309,7 @@
       259
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "EUR-0257"
@@ -4346,8 +4347,8 @@
       312
     ],
     "adjacentWaterIds": [
-      1482,
-      1483
+      1464,
+      1465
     ],
     "sourceAdm1Codes": [
       "EUR-0259"
@@ -4381,10 +4382,10 @@
       315
     ],
     "adjacentWaterIds": [
-      1456,
-      1476,
-      1484,
-      1578
+      1438,
+      1458,
+      1466,
+      1560
     ],
     "sourceAdm1Codes": [
       "EUR-0261"
@@ -4400,7 +4401,7 @@
       266
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "EUR-0262"
@@ -4558,7 +4559,7 @@
       308
     ],
     "adjacentWaterIds": [
-      1584
+      1566
     ],
     "sourceAdm1Codes": [
       "EUR-0271"
@@ -4575,7 +4576,7 @@
       216
     ],
     "adjacentWaterIds": [
-      1453
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0272"
@@ -4624,9 +4625,9 @@
       317
     ],
     "adjacentWaterIds": [
-      1420,
-      1483,
-      1542
+      1402,
+      1465,
+      1524
     ],
     "sourceAdm1Codes": [
       "EUR-0275"
@@ -4747,8 +4748,8 @@
       294
     ],
     "adjacentWaterIds": [
-      1454,
-      1585
+      1436,
+      1567
     ],
     "sourceAdm1Codes": [
       "EUR-0282"
@@ -4782,7 +4783,7 @@
       317
     ],
     "adjacentWaterIds": [
-      1483
+      1465
     ],
     "sourceAdm1Codes": [
       "EUR-0284"
@@ -4817,8 +4818,8 @@
       243
     ],
     "adjacentWaterIds": [
-      1456,
-      1476
+      1438,
+      1458
     ],
     "sourceAdm1Codes": [
       "EUR-0286"
@@ -4971,7 +4972,7 @@
       353
     ],
     "adjacentWaterIds": [
-      1481
+      1463
     ],
     "sourceAdm1Codes": [
       "EUR-0295"
@@ -5021,8 +5022,8 @@
     "area": 75483.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1482,
-      1483
+      1464,
+      1465
     ],
     "sourceAdm1Codes": [
       "EUR-0298"
@@ -5034,9 +5035,9 @@
     "area": 10447.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1483,
-      1528,
-      1542
+      1465,
+      1510,
+      1524
     ],
     "sourceAdm1Codes": [
       "EUR-0299"
@@ -5299,9 +5300,9 @@
       318
     ],
     "adjacentWaterIds": [
-      1456,
-      1476,
-      1484
+      1438,
+      1458,
+      1466
     ],
     "sourceAdm1Codes": [
       "EUR-0315"
@@ -5334,10 +5335,10 @@
       284
     ],
     "adjacentWaterIds": [
-      1420,
-      1421,
-      1457,
-      1577
+      1402,
+      1403,
+      1439,
+      1559
     ],
     "sourceAdm1Codes": [
       "EUR-0317"
@@ -5354,7 +5355,7 @@
       316
     ],
     "adjacentWaterIds": [
-      1484
+      1466
     ],
     "sourceAdm1Codes": [
       "EUR-0318"
@@ -5382,8 +5383,8 @@
       354
     ],
     "adjacentWaterIds": [
-      1480,
-      1481
+      1462,
+      1463
     ],
     "sourceAdm1Codes": [
       "EUR-0320"
@@ -5397,7 +5398,7 @@
       320
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "EUR-0321"
@@ -5413,7 +5414,7 @@
       323
     ],
     "adjacentWaterIds": [
-      1455
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0322"
@@ -5430,7 +5431,7 @@
       328
     ],
     "adjacentWaterIds": [
-      1455
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0323"
@@ -5442,7 +5443,7 @@
     "area": 3096.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1453
+      1435
     ],
     "sourceAdm1Codes": [
       "EUR-0324"
@@ -5456,8 +5457,8 @@
       327
     ],
     "adjacentWaterIds": [
-      1453,
-      1486
+      1435,
+      1468
     ],
     "sourceAdm1Codes": [
       "EUR-0325"
@@ -5473,8 +5474,8 @@
       328
     ],
     "adjacentWaterIds": [
-      1453,
-      1455
+      1435,
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0326"
@@ -5491,9 +5492,9 @@
       326
     ],
     "adjacentWaterIds": [
-      1453,
-      1486,
-      1488
+      1435,
+      1468,
+      1470
     ],
     "sourceAdm1Codes": [
       "EUR-0327"
@@ -5510,7 +5511,7 @@
       326
     ],
     "adjacentWaterIds": [
-      1455
+      1437
     ],
     "sourceAdm1Codes": [
       "EUR-0328"
@@ -5530,7 +5531,7 @@
       170
     ],
     "adjacentWaterIds": [
-      1438
+      1420
     ],
     "sourceAdm1Codes": [
       "EUR-0329"
@@ -5831,7 +5832,7 @@
       362
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "EUR-0347"
@@ -5935,7 +5936,7 @@
       360
     ],
     "adjacentWaterIds": [
-      1481
+      1463
     ],
     "sourceAdm1Codes": [
       "EUR-0353"
@@ -5952,8 +5953,8 @@
       360
     ],
     "adjacentWaterIds": [
-      1480,
-      1481
+      1462,
+      1463
     ],
     "sourceAdm1Codes": [
       "EUR-0354"
@@ -5969,7 +5970,7 @@
       360
     ],
     "adjacentWaterIds": [
-      1481
+      1463
     ],
     "sourceAdm1Codes": [
       "EUR-0355"
@@ -5986,7 +5987,7 @@
       362
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "EUR-0356"
@@ -6132,7 +6133,7 @@
       366
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0365"
@@ -6148,7 +6149,7 @@
       365
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0366"
@@ -6162,7 +6163,7 @@
       41
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "EUR-0367"
@@ -6267,8 +6268,8 @@
       52
     ],
     "adjacentWaterIds": [
-      1453,
-      1478
+      1435,
+      1460
     ],
     "sourceAdm1Codes": [
       "EUR-0374"
@@ -6351,7 +6352,7 @@
       781
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0004"
@@ -6371,7 +6372,7 @@
       649
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0005"
@@ -6383,7 +6384,7 @@
     "area": 33864.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0006"
@@ -6399,8 +6400,8 @@
       397
     ],
     "adjacentWaterIds": [
-      1448,
-      1464
+      1430,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0007"
@@ -6418,7 +6419,7 @@
       400
     ],
     "adjacentWaterIds": [
-      1448
+      1430
     ],
     "sourceAdm1Codes": [
       "ASI-0008"
@@ -6433,7 +6434,7 @@
       384
     ],
     "adjacentWaterIds": [
-      1448
+      1430
     ],
     "sourceAdm1Codes": [
       "ASI-0009"
@@ -6451,8 +6452,8 @@
       417
     ],
     "adjacentWaterIds": [
-      1448,
-      1451
+      1430,
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0010"
@@ -6470,7 +6471,7 @@
       418
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0011"
@@ -6491,7 +6492,7 @@
       411
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0012"
@@ -6506,7 +6507,7 @@
       389
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0013"
@@ -6518,7 +6519,7 @@
     "area": 0.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0014"
@@ -6733,7 +6734,7 @@
       416
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0027"
@@ -6752,7 +6753,7 @@
       590
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0028"
@@ -6998,7 +6999,7 @@
       401
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0042"
@@ -7025,7 +7026,7 @@
       385
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0044"
@@ -7039,7 +7040,7 @@
       379
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0045"
@@ -7075,7 +7076,7 @@
     "geoJsonId": "ASI-0048",
     "area": 14367.0,
     "landNeighboringRegionIds": [
-      1151,
+      1147,
       423,
       433,
       434,
@@ -7086,9 +7087,9 @@
       557
     ],
     "adjacentWaterIds": [
-      1434,
-      1440,
-      1588
+      1416,
+      1422,
+      1570
     ],
     "sourceAdm1Codes": [
       "ASI-0048"
@@ -7099,11 +7100,11 @@
     "geoJsonId": "ASI-0049",
     "area": 341.6,
     "landNeighboringRegionIds": [
-      1151,
+      1147,
       422
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0049"
@@ -7123,8 +7124,8 @@
       724
     ],
     "adjacentWaterIds": [
-      1440,
-      1590
+      1422,
+      1572
     ],
     "sourceAdm1Codes": [
       "ASI-0050"
@@ -7257,7 +7258,7 @@
       558
     ],
     "adjacentWaterIds": [
-      1588
+      1570
     ],
     "sourceAdm1Codes": [
       "ASI-0058"
@@ -7274,7 +7275,7 @@
       437
     ],
     "adjacentWaterIds": [
-      1588
+      1570
     ],
     "sourceAdm1Codes": [
       "ASI-0059"
@@ -7305,7 +7306,7 @@
       436
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0061"
@@ -7326,7 +7327,7 @@
       438
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0062"
@@ -7345,7 +7346,7 @@
       436
     ],
     "adjacentWaterIds": [
-      1588
+      1570
     ],
     "sourceAdm1Codes": [
       "ASI-0063"
@@ -7359,7 +7360,7 @@
       436
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0064"
@@ -7397,7 +7398,7 @@
     "area": 1.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0067"
@@ -7413,8 +7414,8 @@
       700
     ],
     "adjacentWaterIds": [
-      1432,
-      1435
+      1414,
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0068"
@@ -7679,7 +7680,7 @@
       240
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0084"
@@ -7699,7 +7700,7 @@
       545
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0085"
@@ -7715,7 +7716,7 @@
       549
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0086"
@@ -7747,7 +7748,7 @@
       463
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0088"
@@ -7780,7 +7781,7 @@
       639
     ],
     "adjacentWaterIds": [
-      1463
+      1445
     ],
     "sourceAdm1Codes": [
       "ASI-0090"
@@ -7827,7 +7828,7 @@
       500
     ],
     "adjacentWaterIds": [
-      1463
+      1445
     ],
     "sourceAdm1Codes": [
       "ASI-0093"
@@ -7847,7 +7848,7 @@
       507
     ],
     "adjacentWaterIds": [
-      1463
+      1445
     ],
     "sourceAdm1Codes": [
       "ASI-0094"
@@ -7861,7 +7862,7 @@
       699
     ],
     "adjacentWaterIds": [
-      1435
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0095"
@@ -7875,7 +7876,7 @@
       652
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0096"
@@ -7928,7 +7929,7 @@
       313
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "ASI-0099"
@@ -7960,7 +7961,7 @@
       379
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0101"
@@ -7977,8 +7978,8 @@
       652
     ],
     "adjacentWaterIds": [
-      1444,
-      1460
+      1426,
+      1442
     ],
     "sourceAdm1Codes": [
       "ASI-0102"
@@ -7992,8 +7993,8 @@
       740
     ],
     "adjacentWaterIds": [
-      1402,
-      1403
+      1384,
+      1385
     ],
     "sourceAdm1Codes": [
       "ASI-0103"
@@ -8005,11 +8006,11 @@
     "area": 32612.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1402,
-      1403,
-      1406,
-      1413,
-      1517
+      1384,
+      1385,
+      1388,
+      1395,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0104"
@@ -8025,8 +8026,8 @@
       652
     ],
     "adjacentWaterIds": [
-      1410,
-      1464
+      1392,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0105"
@@ -8038,12 +8039,12 @@
     "area": 312602.7,
     "landNeighboringRegionIds": [
       483,
-      1363,
-      1364
+      1345,
+      1346
     ],
     "adjacentWaterIds": [
-      1408,
-      1506
+      1390,
+      1488
     ],
     "sourceAdm1Codes": [
       "ASI-0106"
@@ -8055,10 +8056,10 @@
     "area": 44865.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1403,
-      1408,
-      1411,
-      1413
+      1385,
+      1390,
+      1393,
+      1395
     ],
     "sourceAdm1Codes": [
       "ASI-0107"
@@ -8070,10 +8071,10 @@
     "area": 19646.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1402,
-      1404,
-      1406,
-      1517
+      1384,
+      1386,
+      1388,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0108"
@@ -8087,11 +8088,11 @@
       480
     ],
     "adjacentWaterIds": [
-      1408,
-      1411,
-      1461,
-      1506,
-      1524
+      1390,
+      1393,
+      1443,
+      1488,
+      1506
     ],
     "sourceAdm1Codes": [
       "ASI-0109"
@@ -8103,11 +8104,11 @@
     "area": 31330.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1411,
-      1413,
-      1450,
-      1461,
-      1462
+      1393,
+      1395,
+      1432,
+      1443,
+      1444
     ],
     "sourceAdm1Codes": [
       "ASI-0110"
@@ -8119,8 +8120,8 @@
     "area": 6749.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1443,
-      1464
+      1425,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0111"
@@ -8135,8 +8136,8 @@
       495
     ],
     "adjacentWaterIds": [
-      1445,
-      1464
+      1427,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0112"
@@ -8152,8 +8153,8 @@
       495
     ],
     "adjacentWaterIds": [
-      1445,
-      1517
+      1427,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0113"
@@ -8167,10 +8168,10 @@
       487
     ],
     "adjacentWaterIds": [
+      1427,
       1445,
-      1463,
-      1479,
-      1517
+      1461,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0114"
@@ -8182,8 +8183,8 @@
     "area": 5585.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1404,
-      1517
+      1386,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0115"
@@ -8195,8 +8196,8 @@
     "area": 16535.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1410,
-      1464
+      1392,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0116"
@@ -8210,12 +8211,12 @@
       493
     ],
     "adjacentWaterIds": [
-      1413,
-      1444,
-      1450,
-      1459,
-      1460,
-      1462
+      1395,
+      1426,
+      1432,
+      1441,
+      1442,
+      1444
     ],
     "sourceAdm1Codes": [
       "ASI-0117"
@@ -8229,9 +8230,9 @@
       495
     ],
     "adjacentWaterIds": [
-      1410,
-      1464,
-      1517
+      1392,
+      1446,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0118"
@@ -8245,11 +8246,11 @@
       491
     ],
     "adjacentWaterIds": [
-      1406,
-      1409,
-      1410,
-      1413,
-      1460
+      1388,
+      1391,
+      1392,
+      1395,
+      1442
     ],
     "sourceAdm1Codes": [
       "ASI-0119"
@@ -8264,8 +8265,8 @@
       479
     ],
     "adjacentWaterIds": [
-      1410,
-      1460
+      1392,
+      1442
     ],
     "sourceAdm1Codes": [
       "ASI-0120"
@@ -8281,8 +8282,8 @@
       492
     ],
     "adjacentWaterIds": [
-      1464,
-      1517
+      1446,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0121"
@@ -8294,9 +8295,9 @@
     "area": 131764.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1404,
-      1410,
-      1517
+      1386,
+      1392,
+      1499
     ],
     "sourceAdm1Codes": [
       "ASI-0122"
@@ -8369,7 +8370,7 @@
       657
     ],
     "adjacentWaterIds": [
-      1463
+      1445
     ],
     "sourceAdm1Codes": [
       "ASI-0126"
@@ -8534,7 +8535,7 @@
       696
     ],
     "adjacentWaterIds": [
-      1465
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0136"
@@ -8623,7 +8624,7 @@
       532
     ],
     "adjacentWaterIds": [
-      1463
+      1445
     ],
     "sourceAdm1Codes": [
       "ASI-0141"
@@ -8641,7 +8642,7 @@
       532
     ],
     "adjacentWaterIds": [
-      1463
+      1445
     ],
     "sourceAdm1Codes": [
       "ASI-0142"
@@ -8656,7 +8657,7 @@
       518
     ],
     "adjacentWaterIds": [
-      1465
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0143"
@@ -8676,7 +8677,7 @@
       532
     ],
     "adjacentWaterIds": [
-      1465
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0144"
@@ -8691,7 +8692,7 @@
       520
     ],
     "adjacentWaterIds": [
-      1465
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0145"
@@ -8710,8 +8711,8 @@
       532
     ],
     "adjacentWaterIds": [
-      1465,
-      1487
+      1447,
+      1469
     ],
     "sourceAdm1Codes": [
       "ASI-0146"
@@ -8727,7 +8728,7 @@
       523
     ],
     "adjacentWaterIds": [
-      1487
+      1469
     ],
     "sourceAdm1Codes": [
       "ASI-0147"
@@ -8743,8 +8744,8 @@
       523
     ],
     "adjacentWaterIds": [
-      1463,
-      1487
+      1445,
+      1469
     ],
     "sourceAdm1Codes": [
       "ASI-0148"
@@ -8761,8 +8762,8 @@
       522
     ],
     "adjacentWaterIds": [
-      1463,
-      1487
+      1445,
+      1469
     ],
     "sourceAdm1Codes": [
       "ASI-0149"
@@ -8774,7 +8775,7 @@
     "area": 16.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1487
+      1469
     ],
     "sourceAdm1Codes": [
       "ASI-0150"
@@ -8786,8 +8787,8 @@
     "area": 7072.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1463,
-      1479
+      1445,
+      1461
     ],
     "sourceAdm1Codes": [
       "ASI-0151"
@@ -9052,7 +9053,7 @@
       701
     ],
     "adjacentWaterIds": [
-      1435
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0167"
@@ -9136,7 +9137,7 @@
       694
     ],
     "adjacentWaterIds": [
-      1432
+      1414
     ],
     "sourceAdm1Codes": [
       "ASI-0172"
@@ -9153,7 +9154,7 @@
       551
     ],
     "adjacentWaterIds": [
-      1435
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0173"
@@ -9170,8 +9171,8 @@
       551
     ],
     "adjacentWaterIds": [
-      1432,
-      1435
+      1414,
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0174"
@@ -9194,7 +9195,7 @@
       552
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0175"
@@ -9230,7 +9231,7 @@
       744
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0177"
@@ -9281,7 +9282,7 @@
       561
     ],
     "adjacentWaterIds": [
-      1588
+      1570
     ],
     "sourceAdm1Codes": [
       "ASI-0180"
@@ -9299,7 +9300,7 @@
       561
     ],
     "adjacentWaterIds": [
-      1588
+      1570
     ],
     "sourceAdm1Codes": [
       "ASI-0181"
@@ -9331,7 +9332,7 @@
       702
     ],
     "adjacentWaterIds": [
-      1434
+      1416
     ],
     "sourceAdm1Codes": [
       "ASI-0183"
@@ -9352,7 +9353,7 @@
       564
     ],
     "adjacentWaterIds": [
-      1588
+      1570
     ],
     "sourceAdm1Codes": [
       "ASI-0184"
@@ -9467,10 +9468,10 @@
       574
     ],
     "adjacentWaterIds": [
-      1448,
-      1449,
-      1450,
-      1482
+      1430,
+      1431,
+      1432,
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0191"
@@ -9482,8 +9483,8 @@
     "area": 18803.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1449,
-      1450
+      1431,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0192"
@@ -9498,8 +9499,8 @@
       568
     ],
     "adjacentWaterIds": [
-      1449,
-      1482
+      1431,
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0193"
@@ -9514,9 +9515,9 @@
       569
     ],
     "adjacentWaterIds": [
-      1449,
-      1450,
-      1482
+      1431,
+      1432,
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0194"
@@ -9532,8 +9533,8 @@
       571
     ],
     "adjacentWaterIds": [
-      1450,
-      1482
+      1432,
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0195"
@@ -9548,8 +9549,8 @@
       571
     ],
     "adjacentWaterIds": [
-      1482,
-      1528
+      1464,
+      1510
     ],
     "sourceAdm1Codes": [
       "ASI-0196"
@@ -9564,9 +9565,9 @@
       570
     ],
     "adjacentWaterIds": [
-      1450,
-      1528,
-      1530
+      1432,
+      1510,
+      1512
     ],
     "sourceAdm1Codes": [
       "ASI-0197"
@@ -9578,9 +9579,9 @@
     "area": 78763.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1482,
-      1483,
-      1528
+      1464,
+      1465,
+      1510
     ],
     "sourceAdm1Codes": [
       "ASI-0198"
@@ -9592,8 +9593,8 @@
     "area": 3266.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1448,
-      1450
+      1430,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0199"
@@ -9607,8 +9608,8 @@
       565
     ],
     "adjacentWaterIds": [
-      1448,
-      1482
+      1430,
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0200"
@@ -9725,7 +9726,7 @@
       731
     ],
     "adjacentWaterIds": [
-      1447
+      1429
     ],
     "sourceAdm1Codes": [
       "ASI-0207"
@@ -9762,7 +9763,7 @@
       771
     ],
     "adjacentWaterIds": [
-      1447
+      1429
     ],
     "sourceAdm1Codes": [
       "ASI-0209"
@@ -9780,7 +9781,7 @@
       596
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0210"
@@ -9798,7 +9799,7 @@
       596
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0211"
@@ -9815,7 +9816,7 @@
       593
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0212"
@@ -9831,7 +9832,7 @@
       257
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0213"
@@ -9880,7 +9881,7 @@
       591
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0216"
@@ -9900,7 +9901,7 @@
       594
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0217"
@@ -9915,7 +9916,7 @@
       591
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0218"
@@ -9933,7 +9934,7 @@
       591
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0219"
@@ -9963,7 +9964,7 @@
       609
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0221"
@@ -9983,7 +9984,7 @@
       609
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0222"
@@ -10001,7 +10002,7 @@
       609
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0223"
@@ -10015,7 +10016,7 @@
       596
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0224"
@@ -10033,7 +10034,7 @@
       609
     ],
     "adjacentWaterIds": [
-      1451
+      1433
     ],
     "sourceAdm1Codes": [
       "ASI-0225"
@@ -10049,8 +10050,8 @@
       610
     ],
     "adjacentWaterIds": [
-      1451,
-      1482
+      1433,
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0226"
@@ -10068,7 +10069,7 @@
       604
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0227"
@@ -10082,7 +10083,7 @@
       601
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0228"
@@ -10097,7 +10098,7 @@
       604
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0229"
@@ -10116,7 +10117,7 @@
       611
     ],
     "adjacentWaterIds": [
-      1482
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0230"
@@ -10128,9 +10129,9 @@
     "area": 1868.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1448,
-      1451,
-      1482
+      1430,
+      1433,
+      1464
     ],
     "sourceAdm1Codes": [
       "ASI-0231"
@@ -10228,7 +10229,7 @@
       700
     ],
     "adjacentWaterIds": [
-      1435
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0238"
@@ -10243,7 +10244,7 @@
       700
     ],
     "adjacentWaterIds": [
-      1435
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0239"
@@ -10292,7 +10293,7 @@
       762
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0242"
@@ -10312,7 +10313,7 @@
       290
     ],
     "adjacentWaterIds": [
-      1589
+      1571
     ],
     "sourceAdm1Codes": [
       "ASI-0243"
@@ -10381,7 +10382,7 @@
       297
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0247"
@@ -10402,7 +10403,7 @@
       764
     ],
     "adjacentWaterIds": [
-      1589
+      1571
     ],
     "sourceAdm1Codes": [
       "ASI-0248"
@@ -10530,7 +10531,7 @@
       632
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0255"
@@ -10566,7 +10567,7 @@
       711
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0257"
@@ -10583,7 +10584,7 @@
       633
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0258"
@@ -10597,7 +10598,7 @@
       632
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0259"
@@ -10609,9 +10610,9 @@
     "area": 66283.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1463,
-      1487,
-      1512
+      1445,
+      1469,
+      1494
     ],
     "sourceAdm1Codes": [
       "ASI-0260"
@@ -10643,8 +10644,8 @@
       640
     ],
     "adjacentWaterIds": [
-      1463,
-      1479
+      1445,
+      1461
     ],
     "sourceAdm1Codes": [
       "ASI-0262"
@@ -10661,7 +10662,7 @@
       639
     ],
     "adjacentWaterIds": [
-      1463
+      1445
     ],
     "sourceAdm1Codes": [
       "ASI-0263"
@@ -10718,7 +10719,7 @@
       734
     ],
     "adjacentWaterIds": [
-      1479
+      1461
     ],
     "sourceAdm1Codes": [
       "ASI-0266"
@@ -10862,7 +10863,7 @@
       379
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0275"
@@ -10874,8 +10875,8 @@
     "area": 57.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1465,
-      1487
+      1447,
+      1469
     ],
     "sourceAdm1Codes": [
       "ASI-0276"
@@ -10890,9 +10891,9 @@
       652
     ],
     "adjacentWaterIds": [
-      1444,
-      1446,
-      1464
+      1426,
+      1428,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0277"
@@ -10909,7 +10910,7 @@
       651
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0278"
@@ -10924,9 +10925,9 @@
       708
     ],
     "adjacentWaterIds": [
-      1443,
-      1445,
-      1464
+      1425,
+      1427,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0279"
@@ -10938,7 +10939,7 @@
     "area": 89.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0280"
@@ -10953,7 +10954,7 @@
       732
     ],
     "adjacentWaterIds": [
-      1445
+      1427
     ],
     "sourceAdm1Codes": [
       "ASI-0281"
@@ -10969,9 +10970,9 @@
       732
     ],
     "adjacentWaterIds": [
-      1445,
-      1447,
-      1464
+      1427,
+      1429,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0282"
@@ -11002,8 +11003,8 @@
       442
     ],
     "adjacentWaterIds": [
-      1432,
-      1435
+      1414,
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0284"
@@ -11020,7 +11021,7 @@
       801
     ],
     "adjacentWaterIds": [
-      1465
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0285"
@@ -11036,7 +11037,7 @@
       700
     ],
     "adjacentWaterIds": [
-      1432
+      1414
     ],
     "sourceAdm1Codes": [
       "ASI-0286"
@@ -11052,8 +11053,8 @@
       700
     ],
     "adjacentWaterIds": [
-      1432,
-      1465
+      1414,
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0287"
@@ -11070,7 +11071,7 @@
       687
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0288"
@@ -11103,8 +11104,8 @@
       688
     ],
     "adjacentWaterIds": [
-      1450,
-      1464
+      1432,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0290"
@@ -11119,7 +11120,7 @@
       688
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0291"
@@ -11136,7 +11137,7 @@
       689
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0292"
@@ -11148,7 +11149,7 @@
     "area": 8554.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0293"
@@ -11164,7 +11165,8 @@
       671
     ],
     "adjacentWaterIds": [
-      1444
+      1426,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0294"
@@ -11181,8 +11183,8 @@
       687
     ],
     "adjacentWaterIds": [
-      1444,
-      1450
+      1426,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0295"
@@ -11198,7 +11200,7 @@
       689
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0296"
@@ -11215,8 +11217,8 @@
       690
     ],
     "adjacentWaterIds": [
-      1444,
-      1450
+      1426,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0297"
@@ -11230,7 +11232,7 @@
       683
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0298"
@@ -11246,7 +11248,7 @@
       688
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0299"
@@ -11258,7 +11260,7 @@
     "area": 3936.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0300"
@@ -11270,9 +11272,9 @@
     "area": 11018.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1446,
-      1450,
-      1464
+      1428,
+      1432,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0301"
@@ -11286,7 +11288,7 @@
       690
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0302"
@@ -11302,7 +11304,7 @@
       671
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0303"
@@ -11329,8 +11331,8 @@
     "area": 13216.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1446,
-      1450
+      1428,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0305"
@@ -11358,8 +11360,8 @@
     "area": 14015.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1446,
-      1464
+      1428,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0307"
@@ -11371,8 +11373,8 @@
     "area": 13464.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1446,
-      1450
+      1428,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0308"
@@ -11386,7 +11388,7 @@
       672
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0309"
@@ -11400,7 +11402,7 @@
       665
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0310"
@@ -11415,8 +11417,8 @@
       688
     ],
     "adjacentWaterIds": [
-      1450,
-      1464
+      1432,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0311"
@@ -11428,8 +11430,8 @@
     "area": 3005.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1444,
-      1446
+      1426,
+      1428
     ],
     "sourceAdm1Codes": [
       "ASI-0312"
@@ -11444,7 +11446,7 @@
       669
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0313"
@@ -11463,7 +11465,7 @@
       685
     ],
     "adjacentWaterIds": [
-      1450
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0314"
@@ -11480,7 +11482,7 @@
       680
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0315"
@@ -11495,9 +11497,9 @@
       676
     ],
     "adjacentWaterIds": [
-      1444,
-      1446,
-      1450
+      1426,
+      1428,
+      1432
     ],
     "sourceAdm1Codes": [
       "ASI-0316"
@@ -11569,8 +11571,8 @@
       696
     ],
     "adjacentWaterIds": [
-      1432,
-      1465
+      1414,
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0320"
@@ -11607,7 +11609,7 @@
       695
     ],
     "adjacentWaterIds": [
-      1465
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0322"
@@ -11650,7 +11652,7 @@
       700
     ],
     "adjacentWaterIds": [
-      1435
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0325"
@@ -11675,7 +11677,7 @@
       801
     ],
     "adjacentWaterIds": [
-      1435
+      1417
     ],
     "sourceAdm1Codes": [
       "ASI-0326"
@@ -11715,7 +11717,7 @@
       707
     ],
     "adjacentWaterIds": [
-      1434
+      1416
     ],
     "sourceAdm1Codes": [
       "ASI-0328"
@@ -11731,7 +11733,7 @@
       707
     ],
     "adjacentWaterIds": [
-      1433
+      1415
     ],
     "sourceAdm1Codes": [
       "ASI-0329"
@@ -11763,7 +11765,7 @@
       805
     ],
     "adjacentWaterIds": [
-      1433
+      1415
     ],
     "sourceAdm1Codes": [
       "ASI-0331"
@@ -11799,8 +11801,8 @@
       706
     ],
     "adjacentWaterIds": [
-      1433,
-      1434
+      1415,
+      1416
     ],
     "sourceAdm1Codes": [
       "ASI-0333"
@@ -11814,7 +11816,7 @@
       653
     ],
     "adjacentWaterIds": [
-      1443
+      1425
     ],
     "sourceAdm1Codes": [
       "ASI-0334"
@@ -11869,7 +11871,7 @@
       722
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0337"
@@ -11969,7 +11971,7 @@
       747
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0343"
@@ -12081,7 +12083,7 @@
       721
     ],
     "adjacentWaterIds": [
-      1590
+      1572
     ],
     "sourceAdm1Codes": [
       "ASI-0350"
@@ -12095,8 +12097,8 @@
       732
     ],
     "adjacentWaterIds": [
-      1445,
-      1479
+      1427,
+      1461
     ],
     "sourceAdm1Codes": [
       "ASI-0351"
@@ -12113,7 +12115,7 @@
       734
     ],
     "adjacentWaterIds": [
-      1447
+      1429
     ],
     "sourceAdm1Codes": [
       "ASI-0352"
@@ -12130,8 +12132,8 @@
       734
     ],
     "adjacentWaterIds": [
-      1447,
-      1479
+      1429,
+      1461
     ],
     "sourceAdm1Codes": [
       "ASI-0353"
@@ -12213,9 +12215,9 @@
       727
     ],
     "adjacentWaterIds": [
-      1445,
-      1447,
-      1479
+      1427,
+      1429,
+      1461
     ],
     "sourceAdm1Codes": [
       "ASI-0358"
@@ -12345,9 +12347,9 @@
       477
     ],
     "adjacentWaterIds": [
-      1402,
-      1403,
-      1413
+      1384,
+      1385,
+      1395
     ],
     "sourceAdm1Codes": [
       "ASI-0366"
@@ -12417,7 +12419,7 @@
       762
     ],
     "adjacentWaterIds": [
-      1579
+      1561
     ],
     "sourceAdm1Codes": [
       "ASI-0370"
@@ -12448,7 +12450,7 @@
       752
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "ASI-0372"
@@ -12469,7 +12471,7 @@
       752
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "ASI-0373"
@@ -12486,8 +12488,8 @@
       754
     ],
     "adjacentWaterIds": [
-      1441,
-      1442
+      1423,
+      1424
     ],
     "sourceAdm1Codes": [
       "ASI-0374"
@@ -12504,8 +12506,8 @@
       139
     ],
     "adjacentWaterIds": [
-      1440,
-      1441
+      1422,
+      1423
     ],
     "sourceAdm1Codes": [
       "ASI-0375"
@@ -12522,8 +12524,8 @@
       753
     ],
     "adjacentWaterIds": [
-      1442,
-      1480
+      1424,
+      1462
     ],
     "sourceAdm1Codes": [
       "ASI-0376"
@@ -12547,7 +12549,7 @@
       747
     ],
     "adjacentWaterIds": [
-      1480
+      1462
     ],
     "sourceAdm1Codes": [
       "ASI-0377"
@@ -12564,8 +12566,8 @@
       750
     ],
     "adjacentWaterIds": [
-      1440,
-      1480
+      1422,
+      1462
     ],
     "sourceAdm1Codes": [
       "ASI-0378"
@@ -12581,8 +12583,8 @@
       754
     ],
     "adjacentWaterIds": [
-      1442,
-      1480
+      1424,
+      1462
     ],
     "sourceAdm1Codes": [
       "ASI-0379"
@@ -12600,8 +12602,8 @@
       130
     ],
     "adjacentWaterIds": [
-      1441,
-      1480
+      1423,
+      1462
     ],
     "sourceAdm1Codes": [
       "ASI-0380"
@@ -12613,7 +12615,7 @@
     "area": 154.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0381"
@@ -12625,7 +12627,7 @@
     "area": 80.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0382"
@@ -12639,9 +12641,9 @@
       758
     ],
     "adjacentWaterIds": [
-      1448,
-      1450,
-      1464
+      1430,
+      1432,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0383"
@@ -12655,8 +12657,8 @@
       757
     ],
     "adjacentWaterIds": [
-      1450,
-      1464
+      1432,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0384"
@@ -12725,7 +12727,7 @@
       761
     ],
     "adjacentWaterIds": [
-      1589
+      1571
     ],
     "sourceAdm1Codes": [
       "ASI-0388"
@@ -12877,8 +12879,8 @@
       799
     ],
     "adjacentWaterIds": [
-      1447,
-      1464
+      1429,
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0397"
@@ -12929,7 +12931,7 @@
       795
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0400"
@@ -12945,7 +12947,7 @@
       776
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0401"
@@ -12962,7 +12964,7 @@
       777
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0402"
@@ -12978,7 +12980,7 @@
       778
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0403"
@@ -12994,7 +12996,7 @@
       779
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0404"
@@ -13011,7 +13013,7 @@
       792
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0405"
@@ -13029,7 +13031,7 @@
       792
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0406"
@@ -13050,7 +13052,7 @@
       796
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0407"
@@ -13066,7 +13068,7 @@
       787
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0408"
@@ -13084,7 +13086,7 @@
       797
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0409"
@@ -13101,7 +13103,7 @@
       798
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0410"
@@ -13116,7 +13118,7 @@
       799
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0411"
@@ -13135,7 +13137,7 @@
       798
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0412"
@@ -13152,7 +13154,7 @@
       798
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0413"
@@ -13168,7 +13170,7 @@
       798
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0414"
@@ -13185,7 +13187,7 @@
       790
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0415"
@@ -13201,7 +13203,7 @@
       791
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0416"
@@ -13218,7 +13220,7 @@
       790
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0417"
@@ -13233,7 +13235,7 @@
       780
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0418"
@@ -13277,7 +13279,7 @@
       793
     ],
     "adjacentWaterIds": [
-      1464
+      1446
     ],
     "sourceAdm1Codes": [
       "ASI-0421"
@@ -13355,8 +13357,8 @@
       805
     ],
     "adjacentWaterIds": [
-      1431,
-      1465
+      1413,
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0426"
@@ -13372,8 +13374,8 @@
       800
     ],
     "adjacentWaterIds": [
-      1431,
-      1465
+      1413,
+      1447
     ],
     "sourceAdm1Codes": [
       "ASI-0427"
@@ -13389,7 +13391,7 @@
       805
     ],
     "adjacentWaterIds": [
-      1433
+      1415
     ],
     "sourceAdm1Codes": [
       "ASI-0428"
@@ -13405,7 +13407,7 @@
       805
     ],
     "adjacentWaterIds": [
-      1431
+      1413
     ],
     "sourceAdm1Codes": [
       "ASI-0429"
@@ -13421,8 +13423,8 @@
       805
     ],
     "adjacentWaterIds": [
-      1431,
-      1433
+      1413,
+      1415
     ],
     "sourceAdm1Codes": [
       "ASI-0430"
@@ -13451,7 +13453,7 @@
     "area": 1096.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0001"
@@ -13463,8 +13465,8 @@
     "area": 1643.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418,
-      1561
+      1400,
+      1543
     ],
     "sourceAdm1Codes": [
       "NAM-0002"
@@ -13476,7 +13478,7 @@
     "area": 898.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0003"
@@ -13488,7 +13490,7 @@
     "area": 45.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0004"
@@ -13502,7 +13504,7 @@
       829
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0005"
@@ -13514,7 +13516,7 @@
     "area": 3.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1532
+      1514
     ],
     "sourceAdm1Codes": [
       "NAM-0006"
@@ -13529,11 +13531,11 @@
       819
     ],
     "adjacentWaterIds": [
-      1423,
-      1424,
-      1425,
-      1468,
-      1570
+      1405,
+      1406,
+      1407,
+      1450,
+      1552
     ],
     "sourceAdm1Codes": [
       "NAM-0007"
@@ -13553,14 +13555,14 @@
       821
     ],
     "adjacentWaterIds": [
-      1422,
-      1424,
-      1425,
-      1426,
-      1427,
-      1473,
-      1474,
-      1577
+      1404,
+      1406,
+      1407,
+      1408,
+      1409,
+      1455,
+      1456,
+      1559
     ],
     "sourceAdm1Codes": [
       "NAM-0008"
@@ -13581,8 +13583,8 @@
       987
     ],
     "adjacentWaterIds": [
-      1466,
-      1541
+      1448,
+      1523
     ],
     "sourceAdm1Codes": [
       "NAM-0009"
@@ -13631,7 +13633,7 @@
       953
     ],
     "adjacentWaterIds": [
-      1473
+      1455
     ],
     "sourceAdm1Codes": [
       "NAM-0012"
@@ -13652,12 +13654,12 @@
       971
     ],
     "adjacentWaterIds": [
-      1468,
-      1473,
-      1580,
-      1581,
-      1582,
-      1583
+      1450,
+      1455,
+      1562,
+      1563,
+      1564,
+      1565
     ],
     "sourceAdm1Codes": [
       "NAM-0013"
@@ -13678,10 +13680,10 @@
       974
     ],
     "adjacentWaterIds": [
-      1424,
-      1425,
-      1468,
-      1473
+      1406,
+      1407,
+      1450,
+      1455
     ],
     "sourceAdm1Codes": [
       "NAM-0014"
@@ -13697,8 +13699,8 @@
       974
     ],
     "adjacentWaterIds": [
-      1415,
-      1468
+      1397,
+      1450
     ],
     "sourceAdm1Codes": [
       "NAM-0015"
@@ -13714,7 +13716,7 @@
       987
     ],
     "adjacentWaterIds": [
-      1422
+      1404
     ],
     "sourceAdm1Codes": [
       "NAM-0016"
@@ -13728,10 +13730,10 @@
       820
     ],
     "adjacentWaterIds": [
-      1415,
-      1468,
-      1563,
-      1571
+      1397,
+      1450,
+      1545,
+      1553
     ],
     "sourceAdm1Codes": [
       "NAM-0017"
@@ -13743,7 +13745,7 @@
     "area": 5735.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1468
+      1450
     ],
     "sourceAdm1Codes": [
       "NAM-0018"
@@ -13757,9 +13759,9 @@
       825
     ],
     "adjacentWaterIds": [
-      1418,
-      1467,
-      1564
+      1400,
+      1449,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0019"
@@ -13774,9 +13776,9 @@
       826
     ],
     "adjacentWaterIds": [
-      1418,
-      1467,
-      1564
+      1400,
+      1449,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0020"
@@ -13791,8 +13793,8 @@
       827
     ],
     "adjacentWaterIds": [
-      1418,
-      1564
+      1400,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0021"
@@ -13807,8 +13809,8 @@
       828
     ],
     "adjacentWaterIds": [
-      1418,
-      1564
+      1400,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0022"
@@ -13823,8 +13825,8 @@
       829
     ],
     "adjacentWaterIds": [
-      1418,
-      1564
+      1400,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0023"
@@ -13839,8 +13841,8 @@
       828
     ],
     "adjacentWaterIds": [
-      1418,
-      1564
+      1400,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0024"
@@ -13852,7 +13854,7 @@
     "area": 2357.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0025"
@@ -13871,7 +13873,7 @@
       842
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0026"
@@ -13888,7 +13890,7 @@
       847
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0027"
@@ -13903,8 +13905,8 @@
       832
     ],
     "adjacentWaterIds": [
-      1418,
-      1564
+      1400,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0028"
@@ -13922,7 +13924,7 @@
       842
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0029"
@@ -13936,7 +13938,7 @@
       834
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0030"
@@ -13954,7 +13956,7 @@
       852
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0031"
@@ -13987,7 +13989,7 @@
       837
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0033"
@@ -14017,7 +14019,7 @@
       853
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0035"
@@ -14066,7 +14068,7 @@
       853
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0038"
@@ -14084,7 +14086,7 @@
       854
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0039"
@@ -14099,9 +14101,9 @@
       853
     ],
     "adjacentWaterIds": [
-      1418,
-      1564,
-      1574
+      1400,
+      1546,
+      1556
     ],
     "sourceAdm1Codes": [
       "NAM-0040"
@@ -14138,7 +14140,7 @@
       854
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0042"
@@ -14154,7 +14156,7 @@
       851
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0043"
@@ -14170,7 +14172,7 @@
       854
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0044"
@@ -14187,7 +14189,7 @@
       851
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0045"
@@ -14207,7 +14209,7 @@
       853
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0046"
@@ -14241,7 +14243,7 @@
       851
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0048"
@@ -14271,8 +14273,8 @@
       946
     ],
     "adjacentWaterIds": [
-      1418,
-      1561
+      1400,
+      1543
     ],
     "sourceAdm1Codes": [
       "NAM-0050"
@@ -14284,8 +14286,8 @@
     "area": 444.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418,
-      1561
+      1400,
+      1543
     ],
     "sourceAdm1Codes": [
       "NAM-0051"
@@ -14297,7 +14299,7 @@
     "area": 52.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1574
+      1556
     ],
     "sourceAdm1Codes": [
       "NAM-0052"
@@ -14309,7 +14311,7 @@
     "area": 12517.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0053"
@@ -14358,7 +14360,7 @@
       897
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0056"
@@ -14375,7 +14377,7 @@
       876
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0057"
@@ -14391,7 +14393,7 @@
       864
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0058"
@@ -14408,7 +14410,7 @@
       863
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0059"
@@ -14441,7 +14443,7 @@
       928
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0061"
@@ -14460,7 +14462,7 @@
       934
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0062"
@@ -14479,7 +14481,7 @@
       934
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0063"
@@ -14535,7 +14537,7 @@
     "area": 2035.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0067"
@@ -14547,14 +14549,14 @@
     "area": 2154667.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1423,
-      1425,
-      1426,
-      1427,
-      1477,
-      1562,
-      1565,
-      1577
+      1405,
+      1407,
+      1408,
+      1409,
+      1459,
+      1544,
+      1547,
+      1559
     ],
     "sourceAdm1Codes": [
       "NAM-0068"
@@ -14608,7 +14610,7 @@
       888
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0071"
@@ -14639,7 +14641,7 @@
       900
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0073"
@@ -14693,7 +14695,7 @@
       941
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0076"
@@ -14708,7 +14710,7 @@
       924
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0077"
@@ -14720,7 +14722,7 @@
     "area": 247.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0078"
@@ -14738,7 +14740,7 @@
       939
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0079"
@@ -14755,7 +14757,7 @@
       927
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0080"
@@ -14771,7 +14773,7 @@
       888
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0081"
@@ -14790,7 +14792,7 @@
       927
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0082"
@@ -14811,7 +14813,7 @@
       943
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0083"
@@ -14823,7 +14825,7 @@
     "area": 11035.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0084"
@@ -14835,7 +14837,7 @@
     "area": 308.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0085"
@@ -14854,7 +14856,7 @@
       981
     ],
     "adjacentWaterIds": [
-      1414
+      1396
     ],
     "sourceAdm1Codes": [
       "NAM-0086"
@@ -14871,9 +14873,9 @@
       979
     ],
     "adjacentWaterIds": [
-      1414,
-      1526,
-      1555
+      1396,
+      1508,
+      1537
     ],
     "sourceAdm1Codes": [
       "NAM-0087"
@@ -14926,7 +14928,7 @@
       982
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0090"
@@ -14959,8 +14961,8 @@
       905
     ],
     "adjacentWaterIds": [
-      1418,
-      1467
+      1400,
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0092"
@@ -14978,7 +14980,7 @@
       905
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0093"
@@ -14995,7 +14997,7 @@
       906
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0094"
@@ -15016,7 +15018,7 @@
       910
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0095"
@@ -15031,8 +15033,8 @@
       908
     ],
     "adjacentWaterIds": [
-      1531,
-      1537
+      1513,
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0096"
@@ -15049,7 +15051,7 @@
       920
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0097"
@@ -15063,9 +15065,9 @@
       892
     ],
     "adjacentWaterIds": [
-      1414,
-      1526,
-      1531
+      1396,
+      1508,
+      1513
     ],
     "sourceAdm1Codes": [
       "NAM-0098"
@@ -15082,8 +15084,8 @@
       920
     ],
     "adjacentWaterIds": [
-      1414,
-      1537
+      1396,
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0099"
@@ -15098,7 +15100,7 @@
       898
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0100"
@@ -15118,7 +15120,7 @@
       917
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0101"
@@ -15138,7 +15140,7 @@
       919
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0102"
@@ -15157,7 +15159,7 @@
       916
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0103"
@@ -15175,7 +15177,7 @@
       913
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0104"
@@ -15192,7 +15194,7 @@
       912
     ],
     "adjacentWaterIds": [
-      1537
+      1519
     ],
     "sourceAdm1Codes": [
       "NAM-0105"
@@ -15407,7 +15409,7 @@
       929
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0118"
@@ -15425,7 +15427,7 @@
       929
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0119"
@@ -15441,7 +15443,7 @@
       929
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0120"
@@ -15458,7 +15460,7 @@
       929
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0121"
@@ -15492,7 +15494,7 @@
       929
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0123"
@@ -15525,7 +15527,7 @@
       934
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0125"
@@ -15541,8 +15543,8 @@
       935
     ],
     "adjacentWaterIds": [
-      1418,
-      1554
+      1400,
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0126"
@@ -15558,8 +15560,8 @@
       1098
     ],
     "adjacentWaterIds": [
-      1418,
-      1554
+      1400,
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0127"
@@ -15574,7 +15576,7 @@
       1098
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0128"
@@ -15591,7 +15593,7 @@
       931
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0129"
@@ -15606,8 +15608,8 @@
       1056
     ],
     "adjacentWaterIds": [
-      1418,
-      1554
+      1400,
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0130"
@@ -15619,8 +15621,8 @@
     "area": 241.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1468,
-      1570
+      1450,
+      1552
     ],
     "sourceAdm1Codes": [
       "NAM-0131"
@@ -15632,8 +15634,8 @@
     "area": 8998.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418,
-      1574
+      1400,
+      1556
     ],
     "sourceAdm1Codes": [
       "NAM-0132"
@@ -15665,7 +15667,7 @@
       942
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0134"
@@ -15680,7 +15682,7 @@
       943
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0135"
@@ -15696,8 +15698,8 @@
       943
     ],
     "adjacentWaterIds": [
-      1537,
-      1554
+      1519,
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0136"
@@ -15714,7 +15716,7 @@
       943
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0137"
@@ -15733,7 +15735,7 @@
       942
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0138"
@@ -15745,7 +15747,7 @@
     "area": 422.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0139"
@@ -15757,8 +15759,8 @@
     "area": 5116.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418,
-      1561
+      1400,
+      1543
     ],
     "sourceAdm1Codes": [
       "NAM-0140"
@@ -15772,7 +15774,7 @@
       855
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "NAM-0141"
@@ -15788,7 +15790,7 @@
       949
     ],
     "adjacentWaterIds": [
-      1541
+      1523
     ],
     "sourceAdm1Codes": [
       "NAM-0142"
@@ -15805,7 +15807,7 @@
       1022
     ],
     "adjacentWaterIds": [
-      1541
+      1523
     ],
     "sourceAdm1Codes": [
       "NAM-0143"
@@ -15823,7 +15825,7 @@
       1022
     ],
     "adjacentWaterIds": [
-      1541
+      1523
     ],
     "sourceAdm1Codes": [
       "NAM-0144"
@@ -15901,16 +15903,15 @@
   {
     "id": 954,
     "geoJsonId": "NAM-0149",
-    "area": 100438.6,
+    "area": 100390.1,
     "landNeighboringRegionIds": [
       818,
       953,
       955,
-      958,
       1041
     ],
     "adjacentWaterIds": [
-      1580
+      1562
     ],
     "sourceAdm1Codes": [
       "NAM-0149"
@@ -15943,7 +15944,7 @@
       959
     ],
     "adjacentWaterIds": [
-      1581
+      1563
     ],
     "sourceAdm1Codes": [
       "NAM-0151"
@@ -15959,8 +15960,8 @@
       961
     ],
     "adjacentWaterIds": [
-      1581,
-      1582
+      1563,
+      1564
     ],
     "sourceAdm1Codes": [
       "NAM-0152"
@@ -15969,16 +15970,15 @@
   {
     "id": 958,
     "geoJsonId": "NAM-0153",
-    "area": 43941.7,
+    "area": 43989.1,
     "landNeighboringRegionIds": [
       818,
-      954,
       1041,
       1042
     ],
     "adjacentWaterIds": [
-      1580,
-      1581
+      1562,
+      1563
     ],
     "sourceAdm1Codes": [
       "NAM-0153"
@@ -15995,7 +15995,7 @@
       1054
     ],
     "adjacentWaterIds": [
-      1581
+      1563
     ],
     "sourceAdm1Codes": [
       "NAM-0154"
@@ -16029,7 +16029,7 @@
       1055
     ],
     "adjacentWaterIds": [
-      1582
+      1564
     ],
     "sourceAdm1Codes": [
       "NAM-0156"
@@ -16063,7 +16063,7 @@
       1053
     ],
     "adjacentWaterIds": [
-      1582
+      1564
     ],
     "sourceAdm1Codes": [
       "NAM-0158"
@@ -16110,7 +16110,7 @@
       1053
     ],
     "adjacentWaterIds": [
-      1582
+      1564
     ],
     "sourceAdm1Codes": [
       "NAM-0161"
@@ -16132,7 +16132,7 @@
       1013
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0162"
@@ -16146,7 +16146,7 @@
       1013
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0163"
@@ -16164,7 +16164,7 @@
       1020
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0164"
@@ -16181,8 +16181,8 @@
       971
     ],
     "adjacentWaterIds": [
-      1582,
-      1583
+      1564,
+      1565
     ],
     "sourceAdm1Codes": [
       "NAM-0165"
@@ -16204,9 +16204,9 @@
       1013
     ],
     "adjacentWaterIds": [
-      1468,
-      1563,
-      1583
+      1450,
+      1545,
+      1565
     ],
     "sourceAdm1Codes": [
       "NAM-0166"
@@ -16240,7 +16240,7 @@
       1020
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0168"
@@ -16256,8 +16256,8 @@
       973
     ],
     "adjacentWaterIds": [
-      1415,
-      1563
+      1397,
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0169"
@@ -16306,8 +16306,8 @@
       979
     ],
     "adjacentWaterIds": [
-      1526,
-      1555
+      1508,
+      1537
     ],
     "sourceAdm1Codes": [
       "NAM-0172"
@@ -16323,8 +16323,8 @@
       980
     ],
     "adjacentWaterIds": [
-      1526,
-      1555
+      1508,
+      1537
     ],
     "sourceAdm1Codes": [
       "NAM-0173"
@@ -16343,7 +16343,7 @@
       1026
     ],
     "adjacentWaterIds": [
-      1555
+      1537
     ],
     "sourceAdm1Codes": [
       "NAM-0174"
@@ -16361,8 +16361,8 @@
       1026
     ],
     "adjacentWaterIds": [
-      1526,
-      1555
+      1508,
+      1537
     ],
     "sourceAdm1Codes": [
       "NAM-0175"
@@ -16400,7 +16400,7 @@
       985
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0177"
@@ -16418,7 +16418,7 @@
       1050
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0178"
@@ -16436,7 +16436,7 @@
       1034
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0179"
@@ -16464,9 +16464,9 @@
     "area": 10758.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1420,
-      1540,
-      1545
+      1402,
+      1522,
+      1527
     ],
     "sourceAdm1Codes": [
       "NAM-0181"
@@ -16481,13 +16481,13 @@
       821
     ],
     "adjacentWaterIds": [
-      1419,
-      1420,
-      1421,
-      1422,
-      1466,
-      1541,
-      1545
+      1401,
+      1402,
+      1403,
+      1404,
+      1448,
+      1523,
+      1527
     ],
     "sourceAdm1Codes": [
       "NAM-0182"
@@ -16503,7 +16503,7 @@
       991
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0183"
@@ -16520,7 +16520,7 @@
       1050
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0184"
@@ -16536,7 +16536,7 @@
       992
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0185"
@@ -16573,7 +16573,7 @@
       994
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0187"
@@ -16607,7 +16607,7 @@
       999
     ],
     "adjacentWaterIds": [
-      1467
+      1449
     ],
     "sourceAdm1Codes": [
       "NAM-0189"
@@ -16621,8 +16621,8 @@
       996
     ],
     "adjacentWaterIds": [
-      1467,
-      1564
+      1449,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0190"
@@ -16638,8 +16638,8 @@
       999
     ],
     "adjacentWaterIds": [
-      1467,
-      1564
+      1449,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0191"
@@ -16690,7 +16690,7 @@
       1001
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0194"
@@ -16722,7 +16722,7 @@
       1004
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0196"
@@ -16738,8 +16738,8 @@
       1007
     ],
     "adjacentWaterIds": [
-      1563,
-      1564
+      1545,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0197"
@@ -16754,8 +16754,8 @@
       1004
     ],
     "adjacentWaterIds": [
-      1563,
-      1564
+      1545,
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0198"
@@ -16775,7 +16775,7 @@
       1052
     ],
     "adjacentWaterIds": [
-      1564
+      1546
     ],
     "sourceAdm1Codes": [
       "NAM-0199"
@@ -16789,7 +16789,7 @@
       1009
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0200"
@@ -16806,7 +16806,7 @@
       1053
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0201"
@@ -16825,7 +16825,7 @@
       1053
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0202"
@@ -16840,7 +16840,7 @@
       1009
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0203"
@@ -16860,7 +16860,7 @@
       1053
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0204"
@@ -16876,7 +16876,7 @@
       1012
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0205"
@@ -16891,7 +16891,7 @@
       1013
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0206"
@@ -16908,7 +16908,7 @@
       1013
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0207"
@@ -16928,7 +16928,7 @@
       1012
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0208"
@@ -16944,7 +16944,7 @@
       1020
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0209"
@@ -16960,7 +16960,7 @@
       1020
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0210"
@@ -16975,7 +16975,7 @@
       1019
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0211"
@@ -16992,7 +16992,7 @@
       1020
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0212"
@@ -17004,7 +17004,7 @@
     "area": 138.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0213"
@@ -17021,7 +17021,7 @@
       1020
     ],
     "adjacentWaterIds": [
-      1563
+      1545
     ],
     "sourceAdm1Codes": [
       "NAM-0214"
@@ -17055,8 +17055,8 @@
       1022
     ],
     "adjacentWaterIds": [
-      1541,
-      1555
+      1523,
+      1537
     ],
     "sourceAdm1Codes": [
       "NAM-0216"
@@ -17085,7 +17085,7 @@
     "area": 16675.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1533
+      1515
     ],
     "sourceAdm1Codes": [
       "NAM-0218"
@@ -17383,7 +17383,7 @@
   {
     "id": 1041,
     "geoJsonId": "NAM-0236",
-    "area": 37079.8,
+    "area": 37080.9,
     "landNeighboringRegionIds": [
       954,
       955,
@@ -17392,7 +17392,7 @@
       1042
     ],
     "adjacentWaterIds": [
-      1580
+      1562
     ],
     "sourceAdm1Codes": [
       "NAM-0236"
@@ -17409,7 +17409,7 @@
       1044
     ],
     "adjacentWaterIds": [
-      1581
+      1563
     ],
     "sourceAdm1Codes": [
       "NAM-0237"
@@ -17445,7 +17445,7 @@
       1054
     ],
     "adjacentWaterIds": [
-      1581
+      1563
     ],
     "sourceAdm1Codes": [
       "NAM-0239"
@@ -17616,7 +17616,7 @@
       1055
     ],
     "adjacentWaterIds": [
-      1581
+      1563
     ],
     "sourceAdm1Codes": [
       "NAM-0249"
@@ -17649,8 +17649,8 @@
       935
     ],
     "adjacentWaterIds": [
-      1418,
-      1554
+      1400,
+      1536
     ],
     "sourceAdm1Codes": [
       "NAM-0251"
@@ -17683,8 +17683,8 @@
       1131
     ],
     "adjacentWaterIds": [
-      1498,
-      1561
+      1480,
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0002"
@@ -17731,7 +17731,7 @@
       1077
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0005"
@@ -17749,7 +17749,7 @@
       1081
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0006"
@@ -17817,7 +17817,7 @@
       1083
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0010"
@@ -17833,7 +17833,7 @@
       1071
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0011"
@@ -17864,7 +17864,7 @@
       1070
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0013"
@@ -17881,7 +17881,7 @@
       1084
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0014"
@@ -17898,8 +17898,8 @@
       1133
     ],
     "adjacentWaterIds": [
-      1494,
-      1498
+      1476,
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0015"
@@ -17920,8 +17920,8 @@
       1131
     ],
     "adjacentWaterIds": [
-      1498,
-      1561
+      1480,
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0016"
@@ -17957,7 +17957,7 @@
       1075
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0018"
@@ -17975,7 +17975,7 @@
       1081
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0019"
@@ -17992,7 +17992,7 @@
       1078
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0020"
@@ -18008,8 +18008,8 @@
       1078
     ],
     "adjacentWaterIds": [
-      1498,
-      1559
+      1480,
+      1541
     ],
     "sourceAdm1Codes": [
       "SAM-0021"
@@ -18025,7 +18025,7 @@
       1077
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0022"
@@ -18041,7 +18041,7 @@
       1081
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0023"
@@ -18056,7 +18056,7 @@
       1081
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0024"
@@ -18076,7 +18076,7 @@
       1084
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0025"
@@ -18092,8 +18092,8 @@
       1084
     ],
     "adjacentWaterIds": [
-      1497,
-      1498
+      1479,
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0026"
@@ -18111,7 +18111,7 @@
       1084
     ],
     "adjacentWaterIds": [
-      1498
+      1480
     ],
     "sourceAdm1Codes": [
       "SAM-0027"
@@ -18144,7 +18144,7 @@
       1131
     ],
     "adjacentWaterIds": [
-      1561
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0029"
@@ -18156,8 +18156,8 @@
     "area": 3943.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1497,
-      1499
+      1479,
+      1481
     ],
     "sourceAdm1Codes": [
       "SAM-0030"
@@ -18169,7 +18169,7 @@
     "area": 11570.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1494
+      1476
     ],
     "sourceAdm1Codes": [
       "SAM-0031"
@@ -18183,8 +18183,8 @@
       1115
     ],
     "adjacentWaterIds": [
-      1494,
-      1507
+      1476,
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0032"
@@ -18200,8 +18200,8 @@
       1094
     ],
     "adjacentWaterIds": [
-      1397,
-      1494
+      1379,
+      1476
     ],
     "sourceAdm1Codes": [
       "SAM-0033"
@@ -18222,7 +18222,7 @@
       1133
     ],
     "adjacentWaterIds": [
-      1397
+      1379
     ],
     "sourceAdm1Codes": [
       "SAM-0034"
@@ -18290,8 +18290,8 @@
       1118
     ],
     "adjacentWaterIds": [
-      1494,
-      1507
+      1476,
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0038"
@@ -18303,7 +18303,7 @@
     "area": 287.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "SAM-0039"
@@ -18315,7 +18315,7 @@
     "area": 6.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "SAM-0040"
@@ -18333,7 +18333,7 @@
       1113
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "SAM-0041"
@@ -18350,8 +18350,8 @@
       1099
     ],
     "adjacentWaterIds": [
-      1418,
-      1554
+      1400,
+      1536
     ],
     "sourceAdm1Codes": [
       "SAM-0042"
@@ -18370,7 +18370,7 @@
       1127
     ],
     "adjacentWaterIds": [
-      1554
+      1536
     ],
     "sourceAdm1Codes": [
       "SAM-0043"
@@ -18454,7 +18454,7 @@
       1120
     ],
     "adjacentWaterIds": [
-      1507
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0048"
@@ -18485,7 +18485,7 @@
       1126
     ],
     "adjacentWaterIds": [
-      1505
+      1487
     ],
     "sourceAdm1Codes": [
       "SAM-0050"
@@ -18503,8 +18503,8 @@
       1108
     ],
     "adjacentWaterIds": [
-      1505,
-      1507
+      1487,
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0051"
@@ -18523,7 +18523,7 @@
       1122
     ],
     "adjacentWaterIds": [
-      1507
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0052"
@@ -18551,7 +18551,7 @@
     "area": 1388.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "SAM-0054"
@@ -18563,7 +18563,7 @@
     "area": 0.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "SAM-0055"
@@ -18581,8 +18581,8 @@
       1128
     ],
     "adjacentWaterIds": [
-      1418,
-      1561
+      1400,
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0056"
@@ -18599,7 +18599,7 @@
       1112
     ],
     "adjacentWaterIds": [
-      1418
+      1400
     ],
     "sourceAdm1Codes": [
       "SAM-0057"
@@ -18615,7 +18615,7 @@
       1118
     ],
     "adjacentWaterIds": [
-      1507
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0058"
@@ -18631,8 +18631,8 @@
       1114
     ],
     "adjacentWaterIds": [
-      1494,
-      1507
+      1476,
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0059"
@@ -18648,7 +18648,7 @@
       1119
     ],
     "adjacentWaterIds": [
-      1507
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0060"
@@ -18666,8 +18666,8 @@
       1118
     ],
     "adjacentWaterIds": [
-      1507,
-      1508
+      1489,
+      1490
     ],
     "sourceAdm1Codes": [
       "SAM-0061"
@@ -18683,7 +18683,7 @@
       1117
     ],
     "adjacentWaterIds": [
-      1507
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0062"
@@ -18702,7 +18702,7 @@
       1123
     ],
     "adjacentWaterIds": [
-      1507
+      1489
     ],
     "sourceAdm1Codes": [
       "SAM-0063"
@@ -18780,8 +18780,8 @@
     "area": 7700.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1505,
-      1554
+      1487,
+      1536
     ],
     "sourceAdm1Codes": [
       "SAM-0068"
@@ -18797,8 +18797,8 @@
       1127
     ],
     "adjacentWaterIds": [
-      1505,
-      1554
+      1487,
+      1536
     ],
     "sourceAdm1Codes": [
       "SAM-0069"
@@ -18816,7 +18816,7 @@
       1127
     ],
     "adjacentWaterIds": [
-      1505
+      1487
     ],
     "sourceAdm1Codes": [
       "SAM-0070"
@@ -18847,7 +18847,7 @@
       1129
     ],
     "adjacentWaterIds": [
-      1561
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0072"
@@ -18864,7 +18864,7 @@
       1131
     ],
     "adjacentWaterIds": [
-      1561
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0073"
@@ -18879,7 +18879,7 @@
       1131
     ],
     "adjacentWaterIds": [
-      1561
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0074"
@@ -18897,7 +18897,7 @@
       1130
     ],
     "adjacentWaterIds": [
-      1561
+      1543
     ],
     "sourceAdm1Codes": [
       "SAM-0075"
@@ -18930,8 +18930,8 @@
       1090
     ],
     "adjacentWaterIds": [
-      1397,
-      1494
+      1379,
+      1476
     ],
     "sourceAdm1Codes": [
       "SAM-0077"
@@ -18943,7 +18943,7 @@
     "area": 2578.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1522
+      1504
     ],
     "sourceAdm1Codes": [
       "AFR-0001"
@@ -18955,8 +18955,8 @@
     "area": 2050.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1401,
-      1515
+      1383,
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0002"
@@ -18967,13 +18967,13 @@
     "geoJsonId": "AFR-0003",
     "area": 167404.1,
     "landNeighboringRegionIds": [
-      1216,
-      1248,
-      1249,
-      1298
+      1200,
+      1232,
+      1233,
+      1282
     ],
     "adjacentWaterIds": [
-      1431
+      1413
     ],
     "sourceAdm1Codes": [
       "AFR-0003"
@@ -18984,13 +18984,13 @@
     "geoJsonId": "AFR-0004",
     "area": 90492.9,
     "landNeighboringRegionIds": [
-      1158,
-      1228,
-      1231,
-      1310
+      1154,
+      1212,
+      1215,
+      1294
     ],
     "adjacentWaterIds": [
-      1556
+      1538
     ],
     "sourceAdm1Codes": [
       "AFR-0004"
@@ -19002,8 +19002,8 @@
     "area": 363.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1493,
-      1496
+      1475,
+      1478
     ],
     "sourceAdm1Codes": [
       "AFR-0005"
@@ -19015,7 +19015,7 @@
     "area": 27.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1523
+      1505
     ],
     "sourceAdm1Codes": [
       "AFR-0006"
@@ -19026,11 +19026,11 @@
     "geoJsonId": "AFR-0007",
     "area": 10506.8,
     "landNeighboringRegionIds": [
-      1290,
-      1291
+      1274,
+      1275
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0007"
@@ -19039,14 +19039,12 @@
   {
     "id": 1141,
     "geoJsonId": "AFR-0008",
-    "area": 9465.4,
+    "area": 25304.3,
     "landNeighboringRegionIds": [
-      1142,
-      1144,
-      1145,
-      1203,
-      1227,
-      1328
+      1187,
+      1211,
+      1230,
+      1310
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19055,78 +19053,15 @@
   },
   {
     "id": 1142,
-    "geoJsonId": "AFR-0009",
-    "area": 5816.3,
-    "landNeighboringRegionIds": [
-      1141,
-      1143,
-      1144,
-      1145,
-      1326,
-      1328
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0009"
-    ]
-  },
-  {
-    "id": 1143,
-    "geoJsonId": "AFR-0010",
-    "area": 6059.2,
-    "landNeighboringRegionIds": [
-      1142,
-      1144,
-      1246,
-      1326
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0010"
-    ]
-  },
-  {
-    "id": 1144,
-    "geoJsonId": "AFR-0011",
-    "area": 3234.9,
-    "landNeighboringRegionIds": [
-      1141,
-      1142,
-      1143,
-      1145,
-      1203,
-      1246
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0011"
-    ]
-  },
-  {
-    "id": 1145,
-    "geoJsonId": "AFR-0012",
-    "area": 728.5,
-    "landNeighboringRegionIds": [
-      1141,
-      1142,
-      1144
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0012"
-    ]
-  },
-  {
-    "id": 1146,
     "geoJsonId": "AFR-0013",
     "area": 71825.3,
     "landNeighboringRegionIds": [
+      1144,
+      1145,
+      1146,
       1148,
       1149,
-      1150,
-      1152,
-      1153,
-      1154
+      1150
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19134,64 +19069,64 @@
     ]
   },
   {
-    "id": 1147,
+    "id": 1143,
     "geoJsonId": "AFR-0014",
     "area": 2304.4,
     "landNeighboringRegionIds": [
-      1148,
-      1152
+      1144,
+      1148
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0014"
     ]
   },
   {
-    "id": 1148,
+    "id": 1144,
     "geoJsonId": "AFR-0015",
     "area": 27782.5,
     "landNeighboringRegionIds": [
-      1146,
-      1147,
-      1149,
-      1152
+      1142,
+      1143,
+      1145,
+      1148
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0015"
     ]
   },
   {
-    "id": 1149,
+    "id": 1145,
     "geoJsonId": "AFR-0016",
     "area": 15143.9,
     "landNeighboringRegionIds": [
-      1146,
-      1148,
-      1151,
-      1153
+      1142,
+      1144,
+      1147,
+      1149
     ],
     "adjacentWaterIds": [
-      1439,
-      1440
+      1421,
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0016"
     ]
   },
   {
-    "id": 1150,
+    "id": 1146,
     "geoJsonId": "AFR-0017",
     "area": 24402.5,
     "landNeighboringRegionIds": [
-      1146,
-      1153,
-      1154,
-      1197
+      1142,
+      1149,
+      1150,
+      1181
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19199,71 +19134,71 @@
     ]
   },
   {
-    "id": 1151,
+    "id": 1147,
     "geoJsonId": "AFR-0018",
     "area": 56187.4,
     "landNeighboringRegionIds": [
-      1149,
+      1145,
       422,
       423
     ],
     "adjacentWaterIds": [
-      1433,
-      1434,
-      1439,
-      1440
+      1415,
+      1416,
+      1421,
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0018"
     ]
   },
   {
-    "id": 1152,
+    "id": 1148,
     "geoJsonId": "AFR-0019",
     "area": 158819.0,
     "landNeighboringRegionIds": [
-      1146,
-      1147,
-      1148,
-      1154,
-      1156
+      1142,
+      1143,
+      1144,
+      1150,
+      1152
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0019"
     ]
   },
   {
-    "id": 1153,
+    "id": 1149,
     "geoJsonId": "AFR-0020",
     "area": 191394.7,
     "landNeighboringRegionIds": [
+      1142,
+      1145,
       1146,
-      1149,
-      1150,
-      1195,
-      1197
+      1179,
+      1181
     ],
     "adjacentWaterIds": [
-      1433,
-      1439
+      1415,
+      1421
     ],
     "sourceAdm1Codes": [
       "AFR-0020"
     ]
   },
   {
-    "id": 1154,
+    "id": 1150,
     "geoJsonId": "AFR-0021",
     "area": 453137.0,
     "landNeighboringRegionIds": [
+      1142,
       1146,
-      1150,
+      1148,
       1152,
-      1156,
-      1197
+      1181
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19271,54 +19206,54 @@
     ]
   },
   {
-    "id": 1155,
+    "id": 1151,
     "geoJsonId": "AFR-0022",
     "area": 274350.1,
     "landNeighboringRegionIds": [
-      1156,
-      1157,
-      1158,
-      1159,
-      1256
+      1152,
+      1153,
+      1154,
+      1155,
+      1240
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0022"
     ]
   },
   {
-    "id": 1156,
+    "id": 1152,
     "geoJsonId": "AFR-0023",
     "area": 753657.2,
     "landNeighboringRegionIds": [
-      1152,
-      1154,
-      1155,
-      1157,
-      1194,
-      1197,
-      1278,
-      1280
+      1148,
+      1150,
+      1151,
+      1153,
+      1178,
+      1181,
+      1262,
+      1264
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0023"
     ]
   },
   {
-    "id": 1157,
+    "id": 1153,
     "geoJsonId": "AFR-0024",
     "area": 595744.7,
     "landNeighboringRegionIds": [
-      1155,
-      1156,
-      1158,
-      1277,
-      1280
+      1151,
+      1152,
+      1154,
+      1261,
+      1264
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19326,20 +19261,20 @@
     ]
   },
   {
-    "id": 1158,
+    "id": 1154,
     "geoJsonId": "AFR-0025",
     "area": 1433566.1,
     "landNeighboringRegionIds": [
       1137,
+      1151,
+      1153,
       1155,
-      1157,
-      1159,
-      1228,
-      1230,
-      1272,
-      1274,
-      1277,
-      1310
+      1212,
+      1214,
+      1256,
+      1258,
+      1261,
+      1294
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19347,19 +19282,19 @@
     ]
   },
   {
-    "id": 1159,
+    "id": 1155,
     "geoJsonId": "AFR-0026",
     "area": 597073.9,
     "landNeighboringRegionIds": [
-      1155,
+      1151,
+      1154,
+      1156,
+      1157,
       1158,
-      1160,
-      1161,
-      1162,
-      1229,
-      1230,
-      1256,
-      1258
+      1213,
+      1214,
+      1240,
+      1242
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19367,66 +19302,68 @@
     ]
   },
   {
-    "id": 1160,
+    "id": 1156,
     "geoJsonId": "AFR-0027",
     "area": 100469.8,
     "landNeighboringRegionIds": [
-      1159,
-      1162,
-      1257,
-      1258
+      1155,
+      1158,
+      1241,
+      1242
     ],
     "adjacentWaterIds": [
-      1472
+      1454
     ],
     "sourceAdm1Codes": [
       "AFR-0027"
     ]
   },
   {
-    "id": 1161,
+    "id": 1157,
     "geoJsonId": "AFR-0028",
     "area": 68417.8,
     "landNeighboringRegionIds": [
-      1159,
-      1162,
-      1229
+      1155,
+      1158,
+      1213
     ],
     "adjacentWaterIds": [
-      1417,
-      1472
+      1399,
+      1454
     ],
     "sourceAdm1Codes": [
       "AFR-0028"
     ]
   },
   {
-    "id": 1162,
+    "id": 1158,
     "geoJsonId": "AFR-0029",
     "area": 109321.4,
     "landNeighboringRegionIds": [
-      1159,
-      1160,
-      1161
+      1155,
+      1156,
+      1157
     ],
     "adjacentWaterIds": [
-      1472
+      1454
     ],
     "sourceAdm1Codes": [
       "AFR-0029"
     ]
   },
   {
-    "id": 1163,
+    "id": 1159,
     "geoJsonId": "AFR-0030",
-    "area": 46014.4,
+    "area": 272768.3,
     "landNeighboringRegionIds": [
-      1166,
-      1170,
-      1175,
-      1277,
-      1317,
-      1318
+      1245,
+      1253,
+      1255,
+      1257,
+      1258,
+      1261,
+      1301,
+      1302
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19434,212 +19371,16 @@
     ]
   },
   {
-    "id": 1164,
-    "geoJsonId": "AFR-0031",
-    "area": 18495.8,
-    "landNeighboringRegionIds": [
-      1165,
-      1169,
-      1269,
-      1273
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0031"
-    ]
-  },
-  {
-    "id": 1165,
-    "geoJsonId": "AFR-0032",
-    "area": 16327.5,
-    "landNeighboringRegionIds": [
-      1164,
-      1168,
-      1169,
-      1172,
-      1261,
-      1269
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0032"
-    ]
-  },
-  {
-    "id": 1166,
-    "geoJsonId": "AFR-0033",
-    "area": 35913.6,
-    "landNeighboringRegionIds": [
-      1163,
-      1167,
-      1175,
-      1271,
-      1274,
-      1277
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0033"
-    ]
-  },
-  {
-    "id": 1167,
-    "geoJsonId": "AFR-0034",
-    "area": 16379.2,
-    "landNeighboringRegionIds": [
-      1166,
-      1168,
-      1172,
-      1173,
-      1175,
-      1274
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0034"
-    ]
-  },
-  {
-    "id": 1168,
-    "geoJsonId": "AFR-0035",
-    "area": 35083.4,
-    "landNeighboringRegionIds": [
-      1165,
-      1167,
-      1169,
-      1172,
-      1273,
-      1274
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0035"
-    ]
-  },
-  {
-    "id": 1169,
-    "geoJsonId": "AFR-0036",
-    "area": 25631.3,
-    "landNeighboringRegionIds": [
-      1164,
-      1165,
-      1168,
-      1273
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0036"
-    ]
-  },
-  {
-    "id": 1170,
-    "geoJsonId": "AFR-0037",
-    "area": 14526.2,
-    "landNeighboringRegionIds": [
-      1163,
-      1171,
-      1173,
-      1175,
-      1261,
-      1317
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0037"
-    ]
-  },
-  {
-    "id": 1171,
-    "geoJsonId": "AFR-0038",
-    "area": 11278.1,
-    "landNeighboringRegionIds": [
-      1170,
-      1172,
-      1173,
-      1174,
-      1261
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0038"
-    ]
-  },
-  {
-    "id": 1172,
-    "geoJsonId": "AFR-0039",
-    "area": 21639.1,
-    "landNeighboringRegionIds": [
-      1165,
-      1167,
-      1168,
-      1171,
-      1173,
-      1174,
-      1261
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0039"
-    ]
-  },
-  {
-    "id": 1173,
-    "geoJsonId": "AFR-0040",
-    "area": 8706.2,
-    "landNeighboringRegionIds": [
-      1167,
-      1170,
-      1171,
-      1172,
-      1174,
-      1175
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0040"
-    ]
-  },
-  {
-    "id": 1174,
-    "geoJsonId": "AFR-0041",
-    "area": 2831.2,
-    "landNeighboringRegionIds": [
-      1171,
-      1172,
-      1173
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0041"
-    ]
-  },
-  {
-    "id": 1175,
-    "geoJsonId": "AFR-0042",
-    "area": 19942.3,
-    "landNeighboringRegionIds": [
-      1163,
-      1166,
-      1167,
-      1170,
-      1173
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0042"
-    ]
-  },
-  {
-    "id": 1176,
+    "id": 1160,
     "geoJsonId": "AFR-0043",
     "area": 41442.3,
     "landNeighboringRegionIds": [
-      1178,
-      1179,
-      1180,
-      1182,
-      1273,
-      1314
+      1162,
+      1163,
+      1164,
+      1166,
+      1257,
+      1298
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19647,32 +19388,32 @@
     ]
   },
   {
-    "id": 1177,
+    "id": 1161,
     "geoJsonId": "AFR-0044",
     "area": 25286.1,
     "landNeighboringRegionIds": [
-      1178,
-      1181,
-      1182,
-      1183,
-      1314
+      1162,
+      1165,
+      1166,
+      1167,
+      1298
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0044"
     ]
   },
   {
-    "id": 1178,
+    "id": 1162,
     "geoJsonId": "AFR-0045",
     "area": 15909.5,
     "landNeighboringRegionIds": [
-      1176,
-      1177,
-      1182,
-      1314
+      1160,
+      1161,
+      1166,
+      1298
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19680,17 +19421,17 @@
     ]
   },
   {
-    "id": 1179,
+    "id": 1163,
     "geoJsonId": "AFR-0046",
     "area": 36976.3,
     "landNeighboringRegionIds": [
-      1176,
-      1180,
-      1268,
-      1270,
-      1306,
-      1307,
-      1314
+      1160,
+      1164,
+      1252,
+      1254,
+      1290,
+      1291,
+      1298
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19698,14 +19439,14 @@
     ]
   },
   {
-    "id": 1180,
+    "id": 1164,
     "geoJsonId": "AFR-0047",
     "area": 67437.1,
     "landNeighboringRegionIds": [
-      1176,
-      1179,
-      1268,
-      1273
+      1160,
+      1163,
+      1252,
+      1257
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19713,34 +19454,34 @@
     ]
   },
   {
-    "id": 1181,
+    "id": 1165,
     "geoJsonId": "AFR-0048",
     "area": 34706.1,
     "landNeighboringRegionIds": [
-      1177,
-      1182,
-      1184,
-      1185,
-      1291
+      1161,
+      1166,
+      1168,
+      1169,
+      1275
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0048"
     ]
   },
   {
-    "id": 1182,
+    "id": 1166,
     "geoJsonId": "AFR-0049",
     "area": 22550.4,
     "landNeighboringRegionIds": [
-      1176,
-      1177,
-      1178,
-      1181,
-      1273,
-      1291
+      1160,
+      1161,
+      1162,
+      1165,
+      1257,
+      1275
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19748,161 +19489,159 @@
     ]
   },
   {
-    "id": 1183,
+    "id": 1167,
     "geoJsonId": "AFR-0050",
     "area": 21.3,
     "landNeighboringRegionIds": [
-      1177
+      1161
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0050"
     ]
   },
   {
-    "id": 1184,
+    "id": 1168,
     "geoJsonId": "AFR-0051",
     "area": 14793.9,
     "landNeighboringRegionIds": [
-      1181,
-      1185,
-      1186,
-      1291
+      1165,
+      1169,
+      1170,
+      1275
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0051"
     ]
   },
   {
-    "id": 1185,
+    "id": 1169,
     "geoJsonId": "AFR-0052",
     "area": 7069.7,
     "landNeighboringRegionIds": [
-      1181,
-      1184
+      1165,
+      1168
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0052"
     ]
   },
   {
-    "id": 1186,
+    "id": 1170,
     "geoJsonId": "AFR-0053",
     "area": 10829.6,
     "landNeighboringRegionIds": [
-      1184,
-      1187,
-      1291
+      1168,
+      1171,
+      1275
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0053"
     ]
   },
   {
-    "id": 1187,
+    "id": 1171,
     "geoJsonId": "AFR-0054",
     "area": 127.5,
     "landNeighboringRegionIds": [
-      1186
+      1170
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0054"
     ]
   },
   {
-    "id": 1188,
+    "id": 1172,
     "geoJsonId": "AFR-0055",
-    "area": 19960.6,
+    "area": 19957.6,
     "landNeighboringRegionIds": [
-      1189,
-      1191,
-      1192,
-      1226,
-      1240,
-      1285
+      1173,
+      1175,
+      1176,
+      1269
     ],
     "adjacentWaterIds": [
-      1591
+      1573
     ],
     "sourceAdm1Codes": [
       "AFR-0055"
     ]
   },
   {
-    "id": 1189,
+    "id": 1173,
     "geoJsonId": "AFR-0056",
     "area": 36975.3,
     "landNeighboringRegionIds": [
-      1188,
-      1190,
-      1237,
-      1240,
-      1285
+      1172,
+      1174,
+      1221,
+      1224,
+      1269
     ],
     "adjacentWaterIds": [
-      1591
+      1573
     ],
     "sourceAdm1Codes": [
       "AFR-0056"
     ]
   },
   {
-    "id": 1190,
+    "id": 1174,
     "geoJsonId": "AFR-0057",
     "area": 29022.7,
     "landNeighboringRegionIds": [
-      1189,
-      1193,
-      1237,
-      1240,
-      1241
+      1173,
+      1177,
+      1221,
+      1224,
+      1225
     ],
     "adjacentWaterIds": [
-      1591
+      1573
     ],
     "sourceAdm1Codes": [
       "AFR-0057"
     ]
   },
   {
-    "id": 1191,
+    "id": 1175,
     "geoJsonId": "AFR-0058",
     "area": 3510.4,
     "landNeighboringRegionIds": [
-      1188,
-      1192,
-      1226
+      1172,
+      1176,
+      1210
     ],
     "adjacentWaterIds": [
-      1591
+      1573
     ],
     "sourceAdm1Codes": [
       "AFR-0058"
     ]
   },
   {
-    "id": 1192,
+    "id": 1176,
     "geoJsonId": "AFR-0059",
     "area": 4275.7,
     "landNeighboringRegionIds": [
-      1188,
-      1191,
-      1226,
-      1285
+      1172,
+      1175,
+      1210,
+      1269
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19910,12 +19649,12 @@
     ]
   },
   {
-    "id": 1193,
+    "id": 1177,
     "geoJsonId": "AFR-0060",
     "area": 3920.4,
     "landNeighboringRegionIds": [
-      1190,
-      1240
+      1174,
+      1224
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19923,17 +19662,17 @@
     ]
   },
   {
-    "id": 1194,
+    "id": 1178,
     "geoJsonId": "AFR-0061",
     "area": 511026.9,
     "landNeighboringRegionIds": [
-      1156,
-      1197,
-      1198,
-      1201,
-      1278,
-      1281,
-      1323
+      1152,
+      1181,
+      1182,
+      1185,
+      1262,
+      1265,
+      1307
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19941,35 +19680,35 @@
     ]
   },
   {
-    "id": 1195,
+    "id": 1179,
     "geoJsonId": "AFR-0062",
     "area": 309627.4,
     "landNeighboringRegionIds": [
-      1153,
-      1196,
-      1197,
-      1199,
-      1218,
-      1299,
-      1300
+      1149,
+      1180,
+      1181,
+      1183,
+      1202,
+      1283,
+      1284
     ],
     "adjacentWaterIds": [
-      1433
+      1415
     ],
     "sourceAdm1Codes": [
       "AFR-0062"
     ]
   },
   {
-    "id": 1196,
+    "id": 1180,
     "geoJsonId": "AFR-0063",
     "area": 144205.0,
     "landNeighboringRegionIds": [
-      1195,
-      1198,
-      1199,
-      1202,
-      1218
+      1179,
+      1182,
+      1183,
+      1186,
+      1202
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19977,18 +19716,18 @@
     ]
   },
   {
-    "id": 1197,
+    "id": 1181,
     "geoJsonId": "AFR-0064",
     "area": 489282.7,
     "landNeighboringRegionIds": [
+      1146,
+      1149,
       1150,
-      1153,
-      1154,
-      1156,
-      1194,
-      1195,
-      1198,
-      1199
+      1152,
+      1178,
+      1179,
+      1182,
+      1183
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -19996,16 +19735,16 @@
     ]
   },
   {
-    "id": 1198,
+    "id": 1182,
     "geoJsonId": "AFR-0065",
     "area": 382391.1,
     "landNeighboringRegionIds": [
-      1194,
-      1196,
-      1197,
-      1199,
-      1201,
-      1202
+      1178,
+      1180,
+      1181,
+      1183,
+      1185,
+      1186
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20013,14 +19752,14 @@
     ]
   },
   {
-    "id": 1199,
+    "id": 1183,
     "geoJsonId": "AFR-0066",
     "area": 21109.8,
     "landNeighboringRegionIds": [
-      1195,
-      1196,
-      1197,
-      1198
+      1179,
+      1180,
+      1181,
+      1182
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20028,17 +19767,17 @@
     ]
   },
   {
-    "id": 1200,
+    "id": 1184,
     "geoJsonId": "AFR-0067",
     "area": 196009.2,
     "landNeighboringRegionIds": [
+      1185,
+      1186,
+      1190,
       1201,
-      1202,
-      1206,
-      1217,
-      1243,
-      1255,
-      1323
+      1227,
+      1239,
+      1307
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20046,15 +19785,15 @@
     ]
   },
   {
-    "id": 1201,
+    "id": 1185,
     "geoJsonId": "AFR-0068",
     "area": 198334.5,
     "landNeighboringRegionIds": [
-      1194,
-      1198,
-      1200,
-      1202,
-      1323
+      1178,
+      1182,
+      1184,
+      1186,
+      1307
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20062,17 +19801,17 @@
     ]
   },
   {
-    "id": 1202,
+    "id": 1186,
     "geoJsonId": "AFR-0069",
     "area": 232516.9,
     "landNeighboringRegionIds": [
-      1196,
-      1198,
-      1200,
+      1180,
+      1182,
+      1184,
+      1185,
+      1199,
       1201,
-      1215,
-      1217,
-      1218
+      1202
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20080,17 +19819,16 @@
     ]
   },
   {
-    "id": 1203,
+    "id": 1187,
     "geoJsonId": "AFR-0070",
     "area": 56048.3,
     "landNeighboringRegionIds": [
       1141,
-      1144,
-      1204,
-      1206,
+      1188,
+      1190,
+      1211,
       1227,
-      1243,
-      1246
+      1230
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20098,49 +19836,49 @@
     ]
   },
   {
-    "id": 1204,
+    "id": 1188,
     "geoJsonId": "AFR-0071",
     "area": 40759.0,
     "landNeighboringRegionIds": [
-      1203,
-      1205,
-      1206,
-      1227
+      1187,
+      1189,
+      1190,
+      1211
     ],
     "adjacentWaterIds": [
-      1586
+      1568
     ],
     "sourceAdm1Codes": [
       "AFR-0071"
     ]
   },
   {
-    "id": 1205,
+    "id": 1189,
     "geoJsonId": "AFR-0072",
     "area": 31185.9,
     "landNeighboringRegionIds": [
-      1204,
-      1206,
-      1255
+      1188,
+      1190,
+      1239
     ],
     "adjacentWaterIds": [
-      1586
+      1568
     ],
     "sourceAdm1Codes": [
       "AFR-0072"
     ]
   },
   {
-    "id": 1206,
+    "id": 1190,
     "geoJsonId": "AFR-0073",
     "area": 85411.6,
     "landNeighboringRegionIds": [
-      1200,
-      1203,
-      1204,
-      1205,
-      1243,
-      1255
+      1184,
+      1187,
+      1188,
+      1189,
+      1227,
+      1239
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20148,16 +19886,16 @@
     ]
   },
   {
-    "id": 1207,
+    "id": 1191,
     "geoJsonId": "AFR-0074",
     "area": 196503.7,
     "landNeighboringRegionIds": [
-      1208,
-      1209,
-      1276,
-      1277,
-      1318,
-      1319
+      1192,
+      1193,
+      1260,
+      1261,
+      1302,
+      1303
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20165,35 +19903,35 @@
     ]
   },
   {
-    "id": 1208,
+    "id": 1192,
     "geoJsonId": "AFR-0075",
     "area": 316544.8,
     "landNeighboringRegionIds": [
-      1207,
-      1209,
-      1266,
-      1319
+      1191,
+      1193,
+      1250,
+      1303
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0075"
     ]
   },
   {
-    "id": 1209,
+    "id": 1193,
     "geoJsonId": "AFR-0076",
     "area": 394460.9,
     "landNeighboringRegionIds": [
-      1207,
-      1208,
-      1263,
-      1265,
-      1266,
-      1275,
-      1276,
-      1279
+      1191,
+      1192,
+      1247,
+      1249,
+      1250,
+      1259,
+      1260,
+      1263
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20201,53 +19939,53 @@
     ]
   },
   {
-    "id": 1210,
+    "id": 1194,
     "geoJsonId": "AFR-0077",
     "area": 169346.8,
     "landNeighboringRegionIds": [
-      1211,
-      1213,
-      1308
+      1195,
+      1197,
+      1292
     ],
     "adjacentWaterIds": [
-      1511
+      1493
     ],
     "sourceAdm1Codes": [
       "AFR-0077"
     ]
   },
   {
-    "id": 1211,
+    "id": 1195,
     "geoJsonId": "AFR-0078",
     "area": 223721.5,
     "landNeighboringRegionIds": [
-      1210,
-      1212,
-      1213,
-      1239,
-      1308,
-      1316
+      1194,
+      1196,
+      1197,
+      1223,
+      1292,
+      1300
     ],
     "adjacentWaterIds": [
-      1401,
-      1511
+      1383,
+      1493
     ],
     "sourceAdm1Codes": [
       "AFR-0078"
     ]
   },
   {
-    "id": 1212,
+    "id": 1196,
     "geoJsonId": "AFR-0079",
     "area": 324503.3,
     "landNeighboringRegionIds": [
-      1211,
-      1213,
-      1239,
-      1288,
-      1316,
-      1320,
-      1321
+      1195,
+      1197,
+      1223,
+      1272,
+      1300,
+      1304,
+      1305
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20255,34 +19993,34 @@
     ]
   },
   {
-    "id": 1213,
+    "id": 1197,
     "geoJsonId": "AFR-0080",
     "area": 502264.6,
     "landNeighboringRegionIds": [
-      1210,
-      1211,
-      1212,
-      1294,
-      1320
+      1194,
+      1195,
+      1196,
+      1278,
+      1304
     ],
     "adjacentWaterIds": [
-      1495,
-      1511
+      1477,
+      1493
     ],
     "sourceAdm1Codes": [
       "AFR-0080"
     ]
   },
   {
-    "id": 1214,
+    "id": 1198,
     "geoJsonId": "AFR-0081",
     "area": 94142.9,
     "landNeighboringRegionIds": [
-      1215,
-      1216,
-      1218,
-      1298,
-      1300
+      1199,
+      1200,
+      1202,
+      1282,
+      1284
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20290,16 +20028,16 @@
     ]
   },
   {
-    "id": 1215,
+    "id": 1199,
     "geoJsonId": "AFR-0082",
     "area": 326536.3,
     "landNeighboringRegionIds": [
+      1186,
+      1198,
+      1200,
+      1201,
       1202,
-      1214,
-      1216,
-      1217,
-      1218,
-      1252
+      1236
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20307,19 +20045,19 @@
     ]
   },
   {
-    "id": 1216,
+    "id": 1200,
     "geoJsonId": "AFR-0083",
     "area": 311621.4,
     "landNeighboringRegionIds": [
       1136,
-      1214,
-      1215,
-      1249,
-      1250,
-      1251,
-      1252,
-      1253,
-      1298
+      1198,
+      1199,
+      1233,
+      1234,
+      1235,
+      1236,
+      1237,
+      1282
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20327,15 +20065,15 @@
     ]
   },
   {
-    "id": 1217,
+    "id": 1201,
     "geoJsonId": "AFR-0084",
     "area": 139635.7,
     "landNeighboringRegionIds": [
-      1200,
-      1202,
-      1215,
-      1252,
-      1255
+      1184,
+      1186,
+      1199,
+      1236,
+      1239
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20343,17 +20081,17 @@
     ]
   },
   {
-    "id": 1218,
+    "id": 1202,
     "geoJsonId": "AFR-0085",
     "area": 255440.4,
     "landNeighboringRegionIds": [
-      1195,
-      1196,
-      1202,
-      1214,
-      1215,
-      1299,
-      1300
+      1179,
+      1180,
+      1186,
+      1198,
+      1199,
+      1283,
+      1284
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20361,255 +20099,253 @@
     ]
   },
   {
-    "id": 1219,
+    "id": 1203,
     "geoJsonId": "AFR-0086",
     "area": 69057.3,
     "landNeighboringRegionIds": [
-      1220,
-      1221,
-      1223
+      1204,
+      1205,
+      1207
     ],
     "adjacentWaterIds": [
-      1401
+      1383
     ],
     "sourceAdm1Codes": [
       "AFR-0086"
     ]
   },
   {
-    "id": 1220,
+    "id": 1204,
     "geoJsonId": "AFR-0087",
     "area": 87021.7,
     "landNeighboringRegionIds": [
-      1219,
-      1223
+      1203,
+      1207
     ],
     "adjacentWaterIds": [
-      1401,
-      1522
+      1383,
+      1504
     ],
     "sourceAdm1Codes": [
       "AFR-0087"
     ]
   },
   {
-    "id": 1221,
+    "id": 1205,
     "geoJsonId": "AFR-0088",
     "area": 91337.6,
     "landNeighboringRegionIds": [
-      1219,
-      1223
+      1203,
+      1207
     ],
     "adjacentWaterIds": [
-      1401
+      1383
     ],
     "sourceAdm1Codes": [
       "AFR-0088"
     ]
   },
   {
-    "id": 1222,
+    "id": 1206,
     "geoJsonId": "AFR-0089",
     "area": 116411.9,
     "landNeighboringRegionIds": [
-      1223
+      1207
     ],
     "adjacentWaterIds": [
-      1401,
-      1515,
-      1522
+      1383,
+      1497,
+      1504
     ],
     "sourceAdm1Codes": [
       "AFR-0089"
     ]
   },
   {
-    "id": 1223,
+    "id": 1207,
     "geoJsonId": "AFR-0090",
     "area": 229155.5,
     "landNeighboringRegionIds": [
-      1219,
-      1220,
-      1221,
-      1222
+      1203,
+      1204,
+      1205,
+      1206
     ],
     "adjacentWaterIds": [
-      1401,
-      1522
+      1383,
+      1504
     ],
     "sourceAdm1Codes": [
       "AFR-0090"
     ]
   },
   {
-    "id": 1224,
+    "id": 1208,
     "geoJsonId": "AFR-0091",
     "area": 2504.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1515
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0091"
     ]
   },
   {
-    "id": 1225,
+    "id": 1209,
     "geoJsonId": "AFR-0092",
     "area": 216042.1,
     "landNeighboringRegionIds": [
-      1226,
-      1227,
-      1254,
-      1255
+      1210,
+      1211,
+      1238,
+      1239
     ],
     "adjacentWaterIds": [
-      1515
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0092"
     ]
   },
   {
-    "id": 1226,
+    "id": 1210,
     "geoJsonId": "AFR-0093",
-    "area": 369262.3,
+    "area": 369265.3,
     "landNeighboringRegionIds": [
-      1188,
-      1191,
-      1192,
-      1225,
-      1227,
-      1240,
-      1285
+      1175,
+      1176,
+      1209,
+      1211,
+      1224,
+      1269
     ],
     "adjacentWaterIds": [
-      1515,
-      1591
+      1497,
+      1573
     ],
     "sourceAdm1Codes": [
       "AFR-0093"
     ]
   },
   {
-    "id": 1227,
+    "id": 1211,
     "geoJsonId": "AFR-0094",
     "area": 304388.4,
     "landNeighboringRegionIds": [
       1141,
-      1203,
-      1204,
-      1225,
-      1226,
-      1255,
-      1285,
-      1327,
-      1328
+      1187,
+      1188,
+      1209,
+      1210,
+      1239,
+      1269,
+      1310
     ],
     "adjacentWaterIds": [
-      1586,
-      1587
+      1568,
+      1569
     ],
     "sourceAdm1Codes": [
       "AFR-0094"
     ]
   },
   {
-    "id": 1228,
+    "id": 1212,
     "geoJsonId": "AFR-0095",
     "area": 101449.7,
     "landNeighboringRegionIds": [
       1137,
-      1158,
-      1230,
-      1231
+      1154,
+      1214,
+      1215
     ],
     "adjacentWaterIds": [
-      1556
+      1538
     ],
     "sourceAdm1Codes": [
       "AFR-0095"
     ]
   },
   {
-    "id": 1229,
+    "id": 1213,
     "geoJsonId": "AFR-0096",
     "area": 120881.6,
     "landNeighboringRegionIds": [
-      1159,
-      1161,
-      1230,
+      1155,
+      1157,
+      1214,
       70,
       71
     ],
     "adjacentWaterIds": [
-      1416,
-      1417,
-      1556,
-      1566
+      1398,
+      1399,
+      1538,
+      1548
     ],
     "sourceAdm1Codes": [
       "AFR-0096"
     ]
   },
   {
-    "id": 1230,
+    "id": 1214,
     "geoJsonId": "AFR-0097",
     "area": 220352.0,
     "landNeighboringRegionIds": [
-      1158,
-      1159,
-      1228,
-      1229
+      1154,
+      1155,
+      1212,
+      1213
     ],
     "adjacentWaterIds": [
-      1556
+      1538
     ],
     "sourceAdm1Codes": [
       "AFR-0097"
     ]
   },
   {
-    "id": 1231,
+    "id": 1215,
     "geoJsonId": "AFR-0098",
     "area": 149057.0,
     "landNeighboringRegionIds": [
       1137,
-      1228
+      1212
     ],
     "adjacentWaterIds": [
-      1556
+      1538
     ],
     "sourceAdm1Codes": [
       "AFR-0098"
     ]
   },
   {
-    "id": 1232,
+    "id": 1216,
     "geoJsonId": "AFR-0099",
     "area": 6704.5,
     "landNeighboringRegionIds": [
-      1245,
-      1324
+      1229,
+      1308
     ],
     "adjacentWaterIds": [
-      1492
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0099"
     ]
   },
   {
-    "id": 1233,
+    "id": 1217,
     "geoJsonId": "AFR-0100",
     "area": 199098.0,
     "landNeighboringRegionIds": [
-      1234,
-      1235,
-      1236,
-      1244,
-      1282,
-      1283
+      1218,
+      1219,
+      1220,
+      1228,
+      1266,
+      1267
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20617,31 +20353,31 @@
     ]
   },
   {
-    "id": 1234,
+    "id": 1218,
     "geoJsonId": "AFR-0101",
     "area": 336997.8,
     "landNeighboringRegionIds": [
-      1233,
-      1235,
-      1236,
-      1292
+      1217,
+      1219,
+      1220,
+      1276
     ],
     "adjacentWaterIds": [
-      1492
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0101"
     ]
   },
   {
-    "id": 1235,
+    "id": 1219,
     "geoJsonId": "AFR-0102",
     "area": 274821.4,
     "landNeighboringRegionIds": [
-      1233,
-      1234,
-      1282,
-      1292
+      1217,
+      1218,
+      1266,
+      1276
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20649,35 +20385,35 @@
     ]
   },
   {
-    "id": 1236,
+    "id": 1220,
     "geoJsonId": "AFR-0103",
     "area": 427028.1,
     "landNeighboringRegionIds": [
-      1233,
-      1234,
-      1244,
-      1245,
-      1247
+      1217,
+      1218,
+      1228,
+      1229,
+      1231
     ],
     "adjacentWaterIds": [
-      1492
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0103"
     ]
   },
   {
-    "id": 1237,
+    "id": 1221,
     "geoJsonId": "AFR-0104",
     "area": 100681.6,
     "landNeighboringRegionIds": [
-      1189,
-      1190,
-      1238,
-      1241,
-      1284,
-      1285,
-      1287
+      1173,
+      1174,
+      1222,
+      1225,
+      1268,
+      1269,
+      1271
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20685,92 +20421,91 @@
     ]
   },
   {
-    "id": 1238,
+    "id": 1222,
     "geoJsonId": "AFR-0105",
     "area": 130979.2,
     "landNeighboringRegionIds": [
-      1237,
-      1239,
-      1241,
-      1287
+      1221,
+      1223,
+      1225,
+      1271
     ],
     "adjacentWaterIds": [
-      1401
+      1383
     ],
     "sourceAdm1Codes": [
       "AFR-0105"
     ]
   },
   {
-    "id": 1239,
+    "id": 1223,
     "geoJsonId": "AFR-0106",
     "area": 168493.5,
     "landNeighboringRegionIds": [
-      1211,
-      1212,
-      1238,
-      1287,
-      1288,
-      1316
+      1195,
+      1196,
+      1222,
+      1271,
+      1272,
+      1300
     ],
     "adjacentWaterIds": [
-      1401,
-      1511
+      1383,
+      1493
     ],
     "sourceAdm1Codes": [
       "AFR-0106"
     ]
   },
   {
-    "id": 1240,
+    "id": 1224,
     "geoJsonId": "AFR-0107",
     "area": 200224.8,
     "landNeighboringRegionIds": [
-      1188,
-      1189,
-      1190,
-      1193,
-      1226,
-      1241
+      1173,
+      1174,
+      1177,
+      1210,
+      1225
     ],
     "adjacentWaterIds": [
-      1401,
-      1515,
-      1591
+      1383,
+      1497,
+      1573
     ],
     "sourceAdm1Codes": [
       "AFR-0107"
     ]
   },
   {
-    "id": 1241,
+    "id": 1225,
     "geoJsonId": "AFR-0108",
     "area": 180991.9,
     "landNeighboringRegionIds": [
-      1190,
-      1237,
-      1238,
-      1240
+      1174,
+      1221,
+      1222,
+      1224
     ],
     "adjacentWaterIds": [
-      1401
+      1383
     ],
     "sourceAdm1Codes": [
       "AFR-0108"
     ]
   },
   {
-    "id": 1242,
+    "id": 1226,
     "geoJsonId": "AFR-0109",
     "area": 404401.6,
     "landNeighboringRegionIds": [
-      1243,
-      1245,
-      1247,
-      1322,
-      1323,
-      1324,
-      1325
+      1227,
+      1229,
+      1231,
+      1306,
+      1307,
+      1308,
+      1309
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20778,17 +20513,17 @@
     ]
   },
   {
-    "id": 1243,
+    "id": 1227,
     "geoJsonId": "AFR-0110",
     "area": 500464.3,
     "landNeighboringRegionIds": [
-      1200,
-      1203,
-      1206,
-      1242,
-      1246,
-      1247,
-      1323
+      1184,
+      1187,
+      1190,
+      1226,
+      1230,
+      1231,
+      1307
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20796,74 +20531,73 @@
     ]
   },
   {
-    "id": 1244,
+    "id": 1228,
     "geoJsonId": "AFR-0111",
     "area": 476326.0,
     "landNeighboringRegionIds": [
-      1233,
-      1236,
-      1246,
-      1247,
-      1283,
-      1284,
-      1285
+      1217,
+      1220,
+      1230,
+      1231,
+      1267,
+      1268,
+      1269
     ],
     "adjacentWaterIds": [
-      1587
+      1569
     ],
     "sourceAdm1Codes": [
       "AFR-0111"
     ]
   },
   {
-    "id": 1245,
+    "id": 1229,
     "geoJsonId": "AFR-0112",
     "area": 361272.2,
     "landNeighboringRegionIds": [
-      1232,
-      1236,
-      1242,
-      1247,
-      1324
+      1216,
+      1220,
+      1226,
+      1231,
+      1308
     ],
     "adjacentWaterIds": [
-      1492
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0112"
     ]
   },
   {
-    "id": 1246,
+    "id": 1230,
     "geoJsonId": "AFR-0113",
     "area": 246948.9,
     "landNeighboringRegionIds": [
-      1143,
-      1144,
-      1203,
-      1243,
-      1244,
-      1247,
-      1326
+      1141,
+      1187,
+      1227,
+      1228,
+      1231,
+      1310
     ],
     "adjacentWaterIds": [
-      1587
+      1569
     ],
     "sourceAdm1Codes": [
       "AFR-0113"
     ]
   },
   {
-    "id": 1247,
+    "id": 1231,
     "geoJsonId": "AFR-0114",
     "area": 321937.6,
     "landNeighboringRegionIds": [
-      1236,
-      1242,
-      1243,
-      1244,
-      1245,
-      1246
+      1220,
+      1226,
+      1227,
+      1228,
+      1229,
+      1230
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20871,83 +20605,83 @@
     ]
   },
   {
-    "id": 1248,
+    "id": 1232,
     "geoJsonId": "AFR-0115",
     "area": 70104.1,
     "landNeighboringRegionIds": [
       1136,
-      1249
+      1233
     ],
     "adjacentWaterIds": [
-      1431,
-      1465,
-      1515
+      1413,
+      1447,
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0115"
     ]
   },
   {
-    "id": 1249,
+    "id": 1233,
     "geoJsonId": "AFR-0116",
     "area": 88963.5,
     "landNeighboringRegionIds": [
       1136,
-      1216,
-      1248,
-      1250
+      1200,
+      1232,
+      1234
     ],
     "adjacentWaterIds": [
-      1515
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0116"
     ]
   },
   {
-    "id": 1250,
+    "id": 1234,
     "geoJsonId": "AFR-0117",
     "area": 103404.9,
     "landNeighboringRegionIds": [
-      1216,
-      1249,
-      1251
+      1200,
+      1233,
+      1235
     ],
     "adjacentWaterIds": [
-      1515
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0117"
     ]
   },
   {
-    "id": 1251,
+    "id": 1235,
     "geoJsonId": "AFR-0118",
     "area": 209344.8,
     "landNeighboringRegionIds": [
-      1216,
-      1250,
-      1253,
-      1254
+      1200,
+      1234,
+      1237,
+      1238
     ],
     "adjacentWaterIds": [
-      1515
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0118"
     ]
   },
   {
-    "id": 1252,
+    "id": 1236,
     "geoJsonId": "AFR-0119",
     "area": 157339.1,
     "landNeighboringRegionIds": [
-      1215,
-      1216,
-      1217,
-      1253,
-      1254,
-      1255
+      1199,
+      1200,
+      1201,
+      1237,
+      1238,
+      1239
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -20955,156 +20689,153 @@
     ]
   },
   {
-    "id": 1253,
+    "id": 1237,
     "geoJsonId": "AFR-0120",
     "area": 126583.5,
     "landNeighboringRegionIds": [
-      1216,
-      1251,
-      1252,
-      1254
+      1200,
+      1235,
+      1236,
+      1238
     ],
     "adjacentWaterIds": [
-      1515
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0120"
     ]
   },
   {
-    "id": 1254,
+    "id": 1238,
     "geoJsonId": "AFR-0121",
     "area": 82272.9,
     "landNeighboringRegionIds": [
-      1225,
-      1251,
-      1252,
-      1253,
-      1255
+      1209,
+      1235,
+      1236,
+      1237,
+      1239
     ],
     "adjacentWaterIds": [
-      1515
+      1497
     ],
     "sourceAdm1Codes": [
       "AFR-0121"
     ]
   },
   {
-    "id": 1255,
+    "id": 1239,
     "geoJsonId": "AFR-0122",
     "area": 215421.6,
     "landNeighboringRegionIds": [
-      1200,
-      1205,
-      1206,
-      1217,
-      1225,
-      1227,
-      1252,
-      1254
+      1184,
+      1189,
+      1190,
+      1201,
+      1209,
+      1211,
+      1236,
+      1238
     ],
     "adjacentWaterIds": [
-      1586
+      1568
     ],
     "sourceAdm1Codes": [
       "AFR-0122"
     ]
   },
   {
-    "id": 1256,
+    "id": 1240,
     "geoJsonId": "AFR-0123",
     "area": 47872.2,
     "landNeighboringRegionIds": [
+      1151,
       1155,
-      1159,
-      1258
+      1242
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0123"
     ]
   },
   {
-    "id": 1257,
+    "id": 1241,
     "geoJsonId": "AFR-0124",
     "area": 16934.0,
     "landNeighboringRegionIds": [
-      1160,
-      1258,
-      1259
+      1156,
+      1242,
+      1243
     ],
     "adjacentWaterIds": [
-      1472
+      1454
     ],
     "sourceAdm1Codes": [
       "AFR-0124"
     ]
   },
   {
-    "id": 1258,
+    "id": 1242,
     "geoJsonId": "AFR-0125",
     "area": 58280.0,
     "landNeighboringRegionIds": [
-      1159,
-      1160,
-      1256,
-      1257,
-      1259
+      1155,
+      1156,
+      1240,
+      1241,
+      1243
     ],
     "adjacentWaterIds": [
-      1440
+      1422
     ],
     "sourceAdm1Codes": [
       "AFR-0125"
     ]
   },
   {
-    "id": 1259,
+    "id": 1243,
     "geoJsonId": "AFR-0126",
     "area": 33518.8,
     "landNeighboringRegionIds": [
-      1257,
-      1258
+      1241,
+      1242
     ],
     "adjacentWaterIds": [
-      1440,
-      1472
+      1422,
+      1454
     ],
     "sourceAdm1Codes": [
       "AFR-0126"
     ]
   },
   {
-    "id": 1260,
+    "id": 1244,
     "geoJsonId": "AFR-0127",
     "area": 42449.7,
     "landNeighboringRegionIds": [
-      1261,
-      1262,
-      1317
+      1245,
+      1246,
+      1301
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0127"
     ]
   },
   {
-    "id": 1261,
+    "id": 1245,
     "geoJsonId": "AFR-0128",
     "area": 96543.5,
     "landNeighboringRegionIds": [
-      1165,
-      1170,
-      1171,
-      1172,
-      1260,
-      1262,
-      1269,
-      1317
+      1159,
+      1244,
+      1246,
+      1253,
+      1301
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21112,32 +20843,32 @@
     ]
   },
   {
-    "id": 1262,
+    "id": 1246,
     "geoJsonId": "AFR-0129",
     "area": 99686.9,
     "landNeighboringRegionIds": [
-      1260,
-      1261,
-      1267,
-      1269
+      1244,
+      1245,
+      1251,
+      1253
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0129"
     ]
   },
   {
-    "id": 1263,
+    "id": 1247,
     "geoJsonId": "AFR-0130",
     "area": 61897.2,
     "landNeighboringRegionIds": [
-      1209,
-      1264,
-      1265,
-      1266,
-      1322
+      1193,
+      1248,
+      1249,
+      1250,
+      1306
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21145,14 +20876,14 @@
     ]
   },
   {
-    "id": 1264,
+    "id": 1248,
     "geoJsonId": "AFR-0131",
     "area": 108801.9,
     "landNeighboringRegionIds": [
-      1263,
-      1266,
-      1322,
-      1325
+      1247,
+      1250,
+      1306,
+      1309
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21160,15 +20891,15 @@
     ]
   },
   {
-    "id": 1265,
+    "id": 1249,
     "geoJsonId": "AFR-0132",
     "area": 101496.1,
     "landNeighboringRegionIds": [
-      1209,
+      1193,
+      1247,
       1263,
-      1279,
-      1281,
-      1322
+      1265,
+      1306
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21176,51 +20907,51 @@
     ]
   },
   {
-    "id": 1266,
+    "id": 1250,
     "geoJsonId": "AFR-0133",
     "area": 192132.5,
     "landNeighboringRegionIds": [
-      1208,
-      1209,
-      1263,
-      1264,
-      1302,
-      1305,
-      1325
+      1192,
+      1193,
+      1247,
+      1248,
+      1286,
+      1289,
+      1309
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0133"
     ]
   },
   {
-    "id": 1267,
+    "id": 1251,
     "geoJsonId": "AFR-0134",
     "area": 63388.8,
     "landNeighboringRegionIds": [
-      1262,
-      1269,
-      1270
+      1246,
+      1253,
+      1254
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0134"
     ]
   },
   {
-    "id": 1268,
+    "id": 1252,
     "geoJsonId": "AFR-0135",
     "area": 43839.8,
     "landNeighboringRegionIds": [
-      1179,
-      1180,
-      1269,
-      1270,
-      1273
+      1163,
+      1164,
+      1253,
+      1254,
+      1257
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21228,18 +20959,17 @@
     ]
   },
   {
-    "id": 1269,
+    "id": 1253,
     "geoJsonId": "AFR-0136",
     "area": 106269.2,
     "landNeighboringRegionIds": [
-      1164,
-      1165,
-      1261,
-      1262,
-      1267,
-      1268,
-      1270,
-      1273
+      1159,
+      1245,
+      1246,
+      1251,
+      1252,
+      1254,
+      1257
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21247,32 +20977,32 @@
     ]
   },
   {
-    "id": 1270,
+    "id": 1254,
     "geoJsonId": "AFR-0137",
     "area": 107188.1,
     "landNeighboringRegionIds": [
-      1179,
-      1267,
-      1268,
-      1269,
-      1307
+      1163,
+      1251,
+      1252,
+      1253,
+      1291
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0137"
     ]
   },
   {
-    "id": 1271,
+    "id": 1255,
     "geoJsonId": "AFR-0138",
     "area": 173192.0,
     "landNeighboringRegionIds": [
-      1166,
-      1272,
-      1274,
-      1277
+      1159,
+      1256,
+      1258,
+      1261
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21280,14 +21010,14 @@
     ]
   },
   {
-    "id": 1272,
+    "id": 1256,
     "geoJsonId": "AFR-0139",
     "area": 146453.5,
     "landNeighboringRegionIds": [
-      1158,
-      1271,
-      1274,
-      1277
+      1154,
+      1255,
+      1258,
+      1261
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21295,21 +21025,19 @@
     ]
   },
   {
-    "id": 1273,
+    "id": 1257,
     "geoJsonId": "AFR-0140",
     "area": 285601.3,
     "landNeighboringRegionIds": [
+      1159,
+      1160,
       1164,
-      1168,
-      1169,
-      1176,
-      1180,
-      1182,
-      1268,
-      1269,
-      1274,
-      1291,
-      1309
+      1166,
+      1252,
+      1253,
+      1258,
+      1275,
+      1293
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21317,19 +21045,17 @@
     ]
   },
   {
-    "id": 1274,
+    "id": 1258,
     "geoJsonId": "AFR-0141",
     "area": 647489.6,
     "landNeighboringRegionIds": [
-      1158,
-      1166,
-      1167,
-      1168,
-      1271,
-      1272,
-      1273,
-      1309,
-      1310
+      1154,
+      1159,
+      1255,
+      1256,
+      1257,
+      1293,
+      1294
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21337,15 +21063,15 @@
     ]
   },
   {
-    "id": 1275,
+    "id": 1259,
     "geoJsonId": "AFR-0142",
     "area": 145074.7,
     "landNeighboringRegionIds": [
-      1209,
-      1276,
-      1277,
-      1279,
-      1280
+      1193,
+      1260,
+      1261,
+      1263,
+      1264
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21353,14 +21079,14 @@
     ]
   },
   {
-    "id": 1276,
+    "id": 1260,
     "geoJsonId": "AFR-0143",
     "area": 185611.8,
     "landNeighboringRegionIds": [
-      1207,
-      1209,
-      1275,
-      1277
+      1191,
+      1193,
+      1259,
+      1261
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21368,21 +21094,20 @@
     ]
   },
   {
-    "id": 1277,
+    "id": 1261,
     "geoJsonId": "AFR-0144",
     "area": 850619.4,
     "landNeighboringRegionIds": [
-      1157,
-      1158,
-      1163,
-      1166,
-      1207,
-      1271,
-      1272,
-      1275,
-      1276,
-      1280,
-      1318
+      1153,
+      1154,
+      1159,
+      1191,
+      1255,
+      1256,
+      1259,
+      1260,
+      1264,
+      1302
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21390,15 +21115,15 @@
     ]
   },
   {
-    "id": 1278,
+    "id": 1262,
     "geoJsonId": "AFR-0145",
     "area": 276969.0,
     "landNeighboringRegionIds": [
-      1156,
-      1194,
-      1279,
-      1280,
-      1281
+      1152,
+      1178,
+      1263,
+      1264,
+      1265
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21406,16 +21131,16 @@
     ]
   },
   {
-    "id": 1279,
+    "id": 1263,
     "geoJsonId": "AFR-0146",
     "area": 235808.6,
     "landNeighboringRegionIds": [
-      1209,
-      1265,
-      1275,
-      1278,
-      1280,
-      1281
+      1193,
+      1249,
+      1259,
+      1262,
+      1264,
+      1265
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21423,16 +21148,16 @@
     ]
   },
   {
-    "id": 1280,
+    "id": 1264,
     "geoJsonId": "AFR-0147",
     "area": 368356.9,
     "landNeighboringRegionIds": [
-      1156,
-      1157,
-      1275,
-      1277,
-      1278,
-      1279
+      1152,
+      1153,
+      1259,
+      1261,
+      1262,
+      1263
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21440,16 +21165,16 @@
     ]
   },
   {
-    "id": 1281,
+    "id": 1265,
     "geoJsonId": "AFR-0148",
     "area": 385144.2,
     "landNeighboringRegionIds": [
-      1194,
-      1265,
-      1278,
-      1279,
-      1322,
-      1323
+      1178,
+      1249,
+      1262,
+      1263,
+      1306,
+      1307
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21457,15 +21182,15 @@
     ]
   },
   {
-    "id": 1282,
+    "id": 1266,
     "geoJsonId": "AFR-0149",
     "area": 128758.1,
     "landNeighboringRegionIds": [
-      1233,
-      1235,
-      1283,
-      1284,
-      1292
+      1217,
+      1219,
+      1267,
+      1268,
+      1276
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21473,14 +21198,14 @@
     ]
   },
   {
-    "id": 1283,
+    "id": 1267,
     "geoJsonId": "AFR-0150",
     "area": 156536.1,
     "landNeighboringRegionIds": [
-      1233,
-      1244,
-      1282,
-      1284
+      1217,
+      1228,
+      1266,
+      1268
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21488,19 +21213,19 @@
     ]
   },
   {
-    "id": 1284,
+    "id": 1268,
     "geoJsonId": "AFR-0151",
     "area": 202153.5,
     "landNeighboringRegionIds": [
-      1237,
-      1244,
-      1282,
-      1283,
-      1285,
-      1286,
-      1287,
-      1292,
-      1321
+      1221,
+      1228,
+      1266,
+      1267,
+      1269,
+      1270,
+      1271,
+      1276,
+      1305
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21508,36 +21233,36 @@
     ]
   },
   {
-    "id": 1285,
+    "id": 1269,
     "geoJsonId": "AFR-0152",
     "area": 262489.4,
     "landNeighboringRegionIds": [
-      1188,
-      1189,
-      1192,
-      1226,
-      1227,
-      1237,
-      1244,
-      1284
+      1172,
+      1173,
+      1176,
+      1210,
+      1211,
+      1221,
+      1228,
+      1268
     ],
     "adjacentWaterIds": [
-      1587
+      1569
     ],
     "sourceAdm1Codes": [
       "AFR-0152"
     ]
   },
   {
-    "id": 1286,
+    "id": 1270,
     "geoJsonId": "AFR-0153",
     "area": 76595.7,
     "landNeighboringRegionIds": [
-      1284,
-      1287,
-      1288,
-      1292,
-      1321
+      1268,
+      1271,
+      1272,
+      1276,
+      1305
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21545,16 +21270,16 @@
     ]
   },
   {
-    "id": 1287,
+    "id": 1271,
     "geoJsonId": "AFR-0154",
     "area": 153348.4,
     "landNeighboringRegionIds": [
-      1237,
-      1238,
-      1239,
-      1284,
-      1286,
-      1288
+      1221,
+      1222,
+      1223,
+      1268,
+      1270,
+      1272
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21562,15 +21287,15 @@
     ]
   },
   {
-    "id": 1288,
+    "id": 1272,
     "geoJsonId": "AFR-0155",
     "area": 159388.6,
     "landNeighboringRegionIds": [
-      1212,
-      1239,
-      1286,
-      1287,
-      1321
+      1196,
+      1223,
+      1270,
+      1271,
+      1305
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21578,13 +21303,13 @@
     ]
   },
   {
-    "id": 1289,
+    "id": 1273,
     "geoJsonId": "AFR-0156",
     "area": 30199.2,
     "landNeighboringRegionIds": [
-      1290,
-      1291,
-      1309
+      1274,
+      1275,
+      1293
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21592,75 +21317,75 @@
     ]
   },
   {
-    "id": 1290,
+    "id": 1274,
     "geoJsonId": "AFR-0157",
     "area": 79250.0,
     "landNeighboringRegionIds": [
       1140,
-      1289,
-      1291,
-      1309,
-      1310
+      1273,
+      1275,
+      1293,
+      1294
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0157"
     ]
   },
   {
-    "id": 1291,
+    "id": 1275,
     "geoJsonId": "AFR-0158",
     "area": 86780.1,
     "landNeighboringRegionIds": [
       1140,
-      1181,
-      1182,
-      1184,
-      1186,
+      1165,
+      1166,
+      1168,
+      1170,
+      1257,
       1273,
-      1289,
-      1290,
-      1309
+      1274,
+      1293
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0158"
     ]
   },
   {
-    "id": 1292,
+    "id": 1276,
     "geoJsonId": "AFR-0159",
     "area": 263792.9,
     "landNeighboringRegionIds": [
-      1234,
-      1235,
-      1282,
-      1284,
-      1286,
-      1293,
-      1294,
-      1321
+      1218,
+      1219,
+      1266,
+      1268,
+      1270,
+      1277,
+      1278,
+      1305
     ],
     "adjacentWaterIds": [
-      1492
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0159"
     ]
   },
   {
-    "id": 1293,
+    "id": 1277,
     "geoJsonId": "AFR-0160",
     "area": 187801.1,
     "landNeighboringRegionIds": [
-      1292,
-      1294,
-      1320,
-      1321
+      1276,
+      1278,
+      1304,
+      1305
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21668,86 +21393,86 @@
     ]
   },
   {
-    "id": 1294,
+    "id": 1278,
     "geoJsonId": "AFR-0161",
     "area": 371126.5,
     "landNeighboringRegionIds": [
-      1213,
-      1292,
-      1293,
-      1320
+      1197,
+      1276,
+      1277,
+      1304
     ],
     "adjacentWaterIds": [
-      1492,
-      1495
+      1474,
+      1477
     ],
     "sourceAdm1Codes": [
       "AFR-0161"
     ]
   },
   {
-    "id": 1295,
+    "id": 1279,
     "geoJsonId": "AFR-0162",
     "area": 3912.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1559
+      1541
     ],
     "sourceAdm1Codes": [
       "AFR-0162"
     ]
   },
   {
-    "id": 1296,
+    "id": 1280,
     "geoJsonId": "AFR-0163",
     "area": 173.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1515,
-      1523
+      1497,
+      1505
     ],
     "sourceAdm1Codes": [
       "AFR-0163"
     ]
   },
   {
-    "id": 1297,
+    "id": 1281,
     "geoJsonId": "AFR-0164",
     "area": 232.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1523
+      1505
     ],
     "sourceAdm1Codes": [
       "AFR-0164"
     ]
   },
   {
-    "id": 1298,
+    "id": 1282,
     "geoJsonId": "AFR-0165",
     "area": 21848.5,
     "landNeighboringRegionIds": [
       1136,
-      1214,
-      1216,
-      1300
+      1198,
+      1200,
+      1284
     ],
     "adjacentWaterIds": [
-      1431,
-      1433
+      1413,
+      1415
     ],
     "sourceAdm1Codes": [
       "AFR-0165"
     ]
   },
   {
-    "id": 1299,
+    "id": 1283,
     "geoJsonId": "AFR-0166",
     "area": 67177.4,
     "landNeighboringRegionIds": [
-      1195,
-      1218,
-      1300
+      1179,
+      1202,
+      1284
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21755,50 +21480,50 @@
     ]
   },
   {
-    "id": 1300,
+    "id": 1284,
     "geoJsonId": "AFR-0167",
     "area": 55345.0,
     "landNeighboringRegionIds": [
-      1195,
-      1214,
-      1218,
-      1298,
-      1299
+      1179,
+      1198,
+      1202,
+      1282,
+      1283
     ],
     "adjacentWaterIds": [
-      1433
+      1415
     ],
     "sourceAdm1Codes": [
       "AFR-0167"
     ]
   },
   {
-    "id": 1301,
+    "id": 1285,
     "geoJsonId": "AFR-0168",
     "area": 116493.2,
     "landNeighboringRegionIds": [
-      1302,
-      1305,
-      1324
+      1286,
+      1289,
+      1308
     ],
     "adjacentWaterIds": [
-      1491,
-      1492
+      1473,
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0168"
     ]
   },
   {
-    "id": 1302,
+    "id": 1286,
     "geoJsonId": "AFR-0169",
     "area": 143474.0,
     "landNeighboringRegionIds": [
-      1266,
-      1301,
-      1305,
-      1324,
-      1325
+      1250,
+      1285,
+      1289,
+      1308,
+      1309
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21806,85 +21531,85 @@
     ]
   },
   {
-    "id": 1303,
+    "id": 1287,
     "geoJsonId": "AFR-0170",
     "area": 9.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1492
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0170"
     ]
   },
   {
-    "id": 1304,
+    "id": 1288,
     "geoJsonId": "AFR-0171",
     "area": 1985.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0171"
     ]
   },
   {
-    "id": 1305,
+    "id": 1289,
     "geoJsonId": "AFR-0172",
     "area": 24679.8,
     "landNeighboringRegionIds": [
-      1266,
-      1301,
-      1302
+      1250,
+      1285,
+      1286
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0172"
     ]
   },
   {
-    "id": 1306,
+    "id": 1290,
     "geoJsonId": "AFR-0173",
     "area": 47228.1,
     "landNeighboringRegionIds": [
-      1179,
-      1307,
-      1314
+      1163,
+      1291,
+      1298
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0173"
     ]
   },
   {
-    "id": 1307,
+    "id": 1291,
     "geoJsonId": "AFR-0174",
     "area": 48073.6,
     "landNeighboringRegionIds": [
-      1179,
-      1270,
-      1306
+      1163,
+      1254,
+      1290
     ],
     "adjacentWaterIds": [
-      1491,
-      1575
+      1473,
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0174"
     ]
   },
   {
-    "id": 1308,
+    "id": 1292,
     "geoJsonId": "AFR-0175",
     "area": 30109.5,
     "landNeighboringRegionIds": [
-      1210,
-      1211
+      1194,
+      1195
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21892,16 +21617,16 @@
     ]
   },
   {
-    "id": 1309,
+    "id": 1293,
     "geoJsonId": "AFR-0176",
     "area": 390582.4,
     "landNeighboringRegionIds": [
+      1257,
+      1258,
       1273,
       1274,
-      1289,
-      1290,
-      1291,
-      1310
+      1275,
+      1294
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -21909,99 +21634,99 @@
     ]
   },
   {
-    "id": 1310,
+    "id": 1294,
     "geoJsonId": "AFR-0177",
     "area": 645799.1,
     "landNeighboringRegionIds": [
       1137,
-      1158,
+      1154,
+      1258,
       1274,
-      1290,
-      1309
+      1293
     ],
     "adjacentWaterIds": [
-      1556,
-      1575
+      1538,
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0177"
     ]
   },
   {
-    "id": 1311,
+    "id": 1295,
     "geoJsonId": "AFR-0178",
     "area": 11.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1523
+      1505
     ],
     "sourceAdm1Codes": [
       "AFR-0178"
     ]
   },
   {
-    "id": 1312,
+    "id": 1296,
     "geoJsonId": "AFR-0179",
     "area": 97.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1522
+      1504
     ],
     "sourceAdm1Codes": [
       "AFR-0179"
     ]
   },
   {
-    "id": 1313,
+    "id": 1297,
     "geoJsonId": "AFR-0180",
     "area": 1898.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1522
+      1504
     ],
     "sourceAdm1Codes": [
       "AFR-0180"
     ]
   },
   {
-    "id": 1314,
+    "id": 1298,
     "geoJsonId": "AFR-0181",
     "area": 71629.7,
     "landNeighboringRegionIds": [
-      1176,
-      1177,
-      1178,
-      1179,
-      1306
+      1160,
+      1161,
+      1162,
+      1163,
+      1290
     ],
     "adjacentWaterIds": [
-      1575
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0181"
     ]
   },
   {
-    "id": 1315,
+    "id": 1299,
     "geoJsonId": "AFR-0182",
     "area": 1035.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1491,
-      1575
+      1473,
+      1557
     ],
     "sourceAdm1Codes": [
       "AFR-0182"
     ]
   },
   {
-    "id": 1316,
+    "id": 1300,
     "geoJsonId": "AFR-0183",
     "area": 17111.3,
     "landNeighboringRegionIds": [
-      1211,
-      1212,
-      1239
+      1195,
+      1196,
+      1223
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22009,34 +21734,33 @@
     ]
   },
   {
-    "id": 1317,
+    "id": 1301,
     "geoJsonId": "AFR-0184",
     "area": 56856.5,
     "landNeighboringRegionIds": [
-      1163,
-      1170,
-      1260,
-      1261,
-      1318,
-      1319
+      1159,
+      1244,
+      1245,
+      1302,
+      1303
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0184"
     ]
   },
   {
-    "id": 1318,
+    "id": 1302,
     "geoJsonId": "AFR-0185",
     "area": 47939.8,
     "landNeighboringRegionIds": [
-      1163,
-      1207,
-      1277,
-      1317,
-      1319
+      1159,
+      1191,
+      1261,
+      1301,
+      1303
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22044,32 +21768,32 @@
     ]
   },
   {
-    "id": 1319,
+    "id": 1303,
     "geoJsonId": "AFR-0186",
     "area": 68176.1,
     "landNeighboringRegionIds": [
-      1207,
-      1208,
-      1317,
-      1318
+      1191,
+      1192,
+      1301,
+      1302
     ],
     "adjacentWaterIds": [
-      1491
+      1473
     ],
     "sourceAdm1Codes": [
       "AFR-0186"
     ]
   },
   {
-    "id": 1320,
+    "id": 1304,
     "geoJsonId": "AFR-0187",
     "area": 286409.2,
     "landNeighboringRegionIds": [
-      1212,
-      1213,
-      1293,
-      1294,
-      1321
+      1196,
+      1197,
+      1277,
+      1278,
+      1305
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22077,17 +21801,17 @@
     ]
   },
   {
-    "id": 1321,
+    "id": 1305,
     "geoJsonId": "AFR-0188",
     "area": 292612.6,
     "landNeighboringRegionIds": [
-      1212,
-      1284,
-      1286,
-      1288,
-      1292,
-      1293,
-      1320
+      1196,
+      1268,
+      1270,
+      1272,
+      1276,
+      1277,
+      1304
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22095,17 +21819,17 @@
     ]
   },
   {
-    "id": 1322,
+    "id": 1306,
     "geoJsonId": "AFR-0189",
     "area": 230906.6,
     "landNeighboringRegionIds": [
-      1242,
-      1263,
-      1264,
+      1226,
+      1247,
+      1248,
+      1249,
       1265,
-      1281,
-      1323,
-      1325
+      1307,
+      1309
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22113,17 +21837,17 @@
     ]
   },
   {
-    "id": 1323,
+    "id": 1307,
     "geoJsonId": "AFR-0190",
     "area": 387085.4,
     "landNeighboringRegionIds": [
-      1194,
-      1200,
-      1201,
-      1242,
-      1243,
-      1281,
-      1322
+      1178,
+      1184,
+      1185,
+      1226,
+      1227,
+      1265,
+      1306
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22131,35 +21855,35 @@
     ]
   },
   {
-    "id": 1324,
+    "id": 1308,
     "geoJsonId": "AFR-0191",
     "area": 149854.4,
     "landNeighboringRegionIds": [
-      1232,
-      1242,
-      1245,
-      1301,
-      1302,
-      1325
+      1216,
+      1226,
+      1229,
+      1285,
+      1286,
+      1309
     ],
     "adjacentWaterIds": [
-      1492
+      1474
     ],
     "sourceAdm1Codes": [
       "AFR-0191"
     ]
   },
   {
-    "id": 1325,
+    "id": 1309,
     "geoJsonId": "AFR-0192",
     "area": 195055.6,
     "landNeighboringRegionIds": [
-      1242,
-      1264,
-      1266,
-      1302,
-      1322,
-      1324
+      1226,
+      1248,
+      1250,
+      1286,
+      1306,
+      1308
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22167,466 +21891,432 @@
     ]
   },
   {
-    "id": 1326,
+    "id": 1310,
     "geoJsonId": "AFR-0193",
-    "area": 8168.0,
+    "area": 24948.4,
     "landNeighboringRegionIds": [
-      1142,
-      1143,
-      1246,
-      1327,
-      1328
+      1141,
+      1211,
+      1230
     ],
     "adjacentWaterIds": [
-      1587
+      1569
     ],
     "sourceAdm1Codes": [
       "AFR-0193"
     ]
   },
   {
-    "id": 1327,
-    "geoJsonId": "AFR-0194",
-    "area": 5973.9,
-    "landNeighboringRegionIds": [
-      1227,
-      1326,
-      1328
-    ],
-    "adjacentWaterIds": [
-      1587
-    ],
-    "sourceAdm1Codes": [
-      "AFR-0194"
-    ]
-  },
-  {
-    "id": 1328,
-    "geoJsonId": "AFR-0195",
-    "area": 10806.5,
-    "landNeighboringRegionIds": [
-      1141,
-      1142,
-      1227,
-      1326,
-      1327
-    ],
-    "adjacentWaterIds": [],
-    "sourceAdm1Codes": [
-      "AFR-0195"
-    ]
-  },
-  {
-    "id": 1329,
+    "id": 1311,
     "geoJsonId": "OCE-0001",
     "area": 7.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1512
+      1494
     ],
     "sourceAdm1Codes": [
       "OCE-0001"
     ]
   },
   {
-    "id": 1330,
+    "id": 1312,
     "geoJsonId": "OCE-0002",
     "area": 97.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1517
+      1499
     ],
     "sourceAdm1Codes": [
       "OCE-0002"
     ]
   },
   {
-    "id": 1331,
+    "id": 1313,
     "geoJsonId": "OCE-0003",
     "area": 0.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1405
+      1387
     ],
     "sourceAdm1Codes": [
       "OCE-0003"
     ]
   },
   {
-    "id": 1332,
+    "id": 1314,
     "geoJsonId": "OCE-0004",
     "area": 18833.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1405
+      1387
     ],
     "sourceAdm1Codes": [
       "OCE-0004"
     ]
   },
   {
-    "id": 1333,
+    "id": 1315,
     "geoJsonId": "OCE-0005",
     "area": 3323.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1500,
-      1501,
-      1502
+      1482,
+      1483,
+      1484
     ],
     "sourceAdm1Codes": [
       "OCE-0005"
     ]
   },
   {
-    "id": 1334,
+    "id": 1316,
     "geoJsonId": "OCE-0006",
     "area": 177.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1502
+      1484
     ],
     "sourceAdm1Codes": [
       "OCE-0006"
     ]
   },
   {
-    "id": 1335,
+    "id": 1317,
     "geoJsonId": "OCE-0007",
     "area": 563.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1450,
-      1524
+      1432,
+      1506
     ],
     "sourceAdm1Codes": [
       "OCE-0007"
     ]
   },
   {
-    "id": 1336,
+    "id": 1318,
     "geoJsonId": "OCE-0008",
     "area": 558.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1450,
-      1524,
-      1530
+      1432,
+      1506,
+      1512
     ],
     "sourceAdm1Codes": [
       "OCE-0008"
     ]
   },
   {
-    "id": 1337,
+    "id": 1319,
     "geoJsonId": "OCE-0009",
     "area": 175.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1500,
-      1502
+      1482,
+      1484
     ],
     "sourceAdm1Codes": [
       "OCE-0009"
     ]
   },
   {
-    "id": 1338,
+    "id": 1320,
     "geoJsonId": "OCE-0010",
     "area": 218.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1500
+      1482
     ],
     "sourceAdm1Codes": [
       "OCE-0010"
     ]
   },
   {
-    "id": 1339,
+    "id": 1321,
     "geoJsonId": "OCE-0011",
     "area": 39.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1509
+      1491
     ],
     "sourceAdm1Codes": [
       "OCE-0011"
     ]
   },
   {
-    "id": 1340,
+    "id": 1322,
     "geoJsonId": "OCE-0012",
     "area": 38.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1500
+      1482
     ],
     "sourceAdm1Codes": [
       "OCE-0012"
     ]
   },
   {
-    "id": 1341,
+    "id": 1323,
     "geoJsonId": "OCE-0013",
     "area": 14.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1418,
-      1502,
-      1538,
-      1543,
-      1547,
-      1549,
-      1553
+      1400,
+      1484,
+      1520,
+      1525,
+      1529,
+      1531,
+      1535
     ],
     "sourceAdm1Codes": [
       "OCE-0013"
     ]
   },
   {
-    "id": 1342,
+    "id": 1324,
     "geoJsonId": "OCE-0014",
     "area": 164.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1510
+      1492
     ],
     "sourceAdm1Codes": [
       "OCE-0014"
     ]
   },
   {
-    "id": 1343,
+    "id": 1325,
     "geoJsonId": "OCE-0015",
     "area": 98.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1510
+      1492
     ],
     "sourceAdm1Codes": [
       "OCE-0015"
     ]
   },
   {
-    "id": 1344,
+    "id": 1326,
     "geoJsonId": "OCE-0016",
     "area": 389.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1518
+      1500
     ],
     "sourceAdm1Codes": [
       "OCE-0016"
     ]
   },
   {
-    "id": 1345,
+    "id": 1327,
     "geoJsonId": "OCE-0017",
     "area": 7244.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1401,
-      1513,
-      1518
+      1383,
+      1495,
+      1500
     ],
     "sourceAdm1Codes": [
       "OCE-0017"
     ]
   },
   {
-    "id": 1346,
+    "id": 1328,
     "geoJsonId": "OCE-0018",
     "area": 27.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1503
+      1485
     ],
     "sourceAdm1Codes": [
       "OCE-0018"
     ]
   },
   {
-    "id": 1347,
+    "id": 1329,
     "geoJsonId": "OCE-0019",
     "area": 2.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1503
+      1485
     ],
     "sourceAdm1Codes": [
       "OCE-0019"
     ]
   },
   {
-    "id": 1348,
+    "id": 1330,
     "geoJsonId": "OCE-0020",
     "area": 771.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1502,
-      1503,
-      1547
+      1484,
+      1485,
+      1529
     ],
     "sourceAdm1Codes": [
       "OCE-0020"
     ]
   },
   {
-    "id": 1349,
+    "id": 1331,
     "geoJsonId": "OCE-0021",
     "area": 119.7,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1536
+      1518
     ],
     "sourceAdm1Codes": [
       "OCE-0021"
     ]
   },
   {
-    "id": 1350,
+    "id": 1332,
     "geoJsonId": "OCE-0022",
     "area": 594.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1500,
-      1510
+      1482,
+      1492
     ],
     "sourceAdm1Codes": [
       "OCE-0022"
     ]
   },
   {
-    "id": 1351,
+    "id": 1333,
     "geoJsonId": "OCE-0023",
     "area": 2528134.3,
     "landNeighboringRegionIds": [
-      1352,
-      1353
+      1334,
+      1335
     ],
     "adjacentWaterIds": [
-      1399,
-      1403,
-      1516,
-      1517,
-      1519,
-      1520
+      1381,
+      1385,
+      1498,
+      1499,
+      1501,
+      1502
     ],
     "sourceAdm1Codes": [
       "OCE-0023"
     ]
   },
   {
-    "id": 1352,
+    "id": 1334,
     "geoJsonId": "OCE-0024",
     "area": 1348429.7,
     "landNeighboringRegionIds": [
-      1351,
-      1353,
-      1354
+      1333,
+      1335,
+      1336
     ],
     "adjacentWaterIds": [
-      1403,
-      1408,
-      1517
+      1385,
+      1390,
+      1499
     ],
     "sourceAdm1Codes": [
       "OCE-0024"
     ]
   },
   {
-    "id": 1353,
+    "id": 1335,
     "geoJsonId": "OCE-0025",
     "area": 983869.7,
     "landNeighboringRegionIds": [
-      1351,
-      1352,
-      1354,
-      1355,
-      1356
+      1333,
+      1334,
+      1336,
+      1337,
+      1338
     ],
     "adjacentWaterIds": [
-      1399
+      1381
     ],
     "sourceAdm1Codes": [
       "OCE-0025"
     ]
   },
   {
-    "id": 1354,
+    "id": 1336,
     "geoJsonId": "OCE-0026",
     "area": 1730136.2,
     "landNeighboringRegionIds": [
-      1352,
-      1353,
-      1355
+      1334,
+      1335,
+      1337
     ],
     "adjacentWaterIds": [
-      1405,
-      1408
+      1387,
+      1390
     ],
     "sourceAdm1Codes": [
       "OCE-0026"
     ]
   },
   {
-    "id": 1355,
+    "id": 1337,
     "geoJsonId": "OCE-0027",
     "area": 802013.6,
     "landNeighboringRegionIds": [
-      1353,
-      1354,
-      1356,
-      1358
+      1335,
+      1336,
+      1338,
+      1340
     ],
     "adjacentWaterIds": [
-      1400,
-      1405
+      1382,
+      1387
     ],
     "sourceAdm1Codes": [
       "OCE-0027"
     ]
   },
   {
-    "id": 1356,
+    "id": 1338,
     "geoJsonId": "OCE-0028",
     "area": 227921.5,
     "landNeighboringRegionIds": [
-      1353,
-      1355
+      1335,
+      1337
     ],
     "adjacentWaterIds": [
-      1398,
-      1399,
-      1400
+      1380,
+      1381,
+      1382
     ],
     "sourceAdm1Codes": [
       "OCE-0028"
     ]
   },
   {
-    "id": 1357,
+    "id": 1339,
     "geoJsonId": "OCE-0029",
     "area": 68230.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1398,
-      1399,
-      1400,
-      1509,
-      1514
+      1380,
+      1381,
+      1382,
+      1491,
+      1496
     ],
     "sourceAdm1Codes": [
       "OCE-0029"
     ]
   },
   {
-    "id": 1358,
+    "id": 1340,
     "geoJsonId": "OCE-0030",
     "area": 2344.3,
     "landNeighboringRegionIds": [
-      1355
+      1337
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22634,294 +22324,294 @@
     ]
   },
   {
-    "id": 1359,
+    "id": 1341,
     "geoJsonId": "OCE-0031",
     "area": 786.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1400,
-      1500,
-      1509
+      1382,
+      1482,
+      1491
     ],
     "sourceAdm1Codes": [
       "OCE-0031"
     ]
   },
   {
-    "id": 1360,
+    "id": 1342,
     "geoJsonId": "OCE-0032",
     "area": 817.5,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1500
+      1482
     ],
     "sourceAdm1Codes": [
       "OCE-0032"
     ]
   },
   {
-    "id": 1361,
+    "id": 1343,
     "geoJsonId": "OCE-0033",
     "area": 152463.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1400,
-      1509
+      1382,
+      1491
     ],
     "sourceAdm1Codes": [
       "OCE-0033"
     ]
   },
   {
-    "id": 1362,
+    "id": 1344,
     "geoJsonId": "OCE-0034",
     "area": 114405.0,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1400,
-      1509
+      1382,
+      1491
     ],
     "sourceAdm1Codes": [
       "OCE-0034"
     ]
   },
   {
-    "id": 1363,
+    "id": 1345,
     "geoJsonId": "OCE-0035",
     "area": 37161.2,
     "landNeighboringRegionIds": [
       480,
-      1364,
-      1365,
-      1380
+      1346,
+      1347,
+      1362
     ],
     "adjacentWaterIds": [
-      1412,
-      1506
+      1394,
+      1488
     ],
     "sourceAdm1Codes": [
       "OCE-0035"
     ]
   },
   {
-    "id": 1364,
+    "id": 1346,
     "geoJsonId": "OCE-0036",
     "area": 99809.1,
     "landNeighboringRegionIds": [
       480,
-      1363,
-      1372,
-      1380
+      1345,
+      1354,
+      1362
     ],
     "adjacentWaterIds": [
-      1405,
-      1408
+      1387,
+      1390
     ],
     "sourceAdm1Codes": [
       "OCE-0036"
     ]
   },
   {
-    "id": 1365,
+    "id": 1347,
     "geoJsonId": "OCE-0037",
     "area": 42435.0,
     "landNeighboringRegionIds": [
-      1363,
-      1366,
-      1378,
-      1380
+      1345,
+      1348,
+      1360,
+      1362
     ],
     "adjacentWaterIds": [
-      1412
+      1394
     ],
     "sourceAdm1Codes": [
       "OCE-0037"
     ]
   },
   {
-    "id": 1366,
+    "id": 1348,
     "geoJsonId": "OCE-0038",
     "area": 29548.6,
     "landNeighboringRegionIds": [
-      1365,
-      1367,
-      1377,
-      1378,
-      1379,
-      1381
+      1347,
+      1349,
+      1359,
+      1360,
+      1361,
+      1363
     ],
     "adjacentWaterIds": [
-      1412
+      1394
     ],
     "sourceAdm1Codes": [
       "OCE-0038"
     ]
   },
   {
-    "id": 1367,
+    "id": 1349,
     "geoJsonId": "OCE-0039",
     "area": 34342.9,
     "landNeighboringRegionIds": [
-      1366,
-      1368,
-      1370,
-      1372,
-      1381
+      1348,
+      1350,
+      1352,
+      1354,
+      1363
     ],
     "adjacentWaterIds": [
-      1407,
-      1412
+      1389,
+      1394
     ],
     "sourceAdm1Codes": [
       "OCE-0039"
     ]
   },
   {
-    "id": 1368,
+    "id": 1350,
     "geoJsonId": "OCE-0040",
     "area": 23048.0,
     "landNeighboringRegionIds": [
-      1367,
-      1369,
-      1370
+      1349,
+      1351,
+      1352
     ],
     "adjacentWaterIds": [
-      1407
+      1389
     ],
     "sourceAdm1Codes": [
       "OCE-0040"
     ]
   },
   {
-    "id": 1369,
+    "id": 1351,
     "geoJsonId": "OCE-0041",
     "area": 13701.8,
     "landNeighboringRegionIds": [
-      1368,
-      1370
+      1350,
+      1352
     ],
     "adjacentWaterIds": [
-      1405,
-      1407
+      1387,
+      1389
     ],
     "sourceAdm1Codes": [
       "OCE-0041"
     ]
   },
   {
-    "id": 1370,
+    "id": 1352,
     "geoJsonId": "OCE-0042",
     "area": 29367.8,
     "landNeighboringRegionIds": [
-      1367,
-      1368,
-      1369,
-      1371,
-      1372
+      1349,
+      1350,
+      1351,
+      1353,
+      1354
     ],
     "adjacentWaterIds": [
-      1405
+      1387
     ],
     "sourceAdm1Codes": [
       "OCE-0042"
     ]
   },
   {
-    "id": 1371,
+    "id": 1353,
     "geoJsonId": "OCE-0043",
     "area": 235.8,
     "landNeighboringRegionIds": [
-      1370
+      1352
     ],
     "adjacentWaterIds": [
-      1405
+      1387
     ],
     "sourceAdm1Codes": [
       "OCE-0043"
     ]
   },
   {
-    "id": 1372,
+    "id": 1354,
     "geoJsonId": "OCE-0044",
     "area": 34423.0,
     "landNeighboringRegionIds": [
-      1364,
-      1367,
-      1370,
-      1377,
-      1380,
-      1381
+      1346,
+      1349,
+      1352,
+      1359,
+      1362,
+      1363
     ],
     "adjacentWaterIds": [
-      1405
+      1387
     ],
     "sourceAdm1Codes": [
       "OCE-0044"
     ]
   },
   {
-    "id": 1373,
+    "id": 1355,
     "geoJsonId": "OCE-0045",
     "area": 9398.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1407,
-      1506
+      1389,
+      1488
     ],
     "sourceAdm1Codes": [
       "OCE-0045"
     ]
   },
   {
-    "id": 1374,
+    "id": 1356,
     "geoJsonId": "OCE-0046",
     "area": 36013.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1407,
-      1412
+      1389,
+      1394
     ],
     "sourceAdm1Codes": [
       "OCE-0046"
     ]
   },
   {
-    "id": 1375,
+    "id": 1357,
     "geoJsonId": "OCE-0047",
     "area": 9325.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1407,
-      1412,
-      1506
+      1389,
+      1394,
+      1488
     ],
     "sourceAdm1Codes": [
       "OCE-0047"
     ]
   },
   {
-    "id": 1376,
+    "id": 1358,
     "geoJsonId": "OCE-0048",
     "area": 1943.1,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1412,
-      1506
+      1394,
+      1488
     ],
     "sourceAdm1Codes": [
       "OCE-0048"
     ]
   },
   {
-    "id": 1377,
+    "id": 1359,
     "geoJsonId": "OCE-0049",
     "area": 6221.9,
     "landNeighboringRegionIds": [
-      1366,
-      1372,
-      1379,
-      1380,
-      1381
+      1348,
+      1354,
+      1361,
+      1362,
+      1363
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22929,14 +22619,14 @@
     ]
   },
   {
-    "id": 1378,
+    "id": 1360,
     "geoJsonId": "OCE-0050",
     "area": 12688.6,
     "landNeighboringRegionIds": [
-      1365,
-      1366,
-      1379,
-      1380
+      1347,
+      1348,
+      1361,
+      1362
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22944,14 +22634,14 @@
     ]
   },
   {
-    "id": 1379,
+    "id": 1361,
     "geoJsonId": "OCE-0051",
     "area": 8767.5,
     "landNeighboringRegionIds": [
-      1366,
-      1377,
-      1378,
-      1380
+      1348,
+      1359,
+      1360,
+      1362
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22959,17 +22649,17 @@
     ]
   },
   {
-    "id": 1380,
+    "id": 1362,
     "geoJsonId": "OCE-0052",
     "area": 25363.2,
     "landNeighboringRegionIds": [
-      1363,
-      1364,
-      1365,
-      1372,
-      1377,
-      1378,
-      1379
+      1345,
+      1346,
+      1347,
+      1354,
+      1359,
+      1360,
+      1361
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22977,14 +22667,14 @@
     ]
   },
   {
-    "id": 1381,
+    "id": 1363,
     "geoJsonId": "OCE-0053",
     "area": 11283.8,
     "landNeighboringRegionIds": [
-      1366,
-      1367,
-      1372,
-      1377
+      1348,
+      1349,
+      1354,
+      1359
     ],
     "adjacentWaterIds": [],
     "sourceAdm1Codes": [
@@ -22992,106 +22682,106 @@
     ]
   },
   {
-    "id": 1382,
+    "id": 1364,
     "geoJsonId": "OCE-0054",
     "area": 26264.2,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1405,
-      1407,
-      1506
+      1387,
+      1389,
+      1488
     ],
     "sourceAdm1Codes": [
       "OCE-0054"
     ]
   },
   {
-    "id": 1383,
+    "id": 1365,
     "geoJsonId": "OCE-0055",
     "area": 858.6,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1405,
-      1504,
-      1506
+      1387,
+      1486,
+      1488
     ],
     "sourceAdm1Codes": [
       "OCE-0055"
     ]
   },
   {
-    "id": 1384,
+    "id": 1366,
     "geoJsonId": "OCE-0056",
     "area": 12233.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1405,
-      1504
+      1387,
+      1486
     ],
     "sourceAdm1Codes": [
       "OCE-0056"
     ]
   },
   {
-    "id": 1385,
+    "id": 1367,
     "geoJsonId": "OCE-0057",
     "area": 2777.3,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1502,
-      1510
+      1484,
+      1492
     ],
     "sourceAdm1Codes": [
       "OCE-0057"
     ]
   },
   {
-    "id": 1386,
+    "id": 1368,
     "geoJsonId": "OCE-0058",
     "area": 483.8,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1450,
-      1524
+      1432,
+      1506
     ],
     "sourceAdm1Codes": [
       "OCE-0058"
     ]
   },
   {
-    "id": 1387,
+    "id": 1369,
     "geoJsonId": "OCE-0059",
     "area": 18828.9,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1500,
-      1503,
-      1510
+      1482,
+      1485,
+      1492
     ],
     "sourceAdm1Codes": [
       "OCE-0059"
     ]
   },
   {
-    "id": 1388,
+    "id": 1370,
     "geoJsonId": "OCE-0060",
     "area": 370.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1450,
-      1524
+      1432,
+      1506
     ],
     "sourceAdm1Codes": [
       "OCE-0060"
     ]
   },
   {
-    "id": 1389,
+    "id": 1371,
     "geoJsonId": "OCE-0061",
     "area": 665.4,
     "landNeighboringRegionIds": [],
     "adjacentWaterIds": [
-      1524
+      1506
     ],
     "sourceAdm1Codes": [
       "OCE-0061"
